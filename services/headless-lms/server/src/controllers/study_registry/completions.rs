@@ -16,15 +16,42 @@ use crate::{
 
 /**
 GET `/api/v0/main-frontend/study-registry/completions/:course_id`
+
 GET `/api/v0/main-frontend/study-registry/completions/:uh_course_code`
+
 GET `/api/v0/main-frontend/study-registry/completions/:course_slug`
 
-Streams completions for the given course.
+Gets all course completions for a given course. The course identifier can either be its University of
+Helsinki course code, or a system-local slug or hash id.
 
-This endpoint is only available to study registry authorities.
+This endpoint is only available to authorized study registries, and requires a valid authorization token
+to access. Results are also streamed rather than included in the response body. In case of an error
+during transmission, an error message will be appended to the end of the broken stream output.
 
-TODO: Example (can't automatically generate, see https://github.com/rage/secret-project-331/issues/834)
- */
+# Example requests
+
+Using University of Helsinki course code:
+```http
+GET /api/v0/main-frontend/study-registry/completions/BSCS1001 HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+
+Using course slug:
+```http
+GET /api/v0/main-frontend/study-registry/completions/introduction-to-programming HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+
+Using course id:
+```http
+GET /api/v0/main-frontend/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+*/
+#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
 #[instrument(skip(req, pool))]
 async fn get_completions(
     req: HttpRequest,
@@ -89,6 +116,45 @@ async fn get_completions(
     )
 }
 
+/**
+GET `/api/v0/main-frontend/study-registry/completions/:course_id/:course_module_id`
+
+GET `/api/v0/main-frontend/study-registry/completions/:uh_course_code/:course_module_id`
+
+GET `/api/v0/main-frontend/study-registry/completions/:course_slug/:course_module_id`
+
+Gets all course completions for a submodule of a given course. The course identifier can either be its
+University of Helsinki course code, or a system-local slug or hash id. For module identifier,
+only the hash id is supported.
+
+This endpoint is only available to authorized study registries, and requires a valid authorization token
+to access. Results are also streamed rather than included in the response body. In case of an error
+during transmission, an error message will be appended to the end of the broken stream output.
+
+# Example requests
+
+Using University of Helsinki course code:
+```http
+GET /api/v0/main-frontend/study-registry/completions/BSCS1001 HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+
+Using course slug:
+```http
+GET /api/v0/main-frontend/study-registry/completions/introduction-to-programming HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+
+Using course id:
+```http
+GET /api/v0/main-frontend/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+```
+*/
+#[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]
 #[instrument(skip(req, pool))]
 async fn get_module_completions(
     req: HttpRequest,
@@ -146,6 +212,7 @@ async fn get_module_completions(
     )
 }
 
+#[doc(hidden)]
 async fn module_belongs_to_course(
     conn: &mut PgConnection,
     module: &Module,

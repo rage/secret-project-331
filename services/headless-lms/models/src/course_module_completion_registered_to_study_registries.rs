@@ -78,12 +78,13 @@ pub async fn insert_completions(
 ) -> ModelResult<()> {
     let ids: Vec<Uuid> = completions.iter().map(|x| x.completion_id).collect();
     let completions_by_id = course_module_completions::get_by_ids_as_map(conn, &ids).await?;
+    let mut tx = conn.begin().await?;
     for completion in completions.into_iter() {
         let module_completion = completions_by_id
             .get(&completion.completion_id)
             .ok_or_else(|| ModelError::PreconditionFailed("Missing completion.".to_string()))?;
         insert(
-            conn,
+            &mut tx,
             &NewCourseModuleCompletionRegisteredToStudyRegistry {
                 course_id: module_completion.course_id,
                 course_module_completion_id: completion.completion_id,
@@ -96,6 +97,7 @@ pub async fn insert_completions(
         )
         .await?;
     }
+    tx.commit().await?;
     Ok(())
 }
 

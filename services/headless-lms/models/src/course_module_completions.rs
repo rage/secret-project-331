@@ -5,6 +5,7 @@ use futures::Stream;
 use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,6 +24,7 @@ pub struct CourseModuleCompletion {
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
     pub course_module_id: Uuid,
@@ -137,6 +139,7 @@ pub async fn get_by_ids_as_map(
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryCompletion {
     /// The date when the student completed the course. The value of this field is the date that will
     /// end up in the user's study registry as the completion date. If the completion is created
@@ -179,20 +182,21 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryGrade {
     pub scale: String,
     pub grade: String,
 }
 
 impl StudyRegistryGrade {
-    fn new(passed: bool, grade: Option<i32>) -> Self {
+    pub fn new(passed: bool, grade: Option<i32>) -> Self {
         match grade {
             Some(grade) => Self {
-                scale: "sis-hyv-hyl".to_string(),
+                scale: "sis-0-5".to_string(),
                 grade: grade.to_string(),
             },
             None => Self {
-                scale: "sis-0-5".to_string(),
+                scale: "sis-hyv-hyl".to_string(),
                 grade: if passed {
                     "0".to_string()
                 } else {

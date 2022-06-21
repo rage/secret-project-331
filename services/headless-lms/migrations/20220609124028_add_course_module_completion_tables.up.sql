@@ -80,4 +80,4 @@ COMMENT ON COLUMN course_module_completion_registered_to_study_registries.real_s
 -- 4. Add UH course code to course modules
 ALTER TABLE course_modules
 ADD COLUMN uh_course_code VARCHAR(255);
-COMMENT ON COLUMN course_modules.uh_course_code IS 'University of Helsinki''s recognized identifier for the course.';
+COMMENT ON COLUMN course_modules.uh_course_code IS 'University of Helsinki''s recognized identifier for the course. E.g. BSCS1001 (Introduction to Programming)';

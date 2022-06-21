@@ -34,21 +34,18 @@ Using University of Helsinki course code:
 ```http
 GET /api/v0/main-frontend/study-registry/completions/BSCS1001 HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
-Content-Type: application/json
 ```
 
 Using course slug:
 ```http
 GET /api/v0/main-frontend/study-registry/completions/introduction-to-programming HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
-Content-Type: application/json
 ```
 
 Using course id:
 ```http
 GET /api/v0/main-frontend/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
-Content-Type: application/json
 ```
 */
 #[cfg_attr(doc, doc = generated_docs!(Vec<StudyRegistryCompletion>))]

@@ -2,7 +2,7 @@ use actix_http::{body, Method};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
-    course_module_completion_study_registry_registrations::RegisteredCompletion,
+    course_module_completion_registered_to_study_registries::RegisteredCompletion,
     course_module_completions::{NewCourseModuleCompletion, StudyRegistryCompletion},
     courses::NewCourse,
 };

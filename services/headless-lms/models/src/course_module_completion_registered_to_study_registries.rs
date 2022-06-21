@@ -1,7 +1,7 @@
 use crate::{course_module_completions, prelude::*};
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
-pub struct CourseModuleCompletionStudyRegistryRegistration {
+pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -15,7 +15,7 @@ pub struct CourseModuleCompletionStudyRegistryRegistration {
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
-pub struct NewCourseModuleCompletionStudyRegistryRegistration {
+pub struct NewCourseModuleCompletionRegisteredToStudyRegistry {
     pub course_id: Uuid,
     pub course_module_completion_id: Uuid,
     pub course_module_id: Uuid,
@@ -26,12 +26,12 @@ pub struct NewCourseModuleCompletionStudyRegistryRegistration {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    new_completion_registration: &NewCourseModuleCompletionStudyRegistryRegistration,
+    new_completion_registration: &NewCourseModuleCompletionRegisteredToStudyRegistry,
     test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO course_module_completion_study_registry_registrations (
+INSERT INTO course_module_completion_registered_to_study_registries (
     id,
     course_id,
     course_module_completion_id,
@@ -84,7 +84,7 @@ pub async fn insert_completions(
             .ok_or_else(|| ModelError::PreconditionFailed("Missing completion.".to_string()))?;
         insert(
             conn,
-            &NewCourseModuleCompletionStudyRegistryRegistration {
+            &NewCourseModuleCompletionRegisteredToStudyRegistry {
                 course_id: module_completion.course_id,
                 course_module_completion_id: completion.completion_id,
                 course_module_id: module_completion.course_module_id,
@@ -102,12 +102,12 @@ pub async fn insert_completions(
 pub async fn get_id(
     conn: &mut PgConnection,
     id: Uuid,
-) -> ModelResult<CourseModuleCompletionStudyRegistryRegistration> {
+) -> ModelResult<CourseModuleCompletionRegisteredToStudyRegistry> {
     let res = sqlx::query_as!(
-        CourseModuleCompletionStudyRegistryRegistration,
+        CourseModuleCompletionRegisteredToStudyRegistry,
         "
 SELECT *
-FROM course_module_completion_study_registry_registrations
+FROM course_module_completion_registered_to_study_registries
 WHERE id = $1
   AND deleted_at IS NULL
         ",
@@ -121,7 +121,7 @@ WHERE id = $1
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-UPDATE course_module_completion_study_registry_registrations
+UPDATE course_module_completion_registered_to_study_registries
 SET deleted_at = now()
 WHERE id = $1
         ",

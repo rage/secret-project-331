@@ -1,4 +1,4 @@
-use models::course_module_completion_study_registry_registrations::RegisteredCompletion;
+use models::course_module_completion_registered_to_study_registries::RegisteredCompletion;
 
 use crate::controllers::prelude::*;
 
@@ -19,7 +19,7 @@ async fn post_completions(
     .await?;
     let registrar =
         models::study_registry_registrars::get_by_secret_key(&mut conn, secret_key).await?;
-    models::course_module_completion_study_registry_registrations::insert_completions(
+    models::course_module_completion_registered_to_study_registries::insert_completions(
         &mut conn,
         payload.0,
         registrar.id,

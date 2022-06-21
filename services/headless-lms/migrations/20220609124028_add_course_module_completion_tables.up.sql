@@ -51,7 +51,7 @@ COMMENT ON COLUMN study_registry_registrars.deleted_at IS 'Timestamp when the re
 COMMENT ON COLUMN study_registry_registrars.secret_key IS 'The secret key used to authenticate for the registry.';
 COMMENT ON COLUMN study_registry_registrars.name IS 'The name of the registrar.';
 -- 3. Create table course_module_completion_study_registry_registrations
-CREATE TABLE course_module_completion_study_registry_registrations (
+CREATE TABLE course_module_completion_registered_to_study_registries (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -64,17 +64,17 @@ CREATE TABLE course_module_completion_study_registry_registrations (
   real_student_number VARCHAR(255) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON course_module_completion_study_registry_registrations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE course_module_completion_study_registry_registrations IS 'Completed course module completion registrations to study registries.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.course_id IS 'Course that the completion is a part of.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.course_module_completion_id IS 'Course module completion for this registation.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.course_module_id IS 'Course module that the related course module completion is based on.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.study_registry_registrar_id IS 'Registrar that registered this course module completion.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.user_id IS 'User that the related course module completion is based on.';
-COMMENT ON COLUMN course_module_completion_study_registry_registrations.real_student_number IS 'Used by administrators and support staff to confirm the completion was registered to the correct student';
+UPDATE ON course_module_completion_registered_to_study_registries FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE course_module_completion_registered_to_study_registries IS 'Completed course module completion registrations to study registries.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.course_id IS 'Course that the completion is a part of.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.course_module_completion_id IS 'Course module completion for this registation.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.course_module_id IS 'Course module that the related course module completion is based on.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.study_registry_registrar_id IS 'Registrar that registered this course module completion.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.user_id IS 'User that the related course module completion is based on.';
+COMMENT ON COLUMN course_module_completion_registered_to_study_registries.real_student_number IS 'Used by administrators and support staff to confirm the completion was registered to the correct student';
 -- 4. Add UH course code to course modules
 ALTER TABLE course_modules
 ADD COLUMN uh_course_code VARCHAR(255);

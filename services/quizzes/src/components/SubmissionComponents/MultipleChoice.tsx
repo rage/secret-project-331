@@ -93,7 +93,12 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
-          let correctAnswer = modelSolutionForThisOption?.correct ?? null
+          let correctAnswer = null
+          if (quiz_item_model_solution?.allAnswersCorrect) {
+            correctAnswer = true
+          } else {
+            correctAnswer = modelSolutionForThisOption?.correct ?? null
+          }
           const feedbackForThisOption = quiz_item_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )

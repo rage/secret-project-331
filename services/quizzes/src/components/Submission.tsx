@@ -103,6 +103,8 @@ const Submission: React.FC<SubmissionProps> = ({
           const quizItemAnswer = user_answer.itemAnswers.filter(
             (ia) => ia.quizItemId === item.id,
           )[0]
+          const itemFeedbackCorrect =
+            itemFeedback?.quiz_item_correct || itemModelSolution?.allAnswersCorrect
           return (
             <div key={item.id}>
               <Component
@@ -115,18 +117,18 @@ const Submission: React.FC<SubmissionProps> = ({
               {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
                 <div
                   className={css`
-                    background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
-                    border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
+                    background: ${itemFeedbackCorrect ? "#f1fff2" : "#fff4f5"};
+                    border: 1px solid ${itemFeedbackCorrect ? "#cbf3cd" : "#f3cbcf"};
                     box-sizing: border-box;
                     border-radius: 4px;
-                    color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
+                    color: ${itemFeedbackCorrect ? "#1c850d" : "#d52a3c"};
                     margin: 1.5rem auto;
                     margin-bottom: 0;
                     padding: 0.25rem 1.5rem;
                     width: fit-content;
                   `}
                 >
-                  {itemFeedback.quiz_item_correct
+                  {itemFeedbackCorrect
                     ? t("your-answer-was-correct")
                     : t("your-answer-was-not-correct")}
                 </div>

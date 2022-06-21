@@ -9,7 +9,9 @@ CREATE TABLE course_module_completions (
   user_id UUID NOT NULL REFERENCES users(id),
   completion_date TIMESTAMP WITH TIME ZONE NOT NULL,
   completion_registration_attempt_date TIMESTAMP WITH TIME ZONE,
-  completion_language VARCHAR(255) NOT NULL,
+  completion_language VARCHAR(15) NOT NULL CHECK (
+    completion_language ~ '^[a-z]{2,3}(-[A-Z][a-z]{3})?-[A-Z]{2}$'
+  ),
   eligible_for_ects BOOLEAN NOT NULL,
   email VARCHAR(255) NOT NULL,
   grade INTEGER,

@@ -2618,7 +2618,7 @@ async fn seed_sample_course(
             user_id: student,
             completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
-            completion_language: "en_US".to_string(),
+            completion_language: "en-US".to_string(),
             eligible_for_ects: true,
             email: "student@example.com".to_string(),
             grade: Some(4),

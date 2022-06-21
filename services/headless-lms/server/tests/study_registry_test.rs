@@ -71,7 +71,7 @@ async fn gets_and_registers_completions() {
     assert_eq!(res.len(), 2);
 
     // Trying to register without authenticating
-    let post_path = "/api/v0/study-registry/register-completions";
+    let post_path = "/api/v0/study-registry/completion-registered-to-study-registry";
     let completions: Vec<RegisteredCompletion> = res
         .into_iter()
         .map(|x| RegisteredCompletion {

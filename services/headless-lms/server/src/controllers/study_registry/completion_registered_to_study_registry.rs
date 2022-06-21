@@ -1,3 +1,5 @@
+//! Controllers for requests starting with `/api/v0/study-registry/completion-registered-to-study-registry`
+
 use models::course_module_completion_registered_to_study_registries::RegisteredCompletion;
 
 use crate::controllers::prelude::*;

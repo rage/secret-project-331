@@ -106,7 +106,7 @@ export interface ReferenceExtraProps {
   data: Reference[]
 }
 
-const ELEMENT_ID = "#reference"
+const ELEMENT_CLASS = "#reference"
 const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
@@ -119,10 +119,11 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
   useEffect(() => {
     const arr: Reference[] = []
     // eslint-disable-next-line i18next/no-literal-string
-    const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("#ref"))
+    const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
       const { innerText: text, id } = ref
+      ref.style
       arr.push({ id, text })
     })
     setReference(arr)
@@ -137,7 +138,7 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
             evt.preventDefault()
             let elementId = target.innerText
             elementId = elementId.substring(1, elementId.length - 1)
-            const details = document.querySelector<HTMLDetailsElement>(ELEMENT_ID)
+            const details = document.querySelector<HTMLDetailsElement>(ELEMENT_CLASS)
             // eslint-disable-next-line i18next/no-literal-string
             setActive(`ref-${elementId}`)
 
@@ -165,17 +166,19 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
       <details id="reference">
         <summary>{t("title-references")}</summary>
         <ul>
-          {data.map(({ id, text }) => (
-            <li
-              key={id}
-              id={id}
-              className={css`
-                ${active === id && `background: #DAE3EB;`}
-              `}
-            >
-              {text}
-            </li>
-          ))}
+          {data.map(({ id, text }, index) => {
+            return (
+              <li
+                key={id}
+                id={`ref-${index + 1}`}
+                className={css`
+                  ${active === `ref-${index + 1}` && `background: #DAE3EB;`}
+                `}
+              >
+                {text}
+              </li>
+            )
+          })}
         </ul>
       </details>
     </TextWrapper>

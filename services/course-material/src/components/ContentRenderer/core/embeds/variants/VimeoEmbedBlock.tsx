@@ -9,6 +9,7 @@ import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../shared-module/components/Spinner"
 import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const VIMEO_MAX_WIDTH = 780
 
@@ -67,9 +68,8 @@ export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
                 margin-bottom: 1em;
                 color: ${baseTheme.colors.grey[400]};
               `}
-            >
-              {props.caption}
-            </figcaption>
+              dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(props.caption ?? "") }}
+            ></figcaption>
           </figure>
         </BreakFromCentered>
       )}

@@ -36,7 +36,12 @@ const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps
       >
         {public_quiz_item.options.map((o) => {
           const optionSelected = user_quiz_item_answer.optionAnswers?.includes(o.id)
-          const correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
+          let correct: boolean | undefined = false
+          if (quiz_item_model_solution?.allAnswersCorrect) {
+            correct = true
+          } else {
+            correct = quiz_item_model_solution?.options.find((mo) => o.id === mo.id)?.correct
+          }
 
           const backgroundColor = correct
             ? quizTheme.gradingCorrectItemBackground

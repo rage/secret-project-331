@@ -206,23 +206,27 @@ function assesMultipleChoiceQuizzes(
   if (!quizItem.multi && quizItemAnswer.optionAnswers.length > 1) {
     throw new Error("Cannot select multiple answer options on this quiz item")
   }
+  let correct = false
+  // check if allAnswersCorrect is enabled, skip other steps if it is
+  if (quizItem.allAnswersCorrect) {
+    correct = true
+  } else {
+    // Check if every selected option was a correct answer
+    const allSelectedOptionsAreCorrect = quizItemAnswer.optionAnswers.every((oa) => {
+      const option = quizItem.options.find((o) => o.id === oa)
+      if (option && option.correct) {
+        return true
+      }
+      return false
+    })
 
-  // Check if every selected option was a correct answer
-  const allSelectedOptionsAreCorrect = quizItemAnswer.optionAnswers.every((oa) => {
-    const option = quizItem.options.find((o) => o.id === oa)
-    if (option && option.correct) {
-      return true
-    }
-    return false
-  })
-
-  // Check if user selected correct amount of options
-  const selectedAllCorrectOptions =
-    quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
-  const correct = quizItem.multi
-    ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
-    : allSelectedOptionsAreCorrect
-
+    // Check if user selected correct amount of options
+    const selectedAllCorrectOptions =
+      quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
+    correct = quizItem.multi
+      ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
+      : allSelectedOptionsAreCorrect
+  }
   return {
     quizItemId: quizItem.id,
     correct,

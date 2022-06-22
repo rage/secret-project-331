@@ -63,9 +63,15 @@ async fn delete_chapter(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Chapter>> {
     let mut conn = pool.acquire().await?;
-    let course_id = Uuid::from_str(&chapter_id)?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
-    let deleted_chapter = models::chapters::delete_chapter(&mut conn, course_id).await?;
+    let chapter_id = Uuid::from_str(&chapter_id)?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Chapter(chapter_id),
+    )
+    .await?;
+    let deleted_chapter = models::chapters::delete_chapter(&mut conn, chapter_id).await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
         file_store.as_ref(),

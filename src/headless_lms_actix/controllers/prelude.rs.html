@@ -24,12 +24,18 @@
 <span id="19">19</span>
 <span id="20">20</span>
 <span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.</span>
 <span class="doccomment">//! Intended to be glob-imported like `use crate::controllers::prelude::*;`.</span>
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::helpers::media</span>::{<span class="ident">upload_media</span>, <span class="ident">StoreKind</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="ident">ControllerError</span>, <span class="ident">ControllerResult</span>, <span class="ident">UploadResult</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization</span>::{<span class="ident">authorize</span>, <span class="ident">Action</span> <span class="kw">as</span> <span class="ident">Act</span>, <span class="ident">AuthUser</span>, <span class="ident">Resource</span> <span class="kw">as</span> <span class="ident">Res</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization</span>::{
+    <span class="ident">authorize</span>, <span class="ident">parse_secret_key_from_header</span>, <span class="ident">skip_authorize</span>, <span class="ident">Action</span> <span class="kw">as</span> <span class="ident">Act</span>, <span class="ident">AuthUser</span>,
+    <span class="ident">Resource</span> <span class="kw">as</span> <span class="ident">Res</span>,
+};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::generated_docs</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_multipart::Multipart</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};

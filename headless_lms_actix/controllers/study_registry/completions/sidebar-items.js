@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id`"],["get_module_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id/:course_module_id`"]]});

@@ -982,6 +982,33 @@
 <span id="977">977</span>
 <span id="978">978</span>
 <span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
+<span id="999">999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1002,6 +1029,7 @@
     },
     <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
+    <span class="ident">course_module_completions</span>::{<span class="ident">StudyRegistryCompletion</span>, <span class="ident">StudyRegistryGrade</span>},
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
@@ -1946,6 +1974,32 @@
                 <span class="ident">exercise_slide_submission_id</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
             }),
         }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">StudyRegistryCompletion</span>,
+        <span class="ident">StudyRegistryCompletion</span> {
+            <span class="ident">completion_date</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">completion_language</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
+            <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade::new</span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">user_upstream_id</span>: <span class="ident">id</span>,
+            <span class="ident">tier</span>: <span class="prelude-val">None</span>
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StudyRegistryCompletion</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">StudyRegistryCompletion</span> {
+            <span class="ident">completion_date</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">completion_language</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
+            <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade::new</span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="number">4</span>)),
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">user_upstream_id</span>: <span class="ident">id</span>,
+            <span class="ident">tier</span>: <span class="prelude-val">None</span>
+        }]
     );
 }
 

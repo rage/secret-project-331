@@ -452,13 +452,52 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">csv::Writer</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">stream::FuturesUnordered</span>, <span class="ident">Stream</span>};
+<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">stream::FuturesUnordered</span>, <span class="ident">Stream</span>, <span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
     <span class="ident">chapters</span>, <span class="ident">course_instances</span>, <span class="ident">exercise_task_submissions</span>, <span class="ident">exercises</span>, <span class="ident">user_exercise_states</span>,
 };
+<span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::HashMap</span>,
@@ -467,7 +506,7 @@
     <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>},
 };
 <span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">sync::mpsc::UnboundedSender</span>, <span class="ident">task::JoinHandle</span>};
-<span class="kw">use</span> <span class="ident">tokio_stream</span>::{<span class="ident">wrappers::UnboundedReceiverStream</span>, <span class="ident">StreamExt</span>};
+<span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{<span class="self">self</span>, <span class="ident">ControllerResult</span>};
@@ -728,6 +767,43 @@ HttpResponse::Ok()
     <span class="op">&gt;</span>,
 ) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span>, <span class="ident">controllers::ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">stream</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item</span><span class="op">|</span> <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item2</span><span class="op">|</span> <span class="ident">item2</span>.<span class="ident">data</span>))
+}
+
+<span class="doccomment">/**
+  For streaming arrays of json objects.
+*/</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serializable_sqlx_result_stream_to_json_stream</span>(
+    <span class="ident">stream</span>: <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">sqlx::Result</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Serialize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+) -&gt; <span class="kw">impl</span> <span class="ident">Stream</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bytes::Bytes</span>, <span class="ident">controllers::ControllerError</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res_stream</span> <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="ident">item</span>)<span class="op">|</span> {
+        <span class="ident">item</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">item2</span><span class="op">|</span> {
+            <span class="kw">match</span> <span class="ident">serde_json::to_vec</span>(<span class="kw-2">&amp;</span><span class="ident">item2</span>) {
+                <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">v</span>) =&gt; {
+                    <span class="comment">// Only item index available, we don&#39;t know the length of the stream</span>
+                    <span class="kw">if</span> <span class="ident">n</span> <span class="op">==</span> <span class="number">0</span> {
+                        <span class="comment">// Start of array character to the beginning of the stream</span>
+                        <span class="ident">v</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">b&#39;[&#39;</span>);
+                    } <span class="kw">else</span> {
+                        <span class="comment">// Separator character before every item excluding the first item</span>
+                        <span class="ident">v</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="string">b&#39;,&#39;</span>);
+                    }
+                    <span class="ident">Bytes::from</span>(<span class="ident">v</span>)
+                }
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
+                    <span class="comment">// Since we&#39;re already streaming a response, we have no way to change the status code of the response anymore.</span>
+                    <span class="comment">// Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.</span>
+                    <span class="macro">error!</span>(<span class="string">&quot;Failed to serialize item: {}&quot;</span>, <span class="ident">e</span>);
+                    <span class="ident">Bytes::from</span>(<span class="macro">format!</span>(
+                        <span class="string">&quot;Streaming error: Failed to serialize item. Details: {:?}&quot;</span>,
+                        <span class="ident">e</span>
+                    ))
+                }
+            }
+        })
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">controllers::ControllerError::InternalServerError</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
+    });
+    <span class="comment">// Chaining the end of the json array character here because in the previous map we don&#39;t know the length of the stream</span>
+    <span class="ident">res_stream</span>.<span class="ident">chain</span>(<span class="ident">tokio_stream::iter</span>(<span class="macro">vec!</span>[<span class="prelude-val">Ok</span>(<span class="ident">Bytes::from_static</span>(<span class="string">b&quot;]&quot;</span>))]))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

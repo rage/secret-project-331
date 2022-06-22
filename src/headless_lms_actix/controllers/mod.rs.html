@@ -219,6 +219,8 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -236,6 +238,7 @@ This documents all endpoints. Select a module below for a namespace.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">helpers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">main_frontend</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">study_registry</span>;
 
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 
@@ -433,7 +436,8 @@ Only put information here that you want to be visible to users.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/cms&quot;</span>).<span class="ident">configure</span>(<span class="ident">cms::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/files&quot;</span>).<span class="ident">configure</span>(<span class="ident">files::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/main-frontend&quot;</span>).<span class="ident">configure</span>(<span class="ident">main_frontend::_add_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/auth&quot;</span>).<span class="ident">configure</span>(<span class="ident">auth::_add_routes</span>));
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/auth&quot;</span>).<span class="ident">configure</span>(<span class="ident">auth::_add_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/study-registry&quot;</span>).<span class="ident">configure</span>(<span class="ident">study_registry::_add_routes</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>

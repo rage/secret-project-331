@@ -923,6 +923,8 @@
 <span id="918">918</span>
 <span id="919">919</span>
 <span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1809,7 +1811,9 @@ SELECT exercises.name as exercise_name,
             <span class="ident">id</span>: <span class="ident">module_id</span>,
             <span class="ident">name</span>: <span class="prelude-val">None</span>,
             <span class="ident">order_number</span>: <span class="number">0</span>,
+            <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).<span class="ident">unwrap</span>(),
             <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+            <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
         }];
         <span class="kw">let</span> <span class="ident">course_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
             <span class="ident">module_id</span>,

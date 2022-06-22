@@ -15,6 +15,7 @@ pub mod files;
 pub mod helpers;
 pub mod main_frontend;
 pub mod prelude;
+pub mod study_registry;
 
 use std::error::Error;
 
@@ -212,5 +213,6 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/cms").configure(cms::_add_routes))
         .service(web::scope("/files").configure(files::_add_routes))
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
-        .service(web::scope("/auth").configure(auth::_add_routes));
+        .service(web::scope("/auth").configure(auth::_add_routes))
+        .service(web::scope("/study-registry").configure(study_registry::_add_routes));
 }

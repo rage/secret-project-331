@@ -1,10 +1,11 @@
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::{stream::FuturesUnordered, Stream};
+use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
 use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
+use serde::Serialize;
 use sqlx::PgConnection;
 use std::{
     collections::HashMap,
@@ -13,7 +14,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
 use crate::controllers::{self, ControllerResult};
@@ -274,6 +275,43 @@ pub fn make_authorized_streamable(
     >,
 ) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
     stream.map(|item| item.map(|item2| item2.data))
+}
+
+/**
+  For streaming arrays of json objects.
+*/
+pub fn serializable_sqlx_result_stream_to_json_stream(
+    stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    let res_stream = stream.enumerate().map(|(n, item)| {
+        item.map(|item2| {
+            match serde_json::to_vec(&item2) {
+                Ok(mut v) => {
+                    // Only item index available, we don't know the length of the stream
+                    if n == 0 {
+                        // Start of array character to the beginning of the stream
+                        v.insert(0, b'[');
+                    } else {
+                        // Separator character before every item excluding the first item
+                        v.insert(0, b',');
+                    }
+                    Bytes::from(v)
+                }
+                Err(e) => {
+                    // Since we're already streaming a response, we have no way to change the status code of the response anymore.
+                    // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
+                    error!("Failed to serialize item: {}", e);
+                    Bytes::from(format!(
+                        "Streaming error: Failed to serialize item. Details: {:?}",
+                        e
+                    ))
+                }
+            }
+        })
+        .map_err(|e| controllers::ControllerError::InternalServerError(e.to_string()))
+    });
+    // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
+    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
 }
 
 #[cfg(test)]

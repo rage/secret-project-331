@@ -105,7 +105,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
@@ -121,6 +121,7 @@ pub enum Resource {
     ExerciseTaskSubmission(Uuid),
     Organization(Uuid),
     Page(Uuid),
+    StudyRegistry(String),
     AnyCourse,
     Role,
     User,
@@ -274,6 +275,9 @@ pub async fn authorize(
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
             check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
         }
+        Resource::StudyRegistry(secret_key) => {
+            check_study_registry_permission(conn, secret_key, action).await
+        }
         Resource::Exam(exam_id) => check_exam_permission(conn, &user_roles, action, exam_id).await,
         Resource::Role
         | Resource::User
@@ -399,6 +403,16 @@ async fn check_material_reference_permissions(
     Err(ControllerError::Forbidden("Unauthorized".to_string()))
 }
 
+async fn check_study_registry_permission(
+    conn: &mut PgConnection,
+    secret_key: String,
+    _action: Action,
+) -> Result<AuthorizationToken, ControllerError> {
+    let _registrar =
+        models::study_registry_registrars::get_by_secret_key(conn, &secret_key).await?;
+    Ok(AuthorizationToken(()))
+}
+
 // checks whether the role is allowed to perform the action
 fn has_permission(user_role: UserRole, action: Action) -> bool {
     use Action::*;
@@ -423,6 +437,22 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
         Reviewer => matches!(action, View | Grade),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
     }
+}
+
+pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, ControllerError> {
+    let raw_token = header
+        .headers()
+        .get("Authorization")
+        .map_or(Ok(""), |x| x.to_str())
+        .map_err(|_| anyhow::anyhow!("Access denied.".to_string()))?;
+    if !raw_token.starts_with("Basic") {
+        return Err(ControllerError::Forbidden("Access denied".to_string()));
+    }
+    let secret_key = raw_token
+        .split(' ')
+        .nth(1)
+        .ok_or_else(|| ControllerError::Forbidden("Malformed authorization token".to_string()))?;
+    Ok(secret_key)
 }
 
 #[cfg(test)]

@@ -122,10 +122,8 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
-      const { innerText: text } = ref
-      const { dataset } = ref
+      const { dataset, innerText: text } = ref
       const id = dataset.citationId || ""
-      ref.style
       arr.push({ id, text })
     })
     setReference(arr)

@@ -82,10 +82,12 @@ pub async fn authorize_action_on_resource(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CreateAccountDetails {
     pub email: String,
     pub first_name: String,
     pub last_name: String,
+    pub language: String,
     pub password: String,
     pub password_confirmation: String,
 }
@@ -102,6 +104,7 @@ Content-Type: application/json
   "email": "student@example.com",
   "first_name": "John",
   "last_name": "Doe",
+  "language": "en",
   "password": "hunter42",
   "password_confirmation": "hunter42"
 }
@@ -140,7 +143,7 @@ pub async fn signup(
         let mut conn = pool.acquire().await?;
         let user = get_user_from_moocfi(&token, &mut conn).await;
         if let Ok(user) = user {
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
+            let token = skip_authorize()?;
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
         } else {
@@ -257,25 +260,37 @@ pub async fn logged_in(session: Session) -> web::Json<bool> {
 
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
+/// Posts new user account to tmc.mooc.fi.
+///
+/// Based on implementation from https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts
 pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
     let tmc_api_url = "https://tmc.mooc.fi/api/v8";
+    let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
+        .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
     let tmc_client = Client::default();
+    let json = serde_json::json!({
+        "user": {
+            "email": user_details.email,
+            "first_name": user_details.first_name,
+            "last_name": user_details.last_name,
+            "password": user_details.password,
+            "password_confirmation": user_details.password_confirmation
+        },
+        "user_field": {
+            "first_name": user_details.first_name,
+            "last_name": user_details.last_name
+        },
+        "origin": origin,
+        "language": user_details.language
+    });
     let res = tmc_client
-        .post(tmc_api_url)
+        .post(format!("{}/users", tmc_api_url))
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
-        .json(&serde_json::json!({
-            "user": user_details,
-            "user_field": {
-                "first_name": user_details.first_name,
-                "last_name": user_details.last_name
-            },
-            "origin": "corses.mooc.fi",
-            "language": "fi"
-        }))
+        .json(&json)
         .send()
         .await
-        .context("Failed to send request to tmc.mooc.fi")?;
+        .context("Failed to send request to https://tmc.mooc.fi")?;
     if res.status().is_success() {
         Ok(())
     } else {
@@ -363,13 +378,17 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .burst_size(10)
         .finish()
         .unwrap();
-    cfg.route("/signup", web::post().to(signup))
-        .service(
-            web::resource("/login")
-                .wrap(Governor::new(&governor_conf))
-                .to(login),
-        )
-        .route("/logout", web::post().to(logout))
-        .route("/logged-in", web::get().to(logged_in))
-        .route("/authorize", web::post().to(authorize_action_on_resource));
+    cfg.service(
+        web::resource("/signup")
+            .wrap(Governor::new(&governor_conf))
+            .to(signup),
+    )
+    .service(
+        web::resource("/login")
+            .wrap(Governor::new(&governor_conf))
+            .to(login),
+    )
+    .route("/logout", web::post().to(logout))
+    .route("/logged-in", web::get().to(logged_in))
+    .route("/authorize", web::post().to(authorize_action_on_resource));
 }

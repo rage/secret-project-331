@@ -36,6 +36,7 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
@@ -191,8 +192,10 @@ export interface Points {
 export interface Module {
   id: string
   name: string | null
+  course_id: string
   order_number: number
   copied_from: string | null
+  uh_course_code: string | null
 }
 
 export interface Course {
@@ -961,6 +964,15 @@ export interface CourseMaterialCourseModule {
   is_default: boolean
   name: string | null
   order_number: number
+}
+
+export interface CreateAccountDetails {
+  email: string
+  first_name: string
+  last_name: string
+  language: string
+  password: string
+  password_confirmation: string
 }
 
 export interface RoleQuery {

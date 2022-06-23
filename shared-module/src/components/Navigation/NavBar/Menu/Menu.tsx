@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"
@@ -26,8 +26,6 @@ const MenuIcon = css`
 const ToolTip = css`
   background: ${baseTheme.colors.clear[200]};
   border-color: #cacaca;
-  top: 70px;
-  right: 17px;
   padding: 0;
   border-radius: 4px;
   position: absolute;
@@ -68,7 +66,12 @@ const Hide = css`
   display: none;
 `
 
-const Menu: React.FC = ({ children }) => {
+export interface MenuProps {
+  variant?: "top" | "bottom"
+  children: ReactNode
+}
+
+const Menu: React.FC<MenuProps> = ({ children, variant }) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 
@@ -87,7 +90,20 @@ const Menu: React.FC = ({ children }) => {
       >
         <Hamburger isActive={clicked} toggleButton={onClickHandler} />
       </div>
-      <ul className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</ul>
+      <ul
+        className={
+          clicked
+            ? cx(
+                ToolTip,
+                css`
+                  ${variant === "bottom" ? "bottom: 70px;" : "top: 70px;right:17px;"}
+                `,
+              )
+            : cx(Hide)
+        }
+      >
+        {children}
+      </ul>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 use models::{
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, ContentManagementPage, PageInfo},
+    pages::{CmsPageUpdate, ContentManagementPage, PageInfo, PageRoutingDataWithChapterStatus},
     CourseOrExamId,
 };
 
@@ -96,6 +96,24 @@ async fn update_page(
 }
 
 /**
+ GET /api/v0/cms/pages/:page_id/next-page - returns next pages info.
+ If current page is the last page of the chapter, returns next chapters first page.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_next_page(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
+    let mut conn = pool.acquire().await?;
+    let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
+    let next_page_data_with_status =
+        models::pages::get_next_page_with_chapter_status(next_page_data).await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(next_page_data_with_status))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -105,5 +123,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
         .route("/{page_id}/info", web::get().to(get_page_info))
+        .route("/{page_id}/next-page", web::put().to(get_next_page))
         .route("/{page_id}", web::put().to(update_page));
 }

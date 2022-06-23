@@ -2,6 +2,23 @@ use std::collections::HashMap;
 
 use crate::prelude::*;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModule {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub name: Option<String>,
+    pub course_id: Uuid,
+    pub order_number: i32,
+    pub copied_from: Option<Uuid>,
+    pub uh_course_code: Option<String>,
+    pub automatic_completion: bool,
+    pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    pub automatic_completion_number_of_points_treshold: Option<i32>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -73,27 +90,11 @@ WHERE id = $1
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct Module {
-    pub id: Uuid,
-    pub name: Option<String>,
-    pub course_id: Uuid,
-    pub order_number: i32,
-    pub copied_from: Option<Uuid>,
-    pub uh_course_code: Option<String>,
-}
-
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Module> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        Module,
+        CourseModule,
         "
-SELECT id,
-  name,
-  course_id,
-  order_number,
-  copied_from,
-  uh_course_code
+SELECT *
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -108,16 +109,11 @@ WHERE id = $1
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<Module>> {
+) -> ModelResult<Vec<CourseModule>> {
     let modules = sqlx::query_as!(
-        Module,
+        CourseModule,
         "
-SELECT id,
-  name,
-  course_id,
-  order_number,
-  copied_from,
-  uh_course_code
+SELECT *
 FROM course_modules
 WHERE course_id = $1
 ",
@@ -131,16 +127,11 @@ WHERE course_id = $1
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Module> {
+) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        Module,
+        CourseModule,
         "
-SELECT id,
-  name,
-  course_id,
-  order_number,
-  copied_from,
-  uh_course_code
+SELECT *
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -185,7 +176,7 @@ WHERE (
 pub async fn get_by_course_id_as_map(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<HashMap<Uuid, Module>> {
+) -> ModelResult<HashMap<Uuid, CourseModule>> {
     let res = get_by_course_id(conn, course_id)
         .await?
         .into_iter()

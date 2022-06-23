@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use crate::{
     course_instances,
-    course_modules::{self, Module},
+    course_modules::{self, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
@@ -321,7 +321,7 @@ pub async fn get_user_course_instance_progress(
 }
 
 fn merge_modules_with_metrics(
-    course_modules: Vec<Module>,
+    course_modules: Vec<CourseModule>,
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
     user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseInstanceMetrics>,
     default_course_module_name_placeholder: &str,
@@ -875,18 +875,26 @@ SELECT exercises.name as exercise_name,
 
 #[cfg(test)]
 mod tests {
+    use chrono::TimeZone;
+
     use super::*;
 
     #[test]
     fn merges_course_modules_with_metrics() {
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
-        let course_modules = vec![Module {
+        let course_modules = vec![CourseModule {
+            created_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            updated_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            deleted_at: None,
             id: module_id,
             name: None,
             order_number: 0,
             course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             copied_from: None,
             uh_course_code: None,
+            automatic_completion: false,
+            automatic_completion_number_of_exercises_attempted_treshold: None,
+            automatic_completion_number_of_points_treshold: None,
         }];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

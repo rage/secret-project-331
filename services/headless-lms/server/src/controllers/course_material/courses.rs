@@ -10,7 +10,7 @@ use isbot::Bots;
 use models::{
     chapters::ChapterWithStatus,
     course_instances::CourseInstance,
-    course_modules::Module,
+    course_modules::CourseModule,
     courses,
     courses::Course,
     feedback,
@@ -345,7 +345,7 @@ async fn get_chapters(
 
 /// Combines course modules and chapters, consuming them.
 fn collect_course_modules(
-    course_modules: Vec<Module>,
+    course_modules: Vec<CourseModule>,
     chapters: Vec<ChapterWithStatus>,
 ) -> ControllerResult<Vec<CourseMaterialCourseModule>> {
     let mut course_modules: HashMap<Uuid, CourseMaterialCourseModule> = course_modules

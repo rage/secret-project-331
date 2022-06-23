@@ -122,12 +122,61 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
-      const { innerText: text, id } = ref
+      const { innerText: text } = ref
+      const { dataset } = ref
+      const id = dataset.citationId || ""
       ref.style
       arr.push({ id, text })
     })
     setReference(arr)
   }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line i18next/no-literal-string
+    const references = document.querySelectorAll(".reference")
+
+    const eventHandler = (evt: any) => {
+      const target = evt.target as HTMLInputElement
+      const citationId = target?.parentNode?.dataset?.citationId || ""
+      const el = data.find((item) => item.id === citationId)
+
+      // eslint-disable-next-line i18next/no-literal-string
+      const citation = document.querySelector(`[data-citation-id="${citationId}"]`)
+      if (el) {
+        // eslint-disable-next-line i18next/no-literal-string
+        const wrapper = document.createElement("div")
+        // eslint-disable-next-line i18next/no-literal-string
+        wrapper.setAttribute("id", "wrapper")
+
+        const wrapperEl = document.getElementById("wrapper")
+
+        if (evt.type === "mouseover") {
+          target.style.cssText = "text-decoration: underline; color: #08457A;"
+          wrapper.style.cssText =
+            "opacity: 1; position: absolute; top: 20px; right: 0; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms"
+          // eslint-disable-next-line i18next/no-literal-string
+          wrapper.innerHTML = `<div style="color: #535A66; border: 1px solid #BEC3C7; border-radius: 3px; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
+          wrapperEl && wrapperEl.remove()
+          citation?.appendChild(wrapper)
+        } else if (evt.type === "mouseout") {
+          target.style.cssText = "text-decoration: none; color: #46749B;"
+          /* wrapper.style.opacity = "0"
+          wrapper.style.visibility = "hidden" */
+          wrapperEl && wrapperEl.remove()
+        }
+      }
+    }
+
+    references.forEach((ref) => {
+      ref.addEventListener("mouseover", eventHandler)
+      ref.addEventListener("mouseout", eventHandler)
+    })
+
+    /* document.addEventListener("mouseover", eventHandler)
+    return () => {
+      document.removeEventListener("mouseover", eventHandler)
+    } */
+  }, [data, reference])
 
   useEffect(() => {
     const eventHandler = (evt: MouseEvent) => {

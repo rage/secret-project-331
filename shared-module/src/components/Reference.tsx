@@ -153,9 +153,9 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
         if (evt.type === "mouseover") {
           target.style.cssText = "text-decoration: underline; color: #08457A;"
           wrapper.style.cssText =
-            "opacity: 1; position: absolute; top: 20px; right: 0; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms"
+            "opacity: 1; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.3) 0 2px 10px;"
           // eslint-disable-next-line i18next/no-literal-string
-          wrapper.innerHTML = `<div style="color: #535A66; border: 1px solid #BEC3C7; border-radius: 3px; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
+          wrapper.innerHTML = `<div style="color: #535A66; border: 1px solid #BEC3C7; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {

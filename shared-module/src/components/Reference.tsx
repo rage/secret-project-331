@@ -136,7 +136,7 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     const references = document.querySelectorAll(".reference")
 
     const eventHandler = (evt: any) => {
-      const target = evt.target as HTMLInputElement
+      const target = evt.target
       const citationId = target?.parentNode?.dataset.citationId || ""
       const el = data.find((item) => item.id === citationId)
 

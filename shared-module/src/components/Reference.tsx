@@ -122,8 +122,10 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     const referenceEl = Array.from(document.querySelectorAll<HTMLElement>("sup"))
 
     referenceEl.forEach((ref) => {
-      const { dataset, innerText: text } = ref
+      const { innerText: text } = ref
+      const { dataset } = ref
       const id = dataset.citationId || ""
+      ref.style
       arr.push({ id, text })
     })
     setReference(arr)
@@ -135,7 +137,7 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
 
     const eventHandler = (evt: any) => {
       const target = evt.target as HTMLInputElement
-      const citationId = target?.parentNode?.dataset?.citationId || ""
+      const citationId = target?.parentNode?.dataset.citationId || ""
       const el = data.find((item) => item.id === citationId)
 
       // eslint-disable-next-line i18next/no-literal-string
@@ -158,8 +160,6 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
           target.style.cssText = "text-decoration: none; color: #46749B;"
-          /* wrapper.style.opacity = "0"
-          wrapper.style.visibility = "hidden" */
           wrapperEl && wrapperEl.remove()
         }
       }
@@ -169,7 +169,6 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
       ref.addEventListener("mouseover", eventHandler)
       ref.addEventListener("mouseout", eventHandler)
     })
-
     /* document.addEventListener("mouseover", eventHandler)
     return () => {
       document.removeEventListener("mouseover", eventHandler)

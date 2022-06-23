@@ -267,6 +267,8 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
     let tmc_api_url = "https://tmc.mooc.fi/api/v8";
     let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
         .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
     let tmc_client = Client::default();
     let json = serde_json::json!({
         "user": {
@@ -285,6 +287,7 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
     });
     let res = tmc_client
         .post(format!("{}/users", tmc_api_url))
+        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
         .json(&json)

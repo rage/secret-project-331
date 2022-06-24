@@ -168,6 +168,11 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     references.forEach((ref) => {
       ref.addEventListener("mouseover", eventHandler)
       ref.addEventListener("mouseout", eventHandler)
+
+      return () => {
+        ref.removeEventListener("mouseover", eventHandler)
+        ref.removeEventListener("mouseout", eventHandler)
+      }
     })
     /* document.addEventListener("mouseover", eventHandler)
     return () => {

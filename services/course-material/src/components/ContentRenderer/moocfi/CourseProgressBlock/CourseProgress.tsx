@@ -51,7 +51,11 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
             <Wrapper>
               <ExerciseCountDisplay
                 exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
-                exercisesNeededToAnswer={courseModuleProgress.total_exercises ?? 0}
+                exercisesNeededToAnswer={
+                  courseModuleProgress.attempted_exercises_required ??
+                  courseModuleProgress.total_exercises ??
+                  0
+                }
                 totalExercises={courseModuleProgress.total_exercises ?? 0}
               />
             </Wrapper>

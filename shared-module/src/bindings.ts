@@ -36,6 +36,7 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
@@ -188,11 +189,19 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export interface Module {
+export interface CourseModule {
   id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
   name: string | null
+  course_id: string
   order_number: number
   copied_from: string | null
+  uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }
 
 export interface Course {
@@ -918,6 +927,7 @@ export interface UserCourseInstanceProgress {
   score_maximum: number | null
   total_exercises: number | null
   attempted_exercises: number | null
+  attempted_exercises_required: number | null
 }
 
 export interface ExerciseUserCounts {

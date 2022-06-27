@@ -144,7 +144,8 @@ pub struct UserCourseInstanceProgress {
     pub score_given: f32,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
-    pub attempted_exercises: Option<u32>,
+    pub attempted_exercises: Option<i32>,
+    pub attempted_exercises_required: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -341,10 +342,6 @@ fn merge_modules_with_metrics(
                 score_given: option_f32_to_f32_two_decimals(
                     user_metrics.and_then(|x| x.score_given),
                 ),
-                attempted_exercises: user_metrics
-                    .and_then(|x| x.attempted_exercises)
-                    .map(TryInto::try_into)
-                    .transpose()?,
                 score_maximum: course_metrics
                     .and_then(|x| x.score_maximum)
                     .map(TryInto::try_into)
@@ -353,6 +350,12 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.total_exercises)
                     .map(TryInto::try_into)
                     .transpose()?,
+                attempted_exercises: user_metrics
+                    .and_then(|x| x.attempted_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises_required: course_module
+                    .automatic_completion_number_of_exercises_attempted_treshold,
             };
             Ok(progress)
         })

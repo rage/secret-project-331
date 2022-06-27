@@ -326,14 +326,17 @@ const Content = styled.div`
   max-width: 700px;
   text-align: center;
 
-  h2 {
+  h3 {
+    font-family: ${headingFont};
+    font-weight: bold;
+    color: #065853;
     text-align: center;
     margin-bottom: 5px !important;
   }
 `
 const Text = styled.div`
   text-align: center;
-  font-size: 20px;
+  font-size: 18px;
   margin-bottom: 10px;
 
   div {

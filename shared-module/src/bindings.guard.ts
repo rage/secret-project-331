@@ -41,6 +41,7 @@ import {
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  CreateAccountDetails,
   DatabaseChapter,
   EditProposalInfo,
   EmailTemplate,
@@ -209,6 +210,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "page" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "study_registry" &&
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "any_course") ||
@@ -435,8 +439,10 @@ export function isModule(obj: any, _argumentName?: string): obj is Module {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.course_id === "string" &&
     typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string")
   )
 }
 
@@ -1650,6 +1656,21 @@ export function isCourseMaterialCourseModule(
     typeof obj.is_default === "boolean" &&
     (obj.name === null || typeof obj.name === "string") &&
     typeof obj.order_number === "number"
+  )
+}
+
+export function isCreateAccountDetails(
+  obj: any,
+  _argumentName?: string,
+): obj is CreateAccountDetails {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    typeof obj.first_name === "string" &&
+    typeof obj.last_name === "string" &&
+    typeof obj.language === "string" &&
+    typeof obj.password === "string" &&
+    typeof obj.password_confirmation === "string"
   )
 }
 

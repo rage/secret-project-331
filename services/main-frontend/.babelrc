@@ -12,6 +12,22 @@
   ],
   "plugins": [
     "@emotion/babel-plugin",
-    "inline-react-svg"
+    [
+      "inline-react-svg",
+      {
+        "svgo": {
+          "plugins": [
+            {
+              "name": "preset-default",
+              "params": {
+                "overrides": {
+                  "cleanupIDs": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
   ]
 }

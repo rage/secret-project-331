@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
   <defs>
-    <clipPath id="clip-path">
+    <clipPath id="destroy">
       <rect width="24" height="24" fill="none"/>
     </clipPath>
   </defs>
-  <g id="close" clip-path="url(#clip-path)">
-    <rect id="Box" width="24" height="24" fill="none"/>
-    <path id="Path_954" d="M14-12.6,12.6-14,7-8.4,1.4-14,0-12.6,5.6-7,0-1.4,1.4,0,7-5.6,12.6,0,14-1.4,8.4-7Z" transform="translate(5 19)" fill="#757575" fill-rule="evenodd"/>
+  <g clip-path="url(#destroy)">
+    <rect width="24" height="24" fill="none"/>
+    <path d="M14-12.6,12.6-14,7-8.4,1.4-14,0-12.6,5.6-7,0-1.4,1.4,0,7-5.6,12.6,0,14-1.4,8.4-7Z" transform="translate(5 19)" fill="#757575" fill-rule="evenodd"/>
   </g>
 </svg>

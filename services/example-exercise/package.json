@@ -39,6 +39,7 @@
     "react-i18next": "^11.17.0",
     "react-is": "^18.1.0",
     "react-spring": "^9.4.5",
+    "svgo": "^2.8.0",
     "use-debounce": "^8.0.1",
     "use-memo-one": "^1.1.2",
     "uuid": "^8.3.2"

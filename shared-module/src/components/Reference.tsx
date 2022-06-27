@@ -174,10 +174,6 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
         ref.removeEventListener("mouseout", eventHandler)
       }
     })
-    /* document.addEventListener("mouseover", eventHandler)
-    return () => {
-      document.removeEventListener("mouseover", eventHandler)
-    } */
   }, [data, reference])
 
   useEffect(() => {

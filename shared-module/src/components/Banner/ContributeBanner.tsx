@@ -386,9 +386,9 @@ const Contribute: React.FC<ContributeProps> = () => {
       <Content>
         <h2>{t("about-this-project")}</h2>
         <Text>
-          <div>{t("about-this-project-description")}:</div>
+          <div>{t("about-this-project-description")}</div>
         </Text>
-        <StyledLink href="github.com/rage/secret-project-331">
+        <StyledLink href="https://github.com/rage/secret-project-331">
           <span>{t("project-github")}</span>
           <StyledArrow />
         </StyledLink>

@@ -107,6 +107,14 @@ const Links = styled.div`
   flex-direction: column;
 `
 
+const LogoA = styled.a`
+  filter: brightness(100%) contrast(100%);
+  transition: filter 0.2s;
+  &:hover {
+    filter: brightness(34%) contrast(40%);
+  }
+`
+
 export interface FooterExtraProps {
   licenseUrl?: string
 }
@@ -114,7 +122,8 @@ export interface FooterExtraProps {
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
 const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   return (
     <footer
       role="contentinfo"
@@ -138,9 +147,20 @@ const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
             opacity: 0.9;
           `}
         >
-          <UHLogo />
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <MOOCfi alt="MOOC.fi" />
+          <LogoA
+            href={useFinnishLinks ? "https://www.helsinki.fi" : "https://www.helsinki.fi/en"}
+            aria-label={t("university-of-helsinki")}
+          >
+            <UHLogo />
+          </LogoA>
+
+          <LogoA
+            href={useFinnishLinks ? "https://www.mooc.fi" : "https://www.mooc.fi/en"}
+            // eslint-disable-next-line i18next/no-literal-string
+            aria-label="MOOC.fi"
+          >
+            <MOOCfi />
+          </LogoA>
         </div>
         <Text>
           <h1

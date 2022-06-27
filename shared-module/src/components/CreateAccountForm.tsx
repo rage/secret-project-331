@@ -188,8 +188,7 @@ const CreateAccountForm = () => {
                 validate: {
                   //will change to regex for a more extensive validdation
                   isValidEmail: (value) =>
-                    (value.split("").indexOf("@") !== -1 && value.split("").indexOf(".") !== -1) ||
-                    t("enter-a-valid-email"),
+                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
                 },
               })}
             />

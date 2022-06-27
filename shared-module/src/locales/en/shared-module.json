@@ -94,5 +94,5 @@
   "enter-a-valid-email": "Enter a valid email!",
   "create-an-acount": "Create an account",
   "sign-in-if-you-have-an-account": "Do you already have a username? log in",
-  "create-new-account-subtitle": "This course uses mooc.fi usernames. If you have previously taken mooc.fi courses, you can use your existing IDs on the login page. On this page you can create a new ID that works in most mooc.fi courses and services."
+  "create-new-account-subtitle": "This course uses mooc.fi accounts. If you have previously taken mooc.fi courses, you can use your existing credentials on the login page. On this page you can create a new account that works in most mooc.fi courses and services."
 }

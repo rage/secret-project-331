@@ -59,7 +59,7 @@ const Wrapper = styled.div`
     border-width: 1.6px;
     border-style: solid;
     border-color: #bec3c7;
-    padding: 14px 12px;
+    padding: 12px;
     transition: ease-in-out, width 0.35s ease-in-out;
     outline: none;
     min-width: 20px;
@@ -91,7 +91,7 @@ const Wrapper = styled.div`
     color: #fff;
     font-weight: 500;
     font-size: 22px;
-    padding: 16px 10px;
+    padding: 15px 10px;
     line-height: 1.2;
     font-family: ${secondaryFont} !important;
     justify-content: center;
@@ -116,39 +116,25 @@ const Wrapper = styled.div`
   }
 `
 
+interface FormInputs {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
-  const { errors /* isValid, isSubmitting */ } = formState
+  const { errors, isValid /* isSubmitting */ } = formState
 
-  const [submitError /* setSubmitError */] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
 
   const { t, i18n } = useTranslation()
 
-  const ErrorIcon = "&#9888;"
-
-  console.log(i18n.language)
-
   // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
-
-  const onSubmit = async (data: any) => {
-    const { first_name, last_name, email, password, password_confirmation } = data
-    try {
-      await createUser({
-        email: email,
-        first_name: first_name,
-        last_name: last_name,
-        language: i18n.language,
-        password: password,
-        password_confirmation: password_confirmation,
-      })
-    } catch (error) {
-      // eslint-disable-next-line i18next/no-literal-string
-      console.log("error", error)
-      /* setSubmitError({JSON.stringify(error) }) */
-    }
-  }
 
   return (
     <Wrapper>
@@ -157,7 +143,25 @@ const CreateAccountForm = () => {
         {t("sign-up-with-mooc-subtitle")} {/* <a href="https://www.mooc.fi/en/">mooc.fi</a> */}
       </span>
       {submitError && <div>{submitError}</div>}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(async (data) => {
+          const { first_name, last_name, email, password, password_confirmation } = data
+          try {
+            await createUser({
+              email: email,
+              first_name: first_name,
+              last_name: last_name,
+              language: i18n.language,
+              password: password,
+              password_confirmation: password_confirmation,
+            })
+          } catch (error) {
+            // eslint-disable-next-line i18next/no-literal-string
+            console.log("error", error)
+            /* setSubmitError(true) */
+          }
+        })}
+      >
         <fieldset /* disabled={submitting} */>
           <div key="first_name">
             <label htmlFor="first_name">{t("first-name")}</label>
@@ -169,9 +173,7 @@ const CreateAccountForm = () => {
               })}
             />
             {errors.first_name && (
-              <ErrorMessage>
-                {ErrorIcon} {`${errors.first_name.message}`}
-              </ErrorMessage>
+              <ErrorMessage>&#9888; {`${errors.first_name.message}`}</ErrorMessage>
             )}
           </div>
           <div key="last_name">
@@ -184,9 +186,7 @@ const CreateAccountForm = () => {
               })}
             />
             {errors.last_name && (
-              <ErrorMessage>
-                {ErrorIcon} {`${errors.last_name.message}`}
-              </ErrorMessage>
+              <ErrorMessage>&#9888; {`${errors.last_name.message}`}</ErrorMessage>
             )}
           </div>
           <div key="email">
@@ -203,11 +203,7 @@ const CreateAccountForm = () => {
                 },
               })}
             />
-            {errors.email && (
-              <ErrorMessage>
-                {ErrorIcon} {`${errors.email.message}`}
-              </ErrorMessage>
-            )}
+            {errors.email && <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>}
           </div>
           <div key="password">
             <label htmlFor="password">{t("password")}</label>
@@ -222,11 +218,7 @@ const CreateAccountForm = () => {
                 },
               })}
             />
-            {errors.password && (
-              <ErrorMessage>
-                {ErrorIcon} {`${errors.password.message}`}
-              </ErrorMessage>
-            )}
+            {errors.password && <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>}
           </div>
           <div key="password_confirmation">
             <label htmlFor="password_confirmation">{t("confirm-password")}</label>
@@ -250,13 +242,10 @@ const CreateAccountForm = () => {
             )}
           </div>
         </fieldset>
-        <input
-          /* disabled={!isValid} */ value={t("create-an-acount").toUpperCase()}
-          type="submit"
-        />
+        <input /* disabled={isValid} */ value={t("create-an-acount").toUpperCase()} type="submit" />
       </form>
       <span className="signin-link">
-        <a href="/">{t("sign-in-if-you-have-an-account")}</a>
+        <a href="https://courses.mooc.fi/login">{t("sign-in-if-you-have-an-account")}</a>
       </span>
     </Wrapper>
   )

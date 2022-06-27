@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -97,6 +97,10 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     border: none;
+
+    &:hover {
+      background: #215887;
+    }
   }
 
   .signin-link {
@@ -116,7 +120,7 @@ const Wrapper = styled.div`
   }
 `
 
-interface FormInputs {
+interface FormValues {
   first_name: string
   last_name: string
   email: string
@@ -124,10 +128,12 @@ interface FormInputs {
   password_confirmation: string
 }
 
+const ErrorInTransmisson = "Error in transmission"
+
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
-  const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
-  const { errors, isValid /* isSubmitting */ } = formState
+  const { register, formState, watch, handleSubmit, reset } = useForm({ mode: "onChange" })
+  const { errors, isValid, isSubmitSuccessful, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
 
@@ -136,15 +142,26 @@ const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
 
+  useEffect(() => {
+    reset({
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      password_confirmation: ""
+    })
+  }, [isSubmitSuccessful, reset] )
+
   return (
     <Wrapper>
       <h2>{t("create-new-account")}</h2>
       <span className="description">
         {t("sign-up-with-mooc-subtitle")} {/* <a href="https://www.mooc.fi/en/">mooc.fi</a> */}
       </span>
-      {submitError && <div>{submitError}</div>}
+      {submitError && <div>{ErrorInTransmisson}</div>}
       <form
-        onSubmit={handleSubmit(async (data) => {
+        onSubmit={handleSubmit(async (data, event) => {
+          event?.preventDefault()
           const { first_name, last_name, email, password, password_confirmation } = data
           try {
             await createUser({
@@ -158,11 +175,11 @@ const CreateAccountForm = () => {
           } catch (error) {
             // eslint-disable-next-line i18next/no-literal-string
             console.log("error", error)
-            /* setSubmitError(true) */
+            setSubmitError(true)
           }
         })}
       >
-        <fieldset /* disabled={submitting} */>
+        <fieldset disabled={isSubmitting}>
           <div key="first_name">
             <label htmlFor="first_name">{t("first-name")}</label>
             <input
@@ -242,7 +259,7 @@ const CreateAccountForm = () => {
             )}
           </div>
         </fieldset>
-        <input /* disabled={isValid} */ value={t("create-an-acount").toUpperCase()} type="submit" />
+        <input disabled={isValid} value="Create an account" type="submit" />
       </form>
       <span className="signin-link">
         <a href="https://courses.mooc.fi/login">{t("sign-in-if-you-have-an-account")}</a>

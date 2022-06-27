@@ -36,6 +36,7 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
@@ -191,8 +192,10 @@ export interface Points {
 export interface Module {
   id: string
   name: string | null
+  course_id: string
   order_number: number
   copied_from: string | null
+  uh_course_code: string | null
 }
 
 export interface Course {
@@ -625,6 +628,7 @@ export interface PageInfo {
 export interface PageRoutingDataWithChapterStatus {
   url_path: string
   title: string
+  page_id: string
   chapter_number: number
   chapter_id: string
   chapter_opens_at: Date | null

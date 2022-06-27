@@ -125,9 +125,13 @@ const PageEditor: React.FC<PageEditorProps> = ({
     fetchNextPageRoutingData(data.id),
   )
   const pageRoutingData = getNextPageRoutingData.data
-  console.log("data: ", data)
   console.log("pageRoutingData: ", pageRoutingData)
-  const nextPageUrl = coursePageRoute(data.id)
+  let nextPageUrl = "/"
+  if (pageRoutingData) {
+    nextPageUrl = coursePageRoute(pageRoutingData.page_id)
+  } else {
+    nextPageUrl = coursePageRoute(data.id)
+  }
   console.log(nextPageUrl)
   const saveAndReset = (
     <div>

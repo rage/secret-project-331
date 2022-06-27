@@ -112,6 +112,7 @@ pub struct NormalizedCmsExerciseTask {
 pub struct PageRoutingData {
     pub url_path: String,
     pub title: String,
+    pub page_id: Uuid,
     pub chapter_number: i32,
     pub chapter_id: Uuid,
     pub chapter_opens_at: Option<DateTime<Utc>>,
@@ -123,6 +124,7 @@ pub struct PageRoutingData {
 pub struct PageRoutingDataWithChapterStatus {
     pub url_path: String,
     pub title: String,
+    pub page_id: Uuid,
     pub chapter_number: i32,
     pub chapter_id: Uuid,
     pub chapter_opens_at: Option<DateTime<Utc>>,
@@ -1600,6 +1602,7 @@ pub async fn get_next_page_with_chapter_status(
             Ok(Some(PageRoutingDataWithChapterStatus {
                 url_path: data.url_path,
                 title: data.title,
+                page_id: data.page_id,
                 chapter_number: data.chapter_number,
                 chapter_id: data.chapter_id,
                 chapter_opens_at: data.chapter_opens_at,
@@ -1651,6 +1654,7 @@ async fn get_next_page_by_order_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -1686,6 +1690,7 @@ async fn get_next_page_by_chapter_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,

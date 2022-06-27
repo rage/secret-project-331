@@ -616,8 +616,9 @@ fn main() {
     write_docs!(
         Option<PageRoutingDataWithChapterStatus>,
         Some(PageRoutingDataWithChapterStatus {
-            url_path: "/path-to-next/page".to_string(),
+            url_path: "/path-to-next/page (course-material)".to_string(),
             title: "Name of the next page".to_string(),
+            page_id: page.id,
             chapter_number: 1,
             chapter_id: id,
             chapter_opens_at: Some(date_time),

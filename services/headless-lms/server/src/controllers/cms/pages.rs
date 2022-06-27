@@ -123,6 +123,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
         .route("/{page_id}/info", web::get().to(get_page_info))
-        .route("/{page_id}/next-page", web::put().to(get_next_page))
+        .route("/{page_id}/next-page", web::get().to(get_next_page))
         .route("/{page_id}", web::put().to(update_page));
 }

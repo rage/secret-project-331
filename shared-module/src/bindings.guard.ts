@@ -211,6 +211,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
       obj.type === "page" &&
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "study_registry" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "any_course") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "role") ||
@@ -435,8 +438,10 @@ export function isModule(obj: any, _argumentName?: string): obj is Module {
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.course_id === "string" &&
     typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string")
   )
 }
 
@@ -1114,6 +1119,7 @@ export function isPageRoutingDataWithChapterStatus(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
+    typeof obj.page_id === "string" &&
     typeof obj.chapter_number === "number" &&
     typeof obj.chapter_id === "string" &&
     (obj.chapter_opens_at === null || obj.chapter_opens_at instanceof Date) &&

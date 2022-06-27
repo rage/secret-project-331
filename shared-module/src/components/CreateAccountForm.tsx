@@ -1,9 +1,9 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { createUser } from "../services/backend/auth"
 import { baseTheme, headingFont, secondaryFont } from "../styles"
 
 const ErrorMessage = styled.div`
@@ -116,9 +116,6 @@ const Wrapper = styled.div`
   }
 `
 
-const SUBTITLE =
-  "If you have previously taken mooc.fi courses, you can use your existing IDs on the login page. On this page you can create a new ID that works in most mooc.fi courses and services."
-
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
@@ -126,58 +123,72 @@ const CreateAccountForm = () => {
 
   const [submitError /* setSubmitError */] = useState(false)
 
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
+  const ErrorIcon = "&#9888;"
+
+  console.log(i18n.language)
+
+  // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
 
-  const onSubmit = (/* data */) => {
-    /*   try {
-      await createAccount({
-        email: data.email,
-        password: data.password,
-        password_confirmation: data.passwordConfirmation,
+  const onSubmit = async (data: any) => {
+    const { first_name, last_name, email, password, password_confirmation } = data
+    try {
+      await createUser({
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        language: i18n.language,
+        password: password,
+        password_confirmation: password_confirmation,
       })
-      await authenticate({
-        username: data.email,
-        password: data.password,
-      })
-      props.onComplete()
     } catch (error) {
-      try {
-        let message = ""
-        Object.entries(error).forEach((o) => {
-          const key = o[0]
-          const value = o[1]
-          value.forEach((msg) => {
-            let newMessage = capitalizeFirstLetter(`${key.replace(/_/g, " ")} ${msg}.`)
-            if (newMessage === "Email has already been taken.") {
-              newMessage = this.props.t("emailInUse")
-            }
-            message = `${message} ${newMessage}`
-          })
-        })
-
-        if (message === "") {
-          message = this.props.t("problemCreatingAccount") + JSON.stringify(error)
-        }
-        this.setState({ error: message, submitting: false, errorObj: error })
-      } catch (_error2) {
-        this.setState({ error: JSON.stringify(error), submitting: false })
-      }
-
-      this.setState({ submitting: false })
-    } */
+      // eslint-disable-next-line i18next/no-literal-string
+      console.log("error", error)
+      /* setSubmitError({JSON.stringify(error) }) */
+    }
   }
 
   return (
     <Wrapper>
       <h2>{t("create-new-account")}</h2>
       <span className="description">
-        This course uses <a href="https://www.mooc.fi/en/">mooc.fi</a> usernames. {SUBTITLE}
+        {t("sign-up-with-mooc-subtitle")} {/* <a href="https://www.mooc.fi/en/">mooc.fi</a> */}
       </span>
-      {submitError && <div>Virhe lähetyksessä</div>}
+      {submitError && <div>{submitError}</div>}
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset /* disabled={submitting} */>
+          <div key="first_name">
+            <label htmlFor="first_name">{t("first-name")}</label>
+            <input
+              placeholder={t("enter-first-name")}
+              type="first_name"
+              {...register("first_name", {
+                required: t("required-field"),
+              })}
+            />
+            {errors.first_name && (
+              <ErrorMessage>
+                {ErrorIcon} {`${errors.first_name.message}`}
+              </ErrorMessage>
+            )}
+          </div>
+          <div key="last_name">
+            <label htmlFor="last_name">{t("last-name")}</label>
+            <input
+              placeholder={t("enter-last-name")}
+              type="last_name"
+              {...register("last_name", {
+                required: t("required-field"),
+              })}
+            />
+            {errors.last_name && (
+              <ErrorMessage>
+                {ErrorIcon} {`${errors.last_name.message}`}
+              </ErrorMessage>
+            )}
+          </div>
           <div key="email">
             <label htmlFor="email">{t("email")}</label>
             <input
@@ -192,7 +203,11 @@ const CreateAccountForm = () => {
                 },
               })}
             />
-            {errors.email && <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>}
+            {errors.email && (
+              <ErrorMessage>
+                {ErrorIcon} {`${errors.email.message}`}
+              </ErrorMessage>
+            )}
           </div>
           <div key="password">
             <label htmlFor="password">{t("password")}</label>
@@ -207,14 +222,18 @@ const CreateAccountForm = () => {
                 },
               })}
             />
-            {errors.password && <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>}
+            {errors.password && (
+              <ErrorMessage>
+                {ErrorIcon} {`${errors.password.message}`}
+              </ErrorMessage>
+            )}
           </div>
-          <div key="passwordConfirmation">
-            <label htmlFor="passwordConfirmation">{t("confirm-password")}</label>
+          <div key="password_confirmation">
+            <label htmlFor="password_confirmation">{t("confirm-password")}</label>
             <input
               placeholder={t("confirm-your-password")}
               type="password"
-              {...register("passwordConfirmation", {
+              {...register("password_confirmation", {
                 required: t("required-field"),
                 minLength: {
                   value: 8,

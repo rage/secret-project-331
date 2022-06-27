@@ -295,7 +295,7 @@ const Cover = () => (
 
 // eslint-disable-next-line i18next/no-literal-string
 const BannerWrapper = styled.div`
-  height: 340px;
+  height: 250px;
   position: relative;
   display: grid;
   justify-content: center;
@@ -307,7 +307,7 @@ const BannerWrapper = styled.div`
     right: 0;
     top: 0;
     width: 100%;
-    height: 340px;
+    height: 250px;
     z-index: -1;
   }
 
@@ -325,16 +325,15 @@ const Content = styled.div`
   margin: 0 auto;
   max-width: 700px;
   text-align: center;
-  padding-top: 30px;
 
   h2 {
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 5px !important;
   }
 `
 const Text = styled.div`
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 10px;
 
   div {
@@ -344,7 +343,7 @@ const Text = styled.div`
 // eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   font-family: ${headingFont};
-  font-size: 30px;
+  font-size: 20px;
   color: #44827e;
   text-decoration: none;
 
@@ -384,7 +383,7 @@ const Contribute: React.FC<ContributeProps> = () => {
         <Cover />
       </div>
       <Content>
-        <h2>{t("about-this-project")}</h2>
+        <h3>{t("about-this-project")}</h3>
         <Text>
           <div>{t("about-this-project-description")}</div>
         </Text>

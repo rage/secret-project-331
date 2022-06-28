@@ -137,6 +137,28 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
+pub async fn get_by_course_module_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        ",
+        course_module_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

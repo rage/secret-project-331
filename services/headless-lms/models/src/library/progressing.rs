@@ -1,42 +1,42 @@
 use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules::{self, CourseModule},
+    course_modules::CourseModule,
     courses,
     prelude::*,
     user_exercise_states::{self, UserCourseInstanceMetrics},
     users,
 };
 
-/// Validates and creates an automatic course completion for an user.
+/// Checks whether the course module can be completed automatically and creates an entry for completion
+/// if the user meets the criteria.
 ///
-/// Currently only completions without grades are supported for automatic completions.
-pub async fn process_automatic_module_completion_request(
+/// This function is a no-op if the completion already exists or can't be granted. That way it can be
+/// called during a generic exercise state update. In future, it could return a value indicating the
+/// result.
+pub async fn grant_automatic_completion_if_eligible(
     conn: &mut PgConnection,
-    course_module_id: Uuid,
+    course_module: &CourseModule,
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
-    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
-    if !course_module.automatic_completion {
-        return Err(ModelError::InvalidRequest(
-            "Course module doesn't support automatic completion.".to_string(),
-        ));
-    }
-    let course = courses::get_course(conn, course_module.course_id).await?;
     let user_metrics = user_exercise_states::get_single_module_course_instance_metrics(
         conn,
         course_instance_id,
-        course_module_id,
+        course_module.id,
         user_id,
     )
     .await?;
-    if user_is_eligible_for_automatic_completion(&course_module, &user_metrics) {
+    if user_has_completed_course_module(conn, course_module.id, user_id).await? {
+        // If user already has a completion, do not attempt to create a new completion.
+        Ok(())
+    } else if user_is_eligible_for_automatic_completion(course_module, &user_metrics) {
+        let course = courses::get_course(conn, course_module.course_id).await?;
         let user = users::get_by_id(conn, user_id).await?;
         let _completion_id = course_module_completions::insert(
             conn,
             &NewCourseModuleCompletion {
                 course_id: course_module.course_id,
-                course_module_id,
+                course_module_id: course_module.id,
                 user_id,
                 completion_date: Utc::now(),
                 completion_registration_attempt_date: None,
@@ -51,10 +51,24 @@ pub async fn process_automatic_module_completion_request(
         .await?;
         Ok(())
     } else {
-        Err(ModelError::PreconditionFailed(
-            "User is not eligible for automatic completion.".to_string(),
-        ))
+        // Can't grant automatic completion; no-op.
+        Ok(())
     }
+}
+
+async fn user_has_completed_course_module(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<bool> {
+    let completion = course_module_completions::get_by_course_module_and_user_ids(
+        conn,
+        course_module_id,
+        user_id,
+    )
+    .await
+    .optional()?;
+    Ok(completion.is_some())
 }
 
 fn user_is_eligible_for_automatic_completion(

@@ -326,7 +326,8 @@ const Content = styled.div`
   max-width: 700px;
   text-align: center;
 
-  h3 {
+  h2 {
+    font-size: 34px;
     font-family: ${headingFont};
     font-weight: bold;
     color: #065853;
@@ -386,7 +387,7 @@ const Contribute: React.FC<ContributeProps> = () => {
         <Cover />
       </div>
       <Content>
-        <h3>{t("about-this-project")}</h3>
+        <h2>{t("about-this-project")}</h2>
         <Text>
           <div>{t("about-this-project-description")}</div>
         </Text>

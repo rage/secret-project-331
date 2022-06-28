@@ -56,7 +56,7 @@ const CourseContent = styled.div`
 const CourseHeading = styled.div`
   font-family: ${headingFont};
   font-weight: 200;
-  font-size: 40px;
+  font-size: 30px;
   line-height: 1;
   color: #1a2333;
   margin-bottom: 13px;
@@ -64,6 +64,15 @@ const CourseHeading = styled.div`
 
 // eslint-disable-next-line i18next/no-literal-string
 const CourseDescription = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+
+  /* Limit line count to 3 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
   font-family: ${primaryFont};
   font-weight: ${fontWeights["normal"]};
   font-size: 20px;

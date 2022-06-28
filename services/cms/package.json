@@ -66,6 +66,7 @@
     "recoil-devtools-dock": "^0.4.0",
     "recoil-devtools-log-monitor": "^0.4.0",
     "recoil-devtools-logger": "^0.4.0",
+    "svgo": "^2.8.0",
     "use-debounce": "^8.0.1",
     "uuid": "^8.3.2"
   },

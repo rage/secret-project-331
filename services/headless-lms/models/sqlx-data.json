@@ -13735,6 +13735,32 @@
       "nullable": []
     }
   },
+  "ebe57a5919ce71bd80d2bafe258ffcdbf3fe5c4d4ce39d1e5bddaf3bf2b8744e": {
+    "query": "\nSELECT chapters.course_module_id,\n  COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE chapters.course_module_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $3\n  AND ues.deleted_at IS NULL\nGROUP BY chapters.course_module_id\nLIMIT 1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "attempted_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [false, null, null]
+    }
+  },
   "edb8b86eadb9983d736300c28314c5b8e3f5a4b0ba1c4756d088118871018aa7": {
     "query": "\nSELECT users.id,\n  users.first_name,\n  users.last_name,\n  email,\n  role AS \"role: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE roles.exam_id = $1\n",
     "describe": {

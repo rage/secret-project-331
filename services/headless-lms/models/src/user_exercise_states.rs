@@ -169,9 +169,9 @@ pub struct UserChapterMetrics {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
-    course_module_id: Uuid,
-    score_given: Option<f32>,
-    attempted_exercises: Option<i64>,
+    pub course_module_id: Uuid,
+    pub score_given: Option<f32>,
+    pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -230,6 +230,38 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
         .into_iter()
         .map(|x| (x.course_module_id, x))
         .collect();
+    Ok(res)
+}
+
+pub async fn get_single_module_course_instance_metrics(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<UserCourseInstanceMetrics> {
+    let res = sqlx::query_as!(
+        UserCourseInstanceMetrics,
+        "
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE chapters.course_module_id = $1
+  AND ues.course_instance_id = $2
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.user_id = $3
+  AND ues.deleted_at IS NULL
+GROUP BY chapters.course_module_id
+LIMIT 1
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }
 

@@ -89,14 +89,18 @@ const Wrapper = styled.div`
     margin-top: 30px;
     background: #46749b;
     color: #fff;
-    font-weight: 500;
+    font-weight: bold;
     font-size: 22px;
     padding: 15px 10px;
     line-height: 1.2;
-    font-family: ${secondaryFont} !important;
+    font-family: ${headingFont} !important;
     justify-content: center;
     align-items: center;
     border: none;
+
+    &:hover {
+      background: #215887;
+    }
   }
 
   .signin-link {
@@ -127,7 +131,7 @@ interface FormInputs {
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
-  const { errors, isValid /* isSubmitting */ } = formState
+  const { errors, isValid, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
 
@@ -139,9 +143,7 @@ const CreateAccountForm = () => {
   return (
     <Wrapper>
       <h2>{t("create-new-account")}</h2>
-      <span className="description">
-        {t("sign-up-with-mooc-subtitle")} {/* <a href="https://www.mooc.fi/en/">mooc.fi</a> */}
-      </span>
+      <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       {submitError && <div>{submitError}</div>}
       <form
         onSubmit={handleSubmit(async (data) => {
@@ -158,11 +160,11 @@ const CreateAccountForm = () => {
           } catch (error) {
             // eslint-disable-next-line i18next/no-literal-string
             console.log("error", error)
-            /* setSubmitError(true) */
+            setSubmitError(true)
           }
         })}
       >
-        <fieldset /* disabled={submitting} */>
+        <fieldset disabled={isSubmitting}>
           <div key="first_name">
             <label htmlFor="first_name">{t("first-name")}</label>
             <input
@@ -173,6 +175,7 @@ const CreateAccountForm = () => {
               })}
             />
             {errors.first_name && (
+              // eslint-disable-next-line i18next/no-literal-string
               <ErrorMessage>&#9888; {`${errors.first_name.message}`}</ErrorMessage>
             )}
           </div>
@@ -186,6 +189,7 @@ const CreateAccountForm = () => {
               })}
             />
             {errors.last_name && (
+              // eslint-disable-next-line i18next/no-literal-string
               <ErrorMessage>&#9888; {`${errors.last_name.message}`}</ErrorMessage>
             )}
           </div>
@@ -197,13 +201,15 @@ const CreateAccountForm = () => {
               {...register("email", {
                 required: t("required-field"),
                 validate: {
-                  //will change to regex for a more extensive validdation
                   isValidEmail: (value) =>
                     value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
                 },
               })}
             />
-            {errors.email && <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>}
+            {errors.email && (
+              // eslint-disable-next-line i18next/no-literal-string
+              <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>
+            )}
           </div>
           <div key="password">
             <label htmlFor="password">{t("password")}</label>
@@ -218,7 +224,10 @@ const CreateAccountForm = () => {
                 },
               })}
             />
-            {errors.password && <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>}
+            {errors.password && (
+              // eslint-disable-next-line i18next/no-literal-string
+              <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>
+            )}
           </div>
           <div key="password_confirmation">
             <label htmlFor="password_confirmation">{t("confirm-password")}</label>
@@ -232,17 +241,17 @@ const CreateAccountForm = () => {
                   message: t("password-must-have-at-least-8-digit"),
                 },
                 validate: {
-                  passwordMatch: (value) => value !== password || t("password-dont-match"),
+                  passwordMatch: (value) => value === password || t("password-dont-match"),
                 },
               })}
             />
-            {errors.passwordConfirmation && (
+            {errors.password_confirmation && (
               // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.passwordConfirmation.message}`}</ErrorMessage>
+              <ErrorMessage>&#9888; {`${errors.password_confirmation.message}`}</ErrorMessage>
             )}
           </div>
         </fieldset>
-        <input /* disabled={isValid} */ value={t("create-an-acount").toUpperCase()} type="submit" />
+        <input disabled={!isValid} value={t("create-an-acount")} type="submit" />
       </form>
       <span className="signin-link">
         <a href="https://courses.mooc.fi/login">{t("sign-in-if-you-have-an-account")}</a>

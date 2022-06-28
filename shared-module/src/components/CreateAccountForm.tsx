@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -127,8 +127,8 @@ const Wrapper = styled.div`
 
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
-  const { register, formState, watch, handleSubmit } = useForm({ mode: "onChange" })
-  const { errors, isValid, isSubmitting } = formState
+  const { register, formState, watch, reset, handleSubmit } = useForm({ mode: "onChange" })
+  const { errors, isValid, isSubmitSuccessful, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
 
@@ -137,13 +137,24 @@ const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
 
+  useEffect(() => {
+    reset({
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+    })
+  }, [isSubmitSuccessful, reset])
+
   return (
     <Wrapper>
       <h2>{t("create-new-account")}</h2>
       <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       {submitError && <div>{submitError}</div>}
       <form
-        onSubmit={handleSubmit(async (data) => {
+        onSubmit={handleSubmit(async (data, event) => {
+          event?.preventDefault()
           const { first_name, last_name, email, password, password_confirmation } = data
           try {
             await createUser({

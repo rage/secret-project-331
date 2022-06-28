@@ -18,7 +18,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   // Click text=Advanced course instance managementNo description available
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator("text=Introduction to Course Material").click(),
+    page.locator(`div:text-is("Introduction to Course Material")`).click(),
   ])
   await selectCourseInstanceIfPrompted(page)
   await page.locator("text=User Experience").click()

@@ -22,13 +22,6 @@ pub async fn get_edit_proposals(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PageProposal>>> {
     let mut conn = pool.acquire().await?;
-    authorize(
-        &mut conn,
-        Act::Teach,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
 
     let feedback = proposed_page_edits::get_proposals_for_course(
         &mut conn,
@@ -37,7 +30,15 @@ pub async fn get_edit_proposals(
         query.pagination,
     )
     .await?;
-    Ok(web::Json(feedback))
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    token.authorized_ok(web::Json(feedback))
 }
 
 /**
@@ -51,17 +52,18 @@ pub async fn get_edit_proposal_count(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ProposalCount>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+
+    let edit_proposal_count =
+        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
+
+    let token = authorize(
         &mut conn,
         Act::Teach,
         Some(user.id),
         Res::Course(*course_id),
     )
     .await?;
-
-    let edit_proposal_count =
-        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
-    Ok(web::Json(edit_proposal_count))
+    token.authorized_ok(web::Json(edit_proposal_count))
 }
 
 /**
@@ -75,13 +77,6 @@ pub async fn process_edit_proposal(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let proposal = proposal.into_inner();
-    authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Page(proposal.page_id),
-    )
-    .await?;
 
     proposed_page_edits::process_proposal(
         &mut conn,
@@ -91,7 +86,15 @@ pub async fn process_edit_proposal(
         user.id,
     )
     .await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Page(proposal.page_id),
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

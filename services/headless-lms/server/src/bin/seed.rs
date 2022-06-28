@@ -12,6 +12,7 @@ use headless_lms_models::{
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances,
     course_instances::NewCourseInstance,
+    course_module_completions::{self, NewCourseModuleCompletion},
     course_modules, courses,
     courses::NewCourse,
     exams,
@@ -1382,6 +1383,9 @@ async fn seed_sample_course(
 
     // chapters and pages
 
+    let course_module_id = course_modules::insert(conn, course.id, None, 0)
+        .await
+        .unwrap();
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
@@ -1389,7 +1393,7 @@ async fn seed_sample_course(
         name: "The Basics".to_string(),
         opens_at: None,
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -1400,7 +1404,7 @@ async fn seed_sample_course(
         name: "The intermediaries".to_string(),
         opens_at: None,
         deadline: None,
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1416,7 +1420,7 @@ async fn seed_sample_course(
         name: "Advanced studies".to_string(),
         opens_at: None,
         deadline: None,
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1432,7 +1436,7 @@ async fn seed_sample_course(
         name: "Forbidden magicks".to_string(),
         opens_at: None,
         deadline: None,
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1443,7 +1447,8 @@ async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let module_id = course_modules::new(conn, course.id, "Another module", 1).await?;
+    let second_module_id =
+        course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -1451,7 +1456,7 @@ async fn seed_sample_course(
         name: "Another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module_id),
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_1, _m1c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1462,11 +1467,11 @@ async fn seed_sample_course(
         name: "Another another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module_id),
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_2, _m1c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
-    let module_id = course_modules::new(conn, course.id, "Bonus module", 2).await?;
+    let module_id = course_modules::insert(conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -1474,7 +1479,7 @@ async fn seed_sample_course(
         name: "Bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module_id),
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_1, _m2c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1485,7 +1490,7 @@ async fn seed_sample_course(
         name: "Another bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module_id),
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_2, _m2c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -2604,6 +2609,26 @@ async fn seed_sample_course(
     glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
 
+    // Completions (maybe temporary)
+    course_module_completions::insert(
+        conn,
+        &NewCourseModuleCompletion {
+            course_id,
+            course_module_id,
+            user_id: student,
+            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
+            completion_registration_attempt_date: None,
+            completion_language: "en-US".to_string(),
+            eligible_for_ects: true,
+            email: "student@example.com".to_string(),
+            grade: Some(4),
+            passed: true,
+        },
+        None,
+    )
+    .await
+    .unwrap();
+
     Ok(course.id)
 }
 
@@ -2904,6 +2929,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     // FAQ, we should add card/accordion block to visualize here.
     let (_page, _history) =
         pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let course_module_id = course_modules::insert(conn, course.id, None, 0).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -2913,7 +2939,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Interface".to_string(),
         opens_at: None,
         deadline: None,
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -3033,7 +3059,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Experience".to_string(),
         opens_at: None,
         deadline: None,
-        module: None,
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;

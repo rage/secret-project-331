@@ -1,1 +1,1 @@
-type ChaptersWithStatus = { is_previewable: boolean; chapters: Array<ChapterWithStatus> }
+type ChaptersWithStatus = { is_previewable: boolean; modules: Array<CourseMaterialCourseModule> }

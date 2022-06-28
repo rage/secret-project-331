@@ -1,24 +1,25 @@
+use anyhow::{Context, Result};
+use bytes::Bytes;
+use csv::Writer;
+use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
+use headless_lms_models::{
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
+};
+use serde::Serialize;
+use sqlx::PgConnection;
 use std::{
     collections::HashMap,
     io,
     io::Write,
     sync::{Arc, Mutex},
 };
-
-use anyhow::{Context, Result};
-use bytes::Bytes;
-use csv::Writer;
-use futures::stream::FuturesUnordered;
-use headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
-};
-use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::StreamExt;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
-use crate::controllers::ControllerResult;
+use crate::controllers::{self, ControllerResult};
 
+use super::authorization::{AuthorizationToken, AuthorizedResponse};
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
     csv_writer: Arc<Mutex<Writer<W>>>,
@@ -234,8 +235,8 @@ where
 
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
+    pub authorization_token: AuthorizationToken,
 }
-
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
@@ -243,11 +244,74 @@ impl Write for CSVExportAdapter {
 
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let bytes = Bytes::copy_from_slice(buf);
+        let token = self.authorization_token;
         self.sender
-            .send(Ok(bytes))
+            .send(token.authorized_ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
+}
+
+/** Without this one, actix cannot stream our authorized streams as responses
+
+```ignore
+HttpResponse::Ok()
+    .append_header((
+        "Content-Disposition",
+        format!(
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+            exam.name,
+            Utc::today().format("%Y-%m-%d")
+        ),
+    ))
+    .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+        receiver,
+    ))),
+```
+*/
+pub fn make_authorized_streamable(
+    stream: UnboundedReceiverStream<
+        Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,
+    >,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    stream.map(|item| item.map(|item2| item2.data))
+}
+
+/**
+  For streaming arrays of json objects.
+*/
+pub fn serializable_sqlx_result_stream_to_json_stream(
+    stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    let res_stream = stream.enumerate().map(|(n, item)| {
+        item.map(|item2| {
+            match serde_json::to_vec(&item2) {
+                Ok(mut v) => {
+                    // Only item index available, we don't know the length of the stream
+                    if n == 0 {
+                        // Start of array character to the beginning of the stream
+                        v.insert(0, b'[');
+                    } else {
+                        // Separator character before every item excluding the first item
+                        v.insert(0, b',');
+                    }
+                    Bytes::from(v)
+                }
+                Err(e) => {
+                    // Since we're already streaming a response, we have no way to change the status code of the response anymore.
+                    // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
+                    error!("Failed to serialize item: {}", e);
+                    Bytes::from(format!(
+                        "Streaming error: Failed to serialize item. Details: {:?}",
+                        e
+                    ))
+                }
+            }
+        })
+        .map_err(|e| controllers::ControllerError::InternalServerError(e.to_string()))
+    });
+    // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
+    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
 }
 
 #[cfg(test)]
@@ -273,12 +337,12 @@ mod test {
 
     #[tokio::test]
     async fn exports() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2, None)
+        let c2 = chapters::insert(tx.as_mut(), "", course, 2, course_module)
             .await
             .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)

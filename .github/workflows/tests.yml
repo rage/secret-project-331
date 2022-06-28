@@ -59,6 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Npm peer dependency workaround
+        run: npm config set legacy-peer-deps=true
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -72,6 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Npm peer dependency workaround
+        run: npm config set legacy-peer-deps=true
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -85,6 +89,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Npm peer dependency workaround
+        run: npm config set legacy-peer-deps=true
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci

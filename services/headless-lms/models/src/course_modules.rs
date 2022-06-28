@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
-pub async fn new(
+pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
-    name: &str,
+    name: Option<&str>,
     order_number: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -19,6 +21,13 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn insert_default_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Uuid> {
+    insert(conn, course_id, None, 0).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -68,17 +77,47 @@ WHERE id = $1
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Module {
     pub id: Uuid,
-    pub name: String,
+    pub name: Option<String>,
+    pub course_id: Uuid,
     pub order_number: i32,
+    pub copied_from: Option<Uuid>,
+    pub uh_course_code: Option<String>,
 }
 
-pub async fn for_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Module>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
+        "
+SELECT id,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code
+FROM course_modules
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Module>> {
     let modules = sqlx::query_as!(
         Module,
         "
 SELECT id,
   name,
-  order_number
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code
 FROM course_modules
 WHERE course_id = $1
 ",
@@ -87,4 +126,70 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(modules)
+}
+
+pub async fn get_default_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Module> {
+    let res = sqlx::query_as!(
+        Module,
+        "
+SELECT id,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code
+FROM course_modules
+WHERE course_id = $1
+  AND name IS NULL
+  AND order_number = 0
+  AND deleted_at IS NULL
+        ",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets all course modules with a matching `uh_course_code` or course `slug`.
+///
+/// In the latter case only one record at most is returned, but there is no way to distinguish between
+/// these two scenarios in advance.
+pub async fn get_ids_by_course_slug_or_uh_course_code(
+    conn: &mut PgConnection,
+    course_slug_or_code: &str,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT course_modules.id
+FROM course_modules
+  LEFT JOIN courses ON (course_modules.course_id = courses.id)
+WHERE (
+    course_modules.uh_course_code = $1
+    OR courses.slug = $1
+  )
+  AND course_modules.deleted_at IS NULL
+        ",
+        course_slug_or_code,
+    )
+    .map(|record| record.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets course modules for the given course as a map, indexed by the `id` field.
+pub async fn get_by_course_id_as_map(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, Module>> {
+    let res = get_by_course_id(conn, course_id)
+        .await?
+        .into_iter()
+        .map(|course_module| (course_module.id, course_module))
+        .collect();
+    Ok(res)
 }

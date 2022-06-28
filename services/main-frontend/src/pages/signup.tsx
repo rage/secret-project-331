@@ -1,8 +1,10 @@
 import styled from "@emotion/styled"
-import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import { createUser } from "../shared-module/services/backend/auth"
 import { baseTheme, headingFont } from "../shared-module/styles"
 
@@ -86,7 +88,7 @@ const Wrapper = styled.div`
 
   input[type="submit"] {
     height: 60px;
-    margin-top: 30px;
+    margin-top: 24px;
     background: #46749b;
     color: #fff;
     font-weight: bold;
@@ -128,6 +130,8 @@ const Wrapper = styled.div`
 const CreateAccountForm: React.FC = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const { register, formState, watch, reset, handleSubmit } = useForm({ mode: "onChange" })
+  const loginStateContext = useContext(LoginStateContext)
+  const router = useRouter()
   const { errors, isValid, isSubmitSuccessful, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
@@ -138,6 +142,9 @@ const CreateAccountForm: React.FC = () => {
   const password = watch("password")
 
   useEffect(() => {
+    if (loginStateContext.signedIn) {
+      router.push("/")
+    }
     reset({
       first_name: "",
       last_name: "",
@@ -145,7 +152,7 @@ const CreateAccountForm: React.FC = () => {
       password: "",
       password_confirmation: "",
     })
-  }, [isSubmitSuccessful, reset])
+  }, [isSubmitSuccessful, loginStateContext.signedIn, reset, router])
 
   return (
     <Wrapper>
@@ -169,6 +176,8 @@ const CreateAccountForm: React.FC = () => {
             console.log("error", error)
             setSubmitError(true)
           }
+
+          await loginStateContext.refresh()
         })}
       >
         <fieldset disabled={isSubmitting}>

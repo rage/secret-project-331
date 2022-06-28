@@ -37,7 +37,7 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
   ) : (
     <>
       <li className={cx(styles)}>
-        <a href="https://www.mooc.fi/en/sign-up/">
+        <a href="/signup">
           <Button size="medium" variant="primary">
             {t("create-new-account")}
           </Button>

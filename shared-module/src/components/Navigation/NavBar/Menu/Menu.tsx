@@ -75,6 +75,8 @@ const Menu: React.FC<MenuProps> = ({ children, variant }) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 
+  // eslint-disable-next-line i18next/no-literal-string
+  const buttonId = variant === "bottom" ? "" : "main-navigation-menu"
   const onClickHandler = () => {
     setClicked(!clicked)
   }
@@ -88,7 +90,7 @@ const Menu: React.FC<MenuProps> = ({ children, variant }) => {
         aria-label={t("open-menu")}
         tabIndex={0}
       >
-        <Hamburger isActive={clicked} toggleButton={onClickHandler} />
+        <Hamburger isActive={clicked} toggleButton={onClickHandler} buttonId={buttonId} />
       </div>
       <ul
         className={

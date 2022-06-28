@@ -129,6 +129,10 @@ type ButtonProps = {
    * Callback to invoke on button click to toggle active state, default () => {}
    */
   toggleButton?: () => void
+  /**
+   * Callback to invoke on button click to toggle active state, default () => {}
+   */
+  buttonId?: string
 }
 
 type StyledButtonProps = {
@@ -163,15 +167,18 @@ const Button: React.FC<ButtonProps> = (props) => {
     isActive = false,
     Lines = StyledLines,
     toggleButton,
+    buttonId,
     ...rest
   } = props
+
+  console.log(buttonId)
 
   return (
     <StyledButton
       onClick={toggleButton}
       {...{ buttonWidth, buttonColor, className }}
       {...rest}
-      id="main-navigation-menu"
+      id={buttonId}
     >
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />

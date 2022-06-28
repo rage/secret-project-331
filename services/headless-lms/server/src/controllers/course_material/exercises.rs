@@ -5,7 +5,9 @@ use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercises::{CourseMaterialExercise, Exercise},
     library::{
-        grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
+        grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+        },
         peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
     user_exercise_states::{self, CourseInstanceOrExamId},
@@ -174,6 +176,7 @@ async fn post_submission(
         &exercise,
         user_exercise_state,
         payload.0,
+        GradingPolicy::Default,
     )
     .await?;
 

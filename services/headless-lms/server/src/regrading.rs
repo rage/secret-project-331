@@ -290,7 +290,7 @@ mod test {
         exercise_tasks::NewExerciseTask,
         exercises::{self, GradingProgress},
         library::grading::{
-            StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
             StudentExerciseTaskSubmission,
         },
         user_exercise_states,
@@ -842,12 +842,12 @@ mod test {
             None,
         )
         .await?;
-        let grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        let grading = headless_lms_models::library::grading::grade_user_submission(
             conn,
             exercise,
             user_exercise_state,
             submission,
-            mock_results,
+            GradingPolicy::Fixed(mock_results),
         )
         .await
         .unwrap();

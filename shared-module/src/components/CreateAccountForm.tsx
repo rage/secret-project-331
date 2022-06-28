@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createUser } from "../services/backend/auth"
-import { baseTheme, headingFont, secondaryFont } from "../styles"
+import { baseTheme, headingFont } from "../styles"
 
 const ErrorMessage = styled.div`
   color: #ed5565;
@@ -103,6 +103,11 @@ const Wrapper = styled.div`
     }
   }
 
+  input[type="submit"]:disabled {
+    background: #ebedee;
+    color: #989ca3;
+  }
+
   .signin-link {
     display: block;
     text-align: center;
@@ -119,14 +124,6 @@ const Wrapper = styled.div`
     }
   }
 `
-
-interface FormInputs {
-  first_name: string
-  last_name: string
-  email: string
-  password: string
-  password_confirmation: string
-}
 
 const CreateAccountForm = () => {
   // eslint-disable-next-line i18next/no-literal-string

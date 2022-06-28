@@ -418,7 +418,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "An example course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -463,7 +463,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -499,7 +499,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
     };
@@ -1353,7 +1353,7 @@ async fn seed_sample_course(
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -2641,7 +2641,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "The definitive introduction to course material.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };

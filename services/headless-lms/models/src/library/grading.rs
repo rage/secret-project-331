@@ -14,7 +14,9 @@ use crate::{
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, ReviewingStage, UserExerciseState, UserExerciseStateUpdate},
+    user_exercise_states::{
+        self, ExerciseWithUserState, ReviewingStage, UserExerciseState, UserExerciseStateUpdate,
+    },
     user_exercise_task_states,
 };
 
@@ -89,22 +91,20 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 /// they belong to the correct exercise slide.
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
+    exercise_with_user_state: &ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
-    let selected_exercise_slide_id =
-        user_exercise_state
-            .selected_exercise_slide_id
-            .ok_or_else(|| {
-                ModelError::PreconditionFailed(
-                    "Exercise slide not selected for the student.".to_string(),
-                )
-            })?;
+    let selected_exercise_slide_id = exercise_with_user_state
+        .selected_exercise_slide_id()
+        .ok_or_else(|| {
+            ModelError::PreconditionFailed(
+                "Exercise slide not selected for the student.".to_string(),
+            )
+        })?;
     let exercise_tasks: HashMap<Uuid, ExerciseTask> =
         exercise_tasks::get_exercise_tasks_by_exercise_slide_id(conn, &selected_exercise_slide_id)
             .await?;
-    let user_points_update_strategy = if exercise.exam_id.is_some() {
+    let user_points_update_strategy = if exercise_with_user_state.is_exam_exercise() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
@@ -116,11 +116,11 @@ pub async fn create_user_exercise_slide_submission(
         &mut tx,
         NewExerciseSlideSubmission {
             exercise_slide_id: selected_exercise_slide_id,
-            course_id: exercise.course_id,
-            course_instance_id: user_exercise_state.course_instance_id,
-            exam_id: user_exercise_state.exam_id,
-            exercise_id: user_exercise_state.exercise_id,
-            user_id: user_exercise_state.user_id,
+            course_id: exercise_with_user_state.course_id(),
+            course_instance_id: exercise_with_user_state.course_instance_id(),
+            exam_id: exercise_with_user_state.exam_id(),
+            exercise_id: exercise_with_user_state.exercise_id(),
+            user_id: exercise_with_user_state.user_id(),
             user_points_update_strategy,
         },
     )
@@ -230,8 +230,7 @@ pub enum GradingPolicy {
 
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
+    exercise_with_user_state: &mut ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
@@ -242,14 +241,13 @@ pub async fn grade_user_submission(
         exercise_slide_submission_tasks,
     } = create_user_exercise_slide_submission(
         &mut tx,
-        exercise,
-        &user_exercise_state,
+        exercise_with_user_state,
         user_exercise_slide_submission,
     )
     .await?;
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         &mut tx,
-        user_exercise_state.id,
+        exercise_with_user_state.user_exercise_state_id(),
         exercise_slide_submission.exercise_slide_id,
     )
     .await?;
@@ -260,7 +258,7 @@ pub async fn grade_user_submission(
                 let submission = grade_user_submission_task(
                     &mut tx,
                     &task_submission,
-                    exercise,
+                    exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
                 )
                 .await?;
@@ -278,7 +276,7 @@ pub async fn grade_user_submission(
                 let submission = create_fixed_grading_for_submission_task(
                     &mut tx,
                     &task_submission,
-                    exercise,
+                    exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
                     &fixed_result,
                 )
@@ -290,14 +288,12 @@ pub async fn grade_user_submission(
     };
     let user_exercise_state = propagate_user_exercise_state_update_from_slide(
         &mut tx,
-        exercise,
+        exercise_with_user_state.exercise(),
         user_exercise_slide_state,
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
-
-    tx.commit().await?;
-    Ok(StudentExerciseSlideSubmissionResult {
+    let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
             score_given: user_exercise_state.score_given,
             activity_progress: user_exercise_state.activity_progress,
@@ -305,7 +301,10 @@ pub async fn grade_user_submission(
             reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
-    })
+    };
+    exercise_with_user_state.set_user_exercise_state(user_exercise_state)?;
+    tx.commit().await?;
+    Ok(result)
 }
 
 async fn grade_user_submission_task(

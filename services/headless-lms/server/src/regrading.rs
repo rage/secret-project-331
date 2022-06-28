@@ -293,7 +293,7 @@ mod test {
             GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
             StudentExerciseTaskSubmission,
         },
-        user_exercise_states,
+        user_exercise_states::{self, ExerciseWithUserState},
     };
     use serde_json::Value;
 
@@ -842,10 +842,11 @@ mod test {
             None,
         )
         .await?;
+        let mut exercise_with_user_state =
+            ExerciseWithUserState::new(exercise.clone(), user_exercise_state).unwrap();
         let grading = headless_lms_models::library::grading::grade_user_submission(
             conn,
-            exercise,
-            user_exercise_state,
+            &mut exercise_with_user_state,
             submission,
             GradingPolicy::Fixed(mock_results),
         )

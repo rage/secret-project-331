@@ -10,7 +10,7 @@ use models::{
         },
         peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
     },
-    user_exercise_states::{self, CourseInstanceOrExamId},
+    user_exercise_states::{self, CourseInstanceOrExamId, ExerciseWithUserState},
 };
 
 use chrono::{Duration, Utc};
@@ -170,17 +170,16 @@ async fn post_submission(
     )
     .await?
     .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
-
+    let mut exercise_with_user_state = ExerciseWithUserState::new(exercise, user_exercise_state)?;
     let mut result = models::library::grading::grade_user_submission(
         &mut conn,
-        &exercise,
-        user_exercise_state,
+        &mut exercise_with_user_state,
         payload.0,
         GradingPolicy::Default,
     )
     .await?;
 
-    if exercise.exam_id.is_some() {
+    if exercise_with_user_state.is_exam_exercise() {
         // If exam, we don't want to expose model any grading details.
         result.clear_grading_information();
     }
@@ -193,8 +192,9 @@ async fn post_submission(
 
     // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
     // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
-    let has_received_full_points = score_given >= exercise.score_maximum as f32
-        || (score_given - exercise.score_maximum as f32).abs() < 0.0001;
+    let has_received_full_points = score_given
+        >= exercise_with_user_state.exercise().score_maximum as f32
+        || (score_given - exercise_with_user_state.exercise().score_maximum as f32).abs() < 0.0001;
     if !has_received_full_points && !last_try {
         result.clear_model_solution_specs();
     }

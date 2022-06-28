@@ -762,6 +762,104 @@ RETURNING id,
     Ok(res)
 }
 
+/// Convenience struct that combines user state to the exercise.
+///
+/// Many operations require information about both the user state and the exercise. However, because
+/// exercises can either belong to a course or an exam, and each course instance will have their
+/// own `UserExerciseState`, it can get difficult to track the proper context.
+pub struct ExerciseWithUserState {
+    exercise: Exercise,
+    user_exercise_state: UserExerciseState,
+}
+
+impl ExerciseWithUserState {
+    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+        if exercise.id == user_exercise_state.exercise_id {
+            Ok(Self {
+                exercise,
+                user_exercise_state,
+            })
+        } else {
+            Err(ModelError::Generic(
+                "UserExerciseState doesn't belong to the exercise.".to_string(),
+            ))
+        }
+    }
+
+    pub fn set_user_exercise_state(
+        &mut self,
+        user_exercise_state: UserExerciseState,
+    ) -> ModelResult<()> {
+        if self.exercise.id == user_exercise_state.exercise_id {
+            self.user_exercise_state = user_exercise_state;
+            Ok(())
+        } else {
+            Err(ModelError::Generic(
+                "State doesn't match the exercise.".to_string(),
+            ))
+        }
+    }
+
+    // Refactor notice: Most of these getters should rather be grouped up as an enum rather than
+    // returning a bunch of options. Currently done like this for compatibility.
+
+    pub fn course_id(&self) -> Option<Uuid> {
+        self.exercise.course_id
+    }
+
+    pub fn course_instance_id(&self) -> Option<Uuid> {
+        self.user_exercise_state.course_instance_id
+    }
+
+    pub fn exam_id(&self) -> Option<Uuid> {
+        self.exercise.exam_id
+    }
+
+    /// Grants reference to inner exercise. Not preferable.
+    pub fn exercise(&self) -> &Exercise {
+        &self.exercise
+    }
+
+    pub fn exercise_id(&self) -> Uuid {
+        self.exercise.id
+    }
+
+    pub fn is_course_exercise(&self) -> bool {
+        self.exercise.course_id.is_some()
+    }
+
+    pub fn is_exam_exercise(&self) -> bool {
+        self.exercise.exam_id.is_some()
+    }
+
+    pub fn selected_exercise_slide_id(&self) -> Option<Uuid> {
+        self.user_exercise_state.selected_exercise_slide_id
+    }
+
+    pub fn user_exercise_state_id(&self) -> Uuid {
+        self.user_exercise_state.id
+    }
+
+    pub fn user_id(&self) -> Uuid {
+        self.user_exercise_state.user_id
+    }
+}
+
+/// Gets `ExerciseWithUserState` for the given course and user. If the exercise belongs to a course
+/// rather than exam, the course instance saved as the user's current one will be used.
+pub async fn get_user_state_for_exercise(
+    conn: &mut PgConnection,
+    exercise: Exercise,
+    user_id: Uuid,
+) -> ModelResult<ExerciseWithUserState> {
+    get_users_current_by_exercise(conn, user_id, &exercise)
+        .await
+        .map(|user_exercise_state| ExerciseWithUserState {
+            exercise,
+            user_exercise_state,
+        })
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct CourseInstanceUserPoints {
     pub user_id: Uuid,

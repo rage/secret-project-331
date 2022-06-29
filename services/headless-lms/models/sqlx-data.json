@@ -13604,6 +13604,77 @@
       "nullable": [true, true, true]
     }
   },
+  "e65d6596514988223d01d65d8e4f8edb6132170649516dfb8fb848df6798baaa": {
+    "query": "\nSELECT course_modules.*\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "automatic_completion",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 10,
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "automatic_completion_number_of_points_treshold",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, false, true, false, true, false, true, true, false, true, true]
+    }
+  },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
     "query": "\nUPDATE regradings\nSET regrading_started_at = CASE\n    WHEN regrading_started_at IS NULL THEN now()\n    ELSE regrading_started_at\n  END\nWHERE regrading_completed_at IS NULL\n  AND deleted_at IS NULL\nRETURNING id\n",
     "describe": {

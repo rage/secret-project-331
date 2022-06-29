@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    course_modules,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
@@ -418,6 +419,16 @@ async fn update_user_exercise_state(
     );
     let new_user_exercise_state =
         user_exercise_states::update(conn, user_exercise_state_update).await?;
+    if let Some(course_instance_id) = user_exercise_state.course_instance_id {
+        let course_module = course_modules::get_by_exercise_id(conn, exercise.id).await?;
+        super::progressing::grant_automatic_completion_if_eligible(
+            conn,
+            &course_module,
+            course_instance_id,
+            user_exercise_state.user_id,
+        )
+        .await?;
+    }
     Ok(new_user_exercise_state)
 }
 

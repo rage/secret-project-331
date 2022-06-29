@@ -124,6 +124,26 @@ WHERE course_id = $1
     Ok(modules)
 }
 
+pub async fn get_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModule,
+        "
+SELECT course_modules.*
+FROM exercises
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
+WHERE exercises.id = $1
+        ",
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

@@ -50,12 +50,13 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
       className={css`
         margin-top: 3rem;
         font-family: ${headingFont};
-        ${respondToOrLarger.sm} {
+        ${respondToOrLarger.md} {
           margin-top: 6rem;
           margin-bottom: 4rem;
+          padding: 3rem 4rem 4rem 4rem;
         }
         background: ${baseTheme.colors.clear[100]};
-        padding: 3rem 4rem 4rem 4rem;
+        padding: 2rem 1rem 2rem 1.4rem;
       `}
     >
       <StyledButton>
@@ -73,10 +74,10 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
       <Fragment>
         <h2
           className={css`
-            font-size: 2.4rem;
-            line-height: 1.4;
+            font-size: clamp(28px, 3vw, 2.4rem);
+            line-height: 1.3;
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
             margin-top: 1.5rem;
           `}
         >
@@ -95,10 +96,15 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
         </p>
         <div
           className={css`
-            margin-top: 1.5rem;
             display: grid;
-            grid-template-columns: 150px 1fr;
-            column-gap: 20px;
+            grid-template-columns: /* 80px  */ 1fr;
+            column-gap: 10px;
+
+            ${respondToOrLarger.md} {
+              margin-top: 1.5rem;
+              grid-template-columns: 120px 1fr;
+              column-gap: 20px;
+            }
           `}
         >
           <div
@@ -107,6 +113,11 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               display: flex;
               justify-content: center;
               align-items: center;
+              visibility: hidden;
+
+              ${respondToOrLarger.md} {
+                visibility: visible;
+              }
 
               .arrow {
                 fill: #44827e;
@@ -118,8 +129,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               id="left-svg-icon"
               role="presentation"
               alt=""
-              width="50"
-              height="50"
+              width="30"
+              height="30"
               viewBox="0 0 39 39"
               transform="rotate(180)"
             />

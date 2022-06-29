@@ -55,12 +55,12 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
           margin-bottom: 4rem;
         }
         background: ${baseTheme.colors.clear[100]};
-        padding: 4rem 3rem;
+        padding: 3rem 4rem 4rem 4rem;
       `}
     >
       <StyledButton>
         <ArrowSVGIcon
-          id="svg-up-icon"
+          id="up-svg-icon"
           role="presentation"
           alt=""
           width="18"
@@ -75,9 +75,9 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
           className={css`
             font-size: 2.4rem;
             line-height: 1.4;
-            font-weight: medium !important;
+            font-weight: 500;
             margin-bottom: 0.5rem;
-            margin-top: 0.8rem;
+            margin-top: 1.5rem;
           `}
         >
           {title}
@@ -115,7 +115,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
           >
             {" "}
             <ArrowSVGIcon
-              id="svg-icon"
+              id="left-svg-icon"
               role="presentation"
               alt=""
               width="50"
@@ -156,10 +156,12 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
 
                   .next-page-title {
                     display: block;
+                    width: 68%;
                     font-size: ${typography.h4};
                     font-weight: medium;
-                    width: 68%;
                     color: #fff;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
                   }
                   .next-page-subtitle {
                     font-weight: bold;
@@ -208,7 +210,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               >
                 {url ? (
                   <ArrowSVGIcon
-                    id="svg-icon"
+                    id="right-svg-icon"
                     role="presentation"
                     alt=""
                     width="50"

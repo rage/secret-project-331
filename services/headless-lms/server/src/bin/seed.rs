@@ -3552,7 +3552,7 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result(
+    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         &exercise,
         &grading,

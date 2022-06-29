@@ -762,27 +762,123 @@ RETURNING id,
     Ok(res)
 }
 
+pub trait EwusType {}
+
 /// Convenience struct that combines user state to the exercise.
 ///
 /// Many operations require information about both the user state and the exercise. However, because
 /// exercises can either belong to a course or an exam, and each course instance will have their
 /// own `UserExerciseState`, it can get difficult to track the proper context.
-pub struct ExerciseWithUserState {
+pub struct ExerciseWithUserState<T: EwusType> {
     exercise: Exercise,
     user_exercise_state: UserExerciseState,
+    type_data: T,
 }
 
-impl ExerciseWithUserState {
-    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+impl<T: EwusType> ExerciseWithUserState<T> {
+    /// Provides a reference to the inner `Exercise`.
+    pub fn exercise(&self) -> &Exercise {
+        &self.exercise
+    }
+
+    /// Provides a reference to the inner `UserExerciseState`.
+    pub fn user_exercise_state(&self) -> &UserExerciseState {
+        &self.user_exercise_state
+    }
+}
+
+pub struct EwusCourse {
+    course_id: Uuid,
+    course_instance_id: Uuid,
+}
+
+impl EwusType for EwusCourse {}
+
+impl ExerciseWithUserState<EwusCourse> {
+    pub fn course_id(&self) -> Uuid {
+        self.type_data.course_id
+    }
+
+    pub fn course_instance_id(&self) -> Uuid {
+        self.type_data.course_instance_id
+    }
+}
+
+pub struct EwusExam {
+    exam_id: Uuid,
+}
+
+impl EwusType for EwusExam {}
+
+impl ExerciseWithUserState<EwusExam> {
+    pub fn exam_id(&self) -> Uuid {
+        self.type_data.exam_id
+    }
+}
+
+pub enum EwusContext<C, E> {
+    Course(C),
+    Exam(E),
+}
+
+pub type EwusCourseOrExam = EwusContext<EwusCourse, EwusExam>;
+
+impl EwusCourseOrExam {
+    pub fn from_exercise_and_user_exercise_state(
+        exercise: &Exercise,
+        user_exercise_state: &UserExerciseState,
+    ) -> ModelResult<Self> {
         if exercise.id == user_exercise_state.exercise_id {
-            Ok(Self {
-                exercise,
-                user_exercise_state,
-            })
+            let course_id = exercise.course_id;
+            let course_instance_id = user_exercise_state.course_instance_id;
+            let exam_id = exercise.exam_id;
+            match (course_id, course_instance_id, exam_id) {
+                (None, None, Some(exam_id)) => Ok(Self::Exam(EwusExam { exam_id })),
+                (Some(course_id), Some(course_instance_id), None) => Ok(Self::Course(EwusCourse {
+                    course_id,
+                    course_instance_id,
+                })),
+                _ => Err(ModelError::Generic("Invalid initializer data.".to_string())),
+            }
         } else {
             Err(ModelError::Generic(
-                "UserExerciseState doesn't belong to the exercise.".to_string(),
+                "Exercise doesn't match the state.".to_string(),
             ))
+        }
+    }
+}
+
+impl EwusType for EwusCourseOrExam {}
+
+impl ExerciseWithUserState<EwusCourseOrExam> {
+    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+        let state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &exercise,
+            &user_exercise_state,
+        )?;
+        Ok(Self {
+            exercise,
+            user_exercise_state,
+            type_data: state,
+        })
+    }
+
+    pub fn exercise_context(
+        self,
+    ) -> EwusContext<ExerciseWithUserState<EwusCourse>, ExerciseWithUserState<EwusExam>> {
+        match self.type_data {
+            EwusContext::Course(course) => {
+                EwusContext::Course(ExerciseWithUserState::<EwusCourse> {
+                    exercise: self.exercise,
+                    user_exercise_state: self.user_exercise_state,
+                    type_data: course,
+                })
+            }
+            EwusContext::Exam(exam) => EwusContext::Exam(ExerciseWithUserState::<EwusExam> {
+                exercise: self.exercise,
+                user_exercise_state: self.user_exercise_state,
+                type_data: exam,
+            }),
         }
     }
 
@@ -790,74 +886,20 @@ impl ExerciseWithUserState {
         &mut self,
         user_exercise_state: UserExerciseState,
     ) -> ModelResult<()> {
-        if self.exercise.id == user_exercise_state.exercise_id {
-            self.user_exercise_state = user_exercise_state;
-            Ok(())
-        } else {
-            Err(ModelError::Generic(
-                "State doesn't match the exercise.".to_string(),
-            ))
-        }
-    }
-
-    // Refactor notice: Most of these getters should rather be grouped up as an enum rather than
-    // returning a bunch of options. Currently done like this for compatibility.
-
-    pub fn course_id(&self) -> Option<Uuid> {
-        self.exercise.course_id
-    }
-
-    pub fn course_instance_id(&self) -> Option<Uuid> {
-        self.user_exercise_state.course_instance_id
-    }
-
-    pub fn exam_id(&self) -> Option<Uuid> {
-        self.exercise.exam_id
-    }
-
-    /// Grants reference to inner exercise. Not preferable.
-    pub fn exercise(&self) -> &Exercise {
-        &self.exercise
-    }
-
-    pub fn exercise_id(&self) -> Uuid {
-        self.exercise.id
-    }
-
-    pub fn is_course_exercise(&self) -> bool {
-        self.exercise.course_id.is_some()
+        self.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &self.exercise,
+            &user_exercise_state,
+        )?;
+        self.user_exercise_state = user_exercise_state;
+        Ok(())
     }
 
     pub fn is_exam_exercise(&self) -> bool {
-        self.exercise.exam_id.is_some()
+        match self.type_data {
+            EwusContext::Course(_) => false,
+            EwusContext::Exam(_) => true,
+        }
     }
-
-    pub fn selected_exercise_slide_id(&self) -> Option<Uuid> {
-        self.user_exercise_state.selected_exercise_slide_id
-    }
-
-    pub fn user_exercise_state_id(&self) -> Uuid {
-        self.user_exercise_state.id
-    }
-
-    pub fn user_id(&self) -> Uuid {
-        self.user_exercise_state.user_id
-    }
-}
-
-/// Gets `ExerciseWithUserState` for the given course and user. If the exercise belongs to a course
-/// rather than exam, the course instance saved as the user's current one will be used.
-pub async fn get_user_state_for_exercise(
-    conn: &mut PgConnection,
-    exercise: Exercise,
-    user_id: Uuid,
-) -> ModelResult<ExerciseWithUserState> {
-    get_users_current_by_exercise(conn, user_id, &exercise)
-        .await
-        .map(|user_exercise_state| ExerciseWithUserState {
-            exercise,
-            user_exercise_state,
-        })
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

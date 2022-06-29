@@ -16,7 +16,8 @@ use crate::{
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{
-        self, ExerciseWithUserState, ReviewingStage, UserExerciseState, UserExerciseStateUpdate,
+        self, EwusCourseOrExam, ExerciseWithUserState, ReviewingStage, UserExerciseState,
+        UserExerciseStateUpdate,
     },
     user_exercise_task_states,
 };
@@ -92,11 +93,12 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 /// they belong to the correct exercise slide.
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_with_user_state: &ExerciseWithUserState,
+    exercise_with_user_state: &ExerciseWithUserState<EwusCourseOrExam>,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
     let selected_exercise_slide_id = exercise_with_user_state
-        .selected_exercise_slide_id()
+        .user_exercise_state()
+        .selected_exercise_slide_id
         .ok_or_else(|| {
             ModelError::PreconditionFailed(
                 "Exercise slide not selected for the student.".to_string(),
@@ -117,11 +119,13 @@ pub async fn create_user_exercise_slide_submission(
         &mut tx,
         NewExerciseSlideSubmission {
             exercise_slide_id: selected_exercise_slide_id,
-            course_id: exercise_with_user_state.course_id(),
-            course_instance_id: exercise_with_user_state.course_instance_id(),
-            exam_id: exercise_with_user_state.exam_id(),
-            exercise_id: exercise_with_user_state.exercise_id(),
-            user_id: exercise_with_user_state.user_id(),
+            course_id: exercise_with_user_state.exercise().course_id,
+            course_instance_id: exercise_with_user_state
+                .user_exercise_state()
+                .course_instance_id,
+            exam_id: exercise_with_user_state.exercise().exam_id,
+            exercise_id: exercise_with_user_state.exercise().id,
+            user_id: exercise_with_user_state.user_exercise_state().user_id,
             user_points_update_strategy,
         },
     )
@@ -202,26 +206,6 @@ pub async fn update_grading_with_single_regrading_result(
     Ok(())
 }
 
-pub async fn update_exercise_state_with_single_exercise_task_grading_result(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    exercise_task_grading: &ExerciseTaskGrading,
-    exercise_task_grading_result: &ExerciseTaskGradingResult,
-    user_exercise_slide_state: UserExerciseSlideState,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> ModelResult<()> {
-    propagate_user_exercise_state_update_from_exercise_task_grading_result(
-        conn,
-        exercise,
-        exercise_task_grading,
-        exercise_task_grading_result,
-        user_exercise_slide_state,
-        user_points_update_strategy,
-    )
-    .await?;
-    Ok(())
-}
-
 pub enum GradingPolicy {
     /// Grades exercise tasks by sending a request to their respective services.
     Default,
@@ -231,7 +215,7 @@ pub enum GradingPolicy {
 
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
-    exercise_with_user_state: &mut ExerciseWithUserState,
+    exercise_with_user_state: &mut ExerciseWithUserState<EwusCourseOrExam>,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
@@ -248,7 +232,7 @@ pub async fn grade_user_submission(
     .await?;
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         &mut tx,
-        exercise_with_user_state.user_exercise_state_id(),
+        exercise_with_user_state.user_exercise_state().id,
         exercise_slide_submission.exercise_slide_id,
     )
     .await?;
@@ -632,7 +616,7 @@ async fn update_user_exercise_slide_state(
 
 /// Updates the user exercise state starting from a single task, and propagates the update up to the
 /// whole user exercise state.
-async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
+pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
     conn: &mut PgConnection,
     exercise: &Exercise,
     exercise_task_grading: &ExerciseTaskGrading,

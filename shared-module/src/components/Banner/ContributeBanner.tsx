@@ -327,7 +327,7 @@ const Content = styled.div`
   text-align: center;
 
   h2 {
-    font-size: 34px;
+    font-size: clamp(24px, 3vw, 30px);
     font-family: ${headingFont};
     font-weight: bold;
     color: #065853;

@@ -171,8 +171,6 @@ const Button: React.FC<ButtonProps> = (props) => {
     ...rest
   } = props
 
-  console.log(buttonId)
-
   return (
     <StyledButton
       onClick={toggleButton}

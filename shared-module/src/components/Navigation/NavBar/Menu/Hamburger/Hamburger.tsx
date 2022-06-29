@@ -19,7 +19,7 @@ const Hamburger: React.FC<HamburgerProps> = ({ isActive, toggleButton, buttonId 
       barColor="#333"
       buttonWidth={30}
       {...{ isActive, toggleButton, buttonId }}
-      className={cx(defaultPadding)}
+      className={buttonId === "main-navigation-menu" ? cx(defaultPadding) : undefined}
     />
   )
 }

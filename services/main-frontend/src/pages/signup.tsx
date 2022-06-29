@@ -145,7 +145,16 @@ const CreateAccountForm: React.FC = () => {
     if (loginStateContext.signedIn) {
       router.push("/")
     }
-  }, [loginStateContext.signedIn, router])
+    if (isSubmitSuccessful) {
+      reset({
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
+      })
+    }
+  }, [isSubmitSuccessful, loginStateContext.signedIn, reset, router])
 
   return (
     <Wrapper>
@@ -164,15 +173,6 @@ const CreateAccountForm: React.FC = () => {
               password: password,
               password_confirmation: password_confirmation,
             })
-            if (isSubmitSuccessful) {
-              reset({
-                first_name: "",
-                last_name: "",
-                email: "",
-                password: "",
-                password_confirmation: "",
-              })
-            }
           } catch (error) {
             // eslint-disable-next-line i18next/no-literal-string
             console.log("error", error)

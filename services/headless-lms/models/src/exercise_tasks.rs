@@ -180,7 +180,7 @@ pub async fn get_course_material_exercise_tasks(
             &exercise_task.exercise_type,
         )
         .await?
-        .exercise_type_specific_user_interface_iframe;
+        .user_interface_iframe_path;
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {

@@ -7,7 +7,7 @@ import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant: "primary" | "secondary" | "tertiary" | "outlined" | "blue"
-  size: "medium" | "large"
+  size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
 }

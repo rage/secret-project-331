@@ -17,6 +17,7 @@ COMMENT ON COLUMN course_modules.automatic_completion_number_of_points_treshold 
 -- 2. Add course instance id to completions
 -- ASSUMES THERE'S NO COMPLETIONS YET
 ALTER TABLE course_module_completions
-ADD COLUMN course_instance_id UUID NOT NULL REFERENCES course_instances(id),
-  ADD CONSTRAINT course_module_completion_uniqueness UNIQUE (course_module_id, course_instance_id, user_id);
+ADD COLUMN course_instance_id UUID NOT NULL REFERENCES course_instances(id);
+CREATE UNIQUE INDEX course_module_completion_uniqueness ON course_module_completions (course_module_id, course_instance_id, user_id)
+WHERE deleted_at IS NULL;
 COMMENT ON COLUMN course_module_completions.course_instance_id IS 'Instance that the completion was on.';

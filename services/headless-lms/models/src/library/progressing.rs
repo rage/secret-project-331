@@ -26,7 +26,8 @@ pub async fn grant_automatic_completion_if_eligible(
         user_id,
     )
     .await?;
-    if user_has_completed_course_module(conn, course_module.id, user_id).await? {
+    if user_has_completed_course_module(conn, course_module.id, course_instance_id, user_id).await?
+    {
         // If user already has a completion, do not attempt to create a new completion.
         Ok(())
     } else if user_is_eligible_for_automatic_completion(course_module, &user_metrics) {
@@ -36,6 +37,7 @@ pub async fn grant_automatic_completion_if_eligible(
             conn,
             &NewCourseModuleCompletion {
                 course_id: course_module.course_id,
+                course_instance_id,
                 course_module_id: course_module.id,
                 user_id,
                 completion_date: Utc::now(),
@@ -59,11 +61,13 @@ pub async fn grant_automatic_completion_if_eligible(
 async fn user_has_completed_course_module(
     conn: &mut PgConnection,
     course_module_id: Uuid,
+    course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<bool> {
-    let completion = course_module_completions::get_by_course_module_and_user_ids(
+    let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
         conn,
         course_module_id,
+        course_instance_id,
         user_id,
     )
     .await

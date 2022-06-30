@@ -2614,6 +2614,7 @@ async fn seed_sample_course(
         conn,
         &NewCourseModuleCompletion {
             course_id,
+            course_instance_id: default_instance.id,
             course_module_id,
             user_id: student,
             completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),

@@ -124,6 +124,8 @@ WHERE course_id = $1
     Ok(modules)
 }
 
+/// Gets course module where the given exercise belongs to. This will result in an error in the case
+/// of an exam exercise.
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,

@@ -436,9 +436,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }
     );
     write_docs!(
@@ -448,9 +450,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }]
     );
 

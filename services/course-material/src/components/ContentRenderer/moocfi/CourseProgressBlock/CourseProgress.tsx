@@ -51,7 +51,11 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
             <Wrapper>
               <ExerciseCountDisplay
                 exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
-                exercisesNeededToAnswer={courseModuleProgress.total_exercises ?? 0}
+                exercisesNeededToAnswer={
+                  courseModuleProgress.attempted_exercises_required ??
+                  courseModuleProgress.total_exercises ??
+                  0
+                }
                 totalExercises={courseModuleProgress.total_exercises ?? 0}
               />
             </Wrapper>
@@ -68,6 +72,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                 <Progress
                   variant={"circle"}
                   max={courseModuleProgress.score_maximum}
+                  required={courseModuleProgress.score_required ?? undefined}
                   given={courseModuleProgress.score_given}
                   point={50}
                   label={t("total-points")}

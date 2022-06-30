@@ -16,8 +16,7 @@ use crate::{
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{
-        self, EwusCourseOrExam, ExerciseWithUserState, ReviewingStage, UserExerciseState,
-        UserExerciseStateUpdate,
+        self, ExerciseWithUserState, ReviewingStage, UserExerciseState, UserExerciseStateUpdate,
     },
     user_exercise_task_states,
 };
@@ -93,7 +92,7 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 /// they belong to the correct exercise slide.
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise_with_user_state: &ExerciseWithUserState<EwusCourseOrExam>,
+    exercise_with_user_state: &ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
     let selected_exercise_slide_id = exercise_with_user_state
@@ -215,7 +214,7 @@ pub enum GradingPolicy {
 
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
-    exercise_with_user_state: &mut ExerciseWithUserState<EwusCourseOrExam>,
+    exercise_with_user_state: &mut ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {

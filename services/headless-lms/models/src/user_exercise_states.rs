@@ -762,20 +762,30 @@ RETURNING id,
     Ok(res)
 }
 
-pub trait EwusType {}
-
 /// Convenience struct that combines user state to the exercise.
 ///
 /// Many operations require information about both the user state and the exercise. However, because
 /// exercises can either belong to a course or an exam, and each course instance will have their
 /// own `UserExerciseState`, it can get difficult to track the proper context.
-pub struct ExerciseWithUserState<T: EwusType> {
+pub struct ExerciseWithUserState {
     exercise: Exercise,
     user_exercise_state: UserExerciseState,
-    type_data: T,
+    type_data: EwusCourseOrExam,
 }
 
-impl<T: EwusType> ExerciseWithUserState<T> {
+impl ExerciseWithUserState {
+    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+        let state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &exercise,
+            &user_exercise_state,
+        )?;
+        Ok(Self {
+            exercise,
+            user_exercise_state,
+            type_data: state,
+        })
+    }
+
     /// Provides a reference to the inner `Exercise`.
     pub fn exercise(&self) -> &Exercise {
         &self.exercise
@@ -785,35 +795,38 @@ impl<T: EwusType> ExerciseWithUserState<T> {
     pub fn user_exercise_state(&self) -> &UserExerciseState {
         &self.user_exercise_state
     }
+
+    pub fn exercise_context(&self) -> &EwusCourseOrExam {
+        &self.type_data
+    }
+
+    pub fn set_user_exercise_state(
+        &mut self,
+        user_exercise_state: UserExerciseState,
+    ) -> ModelResult<()> {
+        self.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &self.exercise,
+            &user_exercise_state,
+        )?;
+        self.user_exercise_state = user_exercise_state;
+        Ok(())
+    }
+
+    pub fn is_exam_exercise(&self) -> bool {
+        match self.type_data {
+            EwusCourseOrExam::Course(_) => false,
+            EwusCourseOrExam::Exam(_) => true,
+        }
+    }
 }
 
 pub struct EwusCourse {
-    course_id: Uuid,
-    course_instance_id: Uuid,
-}
-
-impl EwusType for EwusCourse {}
-
-impl ExerciseWithUserState<EwusCourse> {
-    pub fn course_id(&self) -> Uuid {
-        self.type_data.course_id
-    }
-
-    pub fn course_instance_id(&self) -> Uuid {
-        self.type_data.course_instance_id
-    }
+    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
 }
 
 pub struct EwusExam {
-    exam_id: Uuid,
-}
-
-impl EwusType for EwusExam {}
-
-impl ExerciseWithUserState<EwusExam> {
-    pub fn exam_id(&self) -> Uuid {
-        self.type_data.exam_id
-    }
+    pub exam_id: Uuid,
 }
 
 pub enum EwusContext<C, E> {
@@ -821,7 +834,10 @@ pub enum EwusContext<C, E> {
     Exam(E),
 }
 
-pub type EwusCourseOrExam = EwusContext<EwusCourse, EwusExam>;
+pub enum EwusCourseOrExam {
+    Course(EwusCourse),
+    Exam(EwusExam),
+}
 
 impl EwusCourseOrExam {
     pub fn from_exercise_and_user_exercise_state(
@@ -844,60 +860,6 @@ impl EwusCourseOrExam {
             Err(ModelError::Generic(
                 "Exercise doesn't match the state.".to_string(),
             ))
-        }
-    }
-}
-
-impl EwusType for EwusCourseOrExam {}
-
-impl ExerciseWithUserState<EwusCourseOrExam> {
-    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
-        let state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
-            &exercise,
-            &user_exercise_state,
-        )?;
-        Ok(Self {
-            exercise,
-            user_exercise_state,
-            type_data: state,
-        })
-    }
-
-    pub fn exercise_context(
-        self,
-    ) -> EwusContext<ExerciseWithUserState<EwusCourse>, ExerciseWithUserState<EwusExam>> {
-        match self.type_data {
-            EwusContext::Course(course) => {
-                EwusContext::Course(ExerciseWithUserState::<EwusCourse> {
-                    exercise: self.exercise,
-                    user_exercise_state: self.user_exercise_state,
-                    type_data: course,
-                })
-            }
-            EwusContext::Exam(exam) => EwusContext::Exam(ExerciseWithUserState::<EwusExam> {
-                exercise: self.exercise,
-                user_exercise_state: self.user_exercise_state,
-                type_data: exam,
-            }),
-        }
-    }
-
-    pub fn set_user_exercise_state(
-        &mut self,
-        user_exercise_state: UserExerciseState,
-    ) -> ModelResult<()> {
-        self.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
-            &self.exercise,
-            &user_exercise_state,
-        )?;
-        self.user_exercise_state = user_exercise_state;
-        Ok(())
-    }
-
-    pub fn is_exam_exercise(&self) -> bool {
-        match self.type_data {
-            EwusContext::Course(_) => false,
-            EwusContext::Exam(_) => true,
         }
     }
 }

@@ -902,36 +902,10 @@
 <span id="897">897</span>
 <span id="898">898</span>
 <span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">course_modules</span>,
     <span class="ident">exercise_slide_submissions</span>::{<span class="self">self</span>, <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">NewExerciseSlideSubmission</span>},
     <span class="ident">exercise_task_gradings</span>::{
         <span class="self">self</span>, <span class="ident">ExerciseTaskGrading</span>, <span class="ident">ExerciseTaskGradingResult</span>, <span class="ident">UserPointsUpdateStrategy</span>,
@@ -945,7 +919,9 @@
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">regradings</span>,
     <span class="ident">user_exercise_slide_states</span>::{<span class="self">self</span>, <span class="ident">UserExerciseSlideState</span>},
-    <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>, <span class="ident">UserExerciseStateUpdate</span>},
+    <span class="ident">user_exercise_states</span>::{
+        <span class="self">self</span>, <span class="ident">ExerciseWithUserState</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>, <span class="ident">UserExerciseStateUpdate</span>,
+    },
     <span class="ident">user_exercise_task_states</span>,
 };
 
@@ -1020,22 +996,21 @@
 <span class="doccomment">/// they belong to the correct exercise slide.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_user_exercise_slide_submission</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
+    <span class="ident">exercise_with_user_state</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseWithUserState</span>,
     <span class="ident">user_exercise_slide_submission</span>: <span class="ident">StudentExerciseSlideSubmission</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionWithTasks</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span>
-        <span class="ident">user_exercise_state</span>
-            .<span class="ident">selected_exercise_slide_id</span>
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::PreconditionFailed</span>(
-                    <span class="string">&quot;Exercise slide not selected for the student.&quot;</span>.<span class="ident">to_string</span>(),
-                )
-            })<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span> <span class="ident">exercise_with_user_state</span>
+        .<span class="ident">user_exercise_state</span>()
+        .<span class="ident">selected_exercise_slide_id</span>
+        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="ident">ModelError::PreconditionFailed</span>(
+                <span class="string">&quot;Exercise slide not selected for the student.&quot;</span>.<span class="ident">to_string</span>(),
+            )
+        })<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise_tasks</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTask</span><span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">exercise_tasks::get_exercise_tasks_by_exercise_slide_id</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">selected_exercise_slide_id</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_points_update_strategy</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">exam_id</span>.<span class="ident">is_some</span>() {
+    <span class="kw">let</span> <span class="ident">user_points_update_strategy</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">exercise_with_user_state</span>.<span class="ident">is_exam_exercise</span>() {
         <span class="ident">UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints</span>
     } <span class="kw">else</span> {
         <span class="ident">UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints</span>
@@ -1047,11 +1022,13 @@
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
         <span class="ident">NewExerciseSlideSubmission</span> {
             <span class="ident">exercise_slide_id</span>: <span class="ident">selected_exercise_slide_id</span>,
-            <span class="ident">course_id</span>: <span class="ident">exercise</span>.<span class="ident">course_id</span>,
-            <span class="ident">course_instance_id</span>: <span class="ident">user_exercise_state</span>.<span class="ident">course_instance_id</span>,
-            <span class="ident">exam_id</span>: <span class="ident">user_exercise_state</span>.<span class="ident">exam_id</span>,
-            <span class="ident">exercise_id</span>: <span class="ident">user_exercise_state</span>.<span class="ident">exercise_id</span>,
-            <span class="ident">user_id</span>: <span class="ident">user_exercise_state</span>.<span class="ident">user_id</span>,
+            <span class="ident">course_id</span>: <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>().<span class="ident">course_id</span>,
+            <span class="ident">course_instance_id</span>: <span class="ident">exercise_with_user_state</span>
+                .<span class="ident">user_exercise_state</span>()
+                .<span class="ident">course_instance_id</span>,
+            <span class="ident">exam_id</span>: <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>().<span class="ident">exam_id</span>,
+            <span class="ident">exercise_id</span>: <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>().<span class="ident">id</span>,
+            <span class="ident">user_id</span>: <span class="ident">exercise_with_user_state</span>.<span class="ident">user_exercise_state</span>().<span class="ident">user_id</span>,
             <span class="ident">user_points_update_strategy</span>,
         },
     )
@@ -1084,22 +1061,6 @@
         <span class="ident">exercise_slide_submission</span>,
         <span class="ident">exercise_slide_submission_tasks</span>,
     })
-}
-
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_user_submission</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
-    <span class="ident">user_exercise_slide_submission</span>: <span class="ident">StudentExerciseSlideSubmission</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span> {
-    <span class="ident">grade_user_submission_internal</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">user_exercise_state</span>,
-        <span class="ident">user_exercise_slide_submission</span>,
-        <span class="prelude-val">None</span>,
-    )
-    .<span class="kw">await</span>
 }
 
 <span class="comment">// Relocated regrading logic to condensate score update logic in a single place.</span>
@@ -1148,49 +1109,18 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_state_with_single_exercise_task_grading_result</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">exercise_task_grading</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGrading</span>,
-    <span class="ident">exercise_task_grading_result</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingResult</span>,
-    <span class="ident">user_exercise_slide_state</span>: <span class="ident">UserExerciseSlideState</span>,
-    <span class="ident">user_points_update_strategy</span>: <span class="ident">UserPointsUpdateStrategy</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">propagate_user_exercise_state_update_from_exercise_task_grading_result</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">exercise_task_grading</span>,
-        <span class="ident">exercise_task_grading_result</span>,
-        <span class="ident">user_exercise_slide_state</span>,
-        <span class="ident">user_points_update_strategy</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GradingPolicy</span> {
+    <span class="doccomment">/// Grades exercise tasks by sending a request to their respective services.</span>
+    <span class="ident">Default</span>,
+    <span class="doccomment">/// Intended for test purposes only.</span>
+    <span class="ident">Fixed</span>(<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_only_grade_user_submission_with_fixed_results</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_user_submission</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
+    <span class="ident">exercise_with_user_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ExerciseWithUserState</span>,
     <span class="ident">user_exercise_slide_submission</span>: <span class="ident">StudentExerciseSlideSubmission</span>,
-    <span class="ident">mock_results</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span> {
-    <span class="ident">grade_user_submission_internal</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">user_exercise_state</span>,
-        <span class="ident">user_exercise_slide_submission</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">mock_results</span>),
-    )
-    .<span class="kw">await</span>
-}
-
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_user_submission_internal</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
-    <span class="ident">user_exercise_slide_submission</span>: <span class="ident">StudentExerciseSlideSubmission</span>,
-    <span class="ident">mock_results</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGradingResult</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">grading_policy</span>: <span class="ident">GradingPolicy</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">StudentExerciseSlideSubmissionResult</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1199,56 +1129,59 @@
         <span class="ident">exercise_slide_submission_tasks</span>,
     } <span class="op">=</span> <span class="ident">create_user_exercise_slide_submission</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">exercise</span>,
-        <span class="kw-2">&amp;</span><span class="ident">user_exercise_state</span>,
+        <span class="ident">exercise_with_user_state</span>,
         <span class="ident">user_exercise_slide_submission</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">user_exercise_slide_state</span> <span class="op">=</span> <span class="ident">user_exercise_slide_states::get_or_insert_by_unique_index</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
+        <span class="ident">exercise_with_user_state</span>.<span class="ident">user_exercise_state</span>().<span class="ident">id</span>,
         <span class="ident">exercise_slide_submission</span>.<span class="ident">exercise_slide_id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">exercise_slide_submission_tasks</span>.<span class="ident">len</span>());
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mock_results</span>) <span class="op">=</span> <span class="ident">mock_results</span> {
-        <span class="kw">for</span> <span class="ident">task_submission</span> <span class="kw">in</span> <span class="ident">exercise_slide_submission_tasks</span> {
-            <span class="kw">let</span> <span class="ident">mock_result</span> <span class="op">=</span> <span class="ident">mock_results</span>
-                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">task_submission</span>.<span class="ident">exercise_task_id</span>)
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>
-                .<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">create_fixed_grading_for_submission_task</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">task_submission</span>,
-                <span class="ident">exercise</span>,
-                <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">mock_result</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">submission</span>);
+    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">grading_policy</span> {
+        <span class="ident">GradingPolicy::Default</span> =&gt; {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">exercise_slide_submission_tasks</span>.<span class="ident">len</span>());
+            <span class="kw">for</span> <span class="ident">task_submission</span> <span class="kw">in</span> <span class="ident">exercise_slide_submission_tasks</span> {
+                <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">grade_user_submission_task</span>(
+                    <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">task_submission</span>,
+                    <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>(),
+                    <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>,
+                )
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">submission</span>);
+            }
+            <span class="ident">results</span>
         }
-    } <span class="kw">else</span> {
-        <span class="kw">for</span> <span class="ident">task_submission</span> <span class="kw">in</span> <span class="ident">exercise_slide_submission_tasks</span> {
-            <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">grade_user_submission_task</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">task_submission</span>,
-                <span class="ident">exercise</span>,
-                <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">submission</span>);
+        <span class="ident">GradingPolicy::Fixed</span>(<span class="ident">fixed_results</span>) =&gt; {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">exercise_slide_submission_tasks</span>.<span class="ident">len</span>());
+            <span class="kw">for</span> <span class="ident">task_submission</span> <span class="kw">in</span> <span class="ident">exercise_slide_submission_tasks</span> {
+                <span class="kw">let</span> <span class="ident">fixed_result</span> <span class="op">=</span> <span class="ident">fixed_results</span>
+                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">task_submission</span>.<span class="ident">exercise_task_id</span>)
+                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>
+                    .<span class="ident">clone</span>();
+                <span class="kw">let</span> <span class="ident">submission</span> <span class="op">=</span> <span class="ident">create_fixed_grading_for_submission_task</span>(
+                    <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">task_submission</span>,
+                    <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>(),
+                    <span class="ident">user_exercise_slide_state</span>.<span class="ident">id</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">fixed_result</span>,
+                )
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">submission</span>);
+            }
+            <span class="ident">results</span>
         }
-    }
+    };
     <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">propagate_user_exercise_state_update_from_slide</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">exercise</span>,
+        <span class="ident">exercise_with_user_state</span>.<span class="ident">exercise</span>(),
         <span class="ident">user_exercise_slide_state</span>,
         <span class="ident">exercise_slide_submission</span>.<span class="ident">user_points_update_strategy</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">StudentExerciseSlideSubmissionResult</span> {
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">StudentExerciseSlideSubmissionResult</span> {
         <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
             <span class="ident">score_given</span>: <span class="ident">user_exercise_state</span>.<span class="ident">score_given</span>,
             <span class="ident">activity_progress</span>: <span class="ident">user_exercise_state</span>.<span class="ident">activity_progress</span>,
@@ -1256,7 +1189,10 @@
             <span class="ident">reviewing_stage</span>: <span class="ident">user_exercise_state</span>.<span class="ident">reviewing_stage</span>,
         }),
         <span class="ident">exercise_task_submission_results</span>: <span class="ident">results</span>,
-    })
+    };
+    <span class="ident">exercise_with_user_state</span>.<span class="ident">set_user_exercise_state</span>(<span class="ident">user_exercise_state</span>)<span class="question-mark">?</span>;
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">grade_user_submission_task</span>(
@@ -1298,13 +1234,13 @@
     <span class="ident">submission</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskSubmission</span>,
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">user_exercise_slide_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">asd</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingResult</span>,
+    <span class="ident">fixed_result</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGradingResult</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">StudentExerciseTaskSubmissionResult</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">exercise_task_gradings::new_grading</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>, <span class="ident">submission</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">updated_submission</span> <span class="op">=</span>
         <span class="ident">exercise_task_submissions::set_grading_id</span>(<span class="ident">conn</span>, <span class="ident">grading</span>.<span class="ident">id</span>, <span class="ident">submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">updated_grading</span> <span class="op">=</span>
-        <span class="ident">exercise_task_gradings::update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="ident">asd</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">exercise_task_gradings::update_grading</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">grading</span>, <span class="ident">fixed_result</span>, <span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">user_exercise_task_states::upsert_with_grading</span>(
         <span class="ident">conn</span>,
         <span class="ident">user_exercise_slide_state_id</span>,
@@ -1370,6 +1306,16 @@
     );
     <span class="kw">let</span> <span class="ident">new_user_exercise_state</span> <span class="op">=</span>
         <span class="ident">user_exercise_states::update</span>(<span class="ident">conn</span>, <span class="ident">user_exercise_state_update</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>) <span class="op">=</span> <span class="ident">user_exercise_state</span>.<span class="ident">course_instance_id</span> {
+        <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">course_modules::get_by_exercise_id</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident"><span class="kw">super</span>::progressing::grant_automatic_completion_if_eligible</span>(
+            <span class="ident">conn</span>,
+            <span class="kw-2">&amp;</span><span class="ident">course_module</span>,
+            <span class="ident">course_instance_id</span>,
+            <span class="ident">user_exercise_state</span>.<span class="ident">user_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    }
     <span class="prelude-val">Ok</span>(<span class="ident">new_user_exercise_state</span>)
 }
 
@@ -1573,7 +1519,7 @@
 
 <span class="doccomment">/// Updates the user exercise state starting from a single task, and propagates the update up to the</span>
 <span class="doccomment">/// whole user exercise state.</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">propagate_user_exercise_state_update_from_exercise_task_grading_result</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">propagate_user_exercise_state_update_from_exercise_task_grading_result</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">exercise_task_grading</span>: <span class="kw-2">&amp;</span><span class="ident">ExerciseTaskGrading</span>,
@@ -1856,5 +1802,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["copying",""],["grading",""],["peer_reviewing",""]]});
+initSidebarItems({"mod":[["copying",""],["grading",""],["peer_reviewing",""],["progressing",""]]});

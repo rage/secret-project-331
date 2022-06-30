@@ -890,6 +890,7 @@
 <span id="885">885</span>
 <span id="886">886</span>
 <span id="887">887</span>
+<span id="888">888</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
     <span class="ident">convert::TryFrom</span>,
@@ -1182,10 +1183,10 @@
         <span class="ident">exercise_tasks::NewExerciseTask</span>,
         <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">GradingProgress</span>},
         <span class="ident">library::grading</span>::{
-            <span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseSlideSubmissionResult</span>,
+            <span class="ident">GradingPolicy</span>, <span class="ident">StudentExerciseSlideSubmission</span>, <span class="ident">StudentExerciseSlideSubmissionResult</span>,
             <span class="ident">StudentExerciseTaskSubmission</span>,
         },
-        <span class="ident">user_exercise_states</span>,
+        <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">ExerciseWithUserState</span>},
     };
     <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
@@ -1734,12 +1735,13 @@
             <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_with_user_state</span> <span class="op">=</span>
+            <span class="ident">ExerciseWithUserState::new</span>(<span class="ident">exercise</span>.<span class="ident">clone</span>(), <span class="ident">user_exercise_state</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">headless_lms_models::library::grading::grade_user_submission</span>(
             <span class="ident">conn</span>,
-            <span class="ident">exercise</span>,
-            <span class="ident">user_exercise_state</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">exercise_with_user_state</span>,
             <span class="ident">submission</span>,
-            <span class="ident">mock_results</span>,
+            <span class="ident">GradingPolicy::Fixed</span>(<span class="ident">mock_results</span>),
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();
@@ -1778,5 +1780,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

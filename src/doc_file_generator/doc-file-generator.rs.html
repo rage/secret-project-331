@@ -1009,6 +1009,10 @@
 <span id="1004">1004</span>
 <span id="1005">1005</span>
 <span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1447,9 +1451,11 @@
             <span class="ident">course_module_name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">course_module_order_number</span>: <span class="number">0</span>,
             <span class="ident">score_given</span>: <span class="number">3.0</span>,
+            <span class="ident">score_required</span>: <span class="prelude-val">Some</span>(<span class="number">7</span>),
             <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
             <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
-            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
+            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>),
+            <span class="ident">attempted_exercises_required</span>: <span class="prelude-val">Some</span>(<span class="number">40</span>),
         }
     );
     <span class="macro">write_docs!</span>(
@@ -1459,9 +1465,11 @@
             <span class="ident">course_module_name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">course_module_order_number</span>: <span class="number">0</span>,
             <span class="ident">score_given</span>: <span class="number">3.0</span>,
+            <span class="ident">score_required</span>: <span class="prelude-val">Some</span>(<span class="number">7</span>),
             <span class="ident">score_maximum</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>),
             <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">66</span>),
-            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>)
+            <span class="ident">attempted_exercises</span>: <span class="prelude-val">Some</span>(<span class="number">13</span>),
+            <span class="ident">attempted_exercises_required</span>: <span class="prelude-val">Some</span>(<span class="number">40</span>),
         }]
     );
 
@@ -2016,5 +2024,5 @@
     <span class="ident">std::fs::write</span>(<span class="ident">path</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="doc_file_generator" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0 (fe5b13d68 2022-05-18)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="doc_file_generator" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>

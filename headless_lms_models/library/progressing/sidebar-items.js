@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["grant_automatic_completion_if_eligible","Checks whether the course module can be completed automatically and creates an entry for completion if the user meets the criteria."],["user_has_completed_course_module",""],["user_is_eligible_for_automatic_completion",""]]});

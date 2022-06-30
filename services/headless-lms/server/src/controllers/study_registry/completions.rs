@@ -4,7 +4,7 @@ use actix_web::http::header::ContentType;
 use bytes::Bytes;
 
 use futures::{future, StreamExt};
-use models::course_modules::Module;
+use models::course_modules::CourseModule;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -212,7 +212,7 @@ async fn get_module_completions(
 #[doc(hidden)]
 async fn module_belongs_to_course(
     conn: &mut PgConnection,
-    module: &Module,
+    module: &CourseModule,
     course_id_slug_or_code: &str,
 ) -> anyhow::Result<bool> {
     if module.uh_course_code.as_deref() == Some(course_id_slug_or_code) {

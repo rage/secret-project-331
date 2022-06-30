@@ -223,6 +223,7 @@ export interface CourseStructure {
 
 export interface CourseUpdate {
   name: string
+  description: string | null
   is_draft: boolean
   is_test_mode: boolean
 }
@@ -325,10 +326,10 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  exercise_type_specific_user_interface_iframe: string
+  user_interface_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
-  model_solution_path: string
+  model_solution_spec_endpoint_path: string
 }
 
 export interface ExerciseService {

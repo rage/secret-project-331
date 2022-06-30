@@ -15,6 +15,7 @@ interface MessageChannelIFrameProps {
   onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
   breakFromCenteredProps?: BreakFromCenteredProps
   title: string
+  showBorders?: boolean
 }
 
 // const IFRAME_TITLE = "Exercise type specific content"
@@ -25,8 +26,8 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
   onMessageFromIframe,
   breakFromCenteredProps,
   title,
+  showBorders = false,
 }) => {
-  const [showBorders] = useState(false)
   const { t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
 

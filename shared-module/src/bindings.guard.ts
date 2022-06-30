@@ -481,6 +481,7 @@ export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseU
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.is_draft === "boolean" &&
     typeof obj.is_test_mode === "boolean"
   )
@@ -632,10 +633,10 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
+    typeof obj.user_interface_iframe_path === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
-    typeof obj.model_solution_path === "string"
+    typeof obj.model_solution_spec_endpoint_path === "string"
   )
 }
 

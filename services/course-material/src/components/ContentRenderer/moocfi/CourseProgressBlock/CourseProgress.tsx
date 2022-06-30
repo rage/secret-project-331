@@ -72,6 +72,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                 <Progress
                   variant={"circle"}
                   max={courseModuleProgress.score_maximum}
+                  required={courseModuleProgress.score_required ?? undefined}
                   given={courseModuleProgress.score_given}
                   point={50}
                   label={t("total-points")}

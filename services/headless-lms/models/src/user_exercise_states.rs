@@ -142,6 +142,7 @@ pub struct UserCourseInstanceProgress {
     pub course_module_name: String,
     pub course_module_order_number: i32,
     pub score_given: f32,
+    pub score_required: Option<i32>,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
     pub attempted_exercises: Option<i32>,
@@ -374,6 +375,7 @@ fn merge_modules_with_metrics(
                 score_given: option_f32_to_f32_two_decimals(
                     user_metrics.and_then(|x| x.score_given),
                 ),
+                score_required: course_module.automatic_completion_number_of_points_treshold,
                 score_maximum: course_metrics
                     .and_then(|x| x.score_maximum)
                     .map(TryInto::try_into)

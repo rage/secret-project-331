@@ -1598,6 +1598,7 @@ export function isUserCourseInstanceProgress(
     typeof obj.course_module_name === "string" &&
     typeof obj.course_module_order_number === "number" &&
     typeof obj.score_given === "number" &&
+    (obj.score_required === null || typeof obj.score_required === "number") &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
     (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number") &&

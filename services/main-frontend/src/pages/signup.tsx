@@ -132,7 +132,7 @@ const CreateAccountForm: React.FC = () => {
   const { register, formState, watch, reset, handleSubmit } = useForm({ mode: "onChange" })
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
-  const { errors, isValid, isSubmitSuccessful, isSubmitting } = formState
+  const { errors, isValid, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
 
@@ -145,16 +145,7 @@ const CreateAccountForm: React.FC = () => {
     if (loginStateContext.signedIn) {
       router.push("/")
     }
-    if (isSubmitSuccessful) {
-      reset({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-      })
-    }
-  }, [isSubmitSuccessful, loginStateContext.signedIn, reset, router])
+  }, [loginStateContext.signedIn, router])
 
   return (
     <Wrapper>
@@ -172,6 +163,13 @@ const CreateAccountForm: React.FC = () => {
               language: i18n.language,
               password: password,
               password_confirmation: password_confirmation,
+            })
+            reset({
+              first_name: "",
+              last_name: "",
+              email: "",
+              password: "",
+              password_confirmation: "",
             })
           } catch (error) {
             // eslint-disable-next-line i18next/no-literal-string

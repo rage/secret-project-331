@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
@@ -8,6 +8,7 @@ import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/typ
 import { Renderer } from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { migrateQuiz } from "../util/migrate"
 
@@ -31,7 +32,6 @@ export type State =
   | { viewType: "exercise-editor"; privateSpec: Quiz }
 
 const IFrame: React.FC = () => {
-  const [port, setPort] = useState<MessagePort | null>(null)
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -40,85 +40,46 @@ const IFrame: React.FC = () => {
     maxWidth = Number(rawMaxWidth)
   }
 
-  useEffect(() => {
-    const handler = (message: WindowEventMap["message"]) => {
-      if (message.source !== parent) {
-        return
-      }
-
-      const port = message.ports[0]
-      if (port) {
-        // eslint-disable-next-line i18next/no-literal-string
-        console.info("Frame received a port:", port)
-        setPort(port)
-        port.onmessage = (message: WindowEventMap["message"]) => {
-          if (message.data.message) {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.groupCollapsed(`Frame received a ${message.data.message} message from port`)
-          } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.groupCollapsed(`Frame received a message from port`)
-          }
-
-          console.info(JSON.stringify(message.data, undefined, 2))
-          const data = message.data
-          console.log(data)
-          if (isSetStateMessage(data)) {
-            ReactDOM.flushSync(() => {
-              if (data.view_type === "exercise") {
-                setState({
-                  viewType: data.view_type,
-                  publicSpec: data.data.public_spec as PublicQuiz,
-                })
-              } else if (data.view_type === "exercise-editor") {
-                if (data.data.private_spec === null) {
-                  setState({
-                    viewType: data.view_type,
-                    privateSpec: emptyQuiz,
-                  })
-                } else {
-                  setState({
-                    viewType: data.view_type,
-                    privateSpec: migrateQuiz(JSON.parse(data.data.private_spec as string)),
-                  })
-                }
-              } else if (data.view_type === "view-submission") {
-                setState({
-                  viewType: data.view_type,
-                  publicSpec: data.data.public_spec as PublicQuiz,
-                  modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz | null,
-                  userAnswer: data.data.user_answer as QuizAnswer,
-                  gradingFeedbackJson: data.data.grading?.feedback_json as
-                    | ItemAnswerFeedback[]
-                    | null,
-                })
-              } else {
-                // eslint-disable-next-line i18next/no-literal-string
-                console.error("Unknown view type received from parent")
-              }
+  const port = useExerciseServiceParentConnection((messageData) => {
+    if (isSetStateMessage(messageData)) {
+      ReactDOM.flushSync(() => {
+        if (messageData.view_type === "exercise") {
+          setState({
+            viewType: messageData.view_type,
+            publicSpec: messageData.data.public_spec as PublicQuiz,
+          })
+        } else if (messageData.view_type === "exercise-editor") {
+          if (messageData.data.private_spec === null) {
+            setState({
+              viewType: messageData.view_type,
+              privateSpec: emptyQuiz,
             })
           } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.error("Frame received an unknown message from message port")
+            setState({
+              viewType: messageData.view_type,
+              privateSpec: migrateQuiz(JSON.parse(messageData.data.private_spec as string)),
+            })
           }
-          console.groupEnd()
+        } else if (messageData.view_type === "view-submission") {
+          setState({
+            viewType: messageData.view_type,
+            publicSpec: messageData.data.public_spec as PublicQuiz,
+            modelSolutions: messageData.data.model_solution_spec as ModelSolutionQuiz | null,
+            userAnswer: messageData.data.user_answer as QuizAnswer,
+            gradingFeedbackJson: messageData.data.grading?.feedback_json as
+              | ItemAnswerFeedback[]
+              | null,
+          })
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          console.error("Unknown view type received from parent")
         }
-      }
-    }
-    // eslint-disable-next-line i18next/no-literal-string
-    console.info("frame adding event listener")
-    addEventListener("message", handler)
-    // target origin is *, beacause this is a sandboxed iframe without the
-    // allow-same-origin permission
-    parent.postMessage("ready", "*")
-
-    // cleanup function
-    return () => {
+      })
+    } else {
       // eslint-disable-next-line i18next/no-literal-string
-      console.info("removing event listener")
-      removeEventListener("message", handler)
+      console.error("Frame received an unknown message from message port")
     }
-  }, [])
+  })
 
   return (
     <HeightTrackingContainer port={port}>

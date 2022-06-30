@@ -293,7 +293,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             &task.exercise_type,
         )
         .await?
-        .exercise_type_specific_user_interface_iframe;
+        .user_interface_iframe_path;
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,

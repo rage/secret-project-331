@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React, { useEffect, useRef } from "react"
+import { UseFormRegisterReturn } from "react-hook-form"
 
 interface TextAreaExtraProps {
   label?: string
@@ -10,10 +11,11 @@ interface TextAreaExtraProps {
   value?: string
   disabled?: boolean
   maxlength?: string
-  onChange: (value: string, name?: string) => void
+  onChange?: (value: string, name?: string) => void
   className?: string
   defaultValue?: string
   autoResize?: boolean
+  register?: UseFormRegisterReturn
 }
 
 type TextAreaProps = Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> &
@@ -28,7 +30,7 @@ function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   }
 }
 
-const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaProps) => {
+const TextArea = ({ onChange, className, autoResize, register, ...rest }: TextAreaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -69,11 +71,15 @@ const TextArea = ({ onChange, className, autoResize, ...rest }: TextAreaProps) =
         <textarea
           ref={textareaRef}
           onChange={({ target: { value, name } }) => {
-            onChange(value, name)
+            if (onChange) {
+              onChange(value, name)
+            }
+
             if (autoResize) {
               updateHeight(textareaRef)
             }
           }}
+          {...register}
           /* onKeyPress={(event) => onKeyPress(event)} */
           defaultValue={rest.defaultValue}
           {...rest}

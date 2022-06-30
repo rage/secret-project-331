@@ -33,10 +33,10 @@ export const Renderer: React.FC<RendererProps> = ({ state, setState, port }) => 
     return (
       <Submission
         port={port}
-        publicAlternatives={state.public_spec}
-        selectedId={state.selectedOptionId}
-        selectedOptionIsCorrect={exerciseFeedback?.selectedOptionIsCorrect || null}
-        modelSolutions={state.model_solution_spec ? state.model_solution_spec : null}
+        publicSpec={state.public_spec}
+        answer={state.answer}
+        gradingFeedback={exerciseFeedback}
+        modelSolutionSpec={state.model_solution_spec ? state.model_solution_spec : null}
       />
     )
   } else if (state.view_type === "exercise-editor") {

@@ -609,10 +609,10 @@ mod test {
             tx.as_mut(),
             &PathInfo {
                 exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "".to_string(),
+                user_interface_iframe_path: "".to_string(),
                 grade_endpoint_path: "".to_string(),
                 public_spec_endpoint_path: "".to_string(),
-                model_solution_path: "test-only-empty-path".to_string(),
+                model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
             },
         )
         .await

@@ -1,17 +1,19 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
+import { UseFormRegisterReturn } from "react-hook-form"
 
 import { primaryFont } from "../../styles"
 
 interface CheckboxFieldExtraProps {
   label: string
   error?: boolean
-  checked: boolean
+  checked?: boolean
   name?: string
   /* onBlur?: (name?: string) => void */
-  onChange: (checked: boolean, name?: string) => void
+  onChange?: (checked: boolean, name?: string) => void
   className?: string
+  register?: UseFormRegisterReturn
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -85,7 +87,7 @@ const ERROR = "Please check the secret box"
 
 export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
 
-const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraProps) => {
+const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxFieldExtraProps) => {
   return (
     <div
       className={cx(
@@ -101,7 +103,12 @@ const CheckBox = ({ onChange, className, checked, ...rest }: CheckboxFieldExtraP
           checked={checked}
           aria-errormessage={rest.error ? `${rest.label}_error` : undefined}
           aria-invalid={rest.error !== undefined}
-          onChange={({ target: { checked } }) => onChange(checked)}
+          onChange={({ target: { checked } }) => {
+            if (onChange) {
+              onChange(checked)
+            }
+          }}
+          {...register}
           {...rest}
         />
         <span>{rest.label}</span>

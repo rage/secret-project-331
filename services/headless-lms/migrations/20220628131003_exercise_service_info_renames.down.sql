@@ -1,0 +1,4 @@
+ALTER TABLE exercise_service_info
+  RENAME COLUMN user_interface_iframe_path TO exercise_type_specific_user_interface_iframe;
+ALTER TABLE exercise_service_info
+  RENAME COLUMN model_solution_spec_endpoint_path TO model_solution_path;

@@ -1,28 +1,26 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { ExerciseFeedback } from "../pages/api/grade"
 import { baseTheme } from "../shared-module/styles"
-import { ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
+import { Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 interface SubmissionProps {
   port: MessagePort
-  publicAlternatives: PublicAlternative[]
-  selectedId: string | undefined
-  selectedOptionIsCorrect: boolean | null
-  modelSolutions: ModelSolutionApi | null
+  publicSpec: PublicAlternative[]
+  answer: Answer
+  gradingFeedback: ExerciseFeedback | null
+  modelSolutionSpec: ModelSolutionApi | null
 }
 
-const Submission: React.FC<SubmissionProps> = ({
-  publicAlternatives,
-  selectedId,
-  modelSolutions,
-}) => {
+const Submission: React.FC<SubmissionProps> = ({ publicSpec, modelSolutionSpec, answer }) => {
   // Border colors
   const GREEN = baseTheme.colors.green[300]
   const RED = baseTheme.colors.red[300]
 
   const COLOR = baseTheme.colors.blue[300]
   const CHOSEN_COLOR = baseTheme.colors.blue[700]
+
   return (
     <div
       className={css`
@@ -30,9 +28,9 @@ const Submission: React.FC<SubmissionProps> = ({
         flex-direction: column;
       `}
     >
-      {publicAlternatives.map((option) => {
-        const selected = selectedId === option.id
-        const optionIsCorrect = modelSolutions?.correctOptionIds.includes(option.id)
+      {publicSpec.map((option) => {
+        const selected = answer.selectedOptionId === option.id
+        const optionIsCorrect = modelSolutionSpec?.correctOptionIds.includes(option.id)
 
         let color = ""
         if (optionIsCorrect !== undefined) {

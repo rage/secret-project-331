@@ -61,3 +61,5 @@ export type IframeState =
       exercise_task_id: string
       data: { private_spec: unknown }
     }
+
+export type IframeViewType = IframeState["view_type"]

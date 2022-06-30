@@ -874,10 +874,10 @@ mod test {
             conn,
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
+                user_interface_iframe_path: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
+                model_solution_spec_endpoint_path: "/model-solution".to_string(),
             },
         )
         .await?;

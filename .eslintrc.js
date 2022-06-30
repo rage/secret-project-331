@@ -190,6 +190,7 @@ module.exports = {
           "viewBox",
           "testPlaceholder",
           "sidebarPosition",
+          "buttonSize",
         ],
         ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
         ignoreCallee: [
@@ -206,6 +207,7 @@ module.exports = {
           "register",
           "setValue",
           "getValues",
+          "watch",
         ],
         ignoreProperty: ["type"],
       },

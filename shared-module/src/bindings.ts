@@ -36,6 +36,7 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
@@ -191,8 +192,10 @@ export interface Points {
 export interface Module {
   id: string
   name: string | null
+  course_id: string
   order_number: number
   copied_from: string | null
+  uh_course_code: string | null
 }
 
 export interface Course {
@@ -322,10 +325,10 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  exercise_type_specific_user_interface_iframe: string
+  user_interface_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
-  model_solution_path: string
+  model_solution_spec_endpoint_path: string
 }
 
 export interface ExerciseService {

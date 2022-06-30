@@ -20,14 +20,15 @@ export interface NextSectionLinkExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const StyledButton = styled.button`
   border: 1px solid ${baseTheme.colors.blue[200]};
-  padding: 0.5rem 1.2rem;
+  padding: 0.4rem 1rem;
   background: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 1rem;
 
   span {
-    font-size: 17px;
+    font-size: 15px;
     padding-left: 8px;
     color: ${baseTheme.colors.blue[600]};
   }
@@ -50,10 +51,11 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
       className={css`
         margin-top: 3rem;
         font-family: ${headingFont};
+        min-height: 300px;
         ${respondToOrLarger.md} {
           margin-top: 6rem;
           margin-bottom: 4rem;
-          padding: 3rem 4rem 4rem 4rem;
+          padding: 2rem 4rem 4rem 4rem;
         }
         background: ${baseTheme.colors.clear[100]};
         padding: 2rem 1rem 2rem 1.4rem;
@@ -64,8 +66,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
           id="up-svg-icon"
           role="presentation"
           alt=""
-          width="18"
-          height="18"
+          width="15"
+          height="15"
           viewBox="0 0 39 39"
           transform="rotate(270)"
         />
@@ -77,7 +79,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
             font-size: clamp(28px, 3vw, 2.4rem);
             line-height: 1.3;
             font-weight: 500;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             margin-top: 1.5rem;
           `}
         >
@@ -85,11 +87,15 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
         </h2>
         <p
           className={css`
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             color: ${baseTheme.colors.grey[500]};
             margin: 0.5rem 0;
             padding: 0;
             display: flex;
+
+            ${respondToOrLarger.md} {
+              font-size: 1.4rem;
+            }
           `}
         >
           {subtitle}
@@ -97,11 +103,12 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
         <div
           className={css`
             display: grid;
-            grid-template-columns: /* 80px  */ 1fr;
+            grid-template-columns: 80px 1fr;
             column-gap: 10px;
+            margin-top: 1.5rem;
 
             ${respondToOrLarger.md} {
-              margin-top: 1.5rem;
+              margin-top: 2rem;
               grid-template-columns: 120px 1fr;
               column-gap: 20px;
             }
@@ -113,10 +120,10 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               display: flex;
               justify-content: center;
               align-items: center;
-              visibility: hidden;
+              /* visibility: hidden; */
 
               ${respondToOrLarger.md} {
-                visibility: visible;
+                /* visibility: visible; */
               }
 
               .arrow {

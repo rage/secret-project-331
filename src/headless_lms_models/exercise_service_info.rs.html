@@ -279,19 +279,19 @@
     <span class="kw">pub</span> <span class="ident">exercise_service_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">updated_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">user_interface_iframe_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec_endpoint_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathInfo</span> {
     <span class="kw">pub</span> <span class="ident">exercise_service_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">user_interface_iframe_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec_endpoint_path</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -304,10 +304,10 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseServiceInfoApi</span> {
     <span class="kw">pub</span> <span class="ident">service_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_type_specific_user_interface_iframe</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">user_interface_iframe_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade_endpoint_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">public_spec_endpoint_path</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">model_solution_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec_endpoint_path</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
@@ -319,19 +319,19 @@
         <span class="string">&quot;
 INSERT INTO exercise_service_info (
     exercise_service_id,
-    exercise_type_specific_user_interface_iframe,
+    user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_path
+    model_solution_spec_endpoint_path
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 &quot;</span>,
         <span class="ident">exercise_service_info</span>.<span class="ident">exercise_service_id</span>,
-        <span class="ident">exercise_service_info</span>.<span class="ident">exercise_type_specific_user_interface_iframe</span>,
+        <span class="ident">exercise_service_info</span>.<span class="ident">user_interface_iframe_path</span>,
         <span class="ident">exercise_service_info</span>.<span class="ident">grade_endpoint_path</span>,
         <span class="ident">exercise_service_info</span>.<span class="ident">public_spec_endpoint_path</span>,
-        <span class="ident">exercise_service_info</span>.<span class="ident">model_solution_path</span>
+        <span class="ident">exercise_service_info</span>.<span class="ident">model_solution_spec_endpoint_path</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -382,24 +382,24 @@ RETURNING *
         <span class="string">r#&quot;
 INSERT INTO exercise_service_info(
     exercise_service_id,
-    exercise_type_specific_user_interface_iframe,
+    user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_path
+    model_solution_spec_endpoint_path
   )
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT(exercise_service_id) DO UPDATE
-SET exercise_type_specific_user_interface_iframe = $2,
+SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
   public_spec_endpoint_path = $4,
-  model_solution_path = $5
+  model_solution_spec_endpoint_path = $5
 RETURNING *
     &quot;#</span>,
         <span class="ident">exercise_service_id</span>,
-        <span class="ident">update</span>.<span class="ident">exercise_type_specific_user_interface_iframe</span>,
+        <span class="ident">update</span>.<span class="ident">user_interface_iframe_path</span>,
         <span class="ident">update</span>.<span class="ident">grade_endpoint_path</span>,
         <span class="ident">update</span>.<span class="ident">public_spec_endpoint_path</span>,
-        <span class="ident">update</span>.<span class="ident">model_solution_path</span>
+        <span class="ident">update</span>.<span class="ident">model_solution_spec_endpoint_path</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -505,7 +505,7 @@ indicate that the service info is unavailable.
             <span class="comment">// if the path is in a different domain</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url::parse</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_service</span>.<span class="ident">public_url</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">original_err</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">original_err</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-            <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">o</span>.<span class="ident">exercise_type_specific_user_interface_iframe</span>);
+            <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">o</span>.<span class="ident">user_interface_iframe_path</span>);
             <span class="ident">url</span>.<span class="ident">set_query</span>(<span class="prelude-val">None</span>);
             <span class="ident">url</span>.<span class="ident">set_fragment</span>(<span class="prelude-val">None</span>);
 

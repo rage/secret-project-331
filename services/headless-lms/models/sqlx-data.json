@@ -11994,6 +11994,22 @@
       "nullable": []
     }
   },
+  "c621b6ffa2f217244e02b155b36b55aae80dbec02f5d5640f74ce202478009e3": {
+    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [true]
+    }
+  },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
     "query": "\nUPDATE regradings\nSET error_message = $1\nWHERE id = $2\n",
     "describe": {

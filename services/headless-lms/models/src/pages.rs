@@ -1746,7 +1746,7 @@ pub async fn get_previous_page(
     match previous_page {
         Some(previous_page) => Ok(Some( previous_pagee)),
         None => {
-            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
         }
     }

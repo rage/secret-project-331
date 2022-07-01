@@ -1,6 +1,7 @@
 use std::env;
 
 use anyhow::Result;
+use chrono::Utc;
 use dotenv::dotenv;
 use headless_lms_actix::setup_tracing;
 use headless_lms_models as models;
@@ -18,8 +19,11 @@ async fn main() -> Result<()> {
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
-    let course_codes = models::course_modules::get_all_uh_course_codes(&mut conn).await?;
-    tracing::info!("Course codes {:?}", course_codes);
+    for uh_course_code in models::course_modules::get_all_uh_course_codes(&mut conn).await? {
+        let now = Utc::now().to_string();
+        models::open_university_registration_links::upsert(&mut conn, &uh_course_code, &now)
+            .await?;
+    }
 
     Ok(())
 }

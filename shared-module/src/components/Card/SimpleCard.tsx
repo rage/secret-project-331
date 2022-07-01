@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { secondaryFont, typography } from "../../styles"
+import { secondaryFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -99,9 +99,9 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 2rem;
+            padding: 2rem 2rem 3rem 2rem;
             ${respondToOrLarger.lg} {
-              padding: 3rem;
+              padding: 3rem 3rem 4rem 3rem;
             }
           `}
         >

@@ -1744,7 +1744,7 @@ pub async fn get_previous_page(
     let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
 
     match previous_page {
-        Some(previous_page) => Ok(Some( previous_pagee)),
+        Some(previous_page) => Ok(Some(previous_pagee)),
         None => {
             let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
@@ -1770,7 +1770,7 @@ FROM pages p
 WHERE p.order_number = (
     SELECT MAX(pa.order_number)
     FROM pages pa
-    WHERE pa.order_number > $1
+    WHERE pa.order_number < $1
       AND pa.deleted_at IS NULL
   )
   AND p.course_id = $2
@@ -1786,7 +1786,6 @@ WHERE p.order_number = (
 
     Ok(next_page)
 }
-
 
 async fn get_previous_page_by_chapter_number(
     conn: &mut PgConnection,

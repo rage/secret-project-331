@@ -9,7 +9,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { headingFont, primaryFont, secondaryFont } from "../../../../shared-module/styles"
+import { headingFont, secondaryFont } from "../../../../shared-module/styles"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 

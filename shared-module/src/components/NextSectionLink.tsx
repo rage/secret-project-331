@@ -55,10 +55,10 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
         ${respondToOrLarger.md} {
           margin-top: 6rem;
           margin-bottom: 4rem;
-          padding: 2rem 4rem 4rem 4rem;
+          padding: 2.5rem 3rem 4rem 3rem;
         }
         background: ${baseTheme.colors.clear[100]};
-        padding: 2rem 1rem 2rem 1.4rem;
+        padding: 1.4rem 1rem 2rem 1.4rem;
       `}
     >
       <StyledButton>
@@ -80,7 +80,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
             line-height: 1.3;
             font-weight: 500;
             margin-bottom: 0.8rem;
-            margin-top: 1.5rem;
+            margin-top: 2.5rem;
           `}
         >
           {title}
@@ -175,13 +175,13 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
                     display: block;
                     width: 68%;
                     font-size: ${typography.h4};
-                    font-weight: medium;
+                    font-weight: bold;
                     color: #fff;
                     white-space: nowrap;
                     text-overflow: ellipsis;
                   }
                   .next-page-subtitle {
-                    font-weight: bold;
+                    font-weight: medium;
                     color: #dae6e5;
                     font-size: ${typography.h6};
                   }

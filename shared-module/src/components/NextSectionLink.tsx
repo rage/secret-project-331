@@ -109,7 +109,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
 
             ${respondToOrLarger.md} {
               margin-top: 2rem;
-              grid-template-columns: 120px 1fr;
+              grid-template-columns: 110px 1fr;
               column-gap: 20px;
             }
           `}
@@ -120,7 +120,6 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               display: flex;
               justify-content: center;
               align-items: center;
-              /* visibility: hidden; */
 
               ${respondToOrLarger.md} {
                 /* visibility: visible; */

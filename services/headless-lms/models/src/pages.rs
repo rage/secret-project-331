@@ -1734,6 +1734,97 @@ where p.chapter_id = $1
     }
 }
 
+/* ---------------------Fetch Previous Page----------------- */
+
+pub async fn get_previous_page(
+    conn: &mut PgConnection,
+    pages_id: Uuid,
+) -> ModelResult<Option<PageRoutingData>> {
+    let page_metadata = get_current_page_metadata(conn, pages_id).await?;
+    let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
+
+    match previous_page {
+        Some(previous_page) => Ok(Some( previous_pagee)),
+        None => {
+            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
+            Ok(first_page)
+        }
+    }
+}
+
+async fn get_previous_page_by_order_number(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<Option<PageRoutingData>> {
+    let next_page = sqlx::query_as!(
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM pages p
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.order_number = (
+    SELECT MAX(pa.order_number)
+    FROM pages pa
+    WHERE pa.order_number > $1
+      AND pa.deleted_at IS NULL
+  )
+  AND p.course_id = $2
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
+        ",
+        current_page_metadata.order_number,
+        current_page_metadata.course_id,
+        current_page_metadata.chapter_number
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(next_page)
+}
+
+
+async fn get_previous_page_by_chapter_number(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<Option<PageRoutingData>> {
+    let previous_page = sqlx::query_as!(
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM chapters c
+  INNER JOIN pages p on c.id = p.chapter_id
+WHERE c.chapter_number = (
+    SELECT MAX(ca.chapter_number)
+    FROM chapters ca
+    WHERE ca.chapter_number < $1
+      AND ca.deleted_at IS NULL
+  )
+  AND c.course_id = $2
+  AND p.deleted_at IS NULL
+ORDER BY p.order_number
+LIMIT 1;
+        ",
+        current_page_metadata.chapter_number,
+        current_page_metadata.course_id
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(next_page)
+}
+
+/* ------------------------------------------------ */
+
 async fn get_next_order_number_for_courses_top_level_pages(
     conn: &mut PgConnection,
     course_id: Uuid,

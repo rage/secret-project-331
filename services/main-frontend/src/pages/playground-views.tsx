@@ -62,6 +62,15 @@ const IframeViewPlayground: React.FC = () => {
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
 
+  let exerciseServiceHost = ""
+  try {
+    const parsedUrl = new URL(url)
+    exerciseServiceHost = `${parsedUrl.protocol}//${parsedUrl.host}`
+  } catch {
+    // eslint-disable-next-line i18next/no-literal-string
+    console.warn("Could not parse URL")
+  }
+
   let privateSpecValidJson = false
   let privateSpecParsed: unknown = null
 
@@ -93,7 +102,7 @@ const IframeViewPlayground: React.FC = () => {
         throw new Error("This query should be disabled.")
       }
       const res = await axios.post(
-        serviceInfoQuery.data.public_spec_endpoint_path,
+        `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
         privateSpecParsed,
       )
       return res.data
@@ -115,7 +124,7 @@ const IframeViewPlayground: React.FC = () => {
         throw new Error("This query should be disabled.")
       }
       const res = await axios.post(
-        serviceInfoQuery.data.model_solution_spec_endpoint_path,
+        `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
         privateSpecParsed,
       )
       return res.data
@@ -282,7 +291,7 @@ const IframeViewPlayground: React.FC = () => {
             >
               <MessageChannelIFrame
                 key={iframeKey}
-                url={`${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
                 postThisStateToIFrame={{
                   // @ts-expect-error: this kind of approach is not nice with the IFrameState
                   view_type: currentView,

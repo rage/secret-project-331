@@ -38,8 +38,8 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: ${typography.h3};
-    font-weight: 700;
+    font-size: 2.7rem;
+    font-weight: 500;
     z-index: 20;
     line-height: 1em;
     color: #fff;
@@ -47,8 +47,8 @@ const CardContentWrapper = styled.div`
 
   span {
     color: #f5f6f7;
-    font-size: 1.2em;
-    /* opacity: 0.8; */
+    font-size: 1em;
+    opacity: 0.9;
     z-index: 20;
     font-weight: 500;
     width: 50%;

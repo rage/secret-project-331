@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
+import { secondaryFont } from "../../styles"
+
 interface CardOpensTextProps {
   open: boolean | undefined
   date: string | undefined
@@ -15,6 +17,9 @@ const CardOpensText: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
         <div
           className={css`
             text-transform: uppercase;
+            font-family: ${secondaryFont} !important;
+            font-size: 0.9rem;
+            opacity: 0.8;
           `}
         >
           {t("available")}

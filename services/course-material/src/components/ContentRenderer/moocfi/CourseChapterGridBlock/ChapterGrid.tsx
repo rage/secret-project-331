@@ -9,6 +9,7 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { headingFont, primaryFont, secondaryFont } from "../../../../shared-module/styles"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 
@@ -41,7 +42,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
     <div
       className={cx(
         css`
-          padding: 4.5em 1em;
+          padding: 4em 1em;
         `,
         CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
       )}
@@ -53,8 +54,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           text-align: center;
           padding-bottom: 1em;
           line-height: 1.1;
-          font-size: clamp(2.5rem, 3vw, 3.5rem);
-          margin-bottom: 2rem;
+          font-size: clamp(30px, 3vw, 3rem);
+          margin-bottom: 1rem;
         `}
       >
         {t("course-overview")}
@@ -79,9 +80,9 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                       <hr
                         className={css`
                           border: dashed 2px;
-                          margin: 2rem;
+                          margin: 4rem 2rem 2rem 2rem;
                           color: #d8dadc;
-                          width: 80%;
+                          width: 57%;
                           text-align: center;
                           margin-left: auto;
                           margin-right: auto;
@@ -89,11 +90,12 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                       />
                       <div
                         className={css`
-                          margin: 1rem;
+                          margin: 1rem 1rem 0.3rem 1rem;
                           text-transform: uppercase;
-                          font-size: 1.25rem;
+                          font-size: 1.2rem;
                           font-weight: bold;
                           text-align: center;
+                          font-family: ${secondaryFont};
                         `}
                       >
                         {t("additional-module")}
@@ -103,8 +105,9 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                           margin-bottom: 2rem;
                           color: ${randomizedColor};
                           font-weight: bold;
-                          font-size: 1.7rem;
+                          font-size: 2rem;
                           text-align: center;
+                          font-family: ${headingFont};
                         `}
                       >
                         {module.name}

@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
 import { secondaryFont } from "../../styles"

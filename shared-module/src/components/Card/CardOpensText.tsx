@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
 import { secondaryFont } from "../../styles"
@@ -8,6 +9,14 @@ interface CardOpensTextProps {
   date: string | undefined
   time: string | undefined
 }
+
+// eslint-disable-next-line i18next/no-literal-string
+const StyledSpan = styled.span`
+  font-family: ${secondaryFont} !important;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+`
 
 const CardOpensText: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
   const { t } = useTranslation()
@@ -32,6 +41,9 @@ const CardOpensText: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
       <>
         <div
           className={css`
+            font-family: ${secondaryFont} !important;
+            font-size: 0.9rem;
+            opacity: 0.8;
             text-transform: uppercase;
           `}
         >
@@ -41,26 +53,9 @@ const CardOpensText: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
       </>
     )
   } else if (open) {
-    return (
-      <span
-        className={css`
-          text-transform: uppercase;
-        `}
-      >
-        {t("opens-now")}
-      </span>
-    )
+    return <StyledSpan>{t("opens-now")}</StyledSpan>
   } else {
-    return (
-      <span
-        className={css`
-          text-transform: uppercase;
-          color: black !important;
-        `}
-      >
-        {t("closed")}
-      </span>
-    )
+    return <StyledSpan>{t("closed")}</StyledSpan>
   }
 }
 

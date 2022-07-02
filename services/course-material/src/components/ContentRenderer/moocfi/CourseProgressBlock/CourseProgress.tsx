@@ -15,8 +15,13 @@ export interface CourseProgressProps {
 
 const Wrapper = styled.div`
   background-color: #f5f6f7;
-  margin: 0 0 0.5rem;
-  padding: 0 4rem 2rem;
+  margin: 3px 0 3px 0;
+  padding: 0.8rem 3rem 1.5rem 3rem;
+`
+const TotalWrapper = styled.div`
+  background-color: #f5f6f7;
+  margin: 3px 0 6px 0;
+  padding: 0.8rem 3rem 1.5rem 3rem;
 `
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgress }) => {
@@ -59,7 +64,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                 totalExercises={courseModuleProgress.total_exercises ?? 0}
               />
             </Wrapper>
-            <Wrapper>
+            <TotalWrapper>
               <div
                 className={css`
                   width: 100%;
@@ -84,7 +89,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                   exercisesTotal={courseModuleProgress.total_exercises}
                 />
               </div>
-            </Wrapper>
+            </TotalWrapper>
           </TempAccordionItem>
         ))}
     </>

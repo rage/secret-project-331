@@ -7,6 +7,7 @@ import { fetchUserChapterInstanceChapterProgress } from "../../../../services/ba
 import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../shared-module/styles"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -33,7 +34,9 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
           className={css`
             width: 100%;
             text-align: center;
-            margin: 7.5em auto;
+            padding: 2em 2em 3em 2em;
+            margin: 5em auto;
+            background: ${baseTheme.colors.clear[100]};
           `}
         >
           {/* TODO: Verify how it looks when score_given is a floating number */}

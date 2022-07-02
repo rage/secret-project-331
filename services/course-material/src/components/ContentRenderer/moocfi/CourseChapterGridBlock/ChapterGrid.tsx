@@ -10,6 +10,7 @@ import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } 
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { headingFont, secondaryFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 
@@ -80,19 +81,23 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                       <hr
                         className={css`
                           border: dashed 2px;
-                          margin: 4rem 2rem 2rem 2rem;
+                          margin: 4rem 0rem 2rem 0rem;
                           color: #d8dadc;
-                          width: 57%;
+                          width: 85vw;
                           text-align: center;
                           margin-left: auto;
                           margin-right: auto;
+
+                          ${respondToOrLarger.lg} {
+                            width: 60vw;
+                          }
                         `}
                       />
                       <div
                         className={css`
                           margin: 1rem 1rem 0.3rem 1rem;
                           text-transform: uppercase;
-                          font-size: 1.2rem;
+                          font-size: 1rem;
                           font-weight: bold;
                           text-align: center;
                           font-family: ${secondaryFont};
@@ -107,6 +112,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                           font-weight: bold;
                           font-size: 2rem;
                           text-align: center;
+                          opacity: 0.8;
                           font-family: ${headingFont};
                         `}
                       >

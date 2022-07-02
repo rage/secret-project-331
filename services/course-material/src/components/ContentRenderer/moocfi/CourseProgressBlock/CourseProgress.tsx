@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import ExerciseCountDisplay from "./ExerciseCountDisplay"
 import TempAccordionItem from "./TempAccordionItem"
@@ -16,7 +17,11 @@ export interface CourseProgressProps {
 const Wrapper = styled.div`
   background-color: #f5f6f7;
   margin: 3px 0 3px 0;
-  padding: 0.8rem 3rem 1.5rem 3rem;
+  padding: 0;
+
+  ${respondToOrLarger.md} {
+    padding: 0.8rem 3rem 1.5rem 3rem;
+  }
 `
 const TotalWrapper = styled.div`
   background-color: #f5f6f7;

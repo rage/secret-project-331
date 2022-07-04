@@ -3,6 +3,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { respondToOrLarger } from "../styles/respond"
+
 import Button from "./Button"
 
 export const CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING =
@@ -24,10 +26,21 @@ const TextBox = styled.div`
     z-index: 20;
     margin-bottom: 0.8rem;
     margin-top: 1.5rem;
-    font-size: clamp(4rem, 6vw, 80px);
+    font-size: clamp(2.4rem, 4vw, 60px);
     font-weight: bold;
-    max-width: 80rem;
+    max-width: 100%;
     line-height: 1.1;
+
+    ${respondToOrLarger.md} {
+      width: 50vw;
+    }
+  }
+
+  .hero-subtitle {
+    width: 100%;
+    ${respondToOrLarger.md} {
+      width: 600px;
+    }
   }
 
   span {
@@ -69,7 +82,7 @@ const LandingPageHeroSection: React.FC<CardProps> = ({
         width: 100%;
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        padding: 7.5em 1em;
+        padding: 5em 1em;
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
@@ -79,7 +92,7 @@ const LandingPageHeroSection: React.FC<CardProps> = ({
     >
       <TextBox>
         <h1>{title}</h1>
-        {children}
+        <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"
           size="large"

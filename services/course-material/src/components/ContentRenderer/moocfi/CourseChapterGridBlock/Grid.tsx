@@ -25,7 +25,7 @@ const Grid: React.FC<GridProps> = ({
       className={css`
         @supports (display: grid) {
           display: grid;
-          grid-gap: 50px;
+          grid-gap: 20px;
           max-width: 1075px;
           margin: 0 auto;
           grid-template-columns: 1fr;
@@ -35,7 +35,7 @@ const Grid: React.FC<GridProps> = ({
             grid-gap: 40px;
           }
           ${respondToOrLarger.lg} {
-            grid-gap: 75px;
+            grid-gap: 40px;
           }
         }
       `}

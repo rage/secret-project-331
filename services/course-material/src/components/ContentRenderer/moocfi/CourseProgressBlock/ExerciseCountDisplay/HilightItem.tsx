@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 
-import { baseTheme } from "../../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../../shared-module/styles"
 
 const highlightItemStyle = css`
   align-items: center;
@@ -38,9 +38,10 @@ const HighlightItem: React.FC<HighlightItemProps> = ({
     <div className={wrapperClassName}>
       <div
         className={css`
+          font-family: ${headingFont};
           color: ${highlightColor};
           flex: 2;
-          font-size: 2em;
+          font-size: 2.5em;
           font-weight: bold;
           text-align: center;
         `}
@@ -49,11 +50,13 @@ const HighlightItem: React.FC<HighlightItemProps> = ({
       </div>
       <div
         className={css`
-          align-items: center;
           display: flex;
+          line-height: 1.3;
+          font-size: 1.1rem;
+          font-weight: 500;
           flex: 1 0 auto;
+          font-family: ${headingFont};
           justify-content: middle;
-          padding: 0 0.5rem;
           text-align: center;
         `}
       >

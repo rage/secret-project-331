@@ -124,6 +124,10 @@ export const theme = {
     disabledBorder: baseTheme.colors.clear[100],
   },
   buttonSizes: {
+    small: {
+      fontSize: baseTheme.fontSizes[1],
+      padding: `0.3rem 0.6rem`,
+    },
     medium: {
       fontSize: baseTheme.fontSizes[2],
       padding: `0.5625rem 1.125rem`,

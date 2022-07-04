@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import ExerciseCountDisplay from "./ExerciseCountDisplay"
 import TempAccordionItem from "./TempAccordionItem"
@@ -15,8 +16,17 @@ export interface CourseProgressProps {
 
 const Wrapper = styled.div`
   background-color: #f5f6f7;
-  margin: 0 0 0.5rem;
-  padding: 0 4rem 2rem;
+  margin: 3px 0 3px 0;
+  padding: 0;
+
+  ${respondToOrLarger.md} {
+    padding: 0.8rem 3rem 1.5rem 3rem;
+  }
+`
+const TotalWrapper = styled.div`
+  background-color: #f5f6f7;
+  margin: 3px 0 6px 0;
+  padding: 0.8rem 3rem 1.5rem 3rem;
 `
 
 const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgress }) => {
@@ -51,11 +61,15 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
             <Wrapper>
               <ExerciseCountDisplay
                 exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
-                exercisesNeededToAnswer={courseModuleProgress.total_exercises ?? 0}
+                exercisesNeededToAnswer={
+                  courseModuleProgress.attempted_exercises_required ??
+                  courseModuleProgress.total_exercises ??
+                  0
+                }
                 totalExercises={courseModuleProgress.total_exercises ?? 0}
               />
             </Wrapper>
-            <Wrapper>
+            <TotalWrapper>
               <div
                 className={css`
                   width: 100%;
@@ -68,6 +82,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                 <Progress
                   variant={"circle"}
                   max={courseModuleProgress.score_maximum}
+                  required={courseModuleProgress.score_required ?? undefined}
                   given={courseModuleProgress.score_given}
                   point={50}
                   label={t("total-points")}
@@ -79,7 +94,7 @@ const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgr
                   exercisesTotal={courseModuleProgress.total_exercises}
                 />
               </div>
-            </Wrapper>
+            </TotalWrapper>
           </TempAccordionItem>
         ))}
     </>

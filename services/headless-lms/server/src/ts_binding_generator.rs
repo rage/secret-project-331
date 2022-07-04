@@ -74,7 +74,7 @@ fn ts_binding_generator() {
         course_instances::PointMap,
         course_instances::Points,
 
-        course_modules::Module,
+        course_modules::CourseModule,
 
         courses::Course,
         courses::CourseStructure,

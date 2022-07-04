@@ -327,7 +327,10 @@ mod test {
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
-        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+        library::grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
+        },
+        user_exercise_states::ExerciseWithUserState,
         users,
     };
     use serde_json::Value;
@@ -441,10 +444,11 @@ mod test {
             user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
                 .await
                 .unwrap();
-        headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        let mut exercise_with_user_state =
+            ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        headless_lms_models::library::grading::grade_user_submission(
             tx,
-            &exercise,
-            user_exercise_state,
+            &mut exercise_with_user_state,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
@@ -452,7 +456,7 @@ mod test {
                     data_json: Value::Null,
                 }],
             },
-            HashMap::from([(
+            GradingPolicy::Fixed(HashMap::from([(
                 et,
                 ExerciseTaskGradingResult {
                     feedback_json: None,
@@ -461,7 +465,7 @@ mod test {
                     score_given,
                     score_maximum: 100,
                 },
-            )]),
+            )])),
         )
         .await
         .unwrap();

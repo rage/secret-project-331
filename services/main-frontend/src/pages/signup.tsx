@@ -1,18 +1,32 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { faEnvelope as emailIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../components/Layout"
+import Button from "../shared-module/components/Button"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { createUser } from "../shared-module/services/backend/auth"
 import { baseTheme, headingFont } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "../shared-module/utils/redirectBackAfterLoginOrSignup"
+
+interface FormFields {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
 
 const ErrorMessage = styled.div`
   color: #ed5565;
@@ -36,7 +50,7 @@ const Wrapper = styled.div`
     padding: 2rem 0rem;
   }
 
-  h2 {
+  h1 {
     font-size: clamp(30px, 3vw, 34px);
     color: ${baseTheme.colors.grey[700]};
     text-align: center;
@@ -134,61 +148,112 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  // eslint-disable-next-line i18next/no-literal-string
-  const { register, formState, watch, reset, handleSubmit } = useForm({ mode: "onChange" })
+  const { register, formState, watch, reset, handleSubmit } = useForm<FormFields>({
+    // eslint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+  })
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
   const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(router.asPath)
   const { errors, isValid, isSubmitting } = formState
 
-  const [submitError, setSubmitError] = useState(false)
+  const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
 
   const { t, i18n } = useTranslation()
 
   // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
 
+  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
+    async (data) => {
+      const { first_name, last_name, email, password, password_confirmation } = data
+      await createUser({
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        language: i18n.language,
+        password: password,
+        password_confirmation: password_confirmation,
+      })
+    },
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        reset({
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+          password_confirmation: "",
+        })
+        setConfirmEmailPageVisible(true)
+        loginStateContext.refresh()
+      },
+    },
+  )
+
   useEffect(() => {
-    if (loginStateContext.signedIn) {
+    if (loginStateContext.signedIn && !confirmEmailPageVisible) {
       router.push("/")
     }
   })
 
+  if (confirmEmailPageVisible) {
+    return (
+      <Layout>
+        <Wrapper>
+          <h1>{t("message-please-confirm-your-email-address")}</h1>
+          <div
+            className={css`
+              margin: 2rem 0;
+              padding: 1rem;
+              background-color: ${baseTheme.colors.green[100]};
+              line-height: 1.7;
+              display: flex;
+              align-items: center;
+            `}
+          >
+            <FontAwesomeIcon
+              icon={emailIcon}
+              className={css`
+                font-size: 2rem;
+                margin-right: 1rem;
+              `}
+            />
+            <div>
+              <p>
+                {t("confirm-email-address-instructions-1")}{" "}
+                <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
+                {t("confirm-email-address-instructions-3")}
+              </p>
+              <p></p>
+            </div>
+          </div>
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => {
+              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+              router.push(returnTo)
+            }}
+          >
+            {t("button-text-done")}
+          </Button>
+        </Wrapper>
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
       <Wrapper>
-        <h2>{t("create-new-account")}</h2>
+        <h1>{t("create-new-account")}</h1>
         <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
         <form
           onSubmit={handleSubmit(async (data, event) => {
             event?.preventDefault()
-            const { first_name, last_name, email, password, password_confirmation } = data
-            try {
-              await createUser({
-                email: email,
-                first_name: first_name,
-                last_name: last_name,
-                language: i18n.language,
-                password: password,
-                password_confirmation: password_confirmation,
-              })
-              reset({
-                first_name: "",
-                last_name: "",
-                email: "",
-                password: "",
-                password_confirmation: "",
-              })
-              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-              router.push(returnTo)
-            } catch (error) {
-              // eslint-disable-next-line i18next/no-literal-string
-              console.log("error", error)
-              setSubmitError(true)
-            }
-
-            await loginStateContext.refresh()
+            createAccountMutation.mutate(data)
           })}
         >
           <fieldset disabled={isSubmitting}>
@@ -247,7 +312,7 @@ const CreateAccountForm: React.FC = () => {
                   required: t("required-field"),
                   minLength: {
                     value: 8,
-                    message: t("password-must-have-at-least-8-digit"),
+                    message: t("password-must-have-at-least-8-characters"),
                   },
                 })}
               />
@@ -265,10 +330,10 @@ const CreateAccountForm: React.FC = () => {
                   required: t("required-field"),
                   minLength: {
                     value: 8,
-                    message: t("password-must-have-at-least-8-digit"),
+                    message: t("password-must-have-at-least-8-characters"),
                   },
                   validate: {
-                    passwordMatch: (value) => value === password || t("password-dont-match"),
+                    passwordMatch: (value) => value === password || t("passwords-dont-match"),
                   },
                 })}
               />
@@ -278,14 +343,20 @@ const CreateAccountForm: React.FC = () => {
               )}
             </div>
           </fieldset>
-          <input disabled={!isValid} value={t("create-an-acount")} type="submit" />
+          <input
+            disabled={!isValid || createAccountMutation.isLoading}
+            value={t("create-an-acount")}
+            type="submit"
+          />
         </form>
         <span className="signin-link">
           <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
             {t("sign-in-if-you-have-an-account")}
           </a>
         </span>
-        {submitError && <div>{submitError}</div>}
+        {createAccountMutation.isError && (
+          <ErrorBanner variant={"text"} error={createAccountMutation.error} />
+        )}
       </Wrapper>
     </Layout>
   )

@@ -6,7 +6,6 @@ import { useQuery } from "react-query"
 import useTime from "../../../../hooks/useTime"
 import {
   fetchNextPageRoutingData,
-  fetchPageUrl,
   fetchPreviousPageRoutingData,
 } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"

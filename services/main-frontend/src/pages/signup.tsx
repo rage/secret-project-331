@@ -4,9 +4,15 @@ import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import Layout from "../components/Layout"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { createUser } from "../shared-module/services/backend/auth"
 import { baseTheme, headingFont } from "../shared-module/styles"
+import {
+  useCurrentPagePathForReturnTo,
+  validateReturnToRouteOrDefault,
+} from "../shared-module/utils/redirectBackAfterLoginOrSignup"
 
 const ErrorMessage = styled.div`
   color: #ed5565;
@@ -132,6 +138,8 @@ const CreateAccountForm: React.FC = () => {
   const { register, formState, watch, reset, handleSubmit } = useForm({ mode: "onChange" })
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()
+  const uncheckedReturnTo = useQueryParameter("return_to")
+  const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(router.asPath)
   const { errors, isValid, isSubmitting } = formState
 
   const [submitError, setSubmitError] = useState(false)
@@ -145,135 +153,141 @@ const CreateAccountForm: React.FC = () => {
     if (loginStateContext.signedIn) {
       router.push("/")
     }
-  }, [loginStateContext.signedIn, router])
+  })
 
   return (
-    <Wrapper>
-      <h2>{t("create-new-account")}</h2>
-      <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
-      <form
-        onSubmit={handleSubmit(async (data, event) => {
-          event?.preventDefault()
-          const { first_name, last_name, email, password, password_confirmation } = data
-          try {
-            await createUser({
-              email: email,
-              first_name: first_name,
-              last_name: last_name,
-              language: i18n.language,
-              password: password,
-              password_confirmation: password_confirmation,
-            })
-            reset({
-              first_name: "",
-              last_name: "",
-              email: "",
-              password: "",
-              password_confirmation: "",
-            })
-          } catch (error) {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.log("error", error)
-            setSubmitError(true)
-          }
+    <Layout>
+      <Wrapper>
+        <h2>{t("create-new-account")}</h2>
+        <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
+        <form
+          onSubmit={handleSubmit(async (data, event) => {
+            event?.preventDefault()
+            const { first_name, last_name, email, password, password_confirmation } = data
+            try {
+              await createUser({
+                email: email,
+                first_name: first_name,
+                last_name: last_name,
+                language: i18n.language,
+                password: password,
+                password_confirmation: password_confirmation,
+              })
+              reset({
+                first_name: "",
+                last_name: "",
+                email: "",
+                password: "",
+                password_confirmation: "",
+              })
+              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+              router.push(returnTo)
+            } catch (error) {
+              // eslint-disable-next-line i18next/no-literal-string
+              console.log("error", error)
+              setSubmitError(true)
+            }
 
-          await loginStateContext.refresh()
-        })}
-      >
-        <fieldset disabled={isSubmitting}>
-          <div key="first_name">
-            <label htmlFor="first_name">{t("first-name")}</label>
-            <input
-              placeholder={t("enter-first-name")}
-              type="first_name"
-              {...register("first_name", {
-                required: t("required-field"),
-              })}
-            />
-            {errors.first_name && (
-              // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.first_name.message}`}</ErrorMessage>
-            )}
-          </div>
-          <div key="last_name">
-            <label htmlFor="last_name">{t("last-name")}</label>
-            <input
-              placeholder={t("enter-last-name")}
-              type="last_name"
-              {...register("last_name", {
-                required: t("required-field"),
-              })}
-            />
-            {errors.last_name && (
-              // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.last_name.message}`}</ErrorMessage>
-            )}
-          </div>
-          <div key="email">
-            <label htmlFor="email">{t("email")}</label>
-            <input
-              placeholder={t("enter-your-email")}
-              type="email"
-              {...register("email", {
-                required: t("required-field"),
-                validate: {
-                  isValidEmail: (value) =>
-                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
-                },
-              })}
-            />
-            {errors.email && (
-              // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>
-            )}
-          </div>
-          <div key="password">
-            <label htmlFor="password">{t("password")}</label>
-            <input
-              placeholder={t("enter-your-password")}
-              type="password"
-              {...register("password", {
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-digit"),
-                },
-              })}
-            />
-            {errors.password && (
-              // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>
-            )}
-          </div>
-          <div key="password_confirmation">
-            <label htmlFor="password_confirmation">{t("confirm-password")}</label>
-            <input
-              placeholder={t("confirm-your-password")}
-              type="password"
-              {...register("password_confirmation", {
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-digit"),
-                },
-                validate: {
-                  passwordMatch: (value) => value === password || t("password-dont-match"),
-                },
-              })}
-            />
-            {errors.password_confirmation && (
-              // eslint-disable-next-line i18next/no-literal-string
-              <ErrorMessage>&#9888; {`${errors.password_confirmation.message}`}</ErrorMessage>
-            )}
-          </div>
-        </fieldset>
-        <input disabled={!isValid} value={t("create-an-acount")} type="submit" />
-      </form>
-      <span className="signin-link">
-        <a href="https://courses.mooc.fi/login">{t("sign-in-if-you-have-an-account")}</a>
-      </span>
-      {submitError && <div>{submitError}</div>}
-    </Wrapper>
+            await loginStateContext.refresh()
+          })}
+        >
+          <fieldset disabled={isSubmitting}>
+            <div key="first_name">
+              <label htmlFor="first_name">{t("first-name")}</label>
+              <input
+                placeholder={t("enter-first-name")}
+                type="first_name"
+                {...register("first_name", {
+                  required: t("required-field"),
+                })}
+              />
+              {errors.first_name && (
+                // eslint-disable-next-line i18next/no-literal-string
+                <ErrorMessage>&#9888; {`${errors.first_name.message}`}</ErrorMessage>
+              )}
+            </div>
+            <div key="last_name">
+              <label htmlFor="last_name">{t("last-name")}</label>
+              <input
+                placeholder={t("enter-last-name")}
+                type="last_name"
+                {...register("last_name", {
+                  required: t("required-field"),
+                })}
+              />
+              {errors.last_name && (
+                // eslint-disable-next-line i18next/no-literal-string
+                <ErrorMessage>&#9888; {`${errors.last_name.message}`}</ErrorMessage>
+              )}
+            </div>
+            <div key="email">
+              <label htmlFor="email">{t("email")}</label>
+              <input
+                placeholder={t("enter-your-email")}
+                type="email"
+                {...register("email", {
+                  required: t("required-field"),
+                  validate: {
+                    isValidEmail: (value) =>
+                      value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                  },
+                })}
+              />
+              {errors.email && (
+                // eslint-disable-next-line i18next/no-literal-string
+                <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>
+              )}
+            </div>
+            <div key="password">
+              <label htmlFor="password">{t("password")}</label>
+              <input
+                placeholder={t("enter-your-password")}
+                type="password"
+                {...register("password", {
+                  required: t("required-field"),
+                  minLength: {
+                    value: 8,
+                    message: t("password-must-have-at-least-8-digit"),
+                  },
+                })}
+              />
+              {errors.password && (
+                // eslint-disable-next-line i18next/no-literal-string
+                <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>
+              )}
+            </div>
+            <div key="password_confirmation">
+              <label htmlFor="password_confirmation">{t("confirm-password")}</label>
+              <input
+                placeholder={t("confirm-your-password")}
+                type="password"
+                {...register("password_confirmation", {
+                  required: t("required-field"),
+                  minLength: {
+                    value: 8,
+                    message: t("password-must-have-at-least-8-digit"),
+                  },
+                  validate: {
+                    passwordMatch: (value) => value === password || t("password-dont-match"),
+                  },
+                })}
+              />
+              {errors.password_confirmation && (
+                // eslint-disable-next-line i18next/no-literal-string
+                <ErrorMessage>&#9888; {`${errors.password_confirmation.message}`}</ErrorMessage>
+              )}
+            </div>
+          </fieldset>
+          <input disabled={!isValid} value={t("create-an-acount")} type="submit" />
+        </form>
+        <span className="signin-link">
+          <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
+            {t("sign-in-if-you-have-an-account")}
+          </a>
+        </span>
+        {submitError && <div>{submitError}</div>}
+      </Wrapper>
+    </Layout>
   )
 }
 

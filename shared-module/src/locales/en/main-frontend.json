@@ -1,7 +1,7 @@
 {
   "accept-or-reject-proposal": "Accept or reject proposal",
   "accepted": "Accepted",
-  "active-courses": "Active courses ({{ courses }}):",
+  "active-courses": "Active courses ({{ courses }}):",
   "add": "Add",
   "add-course": "Add course",
   "american-english": "English",
@@ -288,5 +288,23 @@
   "delete": "Delete",
   "reference-updated-succesfully": "Reference updated succesfully",
   "reference-deleted-succesfully": "Reference deleted succesfully",
-  "reference-added-succesfully": "Reference added succesfully"
+  "reference-added-succesfully": "Reference added succesfully",
+  "service-info-url": "Service info URL",
+  "error-fetching-service-info": "Error fetching service info",
+  "valid-service-info": "Valid service info",
+  "invalid-service-info": "Invalid service info",
+  "private-spec": "Private spec",
+  "show-iframe-borders": "Show IFrame borders",
+  "title-derived-specs": "Derived specs",
+  "derived-specs-explanation": "Derived specs are generated from the private spec using special endpoints in the exercise service. These specs are given to different views of the exercise service depending on what kind of data the user is allowed to see. Each exercise service decides themselves what the format of the derived specs is.",
+  "title-public-spec": "Public spec",
+  "public-spec-explanation": "Public spec is used for rendering the user interface when the user is starting to answer an exercise.",
+  "error-cannot-load-with-the-given-inputs": "Cannot load with the given inputs",
+  "title-model-solution-spec": "Model solution spec",
+  "model-solution-spec-explanation": "Model solution spec is given to the view submission view when the user is allowed to see the model solution or all the correct answers to the exercise. This happens for example when the user has already gotten full points from an exercise or they have ran out of tries.",
+  "title-iframe": "IFrame",
+  "title-communication-with-the-iframe": "Communication with the IFrame",
+  "title-current-state-received-from-the-iframe": "Current state received from the IFrame",
+  "message-no-current-state-message-received-from-the-iframe-yet": "No current-state message received from the IFrame yet",
+  "button-set-as-private-spec-input": "Set as private spec input"
 }

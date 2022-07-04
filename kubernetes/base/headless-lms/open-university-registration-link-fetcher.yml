@@ -1,12 +1,12 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: completion-link-fetcher
+  name: open-university-registration-link-fetcher
   labels:
-    app: completion-link-fetcher
+    app: open-university-registration-link-fetcher
     needs-db: "true"
 spec:
-  schedule: "* * * * *"
+  schedule: "15 0 * * *"
   startingDeadlineSeconds: 900
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -18,9 +18,15 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: completion-link-fetcher
+            - name: open-university-registration-link-fetcher
               image: headless-lms
-              command: ["cargo", "run", "--bin", "completion_link_fetcher"]
+              command:
+                [
+                  "cargo",
+                  "run",
+                  "--bin",
+                  "open_university_registration_link_fetcher",
+                ]
               resources:
                 requests:
                   memory: 100Mi

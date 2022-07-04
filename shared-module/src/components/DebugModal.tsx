@@ -14,6 +14,7 @@ export interface DebugModalProps {
   readOnly?: boolean
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDataOnClose?: Dispatch<any>
+  buttonSize?: "small" | "medium" | "large"
 }
 
 const HeaderBar = styled.div`
@@ -26,7 +27,12 @@ const HeaderBar = styled.div`
   }
 `
 
-const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDataOnClose }) => {
+const DebugModal: React.FC<DebugModalProps> = ({
+  data,
+  readOnly = true,
+  updateDataOnClose,
+  buttonSize = "medium",
+}) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
@@ -55,7 +61,7 @@ const DebugModal: React.FC<DebugModalProps> = ({ data, readOnly = true, updateDa
 
   return (
     <>
-      <Button variant="blue" size="medium" aria-label={t("debug")} onClick={() => openModal()}>
+      <Button variant="blue" size={buttonSize} aria-label={t("debug")} onClick={() => openModal()}>
         <FontAwesomeIcon icon={faIcon} />
       </Button>
       <Dialog maxWidth="xl" open={open} onClose={closeModal}>

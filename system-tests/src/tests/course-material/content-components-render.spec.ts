@@ -17,7 +17,7 @@ test("blocks render correctly", async ({ page, headless }) => {
   // Click text=Introduction to Course Material
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.click("text=Introduction to Course Material"),
+    page.click(`div:text-is("Introduction to Course Material")`),
   ])
   // Click button:has-text("Continue")
   await page.click('button:has-text("Continue")')

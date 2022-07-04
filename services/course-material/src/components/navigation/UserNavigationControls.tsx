@@ -64,9 +64,11 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
   ) : (
     <>
       <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          {t("create-new-account")}
-        </Button>
+        <a href="https://www.mooc.fi/en/sign-up/">
+          <Button size="medium" variant="primary">
+            {t("create-new-account")}
+          </Button>
+        </a>
       </li>
       <li className={cx(styles)}>
         <a href={returnToPath}>

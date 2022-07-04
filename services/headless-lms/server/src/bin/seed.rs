@@ -417,7 +417,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "An example course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -462,7 +462,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -498,7 +498,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
     };
@@ -1352,7 +1352,7 @@ async fn seed_sample_course(
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -2620,7 +2620,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "The definitive introduction to course material.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -3531,7 +3531,7 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result(
+    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         &exercise,
         &grading,

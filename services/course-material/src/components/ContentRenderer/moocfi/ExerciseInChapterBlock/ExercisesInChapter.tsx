@@ -7,6 +7,7 @@ import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { headingFont } from "../../../../shared-module/styles"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
@@ -25,13 +26,14 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
   return (
     <div
       className={css`
-        margin: 5em 1em;
+        margin: 5em 0;
       `}
     >
       <h2
         className={css`
           text-align: center;
           margin-bottom: 2rem;
+          font-family: ${headingFont};
           color: #1a2333;
           font-size: 2rem;
         `}

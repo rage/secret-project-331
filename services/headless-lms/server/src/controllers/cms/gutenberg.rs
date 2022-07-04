@@ -61,7 +61,7 @@ async fn get_oembed_data_from_provider(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let endpoint = url_to_oembed_endpoint(
         query_params.url.to_string(),
         Some(app_conf.base_url.to_string()),
@@ -92,7 +92,7 @@ async fn get_oembed_data_from_provider(
         .json::<serde_json::Value>()
         .await
         .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
-    Ok(web::Json(res))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -127,13 +127,13 @@ async fn get_theme_settings(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ThemeResponse>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     let response = ThemeResponse {
         theme_supports: ThemeSupports {
             responsive_embeds: true,
         },
     };
-    Ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 #[generated_doc]
@@ -141,10 +141,14 @@ async fn get_theme_settings(
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
-    Ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**

@@ -24,14 +24,15 @@ async fn get_exercise_submissions(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
-    match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
+
+    let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
         CourseOrExamId::Course(id) => {
             authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
         }
         CourseOrExamId::Exam(id) => {
             authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
         }
-    }
+    };
 
     let submission_count = models::exercise_slide_submissions::exercise_slide_submission_count(
         &mut conn,
@@ -47,7 +48,7 @@ async fn get_exercise_submissions(
 
     let total_pages = pagination.total_pages(submission_count);
 
-    Ok(web::Json(ExerciseSubmissions {
+    token.authorized_ok(web::Json(ExerciseSubmissions {
         data: submissions,
         total_pages,
     }))

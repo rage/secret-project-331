@@ -72,7 +72,7 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   })
 
   return (
-    <IframeHeightContext.Provider value={{ height }}>
+    <IframeHeightContext.Provider value={{ height: height }}>
       <div
         // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
         className={css`

@@ -5,11 +5,14 @@ import Spinner from "../shared-module/components/Spinner"
 import IframeHeightContext from "../shared-module/contexts/IframeHeightContext"
 
 const DynamicallyLoadingComponentPlaceholder = () => {
-  const iframeHeight = useContext(IframeHeightContext).height
+  let iframeHeight = useContext(IframeHeightContext).height
+  if (iframeHeight < 68) {
+    iframeHeight = 68
+  }
   return (
     <div
       className={css`
-        height: ${iframeHeight};
+        height: ${iframeHeight}px;
       `}
     >
       <Spinner variant="medium" />

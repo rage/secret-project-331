@@ -2,19 +2,19 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 const Container = styled.div`
   margin: 6rem 0;
   height: 100%;
   h2 {
-    font-family: "Josefin Sans", sans-serif;
-    font-weight: 500;
-    text-transform: uppercase;
+    font-family: ${headingFont};
+    font-weight: 600;
     font-size: clamp(28px, 3vw, 30px);
-    color: #333;
+    color: ${baseTheme.colors.grey[700]};
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
   ${respondToOrLarger.xxs} {
     width: 100%;

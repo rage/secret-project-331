@@ -18,6 +18,7 @@ const StyledSVG = styled.div<StyledSVGProps>`
   position: relative;
   width: 100%;
   text-align: center;
+  height: auto;
 
   svg {
     margin: 0 auto;

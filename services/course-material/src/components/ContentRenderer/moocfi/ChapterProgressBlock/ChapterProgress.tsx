@@ -7,6 +7,8 @@ import { fetchUserChapterInstanceChapterProgress } from "../../../../services/ba
 import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -33,7 +35,9 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
           className={css`
             width: 100%;
             text-align: center;
-            margin: 7.5em auto;
+            padding: 2em 0;
+            margin: 5em auto;
+            background: ${baseTheme.colors.clear[100]};
           `}
         >
           {/* TODO: Verify how it looks when score_given is a floating number */}
@@ -44,12 +48,21 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
             point={50}
             label={t("chapter-progress")}
           />
-          <Progress
-            variant={"bar"}
-            showAsPercentage={true}
-            exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
-            exercisesTotal={getUserChapterProgress.data.total_exercises}
-          />
+          <div
+            className={css`
+              padding: 0 2rem;
+              ${respondToOrLarger.md} {
+                padding: 0 6rem;
+              }
+            `}
+          >
+            <Progress
+              variant={"bar"}
+              showAsPercentage={true}
+              exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
+              exercisesTotal={getUserChapterProgress.data.total_exercises}
+            />
+          </div>
         </div>
       )}
     </div>

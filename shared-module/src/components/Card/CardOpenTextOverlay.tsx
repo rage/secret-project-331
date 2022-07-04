@@ -20,14 +20,14 @@ const CardOpensTextOverlay: React.FC<CardOpensTextProps> = ({ open, date, time }
           className={css`
             flex: 0 1 auto;
             text-align: center;
-            background: #cac9c9;
+            background: #e2e4e6;
             padding: 2rem;
             position: absolute;
             width: 100%;
             z-index: 100;
 
             color: #303030;
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: 500;
           `}
         >

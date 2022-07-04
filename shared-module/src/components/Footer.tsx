@@ -33,7 +33,7 @@ const Wrapper = styled.div`
   }
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 0.5fr 1fr 0.5fr;
+    grid-template-columns: 0.3fr 1fr 0.3fr;
     padding: 4rem;
     gap: 20px;
     row-gap: 40px;
@@ -84,6 +84,10 @@ const Text = styled.div`
 
   ${respondToOrLarger.sm} {
     padding: 0 2rem 0 0;
+  }
+
+  ${respondToOrLarger.md} {
+    width: 90%;
   }
 
   ${respondToOrLarger.lg} {

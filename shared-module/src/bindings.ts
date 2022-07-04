@@ -975,6 +975,15 @@ export interface CourseMaterialCourseModule {
   order_number: number
 }
 
+export interface CreateAccountDetails {
+  email: string
+  first_name: string
+  last_name: string
+  language: string
+  password: string
+  password_confirmation: string
+}
+
 export interface RoleQuery {
   global?: boolean
   organization_id?: string

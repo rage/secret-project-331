@@ -224,7 +224,7 @@ const StyledIcon = styled(FontAwesomeIcon)`
   color: ${baseTheme.colors.grey[700]};
 `
 
-const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
+const Navigation: React.FC<NavigationProps> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
@@ -250,7 +250,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
         <li className={cx(navLinks)}>{t("courses")}</li>
         <li className={cx(navLinks)}>{t("modules")}</li>
         <li className={cx(navLinks)}>{t("email-templates")}</li>
-        <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
+        <LoginControls styles={[navLinks, hide]} currentPagePath="/" />
         <li className={cx(navLinks, hide)}>
           <Button variant="primary" size="medium">
             {t("translate")}
@@ -259,7 +259,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
       </ol>
 
       <ol className={cx(secondaryLink)}>
-        <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
+        <LoginControls styles={[secondaryLink]} currentPagePath="/" />
         <li>
           <Button variant="primary" size="medium">
             {t("translate")}

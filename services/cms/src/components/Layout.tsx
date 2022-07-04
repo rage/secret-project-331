@@ -24,7 +24,6 @@ type LayoutProps = {
   faqUrl?: string
   title?: string
   licenseUrl?: string
-  returnToPath?: string
 }
 
 const DynamicToaster = dynamic(
@@ -38,13 +37,8 @@ const Layout: React.FC<LayoutProps> = ({
   navVariant,
   // faqUrl,
   licenseUrl,
-  returnToPath,
 }) => {
   const router = useRouter()
-  // eslint-disable-next-line i18next/no-literal-string
-  const returnPath = `/login?return_to=${encodeURIComponent(
-    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-  )}`
 
   const { t } = useTranslation()
 
@@ -70,7 +64,7 @@ const Layout: React.FC<LayoutProps> = ({
           // returnToPath={returnToPath ?? returnPath}
         >
           <Menu>
-            <LoginControls returnToPath={returnToPath ?? returnPath} />
+            <LoginControls currentPagePath={router.asPath} />
           </Menu>
         </NavBar>
         {/* Do not touch flex */}

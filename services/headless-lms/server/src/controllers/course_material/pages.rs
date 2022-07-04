@@ -1,6 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-use models::pages::{Page, PageChapterAndCourseInformation, PageRoutingDataWithChapterStatus};
+use models::pages::{
+    Page, PageChapterAndCourseInformation, PageRoutingData, PageRoutingDataWithChapterStatus,
+};
 
 use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
@@ -45,12 +47,12 @@ async fn get_next_page(
 async fn get_previous_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
+) -> ControllerResult<web::Json<Option<PageRoutingData>>> {
     let mut conn = pool.acquire().await?;
     let previous_page_data = models::pages::get_previous_page(&mut conn, *page_id).await?;
 
     let token = skip_authorize()?;
-    token.authorized_ok(web::Json(nprevious_page_data))
+    token.authorized_ok(web::Json(previous_page_data))
 }
 
 /**

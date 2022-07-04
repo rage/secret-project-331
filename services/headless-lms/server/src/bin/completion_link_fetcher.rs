@@ -39,21 +39,9 @@ async fn main() -> Result<()> {
                 ),
             };
         }
-        (Ok(_url), Err(_)) => {
+        _ => {
             tracing::info!(
-                "Open university completion link fetch job was a no-op; the environment value {} is not defined.",
-                OPEN_UNIVERSITY_TOKEN,
-            );
-        }
-        (Err(_), Ok(_token)) => {
-            tracing::info!(
-                "Open university completion link fetch job was a no-op; the environment value {} is not defined.",
-                OPEN_UNIVERSITY_COURSE_URL,
-            );
-        }
-        (Err(_), Err(_)) => {
-            tracing::info!(
-                "Open university completion link fetch job was a no-op; environment values {} and {} are not defined.",
+                "Open university completion link fetch job was a no-op; environment values {} and {} need to be defined.",
                 OPEN_UNIVERSITY_COURSE_URL,
                 OPEN_UNIVERSITY_TOKEN,
             );
@@ -76,29 +64,26 @@ async fn fetch_and_update_completion_links(
         let url = format!("{}{}", &open_university_course_url, &uh_course_code);
         // TODO: Handle error if no info found for single course code
         let infos =
-            get_open_university_info_for_course_code(&client, &url, open_university_token).await?;
-        // Select link that has already started and has the latest end date.
-        let best_candidate = infos
-            .into_iter()
-            .filter(|x| x.start_date <= now)
-            .max_by(|a, b| a.end_date.cmp(&b.end_date));
-        if let Some(candidate) = best_candidate {
-            // Only update link if there is a new one.
-            let full_url = format!(
-                "{}{}",
-                OPEN_UNIVERSITY_REGISTRATION_BASE_URL, candidate.link
-            );
-            let res = models::open_university_registration_links::upsert(
-                conn,
-                &uh_course_code,
-                &full_url,
-            )
-            .await;
-            if res.is_err() {
-                tracing::error!("Failed to update link for course code {}", &uh_course_code);
-            } else {
-                updates += 1;
+            get_open_university_info_for_course_code(&client, &url, open_university_token).await;
+        if let Ok(infos) = infos {
+            // Select link that has already started and has the latest end date.
+            let best_candidate = select_best_candidate(now, infos);
+            if let Some(open_university_info) = best_candidate {
+                // Only update link if there is a new one.
+                let res =
+                    update_course_registration_link(conn, &uh_course_code, &open_university_info)
+                        .await;
+                if res.is_err() {
+                    tracing::error!("Failed to update link for course code {}", &uh_course_code);
+                } else {
+                    updates += 1;
+                }
             }
+        } else {
+            tracing::error!(
+                "Failed to get completion registration info for course code '{}'.",
+                uh_course_code,
+            );
         }
     }
     Ok(updates)
@@ -127,4 +112,26 @@ async fn get_open_university_info_for_course_code(
         .context("Failed to send a request to Open University.")?;
     let alternatives: Vec<OpenUniversityInfo> = res.json().await?;
     Ok(alternatives)
+}
+
+fn select_best_candidate(
+    now: NaiveDateTime,
+    c: Vec<OpenUniversityInfo>,
+) -> Option<OpenUniversityInfo> {
+    c.into_iter()
+        .filter(|x| x.start_date <= now)
+        .max_by(|a, b| a.end_date.cmp(&b.end_date))
+}
+
+async fn update_course_registration_link(
+    conn: &mut PgConnection,
+    uh_course_code: &str,
+    open_university_info: &OpenUniversityInfo,
+) -> anyhow::Result<()> {
+    let full_url = format!(
+        "{}{}",
+        OPEN_UNIVERSITY_REGISTRATION_BASE_URL, open_university_info.link,
+    );
+    models::open_university_registration_links::upsert(conn, uh_course_code, &full_url).await?;
+    Ok(())
 }

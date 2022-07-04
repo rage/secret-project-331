@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import Link from "next/link"
 import React, { Fragment } from "react"
 
 import ArrowSVGIcon from "../img/arrow.svg"
@@ -46,7 +47,13 @@ const nextPage = "Next Page:"
 // eslint-disable-next-line i18next/no-literal-string
 const chapterPage = "Chapter Page"
 
-const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, nextTitle, url }) => {
+const NextSectionLink: React.FC<NextSectionLinkProps> = ({
+  title,
+  subtitle,
+  nextTitle,
+  url,
+  previous,
+}) => {
   return (
     <div
       className={css`
@@ -131,16 +138,19 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({ title, subtitle, next
               }
             `}
           >
-            {" "}
-            <ArrowSVGIcon
-              id="left-svg-icon"
-              role="presentation"
-              alt=""
-              width="30"
-              height="30"
-              viewBox="0 0 39 39"
-              transform="rotate(180)"
-            />
+            {previous && (
+              <Link href={previous} passHref>
+                <ArrowSVGIcon
+                  id="left-svg-icon"
+                  role="presentation"
+                  alt=""
+                  width="30"
+                  height="30"
+                  viewBox="0 0 39 39"
+                  transform="rotate(180)"
+                />
+              </Link>
+            )}
           </div>
           <LinkOrNoLink url={url}>
             <div

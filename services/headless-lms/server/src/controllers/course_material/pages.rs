@@ -37,6 +37,21 @@ async fn get_next_page(
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(next_page_data_with_status))
 }
+/**
+ GET /api/v0/course-material/pages/:page_id/previous-page - returns previous pages info.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_previous_page(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
+    let mut conn = pool.acquire().await?;
+    let previous_page_data = models::pages::get_previous_page(&mut conn, *page_id).await?;
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(nprevious_page_data))
+}
 
 /**
  GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs
@@ -76,6 +91,10 @@ async fn get_url_path(
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/exam/{page_id}", web::get().to(get_by_exam_id))
         .route("/{current_page_id}/next-page", web::get().to(get_next_page))
+        .route(
+            "/{current_page_id}/previous-page",
+            web::get().to(get_previous_page),
+        )
         .route("/{current_page_id}/url-path", web::get().to(get_url_path))
         .route(
             "/{current_page_id}/chapter-and-course-information",

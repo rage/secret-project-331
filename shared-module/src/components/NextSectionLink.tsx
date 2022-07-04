@@ -15,6 +15,7 @@ export interface NextSectionLinkExtraProps {
   subtitle: string
   nextTitle: string
   url?: string
+  previous?: string
 }
 
 // eslint-disable-next-line i18next/no-literal-string

@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
-import { fetchNextPageRoutingData } from "../../../../services/backend"
+import {
+  fetchNextPageRoutingData,
+  fetchPreviousPageRoutingData,
+} from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -28,6 +31,9 @@ const NextPage: React.FC<NextPageProps> = ({
   const getNextPageRoutingData = useQuery(`pages-${currentPageId}-next-page`, () =>
     fetchNextPageRoutingData(currentPageId),
   )
+  const getPreviousPageRoutingData = useQuery(`pages-${currentPageId}-previous-page`, () =>
+    fetchPreviousPageRoutingData(currentPageId),
+  )
 
   if (getNextPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
@@ -49,9 +55,11 @@ const NextPage: React.FC<NextPageProps> = ({
   }
 
   const data = getNextPageRoutingData.data
+  const previousPageData = getNextPageRoutingData.data
   const NUMERIC = "numeric"
   const LONG = "long"
   const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
+  const previousPageUrl = coursePageRoute(organizationSlug, courseSlug, previousPageData.url_path)
   // Chapter front page NextSectionLink
   if (data.chapter_front_page_id === currentPageId) {
     return (
@@ -60,6 +68,7 @@ const NextPage: React.FC<NextPageProps> = ({
         subtitle={t("proceed-to-the-first-topic")}
         nextTitle={data.title}
         url={nextPageUrl}
+        previous={previousPageUrl}
       />
     )
   }
@@ -72,6 +81,7 @@ const NextPage: React.FC<NextPageProps> = ({
           subtitle={t("proceed-to-the-next-chapter")}
           nextTitle={data.title}
           url={nextPageUrl}
+          previous={previousPageUrl}
         />
       )
     } else {
@@ -82,6 +92,7 @@ const NextPage: React.FC<NextPageProps> = ({
           subtitle={t("proceed-to-next-topic")}
           nextTitle={data.title}
           url={nextPageUrl}
+          previous={previousPageUrl}
         />
       )
     }

@@ -229,6 +229,12 @@ export const fetchNextPageRoutingData = async (
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
+export const fetchPreviousPageRoutingData = async (
+  currentPageId: string,
+): Promise<PageRoutingDataWithChapterStatus | null> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/previous-page`)
+  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+}
 
 export const fetchPageChapterAndCourse = async (
   currentPageId: string,

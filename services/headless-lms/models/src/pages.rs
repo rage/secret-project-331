@@ -1744,7 +1744,7 @@ pub async fn get_previous_page(
     let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
 
     match previous_page {
-        Some(previous_page) => Ok(Some(previous_pagee)),
+        Some(previous_page) => Ok(Some(previous_page)),
         None => {
             let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
@@ -1756,7 +1756,7 @@ async fn get_previous_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
 ) -> ModelResult<Option<PageRoutingData>> {
-    let next_page = sqlx::query_as!(
+    let previous_page = sqlx::query_as!(
         PageRoutingData,
         "
 SELECT p.url_path as url_path,
@@ -1784,7 +1784,7 @@ WHERE p.order_number = (
     .fetch_optional(conn)
     .await?;
 
-    Ok(next_page)
+    Ok(previous_page)
 }
 
 async fn get_previous_page_by_chapter_number(
@@ -1819,7 +1819,7 @@ LIMIT 1;
     .fetch_optional(conn)
     .await?;
 
-    Ok(next_page)
+    Ok(previous_page)
 }
 
 /* ------------------------------------------------ */

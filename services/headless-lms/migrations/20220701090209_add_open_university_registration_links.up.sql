@@ -8,9 +8,9 @@ CREATE TABLE open_university_registration_links (
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON open_university_registration_links FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE open_university_registration_links IS '';
-COMMENT ON COLUMN open_university_registration_links.uh_course_code IS '';
+COMMENT ON TABLE open_university_registration_links IS 'Table for active completion registration links. Completion links change over time, so they need to be updated occasionally.';
+COMMENT ON COLUMN open_university_registration_links.uh_course_code IS 'University of Helsinki''s recognized identifier for the course. E.g. BSCS1001 (Introduction to Programming)';
 COMMENT ON COLUMN open_university_registration_links.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN open_university_registration_links.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN open_university_registration_links.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN open_university_registration_links.registration_link IS '';
+COMMENT ON COLUMN open_university_registration_links.registration_link IS 'Absolute url for registering a completion to Open University.';

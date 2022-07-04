@@ -394,6 +394,56 @@ ORDER BY date;
     Ok(res)
 }
 
+pub async fn exercises_slide_submission_count_for_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+",
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn exercise_slide_submissions_for_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2 OFFSET $3
+        "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
@@ -476,6 +526,21 @@ GROUP BY exercise_slide_id;
 }
 
 pub async fn get_exercise_slide_submission_info(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmissionInfo> {
+    let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
+    let exercise =
+        crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
+    Ok(ExerciseSlideSubmissionInfo {
+        exercise,
+        tasks,
+        exercise_slide_submission,
+    })
+}
+
+pub async fn get_all_exercise_slide_submission_info(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {

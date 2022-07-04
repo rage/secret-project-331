@@ -8,6 +8,7 @@ use crate::controllers::{
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
+        exercises::AnswersRequiringAttention,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
         proposed_edits::GetEditProposalsQuery,
@@ -180,6 +181,7 @@ fn ts_binding_generator() {
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::AnswerRequiringAttention,
 
         roles::RoleUser,
         roles::RoleDomain,
@@ -204,6 +206,7 @@ fn ts_binding_generator() {
         Login,
         UploadResult,
         ExerciseSubmissions,
+        AnswersRequiringAttention,
         MarkAsRead,
         GetFeedbackQuery,
         GetEditProposalsQuery,
@@ -211,6 +214,7 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
+
 
         material_references::MaterialReference,
         material_references::NewMaterialReference

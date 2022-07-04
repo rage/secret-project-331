@@ -39,6 +39,22 @@ pub struct SubmissionData {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswerRequiringAttention {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub exercise_slide_submission_id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub data_json: Option<serde_json::Value>,
+    pub exercise_task_grading_id: Option<Uuid>,
+    pub metadata: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExportedSubmission {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -135,6 +151,27 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(submission)
+}
+
+pub async fn get_all_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<AnswerRequiringAttention>> {
+    let submissions = sqlx::query_as!(
+        AnswerRequiringAttention,
+        "
+        select DISTINCT on (s_submission.user_id) s_submission.user_id,t_submission.id,t_submission.data_json,t_submission.created_at,t_submission.updated_at,t_submission.deleted_at,t_submission.exercise_task_id,t_submission.exercise_task_grading_id,t_submission.metadata, t_submission.exercise_slide_id,t_submission.exercise_slide_submission_id
+        from exercise_slide_submissions AS s_submission,
+         user_exercise_states AS us_state
+         INNER JOIN exercise_task_submissions AS t_submission ON us_state.selected_exercise_slide_id=t_submission.exercise_slide_id
+          WHERE exercise_slide_submission_id=s_submission.id
+            AND us_state.reviewing_stage='waiting_for_manual_grading'
+             AND s_submission.exercise_id = $1 ORDER BY s_submission.user_id,t_submission.updated_at;",
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
 }
 
 pub async fn get_by_exercise_slide_submission_id(

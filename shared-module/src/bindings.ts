@@ -882,6 +882,20 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
+export interface AnswerRequiringAttention {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_slide_submission_id: string
+  exercise_slide_id: string
+  exercise_task_id: string
+  data_json: any | null
+  exercise_task_grading_id: string | null
+  metadata: unknown | null
+}
+
 export interface RoleUser {
   id: string
   first_name: string | null
@@ -1014,6 +1028,10 @@ export interface UploadResult {
 export interface ExerciseSubmissions {
   data: Array<ExerciseSlideSubmission>
   total_pages: number
+}
+
+export interface AnswersRequiringAttention {
+  data: Array<AnswerRequiringAttention>
 }
 
 export interface MarkAsRead {

@@ -1,7 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
 use futures::future;
-use models::{exercise_slide_submissions::ExerciseSlideSubmission, CourseOrExamId};
+
+use models::{
+    exercise_slide_submissions::ExerciseSlideSubmission,
+    exercise_task_submissions::{get_all_answers_requiring_attention, AnswerRequiringAttention},
+    exercises::get_exercise_by_id,
+    CourseOrExamId,
+};
 
 use crate::controllers::prelude::*;
 
@@ -10,6 +16,12 @@ use crate::controllers::prelude::*;
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswersRequiringAttention {
+    data: Vec<AnswerRequiringAttention>,
 }
 
 /**
@@ -55,6 +67,34 @@ async fn get_exercise_submissions(
 }
 
 /**
+GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_exercise_answers_requiring_attention(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<AnswersRequiringAttention>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+    let exercise = get_exercise_by_id(&mut conn, *exercise_id).await?;
+    let mut conn = pool.acquire().await?;
+    let get_magic = get_all_answers_requiring_attention(&mut conn, exercise.id).await?;
+
+    token.authorized_ok(web::Json(AnswersRequiringAttention { data: get_magic }))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -65,5 +105,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{exercise_id}/submissions",
         web::get().to(get_exercise_submissions),
+    )
+    .route(
+        "/{exercise_id}/answers-requiring-attention",
+        web::get().to(get_exercise_answers_requiring_attention),
     );
 }

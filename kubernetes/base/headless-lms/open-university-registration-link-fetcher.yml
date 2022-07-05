@@ -4,7 +4,8 @@ metadata:
   name: open-university-registration-link-fetcher
   labels:
     app: open-university-registration-link-fetcher
-    needs-db: "true"
+    deploymentType: with-init-container-cronjob
+    needs-db: "job"
 spec:
   schedule: "15 0 * * *"
   startingDeadlineSeconds: 900

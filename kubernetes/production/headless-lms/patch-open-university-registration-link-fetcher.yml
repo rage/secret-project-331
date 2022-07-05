@@ -1,0 +1,3 @@
+- op: replace
+  path: "/spec/jobTemplate/spec/template/spec/containers/0/command"
+  value: ["./open_university_registration_link_fetcher"]

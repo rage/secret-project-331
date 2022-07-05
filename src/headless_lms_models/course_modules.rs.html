@@ -211,6 +211,23 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
@@ -417,6 +434,23 @@ WHERE (
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">course_module</span><span class="op">|</span> (<span class="ident">course_module</span>.<span class="ident">id</span>, <span class="ident">course_module</span>))
         .<span class="ident">collect</span>();
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_uh_course_codes</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT DISTINCT uh_course_code
+FROM course_modules
+WHERE uh_course_code IS NOT NULL
+  AND deleted_at IS NULL
+&quot;</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>
+    .<span class="ident">into_iter</span>()
+    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">uh_course_code</span>)
+    .<span class="ident">collect</span>();
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 </code></pre></div>

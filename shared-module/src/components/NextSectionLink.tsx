@@ -21,7 +21,7 @@ export interface NextSectionLinkExtraProps {
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledButton = styled.button`
+const StyledButton = styled.a`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.4rem 1rem;
   background: #fff;
@@ -54,6 +54,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
   nextTitle,
   url,
   previous,
+  chapterFrontPageURL,
 }) => {
   return (
     <div
@@ -70,7 +71,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
         padding: 1.4rem 1rem 2rem 1.4rem;
       `}
     >
-      <StyledButton>
+      <StyledButton href={chapterFrontPageURL}>
         <ArrowSVGIcon
           id="up-svg-icon"
           role="presentation"
@@ -119,7 +120,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
             ${respondToOrLarger.md} {
               margin-top: 2rem;
               grid-template-columns: 80px 1fr;
-              column-gap: 14px;
+              column-gap: 12px;
             }
           `}
         >

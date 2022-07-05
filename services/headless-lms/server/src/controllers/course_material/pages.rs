@@ -20,6 +20,22 @@ async fn get_by_exam_id(
 }
 
 /**
+GET /api/v0/course-material/page/{page_id}
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_chapter_front_page(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Page>> {
+    let mut conn = pool.acquire().await?;
+    let chapter_front_page =
+        models::pages::get_chapter_front_page_by_page_id(&mut conn, *page_id).await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(chapter_front_page))
+}
+
+/**
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
  If current page is the last page of the chapter, returns next chapters first page.
 */
@@ -97,6 +113,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{current_page_id}/previous-page",
             web::get().to(get_previous_page),
         )
+        .route("/page/{page_id}", web::get().to(get_chapter_front_page))
         .route("/{current_page_id}/url-path", web::get().to(get_url_path))
         .route(
             "/{current_page_id}/chapter-and-course-information",

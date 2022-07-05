@@ -1735,6 +1735,29 @@ where p.chapter_id = $1
 }
 
 /* ---------------------Fetch Previous Page----------------- */
+pub async fn get_chapter_front_page_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Page> {
+    let chapter_front_page = sqlx::query_as!(
+        Page,
+        "
+        SELECT *
+        FROM pages p
+        WHERE p.id = $1
+        AND p.deleted_at IS NULL
+        AND p.id IN (
+            SELECT front_page_id
+            FROM chapters c
+            WHERE c.front_page_id = p.id
+        )
+        ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(chapter_front_page)
+}
 
 pub async fn get_previous_page(
     conn: &mut PgConnection,

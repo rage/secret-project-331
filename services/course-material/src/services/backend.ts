@@ -236,6 +236,20 @@ export const fetchPreviousPageRoutingData = async (
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
 
+export const fetchChapterFrontPageById = async (id: string): Promise<Page> => {
+  const data = (
+    await courseMaterialClient.get(`/pages/exam/${id}`, {
+      responseType: "json",
+    })
+  ).data
+  return data
+}
+
+/* export const fetchChapterFrontPageById = async (id: string): Promise<Page> => {
+  const response = await courseMaterialClient.get(`/pages/${id}`, { responseType: "json" })
+  return response
+} */
+
 export const fetchPageChapterAndCourse = async (
   currentPageId: string,
 ): Promise<PageChapterAndCourseInformation | null> => {

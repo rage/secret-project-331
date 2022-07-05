@@ -5,6 +5,7 @@ import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import {
+  fetchChapterFrontPageById,
   fetchNextPageRoutingData,
   fetchPreviousPageRoutingData,
 } from "../../../../services/backend"
@@ -14,7 +15,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
 
 export interface NextPageProps {
-  chapterId: string | null
+  chapterId: string
   currentPageId: string
   courseSlug: string
   organizationSlug: string
@@ -34,12 +35,10 @@ const NextPage: React.FC<NextPageProps> = ({
   const getPreviousPageRoutingData = useQuery(`pages-${currentPageId}-previous-page`, () =>
     fetchPreviousPageRoutingData(currentPageId),
   )
+  /* const getFetchChapterFrontPageById = useQuery(`pages-${chapterId}-chapter-front-page`, () =>
+    fetchChapterFrontPageById(currentPageId),
+  ) */
 
-  /* const id = getNextPageRoutingData.data?.chapter_front_page_id
-
-  const GetChapterFrontPage = (id) =>
-    useQuery(`pages-${id}-chapter-front-page`, () => fetchPageUrl(id))
- */
   if (getNextPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
   }
@@ -66,6 +65,10 @@ const NextPage: React.FC<NextPageProps> = ({
     return <Spinner variant={"medium"} />
   }
 
+  /*  if (getNextPageRoutingData.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getFetchChapterFrontPageById.error} />
+  } */
+
   if (getPreviousPageRoutingData.data === null) {
     // if data is null we have reached the end of the course material. i.e. no page or chapter found
     // eslint-disable-next-line i18next/no-literal-string
@@ -78,6 +81,7 @@ const NextPage: React.FC<NextPageProps> = ({
   const LONG = "long"
   const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
   const previousPageUrl = coursePageRoute(organizationSlug, courseSlug, previousPageData.url_path)
+
   // Chapter front page NextSectionLink
   if (data.chapter_front_page_id === currentPageId) {
     return (

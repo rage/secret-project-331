@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test quizzes timeline feedback", async ({ headless = true, page }) => {
+test("test quizzes timeline feedback", async ({ headless, page }) => {
   // Waits for an animation to finish after the screen resize
   const timelineBeforeScreenshot = async () => {
     await page.evaluate(() => {

@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("exam list renders, can create exam", async ({ headless = true, page }) => {
+test("exam list renders, can create exam", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
   // Click [aria-label="University of Helsinki, Department of Computer Science"] div:has-text("University of Helsinki, Department of Computer ScienceOrganization for Computer ")

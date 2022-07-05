@@ -9,7 +9,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test.describe("Model solutions", () => {
-  test("model-solutions are displayed in submissions", async ({ headless = true, page }) => {
+  test("model-solutions are displayed in submissions", async ({ headless, page }) => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science
@@ -66,7 +66,7 @@ test.describe("Model solutions", () => {
     })
   })
 
-  test("model-solutions are not displayed in the exercises", async ({ headless = true, page }) => {
+  test("model-solutions are not displayed in the exercises", async ({ headless, page }) => {
     // Go to http://project-331.local/
     await page.goto("http://project-331.local/")
     // Click text=University of Helsinki, Department of Computer Science

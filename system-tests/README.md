@@ -59,7 +59,7 @@ If you have changed how the UI looks like, you can update the image snapshots wi
 Example usage of `expectScreenshotsToMatchSnapshots`:
 
 ```js
-test("test with screenshots", async ({ headless = true, page }) => {
+test("test with screenshots", async ({ headless, page }) => {
   // navigate somewhere, do actions until we want to take a screenshot
     await expectScreenshotsToMatchSnapshots({
       page,

@@ -12,7 +12,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("feedback test", async ({ headless = true, page }) => {
+test("feedback test", async ({ headless, page }) => {
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 

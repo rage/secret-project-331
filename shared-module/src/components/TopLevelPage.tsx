@@ -49,7 +49,7 @@ const subtitlePlaceholder = "Find answers to frequently asked questions on the F
 // eslint-disable-next-line i18next/no-literal-string
 const titlePlaceholder = "Top level pages"
 
-const TopLevelPage: React.FC<TopLevelPage> = (atrributes) => {
+const TopLevelPage: React.FC<TopLevelPage> = ({ attributes }) => {
   return (
     <Wrapper>
       <h2>{titlePlaceholder}</h2>

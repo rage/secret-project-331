@@ -134,7 +134,7 @@ const HEADING_TEXT = "Configure review answers option"
 export type PeerReviewEditorProps =
   React.HTMLAttributes<HTMLDivElement> /* & PeerReviewEditorExtraProps */
 
-const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
+const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id }) => {
   const [state, setState] = useState<PeerReview[]>([])
   const { t } = useTranslation()
 
@@ -179,6 +179,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
               <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
             </StyledQuestionType>
             <DeleteBtn
+              aria-label="delete"
               onClick={() => {
                 setState((prevState) => {
                   return prevState.filter((o) => {
@@ -218,7 +219,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
         }}
       >
         <StyledSelectField
-          id="question-type"
+          id={`question-type-${id}`}
           name={TYPE}
           placeholder={PLACEHOLDER}
           options={options}
@@ -226,7 +227,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
           onBlur={() => null}
         />
         <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
-        <StyledBtn type="submit" name={t("submit")} value={t("submit")}>
+        <StyledBtn aria-label={`submit`} type="submit" name={t("submit")} value={t("submit")}>
           <FontAwesomeIcon icon={faXmark} />
         </StyledBtn>
       </StyledForm>

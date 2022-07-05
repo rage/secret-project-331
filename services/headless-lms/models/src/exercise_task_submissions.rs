@@ -160,13 +160,17 @@ pub async fn get_all_answers_requiring_attention(
     let submissions = sqlx::query_as!(
         AnswerRequiringAttention,
         "
-        select DISTINCT on (s_submission.user_id) s_submission.user_id,t_submission.id,t_submission.data_json,t_submission.created_at,t_submission.updated_at,t_submission.deleted_at,t_submission.exercise_task_id,t_submission.exercise_task_grading_id,t_submission.metadata, t_submission.exercise_slide_id,t_submission.exercise_slide_submission_id
-        from exercise_slide_submissions AS s_submission,
+        select s_submission.user_id, t_submission.id, t_submission.data_json, t_submission.created_at,
+        t_submission.updated_at, t_submission.deleted_at, t_submission.exercise_task_id,
+        t_submission.exercise_task_grading_id, t_submission.metadata, t_submission.exercise_slide_id, t_submission.exercise_slide_submission_id FROM
          user_exercise_states AS us_state
-         INNER JOIN exercise_task_submissions AS t_submission ON us_state.selected_exercise_slide_id=t_submission.exercise_slide_id
-          WHERE exercise_slide_submission_id=s_submission.id
-            AND us_state.reviewing_stage='waiting_for_manual_grading'
-             AND s_submission.exercise_id = $1 ORDER BY s_submission.user_id,t_submission.updated_at;",
+            JOIN exercise_task_submissions AS t_submission on us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+            JOIN exercise_slide_submissions AS s_submission ON s_submission.id = t_submission.exercise_slide_submission_id
+              WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+             AND s_submission.exercise_id = $1
+                AND us_state.user_id = s_submission.user_id
+               AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+          ORDER BY t_submission.updated_at;",
         exercise_id
     )
     .fetch_all(conn)

@@ -9348,72 +9348,6 @@
       "nullable": [false, false, false, true, false, false, false, true, false]
     }
   },
-  "97e5fb6bbb0b11f53aeeacd743caa4e8217184daae3175ba497171ed94142472": {
-    "query": "\n        select DISTINCT on (s_submission.user_id) s_submission.user_id,t_submission.id,t_submission.data_json,t_submission.created_at,t_submission.updated_at,t_submission.deleted_at,t_submission.exercise_task_id,t_submission.exercise_task_grading_id,t_submission.metadata, t_submission.exercise_slide_id,t_submission.exercise_slide_submission_id\n        from exercise_slide_submissions AS s_submission,\n         user_exercise_states AS us_state\n         INNER JOIN exercise_task_submissions AS t_submission ON us_state.selected_exercise_slide_id=t_submission.exercise_slide_id\n          WHERE exercise_slide_submission_id=s_submission.id\n            AND us_state.reviewing_stage='waiting_for_manual_grading'\n             AND s_submission.exercise_id = $1 ORDER BY s_submission.user_id,t_submission.updated_at;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "data_json",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_task_grading_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 8,
-          "name": "metadata",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "exercise_slide_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 10,
-          "name": "exercise_slide_submission_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, true, false, false, true, false, true, true, false, false]
-    }
-  },
   "9926983716d96fd291a81fa728ed1ce1ba268570fee21794fa8a406332c8384d": {
     "query": "\nINSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
     "describe": {
@@ -10286,6 +10220,72 @@
         "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb", "Int4"]
       },
       "nullable": [false]
+    }
+  },
+  "a66d8d3f35f00ede06d9b7df082eceb18b0bce1ec2109c38334a242ab05ad58d": {
+    "query": "\n        select s_submission.user_id, t_submission.id, t_submission.data_json, t_submission.created_at,\n        t_submission.updated_at, t_submission.deleted_at, t_submission.exercise_task_id,\n        t_submission.exercise_task_grading_id, t_submission.metadata, t_submission.exercise_slide_id, t_submission.exercise_slide_submission_id FROM\n         user_exercise_states AS us_state\n            JOIN exercise_task_submissions AS t_submission on us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n            JOIN exercise_slide_submissions AS s_submission ON s_submission.id = t_submission.exercise_slide_submission_id\n              WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n             AND s_submission.exercise_id = $1\n                AND us_state.user_id = s_submission.user_id\n               AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n          ORDER BY t_submission.updated_at;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "data_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "exercise_task_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "exercise_task_grading_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "metadata",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 9,
+          "name": "exercise_slide_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 10,
+          "name": "exercise_slide_submission_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, true, false, false, true, false, true, true, false, false]
     }
   },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {

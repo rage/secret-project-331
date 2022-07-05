@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
 import { useSendEditorStateOnChange } from "../../hooks/useSendEditorStateOnChange"
+import PeerReviewEditor from "../../shared-module/components/PeerReviewEditor"
 import { initializedEditor } from "../../store/editor/editorActions"
 import { useTypedSelector } from "../../store/store"
 import { normalizeData } from "../../util/normalizerFunctions"
@@ -28,6 +29,7 @@ const EditorImpl: React.FC<EditorProps> = ({ port, privateSpec }) => {
     <>
       <QuizItems />
       <BasicInformation />
+      <PeerReviewEditor />
     </>
   )
 }

@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
+import { faXmark } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-
-import CrossIcon from "../img/exist-icon.svg"
 
 import TextAreaField from "./InputFields/EditableComponentTextArea"
 import SelectField from "./InputFields/SelectField"
@@ -61,6 +61,7 @@ const StyledBtn = styled.button`
     width: 100%;
   }
 `
+
 const DeleteBtn = styled.button`
   width: 50px;
   min-height: 50px;
@@ -186,7 +187,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
                 })
               }}
             >
-              <CrossIcon />
+              <FontAwesomeIcon icon={faXmark} />
             </DeleteBtn>
           </List>
         ))}
@@ -226,7 +227,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
         />
         <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
         <StyledBtn type="submit" name={t("submit")} value={t("submit")}>
-          <CrossIcon />
+          <FontAwesomeIcon icon={faXmark} />
         </StyledBtn>
       </StyledForm>
     </Wrapper>

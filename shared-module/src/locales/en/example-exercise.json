@@ -4,5 +4,7 @@
   "new": "New",
   "score-given": "score given",
   "waiting-for-content": "Waiting for content...",
-  "waiting-for-port": "Waiting for port..."
+  "waiting-for-port": "Waiting for port...",
+  "delete": "delete",
+  "submit": "submit"
 }

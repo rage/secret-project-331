@@ -79,5 +79,7 @@
   "deleted-option": "Deleted option",
   "quiz-type-not-supported": "Quiz type not supported",
   "not-answered": "Not answered",
-  "remove": "Remove"
+  "remove": "Remove",
+  "delete": "delete",
+  "submit": "submit"
 }

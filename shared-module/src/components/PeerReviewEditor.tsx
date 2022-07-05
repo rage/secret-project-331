@@ -179,7 +179,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id }) => {
               <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
             </StyledQuestionType>
             <DeleteBtn
-              aria-label="delete"
+              aria-label={t("delete")}
               onClick={() => {
                 setState((prevState) => {
                   return prevState.filter((o) => {
@@ -227,7 +227,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id }) => {
           onBlur={() => null}
         />
         <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
-        <StyledBtn aria-label={`submit`} type="submit" name={t("submit")} value={t("submit")}>
+        <StyledBtn aria-label={t("submit")} type="submit" name={t("submit")} value={t("submit")}>
           <FontAwesomeIcon icon={faXmark} />
         </StyledBtn>
       </StyledForm>

@@ -206,3 +206,20 @@ pub async fn get_by_course_id_as_map(
         .collect();
     Ok(res)
 }
+
+pub async fn get_all_uh_course_codes(conn: &mut PgConnection) -> ModelResult<Vec<String>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT uh_course_code
+FROM course_modules
+WHERE uh_course_code IS NOT NULL
+  AND deleted_at IS NULL
+"
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .filter_map(|x| x.uh_course_code)
+    .collect();
+    Ok(res)
+}

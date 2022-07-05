@@ -8,5 +8,6 @@ resources:
   - main-frontend/deployment.yml
   - quizzes/deployment.yml
   - ingress.yml
+  - headless-lms/open-university-registration-link-fetcher.yml
   - headless-lms/service-info-fetcher.yml
   - headless-lms/regrader.yml

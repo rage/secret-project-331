@@ -14,6 +14,11 @@ patches:
       version: v1
       kind: Deployment
       name: service-info-fetcher
+  - path: headless-lms/patch-open-university-registration-link-fetcher.yml
+    target:
+      version: v1
+      kind: CronJob
+      name: open-university-registration-link-fetcher
   - path: headless-lms/patch-regrader.yml
     target:
       version: v1

@@ -1,8 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-use models::pages::{
-    Page, PageChapterAndCourseInformation, PageRoutingData, PageRoutingDataWithChapterStatus,
-};
+use models::pages::{Page, PageChapterAndCourseInformation, PageRoutingDataWithChapterStatus};
 
 use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 

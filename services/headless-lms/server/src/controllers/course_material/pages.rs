@@ -47,12 +47,14 @@ async fn get_next_page(
 async fn get_previous_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Option<PageRoutingData>>> {
+) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
     let previous_page_data = models::pages::get_previous_page(&mut conn, *page_id).await?;
+    let previous_page_data_with_status =
+        models::pages::get_previous_page_with_chapter_status(previous_page_data).await?;
 
     let token = skip_authorize()?;
-    token.authorized_ok(web::Json(previous_page_data))
+    token.authorized_ok(web::Json(previous_page_data_with_status))
 }
 
 /**

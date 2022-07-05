@@ -75,8 +75,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
           id="up-svg-icon"
           role="presentation"
           alt=""
-          width="15"
-          height="15"
+          width="12"
+          height="12"
           viewBox="0 0 39 39"
           transform="rotate(270)"
         />
@@ -118,8 +118,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
 
             ${respondToOrLarger.md} {
               margin-top: 2rem;
-              grid-template-columns: 110px 1fr;
-              column-gap: 20px;
+              grid-template-columns: 80px 1fr;
+              column-gap: 14px;
             }
           `}
         >
@@ -145,8 +145,8 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
                   id="left-svg-icon"
                   role="presentation"
                   alt=""
-                  width="30"
-                  height="30"
+                  width="25"
+                  height="25"
                   viewBox="0 0 39 39"
                   transform="rotate(180)"
                 />
@@ -177,7 +177,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
                   flex: 1;
                   line-height: 1.3;
                   width: 68%;
-                  padding: 1.6rem 1.8rem;
+                  padding: 1.2rem 1.8rem;
 
                   overflow: hidden;
                   white-space: nowrap;

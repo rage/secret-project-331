@@ -1752,6 +1752,34 @@ pub async fn get_previous_page(
     }
 }
 
+pub async fn get_previous_page_with_chapter_status(
+    next_page_data: Option<PageRoutingData>,
+) -> ModelResult<Option<PageRoutingDataWithChapterStatus>> {
+    match next_page_data {
+        Some(data) => {
+            let open = data
+                .chapter_opens_at
+                .map(|o| o <= Utc::now())
+                .unwrap_or(true);
+            let status = if open {
+                ChapterStatus::Open
+            } else {
+                ChapterStatus::Closed
+            };
+            Ok(Some(PageRoutingDataWithChapterStatus {
+                url_path: data.url_path,
+                title: data.title,
+                chapter_number: data.chapter_number,
+                chapter_id: data.chapter_id,
+                chapter_opens_at: data.chapter_opens_at,
+                chapter_front_page_id: data.chapter_front_page_id,
+                chapter_status: status,
+            }))
+        }
+        None => Ok(None),
+    }
+}
+
 async fn get_previous_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,

@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
+import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../img/confetti-bg.svg"
 import { headingFont } from "../../styles"
@@ -25,6 +26,7 @@ const Content = styled.div`
 
   .heading {
     color: #f5f6f7;
+    font-weight: 800;
     font-size: clamp(40px, 5vw, 70px) !important;
   }
 
@@ -56,6 +58,7 @@ const StyledSVG = styled(ConfettiBg)`
 `
 
 const Congratulation = ({ modules = true }) => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
       <Content>
@@ -65,8 +68,8 @@ const Congratulation = ({ modules = true }) => {
           The passage experienced a surge in popularity during the again during the 90s as{" "}
         </span>
         <CTAWrapper>
-          <RegisterLink>Register</RegisterLink>
-          <StyledLink>Generate certificate</StyledLink>
+          <RegisterLink>{t("register")}</RegisterLink>
+          <StyledLink>{t("generate-certicate")}</StyledLink>
         </CTAWrapper>
         {modules && <ModuleCard />}
       </Content>

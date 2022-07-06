@@ -1,5 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
+import { useTranslation } from "react-i18next"
 
 import CircularCheck from "../../img/circular-check.svg"
 import { headingFont } from "../../styles"
@@ -33,13 +34,14 @@ const StyledSVG = styled(CircularCheck)`
 `
 
 const ModuleCard = ({ title = "The Introduction to the University of Helsinki and ..." }) => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
       <StyledSVG />
       <h3>{title}</h3>
       <CTAWrapper>
-        <RegisterLink>Register</RegisterLink>
-        <StyledLink>Generate certificate</StyledLink>
+        <RegisterLink>{t("register")}</RegisterLink>
+        <StyledLink>{t("generate-certicate")}</StyledLink>
       </CTAWrapper>
     </Wrapper>
   )

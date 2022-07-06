@@ -53,5 +53,7 @@
   "points": "Pistettä",
   "added-text": "Tekstiä lisätty",
   "removed-text": "Tekstiä poistettu",
-  "title-references": "Lähteet"
+  "title-references": "Lähteet",
+  "register": "Register",
+  "generate-certicate": "Generate certificate"
 }

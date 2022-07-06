@@ -23,7 +23,7 @@ GET /api/v0/course-material/pages/exam/{page_id}
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_top_level_pages(pool: web::Data<PgPool>) -> ControllerResult<web::Json<Page>> {
+async fn get_top_level_pages(pool: web::Data<PgPool>) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_top_level_pages(&mut conn).await?;
     let token = skip_authorize()?;
@@ -41,7 +41,7 @@ async fn get_next_page(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
-    let next_page_data = models::pages::get_next_page(&mut conn, *pagnpme_id).await?;
+    let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
 

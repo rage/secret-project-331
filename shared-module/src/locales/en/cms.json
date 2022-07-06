@@ -62,5 +62,6 @@
   "start": "Start",
   "separator-color": "Separator color",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
-  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes."
+  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",
+  "add-peer-review": "Add peer review"
 }

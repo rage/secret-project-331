@@ -80,6 +80,7 @@
   "quiz-type-not-supported": "Quiz type not supported",
   "not-answered": "Not answered",
   "remove": "Remove",
-  "delete": "delete",
-  "submit": "submit"
+  "delete": "Delete",
+  "submit": "Submit",
+  "add-peer-review": "Add peer review"
 }

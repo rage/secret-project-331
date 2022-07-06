@@ -5,6 +5,7 @@
   "score-given": "score given",
   "waiting-for-content": "Waiting for content...",
   "waiting-for-port": "Waiting for port...",
-  "delete": "delete",
-  "submit": "submit"
+  "delete": "Delete",
+  "submit": "Submit",
+  "add-peer-review": "Add peer review"
 }

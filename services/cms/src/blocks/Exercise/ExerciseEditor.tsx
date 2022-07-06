@@ -11,7 +11,6 @@ import BreakFromCentered from "../../shared-module/components/Centering/BreakFro
 import Centered from "../../shared-module/components/Centering/Centered"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../shared-module/components/InputFields/TextField"
-import PeerReviewEditor from "../../shared-module/components/PeerReviewEditor"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
@@ -19,7 +18,7 @@ import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import { ExerciseAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide", "moocfi/exercise-peer-review"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 1rem;
@@ -40,6 +39,10 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
+  }
+
+  const handleAddNewPeerReview = () => {
+    dispatch({ type: "addPeerReview", payload: { clientId } })
   }
 
   return (
@@ -150,7 +153,9 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
               </Button>
             </div>
             <div>
-              <PeerReviewEditor />
+              <Button variant="primary" size="medium" onClick={handleAddNewPeerReview}>
+                {t("add-peer-review")}
+              </Button>
             </div>
           </ExerciseEditorCard>
         </Centered>

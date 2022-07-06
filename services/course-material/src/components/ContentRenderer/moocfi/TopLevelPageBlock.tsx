@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -10,6 +11,7 @@ import Spinner from "../../../shared-module/components/Spinner"
 import TopLevelPage, {
   TopLevelPageExtraProps,
 } from "../../../shared-module/components/TopLevelPage"
+import { headingFont } from "../../../shared-module/styles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const TopLevelPageBlock: React.FC<BlockRendererProps<TopLevelPageExtraProps>> = (props) => {
@@ -25,7 +27,15 @@ const TopLevelPageBlock: React.FC<BlockRendererProps<TopLevelPageExtraProps>> = 
         <>
           {getTopLevelPages.data && (
             <BreakFromCentered sidebar={false}>
-              <h2>{t("top-level-pages")}</h2>
+              <h2
+                className={css`
+                  font-family: ${headingFont};
+                  font-size: clamp(28px, 3vw, 30px);
+                  color: #065853;
+                `}
+              >
+                {t("top-level-pages")}
+              </h2>
               {getTopLevelPages.data.map((page) => (
                 <TopLevelPage page={page} key={page.id} />
               ))}

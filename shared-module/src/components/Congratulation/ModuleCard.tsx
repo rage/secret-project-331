@@ -8,15 +8,23 @@ import { CTAWrapper, RegisterLink, StyledLink } from "./index"
 
 const Wrapper = styled.div`
   font-family: ${headingFont};
-  width: 500px;
-  height: 200px;
+  width: 520px;
+  min-height: 190px;
   background: #6fb37e;
   box-shadow: 0px 10px 20px rgba(68, 130, 126, 0.2);
   border-radius: 4px;
   margin-top: 5rem;
   text-align: left;
-  padding: 1.4rem;
+  padding: 1.5rem;
   position: relative;
+
+  h3 {
+    color: #fff;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 25px;
+    line-height: 30px;
+  }
 `
 const StyledSVG = styled(CircularCheck)`
   position: absolute;
@@ -24,7 +32,7 @@ const StyledSVG = styled(CircularCheck)`
   right: 29px;
 `
 
-const ModuleCard = ({ title = "The Intoduction to the University of Helsinki and ..." }) => {
+const ModuleCard = ({ title = "The Introduction to the University of Helsinki and ..." }) => {
   return (
     <Wrapper>
       <StyledSVG />

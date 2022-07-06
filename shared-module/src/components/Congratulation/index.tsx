@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 
+import ConfettiBg from "../../img/confetti-bg.svg"
 import { headingFont } from "../../styles"
 
 import ModuleCard from "./ModuleCard"
@@ -10,7 +11,7 @@ const Wrapper = styled.div`
   background: #6ba578;
   width: 100%;
   border-radius: 4px;
-  min-height: 50vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,6 +21,7 @@ const Content = styled.div`
   height: auto;
   padding: 2rem;
   text-align: center;
+  position: relative;
 
   .heading {
     color: #f5f6f7;
@@ -27,7 +29,7 @@ const Content = styled.div`
   }
 
   .subtitle {
-    font-size: 20px;
+    font-size: 22px;
     color: #ffffff;
     opacity: 0.8;
   }
@@ -47,11 +49,17 @@ export const StyledLink = styled.a`
   padding: 1rem;
   font-size: 20px;
 `
+const StyledSVG = styled(ConfettiBg)`
+  position: absolute;
+  left: 35%;
+  top: 13px;
+`
 
-const Congratulation = () => {
+const Congratulation = ({ modules = true }) => {
   return (
     <Wrapper>
       <Content>
+        <StyledSVG />
         <h1 className="heading">Onnittelut</h1>
         <span className="subtitle">
           The passage experienced a surge in popularity during the again during the 90s as{" "}
@@ -60,7 +68,7 @@ const Congratulation = () => {
           <RegisterLink>Register</RegisterLink>
           <StyledLink>Generate certificate</StyledLink>
         </CTAWrapper>
-        <ModuleCard />
+        {modules && <ModuleCard />}
       </Content>
     </Wrapper>
   )

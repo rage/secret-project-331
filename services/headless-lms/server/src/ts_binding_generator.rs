@@ -126,6 +126,8 @@ fn ts_binding_generator() {
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
+        library::progressing::UserCompletionInformation,
+
         organizations::Organization,
 
         page_history::PageHistory,

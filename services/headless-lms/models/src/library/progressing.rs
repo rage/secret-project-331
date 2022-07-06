@@ -1,8 +1,9 @@
 use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules::CourseModule,
-    courses,
+    course_modules::{self, CourseModule},
+    courses::{self, Course},
     prelude::*,
+    user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
     users,
 };
@@ -105,6 +106,44 @@ fn user_is_eligible_for_automatic_completion(
         }
     }
     flags > 0
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserCompletionInformation {
+    pub course_module_completion_id: Uuid,
+    pub course_name: String,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+}
+
+pub async fn get_user_completion_information(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course: &Course,
+) -> ModelResult<UserCompletionInformation> {
+    let user = users::get_by_id(conn, user_id).await?;
+    let course_module = course_modules::get_default_by_course_id(conn, course.id).await?;
+    let user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .await?
+            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+    let course_module_completion =
+        course_module_completions::get_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
+        )
+        .await?;
+    Ok(UserCompletionInformation {
+        course_module_completion_id: course_module_completion.id,
+        course_name: course_module.name.unwrap_or_else(|| course.name.clone()),
+        email: course_module_completion.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+    })
 }
 
 #[cfg(test)]

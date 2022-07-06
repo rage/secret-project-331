@@ -2,7 +2,7 @@
   "404-not-found": "404 ei löydy",
   "action-back-to-front-page": "Takaisin etusivulle",
   "add-comment": "Lisää kommentti",
-  "after-completion-has-been-registered-you-can-view-completed-credits-at-koski": "Näet opintopisteesi suorituksen rekisteröimisen jälkeen <strong>Koskessa</strong>: <4>opintopolku/oma-opintopolku</4> Huom! Suorituksen rekisteröimisen jälkeen on hieman viivettä ennen kuin suoritus tulee näkyville Koskeen.",
+  "after-completion-has-been-registered-you-can-view-completed-credits-at-koski": "Näet opintopisteesi suorituksen rekisteröimisen jälkeen <strong>Koskessa</strong>: <4>opintopolku/oma-opintopolku</4> Huom! Suorituksen rekisteröimisen jälkeen kestää jonkin aikaa ennen kuin suoritus tulee näkyville Koskeen.",
   "american-english": "Englanti",
   "at-the-form-field-fill-in-your-email-address": "Syötä kenttään 'Your email address on the MOOC course' <strong>seuraava sähköpostiosoite: {{email}}</strong>",
   "available-in-languages": "Saatavilla {{num}} kielellä",

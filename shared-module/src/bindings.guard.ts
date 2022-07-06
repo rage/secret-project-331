@@ -132,6 +132,7 @@ import {
   TermUpdate,
   UploadResult,
   User,
+  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -944,6 +945,20 @@ export function isCourseMaterialPeerReviewSubmission(
     obj.peer_review_question_answers.every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
     )
+  )
+}
+
+export function isUserCompletionInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCompletionInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_module_completion_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.email === "string" &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string")
   )
 }
 

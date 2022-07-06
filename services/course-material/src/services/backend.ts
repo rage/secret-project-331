@@ -26,6 +26,7 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
+  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -47,6 +48,7 @@ import {
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
+  isUserCompletionInformation,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
@@ -143,6 +145,20 @@ const referrerIsTheCurrentSite = (referrer: string): boolean => {
   } catch {
     // If not a valid url
     return false
+  }
+}
+
+export const fetchUserCompletionInformation = async (
+  courseSlug: string,
+): Promise<UserCompletionInformation> => {
+  {
+    const response = await courseMaterialClient.get(
+      `/courses/${courseSlug}/completion-information`,
+      {
+        responseType: "json",
+      },
+    )
+    return validateResponse(response, isUserCompletionInformation)
   }
 }
 

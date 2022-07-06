@@ -516,6 +516,14 @@ export interface CourseMaterialPeerReviewSubmission {
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
 }
 
+export interface UserCompletionInformation {
+  course_module_completion_id: string
+  course_name: string
+  email: string
+  first_name: string | null
+  last_name: string | null
+}
+
 export interface Organization {
   id: string
   slug: string

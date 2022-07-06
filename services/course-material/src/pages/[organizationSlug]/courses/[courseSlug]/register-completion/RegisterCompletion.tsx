@@ -2,28 +2,19 @@ import { css } from "@emotion/css"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/layout/Layout"
-import Button from "../../../../shared-module/components/Button"
-import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
-import { baseTheme, typography } from "../../../../shared-module/styles"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { UserCompletionInformation } from "../../../../../shared-module/bindings"
+import Button from "../../../../../shared-module/components/Button"
+import GenericInfobox from "../../../../../shared-module/components/GenericInfobox"
+import { baseTheme, typography } from "../../../../../shared-module/styles"
 
-// Temp development placeholders
-const COURSE_NAME = "Software Software 2020"
-const STUDENT_EMAIL = "email@example.com"
-
-interface CompletionPageProps {
-  query: SimplifiedUrlQuery<string>
+export interface RegisterCompletionProps {
+  data: UserCompletionInformation
 }
 
-const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
-  const { organizationSlug } = query
+const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data }) => {
   const { t } = useTranslation()
   return (
-    <Layout organizationSlug={organizationSlug}>
+    <>
       <div
         className={css`
           margin: 0 0 1.5rem;
@@ -48,13 +39,13 @@ const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
             color: #333;
           `}
         >
-          {t("course")}: {COURSE_NAME}
+          {t("course")}: {data.course_name}
         </h2>
         <p>{t("credit-n-ecrs", { n: 3 })}</p>
         <p>{t("requires-a-finnish-social-security-number")}</p>
       </div>
       <GenericInfobox>
-        {t("use-this-email-address-on-the-registration-form")}: {STUDENT_EMAIL}
+        {t("use-this-email-address-on-the-registration-form")}: {data.email}
       </GenericInfobox>
       <p
         className={css`
@@ -80,7 +71,7 @@ const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
           <li>
             <Trans t={t} i18nKey="at-the-form-field-fill-in-your-email-address">
               At the form field &apos;Your email address on the MOOC course&apos;{" "}
-              <strong>fill in: {{ email: STUDENT_EMAIL }}</strong>
+              <strong>fill in: {{ email: data.email }}</strong>
             </Trans>
           </li>
           <li>{t("tick-the-box-if-you-want-email-after-credits-have-been-registered")}</li>
@@ -109,8 +100,8 @@ const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
         </Button>
       </div>
       <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>
-    </Layout>
+    </>
   )
 }
 
-export default withErrorBoundary(dontRenderUntilQueryParametersReady(CompletionPage))
+export default RegisterCompletion

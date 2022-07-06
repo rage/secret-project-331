@@ -173,6 +173,13 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>
   return validateResponse(response, isArray(isPage))
 }
 
+export const fetchTopLevelPages = async (): Promise<Array<Page>> => {
+  const response = await courseMaterialClient.get(`/pages/top-level-pages`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isPage))
+}
+
 export const fetchUserCourseProgress = async (
   courseInstanceId: string,
 ): Promise<UserCourseInstanceProgress[]> => {

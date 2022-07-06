@@ -36,9 +36,8 @@ const Wrapper = styled.div`
   }
 `
 
-interface TopLevelPageExtraProps {
-  title: string
-  attributes: any
+export interface TopLevelPageExtraProps {
+  page: any
 }
 
 export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
@@ -49,7 +48,7 @@ const subtitlePlaceholder = "Find answers to frequently asked questions on the F
 // eslint-disable-next-line i18next/no-literal-string
 const titlePlaceholder = "Top level pages"
 
-const TopLevelPage: React.FC<TopLevelPage> = ({ attributes }) => {
+const TopLevelPage: React.FC<TopLevelPage> = ({ page }) => {
   return (
     <Wrapper>
       <h2>{titlePlaceholder}</h2>
@@ -69,22 +68,5 @@ const TopLevelPage: React.FC<TopLevelPage> = ({ attributes }) => {
     </Wrapper>
   )
 }
-/*
-;<Content>
-  {objectives.map(({ attributes: { values }, clientId }: any) => {
-    const parser = new DOMParser()
-    // eslint-disable-next-line i18next/no-literal-string
-    const listItem = parser.parseFromString(values, "text/html")
-    const children: string[] = [].slice
-      .call(listItem.body.childNodes)
-      .map(({ innerHTML }) => innerHTML)
-    return children.map((child) => (
-      <StyledObjectives key={clientId}>
-        <StyledCheck />
-        <span>{child}</span>
-      </StyledObjectives>
-    ))
-  })}
-</Content> */
 
 export default TopLevelPage

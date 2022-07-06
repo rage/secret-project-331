@@ -42,6 +42,11 @@ pub struct Page {
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
 }
+pub struct ChapterInfo {
+    pub chapter_id: Uuid,
+    pub chapter_name: String,
+    pub chapter_front_page_id: Option<Uuid>,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -1752,12 +1757,35 @@ pub async fn get_previous_page(
     }
 }
 
+pub async fn get_chapter_page_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<ChapterInfo> {
+    let chapter_page = sqlx::query_as!(
+        ChapterInfo,
+        "
+        SELECT c.id as chapter_id,
+            c.name as chapter_name,
+            c.front_page_id as chapter_front_page_id
+        FROM chapters c
+        JOIN pages p ON c.id = p.chapter_id
+        WHERE p.id = $1
+            AND p.deleted_at IS NULL;
+        ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter_page)
+}
+
 pub async fn get_chapter_front_page_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
 ) -> ModelResult<Page> {
-    let chapter_front_page = get_chapter_front_page_by_page_id(conn, page_id).await?;
-    let id = chapter_front_page.id;
+    let chapter_front_page = get_chapter_page_by_page_id(conn, page_id).await?;
+    let id = chapter_front_page.chapter_id;
     let page = get_page(conn, id).await?;
     Ok(page)
 }

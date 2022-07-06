@@ -15,6 +15,7 @@ export interface ExerciseAttributes {
   max_tries_per_slide?: number
   limit_number_of_tries: boolean
   needs_peer_review: boolean
+  peer_review_config: string
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -47,6 +48,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     needs_peer_review: {
       type: "boolean",
       default: false,
+    },
+    peer_review_config: {
+      type: "string",
+      default: undefined,
     },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),

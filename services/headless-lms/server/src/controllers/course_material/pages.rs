@@ -113,7 +113,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{current_page_id}/previous-page",
             web::get().to(get_previous_page),
         )
-        .route("/page/{page_id}", web::get().to(get_chapter_front_page))
+        .route(
+            "/pages/{page_id}/chapter-front-page",
+            web::get().to(get_chapter_front_page),
+        )
         .route("/{current_page_id}/url-path", web::get().to(get_url_path))
         .route(
             "/{current_page_id}/chapter-and-course-information",

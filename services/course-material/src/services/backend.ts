@@ -238,17 +238,12 @@ export const fetchPreviousPageRoutingData = async (
 
 export const fetchChapterFrontPageById = async (id: string): Promise<Page> => {
   const data = (
-    await courseMaterialClient.get(`/pages/exam/${id}`, {
+    await courseMaterialClient.get(`/pages/${id}/chapter-front-page`, {
       responseType: "json",
     })
   ).data
   return data
 }
-
-/* export const fetchChapterFrontPageById = async (id: string): Promise<Page> => {
-  const response = await courseMaterialClient.get(`/pages/${id}`, { responseType: "json" })
-  return response
-} */
 
 export const fetchPageChapterAndCourse = async (
   currentPageId: string,

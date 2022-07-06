@@ -35,9 +35,9 @@ const NextPage: React.FC<NextPageProps> = ({
   const getPreviousPageRoutingData = useQuery(`pages-${currentPageId}-previous-page`, () =>
     fetchPreviousPageRoutingData(currentPageId),
   )
-  /* const getFetchChapterFrontPageById = useQuery(`pages-${chapterId}-chapter-front-page`, () =>
+  const getChapterFrontPageById = useQuery(`pages-${currentPageId}-chapter-front-page`, () =>
     fetchChapterFrontPageById(currentPageId),
-  ) */
+  )
 
   if (getNextPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
@@ -65,8 +65,8 @@ const NextPage: React.FC<NextPageProps> = ({
     return <Spinner variant={"medium"} />
   }
 
-  /*  if (getNextPageRoutingData.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getFetchChapterFrontPageById.error} />
+  /* if (getNextPageRoutingData.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
   } */
 
   if (getPreviousPageRoutingData.data === null) {
@@ -91,6 +91,7 @@ const NextPage: React.FC<NextPageProps> = ({
         nextTitle={data.title}
         url={nextPageUrl}
         previous={previousPageUrl}
+        chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
       />
     )
   }
@@ -104,6 +105,7 @@ const NextPage: React.FC<NextPageProps> = ({
           nextTitle={data.title}
           url={nextPageUrl}
           previous={previousPageUrl}
+          chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
         />
       )
     } else {
@@ -115,6 +117,7 @@ const NextPage: React.FC<NextPageProps> = ({
           nextTitle={data.title}
           url={nextPageUrl}
           previous={previousPageUrl}
+          chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
         />
       )
     }
@@ -156,6 +159,8 @@ const NextPage: React.FC<NextPageProps> = ({
         title={t("impressive-reached-end-of-chapter")}
         subtitle={t("please-wait-until-next-chapter-opens")}
         nextTitle={closedUntil}
+        previous={previousPageUrl}
+        chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
       />
     )
   }

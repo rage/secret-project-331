@@ -7502,6 +7502,22 @@
       "nullable": [false]
     }
   },
+  "77d894f55f42039b01266c3b1716027169dcb2119d6cb3412b989f013bf409fb": {
+    "query": "\n        SELECT\n        t_submission.id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id\n            = t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n        ON t_submission.exercise_slide_submission_id\n           = s_submission.id\n    WHERE s_submission.exercise_slide_id = t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id=$1\n    AND us_state.reviewing_stage='waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    ORDER BY us_state.updated_at;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
+    }
+  },
   "79a997ae3e7010fc4411554484753bc5f48823c4142a410d09e4ba93310e2596": {
     "query": "\nUPDATE user_exercise_states\nSET selected_exercise_slide_id = $4\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $5)\n    ",
     "describe": {
@@ -10220,72 +10236,6 @@
         "Left": ["Uuid", "Varchar", "Jsonb", "Jsonb", "Jsonb", "Jsonb", "Int4"]
       },
       "nullable": [false]
-    }
-  },
-  "a66d8d3f35f00ede06d9b7df082eceb18b0bce1ec2109c38334a242ab05ad58d": {
-    "query": "\n        select s_submission.user_id, t_submission.id, t_submission.data_json, t_submission.created_at,\n        t_submission.updated_at, t_submission.deleted_at, t_submission.exercise_task_id,\n        t_submission.exercise_task_grading_id, t_submission.metadata, t_submission.exercise_slide_id, t_submission.exercise_slide_submission_id FROM\n         user_exercise_states AS us_state\n            JOIN exercise_task_submissions AS t_submission on us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n            JOIN exercise_slide_submissions AS s_submission ON s_submission.id = t_submission.exercise_slide_submission_id\n              WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n             AND s_submission.exercise_id = $1\n                AND us_state.user_id = s_submission.user_id\n               AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n          ORDER BY t_submission.updated_at;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "data_json",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 3,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 6,
-          "name": "exercise_task_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 7,
-          "name": "exercise_task_grading_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 8,
-          "name": "metadata",
-          "type_info": "Jsonb"
-        },
-        {
-          "ordinal": 9,
-          "name": "exercise_slide_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 10,
-          "name": "exercise_slide_submission_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, true, false, false, true, false, true, true, false, false]
     }
   },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {
@@ -14017,6 +13967,52 @@
         "Left": ["Uuid", "Uuid", "Uuid"]
       },
       "nullable": [false, null, null]
+    }
+  },
+  "ed77de79114e38c3f210353947d78524be829f04cee35394a98e8014c3e9a57a": {
+    "query": "\n        SELECT\n        us_state.id,\n        us_state.user_id,\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    ORDER BY t_submission.updated_at;",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "data_json",
+          "type_info": "Jsonb"
+        },
+        {
+          "ordinal": 3,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 6,
+          "name": "submission_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, true, false, false, true, false]
     }
   },
   "edb8b86eadb9983d736300c28314c5b8e3f5a4b0ba1c4756d088118871018aa7": {

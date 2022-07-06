@@ -894,12 +894,8 @@ export interface AnswerRequiringAttention {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  exercise_slide_submission_id: string
-  exercise_slide_id: string
-  exercise_task_id: string
-  data_json: any | null
-  exercise_task_grading_id: string | null
-  metadata: unknown | null
+  data_json: unknown | null
+  submission_id: string
 }
 
 export interface RoleUser {
@@ -1039,7 +1035,18 @@ export interface ExerciseSubmissions {
 }
 
 export interface AnswersRequiringAttention {
-  data: Array<AnswerRequiringAttention>
+  data: Array<AnswerRequiringAttentionWithTasks>
+}
+
+export interface AnswerRequiringAttentionWithTasks {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  submission_id: string
+  tasks: Array<CourseMaterialExerciseTask>
 }
 
 export interface MarkAsRead {

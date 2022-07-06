@@ -10,6 +10,7 @@ import {
   ActionOnResource,
   ActivityProgress,
   AnswerRequiringAttention,
+  AnswerRequiringAttentionWithTasks,
   AnswersRequiringAttention,
   BlockProposal,
   BlockProposalAction,
@@ -1537,10 +1538,7 @@ export function isAnswerRequiringAttention(
     obj.created_at instanceof Date &&
     obj.updated_at instanceof Date &&
     (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_task_id === "string" &&
-    (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
+    typeof obj.submission_id === "string"
   )
 }
 
@@ -1780,7 +1778,24 @@ export function isAnswersRequiringAttention(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isAnswerRequiringAttention(e) as boolean)
+    obj.data.every((e: any) => isAnswerRequiringAttentionWithTasks(e) as boolean)
+  )
+}
+
+export function isAnswerRequiringAttentionWithTasks(
+  obj: any,
+  _argumentName?: string,
+): obj is AnswerRequiringAttentionWithTasks {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.submission_id === "string" &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 

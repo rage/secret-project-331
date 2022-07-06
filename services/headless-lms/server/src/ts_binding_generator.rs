@@ -8,6 +8,7 @@ use crate::controllers::{
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
+        exercises::AnswerRequiringAttentionWithTasks,
         exercises::AnswersRequiringAttention,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
@@ -207,6 +208,7 @@ fn ts_binding_generator() {
         UploadResult,
         ExerciseSubmissions,
         AnswersRequiringAttention,
+        AnswerRequiringAttentionWithTasks,
         MarkAsRead,
         GetFeedbackQuery,
         GetEditProposalsQuery,

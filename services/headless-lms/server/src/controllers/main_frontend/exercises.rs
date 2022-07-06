@@ -1,10 +1,15 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/exercises`.
 
+use chrono::{DateTime, Utc};
 use futures::future;
 
 use models::{
     exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_submissions::{get_all_answers_requiring_attention, AnswerRequiringAttention},
+    exercise_task_submissions::{
+        get_all_answers_requiring_attention,
+        get_exercise_task_submission_info_by_exercise_slide_submission_id,
+    },
+    exercise_tasks::CourseMaterialExerciseTask,
     exercises::get_exercise_by_id,
     CourseOrExamId,
 };
@@ -17,11 +22,23 @@ pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswersRequiringAttention {
+    pub data: Vec<AnswerRequiringAttentionWithTasks>,
+}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct AnswersRequiringAttention {
-    data: Vec<AnswerRequiringAttention>,
+pub struct AnswerRequiringAttentionWithTasks {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub data_json: Option<serde_json::Value>,
+    pub submission_id: Uuid,
+    pub tasks: Vec<CourseMaterialExerciseTask>,
 }
 
 /**
@@ -90,8 +107,32 @@ async fn get_exercise_answers_requiring_attention(
     let exercise = get_exercise_by_id(&mut conn, *exercise_id).await?;
     let mut conn = pool.acquire().await?;
     let get_magic = get_all_answers_requiring_attention(&mut conn, exercise.id).await?;
+    let mut new_get_magic = Vec::with_capacity(get_magic.len());
+    /*let get_magic_submission_id =
+    get_submission_id_of_answers_requiring_attention(&mut conn, exercise.id).await?;*/
+    //let mut exercise_task_submission_info = Vec::with_capacity(get_magic.len());
+    for answer in &get_magic {
+        let tasks = get_exercise_task_submission_info_by_exercise_slide_submission_id(
+            &mut conn,
+            answer.submission_id,
+        )
+        .await?;
+        let new_answer = AnswerRequiringAttentionWithTasks {
+            id: answer.id,
+            user_id: answer.user_id,
+            created_at: answer.created_at,
+            updated_at: answer.updated_at,
+            deleted_at: answer.deleted_at,
+            data_json: answer.data_json.to_owned(),
+            submission_id: answer.submission_id,
+            tasks,
+        };
+        new_get_magic.push(new_answer);
+    }
 
-    token.authorized_ok(web::Json(AnswersRequiringAttention { data: get_magic }))
+    token.authorized_ok(web::Json(AnswersRequiringAttention {
+        data: new_get_magic,
+    }))
 }
 
 /**

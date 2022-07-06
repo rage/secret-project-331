@@ -102,7 +102,19 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({ answersRequiringAttent
             >
               {t("student-answer")}
             </p>
-            {/*<p>{testing.data_json}</p>*/}
+
+            {/*tasks
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((task) => (
+                <SubmissionIFrame
+                  key={task.id}
+                  url={`${task.exercise_iframe_url}?width=700`} // todo: move constants to shared module?
+                  public_spec={task.public_spec}
+                  submission={task.previous_submission}
+                  model_solution_spec={task.model_solution_spec}
+                  grading={task.previous_submission_grading}
+                />
+              ))*/}
             {/* eslint-disable-next-line i18next/no-literal-string*/}
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis in justo scelerisque,

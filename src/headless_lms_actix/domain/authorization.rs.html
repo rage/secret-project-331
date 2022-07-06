@@ -548,6 +548,15 @@
 <span id="543">543</span>
 <span id="544">544</span>
 <span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
@@ -730,8 +739,6 @@ async fn example_function(
 }
 
 <span class="doccomment">/**
-
-
 The authorization token is the only way to return a controller result, and should only be used in controller functions that return a response to the user.
 
 
@@ -757,8 +764,19 @@ token.authorized_ok(web::Json(cms_page_info))
         <span class="ident">Vec::new</span>()
     };
 
+    <span class="ident">authorize_with_fetched_list_of_roles</span>(<span class="ident">conn</span>, <span class="ident">action</span>, <span class="ident">user_id</span>, <span class="ident">resource</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>).<span class="kw">await</span>
+}
+
+<span class="doccomment">/// Same as `authorize`, but takes as an argument Vec&lt;Role&gt; so that we avoid fetching the roles from the database for optimization reasons. This is useful when we&#39;re checking multiple authorizations at once.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize_with_fetched_list_of_roles</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">action</span>: <span class="ident">Action</span>,
+    <span class="ident">_user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">resource</span>: <span class="ident">Resource</span>,
+    <span class="ident">user_roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="comment">// check global role</span>
-    <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">user_roles</span> {
+    <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">user_roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_global</span>() <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
         }
@@ -766,7 +784,7 @@ token.authorized_ok(web::Json(cms_page_info))
 
     <span class="comment">// for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)</span>
     <span class="kw">if</span> <span class="ident">resource</span> <span class="op">==</span> <span class="ident">Resource::AnyCourse</span> {
-        <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">user_roles</span> {
+        <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">user_roles</span> {
             <span class="kw">if</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()));
             }
@@ -785,50 +803,50 @@ token.authorized_ok(web::Json(cms_page_info))
                 };
             <span class="comment">// there are no chapter roles so we check the course instead</span>
             <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::chapters::get_course_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_id</span>).<span class="kw">await</span>
         }
-        <span class="ident">Resource::Course</span>(<span class="ident">id</span>) =&gt; <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>,
+        <span class="ident">Resource::Course</span>(<span class="ident">id</span>) =&gt; <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>,
         <span class="ident">Resource::CourseInstance</span>(<span class="ident">id</span>) =&gt; {
-            <span class="ident">check_course_instance_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_instance_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::Exercise</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// an exercise can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::exercises::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::ExerciseSlideSubmission</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">//an exercise slide submissions can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
                 <span class="ident">models::exercise_slide_submissions::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::ExerciseTask</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// an exercise task can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::ExerciseTaskSubmission</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// an exercise task submission can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
                 <span class="ident">models::exercise_task_submissions::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::ExerciseTaskGrading</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// a grading can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span>
                 <span class="ident">models::exercise_task_gradings::get_course_or_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
-        <span class="ident">Resource::Organization</span>(<span class="ident">id</span>) =&gt; <span class="ident">check_organization_permission</span>(<span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>,
+        <span class="ident">Resource::Organization</span>(<span class="ident">id</span>) =&gt; <span class="ident">check_organization_permission</span>(<span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">id</span>).<span class="kw">await</span>,
         <span class="ident">Resource::Page</span>(<span class="ident">id</span>) =&gt; {
             <span class="comment">// a page can be part of a course or an exam</span>
             <span class="kw">let</span> <span class="ident">course_or_exam_id</span> <span class="op">=</span> <span class="ident">models::pages::get_course_and_exam_id</span>(<span class="ident">conn</span>, <span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
+            <span class="ident">check_course_or_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">course_or_exam_id</span>).<span class="kw">await</span>
         }
         <span class="ident">Resource::StudyRegistry</span>(<span class="ident">secret_key</span>) =&gt; {
             <span class="ident">check_study_registry_permission</span>(<span class="ident">conn</span>, <span class="ident">secret_key</span>, <span class="ident">action</span>).<span class="kw">await</span>
         }
-        <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>) =&gt; <span class="ident">check_exam_permission</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">exam_id</span>).<span class="kw">await</span>,
+        <span class="ident">Resource::Exam</span>(<span class="ident">exam_id</span>) =&gt; <span class="ident">check_exam_permission</span>(<span class="ident">conn</span>, <span class="ident">user_roles</span>, <span class="ident">action</span>, <span class="ident">exam_id</span>).<span class="kw">await</span>,
         <span class="ident">Resource::Role</span>
         <span class="op">|</span> <span class="ident">Resource::User</span>
         <span class="op">|</span> <span class="ident">Resource::AnyCourse</span>
@@ -839,7 +857,7 @@ token.authorized_ok(web::Json(cms_page_info))
             <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Unauthorized&quot;</span>.<span class="ident">to_string</span>()))
         }
         <span class="ident">Resource::MaterialReference</span> =&gt; {
-            <span class="ident">check_material_reference_permissions</span>(<span class="kw-2">&amp;</span><span class="ident">user_roles</span>, <span class="ident">action</span>).<span class="kw">await</span>
+            <span class="ident">check_material_reference_permissions</span>(<span class="ident">user_roles</span>, <span class="ident">action</span>).<span class="kw">await</span>
         }
     }
 }
@@ -982,7 +1000,7 @@ token.authorized_ok(web::Json(cms_page_info))
         ),
         <span class="ident">Assistant</span> =&gt; <span class="macro">matches!</span>(
             <span class="ident">action</span>,
-            <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span> <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>)
+            <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span> <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>) <span class="op">|</span> <span class="ident">Teach</span>
         ),
         <span class="ident">Reviewer</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Grade</span>),
         <span class="ident">CourseOrExamCreator</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">CreateCoursesOrExams</span>),

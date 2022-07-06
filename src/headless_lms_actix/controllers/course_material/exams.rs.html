@@ -201,6 +201,7 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
@@ -249,7 +250,8 @@ POST /api/v0/course-material/exams/:id/enroll
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
         <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">starts_at</span> {
             <span class="ident">exams::enroll</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">exam_id</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// Anyone should be able to start an exam.</span>
+            <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
             <span class="kw">return</span> <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()));
         }
     }

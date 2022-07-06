@@ -673,6 +673,9 @@
 <span id="668">668</span>
 <span id="669">669</span>
 <span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>, <span class="ident">exams</span>,
     <span class="ident">exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user</span>,
@@ -989,7 +992,10 @@ WHERE id = $1
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">current_exercise_slide</span>, <span class="ident">instance_or_exam_id</span>) <span class="op">=</span>
         <span class="ident">get_or_select_exercise_slide</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">user_id</span>, <span class="kw-2">&amp;</span><span class="ident">exercise</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="macro">info!</span>(<span class="string">&quot;current exercise slide: {:#?}&quot;</span>, <span class="ident">current_exercise_slide</span>);
+    <span class="macro">info!</span>(
+        <span class="string">&quot;Current exercise slide id: {:#?}&quot;</span>,
+        <span class="ident">current_exercise_slide</span>.<span class="ident">id</span>
+    );
 
     <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">user_id</span>, <span class="ident">instance_or_exam_id</span>) {
         (<span class="prelude-val">Some</span>(<span class="ident">user_id</span>), <span class="prelude-val">Some</span>(<span class="ident">course_instance_or_exam_id</span>)) =&gt; {

@@ -428,6 +428,42 @@
       "nullable": [false, false, false, true, true, false, true, true]
     }
   },
+  "03f3ed8579184db44f729471638c65df2636a8e089d08bfd78c9806e7dcd0ddd": {
+    "query": "\nINSERT INTO open_university_registration_links (uh_course_code, registration_link)\nVALUES ($1, $2) ON CONFLICT (uh_course_code) DO\nUPDATE\nSET registration_link = $2,\n  deleted_at = NULL\nRETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "registration_link",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Varchar"]
+      },
+      "nullable": [false, false, false, true, false]
+    }
+  },
   "04af846484d55b34c279e32ea4c84693f927c102f56c087f559b161edf0c7413": {
     "query": "\nUPDATE peer_review_queue_entries\nSET peer_review_priority = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n    ",
     "describe": {
@@ -12105,6 +12141,22 @@
       "nullable": []
     }
   },
+  "c621b6ffa2f217244e02b155b36b55aae80dbec02f5d5640f74ce202478009e3": {
+    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND deleted_at IS NULL\n",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [true]
+    }
+  },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
     "query": "\nUPDATE regradings\nSET error_message = $1\nWHERE id = $2\n",
     "describe": {
@@ -14999,6 +15051,22 @@
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Uuid", "Varchar"]
+      },
+      "nullable": [false]
+    }
+  },
+  "fae3a129566844e49e0f4b605cad9678aef6e56505b100cf4a9ef11e1ced977a": {
+    "query": "\nSELECT uh_course_code\nFROM open_university_registration_links\nWHERE uh_course_code = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": ["Text"]
       },
       "nullable": [false]
     }

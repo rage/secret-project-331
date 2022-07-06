@@ -9,7 +9,12 @@ import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { login } from "../shared-module/services/backend/auth"
+import {
+  useCurrentPagePathForReturnTo,
+  validateReturnToRouteOrDefault,
+} from "../shared-module/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
@@ -21,6 +26,14 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const uncheckedReturnTo = useQueryParameter("return_to")
+  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(router.asPath)
+
+  const loginMutation = useToastMutation(
+    async () => {
+      await login(email, password)
+    },
+    { notify: false },
+  )
 
   const EMAIL = "email"
   const PASSWORD = "password"
@@ -44,9 +57,7 @@ const Login: React.FC = () => {
           onSubmit={async (event) => {
             event.preventDefault()
             try {
-              await login(email, password).then((result) => {
-                console.log(result)
-              })
+              await loginMutation.mutateAsync()
             } catch (e) {
               if (!(e instanceof Error)) {
                 throw e
@@ -65,7 +76,7 @@ const Login: React.FC = () => {
             }
 
             await loginStateContext.refresh()
-            const returnTo = validateRouteOrDefault(uncheckedReturnTo, "/")
+            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
             router.push(returnTo)
           }}
           className={css`
@@ -123,6 +134,9 @@ const Login: React.FC = () => {
             variant={"primary"}
             size={"medium"}
             id={"login-button"}
+            disabled={
+              !email || !password || email === "" || password === "" || loginMutation.isLoading
+            }
           >
             {t("login")}
           </Button>
@@ -141,6 +155,15 @@ const Login: React.FC = () => {
           >
             <a href="https://tmc.mooc.fi/password_reset_keys/new">{t("forgot-password")}</a>
           </div>
+          <div
+            className={css`
+              margin-bottom: 1.5rem;
+            `}
+          >
+            <a href={`/signup?return_to=${encodeURIComponent(returnToForLinkToSignupPage)}`}>
+              {t("create-an-acount")}
+            </a>
+          </div>
           {notification && (
             <Alert
               className={css`
@@ -158,22 +181,3 @@ const Login: React.FC = () => {
 }
 
 export default withErrorBoundary(Login)
-
-function validateRouteOrDefault(returnPath: string | undefined, defaultPath: string): string {
-  if (!returnPath) {
-    return defaultPath
-  }
-
-  // Only match paths like /asd, /asd/dfg, ...
-  const match = returnPath.match(/^(\/\S+)+/)
-  if (match === null) {
-    return defaultPath
-  }
-
-  // Don't allow "returning" to login page
-  if (returnPath === "/login") {
-    return defaultPath
-  }
-
-  return returnPath
-}

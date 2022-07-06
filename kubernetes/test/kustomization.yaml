@@ -23,3 +23,8 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container"
+  # Remove cpu and memory resource with initContainer defined for cronjobs
+  - path: patch-with-init-container-cronjob.yml
+    target:
+      version: v1
+      labelSelector: "deploymentType=with-init-container-cronjob"

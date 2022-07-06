@@ -4,6 +4,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
+import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
@@ -26,7 +27,7 @@ const CourseGrid = styled.div`
   }
 `
 
-const CourseCard = styled.a`
+const CourseCard = styled.div`
   margin-bottom: 5px;
 
   position: relative;
@@ -35,7 +36,7 @@ const CourseCard = styled.a`
   height: 320px;
   background: #f5f6f7;
   border-radius: 3px;
-  text-decoration: none;
+
   border: 1px solid #bec3c7;
   :focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
@@ -112,6 +113,8 @@ interface CourseCardProps {
   languageCode: string
   manageHref: string
   navigateToCourseHref: string
+  id: string
+  showManageButton: boolean
 }
 
 const capitalizeFirstLetter: (language: string) => string = (language) => {
@@ -127,14 +130,16 @@ const CourseComponent: React.FC<CourseCardProps> = ({
   languageCode,
   manageHref,
   navigateToCourseHref,
+  id,
+  showManageButton,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const LanguageComponent = Language[languageCode]
   const { t } = useTranslation()
 
   return (
-    <CourseCard href={navigateToCourseHref} aria-label={t("course-navigation", { title })}>
-      {loginStateContext.signedIn && (
+    <CourseCard>
+      {loginStateContext.signedIn && showManageButton && (
         <a
           className={css`
             :focus-visible > * {
@@ -157,39 +162,50 @@ const CourseComponent: React.FC<CourseCardProps> = ({
         </a>
       )}
 
-      <CourseContent>
-        <CourseHeading>
-          {title}
-          {isDraft && ` (${t("draft")})`}
-        </CourseHeading>
-        <CourseDescription>{description}</CourseDescription>
-      </CourseContent>
-      <CourseLanguageContent>
-        <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
-        {LanguageComponent && (
-          <LanguageComponent.image
-            className={css`
-              width: 45px;
-              height: 45px;
-              clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-              margin-left: 35px;
-            `}
-          />
-        )}
-        <LanguageCode>
-          {LanguageComponent ? (
-            capitalizeFirstLetter(LanguageComponent.humanReadableName)
-          ) : (
-            <span
+      <a
+        href={navigateToCourseHref}
+        aria-label={t("course-navigation", { title })}
+        className={css`
+          display: block;
+          width: 100%;
+          height: 100%;
+          text-decoration: none;
+        `}
+      >
+        <CourseContent>
+          <CourseHeading>
+            {title}
+            {isDraft && ` (${t("draft")})`}
+          </CourseHeading>
+          <CourseDescription>{description}</CourseDescription>
+        </CourseContent>
+        <CourseLanguageContent>
+          <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
+          {LanguageComponent && (
+            <LanguageComponent.image
               className={css`
-                margin-left: 1rem;
+                width: 45px;
+                height: 45px;
+                clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
+                margin-left: 35px;
               `}
-            >
-              {languageCode}
-            </span>
+            />
           )}
-        </LanguageCode>
-      </CourseLanguageContent>
+          <LanguageCode>
+            {LanguageComponent ? (
+              capitalizeFirstLetter(LanguageComponent.humanReadableName)
+            ) : (
+              <span
+                className={css`
+                  margin-left: 1rem;
+                `}
+              >
+                {languageCode}
+              </span>
+            )}
+          </LanguageCode>
+        </CourseLanguageContent>
+      </a>
     </CourseCard>
   )
 }

@@ -994,6 +994,10 @@ fn main() {
             tier: None
         }]
     );
+    write_docs!(
+        Vec<bool>,
+        vec![false, true, false, true, false, true, true, true]
+    );
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

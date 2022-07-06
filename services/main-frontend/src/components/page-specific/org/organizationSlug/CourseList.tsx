@@ -13,9 +13,10 @@ import {
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import RenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
+import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import useAuthorizeMultiple from "../../../../shared-module/hooks/useAuthorizeMultiple"
 import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
@@ -64,6 +65,13 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
     { enabled: !!organizationId },
   )
 
+  const canMangeCourse = useAuthorizeMultiple(
+    getOrgCourses.data?.map((course) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      return { action: { type: "teach" }, resource: { type: "course", id: course.id } }
+    }) ?? [],
+  )
+
   const loginStateContext = useContext(LoginStateContext)
 
   const [newCourseFormOpen, setNewCourseFormOpen] = useState(false)
@@ -108,19 +116,23 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
     setPage(pageCount)
   }
 
-  const courses = getOrgCourses.data.map((course) => (
-    <CourseComponent
-      key={course.id}
-      title={course.name}
-      isDraft={course.is_draft}
-      description={course.description ?? t("no-description-available")}
-      languageCode={course.language_code}
-      // eslint-disable-next-line i18next/no-literal-string
-      manageHref={`/manage/courses/${course.id}`}
-      // eslint-disable-next-line i18next/no-literal-string
-      navigateToCourseHref={`/org/${organizationSlug}/courses/${course.slug}`}
-    />
-  ))
+  const courses = getOrgCourses.data.map((course, n) => {
+    return (
+      <CourseComponent
+        key={course.id}
+        title={course.name}
+        isDraft={course.is_draft}
+        description={course.description ?? t("no-description-available")}
+        languageCode={course.language_code}
+        // eslint-disable-next-line i18next/no-literal-string
+        manageHref={`/manage/courses/${course.id}`}
+        // eslint-disable-next-line i18next/no-literal-string
+        navigateToCourseHref={`/org/${organizationSlug}/courses/${course.slug}`}
+        id={course.id}
+        showManageButton={canMangeCourse.data?.[n] === true}
+      />
+    )
+  })
 
   return (
     <div>
@@ -176,7 +188,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
 
       <br />
       {loginStateContext.signedIn && (
-        <RenderIfPermissions
+        <OnlyRenderIfPermissions
           action={{ type: "create_courses_or_exams" }}
           resource={{ id: organizationId, type: "organization" }}
         >
@@ -187,7 +199,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
           >
             {t("button-text-create")}
           </Button>
-        </RenderIfPermissions>
+        </OnlyRenderIfPermissions>
       )}
     </div>
   )

@@ -9,7 +9,7 @@ import ExamList from "../../components/page-specific/org/organizationSlug/ExamLi
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import RenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../shared-module/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -72,7 +72,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             />
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
-            <RenderIfPermissions
+            <OnlyRenderIfPermissions
               action={{ type: "create_courses_or_exams" }}
               resource={{ id: getOrganizationBySlug.data.id, type: "organization" }}
             >
@@ -81,7 +81,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 organizationId={getOrganizationBySlug.data.id}
                 organizationSlug={query.organizationSlug}
               />
-            </RenderIfPermissions>
+            </OnlyRenderIfPermissions>
           </>
         )}
 

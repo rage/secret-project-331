@@ -46,7 +46,8 @@ pub async fn enroll(
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
             exams::enroll(&mut conn, *exam_id, user.id).await?;
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+            // Anyone should be able to start an exam.
+            let token = skip_authorize()?;
             return token.authorized_ok(web::Json(()));
         }
     }

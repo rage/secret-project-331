@@ -4,8 +4,10 @@
     "course_module_name": "Module",
     "course_module_order_number": 0,
     "score_given": 3.0,
+    "score_required": 7,
     "score_maximum": 10,
     "total_exercises": 66,
-    "attempted_exercises": 13
+    "attempted_exercises": 13,
+    "attempted_exercises_required": 40
   }
 ]

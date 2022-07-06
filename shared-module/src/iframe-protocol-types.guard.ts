@@ -9,6 +9,7 @@ import {
   CurrentStateMessage,
   HeightChangedMessage,
   IframeState,
+  IframeViewType,
   ReadyMessage,
   SetStateMessage,
 } from "./iframe-protocol-types"
@@ -170,4 +171,8 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
       typeof obj.exercise_task_id === "string" &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )
+}
+
+export function isIframeViewType(obj: any, _argumentName?: string): obj is IframeViewType {
+  return obj === "exercise" || obj === "view-submission" || obj === "exercise-editor"
 }

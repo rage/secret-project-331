@@ -18,17 +18,6 @@ async fn get_by_exam_id(
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(page))
 }
-/**
-GET /api/v0/course-material/pages/exam/{page_id}
-*/
-#[generated_doc]
-#[instrument(skip(pool))]
-async fn get_top_level_pages(pool: web::Data<PgPool>) -> ControllerResult<web::Json<Vec<Page>>> {
-    let mut conn = pool.acquire().await?;
-    let page = models::pages::get_top_level_pages(&mut conn).await?;
-    let token = skip_authorize()?;
-    token.authorized_ok(web::Json(page))
-}
 
 /**
  GET /api/v0/course-material/pages/:page_id/next-page - returns next pages info.
@@ -88,7 +77,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/exam/{page_id}", web::get().to(get_by_exam_id))
         .route("/{current_page_id}/next-page", web::get().to(get_next_page))
         .route("/{current_page_id}/url-path", web::get().to(get_url_path))
-        .route("/pages/top-level-pages", web::get().to(get_top_level_pages))
         .route(
             "/{current_page_id}/chapter-and-course-information",
             web::get().to(get_chapter_and_course_information),

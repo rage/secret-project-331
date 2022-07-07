@@ -74,10 +74,6 @@ const modules = [
   { name: "Bonus module", title: "The Introduction to the University of Helsinki and ..." },
   // eslint-disable-next-line i18next/no-literal-string
   { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
 ]
 
 // eslint-disable-next-line i18next/no-literal-string

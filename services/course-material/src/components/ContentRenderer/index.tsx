@@ -46,7 +46,7 @@ import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import SponsorBlock from "./moocfi/SponsorBlock"
-import TopLevelPageBlock from "./moocfi/TopLevelPageBlock"
+import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
 export interface ContentRendererProps {

@@ -118,6 +118,7 @@ pub struct UserCompletionInformation {
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
+    pub ects_credits: Option<i32>,
 }
 
 pub async fn get_user_completion_information(
@@ -147,6 +148,7 @@ pub async fn get_user_completion_information(
         course_module_completion_id: course_module_completion.id,
         course_name: course_module.name.unwrap_or_else(|| course.name.clone()),
         uh_course_code,
+        ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
         first_name: user.first_name,
         last_name: user.last_name,
@@ -262,6 +264,7 @@ mod tests {
                 order_number: 0,
                 copied_from: None,
                 uh_course_code: None,
+                ects_credits: None,
                 automatic_completion,
                 automatic_completion_number_of_exercises_attempted_treshold,
                 automatic_completion_number_of_points_treshold,

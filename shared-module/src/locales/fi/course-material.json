@@ -26,7 +26,7 @@
   "course-has-no-page-at-path": "Tällä kurssilla ei ole sivua osoitteessa <1>{{path}}</1>",
   "course-overview": "Kurssin yhteenveto",
   "course-title": "Kurssi: {{title}}",
-  "credit-n-ecrs": "Opintopisteiteet: {{n}} OP",
+  "credit-n-ects": "Opintopisteiteet: {{n}} OP",
   "credit-will-be-registered-within-six-weeks": "Opintopisteet kirjataan kuuden viikon kuluessa.",
   "default-course-instance-name": "Oletus",
   "definition": "Määritelmä",

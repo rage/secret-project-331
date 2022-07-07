@@ -202,6 +202,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  ects_credits: number | null
 }
 
 export interface Course {
@@ -527,6 +528,7 @@ export interface UserCompletionInformation {
   email: string
   first_name: string | null
   last_name: string | null
+  ects_credits: number | null
 }
 
 export interface Organization {

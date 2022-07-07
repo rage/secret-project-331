@@ -26,7 +26,7 @@
   "course-has-no-page-at-path": "This course has no page at <1>{{path}}</1>",
   "course-overview": "Course overview",
   "course-title": "Course: {{title}}",
-  "credit-n-ecrs": "Credit: {{n}} ECRs",
+  "credit-n-ects": "Credit: {{n}} ECTS",
   "credit-will-be-registered-within-six-weeks": "Credit will be registered within 6 weeks.",
   "default-course-instance-name": "Default",
   "definition": "Definition",

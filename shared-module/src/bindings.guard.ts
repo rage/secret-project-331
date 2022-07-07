@@ -452,7 +452,8 @@ export function isCourseModule(obj: any, _argumentName?: string): obj is CourseM
     (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
       typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
     (obj.automatic_completion_number_of_points_treshold === null ||
-      typeof obj.automatic_completion_number_of_points_treshold === "number")
+      typeof obj.automatic_completion_number_of_points_treshold === "number") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 
@@ -970,7 +971,8 @@ export function isUserCompletionInformation(
     typeof obj.uh_course_code === "string" &&
     typeof obj.email === "string" &&
     (obj.first_name === null || typeof obj.first_name === "string") &&
-    (obj.last_name === null || typeof obj.last_name === "string")
+    (obj.last_name === null || typeof obj.last_name === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 

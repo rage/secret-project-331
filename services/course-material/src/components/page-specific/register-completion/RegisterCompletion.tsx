@@ -43,7 +43,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrat
         >
           {t("course")}: {data.course_name}
         </h2>
-        <p>{t("credit-n-ecrs", { n: 3 })}</p>
+        {data.ects_credits && <p>{t("credit-n-ects", { n: data.ects_credits })}</p>}
         <p>{t("requires-a-finnish-social-security-number")}</p>
       </div>
       <GenericInfobox>

@@ -1002,6 +1002,7 @@ fn main() {
             course_name: "Course".to_string(),
             email: "student@example.com".to_string(),
             uh_course_code: "ABC123".to_string(),
+            ects_credits: Some(5),
             first_name: Some("Student".to_string()),
             last_name: Some("Student".to_string()),
         }

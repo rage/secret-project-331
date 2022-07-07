@@ -119,7 +119,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/glossary": GlossaryBlock,
   "moocfi/infobox": InfoBox,
   "moocfi/sponsor": SponsorBlock,
-  "moocfi/top-level-block": TopLevelPageBlock,
+  "moocfi/top-level-pages": TopLevelPageBlock,
 }
 
 const highlightedBlockStyles = css`

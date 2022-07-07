@@ -7,7 +7,7 @@ import { headingFont } from "../styles"
 // eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
   margin: 0 auto;
-  max-width: 900px;
+  max-width: 100%;
   background: #ecf3f2;
   display: flex;
   height: auto;
@@ -15,10 +15,11 @@ const Content = styled.div`
   justify-content: space-between;
   padding: 2.4rem 2rem;
   color: #1a2333;
+  margin-bottom: 10px;
 
   h3 {
     font-family: ${headingFont};
-    font-size: clamp(28px, 3vw, 30px);
+    font-size: clamp(24px, 2.8vw, 28px);
     color: #065853;
   }
 

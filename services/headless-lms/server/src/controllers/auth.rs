@@ -1,5 +1,5 @@
 /*!
-Handlers for HTTP requests to `/api/v0/login`.
+Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use actix_governor::{Governor, GovernorConfigBuilder};
@@ -16,7 +16,9 @@ use url::form_urlencoded::Target;
 
 use crate::{
     controllers::prelude::*,
-    domain::authorization::{self, skip_authorize, ActionOnResource},
+    domain::authorization::{
+        self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+    },
     OAuthClient,
 };
 
@@ -156,6 +158,55 @@ pub async fn signup(
             "Cannot create a new account when signed in.".to_string(),
         ))
     }
+}
+
+/**
+POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
+Returns booleans for the authorizations in the same order as the input.
+**/
+#[generated_doc]
+#[instrument(skip(pool, payload,))]
+pub async fn authorize_multiple_actions_on_resources(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    payload: web::Json<Vec<ActionOnResource>>,
+) -> ControllerResult<web::Json<Vec<bool>>> {
+    let mut conn = pool.acquire().await?;
+    let input = payload.into_inner();
+    let mut results = Vec::with_capacity(input.len());
+    if let Some(user) = user {
+        // Prefetch roles so that we can do multiple authorizations without repeteadly querying the database.
+        let user_roles =
+            models::roles::get_roles(&mut conn, user.id)
+                .await
+                .map_err(|original_err| {
+                    ControllerError::InternalServerError(original_err.to_string())
+                })?;
+
+        for action_on_resource in input {
+            if (authorize_with_fetched_list_of_roles(
+                &mut conn,
+                action_on_resource.action,
+                Some(user.id),
+                action_on_resource.resource,
+                &user_roles,
+            )
+            .await)
+                .is_ok()
+            {
+                results.push(true);
+            } else {
+                results.push(false);
+            }
+        }
+    } else {
+        // Never authorize anonymous user
+        for _action_on_resource in input {
+            results.push(false);
+        }
+    }
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(results))
 }
 
 /**
@@ -393,5 +444,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route("/logout", web::post().to(logout))
     .route("/logged-in", web::get().to(logged_in))
-    .route("/authorize", web::post().to(authorize_action_on_resource));
+    .route("/authorize", web::post().to(authorize_action_on_resource))
+    .route(
+        "/authorize-multiple",
+        web::post().to(authorize_multiple_actions_on_resources),
+    );
 }

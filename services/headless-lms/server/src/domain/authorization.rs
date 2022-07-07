@@ -180,8 +180,6 @@ pub fn skip_authorize() -> anyhow::Result<AuthorizationToken> {
 }
 
 /**
-
-
 The authorization token is the only way to return a controller result, and should only be used in controller functions that return a response to the user.
 
 
@@ -207,8 +205,19 @@ pub async fn authorize(
         Vec::new()
     };
 
+    authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
+}
+
+/// Same as `authorize`, but takes as an argument Vec<Role> so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
+pub async fn authorize_with_fetched_list_of_roles(
+    conn: &mut PgConnection,
+    action: Action,
+    _user_id: Option<Uuid>,
+    resource: Resource,
+    user_roles: &[Role],
+) -> Result<AuthorizationToken, ControllerError> {
     // check global role
-    for role in &user_roles {
+    for role in user_roles {
         if role.is_global() && has_permission(role.role, action) {
             return Ok(AuthorizationToken(()));
         }
@@ -216,7 +225,7 @@ pub async fn authorize(
 
     // for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)
     if resource == Resource::AnyCourse {
-        for role in &user_roles {
+        for role in user_roles {
             if has_permission(role.role, action) {
                 return Ok(AuthorizationToken(()));
             }
@@ -235,50 +244,50 @@ pub async fn authorize(
                 };
             // there are no chapter roles so we check the course instead
             let course_id = models::chapters::get_course_id(conn, id).await?;
-            check_course_permission(conn, &user_roles, action, course_id).await
+            check_course_permission(conn, user_roles, action, course_id).await
         }
-        Resource::Course(id) => check_course_permission(conn, &user_roles, action, id).await,
+        Resource::Course(id) => check_course_permission(conn, user_roles, action, id).await,
         Resource::CourseInstance(id) => {
-            check_course_instance_permission(conn, &user_roles, action, id).await
+            check_course_instance_permission(conn, user_roles, action, id).await
         }
         Resource::Exercise(id) => {
             // an exercise can be part of a course or an exam
             let course_or_exam_id = models::exercises::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseSlideSubmission(id) => {
             //an exercise slide submissions can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_slide_submissions::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTask(id) => {
             // an exercise task can be part of a course or an exam
             let course_or_exam_id = models::exercise_tasks::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTaskSubmission(id) => {
             // an exercise task submission can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_task_submissions::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::ExerciseTaskGrading(id) => {
             // a grading can be part of a course or an exam
             let course_or_exam_id =
                 models::exercise_task_gradings::get_course_or_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
-        Resource::Organization(id) => check_organization_permission(&user_roles, action, id).await,
+        Resource::Organization(id) => check_organization_permission(user_roles, action, id).await,
         Resource::Page(id) => {
             // a page can be part of a course or an exam
             let course_or_exam_id = models::pages::get_course_and_exam_id(conn, id).await?;
-            check_course_or_exam_permission(conn, &user_roles, action, course_or_exam_id).await
+            check_course_or_exam_permission(conn, user_roles, action, course_or_exam_id).await
         }
         Resource::StudyRegistry(secret_key) => {
             check_study_registry_permission(conn, secret_key, action).await
         }
-        Resource::Exam(exam_id) => check_exam_permission(conn, &user_roles, action, exam_id).await,
+        Resource::Exam(exam_id) => check_exam_permission(conn, user_roles, action, exam_id).await,
         Resource::Role
         | Resource::User
         | Resource::AnyCourse
@@ -289,7 +298,7 @@ pub async fn authorize(
             Err(ControllerError::Forbidden("Unauthorized".to_string()))
         }
         Resource::MaterialReference => {
-            check_material_reference_permissions(&user_roles, action).await
+            check_material_reference_permissions(user_roles, action).await
         }
     }
 }
@@ -432,7 +441,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
         ),
         Assistant => matches!(
             action,
-            View | Edit | Grade | DeleteAnswer | EditRole(Assistant | Reviewer)
+            View | Edit | Grade | DeleteAnswer | EditRole(Assistant | Reviewer) | Teach
         ),
         Reviewer => matches!(action, View | Grade),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),

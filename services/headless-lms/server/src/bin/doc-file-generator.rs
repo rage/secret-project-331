@@ -1013,6 +1013,10 @@ fn main() {
             url: "https://www.example.com".to_string(),
         }
     );
+    write_docs!(
+        Vec<bool>,
+        vec![false, true, false, true, false, true, true, true]
+    );
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

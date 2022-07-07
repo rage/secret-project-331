@@ -30,3 +30,7 @@ export const logout = async (): Promise<void> => {
 export const authorize = async (action: ActionOnResource): Promise<boolean> => {
   return (await axios.post("/api/v0/auth/authorize", action)).data
 }
+
+export const authorizeMultiple = async (action: ActionOnResource[]): Promise<boolean[]> => {
+  return (await axios.post("/api/v0/auth/authorize-multiple", action)).data
+}

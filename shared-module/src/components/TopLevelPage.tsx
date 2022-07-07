@@ -2,7 +2,17 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
+import Bulleye from "../img/bulleye.svg"
+import Cross from "../img/cross.svg"
 import { headingFont } from "../styles"
+
+interface SVGProps {
+  isEven: boolean
+}
+// eslint-disable-next-line i18next/no-literal-string
+const BulleyeTop = "-40px"
+// eslint-disable-next-line i18next/no-literal-string
+const CrossTop = "-20px"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
@@ -13,9 +23,11 @@ const Content = styled.div`
   height: auto;
   align-items: center;
   justify-content: space-between;
-  padding: 2.4rem 2rem;
+  padding: 2.5rem 2rem;
   color: #1a2333;
   margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
 
   h3 {
     font-family: ${headingFont};
@@ -29,10 +41,19 @@ const Content = styled.div`
     opacity: 0.8;
   }
 `
+// eslint-disable-next-line i18next/no-literal-string
+const SVGWrapper = styled.div<SVGProps>`
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  top: ${({ isEven }) => (isEven ? BulleyeTop : CrossTop)};
+  left: 20px;
+`
 
 export interface TopLevelPageExtraProps {
   title: string
   url: string
+  index: number
 }
 
 export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
@@ -40,11 +61,13 @@ export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageEx
 // eslint-disable-next-line i18next/no-literal-string
 /* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
-const TopLevelPage: React.FC<TopLevelPage> = ({ title, url }) => {
+const TopLevelPage: React.FC<TopLevelPage> = ({ title, url, index }) => {
+  const isEven = index % 2 === 0
   return (
     <Link href={url} passHref>
       <Content>
         <div>
+          <SVGWrapper isEven={isEven}>{isEven ? <Bulleye /> : <Cross />}</SVGWrapper>
           <h3>{title}</h3>
           {/* <span>{subtitlePlaceholder}</span> */}
         </div>

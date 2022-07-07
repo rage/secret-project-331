@@ -45,8 +45,13 @@ const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {
               >
                 {t("top-level-pages")}
               </h2>
-              {getTopLevelPages.data.map((page) => (
-                <TopLevelPage title={page.title} url={page.url_path} key={page.id} />
+              {getTopLevelPages.data.map((page, index) => (
+                <TopLevelPage
+                  title={page.title}
+                  url={page.url_path}
+                  key={page.id}
+                  index={Number(index) + 1}
+                />
               ))}
             </Wrapper>
           )}

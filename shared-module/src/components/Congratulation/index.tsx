@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +6,7 @@ import { headingFont } from "../../styles"
 
 import ModuleCard from "./ModuleCard"
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   font-family: ${headingFont};
   background: #6ba578;
@@ -57,21 +57,30 @@ const StyledSVG = styled(ConfettiBg)`
   top: 13px;
 `
 
-const Congratulation = ({ modules = true }) => {
+const modules = [
+  // eslint-disable-next-line i18next/no-literal-string
+  { name: "Bonus module", title: "The Introduction to the University of Helsinki and ..." },
+  // eslint-disable-next-line i18next/no-literal-string
+  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
+]
+
+// eslint-disable-next-line i18next/no-literal-string
+const subTitle = "The passage experienced a surge in popularity during the again during the 90s as"
+
+const Congratulation = (/* { modules } */) => {
   const { t } = useTranslation()
   return (
     <Wrapper>
       <Content>
         <StyledSVG />
-        <h1 className="heading">Onnittelut</h1>
-        <span className="subtitle">
-          The passage experienced a surge in popularity during the again during the 90s as{" "}
-        </span>
+        <h1 className="heading">{t("congratulation")}!</h1>
+        <span className="subtitle">{subTitle}</span>
         <CTAWrapper>
           <RegisterLink>{t("register")}</RegisterLink>
           <StyledLink>{t("generate-certicate")}</StyledLink>
         </CTAWrapper>
-        {modules && <ModuleCard />}
+        {modules.length > 1 &&
+          modules.map(({ title, name }) => <ModuleCard title={title} key={name} />)}
       </Content>
     </Wrapper>
   )

@@ -29,14 +29,6 @@ const Content = styled.div`
   }
 `
 
-const Wrapper = styled.div`
-  h2 {
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 2rem;
-  }
-`
-
 export interface TopLevelPageExtraProps {
   title: string
   url: string
@@ -45,7 +37,7 @@ export interface TopLevelPageExtraProps {
 export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
 
 // eslint-disable-next-line i18next/no-literal-string
-const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page"
+/* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
 const TopLevelPage: React.FC<TopLevelPage> = ({ title, url }) => {
   return (
@@ -53,7 +45,7 @@ const TopLevelPage: React.FC<TopLevelPage> = ({ title, url }) => {
       <Content>
         <div>
           <h3>{title}</h3>
-          <span>{subtitlePlaceholder}</span>
+          {/* <span>{subtitlePlaceholder}</span> */}
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="57" height="40" viewBox="0 0 56.957 49">
           <path

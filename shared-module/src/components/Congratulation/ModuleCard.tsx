@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +6,7 @@ import { headingFont } from "../../styles"
 
 import { CTAWrapper, RegisterLink, StyledLink } from "./index"
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   font-family: ${headingFont};
   width: 520px;
@@ -32,8 +32,13 @@ const StyledSVG = styled(CircularCheck)`
   top: 26px;
   right: 29px;
 `
+interface ModuleCardEXtraProps {
+  title: string
+}
 
-const ModuleCard = ({ title = "The Introduction to the University of Helsinki and ..." }) => {
+export type ModuleType = React.HTMLAttributes<HTMLDivElement> & ModuleCardEXtraProps
+
+const ModuleCard: React.FC<ModuleType> = ({ title }) => {
   const { t } = useTranslation()
   return (
     <Wrapper>

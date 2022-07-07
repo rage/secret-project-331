@@ -3,6 +3,7 @@ import { Dictionary } from "lodash"
 
 import {
   ChaptersWithStatus,
+  CompletionRegistrationLink,
   Course,
   CourseInstance,
   CourseMaterialExercise,
@@ -34,6 +35,7 @@ import {
 } from "../shared-module/bindings"
 import {
   isChaptersWithStatus,
+  isCompletionRegistrationLink,
   isCourse,
   isCourseInstance,
   isCourseMaterialExercise,
@@ -153,13 +155,23 @@ export const fetchUserCompletionInformation = async (
 ): Promise<UserCompletionInformation> => {
   {
     const response = await courseMaterialClient.get(
-      `/courses/${courseSlug}/completion-information`,
+      `/completions/current-by-course-slug/${courseSlug}`,
       {
         responseType: "json",
       },
     )
     return validateResponse(response, isUserCompletionInformation)
   }
+}
+
+export const fetchCompletionRegistrationLink = async (
+  courseSlug: string,
+): Promise<CompletionRegistrationLink> => {
+  const res = await courseMaterialClient.get(
+    `/completions/registration-link-by-course-slug/${courseSlug}`,
+    { responseType: "json" },
+  )
+  return validateResponse(res, isCompletionRegistrationLink)
 }
 
 export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {

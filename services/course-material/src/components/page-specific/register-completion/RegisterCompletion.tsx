@@ -1,17 +1,19 @@
 import { css } from "@emotion/css"
+import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { UserCompletionInformation } from "../../../../../shared-module/bindings"
-import Button from "../../../../../shared-module/components/Button"
-import GenericInfobox from "../../../../../shared-module/components/GenericInfobox"
-import { baseTheme, typography } from "../../../../../shared-module/styles"
+import { UserCompletionInformation } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import GenericInfobox from "../../../shared-module/components/GenericInfobox"
+import { baseTheme, typography } from "../../../shared-module/styles"
 
 export interface RegisterCompletionProps {
   data: UserCompletionInformation
+  registrationFormUrl: string
 }
 
-const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data }) => {
+const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrationFormUrl }) => {
   const { t } = useTranslation()
   return (
     <>
@@ -95,9 +97,25 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data }) => {
           margin: 1.5rem 0;
         `}
       >
-        <Button variant="primary" size="large">
-          {t("to-the-registration-form")}
-        </Button>
+        <Link href={registrationFormUrl} passHref>
+          <a href={registrationFormUrl}>
+            <Button
+              variant="primary"
+              size="large"
+              // onClick={() => {
+              //   const openWindow = window.open("about:blank", "_blank")
+              //   setTimeout(() => {
+              //     const openWindowDocument = openWindow?.document
+              //     if (openWindowDocument) {
+              //       openWindowDocument.location = "https://www.example.com"
+              //     }
+              //   }, 5000)
+              // }}
+            >
+              {t("to-the-registration-form")}
+            </Button>
+          </a>
+        </Link>
       </div>
       <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>
     </>

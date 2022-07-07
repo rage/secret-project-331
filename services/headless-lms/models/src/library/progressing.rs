@@ -2,6 +2,7 @@ use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
     courses::{self, Course},
+    open_university_registration_links,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
@@ -143,6 +144,50 @@ pub async fn get_user_completion_information(
         email: course_module_completion.email,
         first_name: user.first_name,
         last_name: user.last_name,
+    })
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CompletionRegistrationLink {
+    pub url: String,
+}
+
+pub async fn get_completion_registration_link_and_save_attempt(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course: &Course,
+) -> ModelResult<CompletionRegistrationLink> {
+    let user = users::get_by_id(conn, user_id).await?;
+    let course_module = course_modules::get_default_by_course_id(conn, course.id).await?;
+    let user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .await?
+            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+    let course_module_completion =
+        course_module_completions::get_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
+        )
+        .await?;
+    course_module_completions::update_completion_registration_attempt_date(
+        conn,
+        course_module_completion.id,
+        Utc::now(),
+    )
+    .await?;
+    let uh_course_code = course_module.uh_course_code.ok_or_else(|| {
+        ModelError::PreconditionFailed(
+            "Course module doesn't have an assossiated University of Helsinki course code."
+                .to_string(),
+        )
+    })?;
+    let registration_link =
+        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?;
+    Ok(CompletionRegistrationLink {
+        url: registration_link,
     })
 }
 

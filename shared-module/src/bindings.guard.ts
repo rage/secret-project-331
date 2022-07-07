@@ -22,6 +22,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
+  CompletionRegistrationLink,
   ContentManagementPage,
   Course,
   CourseCount,
@@ -945,6 +946,16 @@ export function isCourseMaterialPeerReviewSubmission(
     obj.peer_review_question_answers.every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
     )
+  )
+}
+
+export function isCompletionRegistrationLink(
+  obj: any,
+  _argumentName?: string,
+): obj is CompletionRegistrationLink {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.url === "string"
   )
 }
 

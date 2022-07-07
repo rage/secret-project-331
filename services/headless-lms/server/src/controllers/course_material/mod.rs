@@ -6,6 +6,7 @@ This documents all endpoints. Select a module below for a category.
 */
 
 pub mod chapters;
+pub mod completions;
 pub mod course_instances;
 pub mod courses;
 pub mod exams;
@@ -19,7 +20,8 @@ use actix_web::web::{self, ServiceConfig};
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/courses").configure(courses::_add_routes))
+    cfg.service(web::scope("/completions").configure(completions::_add_routes))
+        .service(web::scope("/courses").configure(courses::_add_routes))
         .service(web::scope("/exercises").configure(exercises::_add_routes))
         .service(web::scope("/pages").configure(pages::_add_routes))
         .service(web::scope("/chapters").configure(chapters::_add_routes))

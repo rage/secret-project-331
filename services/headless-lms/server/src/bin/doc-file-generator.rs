@@ -43,7 +43,7 @@ use headless_lms_models::{
             CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
-        progressing::UserCompletionInformation,
+        progressing::{CompletionRegistrationLink, UserCompletionInformation},
     },
     material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
@@ -1003,6 +1003,12 @@ fn main() {
             email: "student@example.com".to_string(),
             first_name: Some("Student".to_string()),
             last_name: Some("Student".to_string()),
+        }
+    );
+    write_docs!(
+        CompletionRegistrationLink,
+        CompletionRegistrationLink {
+            url: "https://www.example.com".to_string(),
         }
     );
 }

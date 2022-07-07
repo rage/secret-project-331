@@ -16,7 +16,6 @@ use models::{
     feedback,
     feedback::NewFeedback,
     glossary::Term,
-    library::progressing::UserCompletionInformation,
     material_references::MaterialReference,
     page_visit_datum::NewPageVisitDatum,
     page_visit_datum_daily_visit_hashing_keys::{
@@ -230,23 +229,6 @@ async fn derive_information_from_requester(
         operating_system_version,
         device_type,
     })
-}
-
-#[generated_doc]
-#[instrument(skip(pool))]
-async fn get_default_module_completion_information(
-    course_slug: web::Path<String>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<UserCompletionInformation>> {
-    let mut conn = pool.acquire().await?;
-    let course = models::courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let information =
-        models::library::progressing::get_user_completion_information(&mut conn, user.id, &course)
-            .await?;
-    // Don't commit like this
-    let token = skip_authorize()?;
-    token.authorized_ok(web::Json(information))
 }
 
 /**
@@ -587,10 +569,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}", web::get().to(get_course))
         .route("/{course_id}/chapters", web::get().to(get_chapters))
-        .route(
-            "/{course_slug}/completion-information",
-            web::get().to(get_default_module_completion_information),
-        )
         .route(
             "/{course_id}/course-instances",
             web::get().to(get_course_instances),

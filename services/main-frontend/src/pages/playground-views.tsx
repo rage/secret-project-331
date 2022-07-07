@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
+import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
+import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
 import { ExerciseServiceInfoApi } from "../shared-module/bindings"
 import { isExerciseServiceInfoApi } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
@@ -17,13 +19,9 @@ import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
-import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
 import Spinner from "../shared-module/components/Spinner"
 import { CurrentStateMessage, IframeViewType } from "../shared-module/iframe-protocol-types"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
-
-const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
-const TITLE = "PLAYGROUND"
 
 interface PlaygroundFields {
   url: string
@@ -36,13 +34,20 @@ const Area = styled.div`
   margin-bottom: 1rem;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
+const StyledPre = styled.pre`
+  background-color: ${baseTheme.colors.clear[100]};
+  border-radius: 6px;
+  padding: 1rem;
+`
+
 const IframeViewPlayground: React.FC = () => {
   const { t } = useTranslation()
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
   // eslint-disable-next-line i18next/no-literal-string
-  const [currentView, _setCurrentView] = useState<IframeViewType>("exercise-editor")
+  const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
     // eslint-disable-next-line i18next/no-literal-string
@@ -81,9 +86,6 @@ const IframeViewPlayground: React.FC = () => {
     // eslint-disable-next-line i18next/no-literal-string
     console.warn("Private spec was invalid JSON", e)
   }
-
-  // Makes sure the iframe renders again when the data changes
-  const iframeKey = url + width + privateSpec
 
   const serviceInfoQuery = useQuery(
     `iframe-view-playground-service-info-${url}`,
@@ -221,7 +223,7 @@ const IframeViewPlayground: React.FC = () => {
         {publicSpecQuery.isLoading && <Spinner variant={"medium"} />}
         {publicSpecQuery.isIdle && <p>{t("error-cannot-load-with-the-given-inputs")}</p>}
         {publicSpecQuery.isSuccess && (
-          <pre>{JSON.stringify(publicSpecQuery.data, undefined, 2)}</pre>
+          <StyledPre>{JSON.stringify(publicSpecQuery.data, undefined, 2)}</StyledPre>
         )}
       </Area>
 
@@ -236,7 +238,7 @@ const IframeViewPlayground: React.FC = () => {
         {modelSolutionSpecQuery.isLoading && <Spinner variant={"medium"} />}
         {modelSolutionSpecQuery.isIdle && <p>{t("error-cannot-load-with-the-given-inputs")}</p>}
         {modelSolutionSpecQuery.isSuccess && (
-          <pre>{JSON.stringify(modelSolutionSpecQuery.data, undefined, 2)}</pre>
+          <StyledPre>{JSON.stringify(modelSolutionSpecQuery.data, undefined, 2)}</StyledPre>
         )}
       </Area>
 
@@ -255,7 +257,6 @@ const IframeViewPlayground: React.FC = () => {
                 padding: 0.5rem;
                 margin: 0 0.5rem;
                 cursor: pointer;
-                cursor: not-allowed !important;
 
                 &:hover {
                   filter: contrast(1.2) brightness(0.88);
@@ -272,42 +273,58 @@ const IframeViewPlayground: React.FC = () => {
               }
             `}
           >
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            <button data-active={currentView === "exercise-editor" && "1"}>exercise-editor</button>
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            <button data-active={currentView === "exercise" && "1"}>exercise</button>
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            <button data-active={currentView === "view-submission" && "1"}>view-submission</button>
+            <button
+              data-active={currentView === "exercise-editor" && "1"}
+              onClick={() => {
+                setCurrentStateReceivedFromIframe(null)
+                setCurrentView("exercise-editor")
+              }}
+              // eslint-disable-next-line i18next/no-literal-string
+            >
+              exercise-editor
+            </button>
+            <button
+              data-active={currentView === "exercise" && "1"}
+              onClick={() => {
+                setCurrentStateReceivedFromIframe(null)
+                setCurrentView("exercise")
+              }}
+              // eslint-disable-next-line i18next/no-literal-string
+            >
+              exercise
+            </button>
+            <button
+              data-active={currentView === "view-submission" && "1"}
+              onClick={() => {
+                setCurrentStateReceivedFromIframe(null)
+                setCurrentView("view-submission")
+              }}
+              // eslint-disable-next-line i18next/no-literal-string
+            >
+              view-submission
+            </button>
           </div>
         </Area>
-        {serviceInfoQuery.data &&
-          isValidServiceInfo &&
-          serviceInfoQuery.data.user_interface_iframe_path &&
-          privateSpec && (
-            <div
-              className={css`
-                margin-top: 1rem;
-              `}
-            >
-              <MessageChannelIFrame
-                key={iframeKey}
+        {serviceInfoQuery.data && isValidServiceInfo && serviceInfoQuery.data && privateSpec && (
+          <>
+            {currentView === "exercise-editor" && (
+              <PlaygroundExerciseEditorIframe
                 url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                postThisStateToIFrame={{
-                  // @ts-expect-error: this kind of approach is not nice with the IFrameState
-                  view_type: currentView,
-                  exercise_task_id: EXAMPLE_UUID,
-                  data: {
-                    private_spec: privateSpec,
-                  },
-                }}
-                onMessageFromIframe={(msg) => {
-                  setCurrentStateReceivedFromIframe(msg)
-                }}
-                title={TITLE}
-                showBorders={showIframeBorders}
+                privateSpec={privateSpec}
+                setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
+                showIframeBorders={showIframeBorders}
               />
-            </div>
-          )}
+            )}
+            {currentView === "exercise" && (
+              <PlaygroundExerciseIframe
+                url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                publicSpecQuery={publicSpecQuery}
+                setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
+                showIframeBorders={showIframeBorders}
+              />
+            )}
+          </>
+        )}
       </Area>
 
       <Area>
@@ -315,13 +332,31 @@ const IframeViewPlayground: React.FC = () => {
       </Area>
 
       <Area>
-        <h3>{t("title-current-state-received-from-the-iframe")}</h3>
-
+        <div
+          className={css`
+            display: flex;
+            h3 {
+              margin-right: 0.5rem;
+            }
+          `}
+        >
+          <h3>{t("title-current-state-received-from-the-iframe")}</h3>{" "}
+          <DebugModal data={currentStateReceivedFromIframe} buttonSize="small" />
+        </div>
         {currentStateReceivedFromIframe === null ? (
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
         ) : (
           <>
-            <pre>{JSON.stringify(currentStateReceivedFromIframe, undefined, 2)}</pre>
+            <StyledPre>
+              {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
+            </StyledPre>
+            <div
+              className={css`
+                margin-bottom: 1rem;
+              `}
+            >
+              {t("label-valid")}: {JSON.stringify(currentStateReceivedFromIframe.valid)}
+            </div>
             {currentView === "exercise-editor" && (
               <Button
                 size="medium"

@@ -327,5 +327,7 @@
   "message-please-confirm-your-email-address": "Please confirm your email address.",
   "confirm-email-address-instructions-1": "You should have received an email from mooc.fi titled:",
   "confirm-email-address-instructions-2": "Confirm your mooc.fi account email address.",
-  "confirm-email-address-instructions-3": "Please go to your email and follow the link included in the mail to confirm your email address."
+  "confirm-email-address-instructions-3": "Please go to your email and follow the link included in the mail to confirm your email address.",
+  "label-valid": "Valid",
+  "error-no-public-spec": "No public spec"
 }

@@ -35,17 +35,11 @@ interface SetContentAction {
   payload: BlockInstance[]
 }
 
-interface AddPeerReview {
-  type: "addPeerReview"
-  payload: { clientId: string }
-}
-
 export type EditorContentAction =
   | AddExerciseSlideAction
   | AddExerciseTaskAction
   | DeleteExerciseTaskAction
   | SetContentAction
-  | AddPeerReview
 
 // Reducer
 
@@ -98,25 +92,6 @@ export const editorContentReducer = (
         )
 
         return { ...block, innerBlocks }
-      })
-    case "addPeerReview":
-      return prev.map((block) => {
-        if (block.clientId !== action.payload.clientId) {
-          return block
-        }
-
-        const newPeerReview: BlockInstance<ExerciseSlideAttributes> = {
-          clientId: v4(),
-          name: "moocfi/exercise-peer-review",
-          isValid: true,
-          attributes: {
-            id: v4(),
-            order_number: block.innerBlocks.length,
-          },
-          innerBlocks: [],
-        }
-
-        return { ...block, innerBlocks: block.innerBlocks.concat(newPeerReview) }
       })
     case "deleteExerciseTask":
       return prev.map((block) => {

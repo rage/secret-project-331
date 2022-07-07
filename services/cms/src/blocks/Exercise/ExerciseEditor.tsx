@@ -18,7 +18,7 @@ import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import { ExerciseAttributes } from "."
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide", "moocfi/exercise-peer-review"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 1rem;
@@ -39,10 +39,6 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
 
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
-  }
-
-  const handleAddNewPeerReview = () => {
-    dispatch({ type: "addPeerReview", payload: { clientId } })
   }
 
   return (
@@ -150,11 +146,6 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
             <div>
               <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
                 {t("add-slide")}
-              </Button>
-            </div>
-            <div>
-              <Button variant="primary" size="medium" onClick={handleAddNewPeerReview}>
-                {t("add-peer-review")}
               </Button>
             </div>
           </ExerciseEditorCard>

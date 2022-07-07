@@ -175,6 +175,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
+        peer_review_config: "",
       },
     }
 

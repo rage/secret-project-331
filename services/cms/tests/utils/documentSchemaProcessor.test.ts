@@ -108,6 +108,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
   needs_peer_review: false,
+  peer_review_config: "",
 }
 
 // Doing this separately so that we get type errors when the type changes

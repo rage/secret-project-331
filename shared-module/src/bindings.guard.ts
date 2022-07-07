@@ -967,6 +967,7 @@ export function isUserCompletionInformation(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.course_module_completion_id === "string" &&
     typeof obj.course_name === "string" &&
+    typeof obj.uh_course_code === "string" &&
     typeof obj.email === "string" &&
     (obj.first_name === null || typeof obj.first_name === "string") &&
     (obj.last_name === null || typeof obj.last_name === "string")

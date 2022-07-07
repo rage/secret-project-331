@@ -114,6 +114,7 @@ fn user_is_eligible_for_automatic_completion(
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
     pub course_name: String,
+    pub uh_course_code: String,
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -138,9 +139,14 @@ pub async fn get_user_completion_information(
             user.id,
         )
         .await?;
+    // Course code is required only so that fetching the link later works.
+    let uh_course_code = course_module.uh_course_code.ok_or_else(|| {
+        ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
+    })?;
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
         course_name: course_module.name.unwrap_or_else(|| course.name.clone()),
+        uh_course_code,
         email: course_module_completion.email,
         first_name: user.first_name,
         last_name: user.last_name,

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextAreaField from "./InputFields/EditableComponentTextArea"
@@ -129,12 +129,15 @@ const TYPE = "questionType"
 const QUESTION_PLACEHOLDER = "Write the question"
 const HEADING_TEXT = "Configure review answers option"
 
-/* export interface PeerReviewEditorExtraProps {} */
+export interface PeerReviewEditorExtraProps {
+  attributes: any
+  setAttributes: (attr: any) => void
+}
 
-export type PeerReviewEditorProps =
-  React.HTMLAttributes<HTMLDivElement> /* & PeerReviewEditorExtraProps */
+export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
+  PeerReviewEditorExtraProps
 
-const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id }) => {
+const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, setAttributes }) => {
   const [state, setState] = useState<PeerReview[]>([])
   const { t } = useTranslation()
 
@@ -158,6 +161,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id }) => {
       })
     })
   }
+
+  useEffect(
+    () => setAttributes({ ...attributes, peer_review_config: JSON.stringify(state) }),
+    [state, attributes, setAttributes],
+  )
 
   return (
     <Wrapper>

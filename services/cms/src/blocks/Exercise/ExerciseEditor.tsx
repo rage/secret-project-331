@@ -11,6 +11,7 @@ import BreakFromCentered from "../../shared-module/components/Centering/BreakFro
 import Centered from "../../shared-module/components/Centering/Centered"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import PeerReviewEditor from "../../shared-module/components/PeerReviewEditor"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { gutenbergControlsHidden } from "../../styles/EditorStyles"
@@ -147,6 +148,13 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
               <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
                 {t("add-slide")}
               </Button>
+            </div>
+            <div
+              className={css`
+                margin-top: 1rem;
+              `}
+            >
+              <PeerReviewEditor attributes={attributes} setAttributes={setAttributes} />
             </div>
           </ExerciseEditorCard>
         </Centered>

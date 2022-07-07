@@ -86,5 +86,7 @@
   "project-github": "Project Github",
   "contribute-image-cover": "Contribute image cover",
   "title-references": "Reference",
-  "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:"
+  "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:",
+  "register": "Register",
+  "generate-certicate": "Generate certificate"
 }

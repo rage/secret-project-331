@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Link from "next/link"
 import React from "react"
 
 import { headingFont } from "../styles"
@@ -37,24 +38,21 @@ const Wrapper = styled.div`
 `
 
 export interface TopLevelPageExtraProps {
-  page: any
+  title: string
+  url: string
 }
 
 export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageExtraProps
 
-const placeholder = "FAQ"
 // eslint-disable-next-line i18next/no-literal-string
 const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page"
-// eslint-disable-next-line i18next/no-literal-string
-const titlePlaceholder = "Top level pages"
 
-const TopLevelPage: React.FC<TopLevelPage> = ({ page }) => {
+const TopLevelPage: React.FC<TopLevelPage> = ({ title, url }) => {
   return (
-    <Wrapper>
-      <h2>{titlePlaceholder}</h2>
+    <Link href={url} passHref>
       <Content>
         <div>
-          <h3>{placeholder}</h3>
+          <h3>{title}</h3>
           <span>{subtitlePlaceholder}</span>
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" width="57" height="40" viewBox="0 0 56.957 49">
@@ -65,7 +63,7 @@ const TopLevelPage: React.FC<TopLevelPage> = ({ page }) => {
           />
         </svg>
       </Content>
-    </Wrapper>
+    </Link>
   )
 }
 

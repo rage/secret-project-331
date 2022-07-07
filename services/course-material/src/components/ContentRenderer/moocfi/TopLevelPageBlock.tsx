@@ -14,7 +14,7 @@ import TopLevelPage, {
 import { headingFont } from "../../../shared-module/styles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const TopLevelPageBlock: React.FC<BlockRendererProps<TopLevelPageExtraProps>> = (props) => {
+const TopLevelPageBlock: React.FC<BlockRendererProps<TopLevelPageExtraProps>> = () => {
   const { t } = useTranslation()
   const getTopLevelPages = useQuery(`top-level-pages`, () => fetchTopLevelPages())
   return (
@@ -37,7 +37,7 @@ const TopLevelPageBlock: React.FC<BlockRendererProps<TopLevelPageExtraProps>> = 
                 {t("top-level-pages")}
               </h2>
               {getTopLevelPages.data.map((page) => (
-                <TopLevelPage page={page} key={page.id} />
+                <TopLevelPage title={page.title} url={page.url_path} key={page.id} />
               ))}
             </BreakFromCentered>
           )}

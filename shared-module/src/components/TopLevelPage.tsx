@@ -10,9 +10,9 @@ interface SVGProps {
   isEven: boolean
 }
 // eslint-disable-next-line i18next/no-literal-string
-const BulleyeTop = "-40px"
+const BulleyeTopPosition = "-40px"
 // eslint-disable-next-line i18next/no-literal-string
-const CrossTop = "-20px"
+const CrossTopPosition = "-20px"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
@@ -46,7 +46,7 @@ const SVGWrapper = styled.div<SVGProps>`
   position: absolute;
   width: 90px;
   height: 90px;
-  top: ${({ isEven }) => (isEven ? BulleyeTop : CrossTop)};
+  top: ${({ isEven }) => (isEven ? BulleyeTopPosition : CrossTopPosition)};
   left: 20px;
 `
 

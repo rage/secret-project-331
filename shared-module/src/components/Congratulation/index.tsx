@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../img/confetti-bg.svg"
 import { headingFont } from "../../styles"
+import { respondToOrLarger } from "../../styles/respond"
 
 import ModuleCard from "./ModuleCard"
 
@@ -18,7 +19,7 @@ const Wrapper = styled.div`
   align-items: center;
 `
 const Content = styled.div`
-  width: 900px;
+  width: 100%;
   height: auto;
   padding: 2rem;
   text-align: center;
@@ -56,10 +57,25 @@ const StyledSVG = styled(ConfettiBg)`
   left: 35%;
   top: 13px;
 `
+const ModuleWrapper = styled.div`
+  display: grid;
+  grid-template-columns: minmax(auto, 520px);
+  grid-gap: 20px;
+  margin-top: 3rem;
+  justify-content: center;
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: 520px 520px;
+  }
+`
 
 const modules = [
   // eslint-disable-next-line i18next/no-literal-string
   { name: "Bonus module", title: "The Introduction to the University of Helsinki and ..." },
+  // eslint-disable-next-line i18next/no-literal-string
+  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
+  // eslint-disable-next-line i18next/no-literal-string
+  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
   // eslint-disable-next-line i18next/no-literal-string
   { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
 ]
@@ -69,18 +85,22 @@ const subTitle = "The passage experienced a surge in popularity during the again
 
 const Congratulation = (/* { modules } */) => {
   const { t } = useTranslation()
+  const isModule = modules.length > 1
   return (
     <Wrapper>
       <Content>
         <StyledSVG />
         <h1 className="heading">{t("congratulation")}!</h1>
         <span className="subtitle">{subTitle}</span>
-        <CTAWrapper>
-          <RegisterLink>{t("register")}</RegisterLink>
-          <StyledLink>{t("generate-certicate")}</StyledLink>
-        </CTAWrapper>
-        {modules.length > 1 &&
-          modules.map(({ title, name }) => <ModuleCard title={title} key={name} />)}
+        {!isModule && (
+          <CTAWrapper>
+            <RegisterLink>{t("register")}</RegisterLink>
+            <StyledLink>{t("generate-certicate")}</StyledLink>
+          </CTAWrapper>
+        )}
+        <ModuleWrapper>
+          {isModule && modules.map(({ title, name }) => <ModuleCard title={title} key={name} />)}
+        </ModuleWrapper>
       </Content>
     </Wrapper>
   )

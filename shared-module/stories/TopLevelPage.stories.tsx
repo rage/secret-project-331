@@ -17,5 +17,6 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 
 export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
-  children: "TopLevelPage",
+  title: "FAQ",
+  url: "/",
 }

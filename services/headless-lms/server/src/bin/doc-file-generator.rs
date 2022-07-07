@@ -52,8 +52,8 @@ use headless_lms_models::{
         CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
         PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
-    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
+    peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
+    peer_reviews::{CmsPeerReview, PeerReview, PeerReviewAcceptingStrategy},
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -395,6 +395,24 @@ fn main() {
                 exercise_type: "quiz".to_string(),
                 private_spec: None,
                 order_number: 1,
+            }],
+            peer_reviews: vec![CmsPeerReview {
+                id,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+                accepting_threshold: 0.3,
+                course_id: id,
+                exercise_id: Some(id),
+                peer_reviews_to_give: 1,
+                peer_reviews_to_receive: 1,
+            }],
+            peer_review_questions: vec![CmsPeerReviewQuestion {
+                id,
+                answer_required: true,
+                order_number: 1,
+                peer_review_id: id,
+                question: "what?".to_string(),
+                question_type: PeerReviewQuestionType::Essay
             }],
             organization_id: id,
         }

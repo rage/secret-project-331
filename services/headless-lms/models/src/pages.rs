@@ -20,6 +20,8 @@ use crate::{
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
+    peer_review_questions::CmsPeerReviewQuestion,
+    peer_reviews::CmsPeerReview,
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
     CourseOrExamId,
@@ -162,13 +164,15 @@ pub struct PageSearchResult {
     pub url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ContentManagementPage {
     pub page: Page,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub peer_reviews: Vec<CmsPeerReview>,
+    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
     pub organization_id: Uuid,
 }
 
@@ -237,6 +241,8 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            peer_reviews: Vec::new(),
+            peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -284,6 +290,8 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            peer_reviews: Vec::new(),
+            peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -607,12 +615,16 @@ pub async fn get_page_with_exercises(
         .into_iter()
         .map(|x| x.into())
         .collect();
+    let peer_reviews = crate::peer_reviews::get_peer_reviews_by_page_id(conn, page.id).await?;
+    let peer_review_questions = crate::peer_review_questions::get_by_page_id(conn, page.id).await?;
     let organization_id = get_organization_id(&mut *conn, id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
         exercise_slides,
         exercise_tasks,
+        peer_reviews,
+        peer_review_questions,
         organization_id,
     })
 }
@@ -714,13 +726,15 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageUpdate {
     pub content: serde_json::Value,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub peer_reviews: Vec<CmsPeerReview>,
+    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
@@ -921,6 +935,8 @@ RETURNING id,
         exercises: final_exercises,
         exercise_slides: final_slides,
         exercise_tasks: final_tasks,
+        peer_reviews: page_update.peer_reviews,
+        peer_review_questions: page_update.peer_review_questions,
     };
     crate::page_history::insert(
         &mut tx,
@@ -941,6 +957,8 @@ RETURNING id,
         exercises: history_content.exercises,
         exercise_slides: history_content.exercise_slides,
         exercise_tasks: history_content.exercise_tasks,
+        peer_reviews: history_content.peer_reviews,
+        peer_review_questions: history_content.peer_review_questions,
         organization_id,
     })
 }
@@ -1382,6 +1400,8 @@ RETURNING id,
             exercises: new_page.exercises,
             exercise_slides: new_page.exercise_slides,
             exercise_tasks: new_page.exercise_tasks,
+            peer_reviews: Vec::new(),
+            peer_review_questions: Vec::new(),
             url_path: page.url_path,
             title: page.title,
             chapter_id: page.chapter_id,
@@ -1997,6 +2017,8 @@ pub async fn restore(
             exercises: history_data.content.exercises,
             exercise_slides: history_data.content.exercise_slides,
             exercise_tasks: history_data.content.exercise_tasks,
+            peer_reviews: history_data.content.peer_reviews,
+            peer_review_questions: history_data.content.peer_review_questions,
             url_path: page.url_path,
             title: history_data.title,
             chapter_id: page.chapter_id,
@@ -2270,6 +2292,8 @@ mod test {
             exercises,
             exercise_slides,
             exercise_tasks,
+            peer_reviews: Vec::new(),
+            peer_review_questions: Vec::new(),
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,

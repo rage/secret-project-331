@@ -12,7 +12,8 @@ pub enum PeerReviewQuestionType {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct NewPeerReviewQuestion {
+pub struct CmsPeerReviewQuestion {
+    pub id: Uuid,
     pub peer_review_id: Uuid,
     pub order_number: i32,
     pub question: String,
@@ -36,7 +37,7 @@ pub struct PeerReviewQuestion {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    new_peer_review_question: &NewPeerReviewQuestion,
+    new_peer_review_question: &CmsPeerReviewQuestion,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -64,7 +65,7 @@ RETURNING id;
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     id: Uuid,
-    new_peer_review_question: &NewPeerReviewQuestion,
+    new_peer_review_question: &CmsPeerReviewQuestion,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -151,5 +152,36 @@ pub async fn get_all_by_peer_review_id_as_map(
         .into_iter()
         .map(|x| (x.id, x))
         .collect();
+    Ok(res)
+}
+
+pub async fn get_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
+    let res = sqlx::query_as!(
+        CmsPeerReviewQuestion,
+        r#"
+SELECT prq.id as id,
+  prq.peer_review_id as peer_review_id,
+  prq.order_number as order_number,
+  prq.question as question,
+  prq.question_type AS "question_type: _",
+  prq.answer_required as answer_required
+from pages p
+  join exercises e on p.id = e.page_id
+  join peer_reviews pr on e.id = pr.exercise_id
+  join peer_review_questions prq on pr.id = prq.peer_review_id
+where p.id = $1
+  AND p.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND pr.deleted_at IS NULL
+  AND prq.deleted_at IS NULL;
+  "#,
+        page_id
+    )
+    .fetch_all(conn)
+    .await?;
+
     Ok(res)
 }

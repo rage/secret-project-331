@@ -570,6 +570,8 @@ export interface CmsPageUpdate {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
+  peer_reviews: Array<CmsPeerReview>
+  peer_review_questions: Array<CmsPeerReviewQuestion>
   url_path: string
   title: string
   chapter_id: string | null
@@ -580,6 +582,8 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
+  peer_reviews: Array<CmsPeerReview>
+  peer_review_questions: Array<CmsPeerReviewQuestion>
   organization_id: string
 }
 
@@ -712,7 +716,18 @@ export type PeerReviewAcceptingStrategy =
   | "AutomaticallyAcceptOrManualReviewByAverage"
   | "ManualReviewEverything"
 
-export interface NewPeerReviewQuestion {
+export interface CmsPeerReview {
+  id: string
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
+}
+
+export interface CmsPeerReviewQuestion {
+  id: string
   peer_review_id: string
   order_number: number
   question: string

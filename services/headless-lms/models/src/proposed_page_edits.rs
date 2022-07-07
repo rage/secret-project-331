@@ -330,6 +330,8 @@ WHERE id = $1
         exercises: page_with_exercises.exercises,
         exercise_slides: page_with_exercises.exercise_slides,
         exercise_tasks: page_with_exercises.exercise_tasks,
+        peer_reviews: page_with_exercises.peer_reviews,
+        peer_review_questions: page_with_exercises.peer_review_questions,
         url_path: page_with_exercises.page.url_path,
         title: page_with_exercises.page.title,
         chapter_id: page_with_exercises.page.chapter_id,
@@ -412,6 +414,8 @@ mod test {
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            peer_reviews: Vec::new(),
+            peer_review_questions: Vec::new(),
         };
         crate::pages::update_page(
             conn,

@@ -22,6 +22,8 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
+  CmsPeerReview,
+  CmsPeerReviewQuestion,
   ContentManagementPage,
   Course,
   CourseCount,
@@ -92,7 +94,6 @@ import {
   NewFeedback,
   NewMaterialReference,
   NewPage,
-  NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
   OEmbedResponse,
@@ -1028,6 +1029,10 @@ export function isCmsPageUpdate(obj: any, _argumentName?: string): obj is CmsPag
     obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
     Array.isArray(obj.exercise_tasks) &&
     obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    Array.isArray(obj.peer_reviews) &&
+    obj.peer_reviews.every((e: any) => isCmsPeerReview(e) as boolean) &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean) &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
     (obj.chapter_id === null || typeof obj.chapter_id === "string")
@@ -1047,6 +1052,10 @@ export function isContentManagementPage(
     obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
     Array.isArray(obj.exercise_tasks) &&
     obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    Array.isArray(obj.peer_reviews) &&
+    obj.peer_reviews.every((e: any) => isCmsPeerReview(e) as boolean) &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean) &&
     typeof obj.organization_id === "string"
   )
 }
@@ -1237,12 +1246,26 @@ export function isPeerReviewAcceptingStrategy(
   )
 }
 
-export function isNewPeerReviewQuestion(
-  obj: any,
-  _argumentName?: string,
-): obj is NewPeerReviewQuestion {
+export function isCmsPeerReview(obj: any, _argumentName?: string): obj is CmsPeerReview {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.peer_reviews_to_give === "number" &&
+    typeof obj.peer_reviews_to_receive === "number" &&
+    typeof obj.accepting_threshold === "number" &&
+    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+  )
+}
+
+export function isCmsPeerReviewQuestion(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPeerReviewQuestion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
     typeof obj.peer_review_id === "string" &&
     typeof obj.order_number === "number" &&
     typeof obj.question === "string" &&

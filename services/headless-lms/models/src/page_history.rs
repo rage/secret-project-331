@@ -2,6 +2,8 @@ use serde_json::Value;
 
 use crate::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
+    peer_review_questions::CmsPeerReviewQuestion,
+    peer_reviews::CmsPeerReview,
     prelude::*,
 };
 
@@ -25,13 +27,15 @@ pub struct PageHistory {
     pub author_user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageHistoryContent {
     pub content: serde_json::Value,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub peer_reviews: Vec<CmsPeerReview>,
+    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
 }
 
 pub async fn insert(

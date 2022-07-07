@@ -20,6 +20,18 @@ pub struct PeerReview {
     pub accepting_strategy: PeerReviewAcceptingStrategy,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CmsPeerReview {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub exercise_id: Option<Uuid>,
+    pub peer_reviews_to_give: i32,
+    pub peer_reviews_to_receive: i32,
+    pub accepting_threshold: f32,
+    pub accepting_strategy: PeerReviewAcceptingStrategy,
+}
+
 /**
 Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
 
@@ -251,6 +263,36 @@ pub async fn get_course_material_peer_review_data(
             "You haven't answered this exercise".to_string(),
         )),
     }
+}
+
+pub async fn get_peer_reviews_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Vec<CmsPeerReview>> {
+    let res = sqlx::query_as!(
+        CmsPeerReview,
+        r#"
+SELECT pr.id as id,
+  pr.course_id as course_id,
+  pr.exercise_id as exercise_id,
+  pr.peer_reviews_to_give as peer_reviews_to_give,
+  pr.peer_reviews_to_receive as peer_reviews_to_receive,
+  pr.accepting_threshold as accepting_threshold,
+  pr.accepting_strategy AS "accepting_strategy: _"
+from pages p
+  join exercises e on p.id = e.page_id
+  join peer_reviews pr on e.id = pr.exercise_id
+where p.id = $1
+  AND p.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND pr.deleted_at IS NULL;
+    "#,
+        page_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
 }
 
 #[cfg(test)]

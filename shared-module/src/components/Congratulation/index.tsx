@@ -1,7 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../img/confetti-bg.svg"
+import BackgroundImage from "../../img/congratulation-bg.svg"
+import Trophy from "../../img/trophy.svg"
 import { headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -17,55 +20,77 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
 `
 const Content = styled.div`
   width: 100%;
   height: auto;
   padding: 2rem;
   text-align: center;
-  position: relative;
+  z-index: 99;
 
   .heading {
     color: #f5f6f7;
-    font-weight: 800;
-    font-size: clamp(40px, 5vw, 70px) !important;
+    font-weight: extra-bold;
+    font-size: clamp(30px, 5vw, 70px) !important;
   }
 
   .subtitle {
+    display: inline-block;
     font-size: 22px;
-    color: #ffffff;
-    opacity: 0.8;
+    font-weight: 500;
+    width: 100%;
+    color: #fff;
+    opacity: 1;
+
+    ${respondToOrLarger.md} {
+      width: 600px;
+    }
   }
 `
 export const CTAWrapper = styled.div`
   margin-top: 2rem;
+  display: flex;
+  align-items: center;
 `
 export const RegisterLink = styled.a`
   padding: 1rem 2rem;
   background: #1a2333;
-  font-size: 20px;
+  font-size: 18px;
   margin-right: 10px;
   font-weight: bold;
+  height: 100%;
   color: #6fb27e;
+
+  ${respondToOrLarger.md} {
+    font-size: 20px;
+  }
 `
 export const StyledLink = styled.a`
   padding: 1rem;
   font-size: 20px;
+  line-height: 1.1;
 `
 const StyledSVG = styled(ConfettiBg)`
   position: absolute;
-  left: 35%;
-  top: 13px;
+  left: 0;
+  top: 0;
+  z-index: -1;
+`
+const StyledBackground = styled(BackgroundImage)`
+  position: absolute;
+  top: -30%;
 `
 const ModuleWrapper = styled.div`
   display: grid;
-  grid-template-columns: minmax(auto, 520px);
+  grid-template-columns: minmax(auto, 480px);
   grid-gap: 20px;
   margin-top: 3rem;
   justify-content: center;
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 520px 520px;
+    grid-template-columns: 480px 480px;
   }
 `
 
@@ -84,8 +109,14 @@ const Congratulation = (/* { modules } */) => {
   const isModule = modules.length > 1
   return (
     <Wrapper>
+      <StyledBackground />
       <Content>
         <StyledSVG />
+        <Trophy
+          className={css`
+            z-index: 10;
+          `}
+        />
         <h1 className="heading">{t("congratulation")}!</h1>
         <span className="subtitle">{subTitle}</span>
         {!isModule && (

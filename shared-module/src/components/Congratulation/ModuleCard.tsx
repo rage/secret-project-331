@@ -9,7 +9,7 @@ import { CTAWrapper, RegisterLink, StyledLink } from "./index"
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   font-family: ${headingFont};
-  max-width: 520px;
+  max-width: 480px;
   min-height: 190px;
   background: #6fb37e;
   box-shadow: 0px 10px 20px rgba(68, 130, 126, 0.2);
@@ -19,10 +19,11 @@ const Wrapper = styled.div`
   position: relative;
 
   h3 {
-    color: #fff;
+    color: #1a2333;
     font-style: normal;
-    font-weight: 500;
-    font-size: 25px;
+    font-weight: 600;
+    font-size: 22px;
+    max-width: 420px;
     line-height: 30px;
   }
 `

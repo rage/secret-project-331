@@ -33,14 +33,22 @@ const CompletionRedirectPage: React.FC<CompletionRedirectPageProps> = ({ query }
       {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <div>
-          {/* NOTE: Manually clicking the link will leave redirection page to history. */}
           <Trans
             t={t}
             i18nKey="you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here"
           >
             You are automatically being redirected to Open University&apos;s completion registration
             page. If nothing happens, please{" "}
-            <a href={userCompletionInformation.data.url}>click here</a>.
+            <a
+              href={userCompletionInformation.data.url}
+              onClick={(event) => {
+                event.preventDefault()
+                window.location.replace(userCompletionInformation.data.url)
+              }}
+            >
+              click here
+            </a>
+            .
           </Trans>
         </div>
       )}

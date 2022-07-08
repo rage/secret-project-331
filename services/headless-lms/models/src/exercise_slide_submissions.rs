@@ -3,9 +3,13 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 
 use crate::{
-    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy,
-    exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*,
-    user_exercise_states::CourseInstanceOrExamId, CourseOrExamId,
+    courses::Course,
+    exercise_task_gradings::UserPointsUpdateStrategy,
+    exercise_tasks::CourseMaterialExerciseTask,
+    exercises::Exercise,
+    prelude::*,
+    user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
+    CourseOrExamId,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -538,6 +542,37 @@ pub async fn get_exercise_slide_submission_info(
         tasks,
         exercise_slide_submission,
     })
+}
+
+pub async fn update_user_exercise_state(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    max_points: f32,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+        UPDATE user_exercise_states SET reviewing_stage='reviewed_and_locked', score_given=$2 WHERE id=$1 RETURNING
+        id,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        exam_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given,
+        grading_progress AS "grading_progress: _",
+        activity_progress AS "activity_progress: _",
+        reviewing_stage AS "reviewing_stage: _",
+        selected_exercise_slide_id;
+        "#,
+        user_exercise_state_id,
+        max_points
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_all_exercise_slide_submission_info(

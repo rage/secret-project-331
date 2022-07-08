@@ -4,6 +4,7 @@ use serde_json::Value;
 use crate::{
     exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    exercises::GradingProgress,
     prelude::*,
     CourseOrExamId,
 };
@@ -46,7 +47,10 @@ pub struct AnswerRequiringAttention {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
     pub submission_id: Uuid,
+    pub exercise_id: Uuid,
 }
 
 pub struct AnswerRequiringAttentionSubmissionId {
@@ -159,10 +163,13 @@ pub async fn get_all_answers_requiring_attention(
 ) -> ModelResult<Vec<AnswerRequiringAttention>> {
     let submissions = sqlx::query_as!(
         AnswerRequiringAttention,
-        "
+        r#"
         SELECT
         us_state.id,
         us_state.user_id,
+        us_state.exercise_id,
+        us_state.score_given,
+        us_state.grading_progress as "grading_progress: _",
         t_submission.data_json,
         s_submission.created_at,
         s_submission.updated_at,
@@ -181,7 +188,7 @@ pub async fn get_all_answers_requiring_attention(
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
-    ORDER BY t_submission.updated_at;",
+    ORDER BY t_submission.updated_at;"#,
         exercise_id
     )
     .fetch_all(conn)

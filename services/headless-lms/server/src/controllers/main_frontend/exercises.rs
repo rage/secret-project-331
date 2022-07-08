@@ -10,7 +10,7 @@ use models::{
         get_exercise_task_submission_info_by_exercise_slide_submission_id,
     },
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::get_exercise_by_id,
+    exercises::{get_exercise_by_id, GradingProgress},
     CourseOrExamId,
 };
 
@@ -25,6 +25,7 @@ pub struct ExerciseSubmissions {
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AnswersRequiringAttention {
+    pub exercise_max_points: i32,
     pub data: Vec<AnswerRequiringAttentionWithTasks>,
 }
 
@@ -37,7 +38,10 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
     pub submission_id: Uuid,
+    pub exercise_id: Uuid,
     pub tasks: Vec<CourseMaterialExerciseTask>,
 }
 
@@ -124,13 +128,17 @@ async fn get_exercise_answers_requiring_attention(
             updated_at: answer.updated_at,
             deleted_at: answer.deleted_at,
             data_json: answer.data_json.to_owned(),
+            grading_progress: answer.grading_progress,
+            score_given: answer.score_given,
             submission_id: answer.submission_id,
+            exercise_id: answer.exercise_id,
             tasks,
         };
         new_get_magic.push(new_answer);
     }
 
     token.authorized_ok(web::Json(AnswersRequiringAttention {
+        exercise_max_points: exercise.score_maximum,
         data: new_get_magic,
     }))
 }

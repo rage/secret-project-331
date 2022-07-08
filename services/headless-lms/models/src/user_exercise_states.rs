@@ -49,7 +49,7 @@ pub enum ReviewingStage {
     */
     ReviewedAndLocked,
 }
-
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
     pub id: Uuid,

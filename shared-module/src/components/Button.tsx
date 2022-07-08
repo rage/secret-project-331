@@ -6,7 +6,7 @@ import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "tertiary" | "outlined" | "blue"
+  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
@@ -109,6 +109,36 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
   return SECONDARY_BUTTON_STYLES
 }
 
+export const RejectButtonStyles = (props: ButtonProps) => {
+  const REJECT_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+
+    color: ${theme.reject.text};
+    background: ${theme.reject.bg};
+    border: 1.5px solid ${theme.reject.border};
+
+    &:hover,
+    &:focus {
+      color: ${theme.reject.hoverText};
+      box-shadow: 0 0 0 1px ${theme.reject.text};
+      border: 1.5px solid ${theme.reject.text};
+    }
+
+    &:active {
+      color: ${theme.reject.hoverText};
+      background-color: ${theme.reject.activeBg};
+    }
+
+    &:disabled {
+      color: ${theme.reject.disabledText};
+      background-color: ${theme.reject.disabledBg};
+      border-color: ${theme.reject.disabledBorder};
+    }
+  `
+  return REJECT_BUTTON_STYLES
+}
+
 export const TertiaryButtonStyles = (props: ButtonProps) => {
   const TERTIARY_BUTTON_STYLES = `
     text-transform: ${props.transform};
@@ -175,6 +205,11 @@ const SecondaryButton = styled.button`
   ${SecondaryButtonStyles}
 `
 
+const RejectButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${RejectButtonStyles}
+`
+
 const TertiaryButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${TertiaryButtonStyles}
@@ -203,6 +238,8 @@ const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
       return <PrimaryButton {...props} />
     case "secondary":
       return <SecondaryButton {...props} />
+    case "reject":
+      return <RejectButton {...props} />
     case "tertiary":
       return <TertiaryButton {...props} />
     case "outlined":

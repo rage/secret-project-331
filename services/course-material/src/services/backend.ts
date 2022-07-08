@@ -236,9 +236,9 @@ export const fetchPreviousPageRoutingData = async (
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
 
-export const fetchChapterFrontPageById = async (id: string): Promise<Page> => {
+export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page> => {
   const data = (
-    await courseMaterialClient.get(`/pages/${id}/chapter-front-page`, {
+    await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`, {
       responseType: "json",
     })
   ).data

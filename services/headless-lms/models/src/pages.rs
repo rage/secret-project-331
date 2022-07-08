@@ -1768,7 +1768,7 @@ pub async fn get_chapter_page_by_page_id(
             c.name as chapter_name,
             c.front_page_id as chapter_front_page_id
         FROM chapters c
-        JOIN pages p ON c.id = p.chapter_id
+        INNER JOIN pages p ON chapter_id = p.chapter_id
         WHERE p.id = $1
             AND p.deleted_at IS NULL;
         ",

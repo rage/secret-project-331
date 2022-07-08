@@ -72,7 +72,14 @@ const NextPage: React.FC<NextPageProps> = ({
   if (getPreviousPageRoutingData.data === null) {
     // if data is null we have reached the end of the course material. i.e. no page or chapter found
     // eslint-disable-next-line i18next/no-literal-string
-    return <ErrorBanner variant={"readOnly"} error={"No previous page available!"} />
+    return (
+      <NextSectionLink
+        title={t("title-congratulations")}
+        subtitle={t("reached-end-of-course-material")}
+        nextTitle={t("action-back-to-front-page")}
+        url={courseFrontPageRoute(organizationSlug, courseSlug)}
+      />
+    )
   }
 
   const data = getNextPageRoutingData.data
@@ -81,6 +88,11 @@ const NextPage: React.FC<NextPageProps> = ({
   const LONG = "long"
   const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
   const previousPageUrl = coursePageRoute(organizationSlug, courseSlug, previousPageData.url_path)
+  const chapterPageUrl = coursePageRoute(
+    organizationSlug,
+    courseSlug,
+    getChapterFrontPageById.data?.url_path,
+  )
 
   // Chapter front page NextSectionLink
   if (data.chapter_front_page_id === currentPageId) {
@@ -91,7 +103,7 @@ const NextPage: React.FC<NextPageProps> = ({
         nextTitle={data.title}
         url={nextPageUrl}
         previous={previousPageUrl}
-        chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
+        chapterFrontPageURL={chapterPageUrl}
       />
     )
   }
@@ -105,7 +117,7 @@ const NextPage: React.FC<NextPageProps> = ({
           nextTitle={data.title}
           url={nextPageUrl}
           previous={previousPageUrl}
-          chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
+          chapterFrontPageURL={chapterPageUrl}
         />
       )
     } else {
@@ -117,7 +129,7 @@ const NextPage: React.FC<NextPageProps> = ({
           nextTitle={data.title}
           url={nextPageUrl}
           previous={previousPageUrl}
-          chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
+          chapterFrontPageURL={chapterPageUrl}
         />
       )
     }

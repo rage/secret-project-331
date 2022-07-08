@@ -114,7 +114,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_previous_page),
         )
         .route(
-            "/pages/{page_id}/chapter-front-page",
+            "/{current_page_id}/chapter-front-page",
             web::get().to(get_chapter_front_page),
         )
         .route("/{current_page_id}/url-path", web::get().to(get_url_path))

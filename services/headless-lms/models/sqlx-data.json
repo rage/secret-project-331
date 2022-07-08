@@ -11839,6 +11839,32 @@
       "nullable": []
     }
   },
+  "c216b74a483fc8b27eb381c3c14becc9785a050248099b0ee1701e9041366fa4": {
+    "query": "\n        SELECT c.id as chapter_id,\n            c.name as chapter_name,\n            c.front_page_id as chapter_front_page_id\n        FROM chapters c\n        INNER JOIN pages p ON chapter_id = p.chapter_id\n        WHERE p.id = $1\n            AND p.deleted_at IS NULL;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "chapter_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "chapter_name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "chapter_front_page_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false, false, true]
+    }
+  },
   "c254df041126909f459c2117eac7dd7a85456bbc698956b67f0c0090eaf4b878": {
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (s.exercise_id = e.id)\n    WHERE e.page_id = $1\n  );\n            ",
     "describe": {
@@ -13352,32 +13378,6 @@
         "Left": ["Uuid"]
       },
       "nullable": [null]
-    }
-  },
-  "e37b88c35312a41e63508f134531cad41fa45b510aeeea7b52fa1baeb89f3b4f": {
-    "query": "\n        SELECT c.id as chapter_id,\n            c.name as chapter_name,\n            c.front_page_id as chapter_front_page_id\n        FROM chapters c\n        JOIN pages p ON c.id = p.chapter_id\n        WHERE p.id = $1\n            AND p.deleted_at IS NULL;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "chapter_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "chapter_name",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "chapter_front_page_id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false, false, true]
     }
   },
   "e3c6cc19ea36187a8e99b3ccb88eceedaf4e65d67406df70be92017971b74d7c": {

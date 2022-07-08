@@ -1757,7 +1757,7 @@ pub async fn get_previous_page(
     }
 }
 
-pub async fn get_chapter_page_by_page_id(
+pub async fn get_chapter_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
 ) -> ModelResult<ChapterInfo> {
@@ -1784,9 +1784,30 @@ pub async fn get_chapter_front_page_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
 ) -> ModelResult<Page> {
-    let chapter_front_page = get_chapter_page_by_page_id(conn, page_id).await?;
-    let id = chapter_front_page.chapter_id;
-    let page = get_page(conn, id).await?;
+    let chapter_page = get_chapter_by_page_id(conn, page_id).await?;
+    /* let page = get_page(conn, chapter_page.chapter_front_page_id).await?; */
+    let page = sqlx::query_as!(
+        Page,
+        "
+        SELECT id,
+        created_at,
+        updated_at,
+        course_id,
+        exam_id,
+        chapter_id,
+        url_path,
+        title,
+        deleted_at,
+        content,
+        order_number,
+        copied_from
+        FROM pages
+        WHERE id = $1;
+        ",
+        chapter_page.chapter_front_page_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(page)
 }
 

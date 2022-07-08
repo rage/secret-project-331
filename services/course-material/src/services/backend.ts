@@ -237,9 +237,7 @@ export const fetchPreviousPageRoutingData = async (
 }
 
 export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`, {
-    responseType: "json",
-  })
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`)
   // eslint-disable-next-line i18next/no-literal-string
   console.log("response", response)
   return validateResponse(response, isPage)

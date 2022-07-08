@@ -384,6 +384,7 @@ RETURNING id,
         GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
         GutenbergBlock::course_objective_section(),
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;
     let course_front_page = NewPage {

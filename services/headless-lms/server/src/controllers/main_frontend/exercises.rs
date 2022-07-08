@@ -110,12 +110,12 @@ async fn get_exercise_answers_requiring_attention(
     };
     let exercise = get_exercise_by_id(&mut conn, *exercise_id).await?;
     let mut conn = pool.acquire().await?;
-    let get_magic = get_all_answers_requiring_attention(&mut conn, exercise.id).await?;
-    let mut new_get_magic = Vec::with_capacity(get_magic.len());
+    let data = get_all_answers_requiring_attention(&mut conn, exercise.id).await?;
+    let mut answers = Vec::with_capacity(data.len());
     /*let get_magic_submission_id =
     get_submission_id_of_answers_requiring_attention(&mut conn, exercise.id).await?;*/
     //let mut exercise_task_submission_info = Vec::with_capacity(get_magic.len());
-    for answer in &get_magic {
+    for answer in &data {
         let tasks = get_exercise_task_submission_info_by_exercise_slide_submission_id(
             &mut conn,
             answer.submission_id,
@@ -134,12 +134,12 @@ async fn get_exercise_answers_requiring_attention(
             exercise_id: answer.exercise_id,
             tasks,
         };
-        new_get_magic.push(new_answer);
+        answers.push(new_answer);
     }
 
     token.authorized_ok(web::Json(AnswersRequiringAttention {
         exercise_max_points: exercise.score_maximum,
-        data: new_get_magic,
+        data: answers,
     }))
 }
 

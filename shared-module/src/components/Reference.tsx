@@ -1,6 +1,7 @@
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../styles"
 
@@ -105,13 +106,13 @@ export interface ReferenceExtraProps {
   data: Reference[]
 }
 
-const PLACEHOLDER_HEADING = "Reference"
 const ELEMENT_ID = "#reference"
 const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
 const Reference: React.FC<ReferenceProps> = ({ data }) => {
+  const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()
 
@@ -162,7 +163,7 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
   return (
     <TextWrapper>
       <details id="reference">
-        <summary>{PLACEHOLDER_HEADING}</summary>
+        <summary>{t("title-references")}</summary>
         <ul>
           {data.map(({ id, text }) => (
             <li

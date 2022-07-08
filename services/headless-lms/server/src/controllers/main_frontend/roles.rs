@@ -3,7 +3,7 @@ use models::{
     users,
 };
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -19,7 +19,7 @@ async fn authorize_role_management(
     action: Act,
     user_id: Uuid,
 ) -> ControllerResult<()> {
-    match domain {
+    let token = match domain {
         RoleDomain::Global => {
             authorize(conn, action, Some(user_id), Res::GlobalPermissions).await?
         }
@@ -31,8 +31,9 @@ async fn authorize_role_management(
             authorize(conn, action, Some(user_id), Res::CourseInstance(id)).await?
         }
         RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
-    }
-    Ok(())
+    };
+
+    token.authorized_ok(())
 }
 
 /**
@@ -53,9 +54,11 @@ pub async fn set(
     )
     .await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
+
+    let token = skip_authorize()?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -75,10 +78,11 @@ pub async fn unset(
         user.id,
     )
     .await?;
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+    let token = skip_authorize()?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Debug, Deserialize)]
@@ -139,7 +143,9 @@ pub async fn fetch(
     authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
 
     let roles = roles::get(&mut conn, domain).await?;
-    Ok(web::Json(roles))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(roles))
 }
 
 /**

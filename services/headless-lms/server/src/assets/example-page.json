@@ -985,6 +985,27 @@
     "isValid": true
   },
   {
+    "attributes": {
+      "title": "What you will learn in this"
+    },
+    "clientId": "1d7f1ee6-4128-457c-b293-14ca913f0dc8",
+    "innerBlocks": [
+      {
+        "attributes": {
+          "ordered": false,
+          "placeholder": "Insert text...",
+          "values": "<li>This is the first objective of this chapter</li><li>This is the second objective of this chapter</li><li>This is the third objective of this chapter</li>"
+        },
+        "clientId": "5747acc6-d5d0-4399-b406-f9ec14fd92b0",
+        "innerBlocks": [],
+        "isValid": true,
+        "name": "core/list"
+      }
+    ],
+    "isValid": true,
+    "name": "moocfi/learning-objective-section"
+  },
+  {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
     "isValid": true,
     "name": "core/table",

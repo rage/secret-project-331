@@ -16,7 +16,7 @@ use url::form_urlencoded::Target;
 
 use crate::{
     controllers::prelude::*,
-    domain::authorization::{self, ActionOnResource},
+    domain::authorization::{self, skip_authorize, ActionOnResource},
     OAuthClient,
 };
 
@@ -65,10 +65,8 @@ pub async fn authorize_action_on_resource(
     let mut conn = pool.acquire().await?;
     let data = payload.0;
 
-    return match authorize(&mut conn, data.action, Some(user.id), data.resource).await {
-        Ok(()) => Ok(web::Json(true)),
-        Err(_) => Ok(web::Json(false)),
-    };
+    let token = authorize(&mut conn, data.action, Some(user.id), data.resource).await?;
+    token.authorized_ok(web::Json(true))
 }
 
 /**
@@ -89,8 +87,9 @@ pub async fn login(
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
+            let token = skip_authorize()?;
             authorization::remember(&session, user)?;
-            return Ok(HttpResponse::Ok().finish());
+            return token.authorized_ok(HttpResponse::Ok().finish());
         };
     }
 
@@ -98,8 +97,9 @@ pub async fn login(
         warn!("Using test credentials. Normal accounts won't work.");
         let user =
             models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
+        let token = skip_authorize()?;
         authorization::remember(&session, user)?;
-        return Ok(HttpResponse::Ok().finish());
+        return token.authorized_ok(HttpResponse::Ok().finish());
     }
 
     let token = client
@@ -121,8 +121,9 @@ pub async fn login(
 
     let user = get_user_from_moocfi(&token, &mut conn).await;
     if let Ok(user) = user {
+        let token = authorize(&mut conn, Act::View, Some(user.id), Res::User).await?;
         authorization::remember(&session, user)?;
-        Ok(HttpResponse::Ok().finish())
+        token.authorized_ok(HttpResponse::Ok().finish())
     } else {
         Err(ControllerError::Unauthorized(
             "Incorrect email or password.".to_string().finish(),
@@ -173,7 +174,7 @@ pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenTyp
 pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
-) -> ControllerResult<User> {
+) -> anyhow::Result<User> {
     info!("Getting user details from mooc.fi");
     let moocfi_graphql_url = "https://www.mooc.fi/api";
     let client = Client::default();
@@ -199,7 +200,7 @@ pub async fn get_user_from_moocfi(
         .await
         .context("Failed to send request to Mooc.fi")?;
     if !res.status().is_success() {
-        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi").into());
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
     }
     let current_user_response: MoocfiCurrentUserResponse = res
         .json()

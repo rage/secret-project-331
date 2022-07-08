@@ -25,7 +25,6 @@ const StyledButton = styled.a`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.4rem 1rem;
   background: #fff;
-  display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
@@ -113,13 +112,13 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
         <div
           className={css`
             display: grid;
-            grid-template-columns: 80px 1fr;
+            grid-template-columns: ${previous ? "60px 1fr" : "1fr"};
             column-gap: 10px;
             margin-top: 1.5rem;
 
             ${respondToOrLarger.md} {
               margin-top: 2rem;
-              grid-template-columns: 80px 1fr;
+              grid-template-columns: ${previous ? "80px 1fr" : "1fr"};
               column-gap: 12px;
             }
           `}

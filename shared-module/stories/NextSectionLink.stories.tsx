@@ -22,4 +22,5 @@ Table.args = {
   subtitle: "Proceed to the next section",
   nextTitle: "Introduction to Calculus",
   url: "/",
+  previous: "/",
 }

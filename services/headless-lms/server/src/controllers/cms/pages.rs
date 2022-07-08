@@ -104,12 +104,13 @@ async fn update_page(
 async fn get_next_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Option<PageRoutingDataWithChapterStatus>>> {
     let mut conn = pool.acquire().await?;
     let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
-    let token = skip_authorize()?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
     token.authorized_ok(web::Json(next_page_data_with_status))
 }
 

@@ -130,7 +130,7 @@ type ButtonProps = {
    */
   toggleButton?: () => void
   /**
-   * Callback to invoke on button click to toggle active state, default () => {}
+   * id to differirentiate Hamburger menus from each other, needed for accesibility
    */
   buttonId?: string
 }

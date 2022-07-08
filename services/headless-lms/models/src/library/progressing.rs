@@ -1,6 +1,6 @@
 use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules::{self, CourseModule},
+    course_modules::CourseModule,
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
@@ -121,10 +121,9 @@ pub struct UserCompletionInformation {
 pub async fn get_user_completion_information(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
+    course_module: &CourseModule,
 ) -> ModelResult<UserCompletionInformation> {
     let user = users::get_by_id(conn, user_id).await?;
-    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
@@ -139,12 +138,15 @@ pub async fn get_user_completion_information(
         )
         .await?;
     // Course code is required only so that fetching the link later works.
-    let uh_course_code = course_module.uh_course_code.ok_or_else(|| {
+    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
         ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
     })?;
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
-        course_name: course_module.name.unwrap_or_else(|| course.name.clone()),
+        course_name: course_module
+            .name
+            .clone()
+            .unwrap_or_else(|| course.name.clone()),
         uh_course_code,
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
@@ -160,10 +162,9 @@ pub struct CompletionRegistrationLink {
 pub async fn get_completion_registration_link_and_save_attempt(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
+    course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
     let user = users::get_by_id(conn, user_id).await?;
-    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
@@ -183,7 +184,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
         Utc::now(),
     )
     .await?;
-    let uh_course_code = course_module.uh_course_code.ok_or_else(|| {
+    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
         ModelError::PreconditionFailed(
             "Course module doesn't have an assossiated University of Helsinki course code."
                 .to_string(),

@@ -1,4 +1,7 @@
-use models::library::progressing::{CompletionRegistrationLink, UserCompletionInformation};
+use models::{
+    course_modules,
+    library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
+};
 
 use crate::controllers::prelude::*;
 
@@ -15,14 +18,21 @@ async fn get_course_module_completion_information_for_user(
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserCompletionInformation>> {
     let mut conn = pool.acquire().await?;
+    let course_module = course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    // Proper request validation is based on whether a completion exists for the user or not.
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
     let information = models::library::progressing::get_user_completion_information(
         &mut conn,
         user.id,
-        *course_module_id,
+        &course_module,
     )
     .await?;
-    // Don't commit like this
-    let token = skip_authorize()?;
     token.authorized_ok(web::Json(information))
 }
 
@@ -37,15 +47,22 @@ async fn get_course_module_completion_registration_link(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CompletionRegistrationLink>> {
     let mut conn = pool.acquire().await?;
+    let course_module = course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    // Proper request validation is based on whether a completion exists for the user or not.
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
     let completion_registration_link =
         models::library::progressing::get_completion_registration_link_and_save_attempt(
             &mut conn,
             user.id,
-            *course_module_id,
+            &course_module,
         )
         .await?;
-    // Don't commit like this
-    let token = skip_authorize()?;
     token.authorized_ok(web::Json(completion_registration_link))
 }
 

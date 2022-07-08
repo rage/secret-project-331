@@ -18,7 +18,7 @@ export interface RegisterCompletionProps {
 const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrationFormUrl }) => {
   const { t } = useTranslation()
   return (
-    <>
+    <div>
       <div
         className={css`
           margin: 0 0 1.5rem;
@@ -108,7 +108,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrat
         </Link>
       </div>
       <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>
-    </>
+    </div>
   )
 }
 

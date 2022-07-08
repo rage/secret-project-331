@@ -1,23 +1,22 @@
-//! Controllers for requests starting with `/api/v0/course-material/completions`.
-
 use models::library::progressing::{CompletionRegistrationLink, UserCompletionInformation};
 
 use crate::controllers::prelude::*;
 
 /**
-GET `/api/v0/course-material/completions/current-by-course-slug/{course_slug}`
+GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
 
 Gets active users's completion for the course, if it exists.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_default_module_completion_information(
-    course_slug: web::Path<String>,
+async fn get_course_module_completion_information_for_user(
+    course_module_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserCompletionInformation>> {
     let mut conn = pool.acquire().await?;
-    let course = models::courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    let course = models::courses::get_course(&mut conn, course_module.course_id).await?;
     let information =
         models::library::progressing::get_user_completion_information(&mut conn, user.id, &course)
             .await?;
@@ -26,15 +25,19 @@ async fn get_default_module_completion_information(
     token.authorized_ok(web::Json(information))
 }
 
+/**
+GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
+*/
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_completion_link_for_course(
-    course_slug: web::Path<String>,
+async fn get_course_module_completion_registration_link(
+    course_module_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CompletionRegistrationLink>> {
     let mut conn = pool.acquire().await?;
-    let course = models::courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
+    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    let course = models::courses::get_course(&mut conn, course_module.course_id).await?;
     let completion_registration_link =
         models::library::progressing::get_completion_registration_link_and_save_attempt(
             &mut conn, user.id, &course,
@@ -54,11 +57,11 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/current-by-course-slug/{course_slug}",
-        web::get().to(get_default_module_completion_information),
+        "/{course_module_id}/user-completion",
+        web::get().to(get_course_module_completion_information_for_user),
     )
     .route(
-        "/registration-link-by-course-slug/{course_slug}",
-        web::get().to(get_completion_link_for_course),
+        "/{course_module_id}/completion-registration-link",
+        web::get().to(get_course_module_completion_registration_link),
     );
 }

@@ -2,31 +2,31 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
-import Layout from "../../../../../components/layout/Layout"
-import { fetchCompletionRegistrationLink } from "../../../../../services/backend"
-import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/components/Spinner"
+import Layout from "../../../components/Layout"
+import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface CompletionRedirectPageProps {
-  query: SimplifiedUrlQuery<string>
+  query: SimplifiedUrlQuery<"courseModuleId">
 }
 
 const CompletionRedirectPage: React.FC<CompletionRedirectPageProps> = ({ query }) => {
-  const { courseSlug, organizationSlug } = query
+  const { courseModuleId } = query
   const { t } = useTranslation()
   const userCompletionInformation = useQuery(
-    `course-${courseSlug}-completion-registration-link`,
-    () => fetchCompletionRegistrationLink(courseSlug),
+    `course-${courseModuleId}-completion-registration-link`,
+    () => fetchCompletionRegistrationLink(courseModuleId),
     {
       onSuccess: (data) => window.location.replace(data.url),
     },
   )
   return (
-    <Layout organizationSlug={organizationSlug}>
+    <Layout>
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}

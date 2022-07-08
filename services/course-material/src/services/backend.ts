@@ -3,7 +3,6 @@ import { Dictionary } from "lodash"
 
 import {
   ChaptersWithStatus,
-  CompletionRegistrationLink,
   Course,
   CourseInstance,
   CourseMaterialExercise,
@@ -27,7 +26,6 @@ import {
   StudentExerciseSlideSubmissionResult,
   Term,
   TermUpdate,
-  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -35,7 +33,6 @@ import {
 } from "../shared-module/bindings"
 import {
   isChaptersWithStatus,
-  isCompletionRegistrationLink,
   isCourse,
   isCourseInstance,
   isCourseMaterialExercise,
@@ -50,7 +47,6 @@ import {
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
-  isUserCompletionInformation,
   isUserCourseInstanceChapterExerciseProgress,
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
@@ -148,30 +144,6 @@ const referrerIsTheCurrentSite = (referrer: string): boolean => {
     // If not a valid url
     return false
   }
-}
-
-export const fetchUserCompletionInformation = async (
-  courseSlug: string,
-): Promise<UserCompletionInformation> => {
-  {
-    const response = await courseMaterialClient.get(
-      `/completions/current-by-course-slug/${courseSlug}`,
-      {
-        responseType: "json",
-      },
-    )
-    return validateResponse(response, isUserCompletionInformation)
-  }
-}
-
-export const fetchCompletionRegistrationLink = async (
-  courseSlug: string,
-): Promise<CompletionRegistrationLink> => {
-  const res = await courseMaterialClient.get(
-    `/completions/registration-link-by-course-slug/${courseSlug}`,
-    { responseType: "json" },
-  )
-  return validateResponse(res, isCompletionRegistrationLink)
 }
 
 export const fetchCourseInstance = async (courseId: string): Promise<CourseInstance | null> => {

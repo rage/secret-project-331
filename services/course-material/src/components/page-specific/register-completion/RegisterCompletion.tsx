@@ -8,6 +8,8 @@ import Button from "../../../shared-module/components/Button"
 import GenericInfobox from "../../../shared-module/components/GenericInfobox"
 import { baseTheme, typography } from "../../../shared-module/styles"
 
+const KOSKI_URL = "https://opintopolku.fi/oma-opintopolku/"
+
 export interface RegisterCompletionProps {
   data: UserCompletionInformation
   registrationFormUrl: string
@@ -43,7 +45,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrat
         >
           {t("course")}: {data.course_name}
         </h2>
-        {data.ects_credits && <p>{t("credit-n-ects", { n: data.ects_credits })}</p>}
+        {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
         <p>{t("requires-a-finnish-social-security-number")}</p>
       </div>
       <GenericInfobox>
@@ -83,8 +85,8 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrat
               i18nKey="after-completion-has-been-registered-you-can-view-completed-credits-at-koski"
             >
               After your completion has been registered, you can view completed credits at{" "}
-              <strong>Koski</strong>: <a href="/">opintopolku/oma-opintopolku</a> NB! There is some
-              delay on registering a completion and the credits being visible at Koski.
+              <strong>Koski</strong>: <a href={KOSKI_URL}>{{ koskiUrl: KOSKI_URL }}</a> NB! There is
+              some delay on registering a completion and the credits being visible at Koski.
             </Trans>
           </li>
         </ol>
@@ -99,19 +101,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrat
       >
         <Link href={registrationFormUrl} passHref>
           <a href={registrationFormUrl}>
-            <Button
-              variant="primary"
-              size="large"
-              // onClick={() => {
-              //   const openWindow = window.open("about:blank", "_blank")
-              //   setTimeout(() => {
-              //     const openWindowDocument = openWindow?.document
-              //     if (openWindowDocument) {
-              //       openWindowDocument.location = "https://www.example.com"
-              //     }
-              //   }, 5000)
-              // }}
-            >
+            <Button variant="primary" size="large">
               {t("to-the-registration-form")}
             </Button>
           </a>

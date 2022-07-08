@@ -38,9 +38,11 @@ import {
   CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
+  CourseModule,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  CreateAccountDetails,
   DatabaseChapter,
   EditProposalInfo,
   EmailTemplate,
@@ -85,7 +87,6 @@ import {
   Login,
   MarkAsRead,
   MaterialReference,
-  Module,
   NewChapter,
   NewCourse,
   NewExam,
@@ -210,6 +211,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "page" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "study_registry" &&
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "any_course") ||
@@ -431,13 +435,23 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
   )
 }
 
-export function isModule(obj: any, _argumentName?: string): obj is Module {
+export function isCourseModule(obj: any, _argumentName?: string): obj is CourseModule {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.course_id === "string" &&
     typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    typeof obj.automatic_completion === "boolean" &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }
 
@@ -476,6 +490,7 @@ export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseU
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.is_draft === "boolean" &&
     typeof obj.is_test_mode === "boolean"
   )
@@ -627,10 +642,10 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
+    typeof obj.user_interface_iframe_path === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
-    typeof obj.model_solution_path === "string"
+    typeof obj.model_solution_spec_endpoint_path === "string"
   )
 }
 
@@ -1592,9 +1607,12 @@ export function isUserCourseInstanceProgress(
     typeof obj.course_module_name === "string" &&
     typeof obj.course_module_order_number === "number" &&
     typeof obj.score_given === "number" &&
+    (obj.score_required === null || typeof obj.score_required === "number") &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
+    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number") &&
+    (obj.attempted_exercises_required === null ||
+      typeof obj.attempted_exercises_required === "number")
   )
 }
 
@@ -1658,6 +1676,21 @@ export function isCourseMaterialCourseModule(
     typeof obj.is_default === "boolean" &&
     (obj.name === null || typeof obj.name === "string") &&
     typeof obj.order_number === "number"
+  )
+}
+
+export function isCreateAccountDetails(
+  obj: any,
+  _argumentName?: string,
+): obj is CreateAccountDetails {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    typeof obj.first_name === "string" &&
+    typeof obj.last_name === "string" &&
+    typeof obj.language === "string" &&
+    typeof obj.password === "string" &&
+    typeof obj.password_confirmation === "string"
   )
 }
 

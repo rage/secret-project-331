@@ -314,7 +314,10 @@ pub async fn get_course_material_exercise(
     let exercise = get_by_id(conn, exercise_id).await?;
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
-    info!("current exercise slide: {:#?}", current_exercise_slide);
+    info!(
+        "Current exercise slide id: {:#?}",
+        current_exercise_slide.id
+    );
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_instance_or_exam_id)) => {
@@ -609,10 +612,10 @@ mod test {
             tx.as_mut(),
             &PathInfo {
                 exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "".to_string(),
+                user_interface_iframe_path: "".to_string(),
                 grade_endpoint_path: "".to_string(),
                 public_spec_endpoint_path: "".to_string(),
-                model_solution_path: "test-only-empty-path".to_string(),
+                model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
             },
         )
         .await

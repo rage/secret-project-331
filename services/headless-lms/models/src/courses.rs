@@ -349,8 +349,8 @@ pub async fn insert_course(
     let course = sqlx::query_as!(
         Course,
         r#"
-INSERT INTO courses(id, name, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)
-VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO courses(id, name, description, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id,
   name,
   created_at,
@@ -368,6 +368,7 @@ RETURNING id,
             "#,
         id,
         new_course.name,
+        new_course.description,
         new_course.slug,
         new_course.organization_id,
         new_course.language_code,
@@ -426,6 +427,7 @@ RETURNING id,
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
     name: String,
+    description: Option<String>,
     is_draft: bool,
     is_test_mode: bool,
 }
@@ -440,9 +442,10 @@ pub async fn update_course(
         r#"
 UPDATE courses
 SET name = $1,
-  is_draft = $2,
-  is_test_mode = $3
-WHERE id = $4
+  description = $2,
+  is_draft = $3,
+  is_test_mode = $4
+WHERE id = $5
 RETURNING id,
   name,
   created_at,
@@ -459,6 +462,7 @@ RETURNING id,
   is_test_mode
     "#,
         course_update.name,
+        course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
         course_id

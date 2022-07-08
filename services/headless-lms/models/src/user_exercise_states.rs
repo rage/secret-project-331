@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use crate::{
     course_instances,
-    course_modules::{self, Module},
+    course_modules::{self, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
@@ -142,9 +142,11 @@ pub struct UserCourseInstanceProgress {
     pub course_module_name: String,
     pub course_module_order_number: i32,
     pub score_given: f32,
+    pub score_required: Option<i32>,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
-    pub attempted_exercises: Option<u32>,
+    pub attempted_exercises: Option<i32>,
+    pub attempted_exercises_required: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -168,9 +170,9 @@ pub struct UserChapterMetrics {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
-    course_module_id: Uuid,
-    score_given: Option<f32>,
-    attempted_exercises: Option<i64>,
+    pub course_module_id: Uuid,
+    pub score_given: Option<f32>,
+    pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -229,6 +231,38 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
         .into_iter()
         .map(|x| (x.course_module_id, x))
         .collect();
+    Ok(res)
+}
+
+pub async fn get_single_module_course_instance_metrics(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<UserCourseInstanceMetrics> {
+    let res = sqlx::query_as!(
+        UserCourseInstanceMetrics,
+        "
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE chapters.course_module_id = $1
+  AND ues.course_instance_id = $2
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.user_id = $3
+  AND ues.deleted_at IS NULL
+GROUP BY chapters.course_module_id
+LIMIT 1
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }
 
@@ -321,7 +355,7 @@ pub async fn get_user_course_instance_progress(
 }
 
 fn merge_modules_with_metrics(
-    course_modules: Vec<Module>,
+    course_modules: Vec<CourseModule>,
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
     user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseInstanceMetrics>,
     default_course_module_name_placeholder: &str,
@@ -341,10 +375,7 @@ fn merge_modules_with_metrics(
                 score_given: option_f32_to_f32_two_decimals(
                     user_metrics.and_then(|x| x.score_given),
                 ),
-                attempted_exercises: user_metrics
-                    .and_then(|x| x.attempted_exercises)
-                    .map(TryInto::try_into)
-                    .transpose()?,
+                score_required: course_module.automatic_completion_number_of_points_treshold,
                 score_maximum: course_metrics
                     .and_then(|x| x.score_maximum)
                     .map(TryInto::try_into)
@@ -353,6 +384,12 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.total_exercises)
                     .map(TryInto::try_into)
                     .transpose()?,
+                attempted_exercises: user_metrics
+                    .and_then(|x| x.attempted_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises_required: course_module
+                    .automatic_completion_number_of_exercises_attempted_treshold,
             };
             Ok(progress)
         })
@@ -727,6 +764,108 @@ RETURNING id,
     Ok(res)
 }
 
+/// Convenience struct that combines user state to the exercise.
+///
+/// Many operations require information about both the user state and the exercise. However, because
+/// exercises can either belong to a course or an exam, and each course instance will have their
+/// own `UserExerciseState`, it can get difficult to track the proper context.
+pub struct ExerciseWithUserState {
+    exercise: Exercise,
+    user_exercise_state: UserExerciseState,
+    type_data: EwusCourseOrExam,
+}
+
+impl ExerciseWithUserState {
+    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+        let state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &exercise,
+            &user_exercise_state,
+        )?;
+        Ok(Self {
+            exercise,
+            user_exercise_state,
+            type_data: state,
+        })
+    }
+
+    /// Provides a reference to the inner `Exercise`.
+    pub fn exercise(&self) -> &Exercise {
+        &self.exercise
+    }
+
+    /// Provides a reference to the inner `UserExerciseState`.
+    pub fn user_exercise_state(&self) -> &UserExerciseState {
+        &self.user_exercise_state
+    }
+
+    pub fn exercise_context(&self) -> &EwusCourseOrExam {
+        &self.type_data
+    }
+
+    pub fn set_user_exercise_state(
+        &mut self,
+        user_exercise_state: UserExerciseState,
+    ) -> ModelResult<()> {
+        self.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &self.exercise,
+            &user_exercise_state,
+        )?;
+        self.user_exercise_state = user_exercise_state;
+        Ok(())
+    }
+
+    pub fn is_exam_exercise(&self) -> bool {
+        match self.type_data {
+            EwusCourseOrExam::Course(_) => false,
+            EwusCourseOrExam::Exam(_) => true,
+        }
+    }
+}
+
+pub struct EwusCourse {
+    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
+}
+
+pub struct EwusExam {
+    pub exam_id: Uuid,
+}
+
+pub enum EwusContext<C, E> {
+    Course(C),
+    Exam(E),
+}
+
+pub enum EwusCourseOrExam {
+    Course(EwusCourse),
+    Exam(EwusExam),
+}
+
+impl EwusCourseOrExam {
+    pub fn from_exercise_and_user_exercise_state(
+        exercise: &Exercise,
+        user_exercise_state: &UserExerciseState,
+    ) -> ModelResult<Self> {
+        if exercise.id == user_exercise_state.exercise_id {
+            let course_id = exercise.course_id;
+            let course_instance_id = user_exercise_state.course_instance_id;
+            let exam_id = exercise.exam_id;
+            match (course_id, course_instance_id, exam_id) {
+                (None, None, Some(exam_id)) => Ok(Self::Exam(EwusExam { exam_id })),
+                (Some(course_id), Some(course_instance_id), None) => Ok(Self::Course(EwusCourse {
+                    course_id,
+                    course_instance_id,
+                })),
+                _ => Err(ModelError::Generic("Invalid initializer data.".to_string())),
+            }
+        } else {
+            Err(ModelError::Generic(
+                "Exercise doesn't match the state.".to_string(),
+            ))
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct CourseInstanceUserPoints {
     pub user_id: Uuid,
@@ -875,16 +1014,26 @@ SELECT exercises.name as exercise_name,
 
 #[cfg(test)]
 mod tests {
+    use chrono::TimeZone;
+
     use super::*;
 
     #[test]
     fn merges_course_modules_with_metrics() {
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
-        let course_modules = vec![Module {
+        let course_modules = vec![CourseModule {
+            created_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            updated_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            deleted_at: None,
             id: module_id,
             name: None,
             order_number: 0,
+            course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             copied_from: None,
+            uh_course_code: None,
+            automatic_completion: false,
+            automatic_completion_number_of_exercises_attempted_treshold: None,
+            automatic_completion_number_of_points_treshold: None,
         }];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

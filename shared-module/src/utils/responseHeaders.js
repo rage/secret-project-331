@@ -22,7 +22,7 @@ function generateNormalResponseHeaders(options = { requireTrustedTypesFor: false
       key: "Content-Security-Policy",
       value: [
         "default-src 'none'",
-        "connect-src 'self' https://vimeo.com/api/oembed.json",
+        "connect-src 'self' https://vimeo.com/api/oembed.json *",
         "font-src 'self'",
         "frame-src * data: blob:",
         "img-src 'self' data: blob: https://storage.googleapis.com abs.twimg.com https://pbs.twimg.com ton.twimg.com platform.twitter.com",

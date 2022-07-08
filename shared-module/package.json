@@ -74,6 +74,7 @@
     "react-query": "^3.39.0",
     "react-spring": "^9.4.5",
     "react-tsparticles": "^2.0.6",
+    "svgo": "^2.8.0",
     "use-debounce": "^8.0.1"
   }
 }

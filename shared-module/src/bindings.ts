@@ -36,6 +36,7 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
@@ -188,11 +189,19 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export interface Module {
+export interface CourseModule {
   id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
   name: string | null
+  course_id: string
   order_number: number
   copied_from: string | null
+  uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }
 
 export interface Course {
@@ -220,6 +229,7 @@ export interface CourseStructure {
 
 export interface CourseUpdate {
   name: string
+  description: string | null
   is_draft: boolean
   is_test_mode: boolean
 }
@@ -322,10 +332,10 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  exercise_type_specific_user_interface_iframe: string
+  user_interface_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
-  model_solution_path: string
+  model_solution_spec_endpoint_path: string
 }
 
 export interface ExerciseService {
@@ -919,9 +929,11 @@ export interface UserCourseInstanceProgress {
   course_module_name: string
   course_module_order_number: number
   score_given: number
+  score_required: number | null
   score_maximum: number | null
   total_exercises: number | null
   attempted_exercises: number | null
+  attempted_exercises_required: number | null
 }
 
 export interface ExerciseUserCounts {
@@ -965,6 +977,15 @@ export interface CourseMaterialCourseModule {
   is_default: boolean
   name: string | null
   order_number: number
+}
+
+export interface CreateAccountDetails {
+  email: string
+  first_name: string
+  last_name: string
+  language: string
+  password: string
+  password_confirmation: string
 }
 
 export interface RoleQuery {

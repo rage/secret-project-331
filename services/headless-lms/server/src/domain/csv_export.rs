@@ -1,10 +1,11 @@
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use csv::Writer;
-use futures::{stream::FuturesUnordered, Stream};
+use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
 use headless_lms_models::{
     chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
 };
+use serde::Serialize;
 use sqlx::PgConnection;
 use std::{
     collections::HashMap,
@@ -13,7 +14,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::{wrappers::UnboundedReceiverStream, StreamExt};
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
 use crate::controllers::{self, ControllerResult};
@@ -276,6 +277,43 @@ pub fn make_authorized_streamable(
     stream.map(|item| item.map(|item2| item2.data))
 }
 
+/**
+  For streaming arrays of json objects.
+*/
+pub fn serializable_sqlx_result_stream_to_json_stream(
+    stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
+) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    let res_stream = stream.enumerate().map(|(n, item)| {
+        item.map(|item2| {
+            match serde_json::to_vec(&item2) {
+                Ok(mut v) => {
+                    // Only item index available, we don't know the length of the stream
+                    if n == 0 {
+                        // Start of array character to the beginning of the stream
+                        v.insert(0, b'[');
+                    } else {
+                        // Separator character before every item excluding the first item
+                        v.insert(0, b',');
+                    }
+                    Bytes::from(v)
+                }
+                Err(e) => {
+                    // Since we're already streaming a response, we have no way to change the status code of the response anymore.
+                    // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
+                    error!("Failed to serialize item: {}", e);
+                    Bytes::from(format!(
+                        "Streaming error: Failed to serialize item. Details: {:?}",
+                        e
+                    ))
+                }
+            }
+        })
+        .map_err(|e| controllers::ControllerError::InternalServerError(e.to_string()))
+    });
+    // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
+    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
+}
+
 #[cfg(test)]
 mod test {
     use std::{
@@ -289,7 +327,10 @@ mod test {
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
-        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+        library::grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
+        },
+        user_exercise_states::ExerciseWithUserState,
         users,
     };
     use serde_json::Value;
@@ -403,10 +444,11 @@ mod test {
             user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
                 .await
                 .unwrap();
-        headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        let mut exercise_with_user_state =
+            ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        headless_lms_models::library::grading::grade_user_submission(
             tx,
-            &exercise,
-            user_exercise_state,
+            &mut exercise_with_user_state,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
@@ -414,7 +456,7 @@ mod test {
                     data_json: Value::Null,
                 }],
             },
-            HashMap::from([(
+            GradingPolicy::Fixed(HashMap::from([(
                 et,
                 ExerciseTaskGradingResult {
                     feedback_json: None,
@@ -423,7 +465,7 @@ mod test {
                     score_given,
                     score_maximum: 100,
                 },
-            )]),
+            )])),
         )
         .await
         .unwrap();

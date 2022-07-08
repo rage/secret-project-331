@@ -18,6 +18,7 @@ use headless_lms_models::{
     },
     course_instance_enrollments::CourseInstanceEnrollment,
     course_instances::{ChapterScore, CourseInstance, Points},
+    course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
@@ -435,9 +436,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }
     );
     write_docs!(
@@ -447,9 +450,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }]
     );
 
@@ -968,6 +973,36 @@ fn main() {
                 exercise_slide_submission_id: exercise_slide_submission.id,
             }),
         }
+    );
+    write_docs!(
+        StudyRegistryCompletion,
+        StudyRegistryCompletion {
+            completion_date: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            completion_language: "en-US".to_string(),
+            completion_registration_attempt_date: None,
+            email: "student@example.com".to_string(),
+            grade: StudyRegistryGrade::new(true, Some(4)),
+            id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
+            user_upstream_id: id,
+            tier: None
+        }
+    );
+    write_docs!(
+        Vec<StudyRegistryCompletion>,
+        vec![StudyRegistryCompletion {
+            completion_date: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            completion_language: "en-US".to_string(),
+            completion_registration_attempt_date: None,
+            email: "student@example.com".to_string(),
+            grade: StudyRegistryGrade::new(true, Some(4)),
+            id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
+            user_upstream_id: id,
+            tier: None
+        }]
+    );
+    write_docs!(
+        Vec<bool>,
+        vec![false, true, false, true, false, true, true, true]
     );
 }
 

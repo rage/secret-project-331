@@ -4,22 +4,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import TextAreaField from "./InputFields/EditableComponentTextArea"
-import SelectField from "./InputFields/SelectField"
-import TextField from "./InputFields/TextField"
+import { CmsPeerReviewQuestion } from "../../../../shared-module/src/bindings"
+import TextAreaField from "../../../../shared-module/src/components/InputFields/EditableComponentTextArea"
+import SelectField from "../../../../shared-module/src/components/InputFields/SelectField"
+import TextField from "../../../../shared-module/src/components/InputFields/TextField"
 
 const Wrapper = styled.div`
   margin: 0 auto;
   max-width: 1000px;
   height: 100%;
-
   span {
     display: inline-block;
     font-size: 18px;
     margin-bottom: 10px;
     color: #1a2333;
   }
-
   h2 {
     font-weight: 300;
     font-size: 1.7rem;
@@ -32,7 +31,6 @@ const StyledForm = styled.form`
   grid-template-columns: 0.5fr 1.2fr 0.1fr;
   gap: 10px;
   margin-top: 12px;
-
   @media (max-width: 767.98px) {
     grid-template-columns: 1fr;
     gap: 0px;
@@ -48,7 +46,6 @@ const StyledBtn = styled.button`
   justify-content: center;
   align-items: center;
   justify-self: end;
-
   svg {
     transform: rotate(45deg);
     width: 20px;
@@ -56,12 +53,10 @@ const StyledBtn = styled.button`
       fill: #08457a;
     }
   }
-
   @media (max-width: 767.98px) {
     width: 100%;
   }
 `
-
 const DeleteBtn = styled.button`
   width: 50px;
   min-height: 50px;
@@ -69,7 +64,6 @@ const DeleteBtn = styled.button`
   outline: none;
   justify-self: end;
   border: none;
-
   @media (max-width: 767.98px) {
     width: 100%;
   }
@@ -82,7 +76,6 @@ const List = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 20px;
-
   @media (max-width: 767.98px) {
     grid-template-columns: 100%;
     gap: 5px;
@@ -95,7 +88,6 @@ const StyledQuestion = styled.div`
   width: 100%;
   padding: 0.4rem 1rem;
   border-radius: 3px;
-
   @media (max-width: 767.98px) {
     width: 100%;
   }
@@ -111,16 +103,10 @@ const StyledQuestionType = styled.div`
   border-radius: 3px;
   width: 100%;
   padding: 0.4rem 1rem;
-
   @media (max-width: 767.98px) {
     width: 100%;
   }
 `
-export interface PeerReview {
-  id: string
-  question: string
-  questionType: string
-}
 
 const PLACEHOLDER = "Write the PeerReview instruction"
 const QUESTION = "question"
@@ -138,7 +124,7 @@ export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
   PeerReviewEditorExtraProps
 
 const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, setAttributes }) => {
-  const [state, setState] = useState<PeerReview[]>([])
+  const [state, setState] = useState<CmsPeerReviewQuestion[]>([])
   const { t } = useTranslation()
 
   const options = [
@@ -174,12 +160,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, set
 
       <h2>{HEADING_TEXT}</h2>
       {state &&
-        state.map(({ id, question, questionType }) => (
+        state.map(({ id, question, question_type }) => (
           <List key={id} id={id}>
             <StyledQuestion>
               <TextAreaField
                 onChange={handleChange}
-                defaultValue={questionType}
+                defaultValue={question_type}
                 autoResize={true}
               />
             </StyledQuestion>
@@ -218,7 +204,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, set
                 // eslint-disable-next-line i18next/no-literal-string
                 id: `id-${question}`,
                 question: question,
-                questionType: type,
+                question_type: type,
+                answer_required: true,
+                order_number: 0,
+                peer_review_id: id,
               },
             ])
           }

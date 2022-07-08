@@ -16,6 +16,7 @@ export interface ExerciseAttributes {
   limit_number_of_tries: boolean
   needs_peer_review: boolean
   peer_review_config: string
+  peer_review_questions_config: string
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -50,6 +51,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       default: false,
     },
     peer_review_config: {
+      type: "string",
+      default: undefined,
+    },
+    peer_review_questions_config: {
       type: "string",
       default: undefined,
     },

@@ -3,7 +3,5 @@
   "course_name": "Course",
   "uh_course_code": "ABC123",
   "email": "student@example.com",
-  "first_name": "Student",
-  "last_name": "Student",
   "ects_credits": 5
 }

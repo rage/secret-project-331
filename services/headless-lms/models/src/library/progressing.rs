@@ -1,8 +1,7 @@
 use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
-    courses::{self, Course},
-    open_university_registration_links,
+    courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
@@ -116,18 +115,17 @@ pub struct UserCompletionInformation {
     pub course_name: String,
     pub uh_course_code: String,
     pub email: String,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
     pub ects_credits: Option<i32>,
 }
 
 pub async fn get_user_completion_information(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course: &Course,
+    course_module_id: Uuid,
 ) -> ModelResult<UserCompletionInformation> {
     let user = users::get_by_id(conn, user_id).await?;
-    let course_module = course_modules::get_default_by_course_id(conn, course.id).await?;
+    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
+    let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
@@ -150,8 +148,6 @@ pub async fn get_user_completion_information(
         uh_course_code,
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
     })
 }
 
@@ -164,10 +160,11 @@ pub struct CompletionRegistrationLink {
 pub async fn get_completion_registration_link_and_save_attempt(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course: &Course,
+    course_module_id: Uuid,
 ) -> ModelResult<CompletionRegistrationLink> {
     let user = users::get_by_id(conn, user_id).await?;
-    let course_module = course_modules::get_default_by_course_id(conn, course.id).await?;
+    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
+    let course = courses::get_course(conn, course_module.course_id).await?;
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?

@@ -236,13 +236,13 @@ export const fetchPreviousPageRoutingData = async (
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
 
-export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page> => {
-  const data = (
-    await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`, {
-      responseType: "json",
-    })
-  ).data
-  return data
+export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page | null> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`, {
+    responseType: "json",
+  })
+  // eslint-disable-next-line i18next/no-literal-string
+  console.log("response", response)
+  return validateResponse(response, isPage)
 }
 
 export const fetchPageChapterAndCourse = async (

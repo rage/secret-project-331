@@ -16,7 +16,7 @@ export interface TopLevelPagesProps {
 }
 
 const Wrapper = styled.div`
-  margin: 4rem 0 3rem 0;
+  margin: 0 0 4rem 0;
 `
 
 const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {

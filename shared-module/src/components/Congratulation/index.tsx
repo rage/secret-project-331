@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../img/confetti-bg.svg"
 import BackgroundImage from "../../img/congratulation-bg.svg"
-import Trophy from "../../img/trophy.svg"
 import { headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -112,11 +111,6 @@ const Congratulation = (/* { modules } */) => {
       <StyledBackground />
       <Content>
         <StyledSVG />
-        <Trophy
-          className={css`
-            z-index: 10;
-          `}
-        />
         <h1 className="heading">{t("congratulation")}!</h1>
         <span className="subtitle">{subTitle}</span>
         {!isModule && (

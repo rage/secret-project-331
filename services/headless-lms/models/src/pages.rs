@@ -1759,20 +1759,22 @@ pub async fn get_previous_page(
 
 pub async fn get_chapter_by_page_id(
     conn: &mut PgConnection,
-    page_id: Uuid,
+    current_page_metadata: &PageMetadata,
 ) -> ModelResult<ChapterInfo> {
     let chapter_page = sqlx::query_as!(
         ChapterInfo,
         "
-        SELECT c.id as chapter_id,
+        SELECT
+            c.id as chapter_id,
             c.name as chapter_name,
             c.front_page_id as chapter_front_page_id
         FROM chapters c
-        INNER JOIN pages p ON chapter_id = p.chapter_id
-        WHERE p.id = $1
-            AND p.deleted_at IS NULL;
+        WHERE c.id = $1
+        AND c.course_id = $2
+            AND c.deleted_at IS NULL;
         ",
-        page_id
+        current_page_metadata.chapter_id,
+        current_page_metadata.course_id
     )
     .fetch_one(conn)
     .await?;
@@ -1784,7 +1786,8 @@ pub async fn get_chapter_front_page_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
 ) -> ModelResult<Page> {
-    let chapter_page = get_chapter_by_page_id(conn, page_id).await?;
+    let page_metadata = get_current_page_metadata(conn, page_id).await?;
+    let chapter = get_chapter_by_page_id(conn, &page_metadata).await?;
     /* let page = get_page(conn, chapter_page.chapter_front_page_id).await?; */
     let page = sqlx::query_as!(
         Page,
@@ -1802,9 +1805,11 @@ pub async fn get_chapter_front_page_by_page_id(
         order_number,
         copied_from
         FROM pages
-        WHERE id = $1;
+        WHERE id = $1
+        AND chapter_id = $2;
         ",
-        chapter_page.chapter_front_page_id
+        chapter.chapter_front_page_id,
+        chapter.chapter_id
     )
     .fetch_one(conn)
     .await?;

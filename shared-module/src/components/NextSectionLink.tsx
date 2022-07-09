@@ -70,18 +70,21 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
         padding: 1.4rem 1rem 2rem 1.4rem;
       `}
     >
-      <StyledButton href={chapterFrontPageURL}>
-        <ArrowSVGIcon
-          id="up-svg-icon"
-          role="presentation"
-          alt=""
-          width="12"
-          height="12"
-          viewBox="0 0 39 39"
-          transform="rotate(270)"
-        />
-        <span>{chapterPage}</span>
-      </StyledButton>
+      {chapterFrontPageURL && (
+        <StyledButton href={chapterFrontPageURL}>
+          <ArrowSVGIcon
+            id="up-svg-icon"
+            role="presentation"
+            alt=""
+            width="12"
+            height="12"
+            viewBox="0 0 39 39"
+            transform="rotate(270)"
+          />
+          <span>{chapterPage}</span>
+        </StyledButton>
+      )}
+
       <Fragment>
         <h2
           className={css`

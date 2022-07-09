@@ -15,7 +15,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
 
 export interface NextPageProps {
-  chapterId: string
+  chapterId: string | null
   currentPageId: string
   courseSlug: string
   organizationSlug: string
@@ -35,7 +35,7 @@ const NextPage: React.FC<NextPageProps> = ({
   const getPreviousPageRoutingData = useQuery(`pages-${currentPageId}-previous-page`, () =>
     fetchPreviousPageRoutingData(currentPageId),
   )
-  const getChapterFrontPageById = useQuery(`pages-${currentPageId}-chapter-front-page`, () =>
+  const getChapterFrontPageById = useQuery(`pages-${chapterId}-chapter-front-page`, () =>
     fetchChapterFrontPageById(currentPageId),
   )
 
@@ -46,6 +46,17 @@ const NextPage: React.FC<NextPageProps> = ({
     return <Spinner variant={"medium"} />
   }
 
+  if (getChapterFrontPageById.data === null) {
+    // if data is null we have reached the end of the course material. i.e. no page or chapter found
+    return (
+      <NextSectionLink
+        title={t("title-congratulations")}
+        subtitle={t("reached-end-of-course-material")}
+        nextTitle={t("action-back-to-front-page")}
+        url={courseFrontPageRoute(organizationSlug, courseSlug)}
+      />
+    )
+  }
   if (getNextPageRoutingData.data === null) {
     // if data is null we have reached the end of the course material. i.e. no page or chapter found
     return (
@@ -72,15 +83,16 @@ const NextPage: React.FC<NextPageProps> = ({
   const data = getNextPageRoutingData.data
   const NUMERIC = "numeric"
   const LONG = "long"
+  const chapterFrontPageData = getChapterFrontPageById.data
   const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
   const chapterPageUrl = coursePageRoute(
     organizationSlug,
     courseSlug,
-    getChapterFrontPageById.data?.url_path,
+    chapterFrontPageData.url_path,
   )
 
   if (getPreviousPageRoutingData.data === null) {
-    // if data is null we have reached the end of the course material. i.e. no page or chapter found
+    // if data is null are in the chapter front-page
     // eslint-disable-next-line i18next/no-literal-string
     return (
       <NextSectionLink
@@ -88,7 +100,6 @@ const NextPage: React.FC<NextPageProps> = ({
         subtitle={t("proceed-to-the-first-topic")}
         nextTitle={data.title}
         url={nextPageUrl}
-        chapterFrontPageURL={chapterPageUrl}
       />
     )
   }
@@ -174,7 +185,7 @@ const NextPage: React.FC<NextPageProps> = ({
         subtitle={t("please-wait-until-next-chapter-opens")}
         nextTitle={closedUntil}
         previous={previousPageUrl}
-        chapterFrontPageURL={getChapterFrontPageById.data?.url_path}
+        chapterFrontPageURL={chapterPageUrl}
       />
     )
   }

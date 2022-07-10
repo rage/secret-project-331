@@ -18,6 +18,7 @@ import {
   OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
+  PageNavigation,
   PageRoutingDataWithChapterStatus,
   PageSearchRequest,
   PageSearchResult,
@@ -240,9 +241,7 @@ export const fetchChapterFrontPageById = async (currentPageId: string): Promise<
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`)
   return validateResponse(response, isPage)
 }
-export const fetchPageNavigationData = async (
-  currentPageId: string,
-): Promise<Array<PageRoutingDataWithChapterStatus | Page | null>> => {
+export const fetchPageNavigationData = async (currentPageId: string): Promise<PageNavigation> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
   // eslint-disable-next-line i18next/no-literal-string
   console.log("response", response)

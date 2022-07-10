@@ -908,6 +908,11 @@ export interface UserCourseSettings {
   current_course_id: string
   current_course_instance_id: string
 }
+export interface PageNavigation {
+  chapter_front_page: Page | null
+  next_page: PageRoutingDataWithChapterStatus | null
+  previous_page: PageRoutingDataWithChapterStatus | null
+}
 
 export interface UserCourseInstanceChapterExerciseProgress {
   exercise_id: string

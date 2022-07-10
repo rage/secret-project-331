@@ -89,20 +89,13 @@ async fn get_page_navigation(
         models::pages::get_previous_page_with_chapter_status(previous_page_data).await?;
 
     let token = skip_authorize()?;
-    /* token.authorized_ok(web::Json(previous_page_data_with_status)); */
-
-    /*   ........................... */
 
     let next_page_data = models::pages::get_next_page(&mut conn, *page_id).await?;
     let next_page_data_with_status =
         models::pages::get_next_page_with_chapter_status(next_page_data).await?;
-    /* token.authorized_ok(web::Json(next_page_data_with_status)); */
-
-    /*   ........................... */
 
     let chapter_front_page =
         models::pages::get_chapter_front_page_by_page_id(&mut conn, *page_id).await?;
-    /* token.authorized_ok(web::Json(chapter_front_page)); */
 
     token.authorized_ok(web::Json(PageNavigationInformation {
         chapter_front_page,

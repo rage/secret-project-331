@@ -21,13 +21,18 @@ export interface NextSectionLinkExtraProps {
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const StyledButton = styled.a`
+const StyledLink = styled.a`
   border: 1px solid ${baseTheme.colors.blue[200]};
   padding: 0.4rem 1rem;
   background: #fff;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 
   span {
     font-size: 15px;
@@ -36,7 +41,7 @@ const StyledButton = styled.a`
   }
 
   .arrow {
-    fill: ${baseTheme.colors.blue[300]};
+    fill: ${baseTheme.colors.blue[400]};
   }
 `
 
@@ -71,18 +76,20 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
       `}
     >
       {chapterFrontPageURL && (
-        <StyledButton href={chapterFrontPageURL}>
-          <ArrowSVGIcon
-            id="up-svg-icon"
-            role="presentation"
-            alt=""
-            width="12"
-            height="12"
-            viewBox="0 0 39 39"
-            transform="rotate(270)"
-          />
-          <span>{chapterPage}</span>
-        </StyledButton>
+        <Link href={chapterFrontPageURL} passHref>
+          <StyledLink href="replace">
+            <ArrowSVGIcon
+              id="up-svg-icon"
+              role="presentation"
+              alt=""
+              width="12"
+              height="12"
+              viewBox="0 0 39 39"
+              transform="rotate(270)"
+            />
+            <span>{chapterPage}</span>
+          </StyledLink>
+        </Link>
       )}
 
       <Fragment>
@@ -133,8 +140,9 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
               justify-content: center;
               align-items: center;
 
-              ${respondToOrLarger.md} {
-                /* visibility: visible; */
+              &:hover {
+                filter: brightness(95%) contrast(110%);
+                cursor: pointer;
               }
 
               .arrow {

@@ -182,6 +182,12 @@ pub struct ContentManagementPage {
 pub struct PageSearchRequest {
     query: String,
 }
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+pub struct PageNavigationInformation {
+    pub chapter_front_page: Page,
+    pub next_page: Option<PageRoutingDataWithChapterStatus>,
+    pub previous_page: Option<PageRoutingDataWithChapterStatus>,
+}
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

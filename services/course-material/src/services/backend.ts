@@ -236,11 +236,17 @@ export const fetchPreviousPageRoutingData = async (
   return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
 }
 
-export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page | null> => {
+export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`)
+  return validateResponse(response, isPage)
+}
+export const fetchPageNavigationData = async (
+  currentPageId: string,
+): Promise<PageRoutingDataWithChapterStatus> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
   // eslint-disable-next-line i18next/no-literal-string
   console.log("response", response)
-  return validateResponse(response, isPage)
+  return response.data
 }
 
 export const fetchPageChapterAndCourse = async (

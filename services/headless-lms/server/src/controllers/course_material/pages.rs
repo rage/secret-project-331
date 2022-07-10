@@ -105,7 +105,7 @@ async fn get_page_navigation(
     /* token.authorized_ok(web::Json(chapter_front_page)); */
 
     token.authorized_ok(web::Json(PageNavigationInformation {
-        chapter_front_page: chapter_front_page,
+        chapter_front_page,
         next_page: next_page_data_with_status,
         previous_page: previous_page_data_with_status,
     }))

@@ -242,7 +242,7 @@ export const fetchChapterFrontPageById = async (currentPageId: string): Promise<
 }
 export const fetchPageNavigationData = async (
   currentPageId: string,
-): Promise<Array<PageRoutingDataWithChapterStatus>> => {
+): Promise<Array<PageRoutingDataWithChapterStatus | Page | null>> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
   // eslint-disable-next-line i18next/no-literal-string
   console.log("response", response)

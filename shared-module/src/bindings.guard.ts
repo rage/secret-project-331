@@ -24,6 +24,7 @@ import {
   CmsPageUpdate,
   CmsPeerReview,
   CmsPeerReviewQuestion,
+  CompletionRegistrationLink,
   ContentManagementPage,
   Course,
   CourseCount,
@@ -133,6 +134,7 @@ import {
   TermUpdate,
   UploadResult,
   User,
+  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -451,7 +453,8 @@ export function isCourseModule(obj: any, _argumentName?: string): obj is CourseM
     (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
       typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
     (obj.automatic_completion_number_of_points_treshold === null ||
-      typeof obj.automatic_completion_number_of_points_treshold === "number")
+      typeof obj.automatic_completion_number_of_points_treshold === "number") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 
@@ -945,6 +948,30 @@ export function isCourseMaterialPeerReviewSubmission(
     obj.peer_review_question_answers.every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
     )
+  )
+}
+
+export function isCompletionRegistrationLink(
+  obj: any,
+  _argumentName?: string,
+): obj is CompletionRegistrationLink {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.url === "string"
+  )
+}
+
+export function isUserCompletionInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCompletionInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_module_completion_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.uh_course_code === "string" &&
+    typeof obj.email === "string" &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 

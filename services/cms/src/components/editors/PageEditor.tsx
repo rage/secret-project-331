@@ -95,6 +95,8 @@ const PageEditor: React.FC<PageEditorProps> = ({
               exercises: data.exercises,
               exercise_slides: data.exercise_slides,
               exercise_tasks: data.exercise_tasks,
+              peer_reviews: data.peer_reviews,
+              peer_review_questions: data.peer_review_questions,
               url_path: data.page.url_path,
               title: data.page.title,
               chapter_id: data.page.chapter_id,

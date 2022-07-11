@@ -95,6 +95,8 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       },
     },
   ],
+  peer_reviews: [],
+  peer_review_questions: [],
   url_path: "/path/to/page",
   title: "Example page",
   chapter_id: "babb2322-8bdf-417f-be05-89b2263f4851",
@@ -109,6 +111,7 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   limit_number_of_tries: true,
   needs_peer_review: false,
   peer_review_config: "",
+  peer_review_questions_config: "",
 }
 
 // Doing this separately so that we get type errors when the type changes

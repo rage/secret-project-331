@@ -63,5 +63,26 @@
       "order_number": 1
     }
   ],
+  "peer_reviews": [
+    {
+      "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "course_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "exercise_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "peer_reviews_to_give": 1,
+      "peer_reviews_to_receive": 1,
+      "accepting_threshold": 0.3,
+      "accepting_strategy": "AutomaticallyAcceptOrManualReviewByAverage"
+    }
+  ],
+  "peer_review_questions": [
+    {
+      "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "peer_review_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+      "order_number": 1,
+      "question": "what?",
+      "question_type": "Essay",
+      "answer_required": true
+    }
+  ],
   "organization_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"
 }

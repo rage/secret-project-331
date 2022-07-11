@@ -17,6 +17,7 @@ pub struct CourseModule {
     pub automatic_completion: bool,
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
+    pub ects_credits: Option<i32>,
 }
 
 pub async fn insert(
@@ -204,5 +205,22 @@ pub async fn get_by_course_id_as_map(
         .into_iter()
         .map(|course_module| (course_module.id, course_module))
         .collect();
+    Ok(res)
+}
+
+pub async fn get_all_uh_course_codes(conn: &mut PgConnection) -> ModelResult<Vec<String>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT uh_course_code
+FROM course_modules
+WHERE uh_course_code IS NOT NULL
+  AND deleted_at IS NULL
+"
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .filter_map(|x| x.uh_course_code)
+    .collect();
     Ok(res)
 }

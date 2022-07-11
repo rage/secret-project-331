@@ -107,6 +107,8 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercises,
     exercise_slides: exerciseSlides,
     exercise_tasks: exerciseTasks,
+    peer_reviews: [],
+    peer_review_questions: [],
     title: args.title,
     url_path: args.urlPath,
   }
@@ -176,6 +178,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         peer_review_config: "",
+        peer_review_questions_config: "",
       },
     }
 

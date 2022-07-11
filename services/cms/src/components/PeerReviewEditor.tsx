@@ -3,11 +3,13 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import { CmsPeerReviewQuestion } from "../../../../shared-module/src/bindings"
 import TextAreaField from "../../../../shared-module/src/components/InputFields/EditableComponentTextArea"
 import SelectField from "../../../../shared-module/src/components/InputFields/SelectField"
 import TextField from "../../../../shared-module/src/components/InputFields/TextField"
+import { PeerReviewQuestionType } from "../shared-module/bindings"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -197,17 +199,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, set
           const question = target.question.value
           const type = target.questionType.value
 
+          // eslint-disable-next-line i18next/no-literal-string
+          const questionType: PeerReviewQuestionType = type === "Essay" ? "Essay" : "Scale"
+
           if (question !== "" && type !== "") {
-            setState((state) => [
+            setState([
               ...state,
               {
                 // eslint-disable-next-line i18next/no-literal-string
-                id: `id-${question}`,
-                question: question,
-                question_type: type,
+                id: v4(),
+                question,
+                question_type: questionType,
+                peer_review_id: v4(),
                 answer_required: true,
                 order_number: 0,
-                peer_review_id: id,
               },
             ])
           }

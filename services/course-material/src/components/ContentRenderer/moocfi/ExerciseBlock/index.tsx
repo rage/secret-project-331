@@ -65,7 +65,8 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const { t, i18n } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageContext = useContext(PageContext)
-  const showExercise = props.isExam || (loginState.signedIn ? !!pageContext.settings : true)
+  const showExercise =
+    Boolean(pageContext.exam?.id) || (loginState.signedIn ? !!pageContext.settings : true)
   const [postThisStateToIFrame, dispatch] = useReducer(
     exerciseBlockPostThisStateToIFrameReducer,
     null,
@@ -270,7 +271,10 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                   })}
             </div>
           )}
-          {(reviewingStage === "NotStarted" || reviewingStage === "ReviewedAndLocked") &&
+          {/* Reviewing stage seems to be undefined at least for exams */}
+          {(reviewingStage === undefined ||
+            reviewingStage === "NotStarted" ||
+            reviewingStage === "ReviewedAndLocked") &&
             getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.map((task) => (
               <ExerciseTask
                 key={task.id}
@@ -355,7 +359,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("submit-button")}
               </Button>
             )}
-            {inSubmissionView && reviewingStage === "NotStarted" && (
+            {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
                 {!ranOutOfTries && (
                   <Button

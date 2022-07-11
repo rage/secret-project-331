@@ -651,6 +651,40 @@
 <span id="646">646</span>
 <span id="647">647</span>
 <span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
     <span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">file_store::FileStore</span>,
     <span class="ident">language_tag_to_name::LANGUAGE_TAG_TO_NAME</span>, <span class="ident">ApplicationConfiguration</span>,
@@ -1037,6 +1071,7 @@ RETURNING id,
         <span class="ident">GutenbergBlock::landing_page_hero_section</span>(<span class="string">&quot;Welcome to...&quot;</span>, <span class="string">&quot;Subheading&quot;</span>),
         <span class="ident">GutenbergBlock::course_objective_section</span>(),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-chapter-grid&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/top-level-pages&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">GutenbergBlock::empty_block_from_name</span>(<span class="string">&quot;moocfi/course-progress&quot;</span>.<span class="ident">to_string</span>()),
     ])<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">course_front_page</span> <span class="op">=</span> <span class="ident">NewPage</span> {
@@ -1298,6 +1333,39 @@ WHERE id = $1
         <span class="macro">assert!</span>(<span class="ident">course_id</span>.<span class="ident">is_err</span>());
         <span class="ident">tx2</span>.<span class="ident">rollback</span>().<span class="kw">await</span>;
     }
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_top_level_pages</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">pages</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">Page</span>,
+        <span class="string">&quot;
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages p
+WHERE p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
+  AND course_id = $1
+  ORDER BY order_number DESC;
+    &quot;</span>,
+        <span class="ident">course_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">pages</span>)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>

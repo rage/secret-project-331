@@ -228,6 +228,7 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
@@ -247,6 +248,7 @@
     <span class="kw">pub</span> <span class="ident">automatic_completion</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">ects_credits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(

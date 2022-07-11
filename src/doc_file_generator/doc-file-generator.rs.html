@@ -1017,6 +1017,23 @@
 <span id="1012">1012</span>
 <span id="1013">1013</span>
 <span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1062,6 +1079,7 @@
             <span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span>,
             <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>,
         },
+        <span class="ident">progressing</span>::{<span class="ident">CompletionRegistrationLink</span>, <span class="ident">UserCompletionInformation</span>},
     },
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
     <span class="ident">organizations::Organization</span>,
@@ -2012,6 +2030,22 @@
             <span class="ident">user_upstream_id</span>: <span class="ident">id</span>,
             <span class="ident">tier</span>: <span class="prelude-val">None</span>
         }]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">UserCompletionInformation</span>,
+        <span class="ident">UserCompletionInformation</span> {
+            <span class="ident">course_module_completion_id</span>: <span class="ident">id</span>,
+            <span class="ident">course_name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">uh_course_code</span>: <span class="string">&quot;ABC123&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">ects_credits</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>),
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">CompletionRegistrationLink</span>,
+        <span class="ident">CompletionRegistrationLink</span> {
+            <span class="ident">url</span>: <span class="string">&quot;https://www.example.com&quot;</span>.<span class="ident">to_string</span>(),
+        }
     );
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,

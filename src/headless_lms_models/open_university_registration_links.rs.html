@@ -95,14 +95,14 @@ RETURNING *
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-SELECT uh_course_code
+SELECT registration_link
 FROM open_university_registration_links
 WHERE uh_course_code = $1
   AND deleted_at IS NULL
         &quot;</span>,
         <span class="ident">uh_course_code</span>
     )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> <span class="ident">record</span>.<span class="ident">uh_course_code</span>)
+    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">record</span><span class="op">|</span> <span class="ident">record</span>.<span class="ident">registration_link</span>)
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)

@@ -1072,6 +1072,7 @@
 <span id="1067">1067</span>
 <span id="1068">1068</span>
 <span id="1069">1069</span>
+<span id="1070">1070</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -2105,6 +2106,7 @@ SELECT exercises.name as exercise_name,
             <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).<span class="ident">unwrap</span>(),
             <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
             <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
+            <span class="ident">ects_credits</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>),
             <span class="ident">automatic_completion</span>: <span class="bool-val">false</span>,
             <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-val">None</span>,
             <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-val">None</span>,

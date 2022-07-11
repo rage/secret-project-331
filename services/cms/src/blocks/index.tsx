@@ -17,6 +17,7 @@ import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
 import PagesInChapter from "./PagesInChapter"
 import SponsorBlock from "./Sponsor"
+import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
 
 /**
@@ -43,6 +44,7 @@ export const blockTypeMapForPages = [
 export const blockTypeMapForFrontPages = [
   ["moocfi/course-chapter-grid", CourseChapterGrid],
   ["moocfi/course-progress", CourseProgress],
+  ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/sponsor", SponsorBlock],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/latex", Latex],

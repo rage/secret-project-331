@@ -62,5 +62,7 @@
   "start": "Start",
   "separator-color": "Separator color",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
-  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes."
+  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",
+  "top-level-block-placeholder": "Top level pages placeholder",
+  "top-level-block-placeholder-explanation": "This block list all the top level pages in a course and it is placed on the course material front page."
 }

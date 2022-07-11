@@ -384,6 +384,7 @@ RETURNING id,
         GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
         GutenbergBlock::course_objective_section(),
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;
     let course_front_page = NewPage {
@@ -645,4 +646,37 @@ mod test {
         assert!(course_id.is_err());
         tx2.rollback().await;
     }
+}
+
+pub async fn get_top_level_pages(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages p
+WHERE p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
+  AND course_id = $1
+  ORDER BY order_number DESC;
+    ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
 }

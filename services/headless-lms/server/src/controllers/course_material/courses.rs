@@ -560,6 +560,21 @@ async fn get_material_references_by_course_id(
 }
 
 /**
+GET /api/v0/course-material/courses/:course_id/top-level-pages
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_top_level_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let page = models::courses::get_top_level_pages(&mut conn, *course_id).await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(page))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -594,6 +609,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/user-settings",
             web::get().to(get_user_course_settings),
+        )
+        .route(
+            "/{course_id}/top-level-pages",
+            web::get().to(get_top_level_pages),
         )
         .route("/{course_id}/propose-edit", web::post().to(propose_edit))
         .route("/{course_id}/glossary", web::get().to(glossary))

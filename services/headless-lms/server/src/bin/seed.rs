@@ -2927,7 +2927,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             peer_review_questions:Vec::new(),
         },
         admin,
-        true,
+        true,true,true,
         HistoryChangeReason::PageSaved,
         false,
     )
@@ -2975,7 +2975,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             peer_review_questions:Vec::new(),
         },
         admin,
-        true,
+        true,true,true,
         HistoryChangeReason::PageSaved,
         false,
     )
@@ -3101,7 +3101,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
             peer_review_questions:Vec::new(),
         },
         admin,
-        true,
+        true,true,true,
         HistoryChangeReason::PageSaved,
         false,
     )
@@ -3310,6 +3310,8 @@ async fn create_page(
             chapter_id,
         },
         author,
+        true,
+        true,
         true,
         HistoryChangeReason::PageSaved,
         false,

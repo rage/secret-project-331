@@ -342,6 +342,8 @@ WHERE id = $1
         page_update,
         author,
         true,
+        true,
+        true,
         HistoryChangeReason::PageSaved,
         page_with_exercises.page.exam_id.is_some(),
     )
@@ -422,6 +424,8 @@ mod test {
             page,
             page_update,
             user,
+            true,
+            true,
             true,
             HistoryChangeReason::PageSaved,
             false,

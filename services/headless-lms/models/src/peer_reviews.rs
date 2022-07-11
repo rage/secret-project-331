@@ -295,6 +295,27 @@ where p.id = $1
     Ok(res)
 }
 
+pub async fn delete_peer_reviews_by_exrcise_ids(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+UPDATE peer_reviews
+SET deleted_at = now()
+WHERE exercise_id = ANY ($1)
+RETURNING id;
+    ",
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .map(|x| x.id)
+    .collect();
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

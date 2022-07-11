@@ -792,6 +792,8 @@ pub async fn update_page(
     page_update: CmsPageUpdate,
     author: Uuid,
     retain_exercise_ids: bool,
+    retain_peer_review_ids: bool,
+    retain_peer_review_question_ids: bool,
     history_change_reason: HistoryChangeReason,
     is_exam_page: bool,
 ) -> ModelResult<ContentManagementPage> {
@@ -869,6 +871,33 @@ RETURNING id,
     )
     .await?;
 
+    // Peer reviews
+    let existing_peer_review_ids =
+        crate::peer_reviews::delete_peer_reviews_by_exrcise_ids(&mut tx, &existing_exercise_ids)
+            .await?;
+    let remapped_peer_reviews = upsert_peer_reviews(
+        &mut tx,
+        &existing_peer_review_ids,
+        &page_update.peer_reviews,
+        retain_peer_review_ids,
+    )
+    .await?;
+
+    // Peer review questions
+    let existing_peer_review_questions =
+        crate::peer_review_questions::delete_peer_review_questions_by_peer_review_ids(
+            &mut tx,
+            &existing_peer_review_ids,
+        )
+        .await?;
+    let remapped_peer_review_questions = upsert_peer_review_questions(
+        &mut tx,
+        &existing_peer_review_questions,
+        &page_update.peer_review_questions,
+        retain_peer_review_question_ids,
+    )
+    .await?;
+
     // Set as deleted and get existing specs
     let existing_exercise_task_specs = sqlx::query_as!(
         ExerciseTaskIdAndSpec,
@@ -930,13 +959,16 @@ RETURNING id,
 
     let final_exercises: Vec<CmsPageExercise> = remapped_exercises.into_values().collect();
     let final_slides: Vec<CmsPageExerciseSlide> = remapped_exercise_slides.into_values().collect();
+    let final_peer_reviews: Vec<CmsPeerReview> = remapped_peer_reviews.into_values().collect();
+    let final_peer_review_questions: Vec<CmsPeerReviewQuestion> =
+        remapped_peer_review_questions.into_values().collect();
     let history_content = PageHistoryContent {
         content: page.content.clone(),
         exercises: final_exercises,
         exercise_slides: final_slides,
         exercise_tasks: final_tasks,
-        peer_reviews: page_update.peer_reviews,
-        peer_review_questions: page_update.peer_review_questions,
+        peer_reviews: final_peer_reviews,
+        peer_review_questions: final_peer_review_questions,
     };
     crate::page_history::insert(
         &mut tx,
@@ -1229,6 +1261,124 @@ RETURNING id,
     Ok(remapped_exercise_tasks)
 }
 
+pub async fn upsert_peer_reviews(
+    conn: &mut PgConnection,
+    existing_peer_reviews: &[Uuid],
+    peer_reviews: &Vec<CmsPeerReview>,
+    retain_peer_review_ids: bool,
+) -> ModelResult<HashMap<Uuid, CmsPeerReview>> {
+    let mut remapped_peer_reviews = HashMap::new();
+    for peer_review_update in peer_reviews {
+        let peer_review_exists = existing_peer_reviews
+            .iter()
+            .any(|id| *id == peer_review_update.id);
+        let safe_for_db_peer_review_id = if retain_peer_review_ids || peer_review_exists {
+            peer_review_update.id
+        } else {
+            Uuid::new_v4()
+        };
+
+        let peer_review = sqlx::query_as!(
+            CmsPeerReview,
+            r#"
+INSERT INTO peer_reviews (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_strategy,
+    accepting_threshold
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+UPDATE
+SET course_id = $2,
+  exercise_id = $3,
+  peer_reviews_to_give = $4,
+  peer_reviews_to_receive = $5,
+  accepting_strategy = $6,
+  accepting_threshold = $7
+RETURNING id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_strategy AS "accepting_strategy: _",
+  accepting_threshold;
+        "#,
+            safe_for_db_peer_review_id,
+            peer_review_update.course_id,
+            peer_review_update.exercise_id,
+            peer_review_update.peer_reviews_to_give,
+            peer_review_update.peer_reviews_to_receive,
+            peer_review_update.accepting_strategy as _,
+            peer_review_update.accepting_threshold
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        remapped_peer_reviews.insert(peer_review_update.id, peer_review);
+    }
+    Ok(remapped_peer_reviews)
+}
+
+pub async fn upsert_peer_review_questions(
+    conn: &mut PgConnection,
+    existing_peer_review_questions: &[Uuid],
+    peer_review_questions: &Vec<CmsPeerReviewQuestion>,
+    retain_peer_review_question_ids: bool,
+) -> ModelResult<HashMap<Uuid, CmsPeerReviewQuestion>> {
+    let mut remapped_peer_review_questions = HashMap::new();
+
+    for peer_review_question_update in peer_review_questions {
+        let peer_review_question_exists = existing_peer_review_questions
+            .iter()
+            .any(|id| *id == peer_review_question_update.id);
+        let safe_for_db_peer_review_question_id =
+            if retain_peer_review_question_ids || peer_review_question_exists {
+                peer_review_question_update.id
+            } else {
+                Uuid::new_v4()
+            };
+
+        let peer_review_question = sqlx::query_as!(
+            CmsPeerReviewQuestion,
+            r#"
+INSERT INTO peer_review_questions (
+    id,
+    peer_review_id,
+    order_number,
+    question,
+    question_type,
+    answer_required
+  )
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
+UPDATE
+SET peer_review_id = $2,
+  order_number = $3,
+  question = $4,
+  question_type = $5,
+  answer_required = $6
+RETURNING id,
+  peer_review_id,
+  order_number,
+  question,
+  question_type AS "question_type:_",
+  answer_required;
+        "#,
+            safe_for_db_peer_review_question_id,
+            peer_review_question_update.peer_review_id,
+            peer_review_question_update.order_number,
+            peer_review_question_update.question,
+            peer_review_question_update.question_type as _,
+            peer_review_question_update.answer_required
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        remapped_peer_review_questions.insert(peer_review_question_update.id, peer_review_question);
+    }
+    Ok(remapped_peer_review_questions)
+}
+
 /// Only used when testing.
 pub async fn update_page_content(
     conn: &mut PgConnection,
@@ -1407,6 +1557,8 @@ RETURNING id,
             chapter_id: page.chapter_id,
         },
         author,
+        false,
+        false,
         false,
         HistoryChangeReason::PageSaved,
         new_page.exam_id.is_some(),
@@ -2024,6 +2176,8 @@ pub async fn restore(
             chapter_id: page.chapter_id,
         },
         author,
+        true,
+        true,
         true,
         HistoryChangeReason::HistoryRestored,
         history_data.exam_id.is_some(),

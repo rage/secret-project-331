@@ -88,6 +88,8 @@ async fn update_page(
         page_update,
         user.id,
         false,
+        false,
+        false,
         HistoryChangeReason::PageSaved,
         is_exam_page,
     )

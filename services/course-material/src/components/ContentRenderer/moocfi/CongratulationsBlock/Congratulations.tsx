@@ -2,10 +2,10 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ConfettiBg from "../../../../img/confetti-bg.svg"
+import BackgroundImage from "../../../../img/congratulation-bg.svg"
 import { headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import ConfettiBg from "../../img/confetti-bg.svg"
-import BackgroundImage from "../../img/congratulation-bg.svg"
 
 import ModuleCard from "./ModuleCard"
 
@@ -111,7 +111,7 @@ const Congratulation = (/* { modules } */) => {
       <StyledBackground />
       <Content>
         <StyledSVG />
-        <h1 className="heading">{t("congratulation")}!</h1>
+        <h1 className="heading">{t("congratulations")}!</h1>
         <span className="subtitle">{subTitle}</span>
         {!isModule && (
           <CTAWrapper>

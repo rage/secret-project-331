@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import CircularCheck from "../../../../img/circular-check.svg"
 import { headingFont } from "../../../../shared-module/styles"
-import CircularCheck from "../../img/circular-check.svg"
 
 import { CTAWrapper, RegisterLink, StyledLink } from "./Congratulations"
 

@@ -1,8 +1,9 @@
 use crate::{
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules::CourseModule,
-    courses,
+    courses, open_university_registration_links,
     prelude::*,
+    user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
     users,
 };
@@ -107,6 +108,95 @@ fn user_is_eligible_for_automatic_completion(
     flags > 0
 }
 
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserCompletionInformation {
+    pub course_module_completion_id: Uuid,
+    pub course_name: String,
+    pub uh_course_code: String,
+    pub email: String,
+    pub ects_credits: Option<i32>,
+}
+
+pub async fn get_user_completion_information(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module: &CourseModule,
+) -> ModelResult<UserCompletionInformation> {
+    let user = users::get_by_id(conn, user_id).await?;
+    let course = courses::get_course(conn, course_module.course_id).await?;
+    let user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .await?
+            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+    let course_module_completion =
+        course_module_completions::get_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
+        )
+        .await?;
+    // Course code is required only so that fetching the link later works.
+    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+        ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
+    })?;
+    Ok(UserCompletionInformation {
+        course_module_completion_id: course_module_completion.id,
+        course_name: course_module
+            .name
+            .clone()
+            .unwrap_or_else(|| course.name.clone()),
+        uh_course_code,
+        ects_credits: course_module.ects_credits,
+        email: course_module_completion.email,
+    })
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CompletionRegistrationLink {
+    pub url: String,
+}
+
+pub async fn get_completion_registration_link_and_save_attempt(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module: &CourseModule,
+) -> ModelResult<CompletionRegistrationLink> {
+    let user = users::get_by_id(conn, user_id).await?;
+    let course = courses::get_course(conn, course_module.course_id).await?;
+    let user_settings =
+        user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
+            .await?
+            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+    let course_module_completion =
+        course_module_completions::get_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            user_settings.current_course_instance_id,
+            user.id,
+        )
+        .await?;
+    course_module_completions::update_completion_registration_attempt_date(
+        conn,
+        course_module_completion.id,
+        Utc::now(),
+    )
+    .await?;
+    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+        ModelError::PreconditionFailed(
+            "Course module doesn't have an assossiated University of Helsinki course code."
+                .to_string(),
+        )
+    })?;
+    let registration_link =
+        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?;
+    Ok(CompletionRegistrationLink {
+        url: registration_link,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -172,6 +262,7 @@ mod tests {
                 order_number: 0,
                 copied_from: None,
                 uh_course_code: None,
+                ects_credits: None,
                 automatic_completion,
                 automatic_completion_number_of_exercises_attempted_treshold,
                 automatic_completion_number_of_points_treshold,

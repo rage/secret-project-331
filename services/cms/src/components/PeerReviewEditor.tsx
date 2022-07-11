@@ -1,15 +1,14 @@
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { TextField } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CmsPeerReviewQuestion } from "../../../../shared-module/src/bindings"
-import TextAreaField from "../../../../shared-module/src/components/InputFields/EditableComponentTextArea"
-import SelectField from "../../../../shared-module/src/components/InputFields/SelectField"
-import TextField from "../../../../shared-module/src/components/InputFields/TextField"
-import { PeerReviewQuestionType } from "../shared-module/bindings"
+import { CmsPeerReviewQuestion, PeerReviewQuestionType } from "../shared-module/bindings"
+import SelectField from "../shared-module/components/InputFields/SelectField"
+import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 
 const Wrapper = styled.div`
   margin: 0 auto;

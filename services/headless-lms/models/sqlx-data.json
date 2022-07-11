@@ -429,40 +429,40 @@
     "query": "\nSELECT *\nFROM users\nWHERE id IN (\n    SELECT user_id\n    FROM course_instance_enrollments\n    WHERE course_instance_id = $1\n      AND deleted_at IS NULL\n  )\n"
   },
   "03f3ed8579184db44f729471638c65df2636a8e089d08bfd78c9806e7dcd0ddd": {
-    "query": "\nINSERT INTO open_university_registration_links (uh_course_code, registration_link)\nVALUES ($1, $2) ON CONFLICT (uh_course_code) DO\nUPDATE\nSET registration_link = $2,\n  deleted_at = NULL\nRETURNING *\n        ",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "uh_course_code",
+          "ordinal": 0,
           "type_info": "Varchar"
         },
         {
-          "ordinal": 1,
           "name": "created_at",
+          "ordinal": 1,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 2,
           "name": "updated_at",
+          "ordinal": 2,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 3,
           "name": "deleted_at",
+          "ordinal": 3,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 4,
           "name": "registration_link",
+          "ordinal": 4,
           "type_info": "Varchar"
         }
       ],
+      "nullable": [false, false, false, true, false],
       "parameters": {
         "Left": ["Varchar", "Varchar"]
-      },
-      "nullable": [false, false, false, true, false]
-    }
+      }
+    },
+    "query": "\nINSERT INTO open_university_registration_links (uh_course_code, registration_link)\nVALUES ($1, $2) ON CONFLICT (uh_course_code) DO\nUPDATE\nSET registration_link = $2,\n  deleted_at = NULL\nRETURNING *\n        "
   },
   "04af846484d55b34c279e32ea4c84693f927c102f56c087f559b161edf0c7413": {
     "describe": {
@@ -5774,20 +5774,11 @@
           "type_info": "Int4"
         },
         {
-          "ordinal": 12,
           "name": "ects_credits",
+          "ordinal": 12,
           "type_info": "Int4"
         }
       ],
-      "nullable": [false, false, false, true, false, true, false, true, true, false, true, true],
-      "parameters": {
-        "Left": ["Uuid"]
-<<<<<<< HEAD
-      }
-    },
-    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n"
-=======
-      },
       "nullable": [
         false,
         false,
@@ -5802,9 +5793,12 @@
         true,
         true,
         true
-      ]
-    }
->>>>>>> origin/master
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n"
   },
   "5994334eba8b775d80a31603a63fe24599b25205a00cc5de720edc14d2fd1058": {
     "describe": {
@@ -9320,20 +9314,20 @@
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        "
   },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
-    "query": "\nSELECT registration_link\nFROM open_university_registration_links\nWHERE uh_course_code = $1\n  AND deleted_at IS NULL\n        ",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "registration_link",
+          "ordinal": 0,
           "type_info": "Varchar"
         }
       ],
+      "nullable": [false],
       "parameters": {
         "Left": ["Text"]
-      },
-      "nullable": [false]
-    }
+      }
+    },
+    "query": "\nSELECT registration_link\nFROM open_university_registration_links\nWHERE uh_course_code = $1\n  AND deleted_at IS NULL\n        "
   },
   "9652669420679dc10d0189abe8ae6aa4b91651089117194ffc941cfcc3156572": {
     "describe": {
@@ -11042,75 +11036,75 @@
     "query": "\nINSERT INTO course_instances (\n    id,\n    course_id,\n    name,\n    description,\n    teacher_in_charge_name,\n    teacher_in_charge_email,\n    support_email\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\n"
   },
   "add811aa3b505e6cff5d2d2fa5530a92095ecc012cfbd6cd89e5abb4aef37e46": {
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages p\nWHERE p.chapter_id IS NULL\n  AND p.deleted_at IS NULL\n  AND course_id = $1\n  ORDER BY order_number DESC;\n    ",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "id",
+          "ordinal": 0,
           "type_info": "Uuid"
         },
         {
-          "ordinal": 1,
           "name": "created_at",
+          "ordinal": 1,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 2,
           "name": "updated_at",
+          "ordinal": 2,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 3,
           "name": "course_id",
+          "ordinal": 3,
           "type_info": "Uuid"
         },
         {
-          "ordinal": 4,
           "name": "exam_id",
+          "ordinal": 4,
           "type_info": "Uuid"
         },
         {
-          "ordinal": 5,
           "name": "chapter_id",
+          "ordinal": 5,
           "type_info": "Uuid"
         },
         {
-          "ordinal": 6,
           "name": "url_path",
+          "ordinal": 6,
           "type_info": "Varchar"
         },
         {
-          "ordinal": 7,
           "name": "title",
+          "ordinal": 7,
           "type_info": "Varchar"
         },
         {
-          "ordinal": 8,
           "name": "deleted_at",
+          "ordinal": 8,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 9,
           "name": "content",
+          "ordinal": 9,
           "type_info": "Jsonb"
         },
         {
-          "ordinal": 10,
           "name": "order_number",
+          "ordinal": 10,
           "type_info": "Int4"
         },
         {
-          "ordinal": 11,
           "name": "copied_from",
+          "ordinal": 11,
           "type_info": "Uuid"
         }
       ],
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true],
       "parameters": {
         "Left": ["Uuid"]
-      },
-      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
-    }
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages p\nWHERE p.chapter_id IS NULL\n  AND p.deleted_at IS NULL\n  AND course_id = $1\n  ORDER BY order_number DESC;\n    "
   },
   "aee1ac79f9af758cf20f1b486a12b0f07ced3949ab6f2256bc792291ed7424b5": {
     "describe": {
@@ -12442,20 +12436,20 @@
     "query": "\nUPDATE exams\nSET name = COALESCE($2, name),\n  starts_at = $3,\n  ends_at = $4,\n  time_minutes = $5\nWHERE id = $1\n"
   },
   "c621b6ffa2f217244e02b155b36b55aae80dbec02f5d5640f74ce202478009e3": {
-    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND deleted_at IS NULL\n",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "uh_course_code",
+          "ordinal": 0,
           "type_info": "Varchar"
         }
       ],
+      "nullable": [true],
       "parameters": {
         "Left": []
-      },
-      "nullable": [true]
-    }
+      }
+    },
+    "query": "\nSELECT DISTINCT uh_course_code\nFROM course_modules\nWHERE uh_course_code IS NOT NULL\n  AND deleted_at IS NULL\n"
   },
   "c6d5ffed3573883c9e69529464b8f96325fbbf5c4ea893ae9e7352d3ce48a70d": {
     "describe": {
@@ -14116,20 +14110,11 @@
           "type_info": "Int4"
         },
         {
-          "ordinal": 12,
           "name": "ects_credits",
+          "ordinal": 12,
           "type_info": "Int4"
         }
       ],
-      "nullable": [false, false, false, true, false, true, false, true, true, false, true, true],
-      "parameters": {
-        "Left": ["Uuid"]
-<<<<<<< HEAD
-      }
-    },
-    "query": "\nSELECT course_modules.*\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n        "
-=======
-      },
       "nullable": [
         false,
         false,
@@ -14144,9 +14129,12 @@
         true,
         true,
         true
-      ]
-    }
->>>>>>> origin/master
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT course_modules.*\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n        "
   },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
     "describe": {
@@ -14524,20 +14512,11 @@
           "type_info": "Int4"
         },
         {
-          "ordinal": 12,
           "name": "ects_credits",
+          "ordinal": 12,
           "type_info": "Int4"
         }
       ],
-      "nullable": [false, false, false, true, false, true, false, true, true, false, true, true],
-      "parameters": {
-        "Left": ["Uuid"]
-<<<<<<< HEAD
-      }
-    },
-    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        "
-=======
-      },
       "nullable": [
         false,
         false,
@@ -14552,9 +14531,12 @@
         true,
         true,
         true
-      ]
-    }
->>>>>>> origin/master
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND order_number = 0\n  AND deleted_at IS NULL\n        "
   },
   "ee7145229275ac980ffb6c1f156e3bd4e793b17a5c28c5eda9549fdb68eb6187": {
     "describe": {
@@ -15422,14 +15404,14 @@
     "query": "\nINSERT INTO course_module_completion_registered_to_study_registries (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7\n  )\nRETURNING id\n        "
   },
   "f9f28081a3acd033a648a9e80a8db64a0810eb2f93e59842b32d44ed8e2767dc": {
-    "query": "\nUPDATE course_module_completions\nSET completion_registration_attempt_date = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        ",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": ["Timestamptz", "Uuid"]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "\nUPDATE course_module_completions\nSET completion_registration_attempt_date = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        "
   },
   "fb18b61c85778ef2bffb9dc1d388e1f5d1a7f53af4ffbe102a731c39a353afe8": {
     "describe": {
@@ -15566,20 +15548,11 @@
           "type_info": "Int4"
         },
         {
-          "ordinal": 12,
           "name": "ects_credits",
+          "ordinal": 12,
           "type_info": "Int4"
         }
       ],
-      "nullable": [false, false, false, true, false, true, false, true, true, false, true, true],
-      "parameters": {
-        "Left": ["Uuid"]
-<<<<<<< HEAD
-      }
-    },
-    "query": "\nSELECT *\nFROM course_modules\nWHERE id = $1\n  AND deleted_at IS NULL\n        "
-=======
-      },
       "nullable": [
         false,
         false,
@@ -15594,9 +15567,12 @@
         true,
         true,
         true
-      ]
-    }
->>>>>>> origin/master
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_modules\nWHERE id = $1\n  AND deleted_at IS NULL\n        "
   },
   "fca8672f757656db6332543f9d4351224a1218c4387310e9447e70dad48af7cf": {
     "describe": {

@@ -202,6 +202,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  ects_credits: number | null
 }
 
 export interface Course {
@@ -514,6 +515,18 @@ export interface CourseMaterialPeerReviewSubmission {
   exercise_slide_submission_id: string
   peer_review_id: string
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+}
+
+export interface CompletionRegistrationLink {
+  url: string
+}
+
+export interface UserCompletionInformation {
+  course_module_completion_id: string
+  course_name: string
+  uh_course_code: string
+  email: string
+  ects_credits: number | null
 }
 
 export interface Organization {

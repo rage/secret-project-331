@@ -17,6 +17,7 @@ pub struct CourseModule {
     pub automatic_completion: bool,
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
+    pub ects_credits: Option<i32>,
 }
 
 pub async fn insert(

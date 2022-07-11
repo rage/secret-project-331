@@ -43,6 +43,7 @@ use headless_lms_models::{
             CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
+        progressing::{CompletionRegistrationLink, UserCompletionInformation},
     },
     material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
@@ -993,6 +994,22 @@ fn main() {
             user_upstream_id: id,
             tier: None
         }]
+    );
+    write_docs!(
+        UserCompletionInformation,
+        UserCompletionInformation {
+            course_module_completion_id: id,
+            course_name: "Course".to_string(),
+            email: "student@example.com".to_string(),
+            uh_course_code: "ABC123".to_string(),
+            ects_credits: Some(5),
+        }
+    );
+    write_docs!(
+        CompletionRegistrationLink,
+        CompletionRegistrationLink {
+            url: "https://www.example.com".to_string(),
+        }
     );
     write_docs!(
         Vec<bool>,

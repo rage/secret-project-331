@@ -1,0 +1,1 @@
+type CompletionRegistrationLink = { url: string }

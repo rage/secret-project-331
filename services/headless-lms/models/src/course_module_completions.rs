@@ -167,6 +167,26 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
+pub async fn update_completion_registration_attempt_date(
+    conn: &mut PgConnection,
+    id: Uuid,
+    completion_registration_attempt_date: DateTime<Utc>,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions
+SET completion_registration_attempt_date = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        Some(completion_registration_attempt_date),
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

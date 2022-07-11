@@ -1,13 +1,14 @@
 import React from "react"
 
 import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
-import Congratulation from "../../../../shared-module/components/Congratulation"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+
+import Congratulations from "./Congratulations"
 
 const CongratulationsBlock: React.FC = () => {
   return (
     <BreakFromCentered sidebar={false}>
-      <Congratulation />
+      <Congratulations />
     </BreakFromCentered>
   )
 }

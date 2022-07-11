@@ -1,10 +1,11 @@
 import styled from "@emotion/styled"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import ConfettiBg from "../../img/confetti-bg.svg"
 import BackgroundImage from "../../img/congratulation-bg.svg"
-import { headingFont } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
 
 import ModuleCard from "./ModuleCard"
 

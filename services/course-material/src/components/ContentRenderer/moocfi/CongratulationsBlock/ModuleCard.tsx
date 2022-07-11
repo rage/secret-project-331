@@ -1,10 +1,11 @@
 import styled from "@emotion/styled"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingFont } from "../../../../shared-module/styles"
 import CircularCheck from "../../img/circular-check.svg"
-import { headingFont } from "../../styles"
 
-import { CTAWrapper, RegisterLink, StyledLink } from "./index"
+import { CTAWrapper, RegisterLink, StyledLink } from "./Congratulations"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`

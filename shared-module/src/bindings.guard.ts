@@ -138,6 +138,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
 } from "./bindings"
@@ -971,6 +972,18 @@ export function isUserCompletionInformation(
     typeof obj.uh_course_code === "string" &&
     typeof obj.email === "string" &&
     (obj.ects_credits === null || typeof obj.ects_credits === "number")
+  )
+}
+
+export function isUserModuleCompletionStatus(
+  obj: any,
+  _argumentName?: string,
+): obj is UserModuleCompletionStatus {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.module_id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.completed === "boolean"
   )
 }
 

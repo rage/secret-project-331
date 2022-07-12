@@ -4,6 +4,7 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 
@@ -92,6 +93,34 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 }
 
 /**
+GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_module_completions_for_course_instance(
+    user: AuthUser,
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let module_completion_statuses =
+        models::library::progressing::get_user_module_completion_statuses_for_course_instance(
+            &mut conn,
+            user.id,
+            *course_instance_id,
+        )
+        .await?;
+    token.authorized_ok(web::Json(module_completion_statuses))
+}
+
+/**
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
 */
 #[generated_doc]
@@ -134,5 +163,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",
         web::get().to(get_user_progress_for_course_instance_chapter),
+    )
+    .route(
+        "/{course_instance_id}/module-completions",
+        web::get().to(get_module_completions_for_course_instance),
     );
 }

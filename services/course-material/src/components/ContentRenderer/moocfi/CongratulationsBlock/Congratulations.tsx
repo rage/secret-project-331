@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../../../img/confetti-bg.svg"
 import BackgroundImage from "../../../../img/congratulation-bg.svg"
+import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
 import { headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
@@ -93,17 +94,14 @@ const ModuleWrapper = styled.div`
   }
 `
 
-const modules = [
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Bonus module", title: "The Introduction to the University of Helsinki and ..." },
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
-]
-
 // eslint-disable-next-line i18next/no-literal-string
 const subTitle = "The passage experienced a surge in popularity during the again during the 90s as"
 
-const Congratulation = (/* { modules } */) => {
+export interface CongratulationsProps {
+  modules: Array<UserModuleCompletionStatus>
+}
+
+const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
   const { t } = useTranslation()
   const isModule = modules.length > 1
   return (
@@ -119,12 +117,16 @@ const Congratulation = (/* { modules } */) => {
             <StyledLink>{t("generate-certicate")}</StyledLink>
           </CTAWrapper>
         )}
-        <ModuleWrapper>
-          {isModule && modules.map(({ title, name }) => <ModuleCard title={title} key={name} />)}
-        </ModuleWrapper>
+        {isModule && (
+          <ModuleWrapper>
+            {modules.map(({ name, module_id }) => (
+              <ModuleCard key={module_id} title={name} />
+            ))}
+          </ModuleWrapper>
+        )}
       </Content>
     </Wrapper>
   )
 }
 
-export default Congratulation
+export default Congratulations

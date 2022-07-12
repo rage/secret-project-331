@@ -43,7 +43,9 @@ use headless_lms_models::{
             CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
-        progressing::{CompletionRegistrationLink, UserCompletionInformation},
+        progressing::{
+            CompletionRegistrationLink, UserCompletionInformation, UserModuleCompletionStatus,
+        },
     },
     material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
@@ -1004,6 +1006,14 @@ fn main() {
             uh_course_code: "ABC123".to_string(),
             ects_credits: Some(5),
         }
+    );
+    write_docs!(
+        Vec<UserModuleCompletionStatus>,
+        vec![UserModuleCompletionStatus {
+            module_id: id,
+            name: "Module".to_string(),
+            completed: true,
+        }]
     );
     write_docs!(
         CompletionRegistrationLink,

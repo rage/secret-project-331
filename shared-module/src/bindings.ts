@@ -529,6 +529,12 @@ export interface UserCompletionInformation {
   ects_credits: number | null
 }
 
+export interface UserModuleCompletionStatus {
+  module_id: string
+  name: string
+  completed: boolean
+}
+
 export interface Organization {
   id: string
   slug: string

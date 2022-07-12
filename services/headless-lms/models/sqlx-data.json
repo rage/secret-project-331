@@ -14373,6 +14373,108 @@
       "nullable": [false, true]
     }
   },
+  "f277300b53e828732168d2b58bdab1746b112ad732a2fef2b78487102b674c9c": {
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "completion_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "completion_registration_attempt_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "completion_language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "eligible_for_ects",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "grade",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "passed",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 14,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
+    }
+  },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {
     "query": "SELECT *\nFROM email_templates\nWHERE id = $1\n  AND deleted_at IS NULL",
     "describe": {

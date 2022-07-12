@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["post_completions","POST `/api/v0/completion-registered-to-study-registry` - Posts an array of registered completions to be marked as registered."]]});
+initSidebarItems({"fn":[["post_completions","POST `/api/v0/completion-registered-to-study-registry` - Posts an array of registered completions to be marked as registered."]]});

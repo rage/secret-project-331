@@ -69,7 +69,29 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/study-registry/completion-registered-to-study-registry`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The study registry provides an access to student completion records. It is generally only available</span>
+<span class="doccomment">//! to authorized study registries, meaning that most endpoints will require a valid authorization token</span>
+<span class="doccomment">//! to access.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When accessing study registry, the authorization token should be given as the following header:</span>
+<span class="doccomment">//! ```http</span>
+<span class="doccomment">//! Authorization: Basic documentationOnlyExampleSecretKey-12345</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For more details, please view the individual functions.</span>
 
 <span class="kw">use</span> <span class="ident">models::course_module_completion_registered_to_study_registries::RegisteredCompletion</span>;
 
@@ -82,9 +104,8 @@ marked as registered.
 This endpoint is only available to authorized study registries, and requires a valid authorization token
 to access.
 
-Example:
+# Example request:
 
-Request
 ```http
 POST /api/v0/completion-registered-to-study-registry HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
@@ -132,6 +153,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_completions</span>));
 }

@@ -23,11 +23,28 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/study-registry`.
 
-This documents all endpoints. Select a module below for a category.
+The study registry provides an access to student completion records. It is generally only available
+to authorized study registries, meaning that most endpoints will require a valid authorization token
+to access.
 
+When accessing study registry, the authorization token should be given as the following header:
+```http
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+```
+
+For more details, please view the submodules.
 */</span>
 
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};
@@ -36,6 +53,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">completions</span>;
 
 <span class="doccomment">/// Add controllers from all the submodules.</span>
+<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">service</span>(
         <span class="ident">web::scope</span>(<span class="string">&quot;/completion-registered-to-study-registry&quot;</span>)

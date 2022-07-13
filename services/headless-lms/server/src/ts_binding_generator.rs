@@ -150,6 +150,7 @@ fn ts_binding_generator() {
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+        pages::IsChapterFrontPage,
 
         peer_reviews::PeerReview,
         peer_reviews::PeerReviewAcceptingStrategy,

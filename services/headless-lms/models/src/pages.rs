@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{course_chapters, ChapterStatus, DatabaseChapter},
+    chapters::{course_chapters, get_chapter_by_page_id, ChapterStatus, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -191,6 +191,12 @@ pub struct ExerciseWithExerciseTasks {
     page_id: Uuid,
     exercise_tasks: Vec<ExerciseTask>,
     score_maximum: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct IsChapterFrontPage {
+    pub is_chapter_front_page: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -2157,6 +2163,22 @@ WHERE pages.order_number = $1
     }
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn is_chapter_front_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<IsChapterFrontPage> {
+    let chapter = get_chapter_by_page_id(conn, page_id).await?;
+
+    Ok(chapter.front_page_id.map_or(
+        IsChapterFrontPage {
+            is_chapter_front_page: false,
+        },
+        |id| IsChapterFrontPage {
+            is_chapter_front_page: id == page_id,
+        },
+    ))
 }
 
 #[cfg(test)]

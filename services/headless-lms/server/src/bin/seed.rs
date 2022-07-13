@@ -10,8 +10,8 @@ use headless_lms_models::{
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
-    course_instances,
     course_instances::NewCourseInstance,
+    course_instances::{self, CourseInstanceForm},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
     courses,
     courses::NewCourse,
@@ -23,7 +23,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, organizations,
+    glossary, open_university_registration_links, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -357,7 +357,7 @@ async fn main() -> Result<()> {
     .await?;
     let automatic_default_module =
         course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
-    course_modules::update_automatic_completion_status(
+    let automatic_default_module = course_modules::update_automatic_completion_status(
         &mut conn,
         automatic_default_module.id,
         &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
@@ -366,6 +366,14 @@ async fn main() -> Result<()> {
         }),
     )
     .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
+        .await?;
 
     roles::insert(
         &mut conn,
@@ -1398,6 +1406,20 @@ async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
         new_course,
         admin,
+    )
+    .await?;
+    course_instances::edit(
+        conn,
+        default_instance.id,
+        CourseInstanceForm {
+            name: default_instance.name,
+            description: default_instance.description,
+            teacher_in_charge_name: default_instance.teacher_in_charge_name,
+            teacher_in_charge_email: default_instance.teacher_in_charge_email,
+            support_email: default_instance.support_email,
+            opening_time: Some(Utc.ymd(2022, 1, 1).and_hms(0, 0, 0)),
+            closing_time: default_instance.ends_at,
+        },
     )
     .await?;
     course_instances::insert(

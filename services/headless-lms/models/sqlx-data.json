@@ -5564,6 +5564,96 @@
       "nullable": [true, false]
     }
   },
+  "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
+    "query": "\nUPDATE course_modules\nSET uh_course_code = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "automatic_completion",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 10,
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "automatic_completion_number_of_points_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 12,
+          "name": "ects_credits",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ]
+    }
+  },
   "53bfa80a5ca2c543393bbe2266c1129ea103eb4699aaf0fd1445b8daeb408cd0": {
     "query": "\nSELECT organization_id\nFROM exams\nWHERE id = $1\n",
     "describe": {

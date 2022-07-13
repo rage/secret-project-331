@@ -275,3 +275,25 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn update_uh_course_code(
+    conn: &mut PgConnection,
+    id: Uuid,
+    uh_course_code: Option<String>,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModule,
+        "
+UPDATE course_modules
+SET uh_course_code = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        uh_course_code,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

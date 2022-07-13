@@ -1,12 +1,17 @@
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { TextField } from "@mui/material"
+import { Switch, TextField } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { CmsPeerReviewQuestion, PeerReviewQuestionType } from "../shared-module/bindings"
+import {
+  CmsPeerReview,
+  CmsPeerReviewQuestion,
+  PeerReviewQuestionType,
+} from "../shared-module/bindings"
+import Button from "../shared-module/components/Button"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 
@@ -119,13 +124,26 @@ const HEADING_TEXT = "Configure review answers option"
 export interface PeerReviewEditorExtraProps {
   attributes: any
   setAttributes: (attr: any) => void
+  courseId: string
+  exerciseId: string
 }
 
 export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
   PeerReviewEditorExtraProps
 
-const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, setAttributes }) => {
-  const [state, setState] = useState<CmsPeerReviewQuestion[]>([])
+const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
+  id,
+  courseId,
+  exerciseId,
+  attributes,
+  setAttributes,
+}) => {
+  const [peerReviews, setPeerReviews] = useState(false)
+  const [peerReviewState, peerReviewSetState] = useState<CmsPeerReview[]>([])
+  const [peerReviewQuestionState, peerReviewQuestionSetState] = useState<CmsPeerReviewQuestion[]>(
+    [],
+  )
+
   const { t } = useTranslation()
 
   const options = [
@@ -134,10 +152,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, set
     { label: t("linkert-scale"), value: t("linkert-scale") },
   ]
 
-  const handleChange = (e: any) => {
+  const handlePeerReviewQuestionChange = (e: any) => {
     const id = e.parentElement.id
     const value = e.innerText
-    setState((prevState) => {
+    peerReviewQuestionSetState((prevState) => {
       return prevState.map((item) => {
         return item.id === id
           ? {
@@ -150,89 +168,165 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({ id, attributes, set
   }
 
   useEffect(
-    () => setAttributes({ ...attributes, peer_review_config: JSON.stringify(state) }),
-    [state, attributes, setAttributes],
+    () =>
+      setAttributes({
+        ...attributes,
+        peer_review_questions_config: JSON.stringify(peerReviewQuestionState),
+      }),
+    [peerReviewQuestionState],
+  )
+
+  useEffect(
+    () => setAttributes({ ...attributes, peer_review_config: JSON.stringify(peerReviewState) }),
+    [peerReviewState],
   )
 
   return (
-    <Wrapper>
-      <span>{t("peer-review-instructions")}</span>
-      <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
-
-      <h2>{HEADING_TEXT}</h2>
-      {state &&
-        state.map(({ id, question, question_type }) => (
-          <List key={id} id={id}>
-            <StyledQuestion>
-              <TextAreaField
-                onChange={handleChange}
-                defaultValue={question_type}
-                autoResize={true}
-              />
-            </StyledQuestion>
-            <StyledQuestionType>
-              <TextAreaField onChange={handleChange} defaultValue={question} autoResize={true} />
-            </StyledQuestionType>
-            <DeleteBtn
-              aria-label={t("delete")}
-              onClick={() => {
-                setState((prevState) => {
-                  return prevState.filter((o) => {
-                    return question !== o.question
-                  })
-                })
-              }}
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </DeleteBtn>
-          </List>
-        ))}
-      <StyledForm
-        onSubmit={(e: React.SyntheticEvent) => {
-          e.preventDefault()
-          const target = e.target as typeof e.target & {
-            question: { value: string }
-            questionType: { value: string }
-          }
-
-          const question = target.question.value
-          const type = target.questionType.value
-
-          // eslint-disable-next-line i18next/no-literal-string
-          const questionType: PeerReviewQuestionType = type === "Essay" ? "Essay" : "Scale"
-
-          if (question !== "" && type !== "") {
-            setState([
-              ...state,
-              {
-                // eslint-disable-next-line i18next/no-literal-string
-                id: v4(),
-                question,
-                question_type: questionType,
-                peer_review_id: v4(),
-                answer_required: true,
-                order_number: 0,
-              },
-            ])
-          }
-          target.question.value = ""
-          target.questionType.value = ""
+    <>
+      <Switch
+        value={peerReviews}
+        onClick={() => {
+          setPeerReviews(!peerReviews)
+          setAttributes({
+            ...attributes,
+            peer_review_questions_config: "",
+            peer_review_config: "",
+          })
         }}
-      >
-        <StyledSelectField
-          id={`question-type-${id}`}
-          name={TYPE}
-          placeholder={PLACEHOLDER}
-          options={options}
-          onChange={() => null}
-          onBlur={() => null}
-        />
-        <TextField name={QUESTION} placeholder={QUESTION_PLACEHOLDER} onChange={() => null} />
-        <StyledBtn aria-label={t("submit")} type="submit" name={t("submit")} value={t("submit")}>
-          <FontAwesomeIcon icon={faXmark} />
-        </StyledBtn>
-      </StyledForm>
-    </Wrapper>
+      ></Switch>
+      {peerReviews && (
+        <div>
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() =>
+              peerReviewSetState([
+                ...peerReviewState,
+                {
+                  id: v4(),
+                  course_id: courseId,
+                  exercise_id: exerciseId,
+                  peer_reviews_to_give: 0,
+                  peer_reviews_to_receive: 0,
+                  // eslint-disable-next-line i18next/no-literal-string
+                  accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+                  accepting_threshold: 0,
+                },
+              ])
+            }
+          >
+            {t("add-peer-review")}
+          </Button>
+          {peerReviewState.map((pr) => {
+            return (
+              <div key={pr.id} id={pr.id}>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={() => {
+                    peerReviewSetState((prevState) => {
+                      return prevState.filter((x) => pr.id !== x.id)
+                    })
+                  }}
+                >
+                  {t("delete")}
+                </Button>
+                <Wrapper>
+                  <span>{t("peer-review-instructions")}</span>
+                  <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
+
+                  <h2>{HEADING_TEXT}</h2>
+                  {peerReviewQuestionState &&
+                    peerReviewQuestionState.map(({ id, question, question_type }) => (
+                      <List key={id} id={id}>
+                        <StyledQuestion>
+                          <TextAreaField
+                            onChange={handlePeerReviewQuestionChange}
+                            defaultValue={question_type}
+                            autoResize={true}
+                          />
+                        </StyledQuestion>
+                        <StyledQuestionType>
+                          <TextAreaField
+                            onChange={handlePeerReviewQuestionChange}
+                            defaultValue={question}
+                            autoResize={true}
+                          />
+                        </StyledQuestionType>
+                        <DeleteBtn
+                          aria-label={t("delete")}
+                          onClick={() => {
+                            peerReviewQuestionSetState((prevState) => {
+                              return prevState.filter((o) => {
+                                return question !== o.question
+                              })
+                            })
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </DeleteBtn>
+                      </List>
+                    ))}
+                  <StyledForm
+                    onSubmit={(e: React.SyntheticEvent) => {
+                      e.preventDefault()
+                      const target = e.target as typeof e.target & {
+                        question: { value: string }
+                        questionType: { value: string }
+                      }
+
+                      const question = target.question.value
+                      const type = target.questionType.value
+
+                      if (question !== "" && type !== "") {
+                        const questionType: PeerReviewQuestionType =
+                          // eslint-disable-next-line i18next/no-literal-string
+                          type === "Essay" ? "Essay" : "Scale"
+                        peerReviewQuestionSetState([
+                          ...peerReviewQuestionState,
+                          {
+                            id: v4(),
+                            question,
+                            question_type: questionType,
+                            peer_review_id: pr.id,
+                            answer_required: true,
+                            order_number: 0,
+                          },
+                        ])
+                      }
+                      target.question.value = ""
+                      target.questionType.value = ""
+                    }}
+                  >
+                    <StyledSelectField
+                      id={`question-type-${id}`}
+                      name={TYPE}
+                      placeholder={PLACEHOLDER}
+                      options={options}
+                      onChange={() => null}
+                      onBlur={() => null}
+                    />
+                    <TextField
+                      name={QUESTION}
+                      placeholder={QUESTION_PLACEHOLDER}
+                      onChange={() => null}
+                    />
+                    <StyledBtn
+                      aria-label={t("submit")}
+                      type="submit"
+                      name={t("submit")}
+                      value={t("submit")}
+                    >
+                      <FontAwesomeIcon icon={faXmark} />
+                    </StyledBtn>
+                  </StyledForm>
+                </Wrapper>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </>
   )
 }
 

@@ -52,11 +52,11 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     },
     peer_review_config: {
       type: "string",
-      default: undefined,
+      default: "[]",
     },
     peer_review_questions_config: {
       type: "string",
-      default: undefined,
+      default: "[]",
     },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),

@@ -528,6 +528,27 @@ pub async fn get_user_course_instance_chapter_progress(
     Ok(result)
 }
 
+pub async fn get_chapter_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<DatabaseChapter> {
+    let chapter = sqlx::query_as!(
+        DatabaseChapter,
+        "
+SELECT c.*
+FROM chapters c,
+  pages p
+WHERE c.id = p.chapter_id
+  AND p.id = $1;
+    ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

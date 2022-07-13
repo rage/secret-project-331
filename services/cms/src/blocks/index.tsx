@@ -16,6 +16,7 @@ import HeroSection from "./HeroSection"
 import InfoBox from "./InfoBox"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
+import LearningObjectives from "./LearningObjectives"
 import PagesInChapter from "./PagesInChapter"
 import SponsorBlock from "./Sponsor"
 import TopLevelPage from "./TopLevelPage"
@@ -38,6 +39,7 @@ export const blockTypeMapForPages = [
   ["moocfi/hero-section", HeroSection],
   ["moocfi/infobox", InfoBox],
   ["moocfi/latex", Latex],
+  ["moocfi/learning-objectives", LearningObjectives],
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

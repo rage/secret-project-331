@@ -52,8 +52,8 @@ use headless_lms_models::{
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
-        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
+        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
+        PageInfo, PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
     peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
@@ -942,6 +942,12 @@ fn main() {
             }],
             exercise,
             exercise_slide_submission: exercise_slide_submission.clone(),
+        }
+    );
+    write_docs!(
+        IsChapterFrontPage,
+        IsChapterFrontPage {
+            is_chapter_front_page: true
         }
     );
     write_docs!(

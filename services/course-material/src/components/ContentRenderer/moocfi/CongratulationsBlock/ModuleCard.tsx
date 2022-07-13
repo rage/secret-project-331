@@ -3,9 +3,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CircularCheck from "../../../../img/circular-check.svg"
+import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
 import { headingFont } from "../../../../shared-module/styles"
 
-import { CTAWrapper, RegisterLink, StyledLink } from "./Congratulations"
+import { CTAWrapper, StyledLink } from "./Congratulations"
+
+const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -33,20 +37,23 @@ const StyledSVG = styled(CircularCheck)`
   top: 26px;
   right: 29px;
 `
-interface ModuleCardEXtraProps {
-  title: string
+
+export interface ModuleCardProps {
+  module: UserModuleCompletionStatus
 }
 
-export type ModuleType = React.HTMLAttributes<HTMLDivElement> & ModuleCardEXtraProps
-
-const ModuleCard: React.FC<ModuleType> = ({ title }) => {
+const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
   const { t } = useTranslation()
   return (
     <Wrapper>
-      <StyledSVG />
-      <h3>{title}</h3>
+      {module.completed && <StyledSVG />}
+      <h3>{module.name}</h3>
       <CTAWrapper>
-        <RegisterLink>{t("register")}</RegisterLink>
+        <a href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}>
+          <Button variant="tertiary" size="large" disabled={!module.completed}>
+            {t("register")}
+          </Button>
+        </a>
         <StyledLink>{t("generate-certicate")}</StyledLink>
       </CTAWrapper>
     </Wrapper>

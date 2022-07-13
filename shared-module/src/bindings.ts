@@ -530,9 +530,10 @@ export interface UserCompletionInformation {
 }
 
 export interface UserModuleCompletionStatus {
+  completed: boolean
+  default: boolean
   module_id: string
   name: string
-  completed: boolean
 }
 
 export interface Organization {

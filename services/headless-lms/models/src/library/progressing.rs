@@ -159,9 +159,10 @@ pub async fn get_user_completion_information(
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserModuleCompletionStatus {
+    pub completed: bool,
+    pub default: bool,
     pub module_id: Uuid,
     pub name: String,
-    pub completed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -185,10 +186,11 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
         .collect();
     let course_module_completion_statuses = course_modules
         .into_iter()
-        .map(|x| UserModuleCompletionStatus {
-            module_id: x.id,
-            name: x.name.unwrap_or_else(|| course.name.clone()),
-            completed: course_module_completions.contains(&x.id),
+        .map(|module| UserModuleCompletionStatus {
+            completed: course_module_completions.contains(&module.id),
+            default: module.is_default_module(),
+            module_id: module.id,
+            name: module.name.unwrap_or_else(|| course.name.clone()),
         })
         .collect();
     Ok(course_module_completion_statuses)

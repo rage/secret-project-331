@@ -94,33 +94,32 @@ const ModuleWrapper = styled.div`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const subTitle = "The passage experienced a surge in popularity during the again during the 90s as"
-
 export interface CongratulationsProps {
   modules: Array<UserModuleCompletionStatus>
 }
 
 const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
   const { t } = useTranslation()
-  const isModule = modules.length > 1
+  const multipleModules = modules.length > 1
   return (
     <Wrapper>
       <StyledBackground />
       <Content>
         <StyledSVG />
         <h1 className="heading">{t("congratulations")}!</h1>
-        <span className="subtitle">{subTitle}</span>
-        {!isModule && (
+        <span className="subtitle">
+          {t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")}
+        </span>
+        {!multipleModules && (
           <CTAWrapper>
             <RegisterLink>{t("register")}</RegisterLink>
             <StyledLink>{t("generate-certicate")}</StyledLink>
           </CTAWrapper>
         )}
-        {isModule && (
+        {multipleModules && (
           <ModuleWrapper>
-            {modules.map(({ name, module_id }) => (
-              <ModuleCard key={module_id} title={name} />
+            {modules.map((module) => (
+              <ModuleCard key={module.module_id} module={module} />
             ))}
           </ModuleWrapper>
         )}

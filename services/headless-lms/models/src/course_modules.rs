@@ -20,6 +20,12 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
+impl CourseModule {
+    pub fn is_default_module(&self) -> bool {
+        self.order_number == 0
+    }
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,

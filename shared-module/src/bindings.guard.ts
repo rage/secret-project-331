@@ -981,9 +981,10 @@ export function isUserModuleCompletionStatus(
 ): obj is UserModuleCompletionStatus {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.completed === "boolean" &&
+    typeof obj.default === "boolean" &&
     typeof obj.module_id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.completed === "boolean"
+    typeof obj.name === "string"
   )
 }
 

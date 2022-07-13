@@ -1010,9 +1010,10 @@ fn main() {
     write_docs!(
         Vec<UserModuleCompletionStatus>,
         vec![UserModuleCompletionStatus {
+            completed: true,
+            default: false,
             module_id: id,
             name: "Module".to_string(),
-            completed: true,
         }]
     );
     write_docs!(

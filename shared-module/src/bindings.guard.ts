@@ -1241,7 +1241,7 @@ export function isPageChapterAndCourseInformation(
 export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.is_front_page === "boolean"
+    typeof obj.is_chapter_front_page === "boolean"
   )
 }
 

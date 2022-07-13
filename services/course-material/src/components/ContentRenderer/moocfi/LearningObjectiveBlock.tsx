@@ -9,10 +9,12 @@ import PageContext from "../../../contexts/PageContext"
 import Check from "../../../img/checkmark.svg"
 import { isPageFrontPage } from "../../../services/backend"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../../shared-module/components/Centering/Centered"
 import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 
+// Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.
 const Wrapper = styled.div`
   margin: 2rem auto;
   max-width: 1000px;
@@ -87,41 +89,47 @@ const LearningObjectiveSectionBlock: React.FC<BlockRendererProps<LearningObjecti
     { enabled: pageId !== undefined },
   )
 
-  // TODO redo, and what's up with the title?
-  const heading = false
-    ? props.data.attributes.title + " " + t("chapter")
-    : props.data.attributes.title + " " + t("page")
+  let heading = ""
+  if (isChapterFrontPageQuery.data !== undefined) {
+    heading = isChapterFrontPageQuery.data.is_chapter_front_page
+      ? t("title-what-youll-learn-in-this-chapter")
+      : t("title-what-youll-learn-in-this-page")
+  }
   return (
     <BreakFromCentered sidebar={false}>
-      <Wrapper>
-        <Header>
-          <h2
-            className={css`
-              text-transform: uppercase;
-            `}
-          >
-            {heading}
-          </h2>
-        </Header>
-        <Content>
-          {props.data.innerBlocks.map(({ attributes, clientId }) => {
-            // @ts-expect-error: innerblocks should only by lists
-            const values = attributes.values
-            const parser = new DOMParser()
-            // eslint-disable-next-line i18next/no-literal-string
-            const listItem = parser.parseFromString(values, "text/html")
-            const children: string[] = [].slice
-              .call(listItem.body.childNodes)
-              .map(({ innerHTML }) => innerHTML)
-            return children.map((childHtml) => (
-              <StyledObjectives key={clientId}>
-                <StyledCheck />
-                <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }} />
-              </StyledObjectives>
-            ))
-          })}
-        </Content>
-      </Wrapper>
+      <Centered variant="default">
+        <Wrapper>
+          <Header>
+            <h2
+              className={css`
+                text-transform: uppercase;
+              `}
+            >
+              {heading}
+            </h2>
+          </Header>
+          <Content>
+            {props.data.innerBlocks.map(({ attributes, clientId }) => {
+              // @ts-expect-error: innerblocks should only by lists
+              const values = attributes.values
+              const parser = new DOMParser()
+              // eslint-disable-next-line i18next/no-literal-string
+              const listItem = parser.parseFromString(values, "text/html")
+              const children: string[] = [].slice
+                .call(listItem.body.childNodes)
+                .map(({ innerHTML }) => innerHTML)
+              return children.map((childHtml) => (
+                <StyledObjectives key={clientId}>
+                  <StyledCheck />
+                  <span
+                    dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(childHtml) }}
+                  />
+                </StyledObjectives>
+              ))
+            })}
+          </Content>
+        </Wrapper>
+      </Centered>
     </BreakFromCentered>
   )
 }

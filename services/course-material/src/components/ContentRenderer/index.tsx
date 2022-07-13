@@ -117,7 +117,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/course-progress": CourseProgressBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
-  "moocfi/learning-objective-section": LearningObjectiveBlock,
+  "moocfi/learning-objectives": LearningObjectiveBlock,
   "moocfi/glossary": GlossaryBlock,
   "moocfi/infobox": InfoBox,
   "moocfi/sponsor": SponsorBlock,

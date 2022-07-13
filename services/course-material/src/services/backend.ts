@@ -40,6 +40,8 @@ import {
   isCourseMaterialPeerReviewData,
   isCoursePageWithUserData,
   isExamData,
+  isIsChapterFrontPage,
+  isMaterialReference,
   isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
@@ -379,7 +381,8 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
 }
 
 export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {
-  return (await courseMaterialClient.get(`/courses/${courseId}/references`)).data
+  const response = await courseMaterialClient.get(`/courses/${courseId}/references`)
+  return validateResponse(response, isArray(isMaterialReference))
 }
 
 export const postNewReference = async (
@@ -390,5 +393,6 @@ export const postNewReference = async (
 }
 
 export const isPageFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
-  return (await courseMaterialClient.get(`/pages/${pageId}`)).data
+  const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
+  return validateResponse(response, isIsChapterFrontPage)
 }

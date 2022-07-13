@@ -985,9 +985,7 @@
     "isValid": true
   },
   {
-    "attributes": {
-      "title": "What you will learn in this"
-    },
+    "attributes": {},
     "clientId": "1d7f1ee6-4128-457c-b293-14ca913f0dc8",
     "innerBlocks": [
       {
@@ -1003,7 +1001,7 @@
       }
     ],
     "isValid": true,
-    "name": "moocfi/learning-objective-section"
+    "name": "moocfi/learning-objectives"
   },
   {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",

@@ -1,49 +1,74 @@
-import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
-import {
-  CMS_EDITOR_SIDEBAR_THRESHOLD,
-  CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
-
-import { LearningObjectiveSectionAttributes } from "."
 
 const ALLOWED_NESTED_BLOCKS = ["core/list"]
 const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
   ["core/list", { placeholder: "Insert text...", align: "left" }],
 ]
 
-const LearningObjectiveSectionEditor: React.FC<
-  BlockEditProps<LearningObjectiveSectionAttributes>
-> = ({ clientId }) => {
+const Wrapper = styled.div`
+  margin: 2rem auto;
+  max-width: 1000px;
+  height: auto;
+`
+const Header = styled.div`
+  background: #44827e;
+  text-align: center;
+  min-height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.5rem;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+`
+const Content = styled.div`
+  background: rgba(229, 224, 241, 0.05);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 30px;
+  column-gap: 5px;
+  border-right: 1px solid #e5e0f1;
+  border-left: 1px solid #e5e0f1;
+  border-bottom: 1px solid #e5e0f1;
+
+  @media (max-width: 767.98px) {
+    padding: 1rem 1rem 2rem 1rem;
+    grid-template-columns: 1fr;
+    row-gap: 25px;
+  }
+`
+
+const LearningObjectiveSectionEditor: React.FC<BlockEditProps<Record<string, unknown>>> = ({
+  clientId,
+}) => {
+  const { t } = useTranslation()
   return (
     <BlockWrapper id={clientId}>
-      <BreakFromCentered
-        sidebar
-        sidebarPosition="right"
-        sidebarWidth={CMS_EDITOR_SIDEBAR_WIDTH}
-        sidebarThreshold={CMS_EDITOR_SIDEBAR_THRESHOLD}
-      >
-        <div
-          className={css`
-            background: ${baseTheme.colors.clear[100]};
-            width: 100%;
-            border-radius: 1px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            padding: 7.5em 1em;
-          `}
-        >
+      <Header>
+        <h2>{t("learning-objectives")}</h2>
+      </Header>
+      <Content>
+        <Wrapper>
           <InnerBlocks
             template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
             allowedBlocks={ALLOWED_NESTED_BLOCKS}
+            // eslint-disable-next-line i18next/no-literal-string
+            templateLock="all"
           />
-        </div>
-      </BreakFromCentered>
+        </Wrapper>
+      </Content>
     </BlockWrapper>
   )
 }

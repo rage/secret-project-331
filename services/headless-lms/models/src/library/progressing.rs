@@ -163,6 +163,7 @@ pub struct UserModuleCompletionStatus {
     pub default: bool,
     pub module_id: Uuid,
     pub name: String,
+    pub order_number: i32,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -191,6 +192,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
             default: module.is_default_module(),
             module_id: module.id,
             name: module.name.unwrap_or_else(|| course.name.clone()),
+            order_number: module.order_number,
         })
         .collect();
     Ok(course_module_completion_statuses)

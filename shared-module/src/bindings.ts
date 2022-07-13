@@ -534,6 +534,7 @@ export interface UserModuleCompletionStatus {
   default: boolean
   module_id: string
   name: string
+  order_number: number
 }
 
 export interface Organization {

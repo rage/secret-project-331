@@ -984,7 +984,8 @@ export function isUserModuleCompletionStatus(
     typeof obj.completed === "boolean" &&
     typeof obj.default === "boolean" &&
     typeof obj.module_id === "string" &&
-    typeof obj.name === "string"
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
   )
 }
 

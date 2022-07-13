@@ -118,9 +118,11 @@ const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
         )}
         {multipleModules && (
           <ModuleWrapper>
-            {modules.map((module) => (
-              <ModuleCard key={module.module_id} module={module} />
-            ))}
+            {modules
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((module) => (
+                <ModuleCard key={module.module_id} module={module} />
+              ))}
           </ModuleWrapper>
         )}
       </Content>

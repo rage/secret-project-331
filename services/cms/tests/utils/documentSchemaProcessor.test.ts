@@ -95,8 +95,27 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       },
     },
   ],
-  peer_reviews: [],
-  peer_review_questions: [],
+  peer_reviews: [
+    {
+      id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+      course_id: "",
+      exercise_id: "dd46fb67-d168-4554-b912-0018f812166d",
+      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+      accepting_threshold: 0.5,
+      peer_reviews_to_give: 1,
+      peer_reviews_to_receive: 1,
+    },
+  ],
+  peer_review_questions: [
+    {
+      id: "f3c8eadd-75ca-409f-b1c6-31db65701930",
+      peer_review_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+      answer_required: true,
+      order_number: 0,
+      question: "how about...",
+      question_type: "Essay",
+    },
+  ],
   url_path: "/path/to/page",
   title: "Example page",
   chapter_id: "babb2322-8bdf-417f-be05-89b2263f4851",
@@ -110,8 +129,10 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
   needs_peer_review: false,
-  peer_review_config: "",
-  peer_review_questions_config: "",
+  peer_review_config:
+    '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","accepting_strategy":"AutomaticallyAcceptOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
+  peer_review_questions_config:
+    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay"}]',
 }
 
 // Doing this separately so that we get type errors when the type changes

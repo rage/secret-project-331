@@ -2281,6 +2281,28 @@
 <span id="2276">2276</span>
 <span id="2277">2277</span>
 <span id="2278">2278</span>
+<span id="2279">2279</span>
+<span id="2280">2280</span>
+<span id="2281">2281</span>
+<span id="2282">2282</span>
+<span id="2283">2283</span>
+<span id="2284">2284</span>
+<span id="2285">2285</span>
+<span id="2286">2286</span>
+<span id="2287">2287</span>
+<span id="2288">2288</span>
+<span id="2289">2289</span>
+<span id="2290">2290</span>
+<span id="2291">2291</span>
+<span id="2292">2292</span>
+<span id="2293">2293</span>
+<span id="2294">2294</span>
+<span id="2295">2295</span>
+<span id="2296">2296</span>
+<span id="2297">2297</span>
+<span id="2298">2298</span>
+<span id="2299">2299</span>
+<span id="2300">2300</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2294,7 +2316,7 @@
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="ident">course_chapters</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
+    <span class="ident">chapters</span>::{<span class="ident">course_chapters</span>, <span class="ident">get_chapter_by_page_id</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
     <span class="ident">courses</span>::{<span class="ident">get_nondeleted_course_id_by_slug</span>, <span class="ident">Course</span>},
     <span class="ident">exercise_service_info</span>,
@@ -2474,6 +2496,12 @@
     <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_tasks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseTask</span><span class="op">&gt;</span>,
     <span class="ident">score_maximum</span>: <span class="ident">i32</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IsChapterFrontPage</span> {
+    <span class="kw">pub</span> <span class="ident">is_chapter_front_page</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -4440,6 +4468,22 @@ WHERE pages.order_number = $1
     }
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">is_chapter_front_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">IsChapterFrontPage</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">get_chapter_by_page_id</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">chapter</span>.<span class="ident">front_page_id</span>.<span class="ident">map_or</span>(
+        <span class="ident">IsChapterFrontPage</span> {
+            <span class="ident">is_chapter_front_page</span>: <span class="bool-val">false</span>,
+        },
+        <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">IsChapterFrontPage</span> {
+            <span class="ident">is_chapter_front_page</span>: <span class="ident">id</span> <span class="op">==</span> <span class="ident">page_id</span>,
+        },
+    ))
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

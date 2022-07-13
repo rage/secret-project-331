@@ -1034,6 +1034,12 @@
 <span id="1029">1029</span>
 <span id="1030">1030</span>
 <span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1086,8 +1092,8 @@
     <span class="ident">page_history</span>::{<span class="ident">HistoryChangeReason</span>, <span class="ident">PageHistory</span>},
     <span class="ident">pages</span>::{
         <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">ContentManagementPage</span>,
-        <span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageInfo</span>,
-        <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
+        <span class="ident">CoursePageWithUserData</span>, <span class="ident">IsChapterFrontPage</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>,
+        <span class="ident">PageInfo</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
     },
     <span class="ident">peer_review_questions</span>::{<span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
     <span class="ident">peer_reviews</span>::{<span class="ident">PeerReview</span>, <span class="ident">PeerReviewAcceptingStrategy</span>},
@@ -1976,6 +1982,12 @@
             }],
             <span class="ident">exercise</span>,
             <span class="ident">exercise_slide_submission</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">clone</span>(),
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">IsChapterFrontPage</span>,
+        <span class="ident">IsChapterFrontPage</span> {
+            <span class="ident">is_chapter_front_page</span>: <span class="bool-val">true</span>
         }
     );
     <span class="macro">write_docs!</span>(

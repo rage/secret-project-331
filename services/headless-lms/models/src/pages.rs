@@ -791,9 +791,7 @@ pub async fn update_page(
     page_id: Uuid,
     page_update: CmsPageUpdate,
     author: Uuid,
-    retain_exercise_ids: bool,
-    retain_peer_review_ids: bool,
-    retain_peer_review_question_ids: bool,
+    retain_ids: bool,
     history_change_reason: HistoryChangeReason,
     is_exam_page: bool,
 ) -> ModelResult<ContentManagementPage> {
@@ -851,7 +849,7 @@ RETURNING id,
         &page,
         &existing_exercise_ids,
         &page_update.exercises,
-        retain_exercise_ids,
+        retain_ids,
     )
     .await?;
 
@@ -867,7 +865,7 @@ RETURNING id,
         &remapped_exercises,
         &existing_exercise_slide_ids,
         &page_update.exercise_slides,
-        retain_exercise_ids,
+        retain_ids,
     )
     .await?;
 
@@ -879,7 +877,7 @@ RETURNING id,
         &mut tx,
         &existing_peer_review_ids,
         &page_update.peer_reviews,
-        retain_peer_review_ids,
+        retain_ids,
     )
     .await?;
 
@@ -894,7 +892,7 @@ RETURNING id,
         &mut tx,
         &existing_peer_review_questions,
         &page_update.peer_review_questions,
-        retain_peer_review_question_ids,
+        retain_ids,
     )
     .await?;
 
@@ -919,7 +917,7 @@ RETURNING id,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
         &page_update.exercise_tasks,
-        retain_exercise_ids,
+        retain_ids,
     )
     .await?;
 
@@ -1265,14 +1263,14 @@ pub async fn upsert_peer_reviews(
     conn: &mut PgConnection,
     existing_peer_reviews: &[Uuid],
     peer_reviews: &Vec<CmsPeerReview>,
-    retain_peer_review_ids: bool,
+    retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReview>> {
     let mut remapped_peer_reviews = HashMap::new();
     for peer_review_update in peer_reviews {
         let peer_review_exists = existing_peer_reviews
             .iter()
             .any(|id| *id == peer_review_update.id);
-        let safe_for_db_peer_review_id = if retain_peer_review_ids || peer_review_exists {
+        let safe_for_db_peer_review_id = if retain_ids || peer_review_exists {
             peer_review_update.id
         } else {
             Uuid::new_v4()
@@ -1325,7 +1323,7 @@ pub async fn upsert_peer_review_questions(
     conn: &mut PgConnection,
     existing_peer_review_questions: &[Uuid],
     peer_review_questions: &Vec<CmsPeerReviewQuestion>,
-    retain_peer_review_question_ids: bool,
+    retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReviewQuestion>> {
     let mut remapped_peer_review_questions = HashMap::new();
 
@@ -1333,12 +1331,11 @@ pub async fn upsert_peer_review_questions(
         let peer_review_question_exists = existing_peer_review_questions
             .iter()
             .any(|id| *id == peer_review_question_update.id);
-        let safe_for_db_peer_review_question_id =
-            if retain_peer_review_question_ids || peer_review_question_exists {
-                peer_review_question_update.id
-            } else {
-                Uuid::new_v4()
-            };
+        let safe_for_db_peer_review_question_id = if retain_ids || peer_review_question_exists {
+            peer_review_question_update.id
+        } else {
+            Uuid::new_v4()
+        };
 
         let peer_review_question = sqlx::query_as!(
             CmsPeerReviewQuestion,
@@ -1557,8 +1554,6 @@ RETURNING id,
             chapter_id: page.chapter_id,
         },
         author,
-        false,
-        false,
         false,
         HistoryChangeReason::PageSaved,
         new_page.exam_id.is_some(),
@@ -2176,8 +2171,6 @@ pub async fn restore(
             chapter_id: page.chapter_id,
         },
         author,
-        true,
-        true,
         true,
         HistoryChangeReason::HistoryRestored,
         history_data.exam_id.is_some(),

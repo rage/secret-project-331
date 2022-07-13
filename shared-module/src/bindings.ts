@@ -707,6 +707,10 @@ export interface PageChapterAndCourseInformation {
   organization_slug: string
 }
 
+export interface IsChapterFrontPage {
+  is_chapter_front_page: boolean
+}
+
 export interface PeerReview {
   id: string
   created_at: Date

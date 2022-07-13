@@ -84,6 +84,7 @@ import {
   GradingProgress,
   HistoryChangeReason,
   HistoryRestoreData,
+  IsChapterFrontPage,
   Login,
   MarkAsRead,
   MaterialReference,
@@ -1234,6 +1235,13 @@ export function isPageChapterAndCourseInformation(
     (obj.chapter_front_page_url_path === null ||
       typeof obj.chapter_front_page_url_path === "string") &&
     typeof obj.organization_slug === "string"
+  )
+}
+
+export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.is_chapter_front_page === "boolean"
   )
 }
 

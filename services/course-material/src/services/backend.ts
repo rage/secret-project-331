@@ -80,6 +80,13 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
   return validateResponse(response, isArray(isCourse))
 }
 
+export const fetchTopLevelPages = async (courseId: string): Promise<Array<Page>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/top-level-pages`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isPage))
+}
+
 export interface Block<T> {
   name: string
   isValid: boolean

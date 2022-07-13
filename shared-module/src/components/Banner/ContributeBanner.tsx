@@ -14,7 +14,7 @@ const Cover = () => (
     viewBox="0 0 1920 257"
     preserveAspectRatio="xMidYMid slice"
   >
-    <rect className="cover" width="1920" height="257" fill="#f9f9f9" />
+    <rect width="1920" height="257" fill="#f9f9f9" />
     <path
       d="M1326.5,132a35.5,35.5,0,1,0,25.1,10.4A35.5,35.5,0,0,0,1326.5,132Zm0,67.175a31.587,31.587,0,1,1,22.32-9.253A31.571,31.571,0,0,1,1326.5,199.175Z"
       fill="rgba(35,146,120,0.2)"
@@ -41,62 +41,62 @@ const Cover = () => (
     />
     <path
       d="M326.664,59.8l-31.311,54.173L282.92,106.79l31.3-54.17Z"
-      fill="rgba(26,35,51,0.1)"
+      fill="rgba(26,35,51,0.05)"
       fillRule="evenodd"
     />
     <path
       d="M335.483,92.708,328.3,105.144,274.1,73.882l7.179-12.434Z"
-      fill="rgba(26,35,51,0.1)"
+      fill="rgba(26,35,51,0.05)"
       fillRule="evenodd"
     />
     <path
       d="M498.492,135.561,529.2,188.8l-12.213,7.051-30.706-53.229Z"
-      fill="rgba(6,88,83,0.2)"
+      fill="rgba(6,88,83,0.1)"
       fillRule="evenodd"
     />
     <path
       d="M530.819,144.222l7.048,12.222L484.66,187.188l-7.051-12.212Z"
-      fill="rgba(6,88,83,0.2)"
+      fill="rgba(6,88,83,0.1)"
       fillRule="evenodd"
     />
     <path
       d="M130.863,135.615l19.222,33.329-7.645,4.414-19.224-33.323Z"
-      fill="rgba(158,52,31,0.2)"
+      fill="rgba(158,52,31,0.15)"
       fillRule="evenodd"
     />
     <path
       d="M151.1,141.037l4.413,7.652L122.2,167.936l-4.414-7.646Z"
-      fill="rgba(158,52,31,0.2)"
+      fill="rgba(158,52,31,0.15)"
       fillRule="evenodd"
     />
     <path
       d="M1733.47,140.58l30.7,53.238-12.21,7.051-30.71-53.229Z"
-      fill="rgba(81,48,159,0.2)"
+      fill="rgba(81,48,159,0.1)"
       fillRule="evenodd"
     />
     <path
       d="M1765.79,149.242l7.05,12.221-53.21,30.745-7.05-12.213Z"
-      fill="rgba(81,48,159,0.2)"
+      fill="rgba(81,48,159,0.1)"
       fillRule="evenodd"
     />
     <path
       d="M1537.55,67.938l-35.48,61.4-14.1-8.136,35.48-61.4Z"
-      fill="rgba(8,69,122,0.2)"
+      fill="rgba(8,69,122,0.08)"
       fillRule="evenodd"
     />
     <path
       d="M1547.55,105.242l-8.15,14.1L1477.98,83.9l8.14-14.093Z"
-      fill="rgba(8,69,122,0.2)"
+      fill="rgba(8,69,122,0.08)"
       fillRule="evenodd"
     />
     <path
       d="M734.53,133.115l11.185,55.8-12.8,2.573L721.722,135.7Z"
-      fill="rgba(26,35,51,0.2)"
+      fill="rgba(26,35,51,0.1)"
       fillRule="evenodd"
     />
     <path
       d="M760.332,150.284l2.567,12.81-55.786,11.229-2.572-12.8Z"
-      fill="rgba(26,35,51,0.2)"
+      fill="rgba(26,35,51,0.1)"
       fillRule="evenodd"
     />
     <path

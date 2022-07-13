@@ -133,5 +133,6 @@
   "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
   "additional-module": "Additional module",
   "page": "Page",
-  "chapter": "Chapter"
+  "chapter": "Chapter",
+  "top-level-pages": "Top level pages"
 }

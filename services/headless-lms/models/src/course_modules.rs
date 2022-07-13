@@ -22,7 +22,7 @@ pub struct CourseModule {
 
 impl CourseModule {
     pub fn is_default_module(&self) -> bool {
-        self.order_number == 0
+        self.name.is_none()
     }
 }
 
@@ -228,5 +228,50 @@ WHERE uh_course_code IS NOT NULL
     .into_iter()
     .filter_map(|x| x.uh_course_code)
     .collect();
+    Ok(res)
+}
+
+pub struct AutomaticCompletionCriteria {
+    pub number_of_exercises_attempted_treshold: Option<i32>,
+    pub number_of_points_treshold: Option<i32>,
+}
+
+pub enum AutomaticCompletionPolicy {
+    AutomaticCompletion(AutomaticCompletionCriteria),
+    NoAutomaticCompletion,
+}
+
+pub async fn update_automatic_completion_status(
+    conn: &mut PgConnection,
+    id: Uuid,
+    automatic_completion_policy: &AutomaticCompletionPolicy,
+) -> ModelResult<CourseModule> {
+    let (automatic_completion, exercises_treshold, points_treshold) =
+        match automatic_completion_policy {
+            AutomaticCompletionPolicy::AutomaticCompletion(criteria) => (
+                true,
+                criteria.number_of_exercises_attempted_treshold,
+                criteria.number_of_points_treshold,
+            ),
+            AutomaticCompletionPolicy::NoAutomaticCompletion => (false, None, None),
+        };
+    let res = sqlx::query_as!(
+        CourseModule,
+        "
+UPDATE course_modules
+SET automatic_completion = $1,
+  automatic_completion_number_of_exercises_attempted_treshold = $2,
+  automatic_completion_number_of_points_treshold = $3
+WHERE id = $4
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }

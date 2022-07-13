@@ -1,15 +1,11 @@
 import styled from "@emotion/styled"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import CircularCheck from "../../../../img/circular-check.svg"
 import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
 import { headingFont } from "../../../../shared-module/styles"
 
-import { CTAWrapper, StyledLink } from "./Congratulations"
-
-const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
+import CongratulationsLinks from "./CongratulationsLinks"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -43,19 +39,11 @@ export interface ModuleCardProps {
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
-  const { t } = useTranslation()
   return (
     <Wrapper>
       {module.completed && <StyledSVG />}
       <h3>{module.name}</h3>
-      <CTAWrapper>
-        <a href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}>
-          <Button variant="tertiary" size="large" disabled={!module.completed}>
-            {t("register")}
-          </Button>
-        </a>
-        <StyledLink>{t("generate-certicate")}</StyledLink>
-      </CTAWrapper>
+      <CongratulationsLinks module={module} />
     </Wrapper>
   )
 }

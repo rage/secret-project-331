@@ -8,6 +8,7 @@ import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
 import { headingFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
+import CongratulationsLinks from "./CongratulationsLinks"
 import ModuleCard from "./ModuleCard"
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -49,11 +50,7 @@ const Content = styled.div`
     }
   }
 `
-export const CTAWrapper = styled.div`
-  margin-top: 2rem;
-  display: flex;
-  align-items: center;
-`
+
 export const RegisterLink = styled.a`
   padding: 1rem 2rem;
   background: #1a2333;
@@ -67,11 +64,7 @@ export const RegisterLink = styled.a`
     font-size: 20px;
   }
 `
-export const StyledLink = styled.a`
-  padding: 1rem;
-  font-size: 20px;
-  line-height: 1.1;
-`
+
 const StyledSVG = styled(ConfettiBg)`
   position: absolute;
   left: 0;
@@ -110,12 +103,7 @@ const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
         <span className="subtitle">
           {t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")}
         </span>
-        {!multipleModules && (
-          <CTAWrapper>
-            <RegisterLink>{t("register")}</RegisterLink>
-            <StyledLink>{t("generate-certicate")}</StyledLink>
-          </CTAWrapper>
-        )}
+        {!multipleModules && <CongratulationsLinks module={modules[0]} />}
         {multipleModules && (
           <ModuleWrapper>
             {modules

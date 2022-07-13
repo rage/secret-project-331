@@ -17,8 +17,8 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 
 1. Run `bin/update-rust`
 2. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
-3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
-4: Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
+   3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
+   4: Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
 
 ## Updating node dependencies
 
@@ -34,7 +34,13 @@ Start by upgrading the dependencies in the root of the repo and run `npm run esl
 
 ## Update rust dependencies
 
-Open all Cargo.toml files (`find -name 'Cargo.toml'`), and update outdated ones. If you don't see which ones are outdated in vscode install workspace recommended extensions. For prerelease crates, you have to check the latest version manually from crates.io.
+Make sure you have [cargo-edit](https://github.com/killercup/cargo-edit) installed. After that, run the following commands:
+
+```bash
+cd services/headless-lms
+cargo upgrade --workspace
+cargo update
+```
 
 Next, we will check if the code still compiles and works. Here's how to setup it correctly:
 

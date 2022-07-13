@@ -38,6 +38,8 @@
   "error-page-without-course": "Error: Page is not associated with any course",
   "error-submission-failed": "Submission failed",
   "error-title": "Error",
+  "exercises-answered": "Exercises answered",
+  "exercises-required-for-completion": "Exercises required for completion",
   "exam-can-be-started-after": "The exam can be started after {{ starts-at }}",
   "exam-has-not-started-yet": "The exam has not started yet",
   "exam-no-end-time": "No end time set",
@@ -107,6 +109,9 @@
   "select-course-instance-explanation": "The teachers or administrative staff of the course instance you select will be able to see your points, submissions, completion status, and other information related your course progress.",
   "title-select-course-version-to-see-your-progress": "Select course version to see your progress.",
   "title-youtube-video-player": "YouTube video player",
+  "total-exercises": "Total exercises",
+  "total-points": "Total points",
+  "track-your-progress": "Track your progress",
   "try-again": "try again",
   "write-your-feedback-here": "Write your feedback here",
   "written-feedback": "Written feedback",
@@ -115,6 +120,7 @@
   "deadline": "Deadline: ",
   "Deadline-passed-n-days-ago": "Deadline passed {{days}} days ago",
   "please-log-in-to-answer-exercise": "Please log in to answer this exercise.",
+  "references": "References",
   "answer-from-another-student": "Answer from another student",
   "peer-review-instructions": "Here's an answer from another student. Please give feedback to them and evaluate the answer with the given statements.",
   "title-peer-review": "Peer review",
@@ -125,5 +131,6 @@
   "help-text-exercise-involves-peer-review": "To complete this exercise, you will need to peer review {{peer_reviews_to_give}} answers from other students after submitting your own answer. After that, you'll receive peer reviews from other students before getting the points.",
   "waiting-for-peer-reviews-explanation": "Other students are peer reviewing your answer. Please come back later to see the results.",
   "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
-  "additional-module": "Additional module"
+  "additional-module": "Additional module",
+  "top-level-pages": "Top level pages"
 }

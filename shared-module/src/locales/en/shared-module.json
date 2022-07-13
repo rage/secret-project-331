@@ -1,6 +1,6 @@
 {
   "about-mooc-center": "About MOOC center",
-  "about-mooc-center-description": "MOOC center is responsible for creating custom online courses for University of Helsinki. It is responsible for all the highly popular courses that have been available in mooc.fi since 2012.",
+  "about-mooc-center-description": "The MOOC Center creates custom online courses for the University of Helsinki. It’s behind the highly popular courses that have been available in mooc.fi from 2012. The platform for the courses has been developed in-house by teams comprising both university employees and students.",
   "accessibility": "Accessibility",
   "available": "Available",
   "breadcrumb": "Breadcrumb",
@@ -80,8 +80,17 @@
   "what-you-will-learn": "What you will learn in this chapter",
   "open-heading-menu": "Open heading navigation",
   "close-heading-menu": "Close heading navigation",
+  "sponsor": "Sponsors",
   "exercises-attempted": "Exercises attempted",
   "tips": "Tips",
   "status": "status",
-  "to-complete-this-chapter": "To complete this chapter"
+  "to-complete-this-chapter": "To complete this chapter",
+  "about-this-project": "About this project",
+  "project-github": "Project Github",
+  "contribute-image-cover": "Contribute image cover",
+  "title-references": "Reference",
+  "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:",
+  "register": "Register",
+  "generate-certicate": "Generate certificate",
+  "congratulation": "Congratulations"
 }

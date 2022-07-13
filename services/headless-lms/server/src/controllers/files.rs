@@ -2,14 +2,12 @@
 Handlers for HTTP requests to `/api/v0/files`.
 
 */
-
 use std::path::{Path, PathBuf};
 
+use crate::controllers::prelude::*;
+pub use crate::domain::authorization::AuthorizationToken;
 use actix_files::NamedFile;
 use tokio::fs::read;
-
-use crate::controllers::prelude::*;
-
 /**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -73,8 +71,13 @@ Result:
 The file.
 */
 #[instrument(skip(req))]
-async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
+async fn serve_upload(
+    req: HttpRequest,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
+    let mut conn = pool.acquire().await?;
     let base_folder = Path::new("uploads");
     let relative_path: PathBuf = req
         .match_info()
@@ -106,7 +109,8 @@ async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
     if let Some(m) = mime_type {
         response.append_header(("content-type", m));
     }
-    Ok(response.body(contents))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(response.body(contents))
 }
 
 /**

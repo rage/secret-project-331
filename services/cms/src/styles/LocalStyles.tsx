@@ -7,6 +7,7 @@ import {
   SecondaryButtonStyles,
   TertiaryButtonStyles,
 } from "../shared-module/components/Button"
+import { primaryFont } from "../shared-module/styles"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const localCss = css`
@@ -22,6 +23,9 @@ const localCss = css`
   }
   .is-style-material-tertiary-button .wp-block-button__link {
     ${TertiaryButtonStyles({ variant: "tertiary", size: "large" })}
+  }
+  .components-base-control {
+    font-family: ${primaryFont} !important;
   }
 `
 

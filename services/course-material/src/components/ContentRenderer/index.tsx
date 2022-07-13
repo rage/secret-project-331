@@ -45,6 +45,8 @@ import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
+import SponsorBlock from "./moocfi/SponsorBlock"
+import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
 export interface ContentRendererProps {
@@ -116,6 +118,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/glossary": GlossaryBlock,
   "moocfi/infobox": InfoBox,
+  "moocfi/sponsor": SponsorBlock,
+  "moocfi/top-level-pages": TopLevelPageBlock,
 }
 
 const highlightedBlockStyles = css`

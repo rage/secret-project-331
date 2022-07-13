@@ -11,6 +11,7 @@ import CourseOverview from "../../../../components/page-specific/manage/courses/
 import CourseLanguageVersionsPage from "../../../../components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"
 import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
+import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
@@ -38,6 +39,7 @@ const CourseManagementPageTabs: {
 } = {
   overview: CourseOverview,
   pages: CoursePages,
+  references: References,
   feedback: CourseFeedback,
   "change-requests": CourseChangeRequests,
   exercises: CourseExercises,
@@ -65,6 +67,9 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
         </TabLink>
         <TabLink url={"pages"} isActive={path === "pages"}>
           {t("link-pages")}
+        </TabLink>
+        <TabLink url={"references"} isActive={path === "references"}>
+          {t("references")}
         </TabLink>
         <TabLink
           url={"feedback"}

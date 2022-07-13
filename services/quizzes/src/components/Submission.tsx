@@ -6,6 +6,7 @@ import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
+import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
 import EssayFeedback from "./SubmissionComponents/Essay"
 import MatrixSubmission from "./SubmissionComponents/Matrix"
 import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
@@ -44,7 +45,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: true,
   },
   checkbox: {
-    component: UnsupportedSubmissionViewComponent,
+    component: CheckBoxFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   scale: {

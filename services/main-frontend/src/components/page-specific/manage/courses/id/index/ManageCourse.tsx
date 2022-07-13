@@ -113,6 +113,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
           <UpdateCourseForm
             courseId={course.id}
             courseName={course.name}
+            courseDescription={course.description}
             isDraft={course.is_draft}
             isTest={course.is_test_mode}
             onSubmitForm={handleOnUpdateCourse}
@@ -140,8 +141,6 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {t("button-text-new")}
       </Button>
       <CourseCourseInstances courseId={course.id} />
-      <h2>{t("title-all-exercises")}</h2>
-      <ExerciseList courseId={course.id} />
     </>
   )
 }

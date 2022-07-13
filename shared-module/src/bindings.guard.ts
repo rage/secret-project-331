@@ -22,6 +22,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
+  CompletionRegistrationLink,
   ContentManagementPage,
   Course,
   CourseCount,
@@ -29,6 +30,7 @@ import {
   CourseInstance,
   CourseInstanceEnrollment,
   CourseInstanceForm,
+  CourseMaterialCourseModule,
   CourseMaterialExercise,
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
@@ -37,9 +39,11 @@ import {
   CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
+  CourseModule,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  CreateAccountDetails,
   DatabaseChapter,
   EditProposalInfo,
   EmailTemplate,
@@ -82,11 +86,12 @@ import {
   HistoryRestoreData,
   Login,
   MarkAsRead,
-  Module,
+  MaterialReference,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
+  NewMaterialReference,
   NewPage,
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
@@ -128,6 +133,7 @@ import {
   TermUpdate,
   UploadResult,
   User,
+  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
@@ -208,6 +214,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
       obj.type === "page" &&
       typeof obj.id === "string") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "study_registry" &&
+      typeof obj.id === "string") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "any_course") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "role") ||
@@ -216,7 +225,9 @@ export function isResource(obj: any, _argumentName?: string): obj is Resource {
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.type === "playground_example") ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_service")
+      obj.type === "exercise_service") ||
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      obj.type === "material_reference")
   )
 }
 
@@ -252,7 +263,7 @@ export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.course_module_id === "string"
   )
 }
 
@@ -271,7 +282,7 @@ export function isDatabaseChapter(obj: any, _argumentName?: string): obj is Data
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.course_module_id === "string"
   )
 }
 
@@ -286,7 +297,7 @@ export function isChapterUpdate(obj: any, _argumentName?: string): obj is Chapte
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.module === null || typeof obj.module === "string")
+    (obj.course_module_id === null || typeof obj.course_module_id === "string")
   )
 }
 
@@ -304,7 +315,7 @@ export function isChapterWithStatus(obj: any, _argumentName?: string): obj is Ch
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (isChapterStatus(obj.status) as boolean) &&
     (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
-    (obj.module === null || typeof obj.module === "string")
+    typeof obj.course_module_id === "string"
   )
 }
 
@@ -317,7 +328,7 @@ export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapte
     (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.module === null || typeof obj.module === "string")
+    (obj.course_module_id === null || typeof obj.course_module_id === "string")
   )
 }
 
@@ -364,7 +375,7 @@ export function isChapterScore(obj: any, _argumentName?: string): obj is Chapter
     (obj.opens_at === null || obj.opens_at instanceof Date) &&
     (obj.deadline === null || obj.deadline instanceof Date) &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.module === null || typeof obj.module === "string") &&
+    typeof obj.course_module_id === "string" &&
     typeof obj.score_given === "number" &&
     typeof obj.score_total === "number"
   )
@@ -425,12 +436,24 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
   )
 }
 
-export function isModule(obj: any, _argumentName?: string): obj is Module {
+export function isCourseModule(obj: any, _argumentName?: string): obj is CourseModule {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number"
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.course_id === "string" &&
+    typeof obj.order_number === "number" &&
+    (obj.copied_from === null || typeof obj.copied_from === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    typeof obj.automatic_completion === "boolean" &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 
@@ -469,6 +492,7 @@ export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseU
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.name === "string" &&
+    (obj.description === null || typeof obj.description === "string") &&
     typeof obj.is_draft === "boolean" &&
     typeof obj.is_test_mode === "boolean"
   )
@@ -620,10 +644,10 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
+    typeof obj.user_interface_iframe_path === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
-    typeof obj.model_solution_path === "string"
+    typeof obj.model_solution_spec_endpoint_path === "string"
   )
 }
 
@@ -923,6 +947,30 @@ export function isCourseMaterialPeerReviewSubmission(
     obj.peer_review_question_answers.every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
     )
+  )
+}
+
+export function isCompletionRegistrationLink(
+  obj: any,
+  _argumentName?: string,
+): obj is CompletionRegistrationLink {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.url === "string"
+  )
+}
+
+export function isUserCompletionInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCompletionInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_module_completion_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.uh_course_code === "string" &&
+    typeof obj.email === "string" &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 
@@ -1574,10 +1622,16 @@ export function isUserCourseInstanceProgress(
 ): obj is UserCourseInstanceProgress {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_module_id === "string" &&
+    typeof obj.course_module_name === "string" &&
+    typeof obj.course_module_order_number === "number" &&
     typeof obj.score_given === "number" &&
+    (obj.score_required === null || typeof obj.score_required === "number") &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
+    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number") &&
+    (obj.attempted_exercises_required === null ||
+      typeof obj.attempted_exercises_required === "number")
   )
 }
 
@@ -1625,9 +1679,37 @@ export function isChaptersWithStatus(obj: any, _argumentName?: string): obj is C
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.is_previewable === "boolean" &&
     Array.isArray(obj.modules) &&
-    obj.modules.every((e: any) => isModule(e) as boolean) &&
+    obj.modules.every((e: any) => isCourseMaterialCourseModule(e) as boolean)
+  )
+}
+
+export function isCourseMaterialCourseModule(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialCourseModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean)
+    obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean) &&
+    typeof obj.id === "string" &&
+    typeof obj.is_default === "boolean" &&
+    (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isCreateAccountDetails(
+  obj: any,
+  _argumentName?: string,
+): obj is CreateAccountDetails {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    typeof obj.first_name === "string" &&
+    typeof obj.last_name === "string" &&
+    typeof obj.language === "string" &&
+    typeof obj.password === "string" &&
+    typeof obj.password_confirmation === "string"
   )
 }
 
@@ -1777,5 +1859,29 @@ export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbe
     typeof obj.provider_url === "string" &&
     typeof obj.title === "string" &&
     typeof obj.version === "string"
+  )
+}
+
+export function isMaterialReference(obj: any, _argumentName?: string): obj is MaterialReference {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+  )
+}
+
+export function isNewMaterialReference(
+  obj: any,
+  _argumentName?: string,
+): obj is NewMaterialReference {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string"
   )
 }

@@ -13,9 +13,10 @@ async fn post_proposed_edits(
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::proposed_page_edits::insert(&mut conn, *course_id, user.map(|u| u.id), &payload)
-        .await?;
-    Ok(HttpResponse::Ok().finish())
+    let user_id = user.map(|u| u.id);
+    models::proposed_page_edits::insert(&mut conn, *course_id, user_id, &payload).await?;
+    let token = authorize(&mut conn, Act::View, user_id, Res::Course(*course_id)).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

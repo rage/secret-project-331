@@ -6,8 +6,8 @@ import LockIcon from "../img/lock.svg"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
-import HideTextInSystemTests from "./HideTextInSystemTests"
 import LinkOrNoLink from "./LinkOrNoLink"
+import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 
 export interface NextSectionLinkExtraProps {
   title: string

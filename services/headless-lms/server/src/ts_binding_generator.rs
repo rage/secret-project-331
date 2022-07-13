@@ -1,8 +1,8 @@
 #[cfg(feature = "ts_rs")]
 use crate::controllers::{
-    auth::Login,
+    auth::{CreateAccountDetails, Login},
     course_material::{
-        courses::ChaptersWithStatus,
+        courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
@@ -73,7 +73,7 @@ fn ts_binding_generator() {
         course_instances::PointMap,
         course_instances::Points,
 
-        course_modules::Module,
+        course_modules::CourseModule,
 
         courses::Course,
         courses::CourseStructure,
@@ -125,6 +125,9 @@ fn ts_binding_generator() {
         library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
+
+        library::progressing::CompletionRegistrationLink,
+        library::progressing::UserCompletionInformation,
 
         organizations::Organization,
 
@@ -195,6 +198,8 @@ fn ts_binding_generator() {
         users::User,
 
         ChaptersWithStatus,
+        CourseMaterialCourseModule,
+        CreateAccountDetails,
         RoleQuery,
         RoleInfo,
         ExamData,
@@ -209,7 +214,10 @@ fn ts_binding_generator() {
         ErrorResponse,
         ErrorData,
         Pagination,
-        OEmbedResponse
+        OEmbedResponse,
+
+        material_references::MaterialReference,
+        material_references::NewMaterialReference
     };
     res.unwrap();
 }

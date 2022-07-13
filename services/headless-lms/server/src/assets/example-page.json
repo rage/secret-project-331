@@ -688,6 +688,49 @@
     "innerBlocks": []
   },
   {
+    "clientId": "ea1ba752-42c8-4fc2-b2d4-51943a9696fb",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "<strong>SVG IMAGES</strong>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "884bb897-7248-4363-883d-562edcbae969",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "center",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "no size defined, center",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/moocfi.svg"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b6f77c09-fb98-4e74-9be8-fcb49ac75606",
+    "isValid": true,
+    "name": "core/image",
+    "attributes": {
+      "align": "center",
+      "alt": "",
+      "blurDataUrl": "",
+      "caption": "450x450, center",
+      "linkDestination": "media",
+      "sizeSlug": "large",
+      "url": "https://storage.googleapis.com/download-moocfi/moocfi.svg",
+      "height": 450,
+      "width": 450
+    },
+    "innerBlocks": []
+  },
+  {
     "clientId": "0cf407dd-ec6e-4629-9324-b50c8faf579b",
     "isValid": true,
     "name": "core/paragraph",

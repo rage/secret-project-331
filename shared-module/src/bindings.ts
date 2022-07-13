@@ -36,11 +36,13 @@ export type Resource =
   | { type: "exercise_task_submission"; id: string }
   | { type: "organization"; id: string }
   | { type: "page"; id: string }
+  | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
   | { type: "user" }
   | { type: "playground_example" }
   | { type: "exercise_service" }
+  | { type: "material_reference" }
 
 export interface Term {
   id: string
@@ -66,7 +68,7 @@ export interface Chapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface DatabaseChapter {
@@ -82,7 +84,7 @@ export interface DatabaseChapter {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export type ChapterStatus = "open" | "closed"
@@ -92,7 +94,7 @@ export interface ChapterUpdate {
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
-  module: string | null
+  course_module_id: string | null
 }
 
 export interface ChapterWithStatus {
@@ -107,7 +109,7 @@ export interface ChapterWithStatus {
   opens_at: Date | null
   status: ChapterStatus
   chapter_image_url: string | null
-  module: string | null
+  course_module_id: string
 }
 
 export interface NewChapter {
@@ -117,7 +119,7 @@ export interface NewChapter {
   front_page_id: string | null
   opens_at: Date | null
   deadline: Date | null
-  module: string | null
+  course_module_id: string | null
 }
 
 export interface UserCourseInstanceChapterProgress {
@@ -149,7 +151,7 @@ export interface ChapterScore {
   opens_at: Date | null
   deadline: Date | null
   copied_from: string | null
-  module: string | null
+  course_module_id: string
   score_given: number
   score_total: number
 }
@@ -187,10 +189,20 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export interface Module {
+export interface CourseModule {
   id: string
-  name: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  name: string | null
+  course_id: string
   order_number: number
+  copied_from: string | null
+  uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+  ects_credits: number | null
 }
 
 export interface Course {
@@ -218,6 +230,7 @@ export interface CourseStructure {
 
 export interface CourseUpdate {
   name: string
+  description: string | null
   is_draft: boolean
   is_test_mode: boolean
 }
@@ -320,10 +333,10 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  exercise_type_specific_user_interface_iframe: string
+  user_interface_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
-  model_solution_path: string
+  model_solution_spec_endpoint_path: string
 }
 
 export interface ExerciseService {
@@ -502,6 +515,18 @@ export interface CourseMaterialPeerReviewSubmission {
   exercise_slide_submission_id: string
   peer_review_id: string
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+}
+
+export interface CompletionRegistrationLink {
+  url: string
+}
+
+export interface UserCompletionInformation {
+  course_module_completion_id: string
+  course_name: string
+  uh_course_code: string
+  email: string
+  ects_credits: number | null
 }
 
 export interface Organization {
@@ -909,10 +934,15 @@ export interface UserCourseInstanceChapterExerciseProgress {
 }
 
 export interface UserCourseInstanceProgress {
+  course_module_id: string
+  course_module_name: string
+  course_module_order_number: number
   score_given: number
+  score_required: number | null
   score_maximum: number | null
   total_exercises: number | null
   attempted_exercises: number | null
+  attempted_exercises_required: number | null
 }
 
 export interface ExerciseUserCounts {
@@ -947,8 +977,24 @@ export interface User {
 
 export interface ChaptersWithStatus {
   is_previewable: boolean
-  modules: Array<Module>
+  modules: Array<CourseMaterialCourseModule>
+}
+
+export interface CourseMaterialCourseModule {
   chapters: Array<ChapterWithStatus>
+  id: string
+  is_default: boolean
+  name: string | null
+  order_number: number
+}
+
+export interface CreateAccountDetails {
+  email: string
+  first_name: string
+  last_name: string
+  language: string
+  password: string
+  password_confirmation: string
 }
 
 export interface RoleQuery {
@@ -1038,4 +1084,19 @@ export interface OEmbedResponse {
   provider_url: string
   title: string
   version: string
+}
+
+export interface MaterialReference {
+  id: string
+  course_id: string
+  citation_key: string
+  reference: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface NewMaterialReference {
+  citation_key: string
+  reference: string
 }

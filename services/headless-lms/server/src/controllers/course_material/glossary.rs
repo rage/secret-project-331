@@ -7,20 +7,24 @@ async fn update(
     pool: web::Data<PgPool>,
     acronym_id: web::Path<Uuid>,
     update: web::Json<TermUpdate>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     models::glossary::update(&mut conn, *acronym_id, &update.term, &update.definition).await?;
-    Ok(HttpResponse::Ok().finish())
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,
     acronym_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     models::glossary::delete(&mut conn, *acronym_id).await?;
-    Ok(HttpResponse::Ok().finish())
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

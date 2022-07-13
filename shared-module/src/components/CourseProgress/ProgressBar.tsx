@@ -3,7 +3,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, secondaryFont } from "../../styles"
+import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 import { ProgressBarExtraProps } from "."
@@ -55,20 +55,19 @@ const Label = styled.div`
   min-width: 100%;
   font-weight: 500;
   margin-right: 1rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   text-align: center;
   padding-left: 10px;
 
   span:first-of-type {
     font-size: 0.8em;
-    font-weight: 400;
-    font-family: ${secondaryFont};
-    opacity: 0.9;
-    text-transform: uppercase;
+    font-weight: 600;
+    font-family: ${headingFont};
+    color: #313947;
   }
   ${respondToOrLarger.sm} {
     span:first-of-type {
-      font-size: 1.2em;
+      font-size: 1.1em;
     }
   }
 `

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    course_modules,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
@@ -14,7 +15,9 @@ use crate::{
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, ReviewingStage, UserExerciseState, UserExerciseStateUpdate},
+    user_exercise_states::{
+        self, ExerciseWithUserState, ReviewingStage, UserExerciseState, UserExerciseStateUpdate,
+    },
     user_exercise_task_states,
 };
 
@@ -89,22 +92,21 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 /// they belong to the correct exercise slide.
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
+    exercise_with_user_state: &ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
-    let selected_exercise_slide_id =
-        user_exercise_state
-            .selected_exercise_slide_id
-            .ok_or_else(|| {
-                ModelError::PreconditionFailed(
-                    "Exercise slide not selected for the student.".to_string(),
-                )
-            })?;
+    let selected_exercise_slide_id = exercise_with_user_state
+        .user_exercise_state()
+        .selected_exercise_slide_id
+        .ok_or_else(|| {
+            ModelError::PreconditionFailed(
+                "Exercise slide not selected for the student.".to_string(),
+            )
+        })?;
     let exercise_tasks: HashMap<Uuid, ExerciseTask> =
         exercise_tasks::get_exercise_tasks_by_exercise_slide_id(conn, &selected_exercise_slide_id)
             .await?;
-    let user_points_update_strategy = if exercise.exam_id.is_some() {
+    let user_points_update_strategy = if exercise_with_user_state.is_exam_exercise() {
         UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
     } else {
         UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
@@ -116,11 +118,13 @@ pub async fn create_user_exercise_slide_submission(
         &mut tx,
         NewExerciseSlideSubmission {
             exercise_slide_id: selected_exercise_slide_id,
-            course_id: exercise.course_id,
-            course_instance_id: user_exercise_state.course_instance_id,
-            exam_id: user_exercise_state.exam_id,
-            exercise_id: user_exercise_state.exercise_id,
-            user_id: user_exercise_state.user_id,
+            course_id: exercise_with_user_state.exercise().course_id,
+            course_instance_id: exercise_with_user_state
+                .user_exercise_state()
+                .course_instance_id,
+            exam_id: exercise_with_user_state.exercise().exam_id,
+            exercise_id: exercise_with_user_state.exercise().id,
+            user_id: exercise_with_user_state.user_exercise_state().user_id,
             user_points_update_strategy,
         },
     )
@@ -153,22 +157,6 @@ pub async fn create_user_exercise_slide_submission(
         exercise_slide_submission,
         exercise_slide_submission_tasks,
     })
-}
-
-pub async fn grade_user_submission(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
-) -> ModelResult<StudentExerciseSlideSubmissionResult> {
-    grade_user_submission_internal(
-        conn,
-        exercise,
-        user_exercise_state,
-        user_exercise_slide_submission,
-        None,
-    )
-    .await
 }
 
 // Relocated regrading logic to condensate score update logic in a single place.
@@ -217,49 +205,18 @@ pub async fn update_grading_with_single_regrading_result(
     Ok(())
 }
 
-pub async fn update_exercise_state_with_single_exercise_task_grading_result(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    exercise_task_grading: &ExerciseTaskGrading,
-    exercise_task_grading_result: &ExerciseTaskGradingResult,
-    user_exercise_slide_state: UserExerciseSlideState,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-) -> ModelResult<()> {
-    propagate_user_exercise_state_update_from_exercise_task_grading_result(
-        conn,
-        exercise,
-        exercise_task_grading,
-        exercise_task_grading_result,
-        user_exercise_slide_state,
-        user_points_update_strategy,
-    )
-    .await?;
-    Ok(())
+pub enum GradingPolicy {
+    /// Grades exercise tasks by sending a request to their respective services.
+    Default,
+    /// Intended for test purposes only.
+    Fixed(HashMap<Uuid, ExerciseTaskGradingResult>),
 }
 
-pub async fn test_only_grade_user_submission_with_fixed_results(
+pub async fn grade_user_submission(
     conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
+    exercise_with_user_state: &mut ExerciseWithUserState,
     user_exercise_slide_submission: StudentExerciseSlideSubmission,
-    mock_results: HashMap<Uuid, ExerciseTaskGradingResult>,
-) -> ModelResult<StudentExerciseSlideSubmissionResult> {
-    grade_user_submission_internal(
-        conn,
-        exercise,
-        user_exercise_state,
-        user_exercise_slide_submission,
-        Some(mock_results),
-    )
-    .await
-}
-
-async fn grade_user_submission_internal(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
-    mock_results: Option<HashMap<Uuid, ExerciseTaskGradingResult>>,
+    grading_policy: GradingPolicy,
 ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
     let mut tx = conn.begin().await?;
 
@@ -268,56 +225,59 @@ async fn grade_user_submission_internal(
         exercise_slide_submission_tasks,
     } = create_user_exercise_slide_submission(
         &mut tx,
-        exercise,
-        &user_exercise_state,
+        exercise_with_user_state,
         user_exercise_slide_submission,
     )
     .await?;
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         &mut tx,
-        user_exercise_state.id,
+        exercise_with_user_state.user_exercise_state().id,
         exercise_slide_submission.exercise_slide_id,
     )
     .await?;
-    let mut results = Vec::with_capacity(exercise_slide_submission_tasks.len());
-    if let Some(mock_results) = mock_results {
-        for task_submission in exercise_slide_submission_tasks {
-            let mock_result = mock_results
-                .get(&task_submission.exercise_task_id)
-                .ok_or_else(|| ModelError::Generic("".to_string()))?
-                .clone();
-            let submission = create_fixed_grading_for_submission_task(
-                &mut tx,
-                &task_submission,
-                exercise,
-                user_exercise_slide_state.id,
-                &mock_result,
-            )
-            .await?;
-            results.push(submission);
+    let results = match grading_policy {
+        GradingPolicy::Default => {
+            let mut results = Vec::with_capacity(exercise_slide_submission_tasks.len());
+            for task_submission in exercise_slide_submission_tasks {
+                let submission = grade_user_submission_task(
+                    &mut tx,
+                    &task_submission,
+                    exercise_with_user_state.exercise(),
+                    user_exercise_slide_state.id,
+                )
+                .await?;
+                results.push(submission);
+            }
+            results
         }
-    } else {
-        for task_submission in exercise_slide_submission_tasks {
-            let submission = grade_user_submission_task(
-                &mut tx,
-                &task_submission,
-                exercise,
-                user_exercise_slide_state.id,
-            )
-            .await?;
-            results.push(submission);
+        GradingPolicy::Fixed(fixed_results) => {
+            let mut results = Vec::with_capacity(exercise_slide_submission_tasks.len());
+            for task_submission in exercise_slide_submission_tasks {
+                let fixed_result = fixed_results
+                    .get(&task_submission.exercise_task_id)
+                    .ok_or_else(|| ModelError::Generic("".to_string()))?
+                    .clone();
+                let submission = create_fixed_grading_for_submission_task(
+                    &mut tx,
+                    &task_submission,
+                    exercise_with_user_state.exercise(),
+                    user_exercise_slide_state.id,
+                    &fixed_result,
+                )
+                .await?;
+                results.push(submission);
+            }
+            results
         }
-    }
+    };
     let user_exercise_state = propagate_user_exercise_state_update_from_slide(
         &mut tx,
-        exercise,
+        exercise_with_user_state.exercise(),
         user_exercise_slide_state,
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
-
-    tx.commit().await?;
-    Ok(StudentExerciseSlideSubmissionResult {
+    let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
             score_given: user_exercise_state.score_given,
             activity_progress: user_exercise_state.activity_progress,
@@ -325,7 +285,10 @@ async fn grade_user_submission_internal(
             reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
-    })
+    };
+    exercise_with_user_state.set_user_exercise_state(user_exercise_state)?;
+    tx.commit().await?;
+    Ok(result)
 }
 
 async fn grade_user_submission_task(
@@ -367,13 +330,13 @@ async fn create_fixed_grading_for_submission_task(
     submission: &ExerciseTaskSubmission,
     exercise: &Exercise,
     user_exercise_slide_state_id: Uuid,
-    asd: &ExerciseTaskGradingResult,
+    fixed_result: &ExerciseTaskGradingResult,
 ) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let grading = exercise_task_gradings::new_grading(conn, exercise, submission).await?;
     let updated_submission =
         exercise_task_submissions::set_grading_id(conn, grading.id, submission.id).await?;
     let updated_grading =
-        exercise_task_gradings::update_grading(conn, &grading, asd, exercise).await?;
+        exercise_task_gradings::update_grading(conn, &grading, fixed_result, exercise).await?;
     user_exercise_task_states::upsert_with_grading(
         conn,
         user_exercise_slide_state_id,
@@ -439,6 +402,16 @@ async fn update_user_exercise_state(
     );
     let new_user_exercise_state =
         user_exercise_states::update(conn, user_exercise_state_update).await?;
+    if let Some(course_instance_id) = user_exercise_state.course_instance_id {
+        let course_module = course_modules::get_by_exercise_id(conn, exercise.id).await?;
+        super::progressing::grant_automatic_completion_if_eligible(
+            conn,
+            &course_module,
+            course_instance_id,
+            user_exercise_state.user_id,
+        )
+        .await?;
+    }
     Ok(new_user_exercise_state)
 }
 
@@ -642,7 +615,7 @@ async fn update_user_exercise_slide_state(
 
 /// Updates the user exercise state starting from a single task, and propagates the update up to the
 /// whole user exercise state.
-async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
+pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_result(
     conn: &mut PgConnection,
     exercise: &Exercise,
     exercise_task_grading: &ExerciseTaskGrading,

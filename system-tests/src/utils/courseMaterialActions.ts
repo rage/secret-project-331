@@ -10,5 +10,6 @@ export async function selectCourseInstanceIfPrompted(page: Page, courseVariantNa
 
     // Click button:has-text("Continue")
     await page.click('button:has-text("Continue")')
+    await page.locator(`text=Select course instance to continue.`).waitFor({ state: "detached" })
   }
 }

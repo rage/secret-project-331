@@ -238,6 +238,31 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <Wrapper>
                   <span>{t("peer-review-instructions")}</span>
                   <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
+                  <span>{t("peer-reviews-to-receive")}</span>
+                  <input
+                    type={"number"}
+                    value={pr.peer_reviews_to_receive}
+                    onChange={(e) => {
+                      const peerReview = peerReviewState.filter((prx) => prx.id === pr.id)[0]
+                      peerReviewSetState([
+                        { ...peerReview, peer_reviews_to_receive: Number(e.target.value) },
+                        ...peerReviewState.filter((prx) => prx.id !== pr.id),
+                      ])
+                    }}
+                  />
+
+                  <span>{t("peer-reviews-to-give")}</span>
+                  <input
+                    type={"number"}
+                    value={pr.peer_reviews_to_give}
+                    onChange={(e) => {
+                      const peerReview = peerReviewState.filter((prx) => prx.id === pr.id)[0]
+                      peerReviewSetState([
+                        { ...peerReview, peer_reviews_to_give: Number(e.target.value) },
+                        ...peerReviewState.filter((prx) => prx.id !== pr.id),
+                      ])
+                    }}
+                  />
 
                   <h2>{HEADING_TEXT}</h2>
                   {peerReviewQuestionState &&

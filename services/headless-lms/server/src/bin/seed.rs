@@ -10,9 +10,9 @@ use headless_lms_models::{
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
-    course_instances,
-    course_instances::NewCourseInstance,
-    course_modules, courses,
+    course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    courses,
     courses::NewCourse,
     exams,
     exams::NewExam,
@@ -22,7 +22,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, organizations,
+    glossary, open_university_registration_links, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -343,6 +343,37 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    let automatic_completions_id = seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+        "Automatic Completions",
+        "automatic-completions",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_default_module.id,
+        &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
+        .await?;
+
     roles::insert(
         &mut conn,
         language_teacher,

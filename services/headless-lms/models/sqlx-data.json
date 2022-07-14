@@ -4924,6 +4924,96 @@
       ]
     }
   },
+  "460c90473b629ef711d0f2f766626f65462782148117c4b445e841907922cb77": {
+    "query": "\nUPDATE course_modules\nSET automatic_completion = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3\nWHERE id = $4\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "automatic_completion",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 10,
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "automatic_completion_number_of_points_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 12,
+          "name": "ects_credits",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Bool", "Int4", "Int4", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ]
+    }
+  },
   "463f3a8bbb35a814e0ca0c7e20d9602183676624ec57bebadcb9a75135d0f951": {
     "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
     "describe": {
@@ -5562,6 +5652,96 @@
         "Left": ["Uuid"]
       },
       "nullable": [true, false]
+    }
+  },
+  "527d742c378dfc52f5d1c999138ee8c12547442f36d8ea9b3df18405f7e526d5": {
+    "query": "\nUPDATE course_modules\nSET uh_course_code = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "name",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "order_number",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "copied_from",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 8,
+          "name": "uh_course_code",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 9,
+          "name": "automatic_completion",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 10,
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 11,
+          "name": "automatic_completion_number_of_points_treshold",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 12,
+          "name": "ects_credits",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ]
     }
   },
   "53bfa80a5ca2c543393bbe2266c1129ea103eb4699aaf0fd1445b8daeb408cd0": {
@@ -14461,6 +14641,108 @@
         "Left": ["Uuid", "Uuid"]
       },
       "nullable": [false, true]
+    }
+  },
+  "f277300b53e828732168d2b58bdab1746b112ad732a2fef2b78487102b674c9c": {
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "course_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 5,
+          "name": "course_module_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 6,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 7,
+          "name": "completion_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "completion_registration_attempt_date",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 9,
+          "name": "completion_language",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 10,
+          "name": "eligible_for_ects",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "grade",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 13,
+          "name": "passed",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 14,
+          "name": "course_instance_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ]
     }
   },
   "f2beb11b5e6318b712b0af9bd4fde454472ce8eda3612295b788958148a376b5": {

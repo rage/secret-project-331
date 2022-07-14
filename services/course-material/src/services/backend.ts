@@ -31,6 +31,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
 } from "../shared-module/bindings"
 import {
   isChaptersWithStatus,
@@ -54,6 +55,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserModuleCompletionStatus,
 } from "../shared-module/bindings.guard"
 import {
   isArray,
@@ -188,6 +190,16 @@ export const fetchUserCourseProgress = async (
 ): Promise<UserCourseInstanceProgress[]> => {
   const response = await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`)
   return validateResponse(response, isArray(isUserCourseInstanceProgress))
+}
+
+export const fetchUserModuleCompletionStatuses = async (
+  courseInstanceId: string,
+): Promise<Array<UserModuleCompletionStatus>> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/module-completions`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isUserModuleCompletionStatus))
 }
 
 export const fetchUserChapterInstanceChapterProgress = async (

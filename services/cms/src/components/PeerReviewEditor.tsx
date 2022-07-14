@@ -2,10 +2,12 @@ import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Switch, TextField } from "@mui/material"
-import React, { useEffect, useState } from "react"
+import { Spinner } from "@wordpress/components"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import PageContext from "../contexts/PageContext"
 import {
   CmsPeerReview,
   CmsPeerReviewQuestion,
@@ -124,7 +126,6 @@ const HEADING_TEXT = "Configure review answers option"
 export interface PeerReviewEditorExtraProps {
   attributes: any
   setAttributes: (attr: any) => void
-  courseId: string
   exerciseId: string
 }
 
@@ -133,7 +134,6 @@ export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
 
 const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   id,
-  courseId,
   exerciseId,
   attributes,
   setAttributes,
@@ -143,6 +143,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const [peerReviewQuestionState, peerReviewQuestionSetState] = useState<CmsPeerReviewQuestion[]>(
     [],
   )
+
+  const courseId = useContext(PageContext)?.page.course_id
 
   const { t } = useTranslation()
 
@@ -180,7 +182,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     () => setAttributes({ ...attributes, peer_review_config: JSON.stringify(peerReviewState) }),
     [peerReviewState],
   )
-
+  if (!courseId) {
+    return <Spinner />
+  }
   return (
     <>
       <Switch

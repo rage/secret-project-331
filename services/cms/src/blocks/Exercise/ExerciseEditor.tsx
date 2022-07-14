@@ -154,7 +154,11 @@ const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
                 margin-top: 1rem;
               `}
             >
-              <PeerReviewEditor attributes={attributes} setAttributes={setAttributes} />
+              <PeerReviewEditor
+                attributes={attributes}
+                setAttributes={setAttributes}
+                exerciseId={attributes.id}
+              />
             </div>
           </ExerciseEditorCard>
         </Centered>

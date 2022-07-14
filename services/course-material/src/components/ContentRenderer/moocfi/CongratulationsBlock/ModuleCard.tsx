@@ -1,9 +1,10 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
 import CircularCheck from "../../../../img/circular-check.svg"
 import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
-import { headingFont } from "../../../../shared-module/styles"
+import { headingFont, typography } from "../../../../shared-module/styles"
 
 import CongratulationsLinks from "./CongratulationsLinks"
 
@@ -42,7 +43,13 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
   return (
     <Wrapper>
       {module.completed && <StyledSVG />}
-      <h3>{module.name}</h3>
+      <h2
+        className={css`
+          font-size: ${typography.h5};
+        `}
+      >
+        {module.name}
+      </h2>
       <CongratulationsLinks module={module} />
     </Wrapper>
   )

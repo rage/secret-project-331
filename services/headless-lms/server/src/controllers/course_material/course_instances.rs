@@ -103,13 +103,7 @@ async fn get_module_completions_for_course_instance(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::CourseInstance(*course_instance_id),
-    )
-    .await?;
+    let token = skip_authorize()?;
     let module_completion_statuses =
         models::library::progressing::get_user_module_completion_statuses_for_course_instance(
             &mut conn,

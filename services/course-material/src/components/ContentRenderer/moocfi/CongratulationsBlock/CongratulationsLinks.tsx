@@ -27,7 +27,10 @@ const CongratulationsLinks: React.FC<CongratulationsLinksProps> = ({ module }) =
   const { t } = useTranslation()
   return (
     <CTAWrapper>
-      <a href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}>
+      <a
+        href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
+        aria-label={`Register completion for ${module.name}`}
+      >
         <Button variant="tertiary" size="large" disabled={!module.completed}>
           {t("register")}
         </Button>

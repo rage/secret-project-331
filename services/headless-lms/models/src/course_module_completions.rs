@@ -330,6 +330,8 @@ pub fn stream_by_course_module_id<'a>(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
+  AND prerequisite_modules_completed
+  AND eligible_for_ects
   AND deleted_at IS NULL
         "#,
         course_module_ids,

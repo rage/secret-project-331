@@ -128,6 +128,7 @@ fn ts_binding_generator() {
 
         library::progressing::CompletionRegistrationLink,
         library::progressing::UserCompletionInformation,
+        library::progressing::UserModuleCompletionStatus,
 
         organizations::Organization,
 

@@ -35,6 +35,7 @@ import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./moocfi/CourseProgressBlock"
@@ -106,20 +107,21 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/rss": RssBlock, // TODO
 
   // moocfi
+  "moocfi/aside": AsideBlock,
+  "moocfi/chapter-progress": ChapterProgressBlock,
+  "moocfi/congratulations": CongratulationsBlock,
+  "moocfi/course-chapter-grid": CourseChapterGridBlock,
+  "moocfi/course-objective-section": CourseObjectiveSectionBlock,
+  "moocfi/course-progress": CourseProgressBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseInChapterBlock,
-  "moocfi/pages-in-chapter": PagesInChapterBlock,
-  "moocfi/course-chapter-grid": CourseChapterGridBlock,
-  "moocfi/latex": LatexBlock,
-  "moocfi/aside": AsideBlock,
-  "moocfi/hero-section": HeroSectionBlock,
-  "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
-  "moocfi/course-progress": CourseProgressBlock,
-  "moocfi/course-objective-section": CourseObjectiveSectionBlock,
-  "moocfi/chapter-progress": ChapterProgressBlock,
-  "moocfi/learning-objectives": LearningObjectiveBlock,
   "moocfi/glossary": GlossaryBlock,
+  "moocfi/hero-section": HeroSectionBlock,
   "moocfi/infobox": InfoBox,
+  "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
+  "moocfi/latex": LatexBlock,
+  "moocfi/learning-objectives": LearningObjectiveBlock,
+  "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/sponsor": SponsorBlock,
   "moocfi/top-level-pages": TopLevelPageBlock,
 }

@@ -1,6 +1,9 @@
+use std::collections::HashSet;
+
 use crate::{
+    course_instances,
     course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules::CourseModule,
+    course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
@@ -151,6 +154,48 @@ pub async fn get_user_completion_information(
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
     })
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserModuleCompletionStatus {
+    pub completed: bool,
+    pub default: bool,
+    pub module_id: Uuid,
+    pub name: String,
+    pub order_number: i32,
+}
+
+/// Gets course modules with user's completion status for the given instance.
+pub async fn get_user_module_completion_statuses_for_course_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<UserModuleCompletionStatus>> {
+    let course_id = course_instances::get_course_id(conn, course_instance_id).await?;
+    let course = courses::get_course(conn, course_id).await?;
+    let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    let course_module_completions: HashSet<Uuid> =
+        course_module_completions::get_by_course_instance_and_user_ids(
+            conn,
+            course_instance_id,
+            user_id,
+        )
+        .await?
+        .into_iter()
+        .map(|x| x.course_module_id)
+        .collect();
+    let course_module_completion_statuses = course_modules
+        .into_iter()
+        .map(|module| UserModuleCompletionStatus {
+            completed: course_module_completions.contains(&module.id),
+            default: module.is_default_module(),
+            module_id: module.id,
+            name: module.name.unwrap_or_else(|| course.name.clone()),
+            order_number: module.order_number,
+        })
+        .collect();
+    Ok(course_module_completion_statuses)
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]

@@ -1,11 +1,14 @@
 import styled from "@emotion/styled"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ConfettiBg from "../../img/confetti-bg.svg"
-import BackgroundImage from "../../img/congratulation-bg.svg"
-import { headingFont } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
+import ConfettiBg from "../../../../img/confetti-bg.svg"
+import BackgroundImage from "../../../../img/congratulation-bg.svg"
+import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
+import { headingFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
+import CongratulationsLinks from "./CongratulationsLinks"
 import ModuleCard from "./ModuleCard"
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -47,11 +50,7 @@ const Content = styled.div`
     }
   }
 `
-export const CTAWrapper = styled.div`
-  margin-top: 2rem;
-  display: flex;
-  align-items: center;
-`
+
 export const RegisterLink = styled.a`
   padding: 1rem 2rem;
   background: #1a2333;
@@ -65,11 +64,7 @@ export const RegisterLink = styled.a`
     font-size: 20px;
   }
 `
-export const StyledLink = styled.a`
-  padding: 1rem;
-  font-size: 20px;
-  line-height: 1.1;
-`
+
 const StyledSVG = styled(ConfettiBg)`
   position: absolute;
   left: 0;
@@ -92,38 +87,35 @@ const ModuleWrapper = styled.div`
   }
 `
 
-const modules = [
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Bonus module", title: "The Introduction to the University of Helsinki and ..." },
-  // eslint-disable-next-line i18next/no-literal-string
-  { name: "Another bonus module", title: "The Introduction to the secret project and MOOC ..." },
-]
+export interface CongratulationsProps {
+  modules: Array<UserModuleCompletionStatus>
+}
 
-// eslint-disable-next-line i18next/no-literal-string
-const subTitle = "The passage experienced a surge in popularity during the again during the 90s as"
-
-const Congratulation = (/* { modules } */) => {
+const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
   const { t } = useTranslation()
-  const isModule = modules.length > 1
+  const multipleModules = modules.length > 1
   return (
     <Wrapper>
       <StyledBackground />
       <Content>
         <StyledSVG />
-        <h1 className="heading">{t("congratulation")}!</h1>
-        <span className="subtitle">{subTitle}</span>
-        {!isModule && (
-          <CTAWrapper>
-            <RegisterLink>{t("register")}</RegisterLink>
-            <StyledLink>{t("generate-certicate")}</StyledLink>
-          </CTAWrapper>
+        <h1 className="heading">{t("congratulations")}!</h1>
+        <span className="subtitle">
+          {t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")}
+        </span>
+        {!multipleModules && <CongratulationsLinks module={modules[0]} />}
+        {multipleModules && (
+          <ModuleWrapper>
+            {modules
+              .sort((a, b) => a.order_number - b.order_number)
+              .map((module) => (
+                <ModuleCard key={module.module_id} module={module} />
+              ))}
+          </ModuleWrapper>
         )}
-        <ModuleWrapper>
-          {isModule && modules.map(({ title, name }) => <ModuleCard title={title} key={name} />)}
-        </ModuleWrapper>
       </Content>
     </Wrapper>
   )
 }
 
-export default Congratulation
+export default Congratulations

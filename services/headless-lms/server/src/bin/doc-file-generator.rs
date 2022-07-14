@@ -248,6 +248,7 @@ fn main() {
         description: Some("Example".to_string()),
         is_draft: true,
         is_test_mode: false,
+        base_module_completion_requires_n_submodule_completions: 0,
     };
     let chapter = Chapter {
         id,

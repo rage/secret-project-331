@@ -22,6 +22,7 @@ pub struct CourseModuleCompletion {
     pub email: String,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub prerequisite_modules_completed: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]

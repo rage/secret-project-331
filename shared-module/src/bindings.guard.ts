@@ -475,7 +475,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
     typeof obj.course_language_group_id === "string" &&
     typeof obj.is_draft === "boolean" &&
-    typeof obj.is_test_mode === "boolean"
+    typeof obj.is_test_mode === "boolean" &&
+    typeof obj.base_module_completion_requires_n_submodule_completions === "number"
   )
 }
 

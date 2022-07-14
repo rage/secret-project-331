@@ -3667,6 +3667,37 @@
 <span id="3662">3662</span>
 <span id="3663">3663</span>
 <span id="3664">3664</span>
+<span id="3665">3665</span>
+<span id="3666">3666</span>
+<span id="3667">3667</span>
+<span id="3668">3668</span>
+<span id="3669">3669</span>
+<span id="3670">3670</span>
+<span id="3671">3671</span>
+<span id="3672">3672</span>
+<span id="3673">3673</span>
+<span id="3674">3674</span>
+<span id="3675">3675</span>
+<span id="3676">3676</span>
+<span id="3677">3677</span>
+<span id="3678">3678</span>
+<span id="3679">3679</span>
+<span id="3680">3680</span>
+<span id="3681">3681</span>
+<span id="3682">3682</span>
+<span id="3683">3683</span>
+<span id="3684">3684</span>
+<span id="3685">3685</span>
+<span id="3686">3686</span>
+<span id="3687">3687</span>
+<span id="3688">3688</span>
+<span id="3689">3689</span>
+<span id="3690">3690</span>
+<span id="3691">3691</span>
+<span id="3692">3692</span>
+<span id="3693">3693</span>
+<span id="3694">3694</span>
+<span id="3695">3695</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -3679,9 +3710,9 @@
     <span class="ident">chapters::NewChapter</span>,
     <span class="ident">course_instance_enrollments</span>,
     <span class="ident">course_instance_enrollments::NewCourseInstanceEnrollment</span>,
-    <span class="ident">course_instances</span>,
-    <span class="ident">course_instances::NewCourseInstance</span>,
-    <span class="ident">course_modules</span>, <span class="ident">courses</span>,
+    <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
+    <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">AutomaticCompletionCriteria</span>, <span class="ident">AutomaticCompletionPolicy</span>},
+    <span class="ident">courses</span>,
     <span class="ident">courses::NewCourse</span>,
     <span class="ident">exams</span>,
     <span class="ident">exams::NewExam</span>,
@@ -3691,7 +3722,7 @@
     <span class="ident">exercises::GradingProgress</span>,
     <span class="ident">feedback</span>,
     <span class="ident">feedback</span>::{<span class="ident">FeedbackBlock</span>, <span class="ident">NewFeedback</span>},
-    <span class="ident">glossary</span>, <span class="ident">organizations</span>,
+    <span class="ident">glossary</span>, <span class="ident">open_university_registration_links</span>, <span class="ident">organizations</span>,
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages</span>,
     <span class="ident">pages</span>::{<span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>},
@@ -4012,6 +4043,37 @@
         <span class="kw-2">&amp;</span><span class="ident">users</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">automatic_completions_id</span> <span class="op">=</span> <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">uh_cs</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b39b64f3-7718-4556-ac2b-333f3ed4096f&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Automatic Completions&quot;</span>,
+        <span class="string">&quot;automatic-completions&quot;</span>,
+        <span class="ident">admin</span>,
+        <span class="ident">student</span>,
+        <span class="kw-2">&amp;</span><span class="ident">users</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">automatic_default_module</span> <span class="op">=</span>
+        <span class="ident">course_modules::get_default_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">automatic_completions_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">automatic_default_module</span> <span class="op">=</span> <span class="ident">course_modules::update_automatic_completion_status</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">automatic_default_module</span>.<span class="ident">id</span>,
+        <span class="kw-2">&amp;</span><span class="ident">AutomaticCompletionPolicy::AutomaticCompletion</span>(<span class="ident">AutomaticCompletionCriteria</span> {
+            <span class="ident">number_of_exercises_attempted_treshold</span>: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            <span class="ident">number_of_points_treshold</span>: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+        }),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">course_modules::update_uh_course_code</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">automatic_default_module</span>.<span class="ident">id</span>,
+        <span class="prelude-val">Some</span>(<span class="string">&quot;EXAMPLE123&quot;</span>.<span class="ident">to_string</span>()),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">open_university_registration_links::upsert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;EXAMPLE123&quot;</span>, <span class="string">&quot;https://www.example.com&quot;</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="ident">roles::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">language_teacher</span>,

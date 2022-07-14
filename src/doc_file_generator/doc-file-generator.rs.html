@@ -1040,6 +1040,27 @@
 <span id="1035">1035</span>
 <span id="1036">1036</span>
 <span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1085,7 +1106,9 @@
             <span class="ident">CourseMaterialPeerReviewData</span>, <span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span>,
             <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>,
         },
-        <span class="ident">progressing</span>::{<span class="ident">CompletionRegistrationLink</span>, <span class="ident">UserCompletionInformation</span>},
+        <span class="ident">progressing</span>::{
+            <span class="ident">CompletionRegistrationLink</span>, <span class="ident">UserCompletionInformation</span>, <span class="ident">UserModuleCompletionStatus</span>,
+        },
     },
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
     <span class="ident">organizations::Organization</span>,
@@ -2052,6 +2075,25 @@
             <span class="ident">uh_course_code</span>: <span class="string">&quot;ABC123&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">ects_credits</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>),
         }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserModuleCompletionStatus</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[
+            <span class="ident">UserModuleCompletionStatus</span> {
+                <span class="ident">completed</span>: <span class="bool-val">false</span>,
+                <span class="ident">default</span>: <span class="bool-val">true</span>,
+                <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">order_number</span>: <span class="number">0</span>,
+            },
+            <span class="ident">UserModuleCompletionStatus</span> {
+                <span class="ident">completed</span>: <span class="bool-val">true</span>,
+                <span class="ident">default</span>: <span class="bool-val">false</span>,
+                <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">order_number</span>: <span class="number">1</span>,
+            }
+        ]
     );
     <span class="macro">write_docs!</span>(
         <span class="ident">CompletionRegistrationLink</span>,

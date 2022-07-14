@@ -141,12 +141,40 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">chapters::UserCourseInstanceChapterProgress</span>,
     <span class="ident">course_instance_enrollments</span>::{<span class="ident">CourseInstanceEnrollment</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
+    <span class="ident">library::progressing::UserModuleCompletionStatus</span>,
     <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
 };
 
@@ -235,6 +263,28 @@ GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapte
 }
 
 <span class="doccomment">/**
+GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
+ */</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_module_completions_for_course_instance</span>(
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserModuleCompletionStatus</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">module_completion_statuses</span> <span class="op">=</span>
+        <span class="ident">models::library::progressing::get_user_module_completion_statuses_for_course_instance</span>(
+            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">user</span>.<span class="ident">id</span>,
+            <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">module_completion_statuses</span>))
+}
+
+<span class="doccomment">/**
 POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -277,6 +327,10 @@ POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enroll
     .<span class="ident">route</span>(
         <span class="string">&quot;/{course_instance_id}/chapters/{chapter_id}/progress&quot;</span>,
         <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_user_progress_for_course_instance_chapter</span>),
+    )
+    .<span class="ident">route</span>(
+        <span class="string">&quot;/{course_instance_id}/module-completions&quot;</span>,
+        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_module_completions_for_course_instance</span>),
     );
 }
 </code></pre></div>

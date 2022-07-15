@@ -759,6 +759,7 @@ fn main() {
         }]
     );
     write_docs!(Page, page.clone());
+    write_docs!(Option<Page>, Some(page.clone()));
     write_docs!(
         Vec<PageHistory>,
         vec![PageHistory {

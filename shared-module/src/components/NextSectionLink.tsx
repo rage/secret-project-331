@@ -164,7 +164,17 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
               </a>
             </Link>
           )}
-          <LinkOrNoLink url={url}>
+          <LinkOrNoLink
+            url={url}
+            linkClassName={css`
+              overflow: hidden;
+              text-decoration: none;
+              &:focus-visible {
+                outline: 2px solid ${baseTheme.colors.green[500]};
+                outline-offset: 2px;
+              }
+            `}
+          >
             <div
               className={css`
                 display: flex;

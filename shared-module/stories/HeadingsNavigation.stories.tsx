@@ -3,14 +3,14 @@ import { css } from "@emotion/css"
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import TopicNavigation from "../src/components/TopicNavigation"
+import HeadingsNavigation from "../src/components/HeadingsNavigation"
 
 export default {
-  title: "Components/TopicNavigation",
-  component: TopicNavigation,
+  title: "Components/HeadingsNavigation",
+  component: HeadingsNavigation,
 } as Meta
 
-const Component = TopicNavigation
+const Component = HeadingsNavigation
 
 type ComponentProps = React.ComponentProps<typeof Component>
 

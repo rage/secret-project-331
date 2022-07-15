@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../hooks/useHeadingData"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
@@ -68,7 +69,7 @@ const HeroSection: React.FC<CardProps> = ({
       `}
     >
       <TextBox>
-        <h1>{title}</h1>
+        <h1 className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}>{title}</h1>
         <span>{subtitle}</span>
       </TextBox>
     </div>

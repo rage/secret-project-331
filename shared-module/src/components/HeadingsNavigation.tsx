@@ -85,9 +85,9 @@ export interface Topic {
 const Y_OFFSET = 650
 const TOP_OFFSET = 50
 
-export type TopicNavigationProps = React.HTMLAttributes<HTMLDivElement>
+export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
-const TopicNavigation: React.FC<TopicNavigationProps> = () => {
+const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [isActive, setIsActive] = useState<string>("id-1")
   const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
@@ -158,7 +158,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
         <StyledTopics role="navigation">
           <div>
             {headings &&
-              headings.map(({ id, title }) => {
+              headings.map(({ id, title, offsetTop }) => {
                 return (
                   <StTopic
                     key={id}
@@ -172,9 +172,7 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
                         href={`#${id}`}
                         onClick={(e) => {
                           e.preventDefault()
-                          document.querySelector(`[id='${id}']`)?.scrollIntoView({
-                            behavior: "smooth",
-                          })
+                          window.scrollTo({ top: offsetTop, behavior: "smooth" })
                         }}
                       >
                         {title}
@@ -215,4 +213,4 @@ const TopicNavigation: React.FC<TopicNavigationProps> = () => {
   )
 }
 
-export default TopicNavigation
+export default HeadingsNavigation

@@ -1,48 +1,56 @@
 import { useEffect, useState } from "react"
 
-export interface Item {
-  id: string
-  title: string
-}
+export const INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS =
+  "include-this-heading-in-headings-navigation"
 
-export interface NestedHeadings {
+export interface Heading {
   id: string
   title: string
-  items: Item[]
   offsetHeight: number
   offsetTop: number
+  level: number
 }
 
-const getNestedHeadings = (headingElements: HTMLElement[]) => {
-  const nestedHeadings: NestedHeadings[] = []
+const getHeadings = (headingElements: HTMLHeadingElement[]) => {
+  const headings: Heading[] = []
 
   headingElements.forEach((heading) => {
-    const { innerText: title, id, offsetHeight, offsetTop } = heading
+    try {
+      const { innerText: title, id, offsetHeight, offsetTop, tagName } = heading
+      const level = parseInt(tagName.replace(/[^0-6]+/g, ""))
 
-    if (heading.nodeName === "H2") {
-      nestedHeadings.push({ id, title, offsetHeight, offsetTop, items: [] })
-    } else if (heading.nodeName === "H3" && nestedHeadings.length > 0) {
-      nestedHeadings[nestedHeadings.length - 1].items.push({
-        id,
-        title,
-      })
+      headings.push({ id, title, offsetHeight, offsetTop, level })
+    } catch (e) {
+      // eslint-disable-next-line i18next/no-literal-string
+      console.error(`Could not parse heading`, heading, e)
     }
   })
 
-  return nestedHeadings
+  return headings
 }
 
 export default function useHeadingData() {
-  const [headings, setHeadings] = useState<NestedHeadings[]>([])
+  const [headings, setHeadings] = useState<Heading[]>([])
 
   useEffect(() => {
     // eslint-disable-next-line i18next/no-literal-string
-    const headingElements = Array.from(document.querySelectorAll<HTMLElement>("h2, h3"))
+    const headingElements = Array.from(
+      document.querySelectorAll<HTMLHeadingElement>(
+        // eslint-disable-next-line i18next/no-literal-string
+        `h1.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
+        h2.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
+        h3.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
+        h4.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
+        h5.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS},
+        h6.${INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}`,
+      ),
+    )
+
     headingElements.forEach((heading, idx) => {
       // eslint-disable-next-line i18next/no-literal-string
       heading.id = `course-page-heading-${idx}`
     })
-    const result = getNestedHeadings(headingElements)
+    const result = getHeadings(headingElements)
     setHeadings(result)
   }, [])
 

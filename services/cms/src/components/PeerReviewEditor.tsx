@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -11,6 +12,7 @@ import PageContext from "../contexts/PageContext"
 import {
   CmsPeerReview,
   CmsPeerReviewQuestion,
+  PeerReviewAcceptingStrategy,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
@@ -148,10 +150,26 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const { t } = useTranslation()
 
-  const options = [
+  const peerReviewQuestionTypeoptions = [
     { label: t("select-question"), value: "", disabled: true },
     { label: t("essay"), value: t("essay") },
     { label: t("linkert-scale"), value: t("linkert-scale") },
+  ]
+
+  const peerReviewAcceptingStrategyOptions = [
+    { label: "Select accepting strategy", value: "", disabled: true },
+    {
+      label: "Automatically accept or reject by average",
+      value: "automatically_accept_or_reject_by_average",
+    },
+    {
+      label: "Automatically accept or manual review by average",
+      value: "automatically_accept_or_manual_review_by_average",
+    },
+    {
+      label: "Manual review everything",
+      value: "manual_review_everything",
+    },
   ]
 
   const handlePeerReviewQuestionChange = (e: any) => {
@@ -212,7 +230,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   exercise_id: exerciseId,
                   peer_reviews_to_give: 0,
                   peer_reviews_to_receive: 0,
-                  // eslint-disable-next-line i18next/no-literal-string
                   accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
                   accepting_threshold: 0,
                 },
@@ -263,6 +280,41 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       ])
                     }}
                   />
+                  <span>{t("peer-review-accepting-strategy")}</span>
+                  <SelectField
+                    id={`peer-review-accepting-strategy-${id}`}
+                    onBlur={() => null}
+                    onChange={(e) => {
+                      const peerReview = peerReviewState.filter((prx) => prx.id === pr.id)[0]
+                      let strategy: PeerReviewAcceptingStrategy =
+                        "AutomaticallyAcceptOrManualReviewByAverage"
+
+                      if (e === "AutomaticallyAcceptOrRejectByAverage") {
+                        strategy = "AutomaticallyAcceptOrRejectByAverage"
+                      } else if (e === "AutomaticallyAcceptOrManualReviewByAverage") {
+                        strategy = "AutomaticallyAcceptOrManualReviewByAverage"
+                      } else if (e === "ManualReviewEverything") {
+                        strategy = "ManualReviewEverything"
+                      }
+                      peerReviewSetState([
+                        { ...peerReview, accepting_strategy: strategy },
+                        ...peerReviewState.filter((prx) => prx.id !== pr.id),
+                      ])
+                    }}
+                    options={peerReviewAcceptingStrategyOptions}
+                  />
+                  <span>{t("peer-review-accepting-threshold")}</span>
+                  <input
+                    type={"number"}
+                    step="0.01"
+                    onChange={(e) => {
+                      const peerReview = peerReviewState.filter((prx) => prx.id === pr.id)[0]
+                      peerReviewSetState([
+                        { ...peerReview, accepting_threshold: Number(e.target.value) },
+                        ...peerReviewState.filter((prx) => prx.id !== pr.id),
+                      ])
+                    }}
+                  />
 
                   <h2>{HEADING_TEXT}</h2>
                   {peerReviewQuestionState &&
@@ -309,7 +361,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
                       if (question !== "" && type !== "") {
                         const questionType: PeerReviewQuestionType =
-                          // eslint-disable-next-line i18next/no-literal-string
                           type === "Essay" ? "Essay" : "Scale"
                         peerReviewQuestionSetState([
                           ...peerReviewQuestionState,
@@ -331,7 +382,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       id={`question-type-${id}`}
                       name={TYPE}
                       placeholder={PLACEHOLDER}
-                      options={options}
+                      options={peerReviewQuestionTypeoptions}
                       onChange={() => null}
                       onBlur={() => null}
                     />

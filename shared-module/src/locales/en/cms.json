@@ -67,5 +67,7 @@
   "top-level-block-placeholder": "Top level pages placeholder",
   "top-level-block-placeholder-explanation": "This block list all the top level pages in a course and it is placed on the course material front page.",
   "peer-reviews-to-receive": "Peer reviews to receive",
-  "peer-reviews-to-give": "Peer reviews to give"
+  "peer-reviews-to-give": "Peer reviews to give",
+  "peer-review-accepting-strategy": "Peer review accepting strategy",
+  "peer-review-accepting-threshold": "Peer review accepting threshold"
 }

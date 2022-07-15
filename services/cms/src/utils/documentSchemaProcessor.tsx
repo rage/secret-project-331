@@ -56,7 +56,6 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     }
     const originalExerciseBlock = block as BlockInstance<ExerciseAttributes>
     const exerciseAttributes = block.attributes as ExerciseAttributes
-    console.log(exerciseAttributes.peer_review_config.replaceAll(`'`, `"`))
     peerReviews = JSON.parse(exerciseAttributes.peer_review_config.replaceAll(`'`, `"`))
     peerReviewQuestions = JSON.parse(
       exerciseAttributes.peer_review_questions_config.replaceAll(`'`, `"`),

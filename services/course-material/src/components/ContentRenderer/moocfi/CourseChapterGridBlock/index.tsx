@@ -25,7 +25,7 @@ const CourseChapterGridBlock: React.FC = () => {
     <BreakFromCentered sidebar={false}>
       <div
         className={css`
-          padding: 4em 0;
+          padding: 1em 0;
         `}
       >
         <ChapterGrid courseId={pageContext.pageData.course_id} />

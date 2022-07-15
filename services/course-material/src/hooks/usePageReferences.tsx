@@ -51,12 +51,14 @@ const useReferences = (courseId: string) => {
           }),
         )
 
-        Array.from(refs).forEach(
-          (r) =>
-            (r.innerHTML = `[${
-              refToNum[r.dataset.citationId ? r.dataset.citationId : "citationId"]
-            }]`),
-        )
+        Array.from(refs).forEach((r) => {
+          // eslint-disable-next-line i18next/no-literal-string
+          r.style.position = "relative"
+          // eslint-disable-next-line i18next/no-literal-string
+          r.innerHTML = `<span style="color: #46749B;"}>[${
+            refToNum[r.dataset.citationId ? r.dataset.citationId : "citationId"]
+          }]</span>`
+        })
       }
     }
     setTimeout(callback, 10)

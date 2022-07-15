@@ -1,10 +1,21 @@
 //! Controllers for requests starting with `/api/v0/study-registry/completions`
+//!
+//! The study registry provides an access to student completion records. It is generally only available
+//! to authorized study registries, meaning that most endpoints will require a valid authorization token
+//! to access.
+//!
+//! When accessing study registry, the authorization token should be given as the following header:
+//! ```http
+//! Authorization: Basic documentationOnlyExampleSecretKey-12345
+//! ```
+//!
+//! For more details, please view the individual functions.
 
 use actix_web::http::header::ContentType;
 use bytes::Bytes;
 
 use futures::{future, StreamExt};
-use models::course_modules::Module;
+use models::course_modules::CourseModule;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
@@ -212,7 +223,7 @@ async fn get_module_completions(
 #[doc(hidden)]
 async fn module_belongs_to_course(
     conn: &mut PgConnection,
-    module: &Module,
+    module: &CourseModule,
     course_id_slug_or_code: &str,
 ) -> anyhow::Result<bool> {
     if module.uh_course_code.as_deref() == Some(course_id_slug_or_code) {
@@ -232,6 +243,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
+#[doc(hidden)]
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id_slug_or_code}", web::get().to(get_completions))
         .route(

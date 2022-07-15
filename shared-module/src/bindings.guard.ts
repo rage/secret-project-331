@@ -22,6 +22,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
+  CompletionRegistrationLink,
   ContentManagementPage,
   Course,
   CourseCount,
@@ -38,9 +39,11 @@ import {
   CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
+  CourseModule,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
+  CreateAccountDetails,
   DatabaseChapter,
   EditProposalInfo,
   EmailTemplate,
@@ -81,10 +84,10 @@ import {
   GradingProgress,
   HistoryChangeReason,
   HistoryRestoreData,
+  IsChapterFrontPage,
   Login,
   MarkAsRead,
   MaterialReference,
-  Module,
   NewChapter,
   NewCourse,
   NewExam,
@@ -131,10 +134,12 @@ import {
   TermUpdate,
   UploadResult,
   User,
+  UserCompletionInformation,
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
 } from "./bindings"
@@ -433,15 +438,24 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
   )
 }
 
-export function isModule(obj: any, _argumentName?: string): obj is Module {
+export function isCourseModule(obj: any, _argumentName?: string): obj is CourseModule {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
     (obj.name === null || typeof obj.name === "string") &&
     typeof obj.course_id === "string" &&
     typeof obj.order_number === "number" &&
     (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.uh_course_code === null || typeof obj.uh_course_code === "string")
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    typeof obj.automatic_completion === "boolean" &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
   )
 }
 
@@ -632,10 +646,10 @@ export function isExerciseServiceInfoApi(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.service_name === "string" &&
-    typeof obj.exercise_type_specific_user_interface_iframe === "string" &&
+    typeof obj.user_interface_iframe_path === "string" &&
     typeof obj.grade_endpoint_path === "string" &&
     typeof obj.public_spec_endpoint_path === "string" &&
-    typeof obj.model_solution_path === "string"
+    typeof obj.model_solution_spec_endpoint_path === "string"
   )
 }
 
@@ -938,6 +952,44 @@ export function isCourseMaterialPeerReviewSubmission(
   )
 }
 
+export function isCompletionRegistrationLink(
+  obj: any,
+  _argumentName?: string,
+): obj is CompletionRegistrationLink {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.url === "string"
+  )
+}
+
+export function isUserCompletionInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is UserCompletionInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.course_module_completion_id === "string" &&
+    typeof obj.course_name === "string" &&
+    typeof obj.uh_course_code === "string" &&
+    typeof obj.email === "string" &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number")
+  )
+}
+
+export function isUserModuleCompletionStatus(
+  obj: any,
+  _argumentName?: string,
+): obj is UserModuleCompletionStatus {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.completed === "boolean" &&
+    typeof obj.default === "boolean" &&
+    typeof obj.module_id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number"
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1198,6 +1250,13 @@ export function isPageChapterAndCourseInformation(
     (obj.chapter_front_page_url_path === null ||
       typeof obj.chapter_front_page_url_path === "string") &&
     typeof obj.organization_slug === "string"
+  )
+}
+
+export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.is_chapter_front_page === "boolean"
   )
 }
 
@@ -1590,9 +1649,12 @@ export function isUserCourseInstanceProgress(
     typeof obj.course_module_name === "string" &&
     typeof obj.course_module_order_number === "number" &&
     typeof obj.score_given === "number" &&
+    (obj.score_required === null || typeof obj.score_required === "number") &&
     (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
     (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
+    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number") &&
+    (obj.attempted_exercises_required === null ||
+      typeof obj.attempted_exercises_required === "number")
   )
 }
 
@@ -1656,6 +1718,21 @@ export function isCourseMaterialCourseModule(
     typeof obj.is_default === "boolean" &&
     (obj.name === null || typeof obj.name === "string") &&
     typeof obj.order_number === "number"
+  )
+}
+
+export function isCreateAccountDetails(
+  obj: any,
+  _argumentName?: string,
+): obj is CreateAccountDetails {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.email === "string" &&
+    typeof obj.first_name === "string" &&
+    typeof obj.last_name === "string" &&
+    typeof obj.language === "string" &&
+    typeof obj.password === "string" &&
+    typeof obj.password_confirmation === "string"
   )
 }
 

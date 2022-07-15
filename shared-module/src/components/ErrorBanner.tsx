@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { AxiosError } from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -165,6 +166,34 @@ const ErrorBanner: React.FC<BannerProps> = (props) => {
               )}
             </DetailTag>
             {data.data && <Text>{linkComponent}</Text>}
+          </Content>
+        </BannerWrapper>
+      )
+    } else if (error.isAxiosError) {
+      const axiosError = error as AxiosError
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const responseMessage = (axiosError.response?.data as any)?.message
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>
+                {t("error-title")}: {axiosError.message}
+              </h2>
+              {responseMessage && <p>{responseMessage}</p>}
+            </Text>
+            <DetailTag>
+              {Boolean(axiosError.response?.data) && (
+                <details>
+                  <summary>{t("show-error-source")}</summary>
+                  <ul>
+                    <li>
+                      <pre>{JSON.stringify(axiosError.response?.data, undefined, 2)}</pre>
+                    </li>
+                  </ul>
+                </details>
+              )}
+            </DetailTag>
           </Content>
         </BannerWrapper>
       )

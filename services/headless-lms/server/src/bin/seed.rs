@@ -10,10 +10,9 @@ use headless_lms_models::{
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
-    course_instances,
-    course_instances::NewCourseInstance,
-    course_module_completions::{self, NewCourseModuleCompletion},
-    course_modules, courses,
+    course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    courses,
     courses::NewCourse,
     exams,
     exams::NewExam,
@@ -23,7 +22,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, organizations,
+    glossary, open_university_registration_links, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -344,6 +343,37 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    let automatic_completions_id = seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+        "Automatic Completions",
+        "automatic-completions",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_default_module.id,
+        &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
+        .await?;
+
     roles::insert(
         &mut conn,
         language_teacher,
@@ -381,6 +411,18 @@ async fn main() -> Result<()> {
         uh_cs,
         cs_intro,
         Uuid::parse_str("6959e7af-6b78-4d37-b381-eef5b7aaad6c")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
+        "Ongoing plenty of time".to_string(),
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(120)),
+        730,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
         teacher,
     )
     .await?;
@@ -1701,6 +1743,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1760,6 +1803,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1838,6 +1882,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1937,6 +1982,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2020,6 +2066,7 @@ async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2038,6 +2085,7 @@ async fn seed_sample_course(
         serde_json::from_str(include_str!(
             "../assets/quizzes-multiple-choice-feedback.json"
         ))?,
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let page_3 = create_page(
@@ -2609,26 +2657,6 @@ async fn seed_sample_course(
     glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
 
-    // Completions (maybe temporary)
-    course_module_completions::insert(
-        conn,
-        &NewCourseModuleCompletion {
-            course_id,
-            course_module_id,
-            user_id: student,
-            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
-            completion_registration_attempt_date: None,
-            completion_language: "en-US".to_string(),
-            eligible_for_ects: true,
-            email: "student@example.com".to_string(),
-            grade: Some(4),
-            passed: true,
-        },
-        None,
-    )
-    .await
-    .unwrap();
-
     Ok(course.id)
 }
 
@@ -2728,6 +2756,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2746,6 +2775,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         serde_json::from_str(include_str!(
             "../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2821,6 +2851,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2896,6 +2927,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     pages::update_page(
@@ -3303,6 +3335,19 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     }
 }
 
+fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/heading".to_string(),
+        is_valid: true,
+        client_id,
+        attributes: attributes! {
+            "content": content,
+            "level": level,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn create_best_exercise(
     exercise_id: Uuid,
@@ -3440,6 +3485,7 @@ fn quizzes_exercise(
     paragraph_id: Uuid,
     needs_peer_review: bool,
     private_spec: serde_json::Value,
+    deadline: Option<DateTime<Utc>>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -3464,7 +3510,7 @@ fn quizzes_exercise(
         score_maximum: 1,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
-        deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        deadline,
         needs_peer_review,
     };
     let exercise_slide = CmsPageExerciseSlide {
@@ -3552,7 +3598,7 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result(
+    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         &exercise,
         &grading,
@@ -3588,16 +3634,20 @@ async fn create_exam(
         Some(exam_id),
     )
     .await?;
+
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
-        create_best_exercise(
+        quizzes_exercise(
+            "Multiple choice with feedback".to_string(),
             Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
             Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
             Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
             Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
             Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
-            Uuid::new_v5(&course_id, b"8870d951-1a27-4544-ad1d-6e0ac19ec5ee"),
-            Uuid::new_v5(&course_id, b"59029dbd-b6bc-42c2-ad18-3d62b1844a23"),
-            Uuid::new_v5(&course_id, b"0b3098e1-c1f1-4b7b-87f8-ef38826cac79"),
+            false,
+            serde_json::from_str(include_str!(
+                "../assets/quizzes-multiple-choice-feedback.json"
+            ))?,
+            None,
         );
     let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
         create_best_exercise(
@@ -3616,7 +3666,19 @@ async fn create_exam(
             exercises: vec![exam_exercise_1, exam_exercise_2],
             exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
             exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
-            content: serde_json::json!([exam_exercise_block_1, exam_exercise_block_2,]),
+            content: serde_json::json!([
+                heading(
+                    "The exam",
+                    Uuid::parse_str("d6cf16ce-fe78-4e57-8399-e8b63d7fddac").unwrap(),
+                    1
+                ),
+                paragraph(
+                    "In this exam you're supposed to answer to two easy questions. Good luck!",
+                    Uuid::parse_str("474d4f21-798b-4ba0-b39f-120b134e7fa0").unwrap(),
+                ),
+                exam_exercise_block_1,
+                exam_exercise_block_2,
+            ]),
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,

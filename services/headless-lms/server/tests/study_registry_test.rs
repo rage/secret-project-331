@@ -100,12 +100,21 @@ async fn gets_and_registers_completions() {
 }
 
 async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
-    let user = headless_lms_models::users::insert_with_id(
+    let user_1 = headless_lms_models::users::insert_with_id(
         conn,
         "user@example.com",
         None,
         None,
         Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap(),
+    )
+    .await
+    .unwrap();
+    let user_2 = headless_lms_models::users::insert_with_id(
+        conn,
+        "user2@example.com",
+        None,
+        None,
+        Uuid::parse_str("934c6121-6e60-472f-b806-d0af058b8ce9").unwrap(),
     )
     .await
     .unwrap();
@@ -118,7 +127,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     )
     .await
     .unwrap();
-    let (course, ..) = headless_lms_models::courses::insert_course(
+    let (course, _, instance) = headless_lms_models::courses::insert_course(
         conn,
         Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
         Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
@@ -133,7 +142,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             is_draft: false,
             is_test_mode: false,
         },
-        user,
+        user_1,
     )
     .await
     .unwrap();
@@ -145,9 +154,10 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         conn,
         &NewCourseModuleCompletion {
             course_id: course.id,
+            course_instance_id: instance.id,
             course_module_id: course_module,
-            user_id: user,
-            completion_date: Utc.ymd(2022, 06, 13).and_hms(0, 0, 0),
+            user_id: user_1,
+            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -163,9 +173,10 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         conn,
         &NewCourseModuleCompletion {
             course_id: course.id,
+            course_instance_id: instance.id,
             course_module_id: course_module,
-            user_id: user,
-            completion_date: Utc.ymd(2022, 06, 13).and_hms(0, 0, 0),
+            user_id: user_2,
+            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -178,7 +189,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     .await
     .unwrap();
     (
-        user,
+        user_1,
         org,
         course.id,
         course_module,

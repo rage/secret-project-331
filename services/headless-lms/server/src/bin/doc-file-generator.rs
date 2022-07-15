@@ -43,14 +43,17 @@ use headless_lms_models::{
             CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
+        progressing::{
+            CompletionRegistrationLink, UserCompletionInformation, UserModuleCompletionStatus,
+        },
     },
     material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
-        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
+        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
+        PageInfo, PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
     peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
@@ -436,9 +439,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }
     );
     write_docs!(
@@ -448,9 +453,11 @@ fn main() {
             course_module_name: "Module".to_string(),
             course_module_order_number: 0,
             score_given: 3.0,
+            score_required: Some(7),
             score_maximum: Some(10),
             total_exercises: Some(66),
-            attempted_exercises: Some(13)
+            attempted_exercises: Some(13),
+            attempted_exercises_required: Some(40),
         }]
     );
 
@@ -938,6 +945,12 @@ fn main() {
         }
     );
     write_docs!(
+        IsChapterFrontPage,
+        IsChapterFrontPage {
+            is_chapter_front_page: true
+        }
+    );
+    write_docs!(
         CourseMaterialPeerReviewData,
         CourseMaterialPeerReviewData {
             peer_review: peer_review.clone(),
@@ -989,6 +1002,45 @@ fn main() {
             user_upstream_id: id,
             tier: None
         }]
+    );
+    write_docs!(
+        UserCompletionInformation,
+        UserCompletionInformation {
+            course_module_completion_id: id,
+            course_name: "Course".to_string(),
+            email: "student@example.com".to_string(),
+            uh_course_code: "ABC123".to_string(),
+            ects_credits: Some(5),
+        }
+    );
+    write_docs!(
+        Vec<UserModuleCompletionStatus>,
+        vec![
+            UserModuleCompletionStatus {
+                completed: false,
+                default: true,
+                module_id: Uuid::parse_str("299eba99-9aa2-4023-bd64-bd4b5d7578ba").unwrap(),
+                name: "Course".to_string(),
+                order_number: 0,
+            },
+            UserModuleCompletionStatus {
+                completed: true,
+                default: false,
+                module_id: Uuid::parse_str("c6c89368-c05d-498f-a2e3-10d7c327752c").unwrap(),
+                name: "Module".to_string(),
+                order_number: 1,
+            }
+        ]
+    );
+    write_docs!(
+        CompletionRegistrationLink,
+        CompletionRegistrationLink {
+            url: "https://www.example.com".to_string(),
+        }
+    );
+    write_docs!(
+        Vec<bool>,
+        vec![false, true, false, true, false, true, true, true]
     );
 }
 

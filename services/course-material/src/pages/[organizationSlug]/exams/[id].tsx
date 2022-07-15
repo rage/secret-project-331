@@ -17,6 +17,7 @@ import { Block, enrollInExam, fetchExam } from "../../../services/backend"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
@@ -128,18 +129,32 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
             exam.data.enrollment_data.tag === "NotYetStarted") && (
             <>
               <div>
-                {exam.data.starts_at
-                  ? t("exam-can-be-started-after", {
-                      "starts-at": exam.data.starts_at.toLocaleString(),
-                    })
-                  : t("exam-no-start-time")}
+                <HideTextInSystemTests
+                  text={
+                    exam.data.starts_at
+                      ? t("exam-can-be-started-after", {
+                          "starts-at": exam.data.starts_at.toLocaleString(),
+                        })
+                      : t("exam-no-start-time")
+                  }
+                  testPlaceholder={t("exam-can-be-started-after", {
+                    "starts-at": "1/1/1970, 0:00:00 AM",
+                  })}
+                />
               </div>
               <div>
-                {exam.data.ends_at
-                  ? t("exam-submissions-not-accepted-after", {
-                      "ends-at": exam.data.ends_at.toLocaleString(),
-                    })
-                  : t("exam-no-end-time")}
+                <HideTextInSystemTests
+                  text={
+                    exam.data.ends_at
+                      ? t("exam-submissions-not-accepted-after", {
+                          "ends-at": exam.data.ends_at.toLocaleString(),
+                        })
+                      : t("exam-no-end-time")
+                  }
+                  testPlaceholder={t("exam-submissions-not-accepted-after", {
+                    "ends-at": "1/1/1970, 7:00:00 PM",
+                  })}
+                />
               </div>
               <div> {t("exam-time-to-complete", { "time-minutes": exam.data.time_minutes })}</div>
             </>

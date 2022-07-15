@@ -18,31 +18,31 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   display: grid;
-  background: #d8dbdd;
+  background: #ebedee;
   grid-template-rows: 1fr;
-  padding: 1.5rem;
+  padding: 1rem;
   color: #231f20;
   position: relative;
   gap: 40px;
 
   ${respondToOrLarger.sm} {
     grid-template-columns: 1fr;
-    padding: 5rem 4rem 4.5rem 4rem;
+    padding: 4rem;
     gap: 20px;
     row-gap: 40px;
   }
 
   ${respondToOrLarger.lg} {
-    grid-template-columns: 0.5fr 1fr 0.5fr;
-    padding: 5rem 4rem 4.5rem 4rem;
+    grid-template-columns: 0.3fr 1fr 0.3fr;
+    padding: 4rem;
     gap: 20px;
     row-gap: 40px;
   }
 
   h1 {
-    margin-bottom: 1rem;
-    opacity: 0.8;
+    margin-bottom: 0.8rem;
     line-height: 1;
+    font-size: 1.2rem;
     color: ${baseTheme.colors.grey[700]};
     font-family: ${secondaryFont};
   }
@@ -63,7 +63,7 @@ const Wrapper = styled.div`
 const StyledLink = styled.a`
   text-decoration: none;
   color: ${baseTheme.colors.grey[700]};
-  font-size: 20px;
+  font-size: 18px;
   opacity: 0.7;
   transition: opacity 0.2s ease-in;
   margin-bottom: 5px;
@@ -84,20 +84,21 @@ const Text = styled.div`
 
   ${respondToOrLarger.sm} {
     padding: 0 2rem 0 0;
-    width: 100%;
+  }
+
+  ${respondToOrLarger.md} {
+    width: 90%;
   }
 
   ${respondToOrLarger.lg} {
     padding: 0 2rem 0 2rem;
-    width: 100%;
   }
   ${respondToOrLarger.xxl} {
     padding: 0 2rem 0 2rem;
-    width: 80%;
   }
 
   span {
-    font-size: 22px;
+    font-size: 18px;
     padding-right: 0;
     opacity: 0.7;
   }

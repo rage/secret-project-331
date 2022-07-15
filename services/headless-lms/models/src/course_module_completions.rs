@@ -12,6 +12,7 @@ pub struct CourseModuleCompletion {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
+    pub course_instance_id: Uuid,
     pub course_module_id: Uuid,
     pub user_id: Uuid,
     pub completion_date: DateTime<Utc>,
@@ -27,6 +28,7 @@ pub struct CourseModuleCompletion {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
+    pub course_instance_id: Uuid,
     pub course_module_id: Uuid,
     pub user_id: Uuid,
     pub completion_date: DateTime<Utc>,
@@ -48,6 +50,7 @@ pub async fn insert(
 INSERT INTO course_module_completions (
     id,
     course_id,
+    course_instance_id,
     course_module_id,
     user_id,
     completion_date,
@@ -69,12 +72,14 @@ VALUES (
     $8,
     $9,
     $10,
-    $11
+    $11,
+    $12
   )
 RETURNING id
         ",
         test_only_fixed_id,
         new_course_module_completion.course_id,
+        new_course_module_completion.course_instance_id,
         new_course_module_completion.course_module_id,
         new_course_module_completion.user_id,
         new_course_module_completion.completion_date,
@@ -135,6 +140,75 @@ pub async fn get_by_ids_as_map(
         .map(|x| (x.id, x))
         .collect();
     Ok(res)
+}
+
+/// Gets all module completions for the user on a single course instance. There can be multiple modules
+/// in a single course, so the result is a `Vec`.
+pub async fn get_by_course_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_instance_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        ",
+        course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_module_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND course_instance_id = $2
+  AND user_id = $3
+  AND deleted_at IS NULL
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_completion_registration_attempt_date(
+    conn: &mut PgConnection,
+    id: Uuid,
+    completion_registration_attempt_date: DateTime<Utc>,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions
+SET completion_registration_attempt_date = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        Some(completion_registration_attempt_date),
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
 }
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.

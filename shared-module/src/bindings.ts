@@ -189,13 +189,20 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
-export interface Module {
+export interface CourseModule {
   id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
   name: string | null
   course_id: string
   order_number: number
   copied_from: string | null
   uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+  ects_credits: number | null
 }
 
 export interface Course {
@@ -326,10 +333,10 @@ export interface CourseMaterialExerciseServiceInfo {
 
 export interface ExerciseServiceInfoApi {
   service_name: string
-  exercise_type_specific_user_interface_iframe: string
+  user_interface_iframe_path: string
   grade_endpoint_path: string
   public_spec_endpoint_path: string
-  model_solution_path: string
+  model_solution_spec_endpoint_path: string
 }
 
 export interface ExerciseService {
@@ -510,6 +517,26 @@ export interface CourseMaterialPeerReviewSubmission {
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
 }
 
+export interface CompletionRegistrationLink {
+  url: string
+}
+
+export interface UserCompletionInformation {
+  course_module_completion_id: string
+  course_name: string
+  uh_course_code: string
+  email: string
+  ects_credits: number | null
+}
+
+export interface UserModuleCompletionStatus {
+  completed: boolean
+  default: boolean
+  module_id: string
+  name: string
+  order_number: number
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -686,6 +713,10 @@ export interface PageChapterAndCourseInformation {
   chapter_front_page_id: string | null
   chapter_front_page_url_path: string | null
   organization_slug: string
+}
+
+export interface IsChapterFrontPage {
+  is_chapter_front_page: boolean
 }
 
 export interface PeerReview {
@@ -924,9 +955,11 @@ export interface UserCourseInstanceProgress {
   course_module_name: string
   course_module_order_number: number
   score_given: number
+  score_required: number | null
   score_maximum: number | null
   total_exercises: number | null
   attempted_exercises: number | null
+  attempted_exercises_required: number | null
 }
 
 export interface ExerciseUserCounts {
@@ -970,6 +1003,15 @@ export interface CourseMaterialCourseModule {
   is_default: boolean
   name: string | null
   order_number: number
+}
+
+export interface CreateAccountDetails {
+  email: string
+  first_name: string
+  last_name: string
+  language: string
+  password: string
+  password_confirmation: string
 }
 
 export interface RoleQuery {

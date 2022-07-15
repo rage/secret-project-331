@@ -653,16 +653,6 @@ export interface PageInfo {
   organization_slug: string | null
 }
 
-export interface PageRoutingDataWithChapterStatus {
-  url_path: string
-  title: string
-  chapter_number: number
-  chapter_id: string
-  chapter_opens_at: Date | null
-  chapter_front_page_id: string | null
-  chapter_status: ChapterStatus
-}
-
 export interface PageSearchRequest {
   query: string
 }
@@ -717,6 +707,21 @@ export interface PageChapterAndCourseInformation {
 
 export interface IsChapterFrontPage {
   is_chapter_front_page: boolean
+}
+
+export interface PageRoutingData {
+  url_path: string
+  title: string
+  chapter_number: number
+  chapter_id: string
+  chapter_opens_at: Date | null
+  chapter_front_page_id: string | null
+}
+
+export interface PageNavigationInformation {
+  chapter_front_page: PageRoutingData | null
+  next_page: PageRoutingData | null
+  previous_page: PageRoutingData | null
 }
 
 export interface PeerReview {
@@ -938,11 +943,6 @@ export interface UserCourseSettings {
   deleted_at: Date | null
   current_course_id: string
   current_course_instance_id: string
-}
-export interface PageNavigation {
-  chapter_front_page: Page | null
-  next_page: PageRoutingDataWithChapterStatus | null
-  previous_page: PageRoutingDataWithChapterStatus | null
 }
 
 export interface UserCourseInstanceChapterExerciseProgress {

@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Link from "next/link"
 import React, { Fragment } from "react"
+import { useTranslation } from "react-i18next"
 
 import ArrowSVGIcon from "../img/arrow.svg"
 import LockIcon from "../img/lock.svg"
@@ -47,11 +48,6 @@ const StyledLink = styled.a`
 
 export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
-// eslint-disable-next-line i18next/no-literal-string
-const nextPage = "Next Page:"
-// eslint-disable-next-line i18next/no-literal-string
-const chapterPage = "Chapter Page"
-
 const NextSectionLink: React.FC<NextSectionLinkProps> = ({
   title,
   subtitle,
@@ -60,6 +56,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
   previous,
   chapterFrontPageURL,
 }) => {
+  const { t } = useTranslation()
   return (
     <div
       className={css`
@@ -87,7 +84,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
               viewBox="0 0 39 39"
               transform="rotate(270)"
             />
-            <span>{chapterPage}</span>
+            <span>{t("chapter-front-page")}</span>
           </StyledLink>
         </Link>
       )}
@@ -133,37 +130,40 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
             }
           `}
         >
-          <div
-            className={css`
-              background: ${baseTheme.colors.green[100]};
-              display: flex;
-              justify-content: center;
-              align-items: center;
+          {previous && (
+            <Link href={previous} passHref>
+              <a href="replace" aria-label={t("previous-page")}>
+                <div
+                  className={css`
+                    background: ${baseTheme.colors.green[100]};
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100%;
 
-              &:hover {
-                filter: brightness(95%) contrast(110%);
-                cursor: pointer;
-              }
+                    &:hover {
+                      filter: brightness(95%) contrast(110%);
+                      cursor: pointer;
+                    }
 
-              .arrow {
-                fill: #44827e;
-              }
-            `}
-          >
-            {previous && (
-              <Link href={previous} passHref>
-                <ArrowSVGIcon
-                  id="left-svg-icon"
-                  role="presentation"
-                  alt=""
-                  width="25"
-                  height="25"
-                  viewBox="0 0 39 39"
-                  transform="rotate(180)"
-                />
-              </Link>
-            )}
-          </div>
+                    .arrow {
+                      fill: #44827e;
+                    }
+                  `}
+                >
+                  <ArrowSVGIcon
+                    id="left-svg-icon"
+                    role="presentation"
+                    alt=""
+                    width="25"
+                    height="25"
+                    viewBox="0 0 39 39"
+                    transform="rotate(180)"
+                  />
+                </div>
+              </a>
+            </Link>
+          )}
           <LinkOrNoLink url={url}>
             <div
               className={css`
@@ -171,19 +171,18 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
                 flex-direction: row;
                 width: 100%;
                 transition: filter 0.2s;
-
-                ${!url && `cursor: not-allowed;`}
-
+                cursor: ${url ? "pointer" : "not-allowed"};
                 &:hover {
                   text-decoration: none;
                   filter: brightness(92%) contrast(110%);
-                  cursor: pointer;
                 }
               `}
             >
               <div
                 className={css`
-                  background: ${baseTheme.colors.green[600]};
+                  background-color: ${url
+                    ? baseTheme.colors.green[600]
+                    : baseTheme.colors.grey[600]};
 
                   flex: 1;
                   line-height: 1.3;
@@ -196,12 +195,13 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
 
                   .next-page-title {
                     display: block;
-                    width: 68%;
+                    width: 100%;
                     font-size: ${typography.h4};
                     font-weight: bold;
                     color: #fff;
                     white-space: nowrap;
                     text-overflow: ellipsis;
+                    overflow: hidden;
                   }
                   .next-page-subtitle {
                     font-weight: medium;
@@ -214,7 +214,7 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
                   }
                 `}
               >
-                <span className="next-page-subtitle">{nextPage}</span>
+                <span className="next-page-subtitle">{t("next-page")}:</span>
                 <span className="next-page-title">
                   <HideTextInSystemTests
                     text={nextTitle}
@@ -226,7 +226,9 @@ const NextSectionLink: React.FC<NextSectionLinkProps> = ({
                 className={css`
                   color: white;
                   padding: 1rem 1rem;
-                  background: ${baseTheme.colors.green[600]};
+                  background-color: ${url
+                    ? baseTheme.colors.green[600]
+                    : baseTheme.colors.grey[600]};
                   display: flex;
                   justify-content: center;
                   align-items: center;

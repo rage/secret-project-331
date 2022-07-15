@@ -306,3 +306,26 @@ To log a variable with its display formatting:
 ```rust
 error!(%response_body, "Grading request returned an unsuccesful status code");
 ```
+
+## Async
+
+### Want to call an async function but one of the variables you want to pass to it is an Option
+
+In this example, we want to call the function `get_page` which takes an `Uuid` as the second argument. However, we want to pass `chapter.chapter_front_page_id` which is an `Option<Uuid>`. To get around the issue, we will call map on the `Option<Uuid>` to modify the value only when the option is not None. Then, since the get_page is an async function, and we cannot await inside the map we will return a Future from the closure and convert the result of the map to an `OptionFuture`, which allows us to await the result.
+
+
+```rust
+let page_option_future: OptionFuture<_> = chapter
+    .chapter_front_page_id
+    .map(|chapter_front_page_id| get_page(conn, chapter_front_page_id))
+    .into();
+let page = page_option_future.await.transpose()?; // The result is Option<Page>
+```
+
+Alternatively:
+
+```rust
+let page = OptionFuture::from(
+    chapter.chapter_front_page_id.map(|chapter_front_page_id| get_page(conn, chapter_front_page_id))
+).await.transpose()?; // The result is Option<Page>
+```

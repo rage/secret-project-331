@@ -25,9 +25,20 @@ const NextPage: React.FC<NextPageProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
+  const [nextPageChapterOpen, setnextPageChapterOpen] = React.useState(false)
 
-  const getPageRoutingData = useQuery(`pages-${chapterId}-page-routing-data`, () =>
-    fetchPageNavigationData(currentPageId),
+  const getPageRoutingData = useQuery(
+    `pages-${chapterId}-page-routing-data`,
+    () => fetchPageNavigationData(currentPageId),
+    {
+      onSuccess: (data) => {
+        if (!data.next_page || data.next_page.chapter_opens_at === null) {
+          return
+        }
+        const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
+        setnextPageChapterOpen(diffSeconds <= 0)
+      },
+    },
   )
 
   if (getPageRoutingData.isError) {
@@ -97,7 +108,7 @@ const NextPage: React.FC<NextPageProps> = ({
       />
     )
   }
-  if (next_page.chapter_status === "open") {
+  if (nextPageChapterOpen) {
     if (chapterId !== next_page.chapter_id) {
       // End of chapter NextSectionLink
       return (
@@ -129,7 +140,7 @@ const NextPage: React.FC<NextPageProps> = ({
       const diffSeconds = differenceInSeconds(next_page.chapter_opens_at, now)
       if (diffSeconds <= 0) {
         // eslint-disable-next-line i18next/no-literal-string
-        next_page.chapter_status = "open"
+        setnextPageChapterOpen(true)
         closedUntil = t("opens-now")
         // Insert confetti drop here.
       } else if (diffSeconds < 60 * 10) {

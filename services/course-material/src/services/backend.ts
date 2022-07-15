@@ -19,8 +19,7 @@ import {
   OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
-  PageNavigation,
-  PageRoutingDataWithChapterStatus,
+  PageNavigationInformation,
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
@@ -47,7 +46,7 @@ import {
   isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
-  isPageRoutingDataWithChapterStatus,
+  isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
@@ -246,28 +245,11 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const fetchNextPageRoutingData = async (
+export const fetchPageNavigationData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
-}
-export const fetchPreviousPageRoutingData = async (
-  currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/previous-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
-}
-
-export const fetchChapterFrontPageById = async (currentPageId: string): Promise<Page> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/chapter-front-page`)
-  return validateResponse(response, isPage)
-}
-export const fetchPageNavigationData = async (currentPageId: string): Promise<PageNavigation> => {
+): Promise<PageNavigationInformation> => {
   const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
-  // eslint-disable-next-line i18next/no-literal-string
-  console.log("response", response)
-  return response.data
+  return validateResponse(response, isPageNavigationInformation)
 }
 
 export const fetchPageChapterAndCourse = async (

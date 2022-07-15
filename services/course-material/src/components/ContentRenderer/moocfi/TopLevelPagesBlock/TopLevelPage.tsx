@@ -8,8 +8,10 @@ import { fetchTopLevelPages } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import TopLevelPage from "../../../../shared-module/components/TopLevelPage"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { headingFont } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { coursePageRoute } from "../../../../utils/routing"
 
 export interface TopLevelPagesProps {
   courseId: string
@@ -24,6 +26,8 @@ const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {
   const getTopLevelPages = useQuery(`courses-${courseId}-top-level-pages`, () =>
     fetchTopLevelPages(courseId),
   )
+  const courseSlug = useQueryParameter("courseSlug")
+  const organizationSlug = useQueryParameter("organizationSlug")
   return (
     <>
       {getTopLevelPages.isError && (
@@ -45,14 +49,17 @@ const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {
               >
                 {t("top-level-pages")}
               </h2>
-              {getTopLevelPages.data.map((page, index) => (
-                <TopLevelPage
-                  title={page.title}
-                  url={page.url_path}
-                  key={page.id}
-                  index={Number(index) + 1}
-                />
-              ))}
+              {getTopLevelPages.data.map((page, index) => {
+                const url = coursePageRoute(organizationSlug, courseSlug, page.url_path)
+                return (
+                  <TopLevelPage
+                    title={page.title}
+                    url={url}
+                    key={page.id}
+                    index={Number(index) + 1}
+                  />
+                )
+              })}
             </Wrapper>
           )}
         </>

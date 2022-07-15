@@ -772,6 +772,16 @@
       "nullable": [false]
     }
   },
+  "0ee18402a12224a28d80876095878fdbbd48e9b4a4d210c1dbf32617f5f05cb1": {
+    "query": "\nUPDATE course_module_completions SET prerequisite_modules_completed = $1\nWHERE id = $2 AND deleted_at IS NULL\n    ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": ["Bool", "Uuid"]
+      },
+      "nullable": []
+    }
+  },
   "0f6b63f522b8f92c249265dd23ee41dd2b93a7612b4619a1d112961ae8769bac": {
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  course_id,\n  deleted_at,\n  chapter_image_path,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  copied_from,\n  deadline,\n  course_module_id\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n",
     "describe": {

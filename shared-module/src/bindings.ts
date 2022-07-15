@@ -536,6 +536,7 @@ export interface UserModuleCompletionStatus {
   module_id: string
   name: string
   order_number: number
+  prerequisite_modules_completed: boolean
 }
 
 export interface Organization {

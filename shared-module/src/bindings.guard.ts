@@ -987,7 +987,8 @@ export function isUserModuleCompletionStatus(
     typeof obj.default === "boolean" &&
     typeof obj.module_id === "string" &&
     typeof obj.name === "string" &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    typeof obj.prerequisite_modules_completed === "boolean"
   )
 }
 

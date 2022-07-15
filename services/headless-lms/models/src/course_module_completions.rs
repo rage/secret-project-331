@@ -212,6 +212,24 @@ WHERE id = $2
     Ok(res.rows_affected() > 0)
 }
 
+pub async fn update_prerequisite_modules_completed(
+    conn: &mut PgConnection,
+    id: Uuid,
+    prerequisite_modules_completed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET prerequisite_modules_completed = $1
+WHERE id = $2 AND deleted_at IS NULL
+    ",
+        prerequisite_modules_completed,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

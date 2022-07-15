@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use crate::{
     course_instances,
-    course_module_completions::{self, NewCourseModuleCompletion},
+    course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
@@ -30,12 +30,22 @@ pub async fn grant_automatic_completion_if_eligible(
         user_id,
     )
     .await?;
+    let course = courses::get_course(conn, course_module.course_id).await?;
+    let submodule_completions_required = course
+        .base_module_completion_requires_n_submodule_completions
+        .try_into()?;
     if user_has_completed_course_module(conn, course_module.id, course_instance_id, user_id).await?
     {
-        // If user already has a completion, do not attempt to create a new completion.
+        // If user already has a completion, do not attempt to create a new one.
+        update_module_completion_prerequisite_statuses(
+            conn,
+            user_id,
+            course_instance_id,
+            submodule_completions_required,
+        )
+        .await?;
         Ok(())
     } else if user_is_eligible_for_automatic_completion(course_module, &user_metrics) {
-        let course = courses::get_course(conn, course_module.course_id).await?;
         let user = users::get_by_id(conn, user_id).await?;
         let _completion_id = course_module_completions::insert(
             conn,
@@ -53,6 +63,13 @@ pub async fn grant_automatic_completion_if_eligible(
                 passed: true,
             },
             None,
+        )
+        .await?;
+        update_module_completion_prerequisite_statuses(
+            conn,
+            user_id,
+            course_instance_id,
+            submodule_completions_required,
         )
         .await?;
         Ok(())
@@ -111,6 +128,68 @@ fn user_is_eligible_for_automatic_completion(
     flags > 0
 }
 
+async fn update_module_completion_prerequisite_statuses(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    base_module_completion_requires_n_submodule_completions: u32,
+) -> ModelResult<()> {
+    let statuses =
+        get_user_module_completion_statuses_for_course_instance(conn, user_id, course_instance_id)
+            .await?;
+    for status in statuses.iter() {
+        let need_to_update = !status.prerequisite_modules_completed
+            && prerequisite_modules_are_completed(
+                status.module_id,
+                base_module_completion_requires_n_submodule_completions,
+                &statuses,
+            )?;
+        if need_to_update {
+            let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
+                conn,
+                status.module_id,
+                course_instance_id,
+                user_id,
+            )
+            .await?;
+            // Completion conditions are met, but the status needs to be updated to database.
+            course_module_completions::update_prerequisite_modules_completed(
+                conn,
+                completion.id,
+                true,
+            )
+            .await?;
+        }
+    }
+    Ok(())
+}
+
+fn prerequisite_modules_are_completed(
+    module_id: Uuid,
+    submodule_completions_required: u32,
+    modules: &[UserModuleCompletionStatus],
+) -> ModelResult<bool> {
+    let module = modules
+        .iter()
+        .find(|x| x.module_id == module_id)
+        .ok_or_else(|| ModelError::Generic("Module missing from vec.".to_string()))?;
+    if module.default {
+        let submodule_completions: u32 = modules
+            .iter()
+            .filter(|x| !x.default && x.completed)
+            .count()
+            .try_into()?;
+        Ok(module.completed && submodule_completions >= submodule_completions_required)
+    } else {
+        let default_completed = modules
+            .iter()
+            .find(|x| x.default)
+            .map(|x| x.completed)
+            .ok_or_else(|| ModelError::Generic("Default module missing".to_string()))?;
+        Ok(default_completed && module.completed)
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCompletionInformation {
@@ -164,6 +243,7 @@ pub struct UserModuleCompletionStatus {
     pub module_id: Uuid,
     pub name: String,
     pub order_number: i32,
+    pub prerequisite_modules_completed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -175,7 +255,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course_id = course_instances::get_course_id(conn, course_instance_id).await?;
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
-    let course_module_completions: HashSet<Uuid> =
+    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
         course_module_completions::get_by_course_instance_and_user_ids(
             conn,
             course_instance_id,
@@ -183,16 +263,21 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
         )
         .await?
         .into_iter()
-        .map(|x| x.course_module_id)
+        .map(|x| (x.course_module_id, x))
         .collect();
     let course_module_completion_statuses = course_modules
         .into_iter()
-        .map(|module| UserModuleCompletionStatus {
-            completed: course_module_completions.contains(&module.id),
-            default: module.is_default_module(),
-            module_id: module.id,
-            name: module.name.unwrap_or_else(|| course.name.clone()),
-            order_number: module.order_number,
+        .map(|module| {
+            let completion = course_module_completions.get(&module.id);
+            UserModuleCompletionStatus {
+                completed: completion.is_some(),
+                default: module.is_default_module(),
+                module_id: module.id,
+                name: module.name.unwrap_or_else(|| course.name.clone()),
+                order_number: module.order_number,
+                prerequisite_modules_completed: completion
+                    .map_or(false, |x| x.prerequisite_modules_completed),
+            }
         })
         .collect();
     Ok(course_module_completion_statuses)
@@ -323,6 +408,145 @@ mod tests {
                 score_given,
                 attempted_exercises,
             }
+        }
+    }
+
+    mod prerequisite_completion_checking {
+        use super::*;
+
+        const DEFAULT_ID: &str = "274c0dfd-e491-4786-ad5b-b4e20d0de7ed";
+        const SUBMODULE_ID_1: &str = "562901cc-405b-4b7e-ae02-8c7c0055ba9f";
+
+        #[test]
+        fn is_false_for_course_with_just_uncompleted_default_module() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let module_statuses = vec![UserModuleCompletionStatus {
+                completed: false,
+                default: true,
+                module_id: default_id,
+                name: "Course".to_string(),
+                order_number: 0,
+                prerequisite_modules_completed: false,
+            }];
+            assert!(!prerequisite_modules_are_completed(default_id, 0, &module_statuses).unwrap());
+        }
+
+        #[test]
+        fn is_true_for_course_with_just_completed_default_module() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let module_statuses = vec![UserModuleCompletionStatus {
+                completed: true,
+                default: true,
+                module_id: default_id,
+                name: "Course".to_string(),
+                order_number: 0,
+                prerequisite_modules_completed: false,
+            }];
+            assert!(prerequisite_modules_are_completed(default_id, 0, &module_statuses).unwrap());
+        }
+
+        #[test]
+        fn is_false_for_default_with_not_enough_submodule_completions() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let submodule_id_1 = Uuid::parse_str(SUBMODULE_ID_1).unwrap();
+            let module_statuses = vec![
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: true,
+                    module_id: default_id,
+                    name: "Course".to_string(),
+                    order_number: 0,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: false,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+            ];
+            assert!(!prerequisite_modules_are_completed(default_id, 1, &module_statuses).unwrap());
+        }
+
+        #[test]
+        fn is_true_for_default_with_enough_submodule_completions() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let submodule_id_1 = Uuid::parse_str(SUBMODULE_ID_1).unwrap();
+            let module_statuses = vec![
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: true,
+                    module_id: default_id,
+                    name: "Course".to_string(),
+                    order_number: 0,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+            ];
+            assert!(prerequisite_modules_are_completed(default_id, 1, &module_statuses).unwrap());
+        }
+
+        #[test]
+        fn is_false_for_submodule_with_no_default_completion() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let submodule_id_1 = Uuid::parse_str(SUBMODULE_ID_1).unwrap();
+            let module_statuses = vec![
+                UserModuleCompletionStatus {
+                    completed: false,
+                    default: true,
+                    module_id: default_id,
+                    name: "Course".to_string(),
+                    order_number: 0,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+            ];
+            assert!(
+                !prerequisite_modules_are_completed(submodule_id_1, 1, &module_statuses).unwrap()
+            );
+        }
+
+        #[test]
+        fn is_true_for_submodule_with_default_completion() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let submodule_id_1 = Uuid::parse_str(SUBMODULE_ID_1).unwrap();
+            let module_statuses = vec![
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: true,
+                    module_id: default_id,
+                    name: "Course".to_string(),
+                    order_number: 0,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+            ];
+            assert!(
+                prerequisite_modules_are_completed(submodule_id_1, 1, &module_statuses).unwrap()
+            );
         }
     }
 }

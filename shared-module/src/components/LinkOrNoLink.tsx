@@ -1,24 +1,16 @@
-import { css } from "@emotion/css"
 import Link from "next/link"
 
-import { baseTheme } from "../styles"
-
-const LinkOrNoLink: React.FC<{ url: string | undefined }> = ({ url, children }) => {
+const LinkOrNoLink: React.FC<{ url: string | undefined; linkClassName?: string }> = ({
+  url,
+  children,
+  linkClassName,
+}) => {
   if (!url) {
     return <>{children}</>
   }
   return (
     <Link href={url} passHref>
-      <a
-        href="replace"
-        className={css`
-          text-decoration: none;
-          &:focus-visible {
-            outline: 2px solid ${baseTheme.colors.green[500]};
-            outline-offset: 2px;
-          }
-        `}
-      >
+      <a href="replace" className={linkClassName}>
         {children}
       </a>
     </Link>

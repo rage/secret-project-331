@@ -1852,8 +1852,6 @@ LIMIT 1;
     Ok(previous_page)
 }
 
-/* ------------------------------------------------ */
-
 async fn get_next_order_number_for_courses_top_level_pages(
     conn: &mut PgConnection,
     course_id: Uuid,

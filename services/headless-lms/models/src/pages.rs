@@ -892,6 +892,7 @@ RETURNING id,
         &mut tx,
         &existing_peer_review_questions,
         &page_update.peer_review_questions,
+        &remapped_peer_reviews,
         retain_ids,
     )
     .await?;
@@ -1323,6 +1324,7 @@ pub async fn upsert_peer_review_questions(
     conn: &mut PgConnection,
     existing_peer_review_questions: &[Uuid],
     peer_review_questions: &Vec<CmsPeerReviewQuestion>,
+    remapped_peer_review_ids: &HashMap<Uuid, CmsPeerReview>,
     retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReviewQuestion>> {
     let mut remapped_peer_review_questions = HashMap::new();
@@ -1336,6 +1338,13 @@ pub async fn upsert_peer_review_questions(
         } else {
             Uuid::new_v4()
         };
+
+        let new_peer_review_id = remapped_peer_review_ids
+            .get(&peer_review_question_update.peer_review_id)
+            .ok_or_else(|| {
+                ModelError::NotFound("No peer review found for peer review question".to_string())
+            })?
+            .id;
 
         let peer_review_question = sqlx::query_as!(
             CmsPeerReviewQuestion,
@@ -1363,7 +1372,7 @@ RETURNING id,
   answer_required;
         "#,
             safe_for_db_peer_review_question_id,
-            peer_review_question_update.peer_review_id,
+            new_peer_review_id,
             peer_review_question_update.order_number,
             peer_review_question_update.question,
             peer_review_question_update.question_type as _,

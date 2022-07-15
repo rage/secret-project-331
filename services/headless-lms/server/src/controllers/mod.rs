@@ -31,6 +31,7 @@ use headless_lms_models::ModelError;
 use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use std::fmt::Write as _;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
@@ -93,7 +94,13 @@ impl error::ResponseError for ControllerError {
             let mut err_string = String::new();
             let mut source = Some(&self as &dyn Error);
             while let Some(err) = source {
-                err_string += &format!("{}\n    ", err);
+                let res = write!(err_string, "{}\n    ", err);
+                if let Err(e) = res {
+                    error!(
+                        "Error occured while trying to construct error source string: {}",
+                        e
+                    );
+                }
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);

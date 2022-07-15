@@ -709,13 +709,13 @@ async fn update_material_reference(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let res = models::material_references::update_material_reference_by_id(
+    models::material_references::update_material_reference_by_id(
         &mut conn,
         reference_id,
         payload.0,
     )
     .await?;
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(()))
 }
 
 #[generated_doc]
@@ -729,8 +729,8 @@ async fn delete_material_reference_by_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let res = models::material_references::delete_reference(&mut conn, reference_id).await?;
-    token.authorized_ok(web::Json(res))
+    models::material_references::delete_reference(&mut conn, reference_id).await?;
+    token.authorized_ok(web::Json(()))
 }
 
 /**

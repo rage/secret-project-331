@@ -19,7 +19,7 @@ import {
   OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
-  PageRoutingDataWithChapterStatus,
+  PageNavigationInformation,
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
@@ -46,7 +46,7 @@ import {
   isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
-  isPageRoutingDataWithChapterStatus,
+  isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
@@ -245,11 +245,11 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const fetchNextPageRoutingData = async (
+export const fetchPageNavigationData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+): Promise<PageNavigationInformation> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
+  return validateResponse(response, isPageNavigationInformation)
 }
 
 export const fetchPageChapterAndCourse = async (

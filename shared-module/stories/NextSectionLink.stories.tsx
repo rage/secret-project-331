@@ -19,5 +19,8 @@ export const Table: Story<ComponentProps> = Template.bind({})
 Table.args = {
   children: "NextSectionLink",
   title: "Congratulation, you've reached the end of this section",
+  subtitle: "Proceed to the next section",
   nextTitle: "Introduction to Calculus",
+  url: "/",
+  previous: "/",
 }

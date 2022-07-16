@@ -686,6 +686,7 @@
 <span id="681">681</span>
 <span id="682">682</span>
 <span id="683">683</span>
+<span id="684">684</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
     <span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">file_store::FileStore</span>,
     <span class="ident">language_tag_to_name::LANGUAGE_TAG_TO_NAME</span>, <span class="ident">ApplicationConfiguration</span>,
@@ -1360,6 +1361,7 @@ FROM pages p
 WHERE p.chapter_id IS NULL
   AND p.deleted_at IS NULL
   AND course_id = $1
+  AND p.url_path != &#39;/&#39;
   ORDER BY order_number DESC;
     &quot;</span>,
         <span class="ident">course_id</span>

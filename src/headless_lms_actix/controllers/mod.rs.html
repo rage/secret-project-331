@@ -221,6 +221,13 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -254,6 +261,7 @@ This documents all endpoints. Select a module below for a namespace.
 <span class="kw">use</span> <span class="ident">headless_lms_utils::UtilError</span>;
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">std::fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
@@ -316,7 +324,13 @@ Represents error messages that are sent in responses.
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">err_string</span> <span class="op">=</span> <span class="ident">String::new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Error</span>);
             <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">source</span> {
-                <span class="ident">err_string</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}\n    &quot;</span>, <span class="ident">err</span>);
+                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">write!</span>(<span class="ident">err_string</span>, <span class="string">&quot;{}\n    &quot;</span>, <span class="ident">err</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">res</span> {
+                    <span class="macro">error!</span>(
+                        <span class="string">&quot;Error occured while trying to construct error source string: {}&quot;</span>,
+                        <span class="ident">e</span>
+                    );
+                }
                 <span class="ident">source</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">source</span>();
             }
             <span class="macro">error!</span>(<span class="string">&quot;Internal server error: {}&quot;</span>, <span class="ident">err_string</span>);

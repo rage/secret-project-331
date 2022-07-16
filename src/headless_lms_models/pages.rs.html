@@ -2303,6 +2303,118 @@
 <span id="2298">2298</span>
 <span id="2299">2299</span>
 <span id="2300">2300</span>
+<span id="2301">2301</span>
+<span id="2302">2302</span>
+<span id="2303">2303</span>
+<span id="2304">2304</span>
+<span id="2305">2305</span>
+<span id="2306">2306</span>
+<span id="2307">2307</span>
+<span id="2308">2308</span>
+<span id="2309">2309</span>
+<span id="2310">2310</span>
+<span id="2311">2311</span>
+<span id="2312">2312</span>
+<span id="2313">2313</span>
+<span id="2314">2314</span>
+<span id="2315">2315</span>
+<span id="2316">2316</span>
+<span id="2317">2317</span>
+<span id="2318">2318</span>
+<span id="2319">2319</span>
+<span id="2320">2320</span>
+<span id="2321">2321</span>
+<span id="2322">2322</span>
+<span id="2323">2323</span>
+<span id="2324">2324</span>
+<span id="2325">2325</span>
+<span id="2326">2326</span>
+<span id="2327">2327</span>
+<span id="2328">2328</span>
+<span id="2329">2329</span>
+<span id="2330">2330</span>
+<span id="2331">2331</span>
+<span id="2332">2332</span>
+<span id="2333">2333</span>
+<span id="2334">2334</span>
+<span id="2335">2335</span>
+<span id="2336">2336</span>
+<span id="2337">2337</span>
+<span id="2338">2338</span>
+<span id="2339">2339</span>
+<span id="2340">2340</span>
+<span id="2341">2341</span>
+<span id="2342">2342</span>
+<span id="2343">2343</span>
+<span id="2344">2344</span>
+<span id="2345">2345</span>
+<span id="2346">2346</span>
+<span id="2347">2347</span>
+<span id="2348">2348</span>
+<span id="2349">2349</span>
+<span id="2350">2350</span>
+<span id="2351">2351</span>
+<span id="2352">2352</span>
+<span id="2353">2353</span>
+<span id="2354">2354</span>
+<span id="2355">2355</span>
+<span id="2356">2356</span>
+<span id="2357">2357</span>
+<span id="2358">2358</span>
+<span id="2359">2359</span>
+<span id="2360">2360</span>
+<span id="2361">2361</span>
+<span id="2362">2362</span>
+<span id="2363">2363</span>
+<span id="2364">2364</span>
+<span id="2365">2365</span>
+<span id="2366">2366</span>
+<span id="2367">2367</span>
+<span id="2368">2368</span>
+<span id="2369">2369</span>
+<span id="2370">2370</span>
+<span id="2371">2371</span>
+<span id="2372">2372</span>
+<span id="2373">2373</span>
+<span id="2374">2374</span>
+<span id="2375">2375</span>
+<span id="2376">2376</span>
+<span id="2377">2377</span>
+<span id="2378">2378</span>
+<span id="2379">2379</span>
+<span id="2380">2380</span>
+<span id="2381">2381</span>
+<span id="2382">2382</span>
+<span id="2383">2383</span>
+<span id="2384">2384</span>
+<span id="2385">2385</span>
+<span id="2386">2386</span>
+<span id="2387">2387</span>
+<span id="2388">2388</span>
+<span id="2389">2389</span>
+<span id="2390">2390</span>
+<span id="2391">2391</span>
+<span id="2392">2392</span>
+<span id="2393">2393</span>
+<span id="2394">2394</span>
+<span id="2395">2395</span>
+<span id="2396">2396</span>
+<span id="2397">2397</span>
+<span id="2398">2398</span>
+<span id="2399">2399</span>
+<span id="2400">2400</span>
+<span id="2401">2401</span>
+<span id="2402">2402</span>
+<span id="2403">2403</span>
+<span id="2404">2404</span>
+<span id="2405">2405</span>
+<span id="2406">2406</span>
+<span id="2407">2407</span>
+<span id="2408">2408</span>
+<span id="2409">2409</span>
+<span id="2410">2410</span>
+<span id="2411">2411</span>
+<span id="2412">2412</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2316,7 +2428,7 @@
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">chapters</span>::{<span class="ident">course_chapters</span>, <span class="ident">get_chapter_by_page_id</span>, <span class="ident">ChapterStatus</span>, <span class="ident">DatabaseChapter</span>},
+    <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">course_chapters</span>, <span class="ident">get_chapter_by_page_id</span>, <span class="ident">DatabaseChapter</span>},
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>},
     <span class="ident">courses</span>::{<span class="ident">get_nondeleted_course_id_by_slug</span>, <span class="ident">Course</span>},
     <span class="ident">exercise_service_info</span>,
@@ -2414,6 +2526,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageRoutingData</span> {
     <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
@@ -2423,26 +2536,14 @@
     <span class="kw">pub</span> <span class="ident">chapter_front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageRoutingDataWithChapterStatus</span> {
-    <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_front_page_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">chapter_status</span>: <span class="ident">ChapterStatus</span>,
-}
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageMetadata</span> {
-    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">order_number</span>: <span class="ident">i32</span>,
-    <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">chapter_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-    <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">order_number</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">exam_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -2481,6 +2582,13 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageSearchRequest</span> {
     <span class="ident">query</span>: <span class="ident">String</span>,
+}
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageNavigationInformation</span> {
+    <span class="kw">pub</span> <span class="ident">chapter_front_page</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">next_page</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">previous_page</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">FromRow</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -3880,9 +3988,9 @@ WHERE page_id IN (
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">pages_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">pages_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">next_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_order_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">match</span> <span class="ident">next_page</span> {
@@ -3891,34 +3999,6 @@ WHERE page_id IN (
             <span class="kw">let</span> <span class="ident">first_page</span> <span class="op">=</span> <span class="ident">get_next_page_by_chapter_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">first_page</span>)
         }
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_page_with_chapter_status</span>(
-    <span class="ident">next_page_data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingDataWithChapterStatus</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">next_page_data</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">data</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">data</span>
-                .<span class="ident">chapter_opens_at</span>
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Utc::now</span>())
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>);
-            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">open</span> {
-                <span class="ident">ChapterStatus::Open</span>
-            } <span class="kw">else</span> {
-                <span class="ident">ChapterStatus::Closed</span>
-            };
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">PageRoutingDataWithChapterStatus</span> {
-                <span class="ident">url_path</span>: <span class="ident">data</span>.<span class="ident">url_path</span>,
-                <span class="ident">title</span>: <span class="ident">data</span>.<span class="ident">title</span>,
-                <span class="ident">chapter_number</span>: <span class="ident">data</span>.<span class="ident">chapter_number</span>,
-                <span class="ident">chapter_id</span>: <span class="ident">data</span>.<span class="ident">chapter_id</span>,
-                <span class="ident">chapter_opens_at</span>: <span class="ident">data</span>.<span class="ident">chapter_opens_at</span>,
-                <span class="ident">chapter_front_page_id</span>: <span class="ident">data</span>.<span class="ident">chapter_front_page_id</span>,
-                <span class="ident">chapter_status</span>: <span class="ident">status</span>,
-            }))
-        }
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
     }
 }
 
@@ -4043,6 +4123,150 @@ where p.chapter_id = $1
         <span class="prelude-val">Some</span>(<span class="ident">order_number</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">order_number</span> <span class="op">+</span> <span class="number">1</span>),
         <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="number">0</span>),
     }
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_page_navigation_data</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PageNavigationInformation</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">previous_page_data</span> <span class="op">=</span> <span class="ident">get_previous_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">next_page_data</span> <span class="op">=</span> <span class="ident">get_next_page</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">chapter_front_page</span> <span class="op">=</span> <span class="ident">get_chapter_front_page_by_page_id</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// This may be different from the chapter of the previous page and the chapter of the next page so we need to fetch it to be sure.</span>
+    <span class="kw">let</span> <span class="ident">chapter_front_page_chapter</span> <span class="op">=</span> <span class="ident">OptionFuture::from</span>(
+        <span class="ident">chapter_front_page</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">front_page</span><span class="op">|</span> <span class="ident">front_page</span>.<span class="ident">chapter_id</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chapter_id</span><span class="op">|</span> <span class="ident">chapters::get_chapter</span>(<span class="ident">conn</span>, <span class="ident">chapter_id</span>)),
+    )
+    .<span class="kw">await</span>
+    .<span class="ident">transpose</span>()<span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">chapter_front_page_data</span> <span class="op">=</span> <span class="ident">chapter_front_page</span>
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">front_page</span><span class="op">|</span> -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chapter_front_page_chapter</span>) <span class="op">=</span> <span class="ident">chapter_front_page_chapter</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">PageRoutingData</span> {
+                    <span class="ident">url_path</span>: <span class="ident">front_page</span>.<span class="ident">url_path</span>,
+                    <span class="ident">title</span>: <span class="ident">front_page</span>.<span class="ident">title</span>,
+                    <span class="ident">chapter_number</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">chapter_number</span>,
+                    <span class="ident">chapter_id</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">id</span>,
+                    <span class="ident">chapter_opens_at</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">opens_at</span>,
+                    <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(<span class="ident">front_page</span>.<span class="ident">id</span>),
+                })
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                    <span class="string">&quot;Chapter front page chapter not found&quot;</span>.<span class="ident">to_string</span>(),
+                ))
+            }
+        })
+        .<span class="ident">transpose</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">PageNavigationInformation</span> {
+        <span class="ident">chapter_front_page</span>: <span class="ident">chapter_front_page_data</span>,
+        <span class="ident">next_page</span>: <span class="ident">next_page_data</span>,
+        <span class="ident">previous_page</span>: <span class="ident">previous_page_data</span>,
+    })
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_previous_page</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">previous_page</span> <span class="op">=</span> <span class="ident">get_previous_page_by_order_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">match</span> <span class="ident">previous_page</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">previous_page</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">previous_page</span>)),
+        <span class="prelude-val">None</span> =&gt; {
+            <span class="kw">let</span> <span class="ident">first_page</span> <span class="op">=</span> <span class="ident">get_previous_page_by_chapter_number</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">first_page</span>)
+        }
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapter_front_page_by_page_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">page_metadata</span> <span class="op">=</span> <span class="ident">get_current_page_metadata</span>(<span class="ident">conn</span>, <span class="ident">page_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">chapters::get_chapter_info_by_page_metadata</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">page_metadata</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page_option_future</span>: <span class="ident">OptionFuture</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">chapter</span>
+        .<span class="ident">chapter_front_page_id</span>
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">chapter_front_page_id</span><span class="op">|</span> <span class="ident">get_page</span>(<span class="ident">conn</span>, <span class="ident">chapter_front_page_id</span>))
+        .<span class="ident">into</span>();
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">page_option_future</span>.<span class="kw">await</span>.<span class="ident">transpose</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">page</span>)
+}
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_previous_page_by_order_number</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="ident">PageMetadata</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">previous_page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PageRoutingData</span>,
+        <span class="string">&quot;
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM pages p
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.order_number = (
+    SELECT MAX(pa.order_number)
+    FROM pages pa
+    WHERE pa.order_number &lt; $1
+      AND pa.deleted_at IS NULL
+  )
+  AND p.course_id = $2
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
+        &quot;</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">order_number</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">chapter_number</span>
+    )
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">previous_page</span>)
+}
+
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_previous_page_by_chapter_number</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">current_page_metadata</span>: <span class="kw-2">&amp;</span><span class="ident">PageMetadata</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingData</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">previous_page</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PageRoutingData</span>,
+        <span class="string">&quot;
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM chapters c
+  INNER JOIN pages p on c.id = p.chapter_id
+WHERE c.chapter_number = (
+    SELECT MAX(ca.chapter_number)
+    FROM chapters ca
+    WHERE ca.chapter_number &lt; $1
+      AND ca.deleted_at IS NULL
+  )
+  AND c.course_id = $2
+  AND p.deleted_at IS NULL
+ORDER BY p.order_number
+LIMIT 1;
+        &quot;</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">chapter_number</span>,
+        <span class="ident">current_page_metadata</span>.<span class="ident">course_id</span>
+    )
+    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">previous_page</span>)
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_next_order_number_for_courses_top_level_pages</span>(

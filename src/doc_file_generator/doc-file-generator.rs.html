@@ -1061,6 +1061,30 @@
 <span id="1056">1056</span>
 <span id="1057">1057</span>
 <span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1116,7 +1140,7 @@
     <span class="ident">pages</span>::{
         <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">ContentManagementPage</span>,
         <span class="ident">CoursePageWithUserData</span>, <span class="ident">IsChapterFrontPage</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>,
-        <span class="ident">PageInfo</span>, <span class="ident">PageRoutingDataWithChapterStatus</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
+        <span class="ident">PageInfo</span>, <span class="ident">PageNavigationInformation</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
     },
     <span class="ident">peer_review_questions</span>::{<span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
     <span class="ident">peer_reviews</span>::{<span class="ident">PeerReview</span>, <span class="ident">PeerReviewAcceptingStrategy</span>},
@@ -1684,18 +1708,6 @@
         <span class="ident">course_material_peer_review_submission</span>
     );
     <span class="macro">write_docs!</span>(
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PageRoutingDataWithChapterStatus</span><span class="op">&gt;</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">PageRoutingDataWithChapterStatus</span> {
-            <span class="ident">url_path</span>: <span class="string">&quot;/path-to-next/page&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">title</span>: <span class="string">&quot;Name of the next page&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">chapter_number</span>: <span class="number">1</span>,
-            <span class="ident">chapter_id</span>: <span class="ident">id</span>,
-            <span class="ident">chapter_opens_at</span>: <span class="prelude-val">Some</span>(<span class="ident">date_time</span>),
-            <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-            <span class="ident">chapter_status</span>: <span class="ident">ChapterStatus::Open</span>
-        })
-    );
-    <span class="macro">write_docs!</span>(
         <span class="ident">StudentExerciseSlideSubmissionResult</span>,
         <span class="ident">exercise_slide_submission_result</span>
     );
@@ -1834,6 +1846,7 @@
         }]
     );
     <span class="macro">write_docs!</span>(<span class="ident">Page</span>, <span class="ident">page</span>.<span class="ident">clone</span>());
+    <span class="macro">write_docs!</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span>, <span class="prelude-val">Some</span>(<span class="ident">page</span>.<span class="ident">clone</span>()));
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PageHistory</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="ident">PageHistory</span> {
@@ -2104,6 +2117,41 @@
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">PageNavigationInformation</span>,
+        <span class="ident">PageNavigationInformation</span> {
+            <span class="ident">chapter_front_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
+                <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">title</span>: <span class="string">&quot;Chapter 1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">chapter_number</span>: <span class="number">1</span>,
+                <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
+                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+                ),
+            }),
+            <span class="ident">next_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
+                <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-3&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">title</span>: <span class="string">&quot;Page 3&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">chapter_number</span>: <span class="number">1</span>,
+                <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
+                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+                ),
+            }),
+            <span class="ident">previous_page</span>: <span class="prelude-val">Some</span>(<span class="ident">PageRoutingData</span> {
+                <span class="ident">url_path</span>: <span class="string">&quot;/chapter-1/page-1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">title</span>: <span class="string">&quot;Page 1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">chapter_number</span>: <span class="number">1</span>,
+                <span class="ident">chapter_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;22552232-c1b6-4067-9aae-e09221b63e8f&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">chapter_opens_at</span>: <span class="prelude-val">None</span>,
+                <span class="ident">chapter_front_page_id</span>: <span class="prelude-val">Some</span>(
+                    <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f8726e97-5ebe-4698-9163-7d6e2568ec7e&quot;</span>).<span class="ident">unwrap</span>()
+                ),
+            }),
+        }
     );
 }
 

@@ -53,7 +53,7 @@ use headless_lms_models::{
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
         CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
-        PageInfo, PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
+        PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
     peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
@@ -622,18 +622,6 @@ fn main() {
         course_material_peer_review_submission
     );
     write_docs!(
-        Option<PageRoutingDataWithChapterStatus>,
-        Some(PageRoutingDataWithChapterStatus {
-            url_path: "/path-to-next/page".to_string(),
-            title: "Name of the next page".to_string(),
-            chapter_number: 1,
-            chapter_id: id,
-            chapter_opens_at: Some(date_time),
-            chapter_front_page_id: Some(id),
-            chapter_status: ChapterStatus::Open
-        })
-    );
-    write_docs!(
         StudentExerciseSlideSubmissionResult,
         exercise_slide_submission_result
     );
@@ -772,6 +760,7 @@ fn main() {
         }]
     );
     write_docs!(Page, page.clone());
+    write_docs!(Option<Page>, Some(page.clone()));
     write_docs!(
         Vec<PageHistory>,
         vec![PageHistory {
@@ -1044,6 +1033,41 @@ fn main() {
     write_docs!(
         Vec<bool>,
         vec![false, true, false, true, false, true, true, true]
+    );
+    write_docs!(
+        PageNavigationInformation,
+        PageNavigationInformation {
+            chapter_front_page: Some(PageRoutingData {
+                url_path: "/chapter-1".to_string(),
+                title: "Chapter 1".to_string(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+            next_page: Some(PageRoutingData {
+                url_path: "/chapter-1/page-3".to_string(),
+                title: "Page 3".to_string(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+            previous_page: Some(PageRoutingData {
+                url_path: "/chapter-1/page-1".to_string(),
+                title: "Page 1".to_string(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+        }
     );
 }
 

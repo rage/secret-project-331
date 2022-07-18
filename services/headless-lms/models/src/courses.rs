@@ -702,6 +702,7 @@ FROM pages p
 WHERE p.chapter_id IS NULL
   AND p.deleted_at IS NULL
   AND course_id = $1
+  AND p.url_path != '/'
   ORDER BY order_number DESC;
     ",
         course_id

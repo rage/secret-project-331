@@ -482,6 +482,26 @@ RETURNING id,
     Ok(res)
 }
 
+pub async fn update_course_base_module_completion_count_requirement(
+    conn: &mut PgConnection,
+    id: Uuid,
+    base_module_completion_requires_n_submodule_completions: i32,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE courses
+SET base_module_completion_requires_n_submodule_completions = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        base_module_completion_requires_n_submodule_completions,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
 pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
     let deleted = sqlx::query_as!(
         Course,

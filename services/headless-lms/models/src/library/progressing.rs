@@ -331,6 +331,192 @@ pub async fn get_completion_registration_link_and_save_attempt(
 mod tests {
     use super::*;
 
+    use crate::test_helper::*;
+
+    mod grant_automatic_completion_if_eligible {
+        use crate::{
+            chapters::{self, NewChapter},
+            course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+            exercises::{self, ActivityProgress, GradingProgress},
+            user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
+        };
+
+        use super::*;
+
+        #[tokio::test]
+        async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
+            insert_data!(:tx);
+            let (mut tx, user, instance, default_module, _submodule) = create_test_data(tx).await;
+            grant_automatic_completion_if_eligible(tx.as_mut(), &default_module, instance, user)
+                .await
+                .unwrap();
+            let statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
+            )
+            .await
+            .unwrap();
+            let status = statuses
+                .iter()
+                .find(|x| x.module_id == default_module.id)
+                .unwrap();
+            assert!(status.completed);
+            assert!(!status.prerequisite_modules_completed);
+        }
+
+        #[tokio::test]
+        async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
+            insert_data!(:tx);
+            let (mut tx, user, instance, _default_module, submodule) = create_test_data(tx).await;
+            grant_automatic_completion_if_eligible(tx.as_mut(), &submodule, instance, user)
+                .await
+                .unwrap();
+            let statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
+            )
+            .await
+            .unwrap();
+            let status = statuses
+                .iter()
+                .find(|x| x.module_id == submodule.id)
+                .unwrap();
+            assert!(status.completed);
+            assert!(!status.prerequisite_modules_completed);
+        }
+
+        #[tokio::test]
+        async fn grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
+        {
+            insert_data!(:tx);
+            let (mut tx, user, instance, default_module, submodule) = create_test_data(tx).await;
+            grant_automatic_completion_if_eligible(tx.as_mut(), &submodule, instance, user)
+                .await
+                .unwrap();
+            grant_automatic_completion_if_eligible(tx.as_mut(), &default_module, instance, user)
+                .await
+                .unwrap();
+            let statuses = get_user_module_completion_statuses_for_course_instance(
+                tx.as_mut(),
+                user,
+                instance,
+            )
+            .await
+            .unwrap();
+            statuses.iter().for_each(|x| {
+                assert!(x.completed);
+                assert!(x.prerequisite_modules_completed);
+            });
+        }
+
+        async fn create_test_data(
+            mut tx: Tx<'_>,
+        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule) {
+            let automatic_completion_policy =
+                AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+                    number_of_exercises_attempted_treshold: Some(0),
+                    number_of_points_treshold: Some(0),
+                });
+            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
+            courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
+                .await
+                .unwrap();
+            let course_module_2 = course_modules::insert(tx.as_mut(), course, Some("Module 2"), 1)
+                .await
+                .unwrap();
+            let (chapter_2, page2) = chapters::insert_chapter(
+                tx.as_mut(),
+                NewChapter {
+                    name: "chapter 2".to_string(),
+                    course_id: course,
+                    chapter_number: 2,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module_2),
+                },
+                user,
+            )
+            .await
+            .unwrap();
+            let exercise_2 = exercises::insert(tx.as_mut(), course, "", page2.id, chapter_2.id, 0)
+                .await
+                .unwrap();
+            let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise,
+                Some(instance.id),
+                None,
+            )
+            .await
+            .unwrap();
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state.id,
+                    score_given: Some(0.0),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
+                },
+            )
+            .await
+            .unwrap();
+            let user_exercise_state_2 = user_exercise_states::get_or_create_user_exercise_state(
+                tx.as_mut(),
+                user,
+                exercise_2,
+                Some(instance.id),
+                None,
+            )
+            .await
+            .unwrap();
+            user_exercise_states::update(
+                tx.as_mut(),
+                UserExerciseStateUpdate {
+                    id: user_exercise_state_2.id,
+                    score_given: Some(0.0),
+                    activity_progress: ActivityProgress::Completed,
+                    reviewing_stage: ReviewingStage::NotStarted,
+                    grading_progress: GradingProgress::FullyGraded,
+                },
+            )
+            .await
+            .unwrap();
+            course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                course_module,
+                &automatic_completion_policy,
+            )
+            .await
+            .unwrap();
+            let course_module = course_modules::get_by_id(tx.as_mut(), course_module)
+                .await
+                .unwrap();
+            let course_module = course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                course_module.id,
+                &automatic_completion_policy,
+            )
+            .await
+            .unwrap();
+            let course_module_2 = course_modules::get_by_id(tx.as_mut(), course_module_2)
+                .await
+                .unwrap();
+            let course_module_2 = course_modules::update_automatic_completion_status(
+                tx.as_mut(),
+                course_module_2.id,
+                &automatic_completion_policy,
+            )
+            .await
+            .unwrap();
+            (tx, user, instance.id, course_module, course_module_2)
+        }
+    }
+
     mod automatic_completion_validation {
         use chrono::TimeZone;
 

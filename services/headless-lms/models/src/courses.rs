@@ -385,6 +385,7 @@ RETURNING id,
         GutenbergBlock::course_objective_section(),
         GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
     ])?;
     let course_front_page = NewPage {
@@ -671,6 +672,7 @@ FROM pages p
 WHERE p.chapter_id IS NULL
   AND p.deleted_at IS NULL
   AND course_id = $1
+  AND p.url_path != '/'
   ORDER BY order_number DESC;
     ",
         course_id

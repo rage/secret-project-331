@@ -220,6 +220,7 @@ export interface Course {
   course_language_group_id: string
   is_draft: boolean
   is_test_mode: boolean
+  base_module_completion_requires_n_submodule_completions: number
 }
 
 export interface CourseStructure {
@@ -535,6 +536,7 @@ export interface UserModuleCompletionStatus {
   module_id: string
   name: string
   order_number: number
+  prerequisite_modules_completed: boolean
 }
 
 export interface Organization {

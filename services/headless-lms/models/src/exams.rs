@@ -63,7 +63,8 @@ SELECT id,
   content_search_language::text,
   course_language_group_id,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

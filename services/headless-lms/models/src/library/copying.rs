@@ -44,9 +44,10 @@ INSERT INTO courses (
     content_search_language,
     language_code,
     copied_from,
-    course_language_group_id
+    course_language_group_id,
+    base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,
@@ -60,7 +61,8 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode;
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
     ",
         new_course.name,
         new_course.organization_id,
@@ -69,6 +71,7 @@ RETURNING id,
         new_course.language_code,
         parent_course.id,
         course_language_group_id,
+        parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(&mut tx)
     .await?;

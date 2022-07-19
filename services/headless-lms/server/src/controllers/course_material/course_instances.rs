@@ -104,13 +104,19 @@ async fn get_module_completions_for_course_instance(
 ) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize()?;
-    let module_completion_statuses =
+    let mut module_completion_statuses =
         models::library::progressing::get_user_module_completion_statuses_for_course_instance(
             &mut conn,
             user.id,
             *course_instance_id,
         )
         .await?;
+    // Override individual completions in modules with insufficient prerequisites
+    module_completion_statuses.iter_mut().for_each(|module| {
+        if !module.prerequisite_modules_completed {
+            module.completed = false;
+        }
+    });
     token.authorized_ok(web::Json(module_completion_statuses))
 }
 

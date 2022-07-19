@@ -44,6 +44,7 @@ pub struct Course {
     pub course_language_group_id: Uuid,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    pub base_module_completion_requires_n_submodule_completions: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -71,7 +72,8 @@ SELECT id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -101,7 +103,8 @@ SELECT id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE course_language_group_id = $1;
         ",
@@ -134,7 +137,8 @@ SELECT
     c.course_language_group_id,
     c.description,
     c.is_draft,
-    c.is_test_mode
+    c.is_test_mode,
+    c.base_module_completion_requires_n_submodule_completions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -193,7 +197,8 @@ SELECT id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id = $1;
     "#,
@@ -268,7 +273,8 @@ SELECT courses.id,
   courses.course_language_group_id,
   courses.description,
   courses.is_draft,
-  courses.is_test_mode
+  courses.is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -364,7 +370,8 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode;
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
             "#,
         id,
         new_course.name,
@@ -461,7 +468,8 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
     "#,
         course_update.name,
         course_update.description,
@@ -472,6 +480,26 @@ RETURNING id,
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_course_base_module_completion_count_requirement(
+    conn: &mut PgConnection,
+    id: Uuid,
+    base_module_completion_requires_n_submodule_completions: i32,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE courses
+SET base_module_completion_requires_n_submodule_completions = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        base_module_completion_requires_n_submodule_completions,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
 }
 
 pub async fn delete_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Course> {
@@ -494,7 +522,8 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
     "#,
         course_id
     )
@@ -521,7 +550,8 @@ SELECT id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL

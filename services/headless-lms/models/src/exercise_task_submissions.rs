@@ -160,6 +160,7 @@ WHERE id = $1
 pub async fn get_all_answers_requiring_attention(
     conn: &mut PgConnection,
     exercise_id: Uuid,
+    pagination: Pagination,
 ) -> ModelResult<Vec<AnswerRequiringAttention>> {
     let submissions = sqlx::query_as!(
         AnswerRequiringAttention,
@@ -188,8 +189,11 @@ pub async fn get_all_answers_requiring_attention(
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
-    ORDER BY t_submission.updated_at;"#,
-        exercise_id
+    ORDER BY t_submission.updated_at
+    LIMIT $2 OFFSET $3;"#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
     )
     .fetch_all(conn)
     .await?;

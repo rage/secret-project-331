@@ -50,6 +50,13 @@ impl ExerciseSlideSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseAnswersInCourseRequiringAttentionCount {
+    pub exercise_id: Uuid,
+    pub count: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
@@ -398,21 +405,62 @@ ORDER BY date;
     Ok(res)
 }
 
-pub async fn exercises_slide_submission_count_for_answers_requiring_attention(
+pub async fn answer_requiring_attention_count(
     conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> ModelResult<u32> {
     let count = sqlx::query!(
-        "
-SELECT COUNT(*) as count
-FROM exercise_slide_submissions
-WHERE exercise_id = $1
-",
+        r#"
+        SELECT
+        COUNT(*) as count
+    FROM user_exercise_states AS us_state
+    JOIN exercise_task_submissions AS t_submission
+        ON us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    JOIN exercise_slide_submissions AS s_submission
+            ON t_submission.exercise_slide_submission_id =
+                s_submission.id
+    WHERE us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    AND us_state.user_id = s_submission.user_id
+    AND us_state.exercise_id = $1
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+    AND us_state.deleted_at IS NULL;"#,
         exercise_id,
     )
     .fetch_one(conn)
     .await?;
     Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseAnswersInCourseRequiringAttentionCount>> {
+    let count_list = sqlx::query_as!(
+        ExerciseAnswersInCourseRequiringAttentionCount,
+        r#"
+        SELECT
+        us_state.exercise_id, COUNT(us_state.exercise_id)::integer as count
+    FROM user_exercise_states AS us_state
+    JOIN exercise_task_submissions AS t_submission
+        ON us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    JOIN exercise_slide_submissions AS s_submission
+            ON t_submission.exercise_slide_submission_id =
+                s_submission.id
+    WHERE us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    AND us_state.user_id = s_submission.user_id
+    AND s_submission.course_id = $1
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+    AND us_state.deleted_at IS NULL
+    GROUP BY us_state.exercise_id;"#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(count_list)
 }
 
 pub async fn exercise_slide_submissions_for_answers_requiring_attention(

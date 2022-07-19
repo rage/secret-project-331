@@ -223,6 +223,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                   >
                     enough
                   </span>
+                  <h3> {t("grading")}</h3>
                 </div>
               </StatusPanel>
               <ControlPanel>
@@ -243,7 +244,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                     )
                   } // Accept answer
                 >
-                  {t("button-text-reject")}
+                  {t("button-text-zero-points")}
                 </Button>
                 <Button
                   size="medium"
@@ -255,14 +256,25 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                     )
                   }
                 >
-                  {t("button-text-accept")}
+                  {t("button-text-full-points")}
+                </Button>
+                <Button
+                  size="medium"
+                  variant="blue"
+                  onClick={() =>
+                    handleAcceptAnswer(
+                      answerRequiringAttention.id,
+                      answerRequiringAttention.exercise_id,
+                    )
+                  }
+                >
+                  {t("button-text-custom-points")}
                 </Button>
                 <div
                   className={css`
                     margin-left: auto;
                   `}
                 >
-                  <DebugModal data={answerRequiringAttention}></DebugModal>
                   <Button
                     className={css`
                       margin-left: 0.5em;
@@ -283,6 +295,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
             </div>
           </AnswerLayout>
         ))}
+        <DebugModal data={answersRequiringAttention}></DebugModal>
       </Layout>
     </>
   )

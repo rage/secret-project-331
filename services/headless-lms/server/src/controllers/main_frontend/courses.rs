@@ -282,6 +282,23 @@ async fn get_all_exercises(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_exercises_and_count_of_answers_requiring_attention(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Exercise>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
+    let _count_of_answers_requiring_attention = models::exercise_slide_submissions::get_count_of_answers_requiring_attention_in_exercise_by_course_id(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(exercises))
+}
+
+/**
 GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
 
 # Example
@@ -750,6 +767,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_daily_submission_counts),
         )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
+        .route(
+            "/{course_id}/exercises-and-count-of-answers-requiring-attention",
+            web::delete().to(get_all_exercises_and_count_of_answers_requiring_attention),
+        )
         .route(
             "/{course_id}/structure",
             web::get().to(get_course_structure),

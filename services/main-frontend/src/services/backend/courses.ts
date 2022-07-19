@@ -110,6 +110,18 @@ export const fetchCourseExercises = async (courseId: string): Promise<Array<Exer
   return validateResponse(response, isArray(isExercise))
 }
 
+export const fetchCourseExercisesAndCountOfAnswersRequiringAttention = async (
+  courseId: string,
+): Promise<Array<Exercise>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/exercises-and-count-of-answers-requiring-attention`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isExercise))
+}
+
 export const fetchCourseStructure = async (courseId: string): Promise<CourseStructure> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}/structure`, {
     responseType: "json",

@@ -1,5 +1,4 @@
-import { UserExerciseState } from "../../../../../shared-module/src/bindings"
-import { AnswersRequiringAttention } from "../../shared-module/bindings"
+import { AnswersRequiringAttention, UserExerciseState } from "../../shared-module/bindings"
 import {
   isAnswersRequiringAttention,
   isUserExerciseState,

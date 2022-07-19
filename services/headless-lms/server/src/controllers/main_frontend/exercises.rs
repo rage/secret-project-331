@@ -27,6 +27,7 @@ pub struct ExerciseSubmissions {
 pub struct AnswersRequiringAttention {
     pub exercise_max_points: i32,
     pub data: Vec<AnswerRequiringAttentionWithTasks>,
+    pub total_pages: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -110,11 +111,16 @@ async fn get_exercise_answers_requiring_attention(
     };
     let exercise = get_exercise_by_id(&mut conn, *exercise_id).await?;
     let mut conn = pool.acquire().await?;
-    let data = get_all_answers_requiring_attention(&mut conn, exercise.id).await?;
+    let answer_requiring_attention_count =
+        models::exercise_slide_submissions::answer_requiring_attention_count(
+            &mut conn,
+            *exercise_id,
+        )
+        .await?;
+    let mut conn = pool.acquire().await?;
+    let data = get_all_answers_requiring_attention(&mut conn, exercise.id, *pagination).await?;
     let mut answers = Vec::with_capacity(data.len());
-    /*let get_magic_submission_id =
-    get_submission_id_of_answers_requiring_attention(&mut conn, exercise.id).await?;*/
-    //let mut exercise_task_submission_info = Vec::with_capacity(get_magic.len());
+
     for answer in &data {
         let tasks = get_exercise_task_submission_info_by_exercise_slide_submission_id(
             &mut conn,
@@ -137,9 +143,12 @@ async fn get_exercise_answers_requiring_attention(
         answers.push(new_answer);
     }
 
+    let total_pages = pagination.total_pages(answer_requiring_attention_count);
+
     token.authorized_ok(web::Json(AnswersRequiringAttention {
         exercise_max_points: exercise.score_maximum,
         data: answers,
+        total_pages,
     }))
 }
 

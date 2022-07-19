@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import { fetchCourseExercises } from "../../../../../../services/backend/courses"
+import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 
@@ -17,7 +17,7 @@ export interface ExerciseListProps {
 const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseExercises = useQuery(`course-${courseId}-exercises`, () =>
-    fetchCourseExercises(courseId),
+    fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
   )
   const courseStructure = useCourseStructure(courseId)
 
@@ -47,7 +47,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
     groupBy(courseStructure.data.pages, (page) => page.id),
     (value) => value[0],
   )
-
+  console.log(getCourseExercises)
   return (
     <>
       <ul>
@@ -64,32 +64,31 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
           )
           .sort((ex1, ex2) => ex1.order_number - ex2.order_number)
           .map((x) => (
-            <>
-              <li key={x.id}>
-                {x.name}{" "}
-                <Link
-                  href={{
-                    pathname: "/manage/exercises/[exerciseId]/submissions",
-                    query: { exerciseId: x.id },
-                  }}
-                >
-                  {t("link-view-submissions")}
-                </Link>
-                <span
-                  className={css`
-                    margin-left: 1rem;
-                  `}
-                ></span>
-                <Link
-                  href={{
-                    pathname: "/manage/exercises/[exerciseId]/answers-requiring-attention",
-                    query: { exerciseId: x.id },
-                  }}
-                >
-                  {t("link-view-answers-requiring-attention")}
-                </Link>
-              </li>
-            </>
+            <li key={x.id}>
+              {x.name}{" "}
+              <Link
+                href={{
+                  pathname: "/manage/exercises/[exerciseId]/submissions",
+                  query: { exerciseId: x.id },
+                }}
+              >
+                {t("link-view-submissions")}
+              </Link>
+              <span
+                className={css`
+                  margin-left: 1rem;
+                `}
+              ></span>
+              <Link
+                href={{
+                  pathname: "/manage/exercises/[exerciseId]/answers-requiring-attention",
+                  query: { exerciseId: x.id },
+                }}
+              >
+                {t("link-view-answers-requiring-attention")}
+              </Link>
+              {x.count}
+            </li>
           ))}
       </ul>
     </>

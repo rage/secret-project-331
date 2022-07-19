@@ -176,6 +176,7 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
+        exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,

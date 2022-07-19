@@ -842,6 +842,15 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
+export interface ExerciseAnswersInCourseRequiringAttentionCount {
+  id: string
+  name: string
+  page_id: string
+  chapter_id: string | null
+  order_number: number
+  count: number | null
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -1056,6 +1065,7 @@ export interface ExerciseSubmissions {
 export interface AnswersRequiringAttention {
   exercise_max_points: number
   data: Array<AnswerRequiringAttentionWithTasks>
+  total_pages: number
 }
 
 export interface AnswerRequiringAttentionWithTasks {

@@ -51,7 +51,11 @@ impl ExerciseSlideSubmission {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseAnswersInCourseRequiringAttentionCount {
-    pub exercise_id: Uuid,
+    pub id: Uuid,
+    pub name: String,
+    pub page_id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub order_number: i32,
     pub count: Option<i32>,
 }
 
@@ -441,21 +445,25 @@ pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
         ExerciseAnswersInCourseRequiringAttentionCount,
         r#"
         SELECT
-        us_state.exercise_id, COUNT(us_state.exercise_id)::integer as count
-    FROM user_exercise_states AS us_state
-    JOIN exercise_task_submissions AS t_submission
-        ON us_state.selected_exercise_slide_id =
-            t_submission.exercise_slide_id
-    JOIN exercise_slide_submissions AS s_submission
-            ON t_submission.exercise_slide_submission_id =
-                s_submission.id
-    WHERE us_state.selected_exercise_slide_id =
-            t_submission.exercise_slide_id
-    AND us_state.user_id = s_submission.user_id
-    AND s_submission.course_id = $1
-    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
-    AND us_state.deleted_at IS NULL
-    GROUP BY us_state.exercise_id;"#,
+        exercises.id,         (SELECT COUNT(us_state.id)::integer as count
+                FROM exercises AS exercises2
+                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
+                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
+                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
+                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+                AND us_state.user_id = s_submission.user_id
+                AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+                AND us_state.deleted_at IS NULL
+                AND exercises2.course_id = $1
+                AND exercises.id = exercises2.id
+                GROUP BY exercises2.id),
+                exercises.order_number,
+                exercises.name,
+                exercises.page_id,
+                exercises.chapter_id
+            FROM exercises
+            WHERE exercises.course_id = $1
+            GROUP BY exercises.id;"#,
         course_id,
     )
     .fetch_all(conn)

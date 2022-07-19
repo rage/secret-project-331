@@ -22,6 +22,7 @@ pub struct CourseModuleCompletion {
     pub email: String,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub prerequisite_modules_completed: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -211,6 +212,24 @@ WHERE id = $2
     Ok(res.rows_affected() > 0)
 }
 
+pub async fn update_prerequisite_modules_completed(
+    conn: &mut PgConnection,
+    id: Uuid,
+    prerequisite_modules_completed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET prerequisite_modules_completed = $1
+WHERE id = $2 AND deleted_at IS NULL
+    ",
+        prerequisite_modules_completed,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -329,6 +348,8 @@ pub fn stream_by_course_module_id<'a>(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
+  AND prerequisite_modules_completed
+  AND eligible_for_ects
   AND deleted_at IS NULL
         "#,
         course_module_ids,

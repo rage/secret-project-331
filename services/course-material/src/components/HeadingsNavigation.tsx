@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { maxBy, minBy } from "lodash"
-import { useContext, useEffect, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMediaQuery } from "usehooks-ts"
 
@@ -83,8 +83,8 @@ export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   // eslint-disable-next-line i18next/no-literal-string
   const [activeHeading, setActiveHeading] = useState<string | undefined>(undefined)
-  // Ref to optimize useEffect
-  const scrollingRef = useRef(false)
+  // Ref to optimize useEffect. A number to keep multiple clicks from interfering with each other
+  const numberOfCallbacksScrollingTheDocument = useRef(0)
 
   const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
   const runningOnOnMobile = useMediaQuery("(max-width: 1300px)")
@@ -113,50 +113,50 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
     return () => window.removeEventListener("scroll", onScroll)
   })
 
-  useEffect(() => {
-    const eventHandler = () => {
-      if (scrollingRef.current === true) {
-        // The page is scolling right now, skip the update to prevent messing up the indicator
+  const onScrollCallback = useCallback(() => {
+    if (numberOfCallbacksScrollingTheDocument.current > 0) {
+      // The page is scolling right now, skip the update to prevent messing up the indicator
+      return
+    }
+    const pageYOffset = window.pageYOffset
+    if (headings) {
+      const headingOffsets = headings.map((heading) => {
+        return {
+          offsetTop: heading.element.offsetTop + HEADING_START_OFFSET_PX,
+          heading: heading,
+        }
+      })
+      // Find the first heading that is above the current page's pageYOffset
+      const firstAbove = maxBy(
+        headingOffsets.filter((offsetEntry) => offsetEntry.offsetTop < pageYOffset),
+        (offsetEntry) => offsetEntry.offsetTop,
+      )
+      console.log({ firstAbove })
+      if (firstAbove) {
+        setActiveHeading(firstAbove.heading.headingsNavigationIndex)
         return
       }
-      const pageYOffset = window.pageYOffset
-      if (headings) {
-        const headingOffsets = headings.map((heading) => {
-          return {
-            offsetTop: heading.element.offsetTop + HEADING_START_OFFSET_PX,
-            heading: heading,
-          }
-        })
-        // Find the first heading that is above the current page's pageYOffset
-        const firstAbove = maxBy(
-          headingOffsets.filter((offsetEntry) => offsetEntry.offsetTop < pageYOffset),
-          (offsetEntry) => offsetEntry.offsetTop,
-        )
-        console.log({ firstAbove })
-        if (firstAbove) {
-          setActiveHeading(firstAbove.heading.headingsNavigationIndex)
-          return
-        }
-        // No heading is above the current page's pageYOffset, find the first heading that is below the current page's pageYOffset
-        const firstBelow = minBy(headingOffsets, (offsetEntry) => offsetEntry.offsetTop)
-        // Only set the below element active if it's fully visible on the screen
-        if (firstBelow && isElementFullyInViewport(firstBelow.heading.element)) {
-          setActiveHeading(firstBelow.heading.headingsNavigationIndex)
-        }
+      // No heading is above the current page's pageYOffset, find the first heading that is below the current page's pageYOffset
+      const firstBelow = minBy(headingOffsets, (offsetEntry) => offsetEntry.offsetTop)
+      // Only set the below element active if it's fully visible on the screen
+      if (firstBelow && isElementFullyInViewport(firstBelow.heading.element)) {
+        setActiveHeading(firstBelow.heading.headingsNavigationIndex)
       }
     }
+  }, [headings])
 
-    window.addEventListener("scroll", eventHandler)
+  useEffect(() => {
+    window.addEventListener("scroll", onScrollCallback)
     try {
       // Call the event handler once to set the active heading on page load
-      eventHandler()
+      onScrollCallback()
     } catch (e) {
       console.error(e)
     }
     return () => {
-      window.removeEventListener("scroll", eventHandler)
+      window.removeEventListener("scroll", onScrollCallback)
     }
-  }, [headings])
+  }, [onScrollCallback])
 
   let realCollapsed = userHasCollapsed
   if (realCollapsed === null) {
@@ -226,7 +226,8 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                     onClick={(e) => {
                       e.preventDefault()
                       try {
-                        scrollingRef.current = true
+                        // Atomic, since Javascript is single-threaded
+                        numberOfCallbacksScrollingTheDocument.current += 1
                         setActiveHeading(headingsNavigationIndex)
 
                         window.scrollTo({
@@ -238,8 +239,11 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                         // We don't know when the scroll animation is done, so we'll guess
                         // The timeout has to be unfortunately long because the scroll animation may take quite some time
                         setTimeout(() => {
-                          scrollingRef.current = false
-                        }, 1000)
+                          // Atomic, since Javascript is single-threaded
+                          numberOfCallbacksScrollingTheDocument.current -= 1
+                          // Since we have skipped updating the active heading indicator for some time, it's a good idea to update it now
+                          onScrollCallback()
+                        }, 3000)
                       }
                     }}
                   >

@@ -5,7 +5,7 @@ import { DetailedHTMLProps, HTMLAttributes } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../../shared-module/hooks/useHeadingData"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../../shared-module/utils/constants"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"

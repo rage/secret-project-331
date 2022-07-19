@@ -2,9 +2,9 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../hooks/useHeadingData"
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/constants"
 
 // eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div`

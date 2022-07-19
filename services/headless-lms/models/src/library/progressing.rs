@@ -190,6 +190,31 @@ fn prerequisite_modules_are_completed(
     }
 }
 
+pub async fn process_all_course_instance_completions(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<()> {
+    let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
+    let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
+    let users = course_module_completions::get_all_users_with_completions_on_course_instance(
+        conn,
+        course_instance_id,
+    )
+    .await?;
+    for user_id in users {
+        for course_module in course_modules.iter() {
+            grant_automatic_completion_if_eligible(
+                conn,
+                course_module,
+                course_instance_id,
+                user_id,
+            )
+            .await?;
+        }
+    }
+    Ok(())
+}
+
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCompletionInformation {

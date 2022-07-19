@@ -197,6 +197,7 @@
   "required-field": "This field is required",
   "requires-a-finnish-social-security-number": "(Requires a Finnish social security number)",
   "remove-role": "Remove role",
+  "reprocess-module-completions": "Reprocess module completions",
   "role-admin": "Admin",
   "role-assistant": "Assistant",
   "role-course-or-exam-creator": "Course or exam creator",

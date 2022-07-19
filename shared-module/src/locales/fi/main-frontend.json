@@ -186,6 +186,7 @@
   "required-field": "Tämä on pakollinen kenttä",
   "requires-a-finnish-social-security-number": "(Edellyttää suomalaista henkilötunnusta)",
   "remove-role": "Poista rooli",
+  "reprocess-module-completions": "Uudelleenprosessoi moduulien suoritukset",
   "role-admin": "Ylläpitäjä",
   "role-assistant": "Avustaja",
   "role-course-or-exam-creator": "Kurssien tai kokeiden luoja",

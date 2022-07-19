@@ -356,6 +356,27 @@
 <span id="351">351</span>
 <span id="352">352</span>
 <span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -380,6 +401,7 @@
     <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">grade</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">passed</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
@@ -569,6 +591,24 @@ WHERE id = $2
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
 }
 
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_prerequisite_modules_completed</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">prerequisite_modules_completed</span>: <span class="ident">bool</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+UPDATE course_module_completions SET prerequisite_modules_completed = $1
+WHERE id = $2 AND deleted_at IS NULL
+    &quot;</span>,
+        <span class="ident">prerequisite_modules_completed</span>,
+        <span class="ident">id</span>
+    )
+    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
+}
+
 <span class="doccomment">/// Completion in the form that is recognized by authorized third party study registry registrars.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -687,6 +727,8 @@ WHERE id = $2
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
+  AND prerequisite_modules_completed
+  AND eligible_for_ects
   AND deleted_at IS NULL
         &quot;#</span>,
         <span class="ident">course_module_ids</span>,

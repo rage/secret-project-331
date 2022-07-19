@@ -11,6 +11,7 @@
   module_id: string
   name: string
   order_number: number
+  prerequisite_modules_completed: boolean
 }&gt;
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>[
   {
@@ -18,14 +19,16 @@
     &quot;default&quot;: true,
     &quot;module_id&quot;: &quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;,
     &quot;name&quot;: &quot;Course&quot;,
-    &quot;order_number&quot;: 0
+    &quot;order_number&quot;: 0,
+    &quot;prerequisite_modules_completed&quot;: false
   },
   {
     &quot;completed&quot;: true,
     &quot;default&quot;: false,
     &quot;module_id&quot;: &quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;,
     &quot;name&quot;: &quot;Module&quot;,
-    &quot;order_number&quot;: 1
+    &quot;order_number&quot;: 1,
+    &quot;prerequisite_modules_completed&quot;: false
   }
 ]
 </code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>

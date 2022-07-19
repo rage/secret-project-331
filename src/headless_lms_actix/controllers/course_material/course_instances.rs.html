@@ -168,6 +168,12 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
@@ -274,13 +280,19 @@ GET `/api/v0/course-material/course-instance/{course_instance_id}/module-complet
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UserModuleCompletionStatus</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">module_completion_statuses</span> <span class="op">=</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">module_completion_statuses</span> <span class="op">=</span>
         <span class="ident">models::library::progressing::get_user_module_completion_statuses_for_course_instance</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
             <span class="ident">user</span>.<span class="ident">id</span>,
             <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Override individual completions in modules with insufficient prerequisites</span>
+    <span class="ident">module_completion_statuses</span>.<span class="ident">iter_mut</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">module</span><span class="op">|</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">module</span>.<span class="ident">prerequisite_modules_completed</span> {
+            <span class="ident">module</span>.<span class="ident">completed</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        }
+    });
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">module_completion_statuses</span>))
 }
 

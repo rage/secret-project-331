@@ -1085,6 +1085,9 @@
 <span id="1080">1080</span>
 <span id="1081">1081</span>
 <span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1335,6 +1338,7 @@
         <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">is_draft</span>: <span class="bool-val">true</span>,
         <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
+        <span class="ident">base_module_completion_requires_n_submodule_completions</span>: <span class="number">0</span>,
     };
     <span class="kw">let</span> <span class="ident">chapter</span> <span class="op">=</span> <span class="ident">Chapter</span> {
         <span class="ident">id</span>,
@@ -2098,6 +2102,7 @@
                 <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;299eba99-9aa2-4023-bd64-bd4b5d7578ba&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Course&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">order_number</span>: <span class="number">0</span>,
+                <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">false</span>,
             },
             <span class="ident">UserModuleCompletionStatus</span> {
                 <span class="ident">completed</span>: <span class="bool-val">true</span>,
@@ -2105,6 +2110,7 @@
                 <span class="ident">module_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c6c89368-c05d-498f-a2e3-10d7c327752c&quot;</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">name</span>: <span class="string">&quot;Module&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">order_number</span>: <span class="number">1</span>,
+                <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">false</span>,
             }
         ]
     );

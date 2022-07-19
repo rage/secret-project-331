@@ -1073,6 +1073,10 @@
 <span id="1068">1068</span>
 <span id="1069">1069</span>
 <span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1309,6 +1313,10 @@ GROUP BY chapters.course_module_id
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
+<span class="doccomment">/// Gets course instance metrics for a single module.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note that due to the way how course module is joined to rest of the details, this function will</span>
+<span class="doccomment">/// require at least one user exercise state for that user and course instance for it to succeed.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_single_module_course_instance_metrics</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,

@@ -871,6 +871,9 @@
 <span id="866">866</span>
 <span id="867">867</span>
 <span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -917,9 +920,10 @@ INSERT INTO courses (
     content_search_language,
     language_code,
     copied_from,
-    course_language_group_id
+    course_language_group_id,
+    base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7)
+VALUES ($1, $2, $3, $4::regconfig, $5, $6, $7, $8)
 RETURNING id,
   name,
   created_at,
@@ -933,7 +937,8 @@ RETURNING id,
   course_language_group_id,
   description,
   is_draft,
-  is_test_mode;
+  is_test_mode,
+  base_module_completion_requires_n_submodule_completions
     &quot;</span>,
         <span class="ident">new_course</span>.<span class="ident">name</span>,
         <span class="ident">new_course</span>.<span class="ident">organization_id</span>,
@@ -942,6 +947,7 @@ RETURNING id,
         <span class="ident">new_course</span>.<span class="ident">language_code</span>,
         <span class="ident">parent_course</span>.<span class="ident">id</span>,
         <span class="ident">course_language_group_id</span>,
+        <span class="ident">parent_course</span>.<span class="ident">base_module_completion_requires_n_submodule_completions</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

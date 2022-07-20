@@ -12,6 +12,16 @@ import useHeadingData from "../hooks/useHeadingData"
 import useIsPageChapterFrontPage from "../hooks/useIsPageChapterFrontPage"
 import { baseTheme } from "../shared-module/styles/theme"
 import { isElementFullyInViewport } from "../shared-module/utils/dom"
+import { courseMaterialBlockClass } from "../utils/constants"
+
+const HERO_SECTION_Y_OFFSET_PX = 700
+const TOP_OFFSET_PX = 50
+const MOBILE_TOP_OFFSET_PX = 100
+
+const HEADING_START_OFFSET_PX = -30
+const HEADING_SCROLL_DESTINATION_START_OFFSET_PX = -15
+
+const WIDTH_PX = 300
 
 const StyledTopics = styled.div`
   border-left: 3px solid #ebedee;
@@ -72,12 +82,6 @@ export interface Topic {
   text: string
 }
 
-const Y_OFFSET = 650
-const TOP_OFFSET = 50
-
-const HEADING_START_OFFSET_PX = -30
-const HEADING_SCROLL_DESTINATION_START_OFFSET_PX = -15
-
 export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
 const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
@@ -86,8 +90,11 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   // Ref to optimize useEffect. A number to keep multiple clicks from interfering with each other
   const numberOfCallbacksScrollingTheDocument = useRef(0)
 
-  const [offsetpx, setOffsetpx] = useState<number>(Y_OFFSET + TOP_OFFSET)
   const runningOnOnMobile = useMediaQuery("(max-width: 1300px)")
+  const [offsetpx, setOffsetpx] = useState<number>(
+    runningOnOnMobile ? MOBILE_TOP_OFFSET_PX : HERO_SECTION_Y_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX,
+  )
+
   const [fixedBasedOnScrolPosition, setFixedBasedOnScrollPosition] =
     useState<boolean>(runningOnOnMobile)
   const [userHasCollapsed, setUserHasCollapsed] = useState<boolean | null>(null)
@@ -99,45 +106,61 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   const canUseFixedBasedOnScreenWidth = useMediaQuery("(min-width: 870px)")
   const fixed = canUseFixedBasedOnScreenWidth ? fixedBasedOnScrolPosition : true
 
-  useEffect(() => {
-    const onScroll = () => {
-      if (window.pageYOffset > Y_OFFSET) {
-        setFixedBasedOnScrollPosition(true)
-        setOffsetpx(TOP_OFFSET)
-      } else {
-        setFixedBasedOnScrollPosition(false)
-        setOffsetpx(TOP_OFFSET + Y_OFFSET)
-      }
+  const onScrollCallback1 = useCallback(() => {
+    if (runningOnOnMobile) {
+      setFixedBasedOnScrollPosition(true)
+      setOffsetpx(MOBILE_TOP_OFFSET_PX)
+    } else if (window.scrollY > HERO_SECTION_Y_OFFSET_PX) {
+      setFixedBasedOnScrollPosition(true)
+      setOffsetpx(TOP_OFFSET_PX)
+    } else {
+      setFixedBasedOnScrollPosition(false)
+      setOffsetpx(TOP_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX)
     }
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  })
+  }, [runningOnOnMobile])
 
-  const onScrollCallback = useCallback(() => {
+  useEffect(() => {
+    window.addEventListener("scroll", onScrollCallback1)
+    try {
+      // Call the event handler once to set the active heading on page load
+      onScrollCallback1()
+    } catch (e) {
+      console.error(e)
+    }
+    return () => {
+      window.removeEventListener("scroll", onScrollCallback1)
+    }
+  }, [onScrollCallback1])
+
+  const onScrollCallback2 = useCallback(() => {
     if (numberOfCallbacksScrollingTheDocument.current > 0) {
       // The page is scolling right now, skip the update to prevent messing up the indicator
       return
     }
-    const pageYOffset = window.pageYOffset
+    const pageYOffset = window.scrollY
     if (headings) {
       const headingOffsets = headings.map((heading) => {
+        // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
+        const blockElement =
+          heading.element.closest(`.${courseMaterialBlockClass}`) || heading.element
+        const elementYCoordinateRelativeToViewport = blockElement.getBoundingClientRect().top
+        const yCoordinate = elementYCoordinateRelativeToViewport + window.scrollY
         return {
-          offsetTop: heading.element.offsetTop + HEADING_START_OFFSET_PX,
+          yCoordinate: yCoordinate + HEADING_START_OFFSET_PX,
           heading: heading,
         }
       })
       // Find the first heading that is above the current page's pageYOffset
       const firstAbove = maxBy(
-        headingOffsets.filter((offsetEntry) => offsetEntry.offsetTop < pageYOffset),
-        (offsetEntry) => offsetEntry.offsetTop,
+        headingOffsets.filter((offsetEntry) => offsetEntry.yCoordinate < pageYOffset),
+        (offsetEntry) => offsetEntry.yCoordinate,
       )
-      console.log({ firstAbove })
       if (firstAbove) {
         setActiveHeading(firstAbove.heading.headingsNavigationIndex)
         return
       }
       // No heading is above the current page's pageYOffset, find the first heading that is below the current page's pageYOffset
-      const firstBelow = minBy(headingOffsets, (offsetEntry) => offsetEntry.offsetTop)
+      const firstBelow = minBy(headingOffsets, (offsetEntry) => offsetEntry.yCoordinate)
       // Only set the below element active if it's fully visible on the screen
       if (firstBelow && isElementFullyInViewport(firstBelow.heading.element)) {
         setActiveHeading(firstBelow.heading.headingsNavigationIndex)
@@ -146,17 +169,17 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   }, [headings])
 
   useEffect(() => {
-    window.addEventListener("scroll", onScrollCallback)
+    window.addEventListener("scroll", onScrollCallback2)
     try {
       // Call the event handler once to set the active heading on page load
-      onScrollCallback()
+      onScrollCallback2()
     } catch (e) {
       console.error(e)
     }
     return () => {
-      window.removeEventListener("scroll", onScrollCallback)
+      window.removeEventListener("scroll", onScrollCallback2)
     }
-  }, [onScrollCallback])
+  }, [onScrollCallback2])
 
   let realCollapsed = userHasCollapsed
   if (realCollapsed === null) {
@@ -181,11 +204,12 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
     <>
       <div
         className={css`
-          max-width: 500px;
-          max-height: calc(100vh - 40px);
+          width: ${WIDTH_PX}px;
+          max-height: 90vh;
+          overflow-y: auto;
 
           padding: 1.5rem;
-          padding-top: 9px;
+          padding-top: 12px;
           z-index: 10;
           background-color: #f8f8f8;
 
@@ -194,19 +218,21 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
           }
 
           position: ${fixed ? "fixed" : "absolute"};
-          left: 0px;
+          /** Aligned to the right because our content text is left aligned and if this is on the right it's less likely that this will overlap with the content. **/
+          right: 0px;
           top: ${offsetpx}px;
           transition: transform 0.3s;
-          transform: ${realCollapsed ? "translateX(-282px);" : "translateX(0px)"};
+          transform: ${realCollapsed ? `translateX(${WIDTH_PX}px);` : "translateX(0px)"};
         `}
       >
         <h3
           className={css`
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
             display: inline;
             position: relative;
-            left: 18px;
+            left: -2px;
+            bottom: -3px;
           `}
         >
           {t("in-this-page")}
@@ -217,12 +243,15 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
             {headings &&
               headings.map(({ headingsNavigationIndex, title, element }) => {
                 return (
-                  <a
+                  <button
                     className={css`
-                      text-decoration: none;
+                      border: none;
+                      background: unset;
+                      text-align: left;
+                      width: 100%;
+                      padding: 0;
                     `}
                     key={headingsNavigationIndex}
-                    href={`#${headingsNavigationIndex}`}
                     onClick={(e) => {
                       e.preventDefault()
                       try {
@@ -230,9 +259,16 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                         numberOfCallbacksScrollingTheDocument.current += 1
                         setActiveHeading(headingsNavigationIndex)
 
+                        // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
+                        const blockElement =
+                          element.closest(`.${courseMaterialBlockClass}`) || element
+
+                        // we have to calculate the position of the element because it might have moved.
+                        const elementYCoordinateRelativeToViewport =
+                          blockElement.getBoundingClientRect().top
+                        const top = elementYCoordinateRelativeToViewport + window.scrollY
                         window.scrollTo({
-                          // we have to calculate the position of the element because it might have moved
-                          top: element.offsetTop + HEADING_SCROLL_DESTINATION_START_OFFSET_PX,
+                          top: top + HEADING_SCROLL_DESTINATION_START_OFFSET_PX,
                           behavior: "smooth",
                         })
                       } finally {
@@ -242,7 +278,8 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                           // Atomic, since Javascript is single-threaded
                           numberOfCallbacksScrollingTheDocument.current -= 1
                           // Since we have skipped updating the active heading indicator for some time, it's a good idea to update it now
-                          onScrollCallback()
+                          onScrollCallback1()
+                          onScrollCallback2()
                         }, 3000)
                       }
                     }}
@@ -258,19 +295,20 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                     >
                       <div>{title}</div>
                     </StTopic>
-                  </a>
+                  </button>
                 )
               })}
           </div>
         </StyledTopics>
       </div>
+
       <button
         onClick={() => setUserHasCollapsed(!realCollapsed)}
         aria-label={realCollapsed ? t("open-heading-menu") : t("close-heading-menu")}
         className={css`
           all: unset;
           position: ${fixed ? "fixed" : "absolute"};
-          left: 0px;
+          right: 0px;
           top: ${offsetpx}px;
           cursor: pointer;
           transition: background-color 0.2s;
@@ -288,7 +326,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
           }
         `}
       >
-        <FontAwesomeIcon icon={realCollapsed ? faArrowRight : faArrowLeft} />
+        <FontAwesomeIcon icon={realCollapsed ? faArrowLeft : faArrowRight} />
       </button>
     </>
   )

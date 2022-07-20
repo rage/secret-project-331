@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
@@ -7,6 +7,7 @@ import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../shared-module/utils/constants"
 import { coursePageRoute } from "../../../../utils/routing"
 
 export interface PagesInChapterProps {
@@ -35,13 +36,16 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
           `}
         >
           <h2
-            className={css`
-              font-size: 2.5rem;
-              font-weight: 400;
-              text-align: center;
-              color: #1a2333;
-              margin-bottom: 2rem;
-            `}
+            className={cx(
+              INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+              css`
+                font-size: 2.5rem;
+                font-weight: 400;
+                text-align: center;
+                color: #1a2333;
+                margin-bottom: 2rem;
+              `,
+            )}
           >
             {t("table-of-contents")}
           </h2>

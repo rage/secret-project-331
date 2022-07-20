@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectPath from "../utils/expect"
 import waitForFunction from "../utils/waitForFunction"
 
@@ -215,7 +216,7 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click text=Chapter 1: The Levels of Testing
   await Promise.all([

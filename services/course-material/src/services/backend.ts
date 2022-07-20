@@ -404,7 +404,7 @@ export const postNewReference = async (
   await courseMaterialClient.post(`/courses/${courseId}/references`, data)
 }
 
-export const isPageFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
+export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
   const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
   return validateResponse(response, isIsChapterFrontPage)
 }

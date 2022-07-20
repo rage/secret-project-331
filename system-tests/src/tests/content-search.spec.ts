@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectPath from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -25,7 +26,7 @@ test("content search", async ({ page, headless }) => {
   ])
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click a:has-text("CHAPTER 2User Experience")
   await Promise.all([

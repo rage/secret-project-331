@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -19,8 +20,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
     page.locator(`div:text-is("Introduction to Course Material")`).click(),
   ])
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   await page.evaluate(() => {
     window.scrollBy(0, 1800)

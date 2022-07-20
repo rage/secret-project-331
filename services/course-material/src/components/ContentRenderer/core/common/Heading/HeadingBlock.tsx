@@ -1,10 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
 /* eslint-disable jsx-a11y/heading-has-content */
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { DetailedHTMLProps, HTMLAttributes } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../../shared-module/utils/constants"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
@@ -29,16 +30,19 @@ const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data })
     dangerouslySetInnerHTML: {
       __html: sanitizeCourseMaterialHtml(content),
     },
-    className: css`
-      line-height: ${level === 1 ? 1.1 : 1.2};
-      margin-bottom: 1rem;
-      margin-top: ${marginTopHeadingMapper(level)};
-      ${textAlign && `text-align: ${textAlign};`}
-      ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
+    className: cx(
+      INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+      css`
+        line-height: ${level === 1 ? 1.1 : 1.2};
+        margin-bottom: 1rem;
+        margin-top: ${marginTopHeadingMapper(level)};
+        ${textAlign && `text-align: ${textAlign};`}
+        ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
       ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
       ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       ${backgroundColor && "padding: 2.66rem 5rem !important;"}
-    `,
+      `,
+    ),
     ...(anchor ? { id: anchor } : {}),
   }
   switch (level) {

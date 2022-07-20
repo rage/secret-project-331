@@ -208,6 +208,7 @@ module.exports = {
           "setValue",
           "getValues",
           "watch",
+          "useMediaQuery",
         ],
         ignoreProperty: ["type"],
       },

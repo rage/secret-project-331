@@ -1,5 +1,15 @@
 [
   {
+    "clientId": "c91b6d27-5bbc-4865-97a4-ea8af638ad30",
+    "isValid": true,
+    "name": "moocfi/hero-section",
+    "attributes": {
+      "title": "A page that contains all blocks",
+      "subtitle": "Have fun!"
+    },
+    "innerBlocks": []
+  },
+  {
     "clientId": "4639c1db-cdb3-47ce-ab20-811ff18911a0",
     "isValid": true,
     "name": "core/paragraph",

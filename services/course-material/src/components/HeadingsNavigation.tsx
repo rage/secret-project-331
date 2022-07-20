@@ -278,7 +278,6 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
                           // Atomic, since Javascript is single-threaded
                           numberOfCallbacksScrollingTheDocument.current -= 1
                           // Since we have skipped updating the active heading indicator for some time, it's a good idea to update it now
-                          onScrollCallback1()
                           onScrollCallback2()
                         }, 3000)
                       }

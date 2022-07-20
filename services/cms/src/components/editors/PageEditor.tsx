@@ -128,7 +128,6 @@ const PageEditor: React.FC<PageEditorProps> = ({
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"
 
-  console.log(pageRoutingData)
   if (pageRoutingData && pageRoutingData.next_page) {
     nextPageUrl = coursePageRoute(pageRoutingData.next_page.page_id)
   } else {

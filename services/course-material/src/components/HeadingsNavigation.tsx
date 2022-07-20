@@ -90,24 +90,32 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   // Ref to optimize useEffect. A number to keep multiple clicks from interfering with each other
   const numberOfCallbacksScrollingTheDocument = useRef(0)
 
-  const runningOnOnMobile = useMediaQuery("(max-width: 1300px)")
+  const expandedNavigationWillOverlapWithContent = useMediaQuery("(max-width: 1400px)")
+  console.log({ expandedNavigationWillOverlapWithContent })
   const [offsetpx, setOffsetpx] = useState<number>(
-    runningOnOnMobile ? MOBILE_TOP_OFFSET_PX : HERO_SECTION_Y_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX,
+    expandedNavigationWillOverlapWithContent
+      ? MOBILE_TOP_OFFSET_PX
+      : HERO_SECTION_Y_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX,
   )
 
-  const [fixedBasedOnScrolPosition, setFixedBasedOnScrollPosition] =
-    useState<boolean>(runningOnOnMobile)
+  const [fixedBasedOnScrolPosition, setFixedBasedOnScrollPosition] = useState<boolean>(
+    expandedNavigationWillOverlapWithContent,
+  )
   const [userHasCollapsed, setUserHasCollapsed] = useState<boolean | null>(null)
   const { headings } = useHeadingData()
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageContext.pageData?.id)
 
-  const canUseFixedBasedOnScreenWidth = useMediaQuery("(min-width: 870px)")
-  const fixed = canUseFixedBasedOnScreenWidth ? fixedBasedOnScrolPosition : true
+  const screenWidthSoWideThatWeCanUseAbsolutePositioningInitially =
+    useMediaQuery("(min-width: 870px)")
+  // When the we have not scrolled past the hero section and are on a large enough screen, we we will use absolute positioning to position the navigation to be just under the hero section. On narrower screens, and when we have scrolled further down the page, we will use fixed positioning to keep the navigation at a constant position.
+  const fixed = screenWidthSoWideThatWeCanUseAbsolutePositioningInitially
+    ? fixedBasedOnScrolPosition
+    : true
 
   const onScrollCallback1 = useCallback(() => {
-    if (runningOnOnMobile) {
+    if (expandedNavigationWillOverlapWithContent) {
       setFixedBasedOnScrollPosition(true)
       setOffsetpx(MOBILE_TOP_OFFSET_PX)
     } else if (window.scrollY > HERO_SECTION_Y_OFFSET_PX) {
@@ -117,7 +125,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
       setFixedBasedOnScrollPosition(false)
       setOffsetpx(TOP_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX)
     }
-  }, [runningOnOnMobile])
+  }, [expandedNavigationWillOverlapWithContent])
 
   useEffect(() => {
     window.addEventListener("scroll", onScrollCallback1)
@@ -183,7 +191,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
 
   let realCollapsed = userHasCollapsed
   if (realCollapsed === null) {
-    realCollapsed = runningOnOnMobile
+    realCollapsed = expandedNavigationWillOverlapWithContent
     if (
       pageContext.exam !== null ||
       // Collapsed by default on chapter front pages

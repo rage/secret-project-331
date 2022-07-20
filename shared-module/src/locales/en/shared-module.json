@@ -85,6 +85,9 @@
   "about-this-project": "About this project",
   "project-github": "Project Github",
   "contribute-image-cover": "Contribute image cover",
-  "title-references": "Reference",
-  "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:"
+  "title-references": "References",
+  "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:",
+  "next-page": "Next page",
+  "previous-page": "Previous page",
+  "chapter-front-page": "Chapter front page"
 }

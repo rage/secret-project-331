@@ -234,6 +234,10 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
     Ok(res)
 }
 
+/// Gets course instance metrics for a single module.
+///
+/// Note that due to the way how course module is joined to rest of the details, this function will
+/// require at least one user exercise state for that user and course instance for it to succeed.
 pub async fn get_single_module_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -1031,6 +1035,7 @@ mod tests {
             course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             copied_from: None,
             uh_course_code: None,
+            ects_credits: Some(5),
             automatic_completion: false,
             automatic_completion_number_of_exercises_attempted_treshold: None,
             automatic_completion_number_of_points_treshold: None,

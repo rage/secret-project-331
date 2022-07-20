@@ -43,14 +43,17 @@ use headless_lms_models::{
             CourseMaterialPeerReviewData, CourseMaterialPeerReviewDataAnswerToReview,
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
+        progressing::{
+            CompletionRegistrationLink, UserCompletionInformation, UserModuleCompletionStatus,
+        },
     },
     material_references::{MaterialReference, NewMaterialReference},
     organizations::Organization,
     page_history::{HistoryChangeReason, PageHistory},
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, ContentManagementPage,
-        CoursePageWithUserData, Page, PageChapterAndCourseInformation, PageInfo,
-        PageRoutingDataWithChapterStatus, PageSearchResult, PageWithExercises,
+        CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
+        PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
     peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
@@ -245,6 +248,7 @@ fn main() {
         description: Some("Example".to_string()),
         is_draft: true,
         is_test_mode: false,
+        base_module_completion_requires_n_submodule_completions: 0,
     };
     let chapter = Chapter {
         id,
@@ -618,19 +622,6 @@ fn main() {
         course_material_peer_review_submission
     );
     write_docs!(
-        Option<PageRoutingDataWithChapterStatus>,
-        Some(PageRoutingDataWithChapterStatus {
-            url_path: "/path-to-next/page (course-material)".to_string(),
-            title: "Name of the next page".to_string(),
-            page_id: page.id,
-            chapter_number: 1,
-            chapter_id: id,
-            chapter_opens_at: Some(date_time),
-            chapter_front_page_id: Some(id),
-            chapter_status: ChapterStatus::Open
-        })
-    );
-    write_docs!(
         StudentExerciseSlideSubmissionResult,
         exercise_slide_submission_result
     );
@@ -769,6 +760,7 @@ fn main() {
         }]
     );
     write_docs!(Page, page.clone());
+    write_docs!(Option<Page>, Some(page.clone()));
     write_docs!(
         Vec<PageHistory>,
         vec![PageHistory {
@@ -943,6 +935,12 @@ fn main() {
         }
     );
     write_docs!(
+        IsChapterFrontPage,
+        IsChapterFrontPage {
+            is_chapter_front_page: true
+        }
+    );
+    write_docs!(
         CourseMaterialPeerReviewData,
         CourseMaterialPeerReviewData {
             peer_review: peer_review.clone(),
@@ -994,6 +992,85 @@ fn main() {
             user_upstream_id: id,
             tier: None
         }]
+    );
+    write_docs!(
+        UserCompletionInformation,
+        UserCompletionInformation {
+            course_module_completion_id: id,
+            course_name: "Course".to_string(),
+            email: "student@example.com".to_string(),
+            uh_course_code: "ABC123".to_string(),
+            ects_credits: Some(5),
+        }
+    );
+    write_docs!(
+        Vec<UserModuleCompletionStatus>,
+        vec![
+            UserModuleCompletionStatus {
+                completed: false,
+                default: true,
+                module_id: Uuid::parse_str("299eba99-9aa2-4023-bd64-bd4b5d7578ba").unwrap(),
+                name: "Course".to_string(),
+                order_number: 0,
+                prerequisite_modules_completed: false,
+            },
+            UserModuleCompletionStatus {
+                completed: true,
+                default: false,
+                module_id: Uuid::parse_str("c6c89368-c05d-498f-a2e3-10d7c327752c").unwrap(),
+                name: "Module".to_string(),
+                order_number: 1,
+                prerequisite_modules_completed: false,
+            }
+        ]
+    );
+    write_docs!(
+        CompletionRegistrationLink,
+        CompletionRegistrationLink {
+            url: "https://www.example.com".to_string(),
+        }
+    );
+    write_docs!(
+        Vec<bool>,
+        vec![false, true, false, true, false, true, true, true]
+    );
+    write_docs!(
+        PageNavigationInformation,
+        PageNavigationInformation {
+            chapter_front_page: Some(PageRoutingData {
+                url_path: "/chapter-1".to_string(),
+                title: "Chapter 1".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+            next_page: Some(PageRoutingData {
+                url_path: "/chapter-1/page-3".to_string(),
+                title: "Page 3".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+            previous_page: Some(PageRoutingData {
+                url_path: "/chapter-1/page-1".to_string(),
+                title: "Page 1".to_string(),
+                page_id: Uuid::parse_str("25d1932b-ad97-4461-8280-412fe8b75ca2").unwrap(),
+                chapter_number: 1,
+                chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
+                chapter_opens_at: None,
+                chapter_front_page_id: Some(
+                    Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
+                ),
+            }),
+        }
     );
 }
 

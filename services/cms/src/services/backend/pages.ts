@@ -2,12 +2,12 @@ import {
   CmsPageUpdate,
   ContentManagementPage,
   PageInfo,
-  PageRoutingDataWithChapterStatus,
+  PageNavigationInformation,
 } from "../../shared-module/bindings"
 import {
   isContentManagementPage,
   isPageInfo,
-  isPageRoutingDataWithChapterStatus,
+  isPageNavigationInformation,
 } from "../../shared-module/bindings.guard"
 import { isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
 
@@ -25,9 +25,9 @@ export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
 
 export const fetchNextPageRoutingData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await cmsClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+): Promise<PageNavigationInformation | null> => {
+  const response = await cmsClient.get(`/pages/${currentPageId}/page-navigation`)
+  return validateResponse(response, isUnion(isPageNavigationInformation, isNull))
 }
 
 export const updateExistingPage = async (

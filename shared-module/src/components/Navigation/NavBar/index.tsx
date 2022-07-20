@@ -14,7 +14,6 @@ export interface NavigationProps {
   frontPageUrl?: string
   faqUrl?: string
   SearchDialogComponent?: React.ReactNode
-  returnToPath?: string
 }
 
 const NavBar: React.FC<NavigationProps> = (props) => {

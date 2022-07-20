@@ -8,6 +8,8 @@
   "chapters-grid-placeholder-explanation": "This block is placed on the course material front page for navigating to different chapters easily.",
   "close": "Close",
   "remove": "Remove",
+  "congratulations-placeholder": "Congratulations placeholder",
+  "congratulations-explanation": "This block is placed in the course material where you wish to show the student congratulations when they have completed the course. For courses that have been configured for receiving ECTS, it will also provide a link to a page where they can register their completion to Open University.",
   "course-progress-placeholder": "Chapter progress placeholder",
   "course-progress-placeholder-explanation": "This block is placed on the course material where you wish to show the course progress.",
   "delete": "Delete",
@@ -62,5 +64,8 @@
   "start": "Start",
   "separator-color": "Separator color",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
-  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes."
+  "outdated-blocks-migrated-explanation": "{{num}} blocks were created with an older version of the editor and they had to be migrated to a new format. Save the page to persist the changes.",
+  "top-level-block-placeholder": "Top level pages placeholder",
+  "top-level-block-placeholder-explanation": "This block list all the top level pages in a course and it is placed on the course material front page.",
+  "learning-objectives": "Learning objectives"
 }

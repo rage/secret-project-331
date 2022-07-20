@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 import React, { ReactNode, useEffect, useRef, useState } from "react"
 
+import IframeHeightContext from "../contexts/IframeHeightContext"
+
 interface Props {
   port: MessagePort | null
   children?: ReactNode
@@ -70,15 +72,17 @@ const HeightTrackingContainer: React.FC<Props> = ({ port, children }) => {
   })
 
   return (
-    <div
-      // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
-      className={css`
-        overflow: hidden;
-      `}
-      ref={contentRef}
-    >
-      {children}
-    </div>
+    <IframeHeightContext.Provider value={{ height: height }}>
+      <div
+        // overflow: hidden required because otherwise margin-top in the children can otherwise mess up the height calculation
+        className={css`
+          overflow: hidden;
+        `}
+        ref={contentRef}
+      >
+        {children}
+      </div>
+    </IframeHeightContext.Provider>
   )
 }
 

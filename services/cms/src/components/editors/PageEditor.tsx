@@ -121,15 +121,16 @@ const PageEditor: React.FC<PageEditorProps> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
-  const getNextPageRoutingData = useQuery(`pages-${data.id}-next-page`, () =>
+  const getNextPageRoutingData = useQuery(`pages-${data.id}-page-navigation`, () =>
     fetchNextPageRoutingData(data.id),
   )
 
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"
 
-  if (pageRoutingData) {
-    nextPageUrl = coursePageRoute(pageRoutingData.page_id)
+  console.log(pageRoutingData)
+  if (pageRoutingData && pageRoutingData.next_page) {
+    nextPageUrl = coursePageRoute(pageRoutingData.next_page.page_id)
   } else {
     nextPageUrl = coursePageRoute(data.id)
   }

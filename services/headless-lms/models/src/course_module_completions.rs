@@ -22,6 +22,7 @@ pub struct CourseModuleCompletion {
     pub email: String,
     pub grade: Option<i32>,
     pub passed: bool,
+    pub prerequisite_modules_completed: bool,
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -142,6 +143,30 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
+/// Gets all module completions for the user on a single course instance. There can be multiple modules
+/// in a single course, so the result is a `Vec`.
+pub async fn get_by_course_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_instance_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        ",
+        course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_module_instance_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -165,6 +190,44 @@ WHERE course_module_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update_completion_registration_attempt_date(
+    conn: &mut PgConnection,
+    id: Uuid,
+    completion_registration_attempt_date: DateTime<Utc>,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions
+SET completion_registration_attempt_date = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        Some(completion_registration_attempt_date),
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
+pub async fn update_prerequisite_modules_completed(
+    conn: &mut PgConnection,
+    id: Uuid,
+    prerequisite_modules_completed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET prerequisite_modules_completed = $1
+WHERE id = $2 AND deleted_at IS NULL
+    ",
+        prerequisite_modules_completed,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
 }
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
@@ -285,6 +348,8 @@ pub fn stream_by_course_module_id<'a>(
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
+  AND prerequisite_modules_completed
+  AND eligible_for_ects
   AND deleted_at IS NULL
         "#,
         course_module_ids,

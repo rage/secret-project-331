@@ -18,6 +18,12 @@
         "svgo": {
           "plugins": [
             {
+              "name": "removeAttrs",
+              "params": {
+                "attrs": "(data-name)"
+              }
+            },
+            {
               "name": "preset-default",
               "params": {
                 "overrides": {

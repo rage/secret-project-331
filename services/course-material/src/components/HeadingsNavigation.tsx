@@ -91,7 +91,6 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   const numberOfCallbacksScrollingTheDocument = useRef(0)
 
   const expandedNavigationWillOverlapWithContent = useMediaQuery("(max-width: 1400px)")
-  console.log({ expandedNavigationWillOverlapWithContent })
   const [offsetpx, setOffsetpx] = useState<number>(
     expandedNavigationWillOverlapWithContent
       ? MOBILE_TOP_OFFSET_PX

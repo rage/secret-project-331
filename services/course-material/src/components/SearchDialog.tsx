@@ -6,7 +6,8 @@ import { Dialog, Paper } from "@mui/material"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useDebounce } from "usehooks-ts"
+// useDebounce from "usehooks-ts" doesn't seem to work
+import { useDebounce } from "use-debounce"
 
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"

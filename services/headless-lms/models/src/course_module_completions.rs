@@ -230,6 +230,25 @@ WHERE id = $2 AND deleted_at IS NULL
     Ok(res.rows_affected() > 0)
 }
 
+pub async fn get_all_users_with_completions_on_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT user_id
+FROM course_module_completions
+WHERE course_instance_id = $1
+  AND deleted_at IS NULL
+        ",
+        course_instance_id
+    )
+    .map(|x| x.user_id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

@@ -2767,6 +2767,27 @@
       "nullable": [false]
     }
   },
+  "276395c8de853f2bb8562650ed45d8c24fdff05b7d94b7955836e1bd5cf645f6": {
+    "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE chapters.course_module_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $3\n  AND ues.deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "attempted_exercises",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "score_given",
+          "type_info": "Float4"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      },
+      "nullable": [null, null]
+    }
+  },
   "28bfce5519da0502894a0ee396ee94c5c498958c55f4883409c9cb450b6218be": {
     "query": "\nDELETE FROM roles\nWHERE user_id = $1\n  AND role = $2\n  AND course_instance_id = $3\n",
     "describe": {
@@ -7920,6 +7941,22 @@
         "Left": ["Uuid"]
       },
       "nullable": [false, false, false]
+    }
+  },
+  "7db2a05016faa29733d7352eb55816b65e74fce9777e8bd9633af8317d150bd5": {
+    "query": "\nSELECT DISTINCT user_id\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        }
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      },
+      "nullable": [false]
     }
   },
   "7e8a1529d1b3f6ab629888c8382b9d78c79a31e3c71271a44e43698ad3335791": {
@@ -14438,32 +14475,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "ebe57a5919ce71bd80d2bafe258ffcdbf3fe5c4d4ce39d1e5bddaf3bf2b8744e": {
-    "query": "\nSELECT chapters.course_module_id,\n  COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE chapters.course_module_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $3\n  AND ues.deleted_at IS NULL\nGROUP BY chapters.course_module_id\nLIMIT 1\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "course_module_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "attempted_exercises",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 2,
-          "name": "score_given",
-          "type_info": "Float4"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Uuid"]
-      },
-      "nullable": [false, null, null]
     }
   },
   "ed7c776d9fcc896386fd70d3da41c7d99eaa2b483f536a6fbbf5a47414ef8562": {

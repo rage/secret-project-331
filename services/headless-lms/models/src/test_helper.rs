@@ -131,6 +131,7 @@ macro_rules! insert_data {
     // these rules declare variables according to the args
     (@inner tx: $tx:ident) => {
         let mut conn = Conn::init().await;
+        #[allow(unused_mut)]
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {

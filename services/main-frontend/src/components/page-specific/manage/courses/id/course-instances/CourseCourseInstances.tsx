@@ -15,6 +15,7 @@ import {
   manageCourseInstancePermissionsPageRoute,
 } from "../../../../../../utils/routing"
 
+import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
@@ -70,6 +71,7 @@ const CourseCourseInstances: React.FC<CourseManagementPagesProps> = ({ courseId 
                     {t("link-view-points")}
                   </a>{" "}
                   <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
+                  <ModuleCompletionReprocessButton courseInstanceId={instance.id} />
                 </li>
               )
             })}

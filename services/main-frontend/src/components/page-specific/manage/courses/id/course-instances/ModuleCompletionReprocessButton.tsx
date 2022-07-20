@@ -27,7 +27,11 @@ const ModuleCompletionReprocessButton: React.FC<ModuleCompletionReprocessButtonP
       <Button
         variant="primary"
         size="medium"
-        onClick={() => postReprocessCompletionsMutation.mutate()}
+        onClick={() => {
+          if (confirm(t("message-are-you-sure-you-want-to-reprocess-submissions"))) {
+            return postReprocessCompletionsMutation.mutate()
+          }
+        }}
       >
         {t("reprocess-module-completions")}
       </Button>

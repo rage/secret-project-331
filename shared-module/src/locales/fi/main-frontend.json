@@ -138,6 +138,7 @@
   "manage-course": "Hallinnoi kurssia '{{ title }}'",
   "manage-glossary": "Hallitse sanastoa",
   "manage-page": "Hallinnoi sivua",
+  "message-are-you-sure-you-want-to-reprocess-submissions": "Oletko varma, että haluat uudelleenprosessoida tämän kurssi-instanssin moduulisuoritukset?",
   "message-created-succesfully": "Luotu onnistuneesti",
   "message-creating-failed": "Jokin meni vikaan, ei voitu luoda",
   "message-deleting-failed": "Jotakin meni pieleen, poistaminen ei onnistunut",

@@ -149,6 +149,7 @@
   "manage-course": "Manage course '{{ title }}'",
   "manage-glossary": "Manage glossary",
   "manage-page": "Manage page",
+  "message-are-you-sure-you-want-to-reprocess-submissions": "Are you sure that you want to reprocess module completions for this course instance?",
   "message-created-succesfully": "Created succesfully",
   "message-creating-failed": "Something went wrong, couldn't create",
   "message-deleting-failed": "Something went wrong, couldn't complete deletion",

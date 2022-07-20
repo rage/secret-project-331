@@ -429,7 +429,6 @@ mod tests {
 
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
-            #[allow(unused_mut)]
             insert_data!(:tx);
             let (mut tx, user, instance, _default_module, submodule) = create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(

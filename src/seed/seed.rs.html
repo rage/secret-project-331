@@ -3698,6 +3698,25 @@
 <span id="3693">3693</span>
 <span id="3694">3694</span>
 <span id="3695">3695</span>
+<span id="3696">3696</span>
+<span id="3697">3697</span>
+<span id="3698">3698</span>
+<span id="3699">3699</span>
+<span id="3700">3700</span>
+<span id="3701">3701</span>
+<span id="3702">3702</span>
+<span id="3703">3703</span>
+<span id="3704">3704</span>
+<span id="3705">3705</span>
+<span id="3706">3706</span>
+<span id="3707">3707</span>
+<span id="3708">3708</span>
+<span id="3709">3709</span>
+<span id="3710">3710</span>
+<span id="3711">3711</span>
+<span id="3712">3712</span>
+<span id="3713">3713</span>
+<span id="3714">3714</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">process::Command</span>};
@@ -6716,6 +6735,7 @@
         <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
             <span class="ident">GutenbergBlock::hero_section</span>(<span class="string">&quot;Design&quot;</span>, <span class="string">&quot;A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.&quot;</span>)
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;98729704-9dd8-4309-aa08-402f9b2a6071&quot;</span>)<span class="question-mark">?</span>),
+            <span class="ident">heading</span>(<span class="string">&quot;First heading&quot;</span>, <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;731aa55f-238b-42f4-8c40-c093dd95ee7f&quot;</span>)<span class="question-mark">?</span>, <span class="number">2</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
                 <span class="macro">attributes!</span>{
@@ -6724,6 +6744,7 @@
                 },
             )
                 .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;9ebddb78-23f6-4440-8d8f-5e4b33abb16f&quot;</span>)<span class="question-mark">?</span>),
+                <span class="ident">heading</span>(<span class="string">&quot;Second heading&quot;</span>, <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;a70aac40-acda-48e3-8f53-b64370be4585&quot;</span>)<span class="question-mark">?</span>, <span class="number">3</span>),
             <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
                 <span class="string">&quot;core/paragraph&quot;</span>,
                 <span class="macro">attributes!</span>{
@@ -6740,6 +6761,23 @@
                 },
             )
             .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3693e92b-9cf0-485a-b026-2851de58e9cf&quot;</span>)<span class="question-mark">?</span>),
+            <span class="ident">heading</span>(<span class="string">&quot;Third heading&quot;</span>, <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;4d16bfea-4fa9-4355-bbd4-4c61e33d3d7c&quot;</span>)<span class="question-mark">?</span>, <span class="number">2</span>),
+            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
+                <span class="string">&quot;core/paragraph&quot;</span>,
+                <span class="macro">attributes!</span>{
+                  <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.&quot;</span>,
+                  <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
+                },
+            )
+                .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;4ef39962-634d-488c-be82-f44e5db19421&quot;</span>)<span class="question-mark">?</span>),
+            <span class="ident">GutenbergBlock::block_with_name_and_attributes</span>(
+                <span class="string">&quot;core/paragraph&quot;</span>,
+                <span class="macro">attributes!</span>{
+                  <span class="string">&quot;content&quot;</span>: <span class="string">&quot;Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.&quot;</span>,
+                  <span class="string">&quot;dropCap&quot;</span>: <span class="bool-val">false</span>
+                },
+            )
+            .<span class="ident">with_id</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0d47c02a-194e-42a4-927e-fb29a4fda39c&quot;</span>)<span class="question-mark">?</span>),
         ]),
     };
     <span class="ident">create_page</span>(<span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="ident">admin</span>, <span class="prelude-val">Some</span>(<span class="ident">chapter_1</span>.<span class="ident">id</span>), <span class="ident">design_content</span>).<span class="kw">await</span><span class="question-mark">?</span>;

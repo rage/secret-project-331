@@ -234,6 +234,32 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
@@ -298,6 +324,28 @@ GET /course-instances/:id
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">email_template</span>))
+}
+
+<span class="doccomment">/**
+POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-completions`
+
+Reprocesses all module completions for the given course instance. Only available to admins.
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_reprocess_module_completions</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">course_instance_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::GlobalPermissions</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">models::library::progressing::process_all_course_instance_completions</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="bool-val">true</span>))
 }
 
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
@@ -463,8 +511,12 @@ We add the routes by calling the route method instead of using the route annotat
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">edit</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/delete&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">delete</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/points&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">points</span>));
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_instance_id}/points&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">points</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_instance_id}/reprocess-completions&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_reprocess_module_completions</span>),
+        );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_actix" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Module ffi</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#types">Type Definitions</a></li></ul></div></section><div id="sidebar-vars" data-name="ffi" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">ffi</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.0/src/std/lib.rs.html#498">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Utilities related to FFI bindings.</p>
+    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">ffi</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.1/src/std/lib.rs.html#498">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Utilities related to FFI bindings.</p>
 <p>This module provides utilities to handle data across non-Rust
 interfaces, like other programming languages and the underlying
 operating system. It is mainly of use for FFI (Foreign Function
@@ -12,7 +12,7 @@ Interface) bindings and code that needs to exchange C-like strings
 with other languages.</p>
 <h2 id="overview"><a href="#overview">Overview</a></h2>
 <p>Rust represents owned strings with the [<code>String</code>] type, and
-borrowed slices of strings with the <a href="https://doc.rust-lang.org/1.62.0/std/primitive.str.html" title="str"><code>str</code></a> primitive. Both are
+borrowed slices of strings with the <a href="https://doc.rust-lang.org/1.62.1/std/primitive.str.html" title="str"><code>str</code></a> primitive. Both are
 always in UTF-8 encoding, and may contain nul bytes in the middle,
 i.e., if you look at the bytes that make up the string, there may
 be a <code>\0</code> among them. Both <code>String</code> and <code>str</code> store their length
@@ -33,7 +33,7 @@ The C standard leaves the actual sizes of those types open to
 interpretation, but defines different APIs for strings made up of
 each character type. Rust strings are always UTF-8, so different
 Unicode characters will be encoded in a variable number of bytes
-each. The Rust type <a href="https://doc.rust-lang.org/1.62.0/std/primitive.char.html" title="char"><code>char</code></a> represents a ‘<a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar
+each. The Rust type <a href="https://doc.rust-lang.org/1.62.1/std/primitive.char.html" title="char"><code>char</code></a> represents a ‘<a href="https://www.unicode.org/glossary/#unicode_scalar_value">Unicode scalar
 value</a>’, which is similar to, but not the same as, a ‘<a href="https://www.unicode.org/glossary/#code_point">Unicode
 code point</a>’.</p>
 </li>
@@ -71,16 +71,16 @@ UTF-8 strings to and from languages with a C ABI, like Python.</p>
 string: it is nul-terminated, and has no internal nul characters.
 Rust code can create a <a href="type.CString.html" title="CString"><code>CString</code></a> out of a normal string (provided
 that the string doesn’t have nul characters in the middle), and
-then use a variety of methods to obtain a raw <code>*mut <a href="https://doc.rust-lang.org/1.62.0/std/primitive.u8.html" title="u8">u8</a></code> that can
+then use a variety of methods to obtain a raw <code>*mut <a href="https://doc.rust-lang.org/1.62.1/std/primitive.u8.html" title="u8">u8</a></code> that can
 then be passed as an argument to functions which use the C
 conventions for strings.</p>
 </li>
 <li>
 <p><strong>From C to Rust:</strong> <a href="type.CStr.html" title="CStr"><code>CStr</code></a> represents a borrowed C string; it
-is what you would use to wrap a raw <code>*const <a href="https://doc.rust-lang.org/1.62.0/std/primitive.u8.html" title="u8">u8</a></code> that you got from
+is what you would use to wrap a raw <code>*const <a href="https://doc.rust-lang.org/1.62.1/std/primitive.u8.html" title="u8">u8</a></code> that you got from
 a C function. A <a href="type.CStr.html" title="CStr"><code>CStr</code></a> is guaranteed to be a nul-terminated array
 of bytes. Once you have a <a href="type.CStr.html" title="CStr"><code>CStr</code></a>, you can convert it to a Rust
-<code>&amp;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.str.html" title="str">str</a></code> if it’s valid UTF-8, or lossily convert it by adding
+<code>&amp;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.str.html" title="str">str</a></code> if it’s valid UTF-8, or lossily convert it by adding
 replacement characters.</p>
 </li>
 </ul>
@@ -117,14 +117,14 @@ These do inexpensive conversions from and to UTF-8 byte slices.</p>
 <p>Additionally, on Unix <a href="struct.OsString.html" title="OsString"><code>OsString</code></a> implements the
 <code>std::os::unix::ffi::<a href="../os/unix/prelude/trait.OsStringExt.html" title="os::unix::ffi::OsStringExt">OsStringExt</a></code> trait,
 which provides <a href="../os/unix/prelude/trait.OsStringExt.html#tymethod.from_vec" title="os::unix::ffi::OsStringExt::from_vec"><code>from_vec</code></a> and <a href="../os/unix/prelude/trait.OsStringExt.html#tymethod.into_vec" title="os::unix::ffi::OsStringExt::into_vec"><code>into_vec</code></a> methods that consume
-their arguments, and take or produce vectors of <a href="https://doc.rust-lang.org/1.62.0/std/primitive.u8.html" title="u8"><code>u8</code></a>.</p>
+their arguments, and take or produce vectors of <a href="https://doc.rust-lang.org/1.62.1/std/primitive.u8.html" title="u8"><code>u8</code></a>.</p>
 <h3 id="on-windows"><a href="#on-windows">On Windows</a></h3>
 <p>An <a href="struct.OsStr.html" title="OsStr"><code>OsStr</code></a> can be losslessly converted to a native Windows string. And
 a native Windows string can be losslessly converted to an <a href="struct.OsString.html" title="OsString"><code>OsString</code></a>.</p>
 <p>On Windows, <a href="struct.OsStr.html" title="OsStr"><code>OsStr</code></a> implements the
 <code>std::os::windows::ffi::<a href="crate::os::windows::ffi::OsStrExt" title="os::windows::ffi::OsStrExt">OsStrExt</a></code> trait,
 which provides an <a href="crate::os::windows::ffi::OsStrExt::encode_wide" title="os::windows::ffi::OsStrExt::encode_wide"><code>encode_wide</code></a> method. This provides an
-iterator that can be <a href="../iter/trait.Iterator.html#method.collect" title="iter::Iterator::collect"><code>collect</code></a>ed into a vector of <a href="https://doc.rust-lang.org/1.62.0/std/primitive.u16.html" title="u16"><code>u16</code></a>. After a nul
+iterator that can be <a href="../iter/trait.Iterator.html#method.collect" title="iter::Iterator::collect"><code>collect</code></a>ed into a vector of <a href="https://doc.rust-lang.org/1.62.1/std/primitive.u16.html" title="u16"><code>u16</code></a>. After a nul
 characters is appended, this is the same as a native Windows string.</p>
 <p>Additionally, on Windows <a href="struct.OsString.html" title="OsString"><code>OsString</code></a> implements the
 <code>std::os::windows:ffi::<a href="crate::os::windows::ffi::OsStringExt" title="os::windows::ffi::OsStringExt">OsStringExt</a></code>
@@ -137,13 +137,13 @@ string (without the terminating nul character) to an <a href="struct.OsString.ht
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.OsString.html" title="no_std_compat::ffi::OsString struct">OsString</a></div><div class="item-right docblock-short"><p>A type that can represent owned, mutable platform-native strings, but is
 cheaply inter-convertible with Rust strings.</p>
 </div></div></div><h2 id="enums" class="small-section-header"><a href="#enums">Enums</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.c_void.html" title="no_std_compat::ffi::c_void enum">c_void</a></div><div class="item-right docblock-short"><p>Equivalent to C’s <code>void</code> type when used as a <a href="https://doc.rust-lang.org/1.62.0/std/primitive.pointer.html" title="pointer">pointer</a>.</p>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="enum" href="enum.c_void.html" title="no_std_compat::ffi::c_void enum">c_void</a></div><div class="item-right docblock-short"><p>Equivalent to C’s <code>void</code> type when used as a <a href="https://doc.rust-lang.org/1.62.1/std/primitive.pointer.html" title="pointer">pointer</a>.</p>
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.CStr.html" title="no_std_compat::ffi::CStr type">CStr</a></div><div class="item-right docblock-short"><p>See <a href="https://doc.rust-lang.org/1.62.0/core/ffi/c_str/struct.CStr.html" title="core::ffi::CStr">core::ffi::CStr</a>.</p>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.CStr.html" title="no_std_compat::ffi::CStr type">CStr</a></div><div class="item-right docblock-short"><p>See <a href="https://doc.rust-lang.org/1.62.1/core/ffi/c_str/struct.CStr.html" title="core::ffi::CStr">core::ffi::CStr</a>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.CString.html" title="no_std_compat::ffi::CString type">CString</a></div><div class="item-right docblock-short"><p>See [alloc::ffi::CString].</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.FromBytesWithNulError.html" title="no_std_compat::ffi::FromBytesWithNulError type">FromBytesWithNulError</a></div><div class="item-right docblock-short"><p>See <a href="https://doc.rust-lang.org/1.62.0/core/ffi/c_str/struct.FromBytesWithNulError.html" title="core::ffi::FromBytesWithNulError">core::ffi::FromBytesWithNulError</a>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.FromBytesWithNulError.html" title="no_std_compat::ffi::FromBytesWithNulError type">FromBytesWithNulError</a></div><div class="item-right docblock-short"><p>See <a href="https://doc.rust-lang.org/1.62.1/core/ffi/c_str/struct.FromBytesWithNulError.html" title="core::ffi::FromBytesWithNulError">core::ffi::FromBytesWithNulError</a>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.FromVecWithNulError.html" title="no_std_compat::ffi::FromVecWithNulError type">FromVecWithNulError</a></div><div class="item-right docblock-short"><p>See [alloc::ffi::FromVecWithNulError].</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.IntoStringError.html" title="no_std_compat::ffi::IntoStringError type">IntoStringError</a></div><div class="item-right docblock-short"><p>See [alloc::ffi::IntoStringError].</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="type" href="type.NulError.html" title="no_std_compat::ffi::NulError type">NulError</a></div><div class="item-right docblock-short"><p>See [alloc::ffi::NulError].</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

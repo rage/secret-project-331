@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Module fmt</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div></section><div id="sidebar-vars" data-name="fmt" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">fmt</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.0/src/alloc/lib.rs.html#219">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Utilities for formatting and printing <code>String</code>s.</p>
+    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">fmt</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.1/src/alloc/lib.rs.html#219">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Utilities for formatting and printing <code>String</code>s.</p>
 <p>This module contains the runtime support for the [<code>format!</code>] syntax extension.
 This macro is implemented in the compiler to emit calls to this module in
 order to format arguments at runtime into strings.</p>
@@ -93,9 +93,9 @@ parameters affect the string representation of what’s being formatted.</p>
 If the value’s string does not fill up this many characters, then the
 padding specified by fill/alignment will be used to take up the required
 space (see below).</p>
-<p>The value for the width can also be provided as a <a href="https://doc.rust-lang.org/1.62.0/std/primitive.usize.html" title="usize"><code>usize</code></a> in the list of
+<p>The value for the width can also be provided as a <a href="https://doc.rust-lang.org/1.62.1/std/primitive.usize.html" title="usize"><code>usize</code></a> in the list of
 parameters by adding a postfix <code>$</code>, indicating that the second argument is
-a <a href="https://doc.rust-lang.org/1.62.0/std/primitive.usize.html" title="usize"><code>usize</code></a> specifying the width.</p>
+a <a href="https://doc.rust-lang.org/1.62.1/std/primitive.usize.html" title="usize"><code>usize</code></a> specifying the width.</p>
 <p>Referring to an argument with the dollar syntax does not affect the “next
 argument” counter, so it’s usually a good idea to refer to arguments by
 position, or use named arguments.</p>
@@ -261,7 +261,7 @@ parameter := argument &#39;$&#39;</code></pre></div>
 <p>In the above grammar,</p>
 <ul>
 <li><code>text</code> must not contain any <code>'{'</code> or <code>'}'</code> characters,</li>
-<li><code>ws</code> is any character for which <a href="https://doc.rust-lang.org/1.62.0/std/primitive.char.html#method.is_whitespace" title="char::is_whitespace"><code>char::is_whitespace</code></a> returns <code>true</code>, has no semantic
+<li><code>ws</code> is any character for which <a href="https://doc.rust-lang.org/1.62.1/std/primitive.char.html#method.is_whitespace" title="char::is_whitespace"><code>char::is_whitespace</code></a> returns <code>true</code>, has no semantic
 meaning and is completely optional,</li>
 <li><code>integer</code> is a decimal integer that may contain leading zeroes and</li>
 <li><code>identifier</code> is an <code>IDENTIFIER_OR_KEYWORD</code> (not an <code>IDENTIFIER</code>) as defined by the <a href="https://doc.rust-lang.org/reference/identifiers.html">Rust language reference</a>.</li>
@@ -269,8 +269,8 @@ meaning and is completely optional,</li>
 <h2 id="formatting-traits"><a href="#formatting-traits">Formatting traits</a></h2>
 <p>When requesting that an argument be formatted with a particular type, you
 are actually requesting that an argument ascribes to a particular trait.
-This allows multiple actual types to be formatted via <code>{:x}</code> (like <a href="https://doc.rust-lang.org/1.62.0/std/primitive.i8.html" title="i8"><code>i8</code></a> as
-well as <a href="https://doc.rust-lang.org/1.62.0/std/primitive.isize.html" title="isize"><code>isize</code></a>). The current mapping of types to traits is:</p>
+This allows multiple actual types to be formatted via <code>{:x}</code> (like <a href="https://doc.rust-lang.org/1.62.1/std/primitive.i8.html" title="i8"><code>i8</code></a> as
+well as <a href="https://doc.rust-lang.org/1.62.1/std/primitive.isize.html" title="isize"><code>isize</code></a>). The current mapping of types to traits is:</p>
 <ul>
 <li><em>nothing</em> ⇒ <a href="trait.Display.html" title="Display"><code>Display</code></a></li>
 <li><code>?</code> ⇒ <a href="trait.Debug.html" title="Debug"><code>Debug</code></a></li>
@@ -462,5 +462,5 @@ formatted string.</p>
 that can be precompiled with the <code>format_args!</code> macro.</p>
 </div></div></div><h2 id="types" class="small-section-header"><a href="#types">Type Definitions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="type" href="type.Result.html" title="no_std_compat::fmt::Result type">Result</a></div><div class="item-right docblock-short"><p>The type returned by formatter methods.</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../no_std_compat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Module pin</a></h2><div class="sidebar-elems"><section><div class="block"><ul><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li></ul></div></section><div id="sidebar-vars" data-name="pin" data-ty="mod" data-relpath="./"></div><script defer src="./sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../no_std_compat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">pin</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.33.0">1.33.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.0/src/core/lib.rs.html#325">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Types that pin data to its location in memory.</p>
+    <h1 class="fqn"><span class="in-band">Module <a href="../index.html">no_std_compat</a>::<wbr><a class="mod" href="#">pin</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><span class="since" title="Stable since Rust version 1.33.0">1.33.0</span> · <a class="srclink" href="https://doc.rust-lang.org/1.62.1/src/core/lib.rs.html#325">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Types that pin data to its location in memory.</p>
 <p>It is sometimes useful to have objects that are guaranteed not to move,
 in the sense that their placement in memory does not change, and can thus be relied upon.
 A prime example of such a scenario would be building self-referential structs,
@@ -17,14 +17,14 @@ pointee is “pinned”. Things get more subtle when discussing types that
 combine pinned with non-pinned data; <a href="#projections-and-structural-pinning">see below</a>
 for more details.</p>
 <p>By default, all types in Rust are movable. Rust allows passing all types by-value,
-and common smart-pointer types such as <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> and <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> allow
+and common smart-pointer types such as <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> and <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> allow
 replacing and moving the values they contain: you can move out of a <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code>,
 or you can use <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a>. <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code> wraps a pointer type <code>P</code>, so
 <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;&gt;</code> functions much like a regular <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code>:
 when a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;&gt;</code> gets dropped, so do its contents, and the memory gets
-deallocated. Similarly, <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> is a lot like <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code>.
+deallocated. Similarly, <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> is a lot like <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code>.
 However, <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code> does not let clients actually obtain a <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code>
-or <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> to pinned data, which implies that you cannot use operations such
+or <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> to pinned data, which implies that you cannot use operations such
 as <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::pin::Pin</span>;
@@ -38,7 +38,7 @@ as <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a>:</
 compiler considers all types movable. <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a> remains callable for any <code>T</code>. Instead,
 <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code> prevents certain <em>values</em> (pointed to by pointers wrapped in
 <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code>) from being moved by making it impossible to call methods that require
-<code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> on them (like <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a>).</p>
+<code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code> on them (like <a href="../mem/fn.swap.html" title="mem::swap"><code>mem::swap</code></a>).</p>
 <p><code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code> can be used to wrap any pointer type <code>P</code>, and as such it interacts with
 <a href="../ops/trait.Deref.html" title="ops::Deref"><code>Deref</code></a> and <a href="../ops/trait.DerefMut.html" title="ops::DerefMut"><code>DerefMut</code></a>. A <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code> where <code>P: <a href="../ops/trait.Deref.html" title="ops::Deref">Deref</a></code> should be
 considered as a “<code>P</code>-style pointer” to a pinned <code>P::<a href="../ops/trait.Deref.html#associatedtype.Target" title="ops::Deref::Target">Target</a></code> – so, a
@@ -50,11 +50,11 @@ return a pointer to pinned data when they are called on a pinned pointer.</p>
 <h2 id="unpin"><a href="#unpin"><code>Unpin</code></a></h2>
 <p>Many types are always freely movable, even when pinned, because they do not
 rely on having a stable address. This includes all the basic types (like
-<a href="https://doc.rust-lang.org/1.62.0/std/primitive.bool.html" title="bool"><code>bool</code></a>, <a href="https://doc.rust-lang.org/1.62.0/std/primitive.i32.html" title="i32"><code>i32</code></a>, and references) as well as types consisting solely of these
+<a href="https://doc.rust-lang.org/1.62.1/std/primitive.bool.html" title="bool"><code>bool</code></a>, <a href="https://doc.rust-lang.org/1.62.1/std/primitive.i32.html" title="i32"><code>i32</code></a>, and references) as well as types consisting solely of these
 types. Types that do not care about pinning implement the <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a>
 auto-trait, which cancels the effect of <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code>. For <code>T: <a href="../marker/trait.Unpin.html" title="Unpin">Unpin</a></code>,
 <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;&gt;</code> and <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> function identically, as do
-<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> and <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code>.</p>
+<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> and <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T</code>.</p>
 <p>Note that pinning and <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a> only affect the pointed-to type <code>P::<a href="../ops/trait.Deref.html#associatedtype.Target" title="ops::Deref::Target">Target</a></code>,
 not the pointer type <code>P</code> itself that got wrapped in <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;P&gt;</code>. For example,
 whether or not <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> is <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a> has no effect on the behavior of
@@ -146,15 +146,15 @@ list, that element would just stay in the list. However you must not free or reu
 <em>without calling <a href="../ops/trait.Drop.html#tymethod.drop"><code>drop</code></a></em>.</p>
 <h2 id="drop-implementation"><a href="#drop-implementation"><code>Drop</code> implementation</a></h2>
 <p>If your type uses pinning (such as the two examples above), you have to be careful
-when implementing <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a>. The <a href="../ops/trait.Drop.html#tymethod.drop"><code>drop</code></a> function takes <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> self</code>, but this
+when implementing <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a>. The <a href="../ops/trait.Drop.html#tymethod.drop"><code>drop</code></a> function takes <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> self</code>, but this
 is called <em>even if your type was previously pinned</em>! It is as if the
 compiler automatically called <a href="struct.Pin.html#method.get_unchecked_mut" title="Pin::get_unchecked_mut"><code>Pin::get_unchecked_mut</code></a>.</p>
 <p>This can never cause a problem in safe code because implementing a type that
 relies on pinning requires unsafe code, but be aware that deciding to make
 use of pinning in your type (for example by implementing some operation on
-<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="shared reference">&amp;</a>Self&gt;</code> or <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code>) has consequences for your
+<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="shared reference">&amp;</a>Self&gt;</code> or <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code>) has consequences for your
 <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a> implementation as well: if an element of your type could have been pinned,
-you must treat <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a> as implicitly taking <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code>.</p>
+you must treat <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a> as implicitly taking <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code>.</p>
 <p>For example, you could implement <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a> as follows:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Type</span> {
@@ -175,17 +175,17 @@ that for fields that happen to be sufficiently aligned. As a consequence, you ca
 pinning with a <code>#[repr(packed)]</code> type.</p>
 <h2 id="projections-and-structural-pinning"><a href="#projections-and-structural-pinning">Projections and Structural Pinning</a></h2>
 <p>When working with pinned structs, the question arises how one can access the
-fields of that struct in a method that takes just <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code>.
+fields of that struct in a method that takes just <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code>.
 The usual approach is to write helper methods (so called <em>projections</em>)
-that turn <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code> into a reference to the field, but what type should
-that reference have? Is it <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> or <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>?
+that turn <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code> into a reference to the field, but what type should
+that reference have? Is it <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> or <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>?
 The same question arises with the fields of an <code>enum</code>, and also when considering
 container/wrapper types such as <code><a href="../../std/vec/struct.Vec.html" title="Vec">Vec</a>&lt;T&gt;</code>, <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code>,
 or <code><a href="../cell/struct.RefCell.html" title="cell::RefCell">RefCell</a>&lt;T&gt;</code>. (This question applies to both mutable and shared references,
 we just use the more common case of mutable references here for illustration.)</p>
 <p>It turns out that it is actually up to the author of the data structure to decide whether
-the pinned projection for a particular field turns <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code>
-into <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> or <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>. There are some
+the pinned projection for a particular field turns <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code>
+into <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> or <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>. There are some
 constraints though, and the most important constraint is <em>consistency</em>:
 every field can be <em>either</em> projected to a pinned reference, <em>or</em> have
 pinning removed as part of the projection. If both are done for the same field,
@@ -197,11 +197,11 @@ In the following subsections, we describe the considerations that have to be mad
 for either choice.</p>
 <h3 id="pinning-is-not-structural-for-field"><a href="#pinning-is-not-structural-for-field">Pinning <em>is not</em> structural for <code>field</code></a></h3>
 <p>It may seem counter-intuitive that the field of a pinned struct might not be pinned,
-but that is actually the easiest choice: if a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> is never created,
+but that is actually the easiest choice: if a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> is never created,
 nothing can go wrong! So, if you decide that some field does not have structural pinning,
 all you have to ensure is that you never create a pinned reference to that field.</p>
 <p>Fields without structural pinning may have a projection method that turns
-<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code> into <code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>:</p>
+<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&gt;</code> into <code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field</code>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Struct</span> {
     <span class="kw">fn</span> <span class="ident">pin_get_field</span>(<span class="self">self</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Field</span> {
@@ -211,11 +211,11 @@ all you have to ensure is that you never create a pinned reference to that field
 }</code></pre></div>
 <p>You may also <code>impl <a href="../marker/trait.Unpin.html" title="Unpin">Unpin</a> for Struct</code> <em>even if</em> the type of <code>field</code>
 is not <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a>. What that type thinks about pinning is not relevant
-when no <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> is ever created.</p>
+when no <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code> is ever created.</p>
 <h3 id="pinning-is-structural-for-field"><a href="#pinning-is-structural-for-field">Pinning <em>is</em> structural for <code>field</code></a></h3>
 <p>The other option is to decide that pinning is “structural” for <code>field</code>,
 meaning that if the struct is pinned then so is the field.</p>
-<p>This allows writing a projection that creates a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code>, thus
+<p>This allows writing a projection that creates a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Field&gt;</code>, thus
 witnessing that the field is pinned:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">impl</span> <span class="ident">Struct</span> {
@@ -237,7 +237,7 @@ the principle that you only have to worry about any of this if you use <a href="
 <li>
 <p>The destructor of the struct must not move structural fields out of its argument. This
 is the exact point that was raised in the <a href="#drop-implementation">previous section</a>: <a href="../ops/trait.Drop.html#tymethod.drop"><code>drop</code></a> takes
-<code><a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> self</code>, but the struct (and hence its fields) might have been pinned
+<code><a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> self</code>, but the struct (and hence its fields) might have been pinned
 before. You have to guarantee that you do not move a field inside your <a href="../ops/trait.Drop.html" title="Drop"><code>Drop</code></a>
 implementation. In particular, as explained previously, this means that your struct
 must <em>not</em> be <code>#[repr(packed)]</code>.
@@ -259,12 +259,12 @@ does not cause unsoundness.)</p>
 <p>You must not offer any other operations that could lead to data being moved out of
 the structural fields when your type is pinned. For example, if the struct contains an
 <code><a href="../option/enum.Option.html" title="Option">Option</a>&lt;T&gt;</code> and there is a <a href="../option/enum.Option.html#method.take" title="Option::take"><code>take</code></a>-like operation with type
-<code>fn(<a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&lt;T&gt;&gt;) -&gt; <a href="../option/enum.Option.html" title="Option">Option</a>&lt;T&gt;</code>,
+<code>fn(<a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Struct&lt;T&gt;&gt;) -&gt; <a href="../option/enum.Option.html" title="Option">Option</a>&lt;T&gt;</code>,
 that operation can be used to move a <code>T</code> out of a pinned <code>Struct&lt;T&gt;</code> – which means
 pinning cannot be structural for the field holding this data.</p>
 <p>For a more complex example of moving data out of a pinned type,
 imagine if <code><a href="../cell/struct.RefCell.html" title="cell::RefCell">RefCell</a>&lt;T&gt;</code> had a method
-<code>fn get_pin_mut(self: <a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;) -&gt; <a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code>.
+<code>fn get_pin_mut(self: <a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;) -&gt; <a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code>.
 Then we could do the following:</p>
 
 <div class='information'><div class='tooltip compile_fail'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail"><code><span class="kw">fn</span> <span class="ident">exploit_ref_cell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">rc</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
@@ -294,7 +294,7 @@ and thus they do not offer pinning projections. This is why <code><a href="../..
 holds for all <code>T</code>. It makes sense to do this for pointer types, because moving the
 <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> does not actually move the <code>T</code>: the <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> can be freely
 movable (aka <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a>) even if the <code>T</code> is not. In fact, even <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;&gt;</code> and
-<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> are always <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a> themselves, for the same reason:
+<code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> T&gt;</code> are always <a href="../marker/trait.Unpin.html" title="Unpin"><code>Unpin</code></a> themselves, for the same reason:
 their contents (the <code>T</code>) are pinned, but the pointers themselves can be moved without moving
 the pinned data. For both <code><a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;</code> and <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="../../std/boxed/struct.Box.html" title="Box">Box</a>&lt;T&gt;&gt;</code>,
 whether the content is pinned is entirely independent of whether the
@@ -303,11 +303,11 @@ pointer is pinned, meaning pinning is <em>not</em> structural.</p>
 for the nested futures, as you need to get pinned references to them to call <a href="../future/trait.Future.html#tymethod.poll" title="future::Future::poll"><code>poll</code></a>.
 But if your combinator contains any other data that does not need to be pinned,
 you can make those fields not structural and hence freely access them with a
-mutable reference even when you just have <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code> (such as in your own
+mutable reference even when you just have <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="mutable reference">&amp;mut</a> Self&gt;</code> (such as in your own
 <a href="../future/trait.Future.html#tymethod.poll" title="future::Future::poll"><code>poll</code></a> implementation).</p>
 </div></details><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left unstable module-item"><a class="macro" href="macro.pin.html" title="no_std_compat::pin::pin macro">pin</a><span class="stab unstable" title="">Experimental</span></div><div class="item-right docblock-short"><p>Constructs a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.0/std/primitive.reference.html" title="&amp;mut">&amp;mut</a> T&gt;</code>, by pinning<sup class="footnote-reference"><a href="#1">1</a></sup> a <code>value: T</code> <em>locally</em><sup class="footnote-reference"><a href="#2">2</a></sup>.</p>
+<div class="item-table"><div class="item-row"><div class="item-left unstable module-item"><a class="macro" href="macro.pin.html" title="no_std_compat::pin::pin macro">pin</a><span class="stab unstable" title="">Experimental</span></div><div class="item-right docblock-short"><p>Constructs a <code><a href="struct.Pin.html" title="Pin">Pin</a>&lt;<a href="https://doc.rust-lang.org/1.62.1/std/primitive.reference.html" title="&amp;mut">&amp;mut</a> T&gt;</code>, by pinning<sup class="footnote-reference"><a href="#1">1</a></sup> a <code>value: T</code> <em>locally</em><sup class="footnote-reference"><a href="#2">2</a></sup>.</p>
 </div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Pin.html" title="no_std_compat::pin::Pin struct">Pin</a></div><div class="item-right docblock-short"><p>A pinned pointer.</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="no_std_compat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

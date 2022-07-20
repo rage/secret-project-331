@@ -21,7 +21,7 @@ customer.</p>
 types that ensure you can’t pass the wrong parameters, mostly around
 non-zero integers. Since that kind of checking is a little tedious to
 do by hand, <code>governor</code> makes heavy use of the
-<a href="https://doc.rust-lang.org/1.62.0/core/num/nonzero/struct.NonZeroU32.html" title="std::num::NonZeroU32"><code>NonZeroU32</code></a> type.</p>
+<a href="https://doc.rust-lang.org/1.62.1/core/num/nonzero/struct.NonZeroU32.html" title="std::num::NonZeroU32"><code>NonZeroU32</code></a> type.</p>
 <p>To conveniently construct these nonzero numbers yourself, use the
 <a href="../../nonzero_ext/macro.nonzero.html"><code>nonzero!</code></a> macro.</p>
 <h5 id="quotas"><a href="#quotas">Quotas</a></h5>
@@ -65,8 +65,8 @@ wish. That requires implementing the
 mutability</a>
 pattern, and so it is perfectly valid to have multiple references
 to a rate limiter in a program. Since its state lives in
-<a href="https://doc.rust-lang.org/1.62.0/core/sync/atomic/struct.AtomicU64.html" title="std::sync::atomic::AtomicU64"><code>AtomicU64</code></a> integers (which do not
-implement <a href="https://doc.rust-lang.org/1.62.0/core/clone/trait.Clone.html" title="Clone"><code>Clone</code></a>), the rate limiters themselves can not be
+<a href="https://doc.rust-lang.org/1.62.1/core/sync/atomic/struct.AtomicU64.html" title="std::sync::atomic::AtomicU64"><code>AtomicU64</code></a> integers (which do not
+implement <a href="https://doc.rust-lang.org/1.62.1/core/clone/trait.Clone.html" title="Clone"><code>Clone</code></a>), the rate limiters themselves can not be
 cloned.</p>
 <h2 id="usage-in-multiple-threads"><a href="#usage-in-multiple-threads">Usage in multiple threads</a></h2>
 <p>Sharing references to a rate limiter across threads is completely
@@ -98,18 +98,18 @@ scopes:</p>
 .<span class="ident">unwrap</span>();</code></pre></div>
 <h5 id="wrapping-the-limiter-in-an-arc"><a href="#wrapping-the-limiter-in-an-arc">Wrapping the limiter in an <code>Arc</code></a></h5>
 <p>The other method uses only the standard library: Wrapping the rate
-limiter in an <a href="https://doc.rust-lang.org/1.62.0/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a> will keep the limiter alive
+limiter in an <a href="https://doc.rust-lang.org/1.62.1/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a> will keep the limiter alive
 for as long as there exist references to it - perfect for passing
 to threads.</p>
 <p>In this example, note that we’re cloning the
-<a href="https://doc.rust-lang.org/1.62.0/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a>; the rate limiter stays identical (rate
-limiters do not implement <a href="https://doc.rust-lang.org/1.62.0/core/clone/trait.Clone.html" title="Clone"><code>Clone</code></a>), only its references are
+<a href="https://doc.rust-lang.org/1.62.1/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a>; the rate limiter stays identical (rate
+limiters do not implement <a href="https://doc.rust-lang.org/1.62.1/core/clone/trait.Clone.html" title="Clone"><code>Clone</code></a>), only its references are
 duplicated (and refcounts incremented atomically).</p>
 <p>Note also the placement of the clone: As we’re creating a <code>move</code>
 closure, a binding that can be moved into the closure must be set
 up outside it. Rustc will be upset at you if you try to clone the
 Arc too early outside the closure, or even inside it. See the
-<a href="https://doc.rust-lang.org/1.62.0/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a> docs for some more usage examples.</p>
+<a href="https://doc.rust-lang.org/1.62.1/alloc/sync/struct.Arc.html" title="std::sync::Arc"><code>Arc</code></a> docs for some more usage examples.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">RateLimiter::direct</span>(<span class="ident">Quota::per_second</span>(<span class="macro">nonzero!</span>(<span class="number">20u32</span>))));
 <span class="kw">for</span> <span class="ident">_i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">20</span> {
@@ -120,5 +120,5 @@ Arc too early outside the closure, or even inside it. See the
     .<span class="ident">join</span>()
     .<span class="ident">unwrap</span>();
 }</code></pre></div>
-</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="governor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</div></details></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="governor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

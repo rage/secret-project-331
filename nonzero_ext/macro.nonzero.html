@@ -19,8 +19,8 @@ it isn’t possible to use the <code>nonzero!</code> macro with types other
 than the built-in ones.</p>
 <h2 id="determining-the-output-type"><a href="#determining-the-output-type">Determining the output type</a></h2>
 <p>Use a suffix on the input value to determine the output type:
-<code>nonzero!(1_usize)</code> will return a <a href="https://doc.rust-lang.org/1.62.0/core/num/nonzero/struct.NonZeroUsize.html" title="NonZeroUsize"><code>NonZeroUsize</code></a>, and
-<code>nonzero!(-1_i32)</code> will return a <a href="https://doc.rust-lang.org/1.62.0/core/num/nonzero/struct.NonZeroI32.html" title="NonZeroI32"><code>NonZeroI32</code></a>.</p>
+<code>nonzero!(1_usize)</code> will return a <a href="https://doc.rust-lang.org/1.62.1/core/num/nonzero/struct.NonZeroUsize.html" title="NonZeroUsize"><code>NonZeroUsize</code></a>, and
+<code>nonzero!(-1_i32)</code> will return a <a href="https://doc.rust-lang.org/1.62.1/core/num/nonzero/struct.NonZeroI32.html" title="NonZeroI32"><code>NonZeroI32</code></a>.</p>
 <h2 id="const-expressions"><a href="#const-expressions">Const expressions</a></h2>
 <p>This macro can be used in const expressions.</p>
 <h2 id="examples"><a href="#examples">Examples</a></h2>
@@ -28,5 +28,5 @@ than the built-in ones.</p>
 <span class="macro">nonzero!</span>(<span class="number">20u32</span>);    <span class="comment">// =&gt; NonZeroU32</span>
 <span class="macro">nonzero!</span>(<span class="number">20</span> <span class="kw">as</span> <span class="ident">u8</span>); <span class="comment">// =&gt; NonZeroU8</span></code></pre></div>
 <p>and passing a zero of any type will fail:</p>
-<div class="example-wrap"><pre class="language-# compile_fail"><code>nonzero!(0u8);</code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="nonzero_ext" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+<div class="example-wrap"><pre class="language-# compile_fail"><code>nonzero!(0u8);</code></pre></div></div></details></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="nonzero_ext" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>

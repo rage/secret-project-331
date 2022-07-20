@@ -10,6 +10,7 @@ import { useMediaQuery } from "usehooks-ts"
 import PageContext from "../contexts/PageContext"
 import useHeadingData from "../hooks/useHeadingData"
 import useIsPageChapterFrontPage from "../hooks/useIsPageChapterFrontPage"
+import useShouldHideStuffFromSystemTestScreenshots from "../shared-module/hooks/useShouldHideStuffForSystemTestScreenshots"
 import { baseTheme } from "../shared-module/styles/theme"
 import { isElementFullyInViewport } from "../shared-module/utils/dom"
 import { courseMaterialBlockClass } from "../utils/constants"
@@ -85,16 +86,19 @@ export interface Topic {
 export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
 const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
+  const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
   // eslint-disable-next-line i18next/no-literal-string
   const [activeHeading, setActiveHeading] = useState<string | undefined>(undefined)
   // Ref to optimize useEffect. A number to keep multiple clicks from interfering with each other
   const numberOfCallbacksScrollingTheDocument = useRef(0)
 
   const expandedNavigationWillOverlapWithContent = useMediaQuery("(max-width: 1400px)")
+  const screenWidthSoWideThatWeCanUseAbsolutePositioningInitially =
+    useMediaQuery("(min-width: 870px)")
   const [offsetpx, setOffsetpx] = useState<number>(
-    expandedNavigationWillOverlapWithContent
-      ? MOBILE_TOP_OFFSET_PX
-      : HERO_SECTION_Y_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX,
+    screenWidthSoWideThatWeCanUseAbsolutePositioningInitially
+      ? HERO_SECTION_Y_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX
+      : MOBILE_TOP_OFFSET_PX,
   )
 
   const [fixedBasedOnScrolPosition, setFixedBasedOnScrollPosition] = useState<boolean>(
@@ -106,15 +110,13 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
   const pageContext = useContext(PageContext)
   const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageContext.pageData?.id)
 
-  const screenWidthSoWideThatWeCanUseAbsolutePositioningInitially =
-    useMediaQuery("(min-width: 870px)")
   // When the we have not scrolled past the hero section and are on a large enough screen, we we will use absolute positioning to position the navigation to be just under the hero section. On narrower screens, and when we have scrolled further down the page, we will use fixed positioning to keep the navigation at a constant position.
   const fixed = screenWidthSoWideThatWeCanUseAbsolutePositioningInitially
     ? fixedBasedOnScrolPosition
     : true
 
   const onScrollCallback1 = useCallback(() => {
-    if (expandedNavigationWillOverlapWithContent) {
+    if (!screenWidthSoWideThatWeCanUseAbsolutePositioningInitially) {
       setFixedBasedOnScrollPosition(true)
       setOffsetpx(MOBILE_TOP_OFFSET_PX)
     } else if (window.scrollY > HERO_SECTION_Y_OFFSET_PX) {
@@ -124,7 +126,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
       setFixedBasedOnScrollPosition(false)
       setOffsetpx(TOP_OFFSET_PX + HERO_SECTION_Y_OFFSET_PX)
     }
-  }, [expandedNavigationWillOverlapWithContent])
+  }, [screenWidthSoWideThatWeCanUseAbsolutePositioningInitially])
 
   useEffect(() => {
     window.addEventListener("scroll", onScrollCallback1)
@@ -203,7 +205,11 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
 
   // More that 1 heading is required to show the headings navigation. We don't show this for pages with only one heading because all pages are supposed to have a hero section that contain one h1 heading that is included in the headings list. Showing only this heading would look weird.
   // Also, disable the headings navigation on exam pages because we don't want to distract students.
-  if (headings.length <= 1 || pageContext.exam !== null) {
+  if (
+    headings.length <= 1 ||
+    pageContext.exam !== null ||
+    shouldHideStuffFromSystemTestScreenshots
+  ) {
     return null
   }
 
@@ -217,7 +223,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
 
           padding: 1.5rem;
           padding-top: 12px;
-          z-index: 10;
+          z-index: 1000;
           background-color: #f8f8f8;
 
           h3 {
@@ -321,7 +327,7 @@ const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
           background-color: ${realCollapsed ? "#f8f8f8" : "transparent"};
           width: 40px;
           height: 40px;
-          z-index: 10;
+          z-index: 1005;
           display: flex;
           align-items: center;
           justify-content: center;

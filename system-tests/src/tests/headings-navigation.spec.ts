@@ -48,6 +48,7 @@ test("headings navigation works", async ({ page, headless }) => {
       `button:has-text("First heading")`,
     ],
     page,
+    replaceSomePartsWithPlaceholders: false,
   })
 
   // Click button:has-text("Heading 6")

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import Button from "../../shared-module/components/Button"
-import { baseTheme } from "../../shared-module/styles"
+import { baseTheme } from "../../styles"
+import Button from "../Button"
 
 export interface LanguageOptionProps {
   label: string

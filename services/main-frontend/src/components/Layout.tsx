@@ -7,12 +7,11 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
+import LanguageSelection from "../shared-module/components/LanguageSelection"
 import LoginControls from "../shared-module/components/LoginControls"
 import { NavBar } from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
 import SkipLink from "../shared-module/components/SkipLink"
-
-import LanguageSelection from "./LanguageSelection"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 

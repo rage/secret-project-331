@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { baseTheme } from "../../shared-module/styles"
+import { baseTheme } from "../../styles"
 
 export interface LanguageMenuProps {
   visible: boolean

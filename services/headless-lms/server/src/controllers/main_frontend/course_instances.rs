@@ -64,6 +64,28 @@ async fn post_new_email_template(
     token.authorized_ok(web::Json(email_template))
 }
 
+/**
+POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-completions`
+
+Reprocesses all module completions for the given course instance. Only available to admins.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn post_reprocess_module_completions(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_instance_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    models::library::progressing::process_all_course_instance_completions(
+        &mut conn,
+        *course_instance_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(true))
+}
+
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_email_templates_by_course_instance_id(
@@ -227,5 +249,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))
         .route("/{course_instance_id}/delete", web::post().to(delete))
-        .route("/{course_instance_id}/points", web::get().to(points));
+        .route("/{course_instance_id}/points", web::get().to(points))
+        .route(
+            "/{course_instance_id}/reprocess-completions",
+            web::post().to(post_reprocess_module_completions),
+        );
 }

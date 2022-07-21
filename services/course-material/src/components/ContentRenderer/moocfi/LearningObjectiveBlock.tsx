@@ -2,15 +2,13 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
+import useIsPageChapterFrontPage from "../../../hooks/useIsPageChapterFrontPage"
 import Check from "../../../img/checkmark.svg"
-import { isPageFrontPage } from "../../../services/backend"
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../../shared-module/components/Centering/Centered"
-import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 
@@ -81,17 +79,11 @@ const LearningObjectiveSectionBlock: React.FC<BlockRendererProps<LearningObjecti
   const pageContext = useContext(PageContext)
   const pageId = pageContext.pageData?.id
 
-  const isChapterFrontPageQuery = useQuery(
-    `is-page-${pageId}-chapter-front-page`,
-    () => {
-      return isPageFrontPage(assertNotNullOrUndefined(pageId))
-    },
-    { enabled: pageId !== undefined },
-  )
+  const isPageChapterFrontPageQuery = useIsPageChapterFrontPage(pageId)
 
   let heading = ""
-  if (isChapterFrontPageQuery.data !== undefined) {
-    heading = isChapterFrontPageQuery.data.is_chapter_front_page
+  if (isPageChapterFrontPageQuery.data !== undefined) {
+    heading = isPageChapterFrontPageQuery.data.is_chapter_front_page
       ? t("title-what-youll-learn-in-this-chapter")
       : t("title-what-youll-learn-in-this-page")
   }

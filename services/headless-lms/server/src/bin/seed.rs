@@ -10,9 +10,9 @@ use headless_lms_models::{
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
-    course_instances,
-    course_instances::NewCourseInstance,
-    course_modules, courses,
+    course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    courses,
     courses::NewCourse,
     exams,
     exams::NewExam,
@@ -22,7 +22,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, organizations,
+    glossary, open_university_registration_links, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -343,6 +343,37 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    let automatic_completions_id = seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+        "Automatic Completions",
+        "automatic-completions",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_default_module.id,
+        &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
+        .await?;
+
     roles::insert(
         &mut conn,
         language_teacher,
@@ -385,6 +416,18 @@ async fn main() -> Result<()> {
     .await?;
     create_exam(
         &mut conn,
+        "Ongoing plenty of time".to_string(),
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(120)),
+        730,
+        uh_cs,
+        cs_intro,
+        Uuid::parse_str("8e202d37-3a26-4181-b9e4-0560b90c0ccb")?,
+        teacher,
+    )
+    .await?;
+    create_exam(
+        &mut conn,
         "Starting soon".to_string(),
         Some(Utc::now() + Duration::minutes(5)),
         Some(Utc::now() + Duration::days(30)),
@@ -417,7 +460,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "An example course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -463,7 +506,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -503,7 +546,7 @@ async fn main() -> Result<()> {
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
     };
@@ -1357,7 +1400,7 @@ async fn seed_sample_course(
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -1387,6 +1430,9 @@ async fn seed_sample_course(
 
     // chapters and pages
 
+    let course_module_id = course_modules::insert(conn, course.id, None, 0)
+        .await
+        .unwrap();
     let new_chapter = NewChapter {
         chapter_number: 1,
         course_id: course.id,
@@ -1394,7 +1440,7 @@ async fn seed_sample_course(
         name: "The Basics".to_string(),
         opens_at: None,
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -1405,7 +1451,7 @@ async fn seed_sample_course(
         name: "The intermediaries".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1421,7 +1467,7 @@ async fn seed_sample_course(
         name: "Advanced studies".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1437,7 +1483,7 @@ async fn seed_sample_course(
         name: "Forbidden magicks".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(
@@ -1448,7 +1494,8 @@ async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let module = course_modules::new(conn, course.id, "Another module", 2, false).await?;
+    let second_module_id =
+        course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -1456,7 +1503,7 @@ async fn seed_sample_course(
         name: "Another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module.id),
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_1, _m1c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1467,11 +1514,11 @@ async fn seed_sample_course(
         name: "Another another chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module.id),
+        course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_2, _m1c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
-    let module = course_modules::new(conn, course.id, "Bonus module", 3, false).await?;
+    let module_id = course_modules::insert(conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -1479,7 +1526,7 @@ async fn seed_sample_course(
         name: "Bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module.id),
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_1, _m2c1_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1490,7 +1537,7 @@ async fn seed_sample_course(
         name: "Another bonus chapter".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(module.id),
+        course_module_id: Some(module_id),
     };
     let (_m2_chapter_2, _m2c2_front_page) =
         chapters::insert_chapter(conn, new_chapter, admin).await?;
@@ -1701,6 +1748,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1760,6 +1808,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1838,6 +1887,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -1937,6 +1987,7 @@ async fn seed_sample_course(
             "excludedFromScore": true,
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2020,6 +2071,7 @@ async fn seed_sample_course(
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2038,6 +2090,7 @@ async fn seed_sample_course(
         serde_json::from_str(include_str!(
             "../assets/quizzes-multiple-choice-feedback.json"
         ))?,
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let page_3 = create_page(
@@ -2621,7 +2674,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         language_code: "en-US".to_string(),
         teacher_in_charge_name: "admin".to_string(),
         teacher_in_charge_email: "admin@example.com".to_string(),
-        description: "description".to_string(),
+        description: "The definitive introduction to course material.".to_string(),
         is_draft: false,
         is_test_mode: false,
     };
@@ -2708,6 +2761,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2726,6 +2780,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         serde_json::from_str(include_str!(
             "../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2801,6 +2856,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     let (
@@ -2876,6 +2932,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 "excludedFromScore": true,
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
     pages::update_page(
@@ -2909,6 +2966,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
     // FAQ, we should add card/accordion block to visualize here.
     let (_page, _history) =
         pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let course_module_id = course_modules::insert(conn, course.id, None, 0).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -2918,7 +2976,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Interface".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
     chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
@@ -2963,6 +3021,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         content: serde_json::json!([
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
+            heading("First heading", Uuid::parse_str("731aa55f-238b-42f4-8c40-c093dd95ee7f")?, 2),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes!{
@@ -2971,6 +3030,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
                 .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
+                heading("Second heading", Uuid::parse_str("a70aac40-acda-48e3-8f53-b64370be4585")?, 3),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes!{
@@ -2987,6 +3047,23 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
+            heading("Third heading", Uuid::parse_str("4d16bfea-4fa9-4355-bbd4-4c61e33d3d7c")?, 2),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "dropCap": false
+                },
+            )
+                .with_id(Uuid::parse_str("4ef39962-634d-488c-be82-f44e5db19421")?),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "dropCap": false
+                },
+            )
+            .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ]),
     };
     create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;
@@ -3038,7 +3115,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         name: "User Experience".to_string(),
         opens_at: None,
         deadline: None,
-        module: Some(default_module.id),
+        course_module_id: Some(course_module_id),
     };
     let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
     chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
@@ -3282,6 +3359,19 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     }
 }
 
+fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
+    GutenbergBlock {
+        name: "core/heading".to_string(),
+        is_valid: true,
+        client_id,
+        attributes: attributes! {
+            "content": content,
+            "level": level,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn create_best_exercise(
     exercise_id: Uuid,
@@ -3419,6 +3509,7 @@ fn quizzes_exercise(
     paragraph_id: Uuid,
     needs_peer_review: bool,
     private_spec: serde_json::Value,
+    deadline: Option<DateTime<Utc>>,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
@@ -3443,7 +3534,7 @@ fn quizzes_exercise(
         score_maximum: 1,
         max_tries_per_slide: None,
         limit_number_of_tries: false,
-        deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+        deadline,
         needs_peer_review,
     };
     let exercise_slide = CmsPageExerciseSlide {
@@ -3531,7 +3622,7 @@ async fn submit_and_grade(
         score_given: out_of_100,
         score_maximum: 100,
     };
-    headless_lms_models::library::grading::update_exercise_state_with_single_exercise_task_grading_result(
+    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         &exercise,
         &grading,
@@ -3567,16 +3658,20 @@ async fn create_exam(
         Some(exam_id),
     )
     .await?;
+
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
-        create_best_exercise(
+        quizzes_exercise(
+            "Multiple choice with feedback".to_string(),
             Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
             Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
             Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
             Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
             Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
-            Uuid::new_v5(&course_id, b"8870d951-1a27-4544-ad1d-6e0ac19ec5ee"),
-            Uuid::new_v5(&course_id, b"59029dbd-b6bc-42c2-ad18-3d62b1844a23"),
-            Uuid::new_v5(&course_id, b"0b3098e1-c1f1-4b7b-87f8-ef38826cac79"),
+            false,
+            serde_json::from_str(include_str!(
+                "../assets/quizzes-multiple-choice-feedback.json"
+            ))?,
+            None,
         );
     let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
         create_best_exercise(
@@ -3595,7 +3690,19 @@ async fn create_exam(
             exercises: vec![exam_exercise_1, exam_exercise_2],
             exercise_slides: vec![exam_exercise_slide_1, exam_exercise_slide_2],
             exercise_tasks: vec![exam_exercise_task_1, exam_exercise_task_2],
-            content: serde_json::json!([exam_exercise_block_1, exam_exercise_block_2,]),
+            content: serde_json::json!([
+                heading(
+                    "The exam",
+                    Uuid::parse_str("d6cf16ce-fe78-4e57-8399-e8b63d7fddac").unwrap(),
+                    1
+                ),
+                paragraph(
+                    "In this exam you're supposed to answer to two easy questions. Good luck!",
+                    Uuid::parse_str("474d4f21-798b-4ba0-b39f-120b134e7fa0").unwrap(),
+                ),
+                exam_exercise_block_1,
+                exam_exercise_block_2,
+            ]),
             url_path: "".to_string(),
             title: "".to_string(),
             course_id: None,

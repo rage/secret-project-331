@@ -1,8 +1,13 @@
+use std::collections::HashMap;
+
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use serde_json::Value;
 
 use crate::{
+    course_instances,
+    course_modules::{self, CourseModule},
+    courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
     user_course_settings,
@@ -133,10 +138,15 @@ impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceProgress {
+    pub course_module_id: Uuid,
+    pub course_module_name: String,
+    pub course_module_order_number: i32,
     pub score_given: f32,
+    pub score_required: Option<i32>,
     pub score_maximum: Option<u32>,
     pub total_exercises: Option<u32>,
-    pub attempted_exercises: Option<u32>,
+    pub attempted_exercises: Option<i32>,
+    pub attempted_exercises_required: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -160,12 +170,14 @@ pub struct UserChapterMetrics {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct UserCourseInstanceMetrics {
-    score_given: Option<f32>,
-    attempted_exercises: Option<i64>,
+    pub course_module_id: Uuid,
+    pub score_given: Option<f32>,
+    pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
+    course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
@@ -189,19 +201,68 @@ pub struct ExerciseUserCounts {
 pub async fn get_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<CourseInstanceExerciseMetrics> {
+) -> ModelResult<Vec<CourseInstanceExerciseMetrics>> {
     let res = sqlx::query_as!(
         CourseInstanceExerciseMetrics,
-        r#"
-SELECT COUNT(e.id) AS total_exercises,
-  SUM(e.score_maximum) AS score_maximum
-FROM course_instances AS ci
-  LEFT JOIN exercises AS e ON ci.course_id = e.course_id
-WHERE e.deleted_at IS NULL
-  AND ci.id = $1;
-        "#,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(exercises.id) AS total_exercises,
+  SUM(exercises.score_maximum) AS score_maximum
+FROM course_instances
+  LEFT JOIN exercises ON (course_instances.course_id = exercises.course_id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.deleted_at IS NULL
+  AND course_instances.id = $1
+GROUP BY chapters.course_module_id
+        ",
         course_instance_id
     )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_course_instance_metrics_indexed_by_module_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CourseInstanceExerciseMetrics>> {
+    let res = get_course_instance_metrics(conn, course_instance_id)
+        .await?
+        .into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
+    Ok(res)
+}
+
+/// Gets course instance metrics for a single module.
+pub async fn get_single_module_course_instance_metrics(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    course_module_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<UserCourseInstanceMetrics> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+  COALESCE(SUM(ues.score_given), 0) AS score_given
+FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE chapters.course_module_id = $1
+  AND ues.course_instance_id = $2
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.user_id = $3
+  AND ues.deleted_at IS NULL
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .map(|x| UserCourseInstanceMetrics {
+        course_module_id,
+        score_given: x.score_given,
+        attempted_exercises: x.attempted_exercises,
+    })
     .fetch_one(conn)
     .await?;
     Ok(res)
@@ -211,23 +272,40 @@ pub async fn get_user_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<UserCourseInstanceMetrics> {
+) -> ModelResult<Vec<UserCourseInstanceMetrics>> {
     let res = sqlx::query_as!(
         UserCourseInstanceMetrics,
-        r#"
-SELECT COUNT(ues.exercise_id) AS attempted_exercises,
+        r"
+SELECT chapters.course_module_id,
+  COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
+  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE ues.course_instance_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
-  AND ues.deleted_at IS NULL;
-        "#,
+  AND ues.deleted_at IS NULL
+GROUP BY chapters.course_module_id;
+        ",
         course_instance_id,
-        user_id
+        user_id,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_user_course_instance_metrics_indexed_by_module_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, UserCourseInstanceMetrics>> {
+    let res = get_user_course_instance_metrics(conn, course_instance_id, user_id)
+        .await?
+        .into_iter()
+        .map(|x| (x.course_module_id, x))
+        .collect();
     Ok(res)
 }
 
@@ -264,26 +342,60 @@ pub async fn get_user_course_instance_progress(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<UserCourseInstanceProgress> {
-    let course_metrics = get_course_instance_metrics(&mut *conn, course_instance_id).await?;
-    let user_metrics = get_user_course_instance_metrics(conn, course_instance_id, user_id).await?;
+) -> ModelResult<Vec<UserCourseInstanceProgress>> {
+    let course_metrics =
+        get_course_instance_metrics_indexed_by_module_id(&mut *conn, course_instance_id).await?;
+    let user_metrics =
+        get_user_course_instance_metrics_indexed_by_module_id(conn, course_instance_id, user_id)
+            .await?;
+    let course_id = course_instances::get_course_instance(conn, course_instance_id)
+        .await?
+        .course_id;
+    let course_name = courses::get_course(conn, course_id).await?.name;
+    let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
+}
 
-    let result = UserCourseInstanceProgress {
-        score_given: option_f32_to_f32_two_decimals(user_metrics.score_given),
-        attempted_exercises: user_metrics
-            .attempted_exercises
-            .map(TryInto::try_into)
-            .transpose()?,
-        score_maximum: course_metrics
-            .score_maximum
-            .map(TryInto::try_into)
-            .transpose()?,
-        total_exercises: course_metrics
-            .total_exercises
-            .map(TryInto::try_into)
-            .transpose()?,
-    };
-    Ok(result)
+fn merge_modules_with_metrics(
+    course_modules: Vec<CourseModule>,
+    course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
+    user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseInstanceMetrics>,
+    default_course_module_name_placeholder: &str,
+) -> ModelResult<Vec<UserCourseInstanceProgress>> {
+    course_modules
+        .into_iter()
+        .map(|course_module| {
+            let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
+            let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
+            let progress = UserCourseInstanceProgress {
+                course_module_id: course_module.id,
+                // Only default course module doesn't have a name.
+                course_module_name: course_module
+                    .name
+                    .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
+                course_module_order_number: course_module.order_number,
+                score_given: option_f32_to_f32_two_decimals(
+                    user_metrics.and_then(|x| x.score_given),
+                ),
+                score_required: course_module.automatic_completion_number_of_points_treshold,
+                score_maximum: course_metrics
+                    .and_then(|x| x.score_maximum)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                total_exercises: course_metrics
+                    .and_then(|x| x.total_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises: user_metrics
+                    .and_then(|x| x.attempted_exercises)
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises_required: course_module
+                    .automatic_completion_number_of_exercises_attempted_treshold,
+            };
+            Ok(progress)
+        })
+        .collect::<ModelResult<_>>()
 }
 
 pub async fn get_user_course_instance_chapter_exercises_progress(
@@ -654,6 +766,108 @@ RETURNING id,
     Ok(res)
 }
 
+/// Convenience struct that combines user state to the exercise.
+///
+/// Many operations require information about both the user state and the exercise. However, because
+/// exercises can either belong to a course or an exam, and each course instance will have their
+/// own `UserExerciseState`, it can get difficult to track the proper context.
+pub struct ExerciseWithUserState {
+    exercise: Exercise,
+    user_exercise_state: UserExerciseState,
+    type_data: EwusCourseOrExam,
+}
+
+impl ExerciseWithUserState {
+    pub fn new(exercise: Exercise, user_exercise_state: UserExerciseState) -> ModelResult<Self> {
+        let state = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &exercise,
+            &user_exercise_state,
+        )?;
+        Ok(Self {
+            exercise,
+            user_exercise_state,
+            type_data: state,
+        })
+    }
+
+    /// Provides a reference to the inner `Exercise`.
+    pub fn exercise(&self) -> &Exercise {
+        &self.exercise
+    }
+
+    /// Provides a reference to the inner `UserExerciseState`.
+    pub fn user_exercise_state(&self) -> &UserExerciseState {
+        &self.user_exercise_state
+    }
+
+    pub fn exercise_context(&self) -> &EwusCourseOrExam {
+        &self.type_data
+    }
+
+    pub fn set_user_exercise_state(
+        &mut self,
+        user_exercise_state: UserExerciseState,
+    ) -> ModelResult<()> {
+        self.type_data = EwusCourseOrExam::from_exercise_and_user_exercise_state(
+            &self.exercise,
+            &user_exercise_state,
+        )?;
+        self.user_exercise_state = user_exercise_state;
+        Ok(())
+    }
+
+    pub fn is_exam_exercise(&self) -> bool {
+        match self.type_data {
+            EwusCourseOrExam::Course(_) => false,
+            EwusCourseOrExam::Exam(_) => true,
+        }
+    }
+}
+
+pub struct EwusCourse {
+    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
+}
+
+pub struct EwusExam {
+    pub exam_id: Uuid,
+}
+
+pub enum EwusContext<C, E> {
+    Course(C),
+    Exam(E),
+}
+
+pub enum EwusCourseOrExam {
+    Course(EwusCourse),
+    Exam(EwusExam),
+}
+
+impl EwusCourseOrExam {
+    pub fn from_exercise_and_user_exercise_state(
+        exercise: &Exercise,
+        user_exercise_state: &UserExerciseState,
+    ) -> ModelResult<Self> {
+        if exercise.id == user_exercise_state.exercise_id {
+            let course_id = exercise.course_id;
+            let course_instance_id = user_exercise_state.course_instance_id;
+            let exam_id = exercise.exam_id;
+            match (course_id, course_instance_id, exam_id) {
+                (None, None, Some(exam_id)) => Ok(Self::Exam(EwusExam { exam_id })),
+                (Some(course_id), Some(course_instance_id), None) => Ok(Self::Course(EwusCourse {
+                    course_id,
+                    course_instance_id,
+                })),
+                _ => Err(ModelError::Generic("Invalid initializer data.".to_string())),
+            }
+        } else {
+            Err(ModelError::Generic(
+                "Exercise doesn't match the state.".to_string(),
+            ))
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct CourseInstanceUserPoints {
     pub user_id: Uuid,
@@ -798,4 +1012,79 @@ SELECT exercises.name as exercise_name,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use chrono::TimeZone;
+
+    use super::*;
+    use crate::test_helper::*;
+
+    mod getting_single_module_course_instance_metrics {
+        use super::*;
+
+        #[tokio::test]
+        async fn works_without_any_user_exercise_states() {
+            insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+            let res = get_single_module_course_instance_metrics(
+                tx.as_mut(),
+                instance.id,
+                course_module,
+                user,
+            )
+            .await;
+            assert!(res.is_ok())
+        }
+    }
+
+    #[test]
+    fn merges_course_modules_with_metrics() {
+        let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
+        let course_modules = vec![CourseModule {
+            created_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            updated_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
+            deleted_at: None,
+            id: module_id,
+            name: None,
+            order_number: 0,
+            course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
+            copied_from: None,
+            uh_course_code: None,
+            ects_credits: Some(5),
+            automatic_completion: false,
+            automatic_completion_number_of_exercises_attempted_treshold: None,
+            automatic_completion_number_of_points_treshold: None,
+        }];
+        let course_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            CourseInstanceExerciseMetrics {
+                course_module_id: module_id,
+                total_exercises: Some(4),
+                score_maximum: Some(10),
+            },
+        )]);
+        let user_metrics_by_course_module_id = HashMap::from([(
+            module_id,
+            UserCourseInstanceMetrics {
+                course_module_id: module_id,
+                score_given: Some(1.0),
+                attempted_exercises: Some(3),
+            },
+        )]);
+        let metrics = merge_modules_with_metrics(
+            course_modules,
+            &course_metrics_by_course_module_id,
+            &user_metrics_by_course_module_id,
+            "Default module",
+        )
+        .unwrap();
+        assert_eq!(metrics.len(), 1);
+        let metric = metrics.first().unwrap();
+        assert_eq!(metric.attempted_exercises, Some(3));
+        assert_eq!(&metric.course_module_name, "Default module");
+        assert_eq!(metric.score_given, 1.0);
+        assert_eq!(metric.score_maximum, Some(10));
+        assert_eq!(metric.total_exercises, Some(4));
+    }
 }

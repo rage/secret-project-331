@@ -17,7 +17,7 @@ const viewPorts = {
  *
  * The second argument passed to expect(screenshot).toMatchSnapshot(name[, options])
  */
-type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[1]
+type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[0]
 
 interface ExpectScreenshotsToMatchSnapshotsProps {
   headless: boolean
@@ -32,6 +32,10 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip?: boolean | string[]
   skipMobile?: boolean
+  /** If defined, the page will scroll to this y coordinate before taking the screenshot */
+  scrollToYCoordinate?: number
+  /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
+  replaceSomePartsWithPlaceholders?: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
@@ -48,6 +52,8 @@ export default async function expectScreenshotsToMatchSnapshots({
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
+  scrollToYCoordinate,
+  replaceSomePartsWithPlaceholders = true,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
   if (!page && !frame) {
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
@@ -71,6 +77,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   const elementHandle = await waitToBeVisible({
     waitForThisToBeVisibleAndStable,
     container: visibilityWaitContainer,
+    replaceSomePartsWithPlaceholders,
   })
 
   if (clearNotifications) {
@@ -97,6 +104,8 @@ export default async function expectScreenshotsToMatchSnapshots({
       headless,
       pageScreenshotOptions,
       axeSkip,
+      scrollToYCoordinate,
+      replaceSomePartsWithPlaceholders,
     })
   }
 
@@ -112,6 +121,8 @@ export default async function expectScreenshotsToMatchSnapshots({
     headless,
     pageScreenshotOptions,
     axeSkip,
+    scrollToYCoordinate,
+    replaceSomePartsWithPlaceholders,
   })
 
   // always restore the original viewport
@@ -131,6 +142,8 @@ interface SnapshotWithViewPortProps {
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip: boolean | string[]
+  scrollToYCoordinate?: number
+  replaceSomePartsWithPlaceholders: boolean
 }
 
 async function snapshotWithViewPort({
@@ -146,6 +159,8 @@ async function snapshotWithViewPort({
   persistMousePosition,
   pageScreenshotOptions,
   axeSkip,
+  scrollToYCoordinate,
+  replaceSomePartsWithPlaceholders,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
@@ -173,16 +188,31 @@ async function snapshotWithViewPort({
   }
 `,
   })
-  await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  if (replaceSomePartsWithPlaceholders) {
+    await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
+
   await pageObjectToUse.setViewportSize(viewPorts[viewPortName])
   await waitToBeStable({ waitForThisToBeStable })
   if (beforeScreenshot) {
     await pageObjectToUse.waitForTimeout(100)
     await beforeScreenshot()
-    // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-    await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+    if (replaceSomePartsWithPlaceholders) {
+      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
+      await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+    }
+
     await pageObjectToUse.waitForTimeout(100)
     await waitToBeStable({ waitForThisToBeStable })
+  }
+
+  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
+  if (scrollToYCoordinate) {
+    await page.evaluate(async (coord) => {
+      window.scrollTo(0, coord)
+    }, scrollToYCoordinate)
+    // 100ms was not enough at the time of writing this
+    await pageObjectToUse.waitForTimeout(200)
   }
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
@@ -211,12 +241,15 @@ async function snapshotWithViewPort({
       console.error("Could not remove the style that hides the typing caret.")
     }
   })
-  await pageObjectToUse.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+  if (replaceSomePartsWithPlaceholders) {
+    await pageObjectToUse.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
 }
 
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
   container: Page | Frame
+  replaceSomePartsWithPlaceholders: boolean
 }
 
 export async function takeScreenshotAndComparetoSnapshot(
@@ -234,7 +267,7 @@ export async function takeScreenshotAndComparetoSnapshot(
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
     )
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(500)
     const screenshot = await thingBeingScreenshotted.screenshot(pageScreenshotOptions)
     expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   }
@@ -243,8 +276,11 @@ export async function takeScreenshotAndComparetoSnapshot(
 export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   container: page,
+  replaceSomePartsWithPlaceholders,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
-  await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
   let elementHandle: ElementHandle | ElementHandle[] = null
   if (typeof waitForThisToBeVisibleAndStable == "string") {
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)
@@ -255,6 +291,7 @@ export async function waitToBeVisible({
       elementHandle = await waitToBeVisible({
         waitForThisToBeVisibleAndStable: element,
         container: page,
+        replaceSomePartsWithPlaceholders,
       })
     }
   } else {

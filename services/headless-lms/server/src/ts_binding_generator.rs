@@ -1,8 +1,8 @@
 #[cfg(feature = "ts_rs")]
 use crate::controllers::{
-    auth::Login,
+    auth::{CreateAccountDetails, Login},
     course_material::{
-        courses::ChaptersWithStatus,
+        courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
@@ -73,7 +73,7 @@ fn ts_binding_generator() {
         course_instances::PointMap,
         course_instances::Points,
 
-        course_modules::Module,
+        course_modules::CourseModule,
 
         courses::Course,
         courses::CourseStructure,
@@ -126,6 +126,10 @@ fn ts_binding_generator() {
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
+        library::progressing::CompletionRegistrationLink,
+        library::progressing::UserCompletionInformation,
+        library::progressing::UserModuleCompletionStatus,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -141,12 +145,14 @@ fn ts_binding_generator() {
         pages::HistoryRestoreData,
         pages::Page,
         pages::PageInfo,
-        pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+        pages::IsChapterFrontPage,
+        pages::PageRoutingData,
+        pages::PageNavigationInformation,
 
         peer_reviews::PeerReview,
         peer_reviews::PeerReviewAcceptingStrategy,
@@ -195,6 +201,8 @@ fn ts_binding_generator() {
         users::User,
 
         ChaptersWithStatus,
+        CourseMaterialCourseModule,
+        CreateAccountDetails,
         RoleQuery,
         RoleInfo,
         ExamData,
@@ -210,9 +218,9 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
-        NewModule,
-        ModuleUpdate,
-        ModuleUpdates
+
+        material_references::MaterialReference,
+        material_references::NewMaterialReference
     };
     res.unwrap();
 }

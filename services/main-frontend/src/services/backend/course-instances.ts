@@ -1,3 +1,5 @@
+import { isBoolean } from "lodash"
+
 import {
   CourseInstance,
   CourseInstanceForm,
@@ -28,6 +30,15 @@ export const postNewEmailTemplateForCourseInstance = async (
     },
   )
   return validateResponse(response, isEmailTemplate)
+}
+
+export const postReprocessModuleCompletions = async (
+  courseInstanceId: string,
+): Promise<boolean> => {
+  const res = await mainFrontendClient.post(
+    `/course-instances/${courseInstanceId}/reprocess-completions`,
+  )
+  return validateResponse(res, isBoolean)
 }
 
 export const fetchCourseInstanceEmailTemplates = async (

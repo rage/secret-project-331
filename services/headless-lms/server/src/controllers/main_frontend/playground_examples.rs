@@ -1,6 +1,6 @@
 use models::playground_examples::{PlaygroundExample, PlaygroundExampleData};
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
@@ -12,7 +12,9 @@ async fn get_playground_examples(
 ) -> ControllerResult<web::Json<Vec<PlaygroundExample>>> {
     let mut conn = pool.acquire().await?;
     let res = models::playground_examples::get_all_playground_examples(&mut conn).await?;
-    Ok(web::Json(res))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -27,10 +29,11 @@ async fn insert_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let new_example = payload.0;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
     let res =
         models::playground_examples::insert_playground_example(&mut conn, new_example).await?;
-    Ok(web::Json(res))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -45,9 +48,11 @@ async fn update_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let example = payload.0;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
+
     let res = models::playground_examples::update_playground_example(&mut conn, example).await?;
-    Ok(web::Json(res))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -62,9 +67,10 @@ async fn delete_playground_example(
 ) -> ControllerResult<web::Json<PlaygroundExample>> {
     let mut conn = pool.acquire().await?;
     let example_id = *playground_example_id;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
     let res = models::playground_examples::delete_playground_example(&mut conn, example_id).await?;
-    Ok(web::Json(res))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::PlaygroundExample).await?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**

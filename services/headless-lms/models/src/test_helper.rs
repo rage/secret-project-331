@@ -90,7 +90,7 @@ pub const TEST_HELPER_EXERCISE_SERVICE_NAME: &str = "exercise_type";
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:
 ///
-/// tx, user, org, course, instance, page, chapter, exercise, slide, task
+/// tx, user, org, course, instance, course_module, page, chapter, exercise, slide, task
 ///
 /// Arguments can be given in either of two forms:
 ///
@@ -131,6 +131,7 @@ macro_rules! insert_data {
     // these rules declare variables according to the args
     (@inner tx: $tx:ident) => {
         let mut conn = Conn::init().await;
+        #[allow(unused_mut)]
         let mut $tx = conn.begin().await;
     };
     (@inner tx: $tx:ident; user: $user:ident) => {
@@ -196,7 +197,10 @@ macro_rules! insert_data {
         .await
         .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; chapter: $chapter:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
+        let $course_module = $crate::course_modules::insert($tx.as_mut(), $course, None, 0).await.unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
         let $chapter = $crate::chapters::insert_chapter(
             $tx.as_mut(),
             $crate::chapters::NewChapter {
@@ -206,14 +210,14 @@ macro_rules! insert_data {
                 front_page_id: None,
                 deadline: None,
                 opens_at: None,
-                module: None,
+                course_module_id: Some($course_module),
             },
             $user
         )
         .await
         .unwrap().0.id;
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident; page: $page:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident; page: $page:ident) => {
         let $page = $crate::pages::insert_page(
             $tx.as_mut(),
             $crate::pages::NewPage {
@@ -234,19 +238,19 @@ macro_rules! insert_data {
         .await
         .unwrap().id;
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
         let $exercise =
         $crate::exercises::insert($tx.as_mut(), $course, "", $page, $chapter, 0)
             .await
             .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
         let $exercise_slide =
                $crate::exercise_slides::insert($tx.as_mut(), $exercise, 0)
                    .await
                    .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = $crate::exercise_tasks::insert(
             $tx.as_mut(),
             $crate::exercise_tasks::NewExerciseTask {
@@ -280,6 +284,6 @@ pub use crate::insert_data;
 
 // checks that correct usage of the macro compiles
 async fn _test() {
-    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, chapter: c, :page, exercise: e, :slide, task: task);
+    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, course_module: m, chapter: c, :page, exercise: e, :slide, task: task);
     println!("{task}")
 }

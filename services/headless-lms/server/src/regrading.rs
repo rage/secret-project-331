@@ -290,10 +290,10 @@ mod test {
         exercise_tasks::NewExerciseTask,
         exercises::{self, GradingProgress},
         library::grading::{
-            StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
             StudentExerciseTaskSubmission,
         },
-        user_exercise_states,
+        user_exercise_states::{self, ExerciseWithUserState},
     };
     use serde_json::Value;
 
@@ -302,7 +302,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_submission() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -398,7 +398,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_complete() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -489,7 +489,7 @@ mod test {
 
     #[tokio::test]
     async fn regrades_partial() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, slide: slide_1);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -644,7 +644,7 @@ mod test {
 
     #[tokio::test]
     async fn updates_exercise_state() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
@@ -761,7 +761,7 @@ mod test {
 
     #[tokio::test]
     async fn fail_on_missing_service() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let grading_result = ExerciseTaskGradingResult {
             grading_progress: models::exercises::GradingProgress::FullyGraded,
@@ -842,12 +842,13 @@ mod test {
             None,
         )
         .await?;
-        let grading = headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        let mut exercise_with_user_state =
+            ExerciseWithUserState::new(exercise.clone(), user_exercise_state).unwrap();
+        let grading = headless_lms_models::library::grading::grade_user_submission(
             conn,
-            exercise,
-            user_exercise_state,
+            &mut exercise_with_user_state,
             submission,
-            mock_results,
+            GradingPolicy::Fixed(mock_results),
         )
         .await
         .unwrap();
@@ -874,10 +875,10 @@ mod test {
             conn,
             &models::exercise_service_info::PathInfo {
                 exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "/iframe".to_string(),
+                user_interface_iframe_path: "/iframe".to_string(),
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
-                model_solution_path: "/model-solution".to_string(),
+                model_solution_spec_endpoint_path: "/model-solution".to_string(),
             },
         )
         .await?;

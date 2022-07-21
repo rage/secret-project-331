@@ -4,10 +4,11 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -18,7 +19,7 @@ async fn get_user_progress_for_course_instance(
     user: AuthUser,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<UserCourseInstanceProgress>> {
+) -> ControllerResult<web::Json<Vec<UserCourseInstanceProgress>>> {
     let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
@@ -27,7 +28,8 @@ async fn get_user_progress_for_course_instance(
             user.id,
         )
         .await?;
-    Ok(web::Json(user_course_instance_progress))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(user_course_instance_progress))
 }
 
 /**
@@ -50,7 +52,8 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    Ok(web::Json(user_course_instance_chapter_progress))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
 /**
@@ -85,7 +88,36 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    Ok(web::Json(rounded_score_given_instances))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(rounded_score_given_instances))
+}
+
+/**
+GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
+ */
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_module_completions_for_course_instance(
+    user: AuthUser,
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize()?;
+    let mut module_completion_statuses =
+        models::library::progressing::get_user_module_completion_statuses_for_course_instance(
+            &mut conn,
+            user.id,
+            *course_instance_id,
+        )
+        .await?;
+    // Override individual completions in modules with insufficient prerequisites
+    module_completion_statuses.iter_mut().for_each(|module| {
+        if !module.prerequisite_modules_completed {
+            module.completed = false;
+        }
+    });
+    token.authorized_ok(web::Json(module_completion_statuses))
 }
 
 /**
@@ -111,8 +143,8 @@ async fn add_user_enrollment(
         },
     )
     .await?;
-
-    Ok(web::Json(enrollment))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(enrollment))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -131,5 +163,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",
         web::get().to(get_user_progress_for_course_instance_chapter),
+    )
+    .route(
+        "/{course_instance_id}/module-completions",
+        web::get().to(get_module_completions_for_course_instance),
     );
 }

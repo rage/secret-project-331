@@ -15,9 +15,11 @@ pub mod files;
 pub mod helpers;
 pub mod main_frontend;
 pub mod prelude;
+pub mod study_registry;
 
 use std::error::Error;
 
+use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     error,
     http::{header::ContentType, StatusCode},
@@ -29,6 +31,7 @@ use headless_lms_models::ModelError;
 use headless_lms_utils::UtilError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
+use std::fmt::Write as _;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
@@ -91,7 +94,13 @@ impl error::ResponseError for ControllerError {
             let mut err_string = String::new();
             let mut source = Some(&self as &dyn Error);
             while let Some(err) = source {
-                err_string += &format!("{}\n    ", err);
+                let res = write!(err_string, "{}\n    ", err);
+                if let Err(e) = res {
+                    error!(
+                        "Error occured while trying to construct error source string: {}",
+                        e
+                    );
+                }
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);
@@ -196,7 +205,7 @@ impl From<UtilError> for ControllerError {
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
 */
-pub type ControllerResult<T, E = ControllerError> = std::result::Result<T, E>;
+pub type ControllerResult<T, E = ControllerError> = std::result::Result<AuthorizedResponse<T>, E>;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -211,5 +220,6 @@ pub fn configure_controllers(cfg: &mut ServiceConfig) {
         .service(web::scope("/cms").configure(cms::_add_routes))
         .service(web::scope("/files").configure(files::_add_routes))
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
-        .service(web::scope("/auth").configure(auth::_add_routes));
+        .service(web::scope("/auth").configure(auth::_add_routes))
+        .service(web::scope("/study-registry").configure(study_registry::_add_routes));
 }

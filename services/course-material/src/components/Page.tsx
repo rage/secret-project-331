@@ -10,6 +10,8 @@ import { inlineColorStyles } from "../styles/inlineColorStyles"
 import ContentRenderer from "./ContentRenderer"
 import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
+import HeadingsNavigation from "./HeadingsNavigation"
+import ReferenceList from "./ReferencesList"
 import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
@@ -55,6 +57,9 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
           edits={edits}
         />
       )}
+      {pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id) && (
+        <HeadingsNavigation />
+      )}
       {/* TODO: Better type for Page.content in bindings. */}
       <div id="content" className={inlineColorStyles}>
         <ContentRenderer
@@ -66,6 +71,9 @@ const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
         />
       </div>
       {pageContext.pageData?.chapter_id && <NavigationContainer />}
+      {pageContext.pageData?.course_id && (
+        <ReferenceList courseId={pageContext.pageData.course_id} />
+      )}
     </>
   )
 }

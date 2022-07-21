@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { updateCourse } from "../../../../../../services/backend/courses"
 import Button from "../../../../../../shared-module/components/Button"
 import CheckBox from "../../../../../../shared-module/components/InputFields/CheckBox"
+import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
@@ -15,6 +16,7 @@ const FieldContainer = styled.div`
 interface UpdateCourseFormProps {
   courseId: string
   courseName: string
+  courseDescription: string | null
   isDraft: boolean
   isTest: boolean
   onSubmitForm: () => void
@@ -23,18 +25,21 @@ interface UpdateCourseFormProps {
 const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
   courseId,
   courseName,
+  courseDescription,
   isDraft,
   isTest,
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
   const [name, setName] = useState(courseName)
+  const [description, setDescription] = useState(courseDescription)
   const [draftStatus, setDraftStatus] = useState(isDraft)
   const [testStatus, setTestStatus] = useState(isTest)
 
   const onUpdateCourseForm = async () => {
     await updateCourse(courseId, {
       name,
+      description,
       is_draft: draftStatus,
       is_test_mode: testStatus,
     })
@@ -56,6 +61,15 @@ const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
             value={name}
             onChange={(value) => {
               setName(value)
+            }}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <TextAreaField
+            label={t("text-field-label-description")}
+            value={description ?? ""}
+            onChange={(description) => {
+              setDescription(description)
             }}
           />
         </FieldContainer>

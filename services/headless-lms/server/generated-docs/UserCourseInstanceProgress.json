@@ -1,6 +1,11 @@
 {
+  "course_module_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+  "course_module_name": "Module",
+  "course_module_order_number": 0,
   "score_given": 3.0,
+  "score_required": 7,
   "score_maximum": 10,
   "total_exercises": 66,
-  "attempted_exercises": 13
+  "attempted_exercises": 13,
+  "attempted_exercises_required": 40
 }

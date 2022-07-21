@@ -1,65 +1,103 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
-import { fetchUserCourseProgress } from "../../../../services/backend"
+import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
-interface CourseProgressProps {
-  courseInstanceId: string
+import ExerciseCountDisplay from "./ExerciseCountDisplay"
+import TempAccordionItem from "./TempAccordionItem"
+
+export interface CourseProgressProps {
+  userCourseInstanceProgress: UserCourseInstanceProgress[]
 }
 
 const Wrapper = styled.div`
   background-color: #f5f6f7;
-  padding: 2rem 4rem;
+  margin: 3px 0 3px 0;
+  padding: 0;
+
+  ${respondToOrLarger.md} {
+    padding: 0.8rem 3rem 1.5rem 3rem;
+  }
+`
+const TotalWrapper = styled.div`
+  background-color: #f5f6f7;
+  margin: 3px 0 6px 0;
+  padding: 0.8rem 3rem 1.5rem 3rem;
 `
 
-const CourseProgress: React.FC<CourseProgressProps> = ({ courseInstanceId }) => {
+const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgress }) => {
+  const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
-  const getUserCourseProgress = useQuery(`course-instance-${courseInstanceId}-progress`, () =>
-    fetchUserCourseProgress(courseInstanceId),
-  )
+
+  const handleAccordionToggle = (sourceId: number) => {
+    setOpenedModule((prev) => (prev !== sourceId ? sourceId : -1))
+  }
 
   return (
-    <Wrapper>
-      {getUserCourseProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
-      )}
-      {(getUserCourseProgress.isLoading || getUserCourseProgress.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
-      {getUserCourseProgress.isSuccess && (
-        <>
-          <div
-            className={css`
-              width: 100%;
-              margin: 0 auto;
-              text-align: center;
-              padding: 2em 0;
-            `}
+    <>
+      <h2
+        className={css`
+          font-size: 2.5rem;
+          font-weight: 350;
+          margin: 1rem;
+          text-align: center;
+        `}
+      >
+        {t("track-your-progress")}
+      </h2>
+      {userCourseInstanceProgress
+        .sort((a, b) => a.course_module_order_number - b.course_module_order_number)
+        .map((courseModuleProgress) => (
+          <TempAccordionItem
+            onClick={() => handleAccordionToggle(courseModuleProgress.course_module_order_number)}
+            open={openedModule === courseModuleProgress.course_module_order_number}
+            title={courseModuleProgress.course_module_name}
+            key={courseModuleProgress.course_module_id}
           >
-            {/* TODO: Verify how it looks when score_given is a floating number */}
-            <Progress
-              variant={"circle"}
-              max={getUserCourseProgress.data.score_maximum}
-              given={getUserCourseProgress.data.score_given}
-              point={50}
-              label={t("course-progress")}
-            />
-            <Progress
-              variant={"bar"}
-              showAsPercentage={true}
-              exercisesAttempted={getUserCourseProgress.data.attempted_exercises}
-              exercisesTotal={getUserCourseProgress.data.total_exercises}
-            />
-          </div>
-        </>
-      )}
-    </Wrapper>
+            <Wrapper>
+              <ExerciseCountDisplay
+                exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
+                exercisesNeededToAnswer={
+                  courseModuleProgress.attempted_exercises_required ??
+                  courseModuleProgress.total_exercises ??
+                  0
+                }
+                totalExercises={courseModuleProgress.total_exercises ?? 0}
+              />
+            </Wrapper>
+            <TotalWrapper>
+              <div
+                className={css`
+                  width: 100%;
+                  margin: 0 auto;
+                  text-align: center;
+                  padding: 2em 0;
+                `}
+              >
+                {/* TODO: Verify how it looks when score_given is a floating number */}
+                <Progress
+                  variant={"circle"}
+                  max={courseModuleProgress.score_maximum}
+                  required={courseModuleProgress.score_required ?? undefined}
+                  given={courseModuleProgress.score_given}
+                  point={50}
+                  label={t("total-points")}
+                />
+                <Progress
+                  variant={"bar"}
+                  showAsPercentage={true}
+                  exercisesAttempted={courseModuleProgress.attempted_exercises}
+                  exercisesTotal={courseModuleProgress.total_exercises}
+                />
+              </div>
+            </TotalWrapper>
+          </TempAccordionItem>
+        ))}
+    </>
   )
 }
 

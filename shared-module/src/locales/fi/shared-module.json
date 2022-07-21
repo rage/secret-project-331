@@ -50,7 +50,11 @@
   "title-debug-view": "Debuggaa näkymä",
   "translate": "Käännä",
   "university-of-helsinki": "Helsingin yliopisto",
+  "in-this-page": "Tällä sivulla",
   "points": "Pistettä",
   "added-text": "Tekstiä lisätty",
-  "removed-text": "Tekstiä poistettu"
+  "removed-text": "Tekstiä poistettu",
+  "title-references": "Lähteet",
+  "open-heading-menu": "Avaa sisällysluettelo",
+  "close-heading-menu": "Sulje sisällysluettelo"
 }

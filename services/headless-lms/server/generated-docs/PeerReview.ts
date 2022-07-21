@@ -7,4 +7,6 @@ type PeerReview = {
   exercise_id: string | null
   peer_reviews_to_give: number
   peer_reviews_to_receive: number
+  accepting_threshold: number
+  accepting_strategy: PeerReviewAcceptingStrategy
 }

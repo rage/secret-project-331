@@ -159,7 +159,7 @@ pub fn get_model_solution_url(
     exercise_service_info: &ExerciseServiceInfo,
 ) -> ModelResult<Url> {
     let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
-    url.set_path(&exercise_service_info.model_solution_path);
+    url.set_path(&exercise_service_info.model_solution_spec_endpoint_path);
     Ok(url)
 }
 

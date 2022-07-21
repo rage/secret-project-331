@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -6,6 +6,7 @@ import { useSpring } from "react-spring"
 
 import { baseTheme, headingFont, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/constants"
 
 import { CircularProgressExtraProps } from "."
 
@@ -18,6 +19,7 @@ const StyledSVG = styled.div<StyledSVGProps>`
   position: relative;
   width: 100%;
   text-align: center;
+  height: auto;
 
   svg {
     margin: 0 auto;
@@ -118,12 +120,15 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   return (
     <>
       <h2
-        className={css`
-          padding-bottom: 10px;
-          font-weight: 500;
-          border-bottom: 3px solid #d8dbdd;
-          color: #1a2333;
-        `}
+        className={cx(
+          INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+          css`
+            padding-bottom: 10px;
+            font-weight: 500;
+            border-bottom: 3px solid #d8dbdd;
+            color: #1a2333;
+          `,
+        )}
       >
         {label}
       </h2>

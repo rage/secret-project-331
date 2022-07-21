@@ -28,7 +28,6 @@ interface LayoutProps {
   faqUrl?: string
   title?: string
   licenseUrl?: string
-  returnToPath?: string
   courseSlug?: string
   organizationSlug: string
 }
@@ -44,16 +43,12 @@ const Layout: React.FC<LayoutProps> = ({
   navVariant,
   // faqUrl,
   licenseUrl,
-  returnToPath,
   courseSlug,
   organizationSlug,
 }) => {
   const router = useRouter()
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
-  const returnPath = `/login?return_to=${encodeURIComponent(
-    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-  )}`
+
   const pageContext = useContext(PageContext)
 
   const courseId = pageContext?.pageData?.course_id
@@ -89,11 +84,10 @@ const Layout: React.FC<LayoutProps> = ({
             </NavItems>
           </NavContainer>
           <Menu>
-            <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
+            <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
           </Menu>
         </NavBar>
 
-        {/* Do not touch flex */}
         <main id="maincontent">
           <Centered variant="narrow">{children}</Centered>
         </main>

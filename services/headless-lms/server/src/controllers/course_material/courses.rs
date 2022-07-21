@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/courses`.
 
-use std::{net::IpAddr, path::Path};
+use std::{collections::HashMap, net::IpAddr, path::Path};
 
 use actix_http::header;
 use chrono::Utc;
@@ -8,14 +8,15 @@ use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
-    chapters::{ChapterStatus, ChapterWithStatus},
+    chapters::ChapterWithStatus,
     course_instances::CourseInstance,
-    course_modules::Module,
+    course_modules::CourseModule,
     courses,
     courses::Course,
     feedback,
     feedback::NewFeedback,
     glossary::Term,
+    material_references::MaterialReference,
     page_visit_datum::NewPageVisitDatum,
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
@@ -25,7 +26,7 @@ use models::{
     user_course_settings::UserCourseSettings,
 };
 
-use crate::controllers::prelude::*;
+use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
 
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
@@ -39,7 +40,8 @@ async fn get_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    Ok(web::Json(course))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(course))
 }
 
 /**
@@ -76,13 +78,16 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::View,
         user.map(|u| u.id),
         Res::Page(page_with_user_data.page.id),
     )
     .await?;
+
+    let temp_request_information =
+        derive_information_from_requester(req, ip_to_country_mapper).await?;
 
     let RequestInformation {
         ip,
@@ -97,7 +102,7 @@ async fn get_course_page_by_path(
         operating_system,
         operating_system_version,
         device_type,
-    } = derive_information_from_requester(req, ip_to_country_mapper)?;
+    } = temp_request_information.data;
 
     let course_or_exam_id = page_with_user_data
         .page
@@ -133,7 +138,7 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    Ok(web::Json(page_with_user_data))
+    token.authorized_ok(web::Json(page_with_user_data))
 }
 
 struct RequestInformation {
@@ -152,7 +157,7 @@ struct RequestInformation {
 }
 
 /// Used in get_course_page_by_path for path for anonymous visitor counts
-fn derive_information_from_requester(
+async fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
@@ -206,7 +211,8 @@ fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    Ok(RequestInformation {
+    let token = skip_authorize()?;
+    token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
             .and_then(|ua| ua.to_str().ok())
@@ -241,9 +247,10 @@ async fn get_current_course_instance(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(web::Json(instance))
+        let token = skip_authorize()?;
+        token.authorized_ok(web::Json(instance))
     } else {
-        Ok(web::Json(None))
+        Err(ControllerError::NotFound("User not found".to_string()))
     }
 }
 
@@ -258,7 +265,8 @@ async fn get_course_instances(
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    Ok(web::Json(instances))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(instances))
 }
 
 /**
@@ -272,15 +280,25 @@ async fn get_course_pages(
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
-    Ok(web::Json(pages))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(pages))
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
-    pub modules: Vec<Module>,
+    pub modules: Vec<CourseMaterialCourseModule>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
+    pub id: Uuid,
+    pub is_default: bool,
+    pub name: Option<String>,
+    pub order_number: i32,
 }
 
 /**
@@ -296,46 +314,66 @@ async fn get_chapters(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
-
     let is_previewable = OptionFuture::from(user.map(|u| {
         authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
     }))
     .await
     .is_some();
-    let chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
-    let modules = models::course_modules::for_course(&mut conn, *course_id).await?;
-    let chapters = chapters
+    let token = skip_authorize()?;
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let chapters = models::chapters::course_chapters(&mut conn, *course_id)
+        .await?
         .into_iter()
         .map(|chapter| {
-            let open = chapter.opens_at.map(|o| o <= Utc::now()).unwrap_or(true);
-            let status = if open {
-                ChapterStatus::Open
-            } else {
-                ChapterStatus::Closed
-            };
-            ChapterWithStatus {
-                id: chapter.id,
-                created_at: chapter.created_at,
-                updated_at: chapter.updated_at,
-                name: chapter.name,
-                course_id: chapter.course_id,
-                deleted_at: chapter.deleted_at,
-                chapter_number: chapter.chapter_number,
-                front_page_id: chapter.front_page_id,
-                opens_at: chapter.opens_at,
-                status,
-                chapter_image_url: chapter
-                    .chapter_image_path
-                    .map(|path| file_store.get_download_url(Path::new(&path), &app_conf)),
-                module: chapter.module,
-            }
+            let chapter_image_url = chapter
+                .chapter_image_path
+                .as_ref()
+                .map(|path| file_store.get_download_url(Path::new(&path), &app_conf));
+            ChapterWithStatus::from_database_chapter_timestamp_and_image_url(
+                chapter,
+                Utc::now(),
+                chapter_image_url,
+            )
         })
         .collect();
-    Ok(web::Json(ChaptersWithStatus {
+    let modules = collect_course_modules(course_modules, chapters)?.data;
+    token.authorized_ok(web::Json(ChaptersWithStatus {
         is_previewable,
         modules,
-        chapters,
     }))
+}
+
+/// Combines course modules and chapters, consuming them.
+fn collect_course_modules(
+    course_modules: Vec<CourseModule>,
+    chapters: Vec<ChapterWithStatus>,
+) -> ControllerResult<Vec<CourseMaterialCourseModule>> {
+    let mut course_modules: HashMap<Uuid, CourseMaterialCourseModule> = course_modules
+        .into_iter()
+        .map(|course_module| {
+            (
+                course_module.id,
+                CourseMaterialCourseModule {
+                    chapters: vec![],
+                    id: course_module.id,
+                    is_default: course_module.name.is_none(),
+                    name: course_module.name,
+                    order_number: course_module.order_number,
+                },
+            )
+        })
+        .collect();
+    for chapter in chapters {
+        course_modules
+            .get_mut(&chapter.course_module_id)
+            .ok_or_else(|| {
+                ControllerError::InternalServerError("Module data mismatch.".to_string())
+            })?
+            .chapters
+            .push(chapter);
+    }
+    let token = skip_authorize()?;
+    token.authorized_ok(course_modules.into_values().collect())
 }
 
 /**
@@ -354,9 +392,10 @@ async fn get_user_course_settings(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        Ok(web::Json(settings))
+        let token = skip_authorize()?;
+        token.authorized_ok(web::Json(settings))
     } else {
-        Ok(web::Json(None))
+        Err(ControllerError::NotFound("User not found".to_string()))
     }
 }
 
@@ -388,7 +427,8 @@ async fn search_pages_with_phrase(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &*payload).await?;
-    Ok(web::Json(res))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -419,7 +459,8 @@ async fn search_pages_with_words(
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &*payload).await?;
-    Ok(web::Json(res))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -434,6 +475,7 @@ pub async fn feedback(
 ) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
     let fs = new_feedback.into_inner();
+    let user_id = user.as_ref().map(|u| u.id);
 
     // validate
     for f in &fs {
@@ -457,14 +499,14 @@ pub async fn feedback(
     }
 
     let mut tx = conn.begin().await?;
-    let user_id = user.as_ref().map(|u| u.id);
     let mut ids = vec![];
     for f in fs {
         let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
         ids.push(id);
     }
     tx.commit().await?;
-    Ok(web::Json(ids))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(ids))
 }
 
 /**
@@ -486,7 +528,8 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    Ok(web::Json(id))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(id))
 }
 
 #[generated_doc]
@@ -497,7 +540,38 @@ async fn glossary(
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    Ok(web::Json(glossary))
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(glossary))
+}
+
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_material_references_by_course_id(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let res =
+        models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET /api/v0/course-material/courses/:course_id/top-level-pages
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_top_level_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<Page>>> {
+    let mut conn = pool.acquire().await?;
+    let page = models::courses::get_top_level_pages(&mut conn, *course_id).await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(page))
 }
 
 /**
@@ -536,6 +610,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/user-settings",
             web::get().to(get_user_course_settings),
         )
+        .route(
+            "/{course_id}/top-level-pages",
+            web::get().to(get_top_level_pages),
+        )
         .route("/{course_id}/propose-edit", web::post().to(propose_edit))
-        .route("/{course_id}/glossary", web::get().to(glossary));
+        .route("/{course_id}/glossary", web::get().to(glossary))
+        .route(
+            "/{course_id}/references",
+            web::get().to(get_material_references_by_course_id),
+        );
 }

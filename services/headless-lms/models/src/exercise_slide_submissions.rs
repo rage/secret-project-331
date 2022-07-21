@@ -603,7 +603,7 @@ pub async fn get_exercise_slide_submission_info(
 pub async fn update_user_exercise_state(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
-    max_points: f32,
+    points_given: f32,
 ) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -624,7 +624,7 @@ pub async fn update_user_exercise_state(
         selected_exercise_slide_id;
         "#,
         user_exercise_state_id,
-        max_points
+        points_given,
     )
     .fetch_one(conn)
     .await?;

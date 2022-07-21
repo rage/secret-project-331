@@ -29,12 +29,13 @@ async fn get_submission_info(
 
     token.authorized_ok(web::Json(res))
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserExerciseStateUpdate {
     pub user_exercise_state_id: Uuid,
     pub exercise_id: Uuid,
     pub action: String,
+    pub manual_points: Option<f32>,
 }
 /**
 GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention"` - Updates data for submission
@@ -49,6 +50,7 @@ async fn update_submission(
     let action = &payload.action;
     let exercise_id = payload.exercise_id;
     let user_exercise_state_id = payload.user_exercise_state_id;
+    let manual_points = payload.manual_points;
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -75,14 +77,16 @@ async fn update_submission(
         )
         .await?;
         updated_user_exercise_state = res
-    } else {
+    } else if action == "manual-points" {
         let res = models::exercise_slide_submissions::update_user_exercise_state(
             &mut conn,
             user_exercise_state_id,
-            0.0,
+            manual_points.unwrap_or(0.0),
         )
         .await?;
         updated_user_exercise_state = res
+    } else {
+        return Err(ControllerError::BadRequest("Invalid query".to_string()));
     }
 
     token.authorized_ok(web::Json(updated_user_exercise_state))

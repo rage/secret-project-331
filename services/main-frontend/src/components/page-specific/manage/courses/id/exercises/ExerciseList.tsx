@@ -87,7 +87,15 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
               >
                 {t("link-view-answers-requiring-attention")}
               </Link>
-              {x.count}
+              {x.count !== null ? (
+                <span
+                  className={css`
+                    margin-left: 0.5em;
+                  `}
+                >
+                  ({x.count})
+                </span>
+              ) : null}
             </li>
           ))}
       </ul>

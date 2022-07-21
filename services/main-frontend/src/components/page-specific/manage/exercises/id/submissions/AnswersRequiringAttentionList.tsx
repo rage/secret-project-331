@@ -2,7 +2,16 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import React from "react"
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Input,
+  Slider,
+} from "@mui/material"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
@@ -54,9 +63,9 @@ const TopBar = styled.div`
 const ControlPanel = styled.div`
   background: #f5f5f5;
   width: 100%;
-  height: 70px;
+  height: 90px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 `
 
 const AnswersRequiringAttentionList: React.FC<Props> = ({
@@ -64,44 +73,49 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   exercise_max_points,
 }) => {
   const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const [sliderValue, setSliderValue] = useState<number>(0)
+
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    if (typeof newValue === "number") {
+      setSliderValue(newValue)
+    }
+  }
   if (answersRequiringAttention.length === 0) {
     return <div>{t("no-answers-requiring-attention")}</div>
   }
 
-  const handleAcceptAnswer = async (user_exercise_state_id: string, exercise_id: string) => {
-    const res = updateAnswerRequiringAttention({
-      user_exercise_state_id,
-      exercise_id,
-      // eslint-disable-next-line i18next/no-literal-string
-      action: "accept",
-    })
-    console.log(res)
+  const handleInputFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSliderValue(Number(event.target.value))
   }
 
-  const handleRejectAnswer = async (user_exercise_state_id: string, exercise_id: string) => {
-    const res = updateAnswerRequiringAttention({
-      user_exercise_state_id,
-      exercise_id,
-      // eslint-disable-next-line i18next/no-literal-string
-      action: "reject",
-    })
-    console.log(res)
-  }
-
-  const handleFlagAsPlagiarismAnswer = async (
+  const handleControlPanel = async (
     user_exercise_state_id: string,
     exercise_id: string,
+    action: string,
+    value?: number | undefined,
   ) => {
-    const res = updateAnswerRequiringAttention({
+    const manual_points = value !== undefined ? value : null
+    updateAnswerRequiringAttention({
       user_exercise_state_id,
       exercise_id,
       // eslint-disable-next-line i18next/no-literal-string
-      action: "flag-as-plagiarism",
+      action: action,
+      manual_points: manual_points,
     })
-    console.log(res)
   }
 
-  console.log(answersRequiringAttention)
+  const handleSubmitAndClose = (user_exercise_state_id: string, exercise_id: string) => {
+    handleControlPanel(
+      user_exercise_state_id,
+      exercise_id,
+      // eslint-disable-next-line i18next/no-literal-string
+      "manual-points",
+      sliderValue,
+    )
+    setOpen(false)
+  }
+
   return (
     <>
       <Layout>
@@ -223,73 +237,136 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                   >
                     enough
                   </span>
-                  <h3> {t("grading")}</h3>
                 </div>
               </StatusPanel>
               <ControlPanel>
-                <Button
-                  className={css`
-                    font-family: ${primaryFont};
-                    font-weight: 600;
-                    font-size: 16px;
-                    margin-left: 1em;
-                    margin-right: 0.5em;
-                  `}
-                  size="medium"
-                  variant="reject"
-                  onClick={() =>
-                    handleRejectAnswer(
-                      answerRequiringAttention.id,
-                      answerRequiringAttention.exercise_id,
-                    )
-                  } // Accept answer
-                >
-                  {t("button-text-zero-points")}
-                </Button>
-                <Button
-                  size="medium"
-                  variant="primary"
-                  onClick={() =>
-                    handleAcceptAnswer(
-                      answerRequiringAttention.id,
-                      answerRequiringAttention.exercise_id,
-                    )
-                  }
-                >
-                  {t("button-text-full-points")}
-                </Button>
-                <Button
-                  size="medium"
-                  variant="blue"
-                  onClick={() =>
-                    handleAcceptAnswer(
-                      answerRequiringAttention.id,
-                      answerRequiringAttention.exercise_id,
-                    )
-                  }
-                >
-                  {t("button-text-custom-points")}
-                </Button>
+                <div>
+                  <h3
+                    className={css`
+                      margin-left: 1em;
+                      color: #4b4b4b;
+                    `}
+                  >
+                    {" "}
+                    {t("grading")}
+                  </h3>
+                </div>
                 <div
                   className={css`
-                    margin-left: auto;
+                    display: flex;
+                    align-items: center;
                   `}
                 >
                   <Button
                     className={css`
-                      margin-left: 0.5em;
+                      font-family: ${primaryFont};
+                      font-weight: 600;
+                      font-size: 16px;
+                      margin-left: 1em;
+                      margin-right: 0.5em;
                     `}
                     size="medium"
-                    variant="tertiary"
+                    variant="reject"
                     onClick={() =>
-                      handleFlagAsPlagiarismAnswer(
+                      handleControlPanel(
                         answerRequiringAttention.id,
                         answerRequiringAttention.exercise_id,
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "reject",
                       )
-                    } // flag as plagiarism
+                    } // Accept answer
                   >
-                    {t("button-text-flag-as-plagiarism")}
+                    {t("button-text-zero-points")}
                   </Button>
+                  <Button
+                    size="medium"
+                    variant="primary"
+                    onClick={() =>
+                      handleControlPanel(
+                        answerRequiringAttention.id,
+                        answerRequiringAttention.exercise_id,
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "accept",
+                      )
+                    }
+                  >
+                    {t("button-text-full-points")}
+                  </Button>
+                  <Button size="medium" variant="blue" onClick={() => setOpen(true)}>
+                    {t("button-text-custom-points")}
+                  </Button>
+                  <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="dialog-label">
+                    <DialogTitle> {t("button-text-custom-points")}</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>{t("custom-points-modal-description")}</DialogContentText>
+                      <div>
+                        <Slider
+                          value={typeof sliderValue === "number" ? sliderValue : 0.0}
+                          step={0.1}
+                          min={0.0}
+                          max={exercise_max_points}
+                          onChange={handleSliderChange}
+                          aria-labelledby="input-slider"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          value={sliderValue}
+                          size="small"
+                          onChange={handleInputFieldChange}
+                          // onBlur={handleBlur}
+                          inputProps={{
+                            step: 0.1,
+                            min: 0.0,
+                            max: exercise_max_points,
+                            type: "number",
+                            // eslint-disable-next-line i18next/no-literal-string
+                            "aria-labelledby": "input-slider",
+                          }}
+                        />
+                      </div>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button size="medium" variant="reject" onClick={() => setOpen(false)}>
+                        {t("button-text-cancel")}
+                      </Button>
+                      <Button
+                        size="medium"
+                        variant="primary"
+                        onClick={() =>
+                          handleSubmitAndClose(
+                            answerRequiringAttention.id,
+                            answerRequiringAttention.exercise_id,
+                          )
+                        }
+                      >
+                        {t("button-text-give-custom-points")}
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                  <div
+                    className={css`
+                      margin-left: auto;
+                    `}
+                  >
+                    <Button
+                      className={css`
+                        margin-left: 0.5em;
+                      `}
+                      size="medium"
+                      variant="tertiary"
+                      onClick={() =>
+                        handleControlPanel(
+                          answerRequiringAttention.id,
+                          answerRequiringAttention.exercise_id,
+                          // eslint-disable-next-line i18next/no-literal-string
+                          "flag-as-plagiarism",
+                        )
+                      } // flag as plagiarism
+                    >
+                      {t("button-text-flag-as-plagiarism")}
+                    </Button>
+                  </div>
                 </div>
               </ControlPanel>
             </div>

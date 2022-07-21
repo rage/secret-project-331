@@ -18,6 +18,8 @@
   "status": "Status",
   "spam-flag": "Spam flag",
   "grading": "Grading",
+  "custom-points-modal-description": "Use this prompt to give custom points for the answer.",
+  "button-text-give-custom-points": "Give custom points",
   "button-text-full-points": "Full points",
   "button-text-zero-points": "Zero points",
   "button-text-custom-points": "Custom points",

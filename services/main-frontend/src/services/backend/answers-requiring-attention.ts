@@ -24,16 +24,18 @@ interface Props {
   user_exercise_state_id: string
   exercise_id: string
   action: string
+  manual_points: number | null
 }
 
 export const updateAnswerRequiringAttention = async ({
   user_exercise_state_id,
   exercise_id,
   action,
+  manual_points,
 }: Props): Promise<UserExerciseState> => {
   const response = await mainFrontendClient.put(
     `/submissions/update-answer-requiring-attention`,
-    { user_exercise_state_id, exercise_id, action },
+    { user_exercise_state_id, exercise_id, action, manual_points },
     {
       headers: { "Content-Type": "application/json" },
     },

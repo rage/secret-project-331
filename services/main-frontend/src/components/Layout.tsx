@@ -7,16 +7,14 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
-import SelectField from "../shared-module/components/InputFields/SelectField"
 import LoginControls from "../shared-module/components/LoginControls"
 import { NavBar } from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
 import SkipLink from "../shared-module/components/SkipLink"
 
-const EN = "en"
-const ENGLISH = "English"
-const FI = "fi"
-const SUOMI = "Suomi"
+import LanguageSelection from "./LanguageSelection"
+
+const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 type LayoutProps = {
   children: ReactNode
@@ -38,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   licenseUrl,
 }) => {
   const router = useRouter()
-  const { i18n, t } = useTranslation()
+  const { t } = useTranslation()
 
   return (
     <>
@@ -63,21 +61,7 @@ const Layout: React.FC<LayoutProps> = ({
           // Return to path can be override per page
           // returnToPath={returnToPath ?? returnPath}
         >
-          <SelectField
-            id="language-selection"
-            value={i18n.language}
-            label={t("choose-a-language")}
-            options={[
-              { value: EN, label: ENGLISH },
-              { value: FI, label: SUOMI },
-            ]}
-            onBlur={() => {
-              // No-op
-            }}
-            onChange={(target) => {
-              i18n.changeLanguage(target)
-            }}
-          />
+          <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
           <Menu>
             <LoginControls currentPagePath={router.asPath} />
           </Menu>

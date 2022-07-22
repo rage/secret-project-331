@@ -3,12 +3,10 @@ import type { NextApiRequest, NextApiResponse } from "next"
 
 import { Quiz, QuizAnswer, QuizItem, QuizItemAnswer } from "../../../types/types"
 import { ExerciseTaskGradingResult } from "../../shared-module/bindings"
+import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
 import { nullIfEmptyString, stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 
-interface QuizzesGradingRequest {
-  exercise_spec: Quiz
-  submission_data: QuizAnswer
-}
+type QuizzesGradingRequest = GradingRequest<Quiz, QuizAnswer>
 
 interface OptionAnswerFeedback {
   option_id: string | null

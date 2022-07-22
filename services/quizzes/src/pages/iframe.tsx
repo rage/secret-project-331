@@ -8,8 +8,8 @@ import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/typ
 import { Renderer } from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
-import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { migrateQuiz } from "../util/migrate"
 
 import { ItemAnswerFeedback } from "./api/grade"

@@ -9,7 +9,12 @@ import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
 import LanguageSelection from "../shared-module/components/LanguageSelection"
 import LoginControls from "../shared-module/components/LoginControls"
-import { NavBar } from "../shared-module/components/Navigation/NavBar"
+import {
+  NavBar,
+  NavContainer,
+  NavItem,
+  NavItems,
+} from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
 import SkipLink from "../shared-module/components/SkipLink"
 
@@ -60,7 +65,13 @@ const Layout: React.FC<LayoutProps> = ({
           // Return to path can be override per page
           // returnToPath={returnToPath ?? returnPath}
         >
-          <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+          <NavContainer>
+            <NavItems>
+              <NavItem>
+                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+              </NavItem>
+            </NavItems>
+          </NavContainer>
           <Menu>
             <LoginControls currentPagePath={router.asPath} />
           </Menu>

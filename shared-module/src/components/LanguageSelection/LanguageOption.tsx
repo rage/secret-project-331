@@ -12,30 +12,33 @@ export interface LanguageOptionProps {
 const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
   return (
     <li
+      // I don't know what causes it, but !important is required here for some pages (like
+      // organization courses page) but not others for some reason.
       className={css`
-        text-decoration: none;
-        list-style: none;
-        margin: 0;
-        background: ${baseTheme.colors.clear[200]};
-        border-bottom: 2px solid #e1e1e1;
-        padding: 0.7rem 1rem;
-        min-width: 10rem;
+        text-decoration: none !important;
+        list-style: none !important;
+        margin: 0 !important;
+        background: ${baseTheme.colors.clear[200]} !important;
+        padding: 0.7rem 1rem !important;
+        min-width: 10rem !important;
+        border-width: 0 0 2px !important;
+        border-style: solid !important;
+        border-color: #e1e1e1 !important;
       `}
     >
       <Button
         className={css`
-          text-decoration: none;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          font-size: 16px;
-          background: inherit;
-          color: ${baseTheme.colors.green[500]};
-          border: none;
+          text-decoration: none !important;
+          list-style: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          font-size: 16px !important;
+          background: ${baseTheme.colors.clear[200]} !important;
+          color: ${baseTheme.colors.green[500]} !important;
+          border: 0 !important;
 
           :hover {
-            background: inherit;
-            color: ${baseTheme.colors.green[700]};
+            color: ${baseTheme.colors.green[700]} !imporant;
           }
         `}
         variant="primary"

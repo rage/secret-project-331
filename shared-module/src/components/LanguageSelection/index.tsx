@@ -25,7 +25,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
-  const { styles: popperStyles, attributes } = usePopper(referenceElement, popperElement, {
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement,
     modifiers: [{ name: ARROW, options: { element: arrowElement } }],
   })
@@ -60,8 +60,15 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
         />{" "}
         {t("language")}
       </button>
-      {/* eslint-disable-next-line react/forbid-dom-props */}
-      <div ref={setPopperElement} style={popperStyles.popper} {...attributes.popper}>
+      <div
+        className={css`
+          z-index: 800;
+        `}
+        ref={setPopperElement}
+        // eslint-disable-next-line react/forbid-dom-props
+        style={styles.popper}
+        {...attributes.popper}
+      >
         <LanguageMenu visible={visible}>
           <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
             <ul
@@ -75,7 +82,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
           </OutsideClickHandler>
         </LanguageMenu>
         {/* eslint-disable-next-line react/forbid-dom-props */}
-        <div ref={setArrowElement} style={popperStyles.arrow} />
+        <div ref={setArrowElement} style={styles.arrow} />
       </div>
     </>
   )

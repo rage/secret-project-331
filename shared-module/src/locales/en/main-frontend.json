@@ -346,5 +346,11 @@
   "confirm-email-address-instructions-2": "Confirm your mooc.fi account email address.",
   "confirm-email-address-instructions-3": "Please go to your email and follow the link included in the mail to confirm your email address.",
   "label-valid": "Valid",
-  "error-no-public-spec": "No public spec"
+  "error-no-public-spec": "No public spec",
+  "error-no-model-solution-spec": "No model solution spec",
+  "error-no-grading": "No grading",
+  "title-user-answer": "User answer",
+  "title-grading": "Grading",
+  "error-no-user-answer": "No user answer. Please make a submission in the exercise view.",
+  "error-no-grading-long": "No grading received yet. Please make a submission in the exercise view."
 }

@@ -3,7 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { IframeState } from "../../../../shared-module/iframe-protocol-types"
+import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
 
 interface ExerciseTaskIframeProps {
   url: string

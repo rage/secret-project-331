@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import { Placement } from "@popperjs/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import OutsideClickHandler from "react-outside-click-handler"
 import { usePopper } from "react-popper"
 
 import LanguageMenu from "./LanguageMenu"
@@ -40,16 +41,18 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
       </button>
       {/* eslint-disable-next-line react/forbid-dom-props */}
       <div ref={setPopperElement} style={popperStyles.popper} {...attributes.popper}>
-        <LanguageMenu visible={visible}>
-          <ul
-            className={css`
-              padding: 0;
-            `}
-          >
-            <LanguageOption label={ENGLISH} onClick={() => handleLanguageChange(EN)} />
-            <LanguageOption label={SUOMI} onClick={() => handleLanguageChange(FI)} />
-          </ul>
-        </LanguageMenu>
+        <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
+          <LanguageMenu visible={visible}>
+            <ul
+              className={css`
+                padding: 0;
+              `}
+            >
+              <LanguageOption label={ENGLISH} onClick={() => handleLanguageChange(EN)} />
+              <LanguageOption label={SUOMI} onClick={() => handleLanguageChange(FI)} />
+            </ul>
+          </LanguageMenu>
+        </OutsideClickHandler>
         {/* eslint-disable-next-line react/forbid-dom-props */}
         <div ref={setArrowElement} style={popperStyles.arrow} />
       </div>

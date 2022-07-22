@@ -12,4 +12,5 @@ export const respondToOrLarger = {
   xxl: mediaQuery(87.5), // 1400px
   xxxl: mediaQuery(100), // 1600px
   xxxxl: mediaQuery(125), // 2000px
+  xxxxxl: mediaQuery(150), // 2400px
 }

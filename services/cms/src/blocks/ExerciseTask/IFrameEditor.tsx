@@ -5,9 +5,9 @@ import { useMemoOne } from "use-memo-one"
 
 import { SIDEBAR_WIDTH_PX } from "../../components/Layout"
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
+import { IframeState } from "../../shared-module/exercise-service-protocol-types"
+import { isCurrentStateMessage } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
-import { IframeState } from "../../shared-module/iframe-protocol-types"
-import { isCurrentStateMessage } from "../../shared-module/iframe-protocol-types.guard"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withNoSsr from "../../shared-module/utils/withNoSsr"
 

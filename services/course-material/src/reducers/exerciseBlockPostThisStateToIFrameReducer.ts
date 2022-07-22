@@ -3,7 +3,8 @@ import {
   CourseMaterialExerciseTask,
   StudentExerciseSlideSubmissionResult,
 } from "../shared-module/bindings"
-import { IframeState } from "../shared-module/iframe-protocol-types"
+import { IframeState } from "../shared-module/exercise-service-protocol-types"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../shared-module/utils/typeMappter"
 
 export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"
@@ -44,7 +45,9 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
               data: {
                 public_spec: exerciseTask.public_spec,
                 model_solution_spec: exerciseTask.model_solution_spec,
-                grading: exerciseTask.previous_submission_grading,
+                grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                  exerciseTask.previous_submission_grading,
+                ),
                 user_answer: exerciseTask.previous_submission.data_json,
               },
             }
@@ -69,7 +72,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           view_type: "view-submission",
           exercise_task_id: submissionResult.submission.exercise_task_id,
           data: {
-            grading: submissionResult.grading,
+            grading: exerciseTaskGradingToExerciseTaskGradingResult(submissionResult.grading),
             model_solution_spec: submissionResult.model_solution_spec,
             public_spec,
             user_answer: submissionResult.submission.data_json,

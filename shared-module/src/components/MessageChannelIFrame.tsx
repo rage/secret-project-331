@@ -3,9 +3,16 @@ import { isEqual } from "lodash"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  CurrentStateMessage,
+  IframeState,
+  SetStateMessage,
+} from "../exercise-service-protocol-types"
+import {
+  isCurrentStateMessage,
+  isHeightChangedMessage,
+} from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
-import { CurrentStateMessage, IframeState, SetStateMessage } from "../iframe-protocol-types"
-import { isCurrentStateMessage, isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
 import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
 

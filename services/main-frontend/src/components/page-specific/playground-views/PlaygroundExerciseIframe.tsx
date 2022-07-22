@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { UseQueryResult } from "react-query"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
-import { CurrentStateMessage } from "../../../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundExerciseIframeProps {
   url: string

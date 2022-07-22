@@ -17,6 +17,7 @@ import PeerReviewProgress from "../../../../../shared-module/components/PeerRevi
 import Spinner from "../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerReviewQuestion from "./PeerReviewQuestion"
@@ -199,7 +200,9 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
                       view_type: "view-submission",
                       exercise_task_id: course_material_exercise_task.id,
                       data: {
-                        grading: course_material_exercise_task.previous_submission_grading,
+                        grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                          course_material_exercise_task.previous_submission_grading,
+                        ),
                         user_answer: course_material_exercise_task.previous_submission?.data_json,
                         public_spec: course_material_exercise_task.public_spec,
                         model_solution_spec: course_material_exercise_task.model_solution_spec,

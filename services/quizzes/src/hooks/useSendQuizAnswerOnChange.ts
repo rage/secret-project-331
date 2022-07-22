@@ -2,7 +2,7 @@
 import { useEffect } from "react"
 
 import { WidgetReducerState } from "../components/widget"
-import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 
 const CURRENT_STATE = "current-state"
 

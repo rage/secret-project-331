@@ -10,11 +10,17 @@ import { usePopper } from "react-popper"
 import LanguageMenu from "./LanguageMenu"
 import LanguageOption from "./LanguageOption"
 
+interface LanguageOption {
+  tag: string
+  name: string
+}
+
+const LANGUAGES: LanguageOption[] = [
+  { tag: "en-US", name: "English" },
+  { tag: "fi-FI", name: "Suomi" },
+]
+
 const ARROW = "arrow"
-const EN = "en"
-const ENGLISH = "English"
-const FI = "fi"
-const SUOMI = "Suomi"
 
 export interface LanguageSelectionProps {
   placement: Placement
@@ -76,8 +82,13 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
                 padding: 0;
               `}
             >
-              <LanguageOption label={ENGLISH} onClick={() => handleLanguageChange(EN)} />
-              <LanguageOption label={SUOMI} onClick={() => handleLanguageChange(FI)} />
+              {LANGUAGES.map((x) => (
+                <LanguageOption
+                  key={x.tag}
+                  label={x.name}
+                  onClick={() => handleLanguageChange(x.tag)}
+                />
+              ))}
             </ul>
           </OutsideClickHandler>
         </LanguageMenu>

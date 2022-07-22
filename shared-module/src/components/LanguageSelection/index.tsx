@@ -1,4 +1,6 @@
 import { css } from "@emotion/css"
+import { faGlobe } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Placement } from "@popperjs/core"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -36,13 +38,32 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
 
   return (
     <>
-      <button type="button" ref={setReferenceElement} onClick={() => setVisible(!visible)}>
-        {t("choose-a-language")}
+      <button
+        type="button"
+        className={css`
+          background: none;
+          border: none;
+          padding: 0.5rem 1rem;
+
+          :hover {
+            cursor: pointer;
+          }
+        `}
+        ref={setReferenceElement}
+        onClick={() => setVisible(!visible)}
+      >
+        <FontAwesomeIcon
+          className={css`
+            margin-right: 0.5rem;
+          `}
+          icon={faGlobe}
+        />{" "}
+        {t("language")}
       </button>
       {/* eslint-disable-next-line react/forbid-dom-props */}
       <div ref={setPopperElement} style={popperStyles.popper} {...attributes.popper}>
-        <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
-          <LanguageMenu visible={visible}>
+        <LanguageMenu visible={visible}>
+          <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
             <ul
               className={css`
                 padding: 0;
@@ -51,8 +72,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
               <LanguageOption label={ENGLISH} onClick={() => handleLanguageChange(EN)} />
               <LanguageOption label={SUOMI} onClick={() => handleLanguageChange(FI)} />
             </ul>
-          </LanguageMenu>
-        </OutsideClickHandler>
+          </OutsideClickHandler>
+        </LanguageMenu>
         {/* eslint-disable-next-line react/forbid-dom-props */}
         <div ref={setArrowElement} style={popperStyles.arrow} />
       </div>

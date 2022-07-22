@@ -94,7 +94,6 @@ const Layout: React.FC<LayoutProps> = ({
           </Menu>
         </NavBar>
 
-        {/* Do not touch flex */}
         <main id="maincontent">
           <Centered variant="narrow">{children}</Centered>
         </main>

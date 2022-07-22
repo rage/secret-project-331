@@ -1,6 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import type { NextApiRequest, NextApiResponse } from "next"
 
+import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
 import { Alternative, Answer, ClientErrorResponse } from "../../util/stateInterfaces"
 
 export default (
@@ -27,13 +28,10 @@ export interface ExerciseFeedback {
   selectedOptionIsCorrect: boolean
 }
 
-interface GradingRequest {
-  exercise_spec: Alternative[]
-  submission_data: Answer
-}
+type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
 const handlePost = (req: NextApiRequest, res: NextApiResponse<GradingResult>) => {
-  const gradingRequest: GradingRequest = req.body
+  const gradingRequest: ServiceGradingRequest = req.body
 
   if (!gradingRequest?.submission_data?.selectedOptionId) {
     return res.status(200).json({

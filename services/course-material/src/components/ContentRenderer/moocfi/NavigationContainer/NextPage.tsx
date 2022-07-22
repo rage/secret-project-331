@@ -32,7 +32,11 @@ const NextPage: React.FC<NextPageProps> = ({
     () => fetchPageNavigationData(currentPageId),
     {
       onSuccess: (data) => {
-        if (!data.next_page || data.next_page.chapter_opens_at === null) {
+        if (!data.next_page) {
+          return
+        }
+        if (data.next_page.chapter_opens_at === null) {
+          setnextPageChapterOpen(true)
           return
         }
         const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)

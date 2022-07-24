@@ -59,35 +59,35 @@ async fn update_submission(
         Res::Exercise(exercise_id),
     )
     .await?;
-    let updated_user_exercise_state;
+    let points_given;
+    let mut suspected_of_plagiarism = false;
     if action == "accept" {
         let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
-        let res = models::exercise_slide_submissions::update_user_exercise_state(
-            &mut conn,
-            user_exercise_state_id,
-            exercise.score_maximum as f32,
-        )
-        .await?;
-        updated_user_exercise_state = res
+        points_given = exercise.score_maximum as f32;
     } else if action == "reject" {
-        let res = models::exercise_slide_submissions::update_user_exercise_state(
-            &mut conn,
-            user_exercise_state_id,
-            0.0,
-        )
-        .await?;
-        updated_user_exercise_state = res
+        points_given = 0.0;
     } else if action == "manual-points" {
-        let res = models::exercise_slide_submissions::update_user_exercise_state(
-            &mut conn,
-            user_exercise_state_id,
-            manual_points.unwrap_or(0.0),
-        )
-        .await?;
-        updated_user_exercise_state = res
+        points_given = manual_points.unwrap_or(0.0);
+    } else if action == "flag-as-plagiarism" {
+        points_given = 0.0;
+        suspected_of_plagiarism = true;
     } else {
         return Err(ControllerError::BadRequest("Invalid query".to_string()));
     }
+    let updated_user_exercise_state =
+        models::exercise_slide_submissions::update_user_exercise_state(
+            &mut conn,
+            user_exercise_state_id,
+            points_given,
+        )
+        .await?;
+
+    models::exercise_slide_submissions::add_teacher_grading_decision(
+        &mut conn,
+        user_exercise_state_id,
+        suspected_of_plagiarism,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(updated_user_exercise_state))
 }

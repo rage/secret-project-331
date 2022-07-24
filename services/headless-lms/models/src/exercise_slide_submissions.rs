@@ -26,6 +26,17 @@ pub struct NewExerciseSlideSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherGradingDecision {
+    pub id: Uuid,
+    pub user_exercise_state_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub suspected_plagiarism: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -625,6 +636,24 @@ pub async fn update_user_exercise_state(
         "#,
         user_exercise_state_id,
         points_given,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn add_teacher_grading_decision(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    suspected_of_plagiarism: bool,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism) VALUES ($1, $2) RETURNING *;
+        "#,
+        user_exercise_state_id,
+        suspected_of_plagiarism
     )
     .fetch_one(conn)
     .await?;

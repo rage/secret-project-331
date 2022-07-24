@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
-import { CurrentStateMessage } from "../../../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string

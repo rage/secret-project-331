@@ -157,7 +157,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             course_instance_id: instance.id,
             course_module_id: course_module,
             user_id: user_1,
-            completion_date: Utc.ymd(2022, 06, 13).and_hms(0, 0, 0),
+            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -169,6 +169,13 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     )
     .await
     .unwrap();
+    headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
+        conn,
+        course_module_completion_id,
+        true,
+    )
+    .await
+    .unwrap();
     let course_module_completion_2_id = headless_lms_models::course_module_completions::insert(
         conn,
         &NewCourseModuleCompletion {
@@ -176,7 +183,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             course_instance_id: instance.id,
             course_module_id: course_module,
             user_id: user_2,
-            completion_date: Utc.ymd(2022, 06, 13).and_hms(0, 0, 0),
+            completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
             completion_language: "en-US".to_string(),
             eligible_for_ects: true,
@@ -185,6 +192,13 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             passed: true,
         },
         None,
+    )
+    .await
+    .unwrap();
+    headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
+        conn,
+        course_module_completion_2_id,
+        true,
     )
     .await
     .unwrap();

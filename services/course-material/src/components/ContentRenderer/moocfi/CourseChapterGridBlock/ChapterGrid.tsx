@@ -89,7 +89,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
                           margin-right: auto;
 
                           ${respondToOrLarger.lg} {
-                            width: 60vw;
+                            max-width: 1075px;
                           }
                         `}
                       />

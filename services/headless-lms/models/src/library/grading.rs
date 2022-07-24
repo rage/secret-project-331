@@ -404,7 +404,7 @@ async fn update_user_exercise_state(
         user_exercise_states::update(conn, user_exercise_state_update).await?;
     if let Some(course_instance_id) = user_exercise_state.course_instance_id {
         let course_module = course_modules::get_by_exercise_id(conn, exercise.id).await?;
-        super::progressing::grant_automatic_completion_if_eligible(
+        super::progressing::update_automatic_completion_status_and_grant_if_eligible(
             conn,
             &course_module,
             course_instance_id,

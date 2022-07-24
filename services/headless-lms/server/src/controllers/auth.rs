@@ -1,5 +1,5 @@
 /*!
-Handlers for HTTP requests to `/api/v0/login`.
+Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use actix_governor::{Governor, GovernorConfigBuilder};
@@ -16,7 +16,9 @@ use url::form_urlencoded::Target;
 
 use crate::{
     controllers::prelude::*,
-    domain::authorization::{self, skip_authorize, ActionOnResource},
+    domain::authorization::{
+        self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+    },
     OAuthClient,
 };
 
@@ -79,6 +81,132 @@ pub async fn authorize_action_on_resource(
         let false_token = skip_authorize()?;
         false_token.authorized_ok(web::Json(false))
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CreateAccountDetails {
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub language: String,
+    pub password: String,
+    pub password_confirmation: String,
+}
+
+/**
+POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
+
+# Example
+```http
+POST /api/v0/auth/signup HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "language": "en",
+  "password": "hunter42",
+  "password_confirmation": "hunter42"
+}
+```
+*/
+#[instrument(skip(session, pool, client, payload))]
+pub async fn signup(
+    session: Session,
+    payload: web::Json<CreateAccountDetails>,
+    pool: web::Data<PgPool>,
+    client: web::Data<OAuthClient>,
+    user: Option<AuthUser>,
+) -> ControllerResult<HttpResponse> {
+    if user.is_none() {
+        // First create the actual user to tmc.mooc.fi and then fetch it from mooc.fi
+        let user_details = payload.0;
+        post_new_user_to_moocfi(&user_details).await?;
+
+        let token = client
+            .exchange_password(
+                &ResourceOwnerUsername::new(user_details.email),
+                &ResourceOwnerPassword::new(user_details.password),
+            )
+            .request_async(async_http_client_with_headers)
+            .await;
+        let token = match token {
+            Ok(token) => token,
+            Err(error) => {
+                info!(token_error = ?error, "Token error when fetching");
+                return Err(ControllerError::Unauthorized(
+                    "Incorrect email or password.".to_string(),
+                ));
+            }
+        };
+
+        let mut conn = pool.acquire().await?;
+        let user = get_user_from_moocfi(&token, &mut conn).await;
+        if let Ok(user) = user {
+            let token = skip_authorize()?;
+            authorization::remember(&session, user)?;
+            token.authorized_ok(HttpResponse::Ok().finish())
+        } else {
+            Err(ControllerError::Unauthorized(
+                "Incorrect email or password.".to_string().finish(),
+            ))
+        }
+    } else {
+        Err(ControllerError::BadRequest(
+            "Cannot create a new account when signed in.".to_string(),
+        ))
+    }
+}
+
+/**
+POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
+Returns booleans for the authorizations in the same order as the input.
+**/
+#[generated_doc]
+#[instrument(skip(pool, payload,))]
+pub async fn authorize_multiple_actions_on_resources(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    payload: web::Json<Vec<ActionOnResource>>,
+) -> ControllerResult<web::Json<Vec<bool>>> {
+    let mut conn = pool.acquire().await?;
+    let input = payload.into_inner();
+    let mut results = Vec::with_capacity(input.len());
+    if let Some(user) = user {
+        // Prefetch roles so that we can do multiple authorizations without repeteadly querying the database.
+        let user_roles =
+            models::roles::get_roles(&mut conn, user.id)
+                .await
+                .map_err(|original_err| {
+                    ControllerError::InternalServerError(original_err.to_string())
+                })?;
+
+        for action_on_resource in input {
+            if (authorize_with_fetched_list_of_roles(
+                &mut conn,
+                action_on_resource.action,
+                Some(user.id),
+                action_on_resource.resource,
+                &user_roles,
+            )
+            .await)
+                .is_ok()
+            {
+                results.push(true);
+            } else {
+                results.push(false);
+            }
+        }
+    } else {
+        // Never authorize anonymous user
+        for _action_on_resource in input {
+            results.push(false);
+        }
+    }
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(results))
 }
 
 /**
@@ -183,6 +311,47 @@ pub async fn logged_in(session: Session) -> web::Json<bool> {
 
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
+/// Posts new user account to tmc.mooc.fi.
+///
+/// Based on implementation from https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts
+pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
+    let tmc_api_url = "https://tmc.mooc.fi/api/v8";
+    let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")
+        .expect("TMC_ACCOUNT_CREATION_ORIGIN must be defined");
+    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    let tmc_client = Client::default();
+    let json = serde_json::json!({
+        "user": {
+            "email": user_details.email,
+            "first_name": user_details.first_name,
+            "last_name": user_details.last_name,
+            "password": user_details.password,
+            "password_confirmation": user_details.password_confirmation
+        },
+        "user_field": {
+            "first_name": user_details.first_name,
+            "last_name": user_details.last_name
+        },
+        "origin": origin,
+        "language": user_details.language
+    });
+    let res = tmc_client
+        .post(format!("{}/users", tmc_api_url))
+        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .json(&json)
+        .send()
+        .await
+        .context("Failed to send request to https://tmc.mooc.fi")?;
+    if res.status().is_success() {
+        Ok(())
+    } else {
+        Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
+    }
+}
+
 pub async fn get_user_from_moocfi(
     token: &LoginToken,
     conn: &mut PgConnection,
@@ -264,11 +433,20 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .finish()
         .unwrap();
     cfg.service(
+        web::resource("/signup")
+            .wrap(Governor::new(&governor_conf))
+            .to(signup),
+    )
+    .service(
         web::resource("/login")
             .wrap(Governor::new(&governor_conf))
             .to(login),
     )
     .route("/logout", web::post().to(logout))
     .route("/logged-in", web::get().to(logged_in))
-    .route("/authorize", web::post().to(authorize_action_on_resource));
+    .route("/authorize", web::post().to(authorize_action_on_resource))
+    .route(
+        "/authorize-multiple",
+        web::post().to(authorize_multiple_actions_on_resources),
+    );
 }

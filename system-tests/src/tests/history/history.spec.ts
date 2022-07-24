@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectPath from "../../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
@@ -28,7 +29,7 @@ test("history test", async ({ page, headless }) => {
   // Click text=default
   await page.click("text=default")
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([

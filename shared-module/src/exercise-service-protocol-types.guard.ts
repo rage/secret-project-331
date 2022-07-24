@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 /*
- * Generated type guards for "iframe-protocol-types.ts".
+ * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
 import {
@@ -12,7 +12,7 @@ import {
   IframeViewType,
   ReadyMessage,
   SetStateMessage,
-} from "./iframe-protocol-types"
+} from "./exercise-service-protocol-types"
 
 export function isCurrentStateMessage(
   obj: any,
@@ -74,34 +74,15 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
           typeof obj.data.grading === "function") &&
-          typeof obj.data.grading.id === "string" &&
-          obj.data.grading.created_at instanceof Date &&
-          obj.data.grading.updated_at instanceof Date &&
-          typeof obj.data.grading.exercise_task_submission_id === "string" &&
-          (obj.data.grading.course_id === null || typeof obj.data.grading.course_id === "string") &&
-          (obj.data.grading.exam_id === null || typeof obj.data.grading.exam_id === "string") &&
-          typeof obj.data.grading.exercise_id === "string" &&
-          typeof obj.data.grading.exercise_task_id === "string" &&
-          typeof obj.data.grading.grading_priority === "number" &&
-          (obj.data.grading.score_given === null ||
-            typeof obj.data.grading.score_given === "number") &&
           (obj.data.grading.grading_progress === "Failed" ||
             obj.data.grading.grading_progress === "NotReady" ||
             obj.data.grading.grading_progress === "PendingManual" ||
             obj.data.grading.grading_progress === "Pending" ||
             obj.data.grading.grading_progress === "FullyGraded") &&
-          (obj.data.grading.unscaled_score_given === null ||
-            typeof obj.data.grading.unscaled_score_given === "number") &&
-          (obj.data.grading.unscaled_score_maximum === null ||
-            typeof obj.data.grading.unscaled_score_maximum === "number") &&
-          (obj.data.grading.grading_started_at === null ||
-            obj.data.grading.grading_started_at instanceof Date) &&
-          (obj.data.grading.grading_completed_at === null ||
-            obj.data.grading.grading_completed_at instanceof Date) &&
+          typeof obj.data.grading.score_given === "number" &&
+          typeof obj.data.grading.score_maximum === "number" &&
           (obj.data.grading.feedback_text === null ||
-            typeof obj.data.grading.feedback_text === "string") &&
-          (obj.data.grading.deleted_at === null ||
-            obj.data.grading.deleted_at instanceof Date)))) ||
+            typeof obj.data.grading.feedback_text === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.message === "set-state" &&
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -138,34 +119,15 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
           typeof obj.data.grading === "function") &&
-          typeof obj.data.grading.id === "string" &&
-          obj.data.grading.created_at instanceof Date &&
-          obj.data.grading.updated_at instanceof Date &&
-          typeof obj.data.grading.exercise_task_submission_id === "string" &&
-          (obj.data.grading.course_id === null || typeof obj.data.grading.course_id === "string") &&
-          (obj.data.grading.exam_id === null || typeof obj.data.grading.exam_id === "string") &&
-          typeof obj.data.grading.exercise_id === "string" &&
-          typeof obj.data.grading.exercise_task_id === "string" &&
-          typeof obj.data.grading.grading_priority === "number" &&
-          (obj.data.grading.score_given === null ||
-            typeof obj.data.grading.score_given === "number") &&
           (obj.data.grading.grading_progress === "Failed" ||
             obj.data.grading.grading_progress === "NotReady" ||
             obj.data.grading.grading_progress === "PendingManual" ||
             obj.data.grading.grading_progress === "Pending" ||
             obj.data.grading.grading_progress === "FullyGraded") &&
-          (obj.data.grading.unscaled_score_given === null ||
-            typeof obj.data.grading.unscaled_score_given === "number") &&
-          (obj.data.grading.unscaled_score_maximum === null ||
-            typeof obj.data.grading.unscaled_score_maximum === "number") &&
-          (obj.data.grading.grading_started_at === null ||
-            obj.data.grading.grading_started_at instanceof Date) &&
-          (obj.data.grading.grading_completed_at === null ||
-            obj.data.grading.grading_completed_at instanceof Date) &&
+          typeof obj.data.grading.score_given === "number" &&
+          typeof obj.data.grading.score_maximum === "number" &&
           (obj.data.grading.feedback_text === null ||
-            typeof obj.data.grading.feedback_text === "string") &&
-          (obj.data.grading.deleted_at === null ||
-            obj.data.grading.deleted_at instanceof Date)))) ||
+            typeof obj.data.grading.feedback_text === "string")))) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&

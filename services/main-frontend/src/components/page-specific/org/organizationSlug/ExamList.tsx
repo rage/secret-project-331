@@ -42,7 +42,7 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
   }
 
-  if (getOrgExams.isIdle || getOrgExams.isLoading) {
+  if (getOrgExams.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

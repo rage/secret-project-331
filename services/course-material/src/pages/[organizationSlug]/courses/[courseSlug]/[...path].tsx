@@ -49,7 +49,7 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     if (getCoursePageByPath.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
-    } else if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+    } else if (getCoursePageByPath.isLoading) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     } else {
@@ -69,7 +69,6 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     getCoursePageByPath.data,
     getCoursePageByPath.error,
     getCoursePageByPath.isError,
-    getCoursePageByPath.isIdle,
     getCoursePageByPath.isLoading,
     getCoursePageByPath.isSuccess,
   ])
@@ -114,7 +113,7 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+  if (getCoursePageByPath.isLoading) {
     return <Spinner variant={"small"} />
   }
 

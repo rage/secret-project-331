@@ -28,12 +28,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
     return <ErrorBanner variant={"readOnly"} error={courseStructure.error} />
   }
 
-  if (
-    getCourseExercises.isLoading ||
-    getCourseExercises.isIdle ||
-    courseStructure.isLoading ||
-    courseStructure.isIdle
-  ) {
+  if (getCourseExercises.isLoading || courseStructure.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

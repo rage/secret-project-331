@@ -38,7 +38,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getOrganizations.isError && (
         <ErrorBanner variant={"readOnly"} error={getOrganizations.error} />
       )}
-      {(getOrganizations.isLoading || getOrganizations.isIdle) && <Spinner variant={"medium"} />}
+      {getOrganizations.isLoading && <Spinner variant={"medium"} />}
       {getOrganizations.isSuccess && (
         <div
           className={css`

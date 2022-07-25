@@ -52,8 +52,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
           {getPagesInChapterExcludeFrontpage.isError && (
             <ErrorBanner variant={"readOnly"} error={getPagesInChapterExcludeFrontpage.error} />
           )}
-          {(getPagesInChapterExcludeFrontpage.isLoading ||
-            getPagesInChapterExcludeFrontpage.isIdle) && <Spinner variant={"medium"} />}
+          {getPagesInChapterExcludeFrontpage.isLoading && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
               {getPagesInChapterExcludeFrontpage.data

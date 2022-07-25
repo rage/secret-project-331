@@ -31,7 +31,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     // eslint-disable-next-line i18next/no-literal-string
-    queryClient.invalidateQueries(`course-${courseId}-course-instances`)
+    queryClient.invalidateQueries([`course-${courseId}-course-instances`])
   }
 
   return (
@@ -39,9 +39,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && (
         <div>
           <h2>{t("title-all-course-instances")}</h2>

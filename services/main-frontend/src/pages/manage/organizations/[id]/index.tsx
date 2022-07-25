@@ -23,7 +23,7 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
 
   let contents
-  if (organization.isLoading || organization.isIdle) {
+  if (organization.isLoading) {
     contents = <Spinner variant={"medium"} />
   } else if (organization.isError) {
     contents = <ErrorBanner variant={"readOnly"} error={organization.error} />

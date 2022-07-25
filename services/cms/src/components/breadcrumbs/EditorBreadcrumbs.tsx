@@ -26,7 +26,7 @@ const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
     return <ErrorBanner variant={"readOnly"} error={data.error} />
   }
 
-  if (data.isLoading || data.isIdle) {
+  if (data.isLoading) {
     return <Spinner variant={"small"} />
   }
 

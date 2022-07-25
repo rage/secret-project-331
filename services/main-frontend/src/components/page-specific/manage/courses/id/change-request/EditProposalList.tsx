@@ -40,7 +40,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
   }
 
-  if (getEditProposalCount.isLoading || getEditProposalCount.isIdle) {
+  if (getEditProposalCount.isLoading) {
     return <Spinner variant="medium" />
   }
 

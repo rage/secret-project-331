@@ -55,9 +55,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             )}
           </>
         )}
-        {(getOrganizationBySlug.isLoading || getOrganizationBySlug.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getOrganizationBySlug.isLoading && <Spinner variant={"medium"} />}
         {getOrganizationBySlug.isError && (
           <ErrorBanner variant={"readOnly"} error={getOrganizationBySlug.error} />
         )}

@@ -91,7 +91,7 @@ const CourseInstancePointsList: React.FC<
           {t("point-summary")}: {courseInstanceId}
         </h2>
         {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
-        {(getPointsList.isLoading || getPointsList.isIdle) && <Spinner variant={"medium"} />}
+        {getPointsList.isLoading && <Spinner variant={"medium"} />}
         {getPointsList.isSuccess && (
           <>
             <div

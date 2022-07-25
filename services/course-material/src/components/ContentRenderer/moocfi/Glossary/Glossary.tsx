@@ -17,7 +17,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
 
   const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
 
-  if (glossary.isIdle || glossary.isLoading) {
+  if (glossary.isLoading) {
     return <Spinner variant={"small"} />
   }
 

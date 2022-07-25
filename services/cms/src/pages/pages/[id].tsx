@@ -71,7 +71,7 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <Layout>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
+      {getPage.isLoading && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
         <PageEditor
           data={getPage.data}

@@ -116,7 +116,7 @@ const ExerciseBlock: React.FC<
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading || getCourseMaterialExercise.isIdle) {
+  if (getCourseMaterialExercise.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

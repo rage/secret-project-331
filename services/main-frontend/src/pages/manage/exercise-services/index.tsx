@@ -88,9 +88,7 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         {getExerciseServices.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
         )}
-        {(getExerciseServices.isLoading || getExerciseServices.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
         {getExerciseServices.isSuccess && (
           <>
             <ExerciseServiceContainer

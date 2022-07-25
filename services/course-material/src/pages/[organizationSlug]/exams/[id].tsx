@@ -72,7 +72,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     await handleRefresh()
   }, [handleRefresh])
 
-  if (exam.isIdle || exam.isLoading) {
+  if (exam.isLoading) {
     return <Spinner variant="medium" />
   }
 

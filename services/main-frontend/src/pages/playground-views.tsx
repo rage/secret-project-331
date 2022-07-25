@@ -366,7 +366,9 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
               )}
               {publicSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {publicSpecQuery.isIdle && <p>{t("error-cannot-load-with-the-given-inputs")}</p>}
+              {publicSpecQuery.fetchStatus === "idle" && (
+                <p>{t("error-cannot-load-with-the-given-inputs")}</p>
+              )}
               {publicSpecQuery.isSuccess && (
                 <StyledPre>{JSON.stringify(publicSpecQuery.data, undefined, 2)}</StyledPre>
               )}
@@ -383,7 +385,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
               )}
               {modelSolutionSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {modelSolutionSpecQuery.isIdle && (
+              {modelSolutionSpecQuery.fetchStatus === "idle" && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {modelSolutionSpecQuery.isSuccess && (

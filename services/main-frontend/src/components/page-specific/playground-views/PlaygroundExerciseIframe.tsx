@@ -21,7 +21,7 @@ const PlaygroundExerciseIframe: React.FC<
   React.PropsWithChildren<PlaygroundExerciseIframeProps>
 > = ({ url, publicSpecQuery, setCurrentStateReceivedFromIframe, showIframeBorders }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError || publicSpecQuery.isIdle) {
+  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
   // Makes sure the iframe renders again when the data changes

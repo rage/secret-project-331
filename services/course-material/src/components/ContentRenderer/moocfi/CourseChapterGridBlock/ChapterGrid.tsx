@@ -64,9 +64,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}
-      {(getChaptersInCourse.isLoading || getChaptersInCourse.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
       {getChaptersInCourse.isSuccess && (
         <>
           {getChaptersInCourse.data.modules

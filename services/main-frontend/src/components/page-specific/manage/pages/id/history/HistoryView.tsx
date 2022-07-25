@@ -65,9 +65,7 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
       {getCurrentPageHistory.isError && (
         <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
       )}
-      {(getCurrentPageHistory.isLoading || getCurrentPageHistory.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
       {getCurrentPageHistory.isSuccess && (
         <div>
           <p

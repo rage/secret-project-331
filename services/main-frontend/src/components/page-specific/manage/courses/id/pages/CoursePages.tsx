@@ -20,9 +20,7 @@ const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
       {getCourseStructure.isError && (
         <ErrorBanner variant={"link"} error={getCourseStructure.error} />
       )}
-      {(getCourseStructure.isLoading || getCourseStructure.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCourseStructure.isLoading && <Spinner variant={"medium"} />}
       {getCourseStructure.isSuccess && (
         <ManageCourseStructure
           courseStructure={getCourseStructure.data}

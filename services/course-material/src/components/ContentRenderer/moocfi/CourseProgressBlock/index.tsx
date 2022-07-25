@@ -39,9 +39,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
-      {(getUserCourseProgress.isLoading || getUserCourseProgress.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
         <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />
       )}

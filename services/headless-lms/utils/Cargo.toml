@@ -20,7 +20,7 @@ tokio-stream = "0.1.9"
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.21"
 # A library to generate and parse UUIDs.
-uuid = { version = "0.8.2", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.1.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.137", features = ["derive"] }
 # Date and time library for Rust
@@ -29,7 +29,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 serde_json = "1.0.81"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
 # Using a fork until this gets merged: https://github.com/ThouCheese/cloud-storage-rs/pull/101
-cloud-storage = { version = "0.11.1", default_features = false, features = ["rustls-tls"] }
+cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"
 # Type erasure for async trait methods
@@ -45,7 +45,7 @@ walkdir = "2.3.2"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.2.2"
 # Application-level tracing for Rust.
-tracing = "0.1.34"
+tracing = "0.1.35"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "71bba3a18cdc5bc02c63b2772fd5324b1b07227b", features = [
   "chrono-impl",

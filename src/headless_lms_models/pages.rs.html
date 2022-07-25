@@ -2415,6 +2415,12 @@
 <span id="2410">2410</span>
 <span id="2411">2411</span>
 <span id="2412">2412</span>
+<span id="2413">2413</span>
+<span id="2414">2414</span>
+<span id="2415">2415</span>
+<span id="2416">2416</span>
+<span id="2417">2417</span>
+<span id="2418">2418</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -2530,6 +2536,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PageRoutingData</span> {
     <span class="kw">pub</span> <span class="ident">url_path</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">page_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">chapter_number</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">chapter_opens_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -3652,10 +3659,10 @@ WHERE id = $2;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">struct</span> <span class="ident">ExerciseTaskIdAndSpec</span> {
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">private_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">public_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">model_solution_spec</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_derived_spec</span>(
@@ -4042,6 +4049,7 @@ WHERE p.id = $1;
         <span class="string">&quot;
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -4077,6 +4085,7 @@ WHERE p.order_number = (
         <span class="string">&quot;
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -4150,6 +4159,7 @@ where p.chapter_id = $1
                 <span class="prelude-val">Ok</span>(<span class="ident">PageRoutingData</span> {
                     <span class="ident">url_path</span>: <span class="ident">front_page</span>.<span class="ident">url_path</span>,
                     <span class="ident">title</span>: <span class="ident">front_page</span>.<span class="ident">title</span>,
+                    <span class="ident">page_id</span>: <span class="ident">front_page</span>.<span class="ident">id</span>,
                     <span class="ident">chapter_number</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">chapter_number</span>,
                     <span class="ident">chapter_id</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">id</span>,
                     <span class="ident">chapter_opens_at</span>: <span class="ident">chapter_front_page_chapter</span>.<span class="ident">opens_at</span>,
@@ -4209,6 +4219,7 @@ where p.chapter_id = $1
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
+  p.id as page_id,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
   c.front_page_id as chapter_front_page_id
@@ -4243,6 +4254,7 @@ WHERE p.order_number = (
         <span class="string">&quot;
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,

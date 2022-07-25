@@ -755,7 +755,7 @@ WHERE proposed_block_edits.deleted_at IS NULL
             <span class="ident">current_text</span>: <span class="ident">content</span>.<span class="ident">to_string</span>(),
             <span class="ident">changed_text</span>: <span class="ident">changed_text</span>.<span class="ident">to_string</span>(),
             <span class="ident">status</span>: <span class="ident">block_proposal_status</span>,
-            <span class="ident">original_text</span>,
+            <span class="ident">original_text</span>: <span class="ident">original_text</span>.<span class="ident">to_string</span>(),
         });
     }
 

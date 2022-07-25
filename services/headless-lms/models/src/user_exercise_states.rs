@@ -8,6 +8,7 @@ use crate::{
     course_instances,
     course_modules::{self, CourseModule},
     courses,
+    exercise_slide_submissions::TeacherDecisionType,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
     user_course_settings,
@@ -49,6 +50,16 @@ pub enum ReviewingStage {
     */
     ReviewedAndLocked,
 }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserExerciseStateTeacherUpdate {
+    pub user_exercise_state_id: Uuid,
+    pub exercise_id: Uuid,
+    pub action: TeacherDecisionType,
+    pub manual_points: Option<f32>,
+}
+
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {

@@ -1,9 +1,17 @@
+CREATE TYPE teacher_decision_type AS ENUM(
+  'full-points',
+  'zero-points',
+  'custom-points',
+  'suspected-plagiarism'
+);
 CREATE TABLE teacher_grading_decisions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_exercise_state_id UUID NOT NULL REFERENCES user_exercise_states(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+  score_given real NOT NULL,
+  teacher_decision teacher_decision_type NOT NULL,
   suspected_plagiarism BOOL NOT NULL DEFAULT FALSE
 );
 CREATE TRIGGER set_timestamp BEFORE

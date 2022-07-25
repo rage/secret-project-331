@@ -12,6 +12,22 @@ use crate::{
     CourseOrExamId,
 };
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
+pub enum TeacherDecisionType {
+    FullPoints,
+    ZeroPoints,
+    CustomPoints,
+    SuspectedPlagiarism,
+}
+/*
+impl PartialEq<TeacherDecisionType> for TeacherDecisionType {
+    fn eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+*/
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExerciseSlideSubmission {
@@ -24,7 +40,7 @@ pub struct NewExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherGradingDecision {
     pub id: Uuid,
@@ -32,6 +48,8 @@ pub struct TeacherGradingDecision {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub score_given: f32,
+    pub teacher_decision: TeacherDecisionType,
     pub suspected_plagiarism: bool,
 }
 
@@ -646,14 +664,26 @@ pub async fn add_teacher_grading_decision(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
     suspected_of_plagiarism: bool,
+    action: TeacherDecisionType,
+    score_given: f32,
 ) -> ModelResult<TeacherGradingDecision> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism) VALUES ($1, $2) RETURNING *;
+        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism, teacher_decision, score_given) VALUES ($1, $2, $3, $4)
+        RETURNING id,
+        user_exercise_state_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given,
+        teacher_decision AS "teacher_decision: _",
+        suspected_plagiarism;
         "#,
         user_exercise_state_id,
-        suspected_of_plagiarism
+        suspected_of_plagiarism,
+        action as TeacherDecisionType,
+        score_given
     )
     .fetch_one(conn)
     .await?;

@@ -15,7 +15,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
-import { AnswerRequiringAttentionWithTasks } from "../../../../../../shared-module/bindings"
+import {
+  AnswerRequiringAttentionWithTasks,
+  TeacherDecisionType,
+} from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import { primaryFont } from "../../../../../../shared-module/styles"
@@ -92,7 +95,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   const handleControlPanel = async (
     user_exercise_state_id: string,
     exercise_id: string,
-    action: string,
+    action: TeacherDecisionType,
     value?: number | undefined,
   ) => {
     const manual_points = value !== undefined ? value : null
@@ -110,7 +113,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
       user_exercise_state_id,
       exercise_id,
       // eslint-disable-next-line i18next/no-literal-string
-      "manual-points",
+      "CustomPoints",
       sliderValue,
     )
     setOpen(false)
@@ -272,7 +275,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                         answerRequiringAttention.id,
                         answerRequiringAttention.exercise_id,
                         // eslint-disable-next-line i18next/no-literal-string
-                        "reject",
+                        "ZeroPoints",
                       )
                     } // Accept answer
                   >
@@ -286,7 +289,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                         answerRequiringAttention.id,
                         answerRequiringAttention.exercise_id,
                         // eslint-disable-next-line i18next/no-literal-string
-                        "accept",
+                        "FullPoints",
                       )
                     }
                   >
@@ -360,7 +363,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           answerRequiringAttention.id,
                           answerRequiringAttention.exercise_id,
                           // eslint-disable-next-line i18next/no-literal-string
-                          "flag-as-plagiarism",
+                          "SuspectedPlagiarism",
                         )
                       } // flag as plagiarism
                     >

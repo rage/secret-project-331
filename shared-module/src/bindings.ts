@@ -883,6 +883,12 @@ export interface ExerciseAnswersInCourseRequiringAttentionCount {
   count: number | null
 }
 
+export type TeacherDecisionType =
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -1019,6 +1025,13 @@ export interface UserExerciseState {
   activity_progress: ActivityProgress
   reviewing_stage: ReviewingStage
   selected_exercise_slide_id: string | null
+}
+
+export interface UserExerciseStateTeacherUpdate {
+  user_exercise_state_id: string
+  exercise_id: string
+  action: TeacherDecisionType
+  manual_points: number | null
 }
 
 export interface User {

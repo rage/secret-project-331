@@ -236,47 +236,6 @@
       "nullable": [false, false, false, true, true, false, true, true]
     }
   },
-  "0389d9a1a5de222356afe253ee257f73208bbc10dc99e9958decf78d3678c798": {
-    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism) VALUES ($1, $2) RETURNING *;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "user_exercise_state_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "suspected_plagiarism",
-          "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Bool"]
-      },
-      "nullable": [false, false, false, false, true, false]
-    }
-  },
   "03f3ed8579184db44f729471638c65df2636a8e089d08bfd78c9806e7dcd0ddd": {
     "query": "\nINSERT INTO open_university_registration_links (uh_course_code, registration_link)\nVALUES ($1, $2) ON CONFLICT (uh_course_code) DO\nUPDATE\nSET registration_link = $2,\n  deleted_at = NULL\nRETURNING *\n        ",
     "describe": {
@@ -15140,6 +15099,76 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "f1a8bbdd0947e0592f10708a7f74dfb861360cb8fa213553ab71a06c3c8c229f": {
+    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism, teacher_decision, score_given) VALUES ($1, $2, $3, $4)\n        RETURNING id,\n        user_exercise_state_id,\n        created_at,\n        updated_at,\n        deleted_at,\n        score_given,\n        teacher_decision AS \"teacher_decision: _\",\n        suspected_plagiarism;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_exercise_state_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 6,
+          "name": "teacher_decision: _",
+          "type_info": {
+            "Custom": {
+              "name": "teacher_decision_type",
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 7,
+          "name": "suspected_plagiarism",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Bool",
+          {
+            "Custom": {
+              "name": "teacher_decision_type",
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              }
+            }
+          },
+          "Float4"
+        ]
+      },
+      "nullable": [false, false, false, false, true, false, false, false]
     }
   },
   "f21c96c64d0bf9550cd3cd8b51a1090200ead72843ce423169401549eadb5790": {

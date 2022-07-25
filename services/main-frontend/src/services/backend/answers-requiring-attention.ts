@@ -1,4 +1,8 @@
-import { AnswersRequiringAttention, UserExerciseState } from "../../shared-module/bindings"
+import {
+  AnswersRequiringAttention,
+  UserExerciseState,
+  UserExerciseStateTeacherUpdate,
+} from "../../shared-module/bindings"
 import {
   isAnswersRequiringAttention,
   isUserExerciseState,
@@ -20,19 +24,12 @@ export const fetchAnswersRequiringAttention = async (
   return validateResponse(response, isAnswersRequiringAttention)
 }
 
-interface Props {
-  user_exercise_state_id: string
-  exercise_id: string
-  action: string
-  manual_points: number | null
-}
-
 export const updateAnswerRequiringAttention = async ({
   user_exercise_state_id,
   exercise_id,
   action,
   manual_points,
-}: Props): Promise<UserExerciseState> => {
+}: UserExerciseStateTeacherUpdate): Promise<UserExerciseState> => {
   const response = await mainFrontendClient.put(
     `/submissions/update-answer-requiring-attention`,
     { user_exercise_state_id, exercise_id, action, manual_points },

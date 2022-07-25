@@ -1,6 +1,11 @@
 use crate::controllers::prelude::*;
-use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
-use models::{exercises::get_exercise_by_id, user_exercise_states::UserExerciseState};
+use headless_lms_models::exercise_slide_submissions::{
+    ExerciseSlideSubmissionInfo, TeacherDecisionType,
+};
+use models::{
+    exercises::get_exercise_by_id,
+    user_exercise_states::{UserExerciseState, UserExerciseStateTeacherUpdate},
+};
 
 /**
 GET `/api/v0/main-frontend/submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
@@ -29,21 +34,14 @@ async fn get_submission_info(
 
     token.authorized_ok(web::Json(res))
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct UserExerciseStateUpdate {
-    pub user_exercise_state_id: Uuid,
-    pub exercise_id: Uuid,
-    pub action: String,
-    pub manual_points: Option<f32>,
-}
+
 /**
 GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention"` - Updates data for submission
 */
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn update_submission(
-    payload: web::Json<UserExerciseStateUpdate>,
+    payload: web::Json<UserExerciseStateTeacherUpdate>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserExerciseState>> {
@@ -61,14 +59,14 @@ async fn update_submission(
     .await?;
     let points_given;
     let mut suspected_of_plagiarism = false;
-    if action == "accept" {
+    if *action == TeacherDecisionType::FullPoints {
         let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
         points_given = exercise.score_maximum as f32;
-    } else if action == "reject" {
+    } else if *action == TeacherDecisionType::ZeroPoints {
         points_given = 0.0;
-    } else if action == "manual-points" {
+    } else if *action == TeacherDecisionType::CustomPoints {
         points_given = manual_points.unwrap_or(0.0);
-    } else if action == "flag-as-plagiarism" {
+    } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
         suspected_of_plagiarism = true;
     } else {
@@ -86,6 +84,8 @@ async fn update_submission(
         &mut conn,
         user_exercise_state_id,
         suspected_of_plagiarism,
+        *action,
+        points_given,
     )
     .await?;
 

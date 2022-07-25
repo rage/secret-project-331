@@ -889,6 +889,19 @@ export type TeacherDecisionType =
   | "CustomPoints"
   | "SuspectedPlagiarism"
 
+export interface AnswerRequiringAttention {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -933,19 +946,6 @@ export interface ExerciseTaskSubmission {
   data_json: unknown | null
   exercise_task_grading_id: string | null
   metadata: unknown | null
-}
-
-export interface AnswerRequiringAttention {
-  id: string
-  user_id: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-  data_json: unknown | null
-  grading_progress: GradingProgress
-  score_given: number | null
-  submission_id: string
-  exercise_id: string
 }
 
 export interface RoleUser {

@@ -1557,6 +1557,24 @@ export function isTeacherDecisionType(
   )
 }
 
+export function isAnswerRequiringAttention(
+  obj: any,
+  _argumentName?: string,
+): obj is AnswerRequiringAttention {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.submission_id === "string" &&
+    typeof obj.exercise_id === "string"
+  )
+}
+
 export function isExerciseTaskGrading(
   obj: any,
   _argumentName?: string,
@@ -1617,24 +1635,6 @@ export function isExerciseTaskSubmission(
     typeof obj.exercise_task_id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
-  )
-}
-
-export function isAnswerRequiringAttention(
-  obj: any,
-  _argumentName?: string,
-): obj is AnswerRequiringAttention {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.user_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    typeof obj.submission_id === "string" &&
-    typeof obj.exercise_id === "string"
   )
 }
 

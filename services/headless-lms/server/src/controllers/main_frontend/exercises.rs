@@ -4,11 +4,8 @@ use chrono::{DateTime, Utc};
 use futures::future;
 
 use models::{
-    exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_submissions::{
-        get_all_answers_requiring_attention,
-        get_exercise_task_submission_info_by_exercise_slide_submission_id,
-    },
+    exercise_slide_submissions::{get_all_answers_requiring_attention, ExerciseSlideSubmission},
+    exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{get_exercise_by_id, GradingProgress},
     CourseOrExamId,

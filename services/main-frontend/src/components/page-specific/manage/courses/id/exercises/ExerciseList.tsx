@@ -47,7 +47,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
     groupBy(courseStructure.data.pages, (page) => page.id),
     (value) => value[0],
   )
-  console.log(getCourseExercises)
+
   return (
     <>
       <ul>

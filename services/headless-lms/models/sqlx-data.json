@@ -7825,22 +7825,6 @@
       "nullable": [false, false, false, true, false, true, false, false, true, false]
     }
   },
-  "77d894f55f42039b01266c3b1716027169dcb2119d6cb3412b989f013bf409fb": {
-    "query": "\n        SELECT\n        t_submission.id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id\n            = t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n        ON t_submission.exercise_slide_submission_id\n           = s_submission.id\n    WHERE s_submission.exercise_slide_id = t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id=$1\n    AND us_state.reviewing_stage='waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    ORDER BY us_state.updated_at;",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        }
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      },
-      "nullable": [false]
-    }
-  },
   "79a997ae3e7010fc4411554484753bc5f48823c4142a410d09e4ba93310e2596": {
     "query": "\nUPDATE user_exercise_states\nSET selected_exercise_slide_id = $4\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $5)\n    ",
     "describe": {

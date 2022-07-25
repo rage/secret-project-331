@@ -184,13 +184,13 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
         exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
         exercise_slide_submissions::TeacherDecisionType,
+        exercise_slide_submissions::AnswerRequiringAttention,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_task_gradings::UserPointsUpdateStrategy,
 
         exercise_task_submissions::ExerciseTaskSubmission,
-        exercise_task_submissions::AnswerRequiringAttention,
 
         roles::RoleUser,
         roles::RoleDomain,

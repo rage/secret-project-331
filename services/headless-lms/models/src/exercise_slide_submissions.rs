@@ -6,7 +6,7 @@ use crate::{
     courses::Course,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::Exercise,
+    exercises::{Exercise, GradingProgress},
     prelude::*,
     user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
     CourseOrExamId,
@@ -21,13 +21,21 @@ pub enum TeacherDecisionType {
     CustomPoints,
     SuspectedPlagiarism,
 }
-/*
-impl PartialEq<TeacherDecisionType> for TeacherDecisionType {
-    fn eq(&self, other: &Self) -> bool {
-        self == other
-    }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswerRequiringAttention {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
+    pub submission_id: Uuid,
+    pub exercise_id: Uuid,
 }
-*/
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExerciseSlideSubmission {
@@ -524,6 +532,49 @@ WHERE exercise_id = $1
   AND deleted_at IS NULL
 LIMIT $2 OFFSET $3
         "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+pub async fn get_all_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<AnswerRequiringAttention>> {
+    let submissions = sqlx::query_as!(
+        AnswerRequiringAttention,
+        r#"
+        SELECT
+        us_state.id,
+        us_state.user_id,
+        us_state.exercise_id,
+        us_state.score_given,
+        us_state.grading_progress as "grading_progress: _",
+        t_submission.data_json,
+        s_submission.created_at,
+        s_submission.updated_at,
+        s_submission.deleted_at,
+        s_submission.id AS submission_id
+    FROM user_exercise_states AS us_state
+    JOIN exercise_task_submissions AS t_submission
+        ON us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    JOIN exercise_slide_submissions AS s_submission
+            ON t_submission.exercise_slide_submission_id =
+                s_submission.id
+    WHERE us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    AND us_state.user_id = s_submission.user_id
+    AND us_state.exercise_id = $1
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+    AND us_state.deleted_at IS NULL
+    ORDER BY t_submission.updated_at
+    LIMIT $2 OFFSET $3;"#,
         exercise_id,
         pagination.limit(),
         pagination.offset(),

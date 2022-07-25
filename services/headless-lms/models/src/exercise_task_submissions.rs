@@ -4,7 +4,6 @@ use serde_json::Value;
 use crate::{
     exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
-    exercises::GradingProgress,
     prelude::*,
     CourseOrExamId,
 };
@@ -35,25 +34,6 @@ pub struct SubmissionData {
     pub user_id: Uuid,
     pub course_instance_id: Uuid,
     pub data_json: Value,
-    pub id: Uuid,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct AnswerRequiringAttention {
-    pub id: Uuid,
-    pub user_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    pub data_json: Option<serde_json::Value>,
-    pub grading_progress: GradingProgress,
-    pub score_given: Option<f32>,
-    pub submission_id: Uuid,
-    pub exercise_id: Uuid,
-}
-
-pub struct AnswerRequiringAttentionSubmissionId {
     pub id: Uuid,
 }
 
@@ -155,78 +135,6 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(submission)
-}
-
-pub async fn get_all_answers_requiring_attention(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-    pagination: Pagination,
-) -> ModelResult<Vec<AnswerRequiringAttention>> {
-    let submissions = sqlx::query_as!(
-        AnswerRequiringAttention,
-        r#"
-        SELECT
-        us_state.id,
-        us_state.user_id,
-        us_state.exercise_id,
-        us_state.score_given,
-        us_state.grading_progress as "grading_progress: _",
-        t_submission.data_json,
-        s_submission.created_at,
-        s_submission.updated_at,
-        s_submission.deleted_at,
-        s_submission.id AS submission_id
-    FROM user_exercise_states AS us_state
-    JOIN exercise_task_submissions AS t_submission
-        ON us_state.selected_exercise_slide_id =
-            t_submission.exercise_slide_id
-    JOIN exercise_slide_submissions AS s_submission
-            ON t_submission.exercise_slide_submission_id =
-                s_submission.id
-    WHERE us_state.selected_exercise_slide_id =
-            t_submission.exercise_slide_id
-    AND us_state.user_id = s_submission.user_id
-    AND us_state.exercise_id = $1
-    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
-    AND us_state.deleted_at IS NULL
-    ORDER BY t_submission.updated_at
-    LIMIT $2 OFFSET $3;"#,
-        exercise_id,
-        pagination.limit(),
-        pagination.offset(),
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(submissions)
-}
-
-pub async fn get_submission_id_of_answers_requiring_attention(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-) -> ModelResult<Vec<AnswerRequiringAttentionSubmissionId>> {
-    let submissions = sqlx::query_as!(
-        AnswerRequiringAttentionSubmissionId,
-        "
-        SELECT
-        t_submission.id
-    FROM user_exercise_states AS us_state
-    JOIN exercise_task_submissions AS t_submission
-        ON us_state.selected_exercise_slide_id
-            = t_submission.exercise_slide_id
-    JOIN exercise_slide_submissions AS s_submission
-        ON t_submission.exercise_slide_submission_id
-           = s_submission.id
-    WHERE s_submission.exercise_slide_id = t_submission.exercise_slide_id
-    AND us_state.user_id = s_submission.user_id
-    AND us_state.exercise_id=$1
-    AND us_state.reviewing_stage='waiting_for_manual_grading'
-    AND us_state.deleted_at IS NULL
-    ORDER BY us_state.updated_at;",
-        exercise_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(submissions)
 }
 
 pub async fn get_by_exercise_slide_submission_id(

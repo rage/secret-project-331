@@ -15,7 +15,9 @@ export interface CompletionRedirectPageProps {
   query: SimplifiedUrlQuery<"courseModuleId">
 }
 
-const CompletionRedirectPage: React.FC<CompletionRedirectPageProps> = ({ query }) => {
+const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirectPageProps>> = ({
+  query,
+}) => {
   const { courseModuleId } = query
   const { t } = useTranslation()
   const userCompletionInformation = useQuery(
@@ -23,7 +25,7 @@ const CompletionRedirectPage: React.FC<CompletionRedirectPageProps> = ({ query }
     () => fetchCompletionRegistrationLink(courseModuleId),
     {
       onSuccess: (data) => window.location.replace(data.url),
-    }
+    },
   )
   return (
     <Layout>

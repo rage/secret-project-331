@@ -23,7 +23,7 @@ const NUMERIC = "numeric"
 const LONG = "long"
 const OPEN = "open"
 
-const ChapterGridCard: React.FC<ChapterProps> = ({
+const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,
   chapter,
   courseSlug,

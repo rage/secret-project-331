@@ -16,7 +16,7 @@ interface Props {
   perPage: number
 }
 
-const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read, perPage }) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -29,7 +29,8 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   const [page, setPage] = useState(initialPage)
 
   const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
-    fetchFeedbackCount(courseId))
+    fetchFeedbackCount(courseId),
+  )
 
   if (getFeedbackCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />

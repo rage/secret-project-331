@@ -13,10 +13,11 @@ export interface ExerciseListProps {
   courseId: string
 }
 
-const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
+const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseExercises = useQuery([`course-${courseId}-exercises`], () =>
-    fetchCourseExercises(courseId))
+    fetchCourseExercises(courseId),
+  )
   const courseStructure = useCourseStructure(courseId)
 
   if (getCourseExercises.isError) {

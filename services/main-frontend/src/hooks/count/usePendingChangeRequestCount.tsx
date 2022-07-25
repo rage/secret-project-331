@@ -7,7 +7,7 @@ const createPendingChangeRequestCountHook = (courseId: string) => {
     const getEditProposalCount = useQuery(
       [`edit-proposal-count-${courseId}`],
       () => fetchEditProposalCount(courseId),
-      { select: (data) => data.pending }
+      { select: (data) => data.pending },
     )
     return getEditProposalCount
   }

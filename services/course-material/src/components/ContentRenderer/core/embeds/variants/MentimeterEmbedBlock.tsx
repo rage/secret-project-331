@@ -9,7 +9,7 @@ import Spinner from "../../../../../shared-module/components/Spinner"
 import { baseTheme } from "../../../../../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-export const MentimeterEmbedBlock: React.FC<EmbedAttributes> = (props) => {
+export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const [embedHtml, setEmbedHtml] = useState<string | undefined>(undefined)
   const [fetching, setFetching] = useState(true)
   const { t } = useTranslation()

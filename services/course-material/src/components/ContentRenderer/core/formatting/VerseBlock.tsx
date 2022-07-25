@@ -6,7 +6,9 @@ import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
-const VerseBlock: React.FC<BlockRendererProps<VerseAttributes>> = ({ data }) => {
+const VerseBlock: React.FC<React.PropsWithChildren<BlockRendererProps<VerseAttributes>>> = ({
+  data,
+}) => {
   const {
     content,
     anchor,

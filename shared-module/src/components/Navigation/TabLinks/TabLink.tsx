@@ -16,7 +16,12 @@ export interface TabLinkProps {
   countHook?: () => UseQueryResult<number, unknown>
 }
 
-const TabLink: React.FC<TabLinkProps> = ({ children, url, isActive, countHook }) => {
+const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkProps>>> = ({
+  children,
+  url,
+  isActive,
+  countHook,
+}) => {
   const count = countHook?.()
   const path = `${useQueryParameter("path")}`
   const router = useRouter()

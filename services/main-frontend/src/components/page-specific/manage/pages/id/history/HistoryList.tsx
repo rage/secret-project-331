@@ -17,7 +17,7 @@ interface Props {
   onCompare: (ph: PageHistory) => void
 }
 
-const HistoryList: React.FC<Props> = ({
+const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   pageId,
   initialSelectedRevisionId,
   onRestore,
@@ -40,7 +40,8 @@ const HistoryList: React.FC<Props> = ({
   )
 
   const getPageHistoryCount = useQuery([`page-history-count-${pageId}`], () =>
-    fetchHistoryCountForPage(pageId))
+    fetchHistoryCountForPage(pageId),
+  )
 
   function compare(history: PageHistory) {
     setSelectedRevisionId(history.id)

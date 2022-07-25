@@ -17,7 +17,12 @@ interface ExamDialogProps {
   close: () => void
 }
 
-const NewExamDialog: React.FC<ExamDialogProps> = ({ organizationId, getOrgExams, open, close }) => {
+const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
+  organizationId,
+  getOrgExams,
+  open,
+  close,
+}) => {
   const createExamMutation = useToastMutation(
     (exam: NewExam) => createExam(organizationId, exam),
     {

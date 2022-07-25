@@ -20,10 +20,11 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-const CourseInstancePermissions: React.FC<Props> = ({ query }) => {
+const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstance = useQuery([`course-instance-${query.id}`], () =>
-    fetchCourseInstance(query.id))
+    fetchCourseInstance(query.id),
+  )
 
   return (
     <Layout navVariant="simple">

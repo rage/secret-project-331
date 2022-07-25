@@ -16,18 +16,25 @@ interface Props {
   organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
+const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
+  organizationId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
-  const getOrgExams = useQuery(['organization-exams'], () => {
-    if (organizationId) {
-      return fetchOrganizationExams(organizationId)
-    } else {
-      return Promise.reject(new Error("Organization ID undefined"))
-    }
-  }, { enabled: !!organizationId })
+  const getOrgExams = useQuery(
+    ["organization-exams"],
+    () => {
+      if (organizationId) {
+        return fetchOrganizationExams(organizationId)
+      } else {
+        return Promise.reject(new Error("Organization ID undefined"))
+      }
+    },
+    { enabled: !!organizationId },
+  )
 
   const loginStateContext = useContext(LoginStateContext)
 

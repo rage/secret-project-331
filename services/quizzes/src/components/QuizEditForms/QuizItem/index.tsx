@@ -50,7 +50,7 @@ interface QuizItemProps {
   item: NormalizedQuizItem
 }
 
-const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
+const QuizItem: React.FC<React.PropsWithChildren<QuizItemProps>> = ({ item }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
 

@@ -7,7 +7,7 @@ const createUnreadFeedbackCountHook = (courseId: string) => {
     const getFeedbackCount = useQuery(
       [`feedback-count-${courseId}`],
       () => fetchFeedbackCount(courseId),
-      { select: (data) => data.unread }
+      { select: (data) => data.unread },
     )
     return getFeedbackCount
   }

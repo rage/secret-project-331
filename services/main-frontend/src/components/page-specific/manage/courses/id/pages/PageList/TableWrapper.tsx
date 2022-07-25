@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
-const TableWrapper: React.FC = ({ children }) => {
+const TableWrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
   const { t } = useTranslation()
   return (
     <table

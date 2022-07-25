@@ -19,11 +19,14 @@ import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
-const CourseCourseInstances: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
   const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
-    fetchCourseInstances(courseId))
+    fetchCourseInstances(courseId),
+  )
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)

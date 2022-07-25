@@ -21,7 +21,9 @@ interface NewEmailTemplateForm {
   onSubmitForm: (newName: string) => void
 }
 
-const NewEmailTemplateForm: React.FC<NewEmailTemplateForm> = ({ onSubmitForm }) => {
+const NewEmailTemplateForm: React.FC<React.PropsWithChildren<NewEmailTemplateForm>> = ({
+  onSubmitForm,
+}) => {
   const { t } = useTranslation()
   const [name, setName] = useState("")
 

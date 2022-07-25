@@ -15,11 +15,14 @@ interface ChapterProgressProps {
   courseInstanceId: string
 }
 
-const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInstanceId }) => {
+const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> = ({
+  chapterId,
+  courseInstanceId,
+}) => {
   const { t } = useTranslation()
   const getUserChapterProgress = useQuery(
     [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId)
+    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
   )
 
   return (

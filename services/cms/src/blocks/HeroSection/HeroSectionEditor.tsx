@@ -15,11 +15,9 @@ import BlockWrapper from "../BlockWrapper"
 
 import { HeroSectionAttributes } from "."
 
-const HeroSectionEditor: React.FC<BlockEditProps<HeroSectionAttributes>> = ({
-  clientId,
-  attributes,
-  setAttributes,
-}) => {
+const HeroSectionEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>
+> = ({ clientId, attributes, setAttributes }) => {
   const { title, subtitle } = attributes
   return (
     <BlockWrapper id={clientId}>

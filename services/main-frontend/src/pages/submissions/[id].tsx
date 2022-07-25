@@ -23,9 +23,11 @@ interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
+const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getSubmissionInfo = useQuery([`submission-${query.id}`], () => fetchSubmissionInfo(query.id))
+  const getSubmissionInfo = useQuery([`submission-${query.id}`], () =>
+    fetchSubmissionInfo(query.id),
+  )
 
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)

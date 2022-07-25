@@ -16,7 +16,7 @@ interface EditReferenceDialogProps {
   open: boolean
 }
 
-const EditReferenceDialog: React.FC<EditReferenceDialogProps> = ({
+const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogProps>> = ({
   courseId,
   getCourseReferences,
   reference,

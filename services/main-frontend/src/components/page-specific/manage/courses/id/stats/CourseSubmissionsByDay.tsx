@@ -17,7 +17,9 @@ export interface CourseSubmissionsByDayProps {
   courseId: string
 }
 
-const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseId }) => {
+const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissionsByDayProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const getCourseDailySubmissionCounts = useQuery(
     [`course-daily-submission-counts-${courseId}`],
@@ -32,7 +34,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
         const maxValue = max(data.map((o) => o.count)) || 10000
         return { apiData: data, eChartsData, maxValue }
       },
-    }
+    },
   )
 
   if (getCourseDailySubmissionCounts.isError) {

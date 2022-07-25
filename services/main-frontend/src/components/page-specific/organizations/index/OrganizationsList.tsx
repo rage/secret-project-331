@@ -12,7 +12,7 @@ import { baseTheme, typography } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
-const OrganizationsList: React.FC = () => {
+const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const getOrganizations = useQuery([`organizations`], () => fetchOrganizations(), {
     cacheTime: 60000,

@@ -21,10 +21,11 @@ const Wrapper = styled.div`
   margin: 0 0 4rem 0;
 `
 
-const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {
+const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ courseId }) => {
   const { t } = useTranslation()
   const getTopLevelPages = useQuery([`courses-${courseId}-top-level-pages`], () =>
-    fetchTopLevelPages(courseId))
+    fetchTopLevelPages(courseId),
+  )
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
   return (

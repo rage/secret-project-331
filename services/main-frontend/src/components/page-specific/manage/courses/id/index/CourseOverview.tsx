@@ -7,7 +7,9 @@ import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import ManageCourse from "../index/ManageCourse"
 
-const CourseOverview: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
 
   return (

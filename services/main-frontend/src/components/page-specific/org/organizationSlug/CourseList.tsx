@@ -27,7 +27,11 @@ interface Props {
   perPage: number
 }
 
-const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage }) => {
+const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
+  organizationId,
+  organizationSlug,
+  perPage,
+}) => {
   const { t } = useTranslation()
   const router = useRouter()
 

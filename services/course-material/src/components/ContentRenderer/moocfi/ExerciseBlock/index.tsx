@@ -57,7 +57,9 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
-const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+const ExerciseBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
+> = (props) => {
   const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
@@ -417,7 +419,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         </Centered>
       </div>
     </BreakFromCentered>
-  );
+  )
 }
 
 export default withErrorBoundary(ExerciseBlock)

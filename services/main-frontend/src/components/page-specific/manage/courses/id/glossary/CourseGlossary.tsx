@@ -12,7 +12,9 @@ import TextField from "../../../../../../shared-module/components/InputFields/Te
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
-const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
 
   const [newTerm, setNewTerm] = useState("")

@@ -25,7 +25,7 @@ interface HighlightItemProps {
   leftBorder?: boolean
 }
 
-const HighlightItem: React.FC<HighlightItemProps> = ({
+const HighlightItem: React.FC<React.PropsWithChildren<HighlightItemProps>> = ({
   highlightColor,
   highlightDescription,
   highlightText,

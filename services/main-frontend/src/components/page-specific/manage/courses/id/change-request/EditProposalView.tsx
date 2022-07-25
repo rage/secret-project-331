@@ -39,7 +39,10 @@ export interface Props {
   ) => Promise<void>
 }
 
-const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
+const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
+  proposal,
+  handleProposal,
+}) => {
   const { t } = useTranslation()
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())

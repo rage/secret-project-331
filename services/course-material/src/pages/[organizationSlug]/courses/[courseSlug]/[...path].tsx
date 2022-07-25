@@ -31,12 +31,13 @@ interface PagePageProps {
   query: SimplifiedUrlQuery<string>
 }
 
-const PagePage: React.FC<PagePageProps> = ({ query }) => {
+const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) => {
   const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
   const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
-    fetchCoursePageByPath(courseSlug, path))
+    fetchCoursePageByPath(courseSlug, path),
+  )
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
     getDefaultPageState(async () => {

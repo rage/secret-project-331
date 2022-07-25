@@ -18,10 +18,11 @@ interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
+const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getExerciseSubmissions = useQuery([`exercise-${query.id}-submissions`], () =>
-    fetchExerciseSubmissions(query.id))
+    fetchExerciseSubmissions(query.id),
+  )
 
   return (
     <Layout navVariant="simple">

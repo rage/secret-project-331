@@ -13,10 +13,14 @@ interface PublicPageListProps {
   organizationSlug: string
 }
 
-const PublicPageList: React.FC<PublicPageListProps> = ({ courseId, organizationSlug }) => {
+const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = ({
+  courseId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
   const getAllCoursePages = useQuery([`course-${courseId}-all-pages`], () =>
-    fetchAllCoursePages(courseId))
+    fetchAllCoursePages(courseId),
+  )
 
   return (
     <>

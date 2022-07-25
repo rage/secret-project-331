@@ -28,7 +28,7 @@ const ExerciseEditorCard = styled.div`
   margin-right: 0;
 `
 
-const ExerciseEditor: React.FC<BlockEditProps<ExerciseAttributes>> = ({
+const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>> = ({
   attributes,
   clientId,
   setAttributes,

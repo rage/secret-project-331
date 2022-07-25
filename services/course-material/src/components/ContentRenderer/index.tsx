@@ -131,7 +131,7 @@ const highlightedBlockStyles = css`
   outline-offset: 10px;
 `
 
-const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
     .filter((id) => id !== "")

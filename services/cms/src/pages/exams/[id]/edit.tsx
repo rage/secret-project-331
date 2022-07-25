@@ -27,13 +27,15 @@ export interface ExamInstructionsEditProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query }) => {
+const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructionsEditProps>> = ({
+  query,
+}) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
   const getExamsInstructions = useQuery(
     [`exam-${examsId}-instructions`],
     () => fetchExamsInstructions(examsId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) }
+    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
   )
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {

@@ -16,7 +16,7 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 
-const ExerciseServicePage: React.FC = () => {
+const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [exerciseService, setExerciseService] = useState({

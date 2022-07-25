@@ -10,7 +10,9 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import { PermissionPage } from "../../../../../PermissionPage"
 
-const CoursePermissions: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const course = useQuery([`course-${courseId}-permissions`], () => getCourse(courseId))
 

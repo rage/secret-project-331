@@ -16,7 +16,7 @@ export interface PagesInChapterProps {
   courseSlug: string
 }
 
-const PagesInChapter: React.FC<PagesInChapterProps> = ({
+const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = ({
   chapterId,
   courseSlug,
   organizationSlug,
@@ -24,7 +24,7 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
   const { t } = useTranslation()
   const getPagesInChapterExcludeFrontpage = useQuery(
     [`chapter-${chapterId}-pages-excluding-frontpage`],
-    () => fetchChaptersPagesExcludeFrontpage(chapterId)
+    () => fetchChaptersPagesExcludeFrontpage(chapterId),
   )
 
   return (

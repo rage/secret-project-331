@@ -20,26 +20,24 @@ export interface ChapterExerciseListGroupedByPageProps {
   page: PageWithExercises
 }
 
-const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPageProps> = ({
-  chapterId,
-  courseInstanceId,
-  courseSlug,
-  organizationSlug,
-  page,
-}) => {
+const ChapterExerciseListGroupedByPage: React.FC<
+  React.PropsWithChildren<ChapterExerciseListGroupedByPageProps>
+> = ({ chapterId, courseInstanceId, courseSlug, organizationSlug, page }) => {
   const loginStateContext = useContext(LoginStateContext)
-  const getUserCourseInstanceChapterExercisesProgress = useQuery([
-    `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`
-  ], () =>
-    fetchUserCourseInstanceChapterExercisesProgress(
-      assertNotNullOrUndefined(courseInstanceId),
-      chapterId,
-    ), {
-    select: (data) => {
-      return new Map(data.map((x) => [x.exercise_id, x.score_given]))
+  const getUserCourseInstanceChapterExercisesProgress = useQuery(
+    [`user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`],
+    () =>
+      fetchUserCourseInstanceChapterExercisesProgress(
+        assertNotNullOrUndefined(courseInstanceId),
+        chapterId,
+      ),
+    {
+      select: (data) => {
+        return new Map(data.map((x) => [x.exercise_id, x.score_given]))
+      },
+      enabled: courseInstanceId !== undefined,
     },
-    enabled: courseInstanceId !== undefined,
-  })
+  )
 
   if (getUserCourseInstanceChapterExercisesProgress.isError) {
     return (

@@ -17,9 +17,16 @@ interface Props {
   onChange: () => Promise<unknown>
 }
 
-const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
+const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  page,
+  limit,
+  read,
+  onChange,
+}) => {
   const getFeedbackList = useQuery([`feedback-list-${courseId}-${read}-${page}-${limit}`], () =>
-    fetchFeedback(courseId, read, page, limit))
+    fetchFeedback(courseId, read, page, limit),
+  )
 
   async function handleMarkAsRead(feedback: Feedback) {
     await markAsRead(feedback.id, !feedback.marked_as_read)

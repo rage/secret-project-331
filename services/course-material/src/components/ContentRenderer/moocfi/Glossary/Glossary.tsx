@@ -12,7 +12,7 @@ interface Props {
   courseId: string
 }
 
-const Glossary: React.FC<Props> = ({ courseId }) => {
+const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
   const { t } = useTranslation()
 
   const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))

@@ -69,7 +69,11 @@ export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageEx
 // eslint-disable-next-line i18next/no-literal-string
 /* const subtitlePlaceholder = "Find answers to frequently asked questions on the FAQ page" */
 
-const TopLevelPage: React.FC<TopLevelPage> = ({ title, url, index }) => {
+const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<TopLevelPage>>> = ({
+  title,
+  url,
+  index,
+}) => {
   const isEven = index % 2 === 0
   return (
     <Link href={url} passHref>

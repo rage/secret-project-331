@@ -17,7 +17,9 @@ import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 //   type: string
 // }
 
-const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data }) => {
+const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsAttributes>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const { anchor } = data.attributes
 

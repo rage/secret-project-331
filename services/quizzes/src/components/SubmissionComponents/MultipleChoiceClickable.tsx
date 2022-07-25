@@ -6,11 +6,9 @@ import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-const MultipleChoiceClickableFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
-  user_quiz_item_answer,
-  public_quiz_item,
-  quiz_item_model_solution,
-}) => {
+const MultipleChoiceClickableFeedback: React.FC<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({ user_quiz_item_answer, public_quiz_item, quiz_item_model_solution }) => {
   return (
     <div
       className={css`

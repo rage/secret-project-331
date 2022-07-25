@@ -20,7 +20,7 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getExam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
   const [newCourse, setNewCourse] = useState("")

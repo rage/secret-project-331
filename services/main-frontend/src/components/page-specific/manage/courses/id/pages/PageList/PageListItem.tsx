@@ -37,7 +37,7 @@ const ActionButton = styled.button`
   }
 `
 
-const PageListItem: React.FC<PageListItemProps> = ({
+const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
   page,
   pageOrderDispatch,
   moving,

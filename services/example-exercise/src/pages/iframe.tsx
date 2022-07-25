@@ -36,7 +36,7 @@ export type State =
       private_spec: Alternative[]
     }
 
-const Iframe: React.FC = () => {
+const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width

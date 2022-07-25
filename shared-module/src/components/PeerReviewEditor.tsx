@@ -133,7 +133,9 @@ const HEADING_TEXT = "Configure review answers option"
 export type PeerReviewEditorProps =
   React.HTMLAttributes<HTMLDivElement> /* & PeerReviewEditorExtraProps */
 
-const PeerReviewEditor: React.FC<PeerReviewEditorProps> = () => {
+const PeerReviewEditor: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<PeerReviewEditorProps>>
+> = () => {
   const [state, setState] = useState<PeerReview[]>([])
   const { t } = useTranslation()
 

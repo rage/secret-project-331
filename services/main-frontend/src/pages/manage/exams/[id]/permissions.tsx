@@ -20,7 +20,7 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ExamPermissions: React.FC<Props> = ({ query }) => {
+const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
   const exam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
 

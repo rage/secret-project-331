@@ -8,7 +8,7 @@ import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
-const EditorBreadcrumbs: React.FC = () => {
+const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   const router = useRouter()
 
   const pageId = router.asPath.split("/")[2]

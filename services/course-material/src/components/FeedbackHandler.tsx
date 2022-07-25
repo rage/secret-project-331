@@ -26,7 +26,7 @@ export interface SelectionPosition {
   y: number
 }
 
-const FeedbackHandler: React.FC<Props> = ({
+const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
   pageId,
   onEnterEditProposalMode,

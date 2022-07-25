@@ -13,14 +13,14 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import CourseProgress from "./CourseProgress"
 
-const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
   const getUserCourseProgress = useQuery(
     [`course-instance-${courseInstanceId}-progress`],
     () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
-    { enabled: !!courseInstanceId }
+    { enabled: !!courseInstanceId },
   )
   const loginStateContext = useContext(LoginStateContext)
 

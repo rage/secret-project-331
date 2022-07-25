@@ -15,18 +15,21 @@ interface CourseMaterialPageBreadcrumbsProps {
   currentPagePath: string
 }
 
-const CourseMaterialPageBreadcrumbs: React.FC<CourseMaterialPageBreadcrumbsProps> = ({
-  page,
-  currentPagePath,
-}) => {
+const CourseMaterialPageBreadcrumbs: React.FC<
+  React.PropsWithChildren<CourseMaterialPageBreadcrumbsProps>
+> = ({ page, currentPagePath }) => {
   const isCourseFrontPage = currentPagePath === "/"
   const { t } = useTranslation()
-  const data = useQuery([`page-chapter-and-course-${page?.id}`], () => {
-    if (!page) {
-      return null
-    }
-    return fetchPageChapterAndCourse(page.id)
-  }, { enabled: !!page && !isCourseFrontPage })
+  const data = useQuery(
+    [`page-chapter-and-course-${page?.id}`],
+    () => {
+      if (!page) {
+        return null
+      }
+      return fetchPageChapterAndCourse(page.id)
+    },
+    { enabled: !!page && !isCourseFrontPage },
+  )
 
   if (isCourseFrontPage) {
     return null

@@ -19,10 +19,13 @@ export default function useAuthorizeMultiple(
     )}`
   })
 
-  const res = useQuery([key], () => {
-    return authorizeMultiple(requests)
-  }, // 15 minutes
-  { cacheTime: 15 * 60 * 1000, enabled: requests.length > 0 })
+  const res = useQuery(
+    [key],
+    () => {
+      return authorizeMultiple(requests)
+    }, // 15 minutes
+    { cacheTime: 15 * 60 * 1000, enabled: requests.length > 0 },
+  )
 
   return res
 }

@@ -33,7 +33,7 @@ export interface ManageCourseStructureProps {
   ) => Promise<QueryObserverResult<CourseStructure, unknown>>
 }
 
-const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
+const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStructureProps>> = ({
   courseStructure,
   refetch,
 }) => {

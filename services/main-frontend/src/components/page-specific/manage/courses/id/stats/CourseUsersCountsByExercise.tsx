@@ -17,10 +17,13 @@ export interface CourseUsersCountsByExerciseProps {
   courseId: string
 }
 
-const CourseUsersCountsByExercise: React.FC<CourseUsersCountsByExerciseProps> = ({ courseId }) => {
+const CourseUsersCountsByExercise: React.FC<
+  React.PropsWithChildren<CourseUsersCountsByExerciseProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const query = useQuery([`course-users-counts-by-exercise-${courseId}`], () =>
-    fetchCourseUsersCountByExercise(courseId))
+    fetchCourseUsersCountByExercise(courseId),
+  )
 
   if (query.isError) {
     return <ErrorBanner variant="readOnly" error={query.error} />

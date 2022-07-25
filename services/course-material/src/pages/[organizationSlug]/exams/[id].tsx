@@ -30,7 +30,7 @@ interface ExamProps {
   query: SimplifiedUrlQuery<string>
 }
 
-const Exam: React.FC<ExamProps> = ({ query }) => {
+const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const { t } = useTranslation()
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(

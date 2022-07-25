@@ -40,7 +40,7 @@ enum UpdateStatus {
   "failed",
 }
 
-const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
+const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
   key,
   exerciseService,
   refetch,

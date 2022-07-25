@@ -13,13 +13,14 @@ import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
-const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string | undefined }> = ({
-  chapterId,
-  courseInstanceId,
-}) => {
+const ExercisesInChapter: React.FC<
+  React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
+> = ({ chapterId, courseInstanceId }) => {
   const { t } = useTranslation()
-  const getChaptersPagesWithExercises = useQuery([`chapter-${chapterId}-pages-with-exercises`], () =>
-    fetchChaptersPagesWithExercises(chapterId))
+  const getChaptersPagesWithExercises = useQuery(
+    [`chapter-${chapterId}-pages-with-exercises`],
+    () => fetchChaptersPagesWithExercises(chapterId),
+  )
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

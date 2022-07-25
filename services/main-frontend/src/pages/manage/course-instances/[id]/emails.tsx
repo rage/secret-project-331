@@ -24,12 +24,14 @@ export interface CourseInstanceEmailTemplatesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> = ({ query }) => {
+const CourseInstanceEmailTemplates: React.FC<
+  React.PropsWithChildren<CourseInstanceEmailTemplatesProps>
+> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
   const getCourseInstanceEmailTemplates = useQuery(
     [`course-instance-${courseInstanceId}-emails`],
-    () => fetchCourseInstanceEmailTemplates(courseInstanceId)
+    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
 

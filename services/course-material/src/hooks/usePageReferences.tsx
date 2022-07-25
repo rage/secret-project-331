@@ -12,7 +12,8 @@ const useReferences = (courseId: string) => {
     useState<{ reference: MaterialReference; referenceNumber: number }[]>()
 
   const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
-    fetchCourseReferences(courseId))
+    fetchCourseReferences(courseId),
+  )
 
   useEffect(() => {
     if (!page.pageData) {

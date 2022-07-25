@@ -27,7 +27,9 @@ interface MessageChannelIFrameProps {
 
 // const IFRAME_TITLE = "Exercise type specific content"
 
-const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
+const MessageChannelIFrame: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<MessageChannelIFrameProps>>
+> = ({
   url,
   postThisStateToIFrame,
   onMessageFromIframe,

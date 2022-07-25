@@ -27,13 +27,16 @@ interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) => {
+const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstancesProps>> = ({
+  query,
+}) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
   const router = useRouter()
 
   const getCourseInstances = useQuery([`course-instance-${courseInstanceId}`], () =>
-    fetchCourseInstance(courseInstanceId))
+    fetchCourseInstance(courseInstanceId),
+  )
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {

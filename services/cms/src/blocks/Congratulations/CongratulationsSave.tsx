@@ -1,7 +1,7 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-const CongratulationsSave: React.FC = () => {
+const CongratulationsSave: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <div>
       <InnerBlocks.Content />

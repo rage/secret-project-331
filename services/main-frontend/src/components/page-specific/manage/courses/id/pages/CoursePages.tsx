@@ -8,9 +8,12 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 
 import ManageCourseStructure from "./ManageCourseStructure"
 
-const CoursePages: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const getCourseStructure = useQuery([`course-structure-${courseId}`], () =>
-    fetchCourseStructure(courseId))
+    fetchCourseStructure(courseId),
+  )
 
   return (
     <>

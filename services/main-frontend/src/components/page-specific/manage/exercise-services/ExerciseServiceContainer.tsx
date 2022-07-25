@@ -10,7 +10,7 @@ interface ExerciseServiceEditorProps {
   refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
-const ExerciseServiceContainer: React.FC<ExerciseServiceEditorProps> = ({
+const ExerciseServiceContainer: React.FC<React.PropsWithChildren<ExerciseServiceEditorProps>> = ({
   exerciseServices,
   refetch,
 }) => (

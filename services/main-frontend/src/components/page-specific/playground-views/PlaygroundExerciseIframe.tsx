@@ -17,12 +17,9 @@ interface PlaygroundExerciseIframeProps {
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const PlaygroundExerciseIframe: React.FC<PlaygroundExerciseIframeProps> = ({
-  url,
-  publicSpecQuery,
-  setCurrentStateReceivedFromIframe,
-  showIframeBorders,
-}) => {
+const PlaygroundExerciseIframe: React.FC<
+  React.PropsWithChildren<PlaygroundExerciseIframeProps>
+> = ({ url, publicSpecQuery, setCurrentStateReceivedFromIframe, showIframeBorders }) => {
   const { t } = useTranslation()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError || publicSpecQuery.isIdle) {
     return <>{t("error-no-public-spec")}</>

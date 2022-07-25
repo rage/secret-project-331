@@ -13,7 +13,7 @@ export interface ExamTimeOverModalProps {
   secondsLeft: number
 }
 
-const ExamTimeOverModal: React.FC<ExamTimeOverModalProps> = ({
+const ExamTimeOverModal: React.FC<React.PropsWithChildren<ExamTimeOverModalProps>> = ({
   disabled,
   onClose,
   secondsLeft,

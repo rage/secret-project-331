@@ -20,7 +20,7 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-const OrganizationPermissions: React.FC<Props> = ({ query }) => {
+const OrganizationPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
   const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
 

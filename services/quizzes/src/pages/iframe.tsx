@@ -31,7 +31,7 @@ export type State =
     }
   | { viewType: "exercise-editor"; privateSpec: Quiz }
 
-const IFrame: React.FC = () => {
+const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width

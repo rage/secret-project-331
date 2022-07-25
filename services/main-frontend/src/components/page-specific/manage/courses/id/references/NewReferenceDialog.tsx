@@ -15,7 +15,7 @@ interface NewReferenceModalProps {
   fetchCourseReferences: UseQueryResult<MaterialReference[], unknown>
 }
 
-const NewReferenceDialog: React.FC<NewReferenceModalProps> = ({
+const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProps>> = ({
   onClose,
   open,
   courseId,

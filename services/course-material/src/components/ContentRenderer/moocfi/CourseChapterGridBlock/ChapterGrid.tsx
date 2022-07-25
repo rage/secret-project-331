@@ -30,11 +30,12 @@ const COLORS_ARRAY = [
   "#08457A",
 ]
 
-const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
+const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
   const getChaptersInCourse = useQuery([`course-${courseId}-chapters`], () =>
-    fetchChaptersInTheCourse(courseId))
+    fetchChaptersInTheCourse(courseId),
+  )
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

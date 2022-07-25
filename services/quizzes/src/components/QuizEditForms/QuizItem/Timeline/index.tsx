@@ -141,7 +141,7 @@ interface Fields {
   event: string
 }
 
-const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
+const TimelineEditor: React.FC<React.PropsWithChildren<TimelineEditorProps>> = ({ item }) => {
   const storeTimelineItems = useTypedSelector((state) => state.editor.timelineItems)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const dispatch = useDispatch()
@@ -235,7 +235,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
         </StyledBtn>
       </StyledForm>
     </Wrapper>
-  );
+  )
 }
 
 export default TimelineEditor

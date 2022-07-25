@@ -22,13 +22,16 @@ const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showNewReferenceModal, setShowNewReferenceModal] = useState(false)
   const [showEditReferenceModal, setShowEditReferenceModal] = useState(false)
   const [reference, setReference] = useState<MaterialReference | null>(null)
   const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
-    fetchCourseReferences(courseId))
+    fetchCourseReferences(courseId),
+  )
 
   return (
     <div

@@ -17,7 +17,7 @@ export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>
   // eslint-disable-next-line i18next/no-literal-string
   `start-of-peer-review-${exerciseId}`
 
-const PeerReviewView: React.FC<PeerReviewViewProps> = (props) => {
+const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (props) => {
   const { t } = useTranslation()
 
   return (

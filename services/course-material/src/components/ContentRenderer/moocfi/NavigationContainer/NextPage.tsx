@@ -17,7 +17,7 @@ export interface NextPageProps {
   organizationSlug: string
 }
 
-const NextPage: React.FC<NextPageProps> = ({
+const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
   organizationSlug,
@@ -42,7 +42,7 @@ const NextPage: React.FC<NextPageProps> = ({
         const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
         setnextPageChapterOpen(diffSeconds <= 0)
       },
-    }
+    },
   )
 
   if (getPageRoutingData.isError) {

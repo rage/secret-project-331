@@ -16,7 +16,11 @@ interface Props {
   perPage: number
 }
 
-const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
+const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  pending,
+  perPage,
+}) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -29,7 +33,8 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   const [page, setPage] = useState(initialPage)
 
   const getEditProposalCount = useQuery([`edit-proposal-count-${courseId}`], () =>
-    fetchEditProposalCount(courseId))
+    fetchEditProposalCount(courseId),
+  )
 
   if (getEditProposalCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />

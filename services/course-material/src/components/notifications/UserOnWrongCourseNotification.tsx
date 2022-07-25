@@ -15,13 +15,13 @@ export interface UserOnWrongCourseNotificationProps {
   organizationSlug: string
 }
 
-const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps> = ({
-  correctCourseId,
-  organizationSlug,
-}) => {
+const UserOnWrongCourseNotification: React.FC<
+  React.PropsWithChildren<UserOnWrongCourseNotificationProps>
+> = ({ correctCourseId, organizationSlug }) => {
   const { t } = useTranslation()
   const getCourseById = useQuery([`correct-course-${correctCourseId}`], () =>
-    fetchCourseById(correctCourseId))
+    fetchCourseById(correctCourseId),
+  )
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />

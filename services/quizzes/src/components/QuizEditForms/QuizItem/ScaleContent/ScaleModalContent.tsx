@@ -45,7 +45,9 @@ const ModalContentTitleWrapper = styled.div`
 interface ScaleItemEditorModalProps {
   item: NormalizedQuizItem
 }
-export const ScaleModalContent: React.FC<ScaleItemEditorModalProps> = ({ item }) => {
+export const ScaleModalContent: React.FC<React.PropsWithChildren<ScaleItemEditorModalProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])

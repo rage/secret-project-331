@@ -45,7 +45,7 @@ interface Props {
   domain: RoleDomain
 }
 
-export const PermissionPage: React.FC<Props> = ({ domain }) => {
+export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
   let { sort: sort_key } = router.query

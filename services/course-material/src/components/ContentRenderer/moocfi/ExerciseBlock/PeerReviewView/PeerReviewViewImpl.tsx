@@ -24,7 +24,7 @@ import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
 
-const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
+const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
   parentExerciseQuery,

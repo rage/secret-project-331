@@ -23,7 +23,7 @@ import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const Home: React.FC = () => {
+const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery(['playground-examples'], () => fetchPlaygroundExamples())
+  const getPlaygroundExamples = useQuery(["playground-examples"], () => fetchPlaygroundExamples())
   const saveMutation = useToastMutation(
     savePlaygroundExample,
     {

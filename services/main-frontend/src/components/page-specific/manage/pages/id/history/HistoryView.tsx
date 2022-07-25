@@ -16,7 +16,7 @@ interface Props {
   pageId: string
 }
 
-const HistoryView: React.FC<Props> = ({ pageId }) => {
+const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   const { t } = useTranslation()
   const [currentTitle, setCurrentTitle] = useState<string | null>(null)
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null)

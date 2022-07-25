@@ -33,7 +33,9 @@ const SCORE = "score"
 const EMAIL = "email"
 const DOWN_ARROW = "v"
 
-const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ query }) => {
+const CourseInstancePointsList: React.FC<
+  React.PropsWithChildren<CourseInstancePointsListProps>
+> = ({ query }) => {
   const courseInstanceId = query.id
   const { t } = useTranslation()
 
@@ -56,7 +58,8 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
   }
 
   const getPointsList = useQuery([`point-list-${courseInstanceId}`], () =>
-    getPoints(courseInstanceId))
+    getPoints(courseInstanceId),
+  )
 
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)

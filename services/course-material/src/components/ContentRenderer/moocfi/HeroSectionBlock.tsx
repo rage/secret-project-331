@@ -5,7 +5,9 @@ import BreakFromCentered from "../../../shared-module/components/Centering/Break
 import HeroSection, { HeroSectionProps } from "../../../shared-module/components/HeroSection"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const HeroSectionBlock: React.FC<BlockRendererProps<HeroSectionProps>> = (props) => {
+const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
+  props,
+) => {
   return (
     <BreakFromCentered sidebar={false}>
       <HeroSection

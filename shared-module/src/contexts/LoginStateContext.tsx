@@ -24,7 +24,9 @@ const LoginStateContext = React.createContext<LoginState>(defaultLoginState)
 
 export default LoginStateContext
 
-export const LoginStateContextProvider: React.FC = ({ children }) => {
+export const LoginStateContextProvider: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<unknown>>
+> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery([`logged-in`], loggedIn)
 
@@ -44,11 +46,13 @@ export const LoginStateContextProvider: React.FC = ({ children }) => {
   return <LoginStateContext.Provider value={loginState}>{children}</LoginStateContext.Provider>
 }
 
-export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
+export function withSignedIn<T>(
+  Component: ComponentType<React.PropsWithChildren<React.PropsWithChildren<T>>>,
+): React.FC<React.PropsWithChildren<React.PropsWithChildren<T>>> {
   // eslint-disable-next-line i18next/no-literal-string
   const displayName = Component.displayName || Component.name || "Component"
 
-  const InnerComponent: React.FC<T> = (props) => {
+  const InnerComponent: React.FC<React.PropsWithChildren<React.PropsWithChildren<T>>> = (props) => {
     const { t } = useTranslation()
     const loginStateContext = useContext(LoginStateContext)
 

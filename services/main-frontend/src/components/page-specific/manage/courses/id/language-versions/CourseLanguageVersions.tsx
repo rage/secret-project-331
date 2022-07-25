@@ -15,7 +15,9 @@ import CourseLanguageVersionsList, {
 } from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
-const CourseLanguageVersionsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
   const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))

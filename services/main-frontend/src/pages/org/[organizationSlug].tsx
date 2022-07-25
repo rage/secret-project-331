@@ -20,10 +20,11 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">
 }
 
-const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getOrganizationBySlug = useQuery([`organization-${query.organizationSlug}`], () =>
-    fetchOrganizationBySlug(query.organizationSlug))
+    fetchOrganizationBySlug(query.organizationSlug),
+  )
 
   return (
     <Layout>

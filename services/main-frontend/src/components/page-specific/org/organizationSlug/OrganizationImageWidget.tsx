@@ -15,10 +15,9 @@ export interface OrganizationImageControlsProps {
   onOrganizationUpdated: () => void
 }
 
-const OrganizationImageWidget: React.FC<OrganizationImageControlsProps> = ({
-  organization,
-  onOrganizationUpdated,
-}) => {
+const OrganizationImageWidget: React.FC<
+  React.PropsWithChildren<OrganizationImageControlsProps>
+> = ({ organization, onOrganizationUpdated }) => {
   const { t } = useTranslation()
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()

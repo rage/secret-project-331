@@ -46,9 +46,9 @@ const hours = [
 
 const maxCircleSize = 100
 
-const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndHourProps> = ({
-  courseId,
-}) => {
+const CourseSubmissionsByWeekdayAndHour: React.FC<
+  React.PropsWithChildren<CourseSubmissionsByWeekdayAndHourProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseWeekdayHourSubmissionCount = useQuery(
     [`course-submissions-by-weekday-and-hour-${courseId}`],
@@ -59,7 +59,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
         const maxValue = max(data.map((o) => o.count)) || 10000
         return { apiData: data, dataByWeekDay, maxValue }
       },
-    }
+    },
   )
 
   const isodowToWeekdayName = {

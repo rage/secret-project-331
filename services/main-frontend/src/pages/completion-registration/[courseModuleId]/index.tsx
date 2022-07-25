@@ -19,12 +19,12 @@ export interface CompletionPageProps {
   query: SimplifiedUrlQuery<"courseModuleId">
 }
 
-const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
+const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = ({ query }) => {
   const { courseModuleId } = query
   const router = useRouter()
   const userCompletionInformation = useQuery(
     [`course-module-${courseModuleId}-completion-information`],
-    () => fetchUserCompletionInformation(courseModuleId)
+    () => fetchUserCompletionInformation(courseModuleId),
   )
   return (
     <Layout>

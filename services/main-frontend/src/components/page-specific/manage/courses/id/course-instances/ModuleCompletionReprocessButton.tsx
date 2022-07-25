@@ -10,9 +10,9 @@ interface ModuleCompletionReprocessButtonProps {
   courseInstanceId: string
 }
 
-const ModuleCompletionReprocessButton: React.FC<ModuleCompletionReprocessButtonProps> = ({
-  courseInstanceId,
-}) => {
+const ModuleCompletionReprocessButton: React.FC<
+  React.PropsWithChildren<ModuleCompletionReprocessButtonProps>
+> = ({ courseInstanceId }) => {
   const { t } = useTranslation()
   const postReprocessCompletionsMutation = useToastMutation(
     async () => {

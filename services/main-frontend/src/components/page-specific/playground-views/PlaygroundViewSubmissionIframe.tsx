@@ -25,7 +25,9 @@ interface PlaygroundViewSubmissionIframeProps {
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const PlaygroundViewSubmissionIframe: React.FC<PlaygroundViewSubmissionIframeProps> = ({
+const PlaygroundViewSubmissionIframe: React.FC<
+  React.PropsWithChildren<PlaygroundViewSubmissionIframeProps>
+> = ({
   url,
   publicSpecQuery,
   gradingQuery,

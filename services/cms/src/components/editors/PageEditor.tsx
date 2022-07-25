@@ -60,7 +60,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
-const PageEditor: React.FC<PageEditorProps> = ({
+const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   data,
   saveMutation,
   needToRunMigrationsAndValidations,
@@ -122,7 +122,8 @@ const PageEditor: React.FC<PageEditorProps> = ({
   }
 
   const getNextPageRoutingData = useQuery([`pages-${data.id}-page-navigation`], () =>
-    fetchNextPageRoutingData(data.id))
+    fetchNextPageRoutingData(data.id),
+  )
 
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"

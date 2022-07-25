@@ -71,12 +71,9 @@ interface StyledProps {
   active: boolean
 }
 
-const LinkertScale: React.FC<LikertScaleProps> = ({
-  question,
-  answerRequired,
-  selectedOption,
-  setSelectedOption,
-}) => {
+const LinkertScale: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<LikertScaleProps>>
+> = ({ question, answerRequired, selectedOption, setSelectedOption }) => {
   const { t } = useTranslation()
 
   const arr = [

@@ -83,7 +83,10 @@ interface MultipleChoiceButtonProps {
   index: number
 }
 
-const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, index }) => {
+const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButtonProps>> = ({
+  option,
+  index,
+}) => {
   const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
   const storeItem = useTypedSelector((state) => state.editor.items[option.quizItemId])

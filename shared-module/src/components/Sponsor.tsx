@@ -65,8 +65,16 @@ const SponsorLogo = styled.div<StyledSponsor>`
   }
 `
 
+interface Logo {
+  clientId: string
+  attributes: {
+    url: string
+    alt: string
+  }
+}
+
 export interface SponsorExtraProps {
-  logos: any
+  logos: Logo[]
   width?: string
 }
 interface StyledSponsor {
@@ -75,14 +83,17 @@ interface StyledSponsor {
 
 export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
 
-const Sponsor: React.FC<SponsorProps> = ({ width = "250px", logos }) => {
+const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorProps>>> = ({
+  width = "250px",
+  logos,
+}) => {
   const { t } = useTranslation()
 
   return (
     <Container>
       <h2> {t("sponsor")} </h2>
       <SponsorBox>
-        {logos.map(({ attributes, clientId }: any) => {
+        {logos.map(({ attributes, clientId }) => {
           return (
             <SponsorLogo width={width} key={clientId}>
               <img src={attributes.url} alt={attributes.alt} />

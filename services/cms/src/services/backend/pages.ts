@@ -1,6 +1,15 @@
-import { CmsPageUpdate, ContentManagementPage, PageInfo } from "../../shared-module/bindings"
-import { isContentManagementPage, isPageInfo } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
+import {
+  CmsPageUpdate,
+  ContentManagementPage,
+  PageInfo,
+  PageNavigationInformation,
+} from "../../shared-module/bindings"
+import {
+  isContentManagementPage,
+  isPageInfo,
+  isPageNavigationInformation,
+} from "../../shared-module/bindings.guard"
+import { isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 
@@ -12,6 +21,13 @@ export const fetchPageWithId = async (pageId: string): Promise<ContentManagement
 export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
   const response = await cmsClient.get(`/pages/${pageId}/info`, { responseType: "json" })
   return validateResponse(response, isPageInfo)
+}
+
+export const fetchNextPageRoutingData = async (
+  currentPageId: string,
+): Promise<PageNavigationInformation | null> => {
+  const response = await cmsClient.get(`/pages/${currentPageId}/page-navigation`)
+  return validateResponse(response, isUnion(isPageNavigationInformation, isNull))
 }
 
 export const updateExistingPage = async (

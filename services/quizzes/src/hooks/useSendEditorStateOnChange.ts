@@ -1,7 +1,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { useEffect } from "react"
 
-import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 import { StoreState } from "../store/store"
 import { denormalizeData } from "../util/normalizerFunctions"
 

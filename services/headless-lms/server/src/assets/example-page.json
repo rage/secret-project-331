@@ -1,5 +1,15 @@
 [
   {
+    "clientId": "c91b6d27-5bbc-4865-97a4-ea8af638ad30",
+    "isValid": true,
+    "name": "moocfi/hero-section",
+    "attributes": {
+      "title": "A page that contains all blocks",
+      "subtitle": "Have fun!"
+    },
+    "innerBlocks": []
+  },
+  {
     "clientId": "4639c1db-cdb3-47ce-ab20-811ff18911a0",
     "isValid": true,
     "name": "core/paragraph",
@@ -983,6 +993,25 @@
       }
     ],
     "isValid": true
+  },
+  {
+    "attributes": {},
+    "clientId": "1d7f1ee6-4128-457c-b293-14ca913f0dc8",
+    "innerBlocks": [
+      {
+        "attributes": {
+          "ordered": false,
+          "placeholder": "Insert text...",
+          "values": "<li>This is the first objective of this chapter</li><li>This is the second objective of this chapter</li><li>This is the third objective of this chapter</li>"
+        },
+        "clientId": "5747acc6-d5d0-4399-b406-f9ec14fd92b0",
+        "innerBlocks": [],
+        "isValid": true,
+        "name": "core/list"
+      }
+    ],
+    "isValid": true,
+    "name": "moocfi/learning-objectives"
   },
   {
     "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",

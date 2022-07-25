@@ -202,6 +202,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  ects_credits: number | null
 }
 
 export interface Course {
@@ -219,6 +220,7 @@ export interface Course {
   course_language_group_id: string
   is_draft: boolean
   is_test_mode: boolean
+  base_module_completion_requires_n_submodule_completions: number
 }
 
 export interface CourseStructure {
@@ -516,6 +518,27 @@ export interface CourseMaterialPeerReviewSubmission {
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
 }
 
+export interface CompletionRegistrationLink {
+  url: string
+}
+
+export interface UserCompletionInformation {
+  course_module_completion_id: string
+  course_name: string
+  uh_course_code: string
+  email: string
+  ects_credits: number | null
+}
+
+export interface UserModuleCompletionStatus {
+  completed: boolean
+  default: boolean
+  module_id: string
+  name: string
+  order_number: number
+  prerequisite_modules_completed: boolean
+}
+
 export interface Organization {
   id: string
   slug: string
@@ -632,16 +655,6 @@ export interface PageInfo {
   organization_slug: string | null
 }
 
-export interface PageRoutingDataWithChapterStatus {
-  url_path: string
-  title: string
-  chapter_number: number
-  chapter_id: string
-  chapter_opens_at: Date | null
-  chapter_front_page_id: string | null
-  chapter_status: ChapterStatus
-}
-
 export interface PageSearchRequest {
   query: string
 }
@@ -692,6 +705,26 @@ export interface PageChapterAndCourseInformation {
   chapter_front_page_id: string | null
   chapter_front_page_url_path: string | null
   organization_slug: string
+}
+
+export interface IsChapterFrontPage {
+  is_chapter_front_page: boolean
+}
+
+export interface PageRoutingData {
+  url_path: string
+  title: string
+  page_id: string
+  chapter_number: number
+  chapter_id: string
+  chapter_opens_at: Date | null
+  chapter_front_page_id: string | null
+}
+
+export interface PageNavigationInformation {
+  chapter_front_page: PageRoutingData | null
+  next_page: PageRoutingData | null
+  previous_page: PageRoutingData | null
 }
 
 export interface PeerReview {

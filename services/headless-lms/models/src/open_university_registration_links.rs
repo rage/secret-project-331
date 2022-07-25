@@ -38,14 +38,14 @@ pub async fn get_link_by_course_code(
 ) -> ModelResult<String> {
     let res = sqlx::query!(
         "
-SELECT uh_course_code
+SELECT registration_link
 FROM open_university_registration_links
 WHERE uh_course_code = $1
   AND deleted_at IS NULL
         ",
         uh_course_code
     )
-    .map(|record| record.uh_course_code)
+    .map(|record| record.registration_link)
     .fetch_one(conn)
     .await?;
     Ok(res)

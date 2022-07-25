@@ -126,6 +126,10 @@ fn ts_binding_generator() {
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
+        library::progressing::CompletionRegistrationLink,
+        library::progressing::UserCompletionInformation,
+        library::progressing::UserModuleCompletionStatus,
+
         organizations::Organization,
 
         page_history::PageHistory,
@@ -141,12 +145,14 @@ fn ts_binding_generator() {
         pages::HistoryRestoreData,
         pages::Page,
         pages::PageInfo,
-        pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+        pages::IsChapterFrontPage,
+        pages::PageRoutingData,
+        pages::PageNavigationInformation,
 
         peer_reviews::PeerReview,
         peer_reviews::PeerReviewAcceptingStrategy,

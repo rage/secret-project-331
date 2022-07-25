@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{course_chapters, ChapterStatus, DatabaseChapter},
+    chapters::{self, course_chapters, get_chapter_by_page_id, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -109,35 +109,25 @@ pub struct NormalizedCmsExerciseTask {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageRoutingData {
     pub url_path: String,
     pub title: String,
+    pub page_id: Uuid,
     pub chapter_number: i32,
     pub chapter_id: Uuid,
     pub chapter_opens_at: Option<DateTime<Utc>>,
     pub chapter_front_page_id: Option<Uuid>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PageRoutingDataWithChapterStatus {
-    pub url_path: String,
-    pub title: String,
-    pub chapter_number: i32,
-    pub chapter_id: Uuid,
-    pub chapter_opens_at: Option<DateTime<Utc>>,
-    pub chapter_front_page_id: Option<Uuid>,
-    pub chapter_status: ChapterStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct PageMetadata {
-    page_id: Uuid,
-    order_number: i32,
-    chapter_id: Option<Uuid>,
-    chapter_number: Option<i32>,
-    course_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
+    pub page_id: Uuid,
+    pub order_number: i32,
+    pub chapter_id: Option<Uuid>,
+    pub chapter_number: Option<i32>,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
@@ -177,6 +167,13 @@ pub struct ContentManagementPage {
 pub struct PageSearchRequest {
     query: String,
 }
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageNavigationInformation {
+    pub chapter_front_page: Option<PageRoutingData>,
+    pub next_page: Option<PageRoutingData>,
+    pub previous_page: Option<PageRoutingData>,
+}
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -191,6 +188,12 @@ pub struct ExerciseWithExerciseTasks {
     page_id: Uuid,
     exercise_tasks: Vec<ExerciseTask>,
     score_maximum: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct IsChapterFrontPage {
+    pub is_chapter_front_page: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -1233,10 +1236,10 @@ WHERE id = $2;
 
 #[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
-    id: Uuid,
-    private_spec: Option<serde_json::Value>,
-    public_spec: Option<serde_json::Value>,
-    model_solution_spec: Option<serde_json::Value>,
+    pub id: Uuid,
+    pub private_spec: Option<serde_json::Value>,
+    pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 async fn fetch_derived_spec(
@@ -1569,9 +1572,9 @@ WHERE page_id IN (
 
 pub async fn get_next_page(
     conn: &mut PgConnection,
-    pages_id: Uuid,
+    page_id: Uuid,
 ) -> ModelResult<Option<PageRoutingData>> {
-    let page_metadata = get_current_page_metadata(conn, pages_id).await?;
+    let page_metadata = get_current_page_metadata(conn, page_id).await?;
     let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
 
     match next_page {
@@ -1580,34 +1583,6 @@ pub async fn get_next_page(
             let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
             Ok(first_page)
         }
-    }
-}
-
-pub async fn get_next_page_with_chapter_status(
-    next_page_data: Option<PageRoutingData>,
-) -> ModelResult<Option<PageRoutingDataWithChapterStatus>> {
-    match next_page_data {
-        Some(data) => {
-            let open = data
-                .chapter_opens_at
-                .map(|o| o <= Utc::now())
-                .unwrap_or(true);
-            let status = if open {
-                ChapterStatus::Open
-            } else {
-                ChapterStatus::Closed
-            };
-            Ok(Some(PageRoutingDataWithChapterStatus {
-                url_path: data.url_path,
-                title: data.title,
-                chapter_number: data.chapter_number,
-                chapter_id: data.chapter_id,
-                chapter_opens_at: data.chapter_opens_at,
-                chapter_front_page_id: data.chapter_front_page_id,
-                chapter_status: status,
-            }))
-        }
-        None => Ok(None),
     }
 }
 
@@ -1651,6 +1626,7 @@ async fn get_next_page_by_order_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -1686,6 +1662,7 @@ async fn get_next_page_by_chapter_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -1732,6 +1709,153 @@ where p.chapter_id = $1
         Some(order_number) => Ok(order_number + 1),
         None => Ok(0),
     }
+}
+
+pub async fn get_page_navigation_data(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageNavigationInformation> {
+    let previous_page_data = get_previous_page(conn, page_id).await?;
+
+    let next_page_data = get_next_page(conn, page_id).await?;
+
+    let chapter_front_page = get_chapter_front_page_by_page_id(conn, page_id).await?;
+    // This may be different from the chapter of the previous page and the chapter of the next page so we need to fetch it to be sure.
+    let chapter_front_page_chapter = OptionFuture::from(
+        chapter_front_page
+            .clone()
+            .and_then(|front_page| front_page.chapter_id)
+            .map(|chapter_id| chapters::get_chapter(conn, chapter_id)),
+    )
+    .await
+    .transpose()?;
+
+    let chapter_front_page_data = chapter_front_page
+        .map(|front_page| -> ModelResult<_> {
+            if let Some(chapter_front_page_chapter) = chapter_front_page_chapter {
+                Ok(PageRoutingData {
+                    url_path: front_page.url_path,
+                    title: front_page.title,
+                    page_id: front_page.id,
+                    chapter_number: chapter_front_page_chapter.chapter_number,
+                    chapter_id: chapter_front_page_chapter.id,
+                    chapter_opens_at: chapter_front_page_chapter.opens_at,
+                    chapter_front_page_id: Some(front_page.id),
+                })
+            } else {
+                Err(ModelError::InvalidRequest(
+                    "Chapter front page chapter not found".to_string(),
+                ))
+            }
+        })
+        .transpose()?;
+    Ok(PageNavigationInformation {
+        chapter_front_page: chapter_front_page_data,
+        next_page: next_page_data,
+        previous_page: previous_page_data,
+    })
+}
+
+pub async fn get_previous_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Option<PageRoutingData>> {
+    let page_metadata = get_current_page_metadata(conn, page_id).await?;
+    let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
+
+    match previous_page {
+        Some(previous_page) => Ok(Some(previous_page)),
+        None => {
+            let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
+            Ok(first_page)
+        }
+    }
+}
+
+pub async fn get_chapter_front_page_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Option<Page>> {
+    let page_metadata = get_current_page_metadata(conn, page_id).await?;
+    let chapter = chapters::get_chapter_info_by_page_metadata(conn, &page_metadata).await?;
+    let page_option_future: OptionFuture<_> = chapter
+        .chapter_front_page_id
+        .map(|chapter_front_page_id| get_page(conn, chapter_front_page_id))
+        .into();
+    let page = page_option_future.await.transpose()?;
+    Ok(page)
+}
+
+async fn get_previous_page_by_order_number(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<Option<PageRoutingData>> {
+    let previous_page = sqlx::query_as!(
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  c.chapter_number as chapter_number,
+  p.id as page_id,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM pages p
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE p.order_number = (
+    SELECT MAX(pa.order_number)
+    FROM pages pa
+    WHERE pa.order_number < $1
+      AND pa.deleted_at IS NULL
+  )
+  AND p.course_id = $2
+  AND c.chapter_number = $3
+  AND p.deleted_at IS NULL;
+        ",
+        current_page_metadata.order_number,
+        current_page_metadata.course_id,
+        current_page_metadata.chapter_number
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(previous_page)
+}
+
+async fn get_previous_page_by_chapter_number(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<Option<PageRoutingData>> {
+    let previous_page = sqlx::query_as!(
+        PageRoutingData,
+        "
+SELECT p.url_path as url_path,
+  p.title as title,
+  p.id as page_id,
+  c.chapter_number as chapter_number,
+  c.id as chapter_id,
+  c.opens_at as chapter_opens_at,
+  c.front_page_id as chapter_front_page_id
+FROM chapters c
+  INNER JOIN pages p on c.id = p.chapter_id
+WHERE c.chapter_number = (
+    SELECT MAX(ca.chapter_number)
+    FROM chapters ca
+    WHERE ca.chapter_number < $1
+      AND ca.deleted_at IS NULL
+  )
+  AND c.course_id = $2
+  AND p.deleted_at IS NULL
+ORDER BY p.order_number
+LIMIT 1;
+        ",
+        current_page_metadata.chapter_number,
+        current_page_metadata.course_id
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(previous_page)
 }
 
 async fn get_next_order_number_for_courses_top_level_pages(
@@ -2157,6 +2281,22 @@ WHERE pages.order_number = $1
     }
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn is_chapter_front_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<IsChapterFrontPage> {
+    let chapter = get_chapter_by_page_id(conn, page_id).await?;
+
+    Ok(chapter.front_page_id.map_or(
+        IsChapterFrontPage {
+            is_chapter_front_page: false,
+        },
+        |id| IsChapterFrontPage {
+            is_chapter_front_page: id == page_id,
+        },
+    ))
 }
 
 #[cfg(test)]

@@ -234,17 +234,16 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
     Ok(res)
 }
 
+/// Gets course instance metrics for a single module.
 pub async fn get_single_module_course_instance_metrics(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     course_module_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceMetrics> {
-    let res = sqlx::query_as!(
-        UserCourseInstanceMetrics,
+    let res = sqlx::query!(
         "
-SELECT chapters.course_module_id,
-  COUNT(ues.exercise_id) AS attempted_exercises,
+SELECT COUNT(ues.exercise_id) AS attempted_exercises,
   COALESCE(SUM(ues.score_given), 0) AS score_given
 FROM user_exercise_states AS ues
   LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
@@ -254,13 +253,16 @@ WHERE chapters.course_module_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $3
   AND ues.deleted_at IS NULL
-GROUP BY chapters.course_module_id
-LIMIT 1
         ",
         course_module_id,
         course_instance_id,
         user_id,
     )
+    .map(|x| UserCourseInstanceMetrics {
+        course_module_id,
+        score_given: x.score_given,
+        attempted_exercises: x.attempted_exercises,
+    })
     .fetch_one(conn)
     .await?;
     Ok(res)
@@ -1017,6 +1019,24 @@ mod tests {
     use chrono::TimeZone;
 
     use super::*;
+    use crate::test_helper::*;
+
+    mod getting_single_module_course_instance_metrics {
+        use super::*;
+
+        #[tokio::test]
+        async fn works_without_any_user_exercise_states() {
+            insert_data!(:tx, :user, :org, :course, :instance, :course_module);
+            let res = get_single_module_course_instance_metrics(
+                tx.as_mut(),
+                instance.id,
+                course_module,
+                user,
+            )
+            .await;
+            assert!(res.is_ok())
+        }
+    }
 
     #[test]
     fn merges_course_modules_with_metrics() {
@@ -1031,6 +1051,7 @@ mod tests {
             course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             copied_from: None,
             uh_course_code: None,
+            ects_credits: Some(5),
             automatic_completion: false,
             automatic_completion_number_of_exercises_attempted_treshold: None,
             automatic_completion_number_of_points_treshold: None,

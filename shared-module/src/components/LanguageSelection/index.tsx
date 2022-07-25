@@ -27,7 +27,7 @@ export interface LanguageSelectionProps {
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState<boolean>(false)
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
@@ -48,39 +48,42 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
 
   return (
     <>
-      <button
-        type="button"
-        className={css`
-          background: none;
-          border: none;
-          padding: 0.5rem 1rem;
-
-          :hover {
-            cursor: pointer;
-          }
-        `}
-        ref={setReferenceElement}
-        onClick={() => setVisible(!visible)}
-      >
-        <FontAwesomeIcon
+      <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
+        <button
+          type="button"
           className={css`
-            margin-right: 0.5rem;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+
+            :hover {
+              cursor: pointer;
+            }
           `}
-          icon={faGlobe}
-        />{" "}
-        {t("language")}
-      </button>
-      <div
-        className={css`
-          z-index: 800;
-        `}
-        ref={setPopperElement}
-        // eslint-disable-next-line react/forbid-dom-props
-        style={styles.popper}
-        {...attributes.popper}
-      >
-        <LanguageMenu visible={visible}>
-          <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
+          ref={setReferenceElement}
+          onClick={(e) => {
+            e.preventDefault()
+            setVisible(!visible)
+          }}
+        >
+          <FontAwesomeIcon
+            className={css`
+              margin-right: 0.5rem;
+            `}
+            icon={faGlobe}
+          />{" "}
+          {t("language")}
+        </button>
+        <div
+          className={css`
+            z-index: 800;
+          `}
+          ref={setPopperElement}
+          // eslint-disable-next-line react/forbid-dom-props
+          style={styles.popper}
+          {...attributes.popper}
+        >
+          <LanguageMenu visible={visible}>
             <ul
               className={css`
                 padding: 0;
@@ -94,11 +97,11 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
                 />
               ))}
             </ul>
-          </OutsideClickHandler>
-        </LanguageMenu>
-        {/* eslint-disable-next-line react/forbid-dom-props */}
-        <div ref={setArrowElement} style={styles.arrow} />
-      </div>
+          </LanguageMenu>
+          {/* eslint-disable-next-line react/forbid-dom-props */}
+          <div ref={setArrowElement} style={styles.arrow} />
+        </div>
+      </OutsideClickHandler>
     </>
   )
 }

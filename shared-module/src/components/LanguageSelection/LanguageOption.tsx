@@ -29,6 +29,7 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
       <Button
         className={css`
           text-decoration: none !important;
+          text-transform: capitalize;
           list-style: none !important;
           margin: 0 !important;
           padding: 0 !important;

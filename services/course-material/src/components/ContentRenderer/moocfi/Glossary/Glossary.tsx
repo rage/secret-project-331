@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchGlossary } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -15,7 +15,7 @@ interface Props {
 const Glossary: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const glossary = useQuery(`glossary-${courseId}`, () => fetchGlossary(courseId))
+  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
 
   if (glossary.isIdle || glossary.isLoading) {
     return <Spinner variant={"small"} />

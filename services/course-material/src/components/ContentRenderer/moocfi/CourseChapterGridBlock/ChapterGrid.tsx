@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
@@ -33,9 +33,8 @@ const COLORS_ARRAY = [
 const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
-  const getChaptersInCourse = useQuery(`course-${courseId}-chapters`, () =>
-    fetchChaptersInTheCourse(courseId),
-  )
+  const getChaptersInCourse = useQuery([`course-${courseId}-chapters`], () =>
+    fetchChaptersInTheCourse(courseId))
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

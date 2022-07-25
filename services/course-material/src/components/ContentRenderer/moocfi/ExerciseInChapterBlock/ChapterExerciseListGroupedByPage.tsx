@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
-import { useQuery } from "react-query"
 
 import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../services/backend"
 import { PageWithExercises } from "../../../../shared-module/bindings"
@@ -28,20 +28,18 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
   page,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
-  const getUserCourseInstanceChapterExercisesProgress = useQuery(
-    `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
-    () =>
-      fetchUserCourseInstanceChapterExercisesProgress(
-        assertNotNullOrUndefined(courseInstanceId),
-        chapterId,
-      ),
-    {
-      select: (data) => {
-        return new Map(data.map((x) => [x.exercise_id, x.score_given]))
-      },
-      enabled: courseInstanceId !== undefined,
+  const getUserCourseInstanceChapterExercisesProgress = useQuery([
+    `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`
+  ], () =>
+    fetchUserCourseInstanceChapterExercisesProgress(
+      assertNotNullOrUndefined(courseInstanceId),
+      chapterId,
+    ), {
+    select: (data) => {
+      return new Map(data.map((x) => [x.exercise_id, x.score_given]))
     },
-  )
+    enabled: courseInstanceId !== undefined,
+  })
 
   if (getUserCourseInstanceChapterExercisesProgress.isError) {
     return (

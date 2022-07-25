@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
@@ -20,7 +20,7 @@ interface Props {
 
 const ManageOrganization: React.FC<Props> = ({ query }) => {
   const { t } = useTranslation()
-  const organization = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
+  const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
 
   let contents
   if (organization.isLoading || organization.isIdle) {

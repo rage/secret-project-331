@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../../../../services/backend/organizations"
 import DebugModal from "../../../../shared-module/components/DebugModal"
@@ -14,7 +14,7 @@ import { organizationCoursesPageHref } from "../../../../shared-module/utils/cro
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
-  const getOrganizations = useQuery(`organizations`, () => fetchOrganizations(), {
+  const getOrganizations = useQuery([`organizations`], () => fetchOrganizations(), {
     cacheTime: 60000,
   })
 

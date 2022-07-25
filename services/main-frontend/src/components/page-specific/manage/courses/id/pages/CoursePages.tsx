@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
@@ -9,9 +9,8 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 import ManageCourseStructure from "./ManageCourseStructure"
 
 const CoursePages: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
-  const getCourseStructure = useQuery(`course-structure-${courseId}`, () =>
-    fetchCourseStructure(courseId),
-  )
+  const getCourseStructure = useQuery([`course-structure-${courseId}`], () =>
+    fetchCourseStructure(courseId))
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
@@ -23,7 +23,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
-  const getCurrentPageHistory = useQuery(`page-history-current-${pageId}`, async () => {
+  const getCurrentPageHistory = useQuery([`page-history-current-${pageId}`], async () => {
     const history = await fetchHistoryForPage(pageId, 1, 1)
     if (history.length === 0) {
       // there is always at least one history entry corresponding to the current state of the page

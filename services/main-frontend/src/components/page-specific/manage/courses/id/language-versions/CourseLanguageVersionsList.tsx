@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"

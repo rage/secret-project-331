@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { faQuestion as faIcon } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import SubmissionIFrame from "../../components/page-specific/submissions/id/SubmissionIFrame"
@@ -25,7 +25,7 @@ interface SubmissionPageProps {
 
 const Submission: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const getSubmissionInfo = useQuery(`submission-${query.id}`, () => fetchSubmissionInfo(query.id))
+  const getSubmissionInfo = useQuery([`submission-${query.id}`], () => fetchSubmissionInfo(query.id))
 
   const totalScoreGiven = getSubmissionInfo.data?.tasks
     .map((task) => task.previous_submission_grading?.score_given)

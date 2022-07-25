@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import {
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery("playground-examples", () => fetchPlaygroundExamples())
+  const getPlaygroundExamples = useQuery(['playground-examples'], () => fetchPlaygroundExamples())
   const saveMutation = useToastMutation(
     savePlaygroundExample,
     {

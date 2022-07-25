@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchTopLevelPages } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -23,9 +23,8 @@ const Wrapper = styled.div`
 
 const TopLevelPages: React.FC<TopLevelPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getTopLevelPages = useQuery(`courses-${courseId}-top-level-pages`, () =>
-    fetchTopLevelPages(courseId),
-  )
+  const getTopLevelPages = useQuery([`courses-${courseId}-top-level-pages`], () =>
+    fetchTopLevelPages(courseId))
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
   return (

@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPageInfo } from "../../../../../../services/backend/pages"
 import {
@@ -44,7 +44,7 @@ const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery(`page-info-id-${proposal.page_id}`, () => {
+  const pageInfo = useQuery([`page-info-id-${proposal.page_id}`], () => {
     if (!proposal.page_id) {
       return null
     }

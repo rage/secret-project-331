@@ -1,11 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
+import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { UseMutationResult, useQuery } from "react-query"
 
 import {
   blockTypeMapForFrontPages,
@@ -121,9 +121,8 @@ const PageEditor: React.FC<PageEditorProps> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
-  const getNextPageRoutingData = useQuery(`pages-${data.id}-page-navigation`, () =>
-    fetchNextPageRoutingData(data.id),
-  )
+  const getNextPageRoutingData = useQuery([`pages-${data.id}-page-navigation`], () =>
+    fetchNextPageRoutingData(data.id))
 
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"

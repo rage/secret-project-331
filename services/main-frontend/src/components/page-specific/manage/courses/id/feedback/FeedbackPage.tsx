@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { fetchFeedback, markAsRead } from "../../../../../../services/backend/feedback"
 import { Feedback } from "../../../../../../shared-module/bindings"
@@ -18,9 +18,8 @@ interface Props {
 }
 
 const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
-  const getFeedbackList = useQuery(`feedback-list-${courseId}-${read}-${page}-${limit}`, () =>
-    fetchFeedback(courseId, read, page, limit),
-  )
+  const getFeedbackList = useQuery([`feedback-list-${courseId}-${read}-${page}-${limit}`], () =>
+    fetchFeedback(courseId, read, page, limit))
 
   async function handleMarkAsRead(feedback: Feedback) {
     await markAsRead(feedback.id, !feedback.marked_as_read)

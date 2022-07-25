@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
-import { useQuery } from "react-query"
 
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
@@ -35,9 +35,8 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
   const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
-  const getCoursePageByPath = useQuery(`course-page-${courseSlug}-${path}`, () =>
-    fetchCoursePageByPath(courseSlug, path),
-  )
+  const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
+    fetchCoursePageByPath(courseSlug, path))
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
     getDefaultPageState(async () => {

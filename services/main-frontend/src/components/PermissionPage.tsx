@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { TFunction, useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
@@ -86,7 +86,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
-  const roleQuery = useQuery(`roles-${domain}`, () => fetchRoles(query))
+  const roleQuery = useQuery([`roles-${domain}`], () => fetchRoles(query))
   const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)

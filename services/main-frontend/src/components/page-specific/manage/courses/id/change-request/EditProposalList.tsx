@@ -1,8 +1,8 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchEditProposalCount } from "../../../../../../services/backend/proposedEdits"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -28,9 +28,8 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const getEditProposalCount = useQuery(`edit-proposal-count-${courseId}`, () =>
-    fetchEditProposalCount(courseId),
-  )
+  const getEditProposalCount = useQuery([`edit-proposal-count-${courseId}`], () =>
+    fetchEditProposalCount(courseId))
 
   if (getEditProposalCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />

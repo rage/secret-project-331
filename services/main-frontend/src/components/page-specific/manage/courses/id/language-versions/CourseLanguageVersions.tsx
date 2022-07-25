@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
@@ -18,7 +18,7 @@ import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 const CourseLanguageVersionsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
-  const getCourseQuery = useQuery(`course-${courseId}`, () => getCourse(courseId))
+  const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
 
   const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
     await postNewCourseTranslation(courseId, newCourse)

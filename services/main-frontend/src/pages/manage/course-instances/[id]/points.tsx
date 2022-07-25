@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { getPoints } from "../../../../services/backend/course-instances"
@@ -55,9 +55,8 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
     }
   }
 
-  const getPointsList = useQuery(`point-list-${courseInstanceId}`, () =>
-    getPoints(courseInstanceId),
-  )
+  const getPointsList = useQuery([`point-list-${courseInstanceId}`], () =>
+    getPoints(courseInstanceId))
 
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)

@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -23,8 +23,8 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
 }) => {
   const { t } = useTranslation()
   const getPagesInChapterExcludeFrontpage = useQuery(
-    `chapter-${chapterId}-pages-excluding-frontpage`,
-    () => fetchChaptersPagesExcludeFrontpage(chapterId),
+    [`chapter-${chapterId}-pages-excluding-frontpage`],
+    () => fetchChaptersPagesExcludeFrontpage(chapterId)
   )
 
   return (

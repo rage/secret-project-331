@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
@@ -20,7 +20,7 @@ const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const [updatedTerm, setUpdatedTerm] = useState("")
   const [updatedDefinition, setUpdatedDefinition] = useState("")
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
-  const glossary = useQuery(`glossary-${courseId}`, () => fetchGlossary(courseId))
+  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
   const createMutation = useToastMutation(
     () => postNewTerm(courseId, newTerm, newDefinition),
     {

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
 import Progress from "../../../../shared-module/components/CourseProgress"
@@ -18,8 +18,8 @@ interface ChapterProgressProps {
 const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInstanceId }) => {
   const { t } = useTranslation()
   const getUserChapterProgress = useQuery(
-    `course-instance-${courseInstanceId}-chapter-${chapterId}-progress`,
-    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
+    [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
+    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId)
   )
 
   return (

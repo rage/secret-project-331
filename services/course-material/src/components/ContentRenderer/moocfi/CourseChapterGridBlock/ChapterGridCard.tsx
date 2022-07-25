@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPageUrl } from "../../../../services/backend"
 import { ChapterWithStatus } from "../../../../shared-module/bindings"
@@ -33,7 +33,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
   backgroundImage,
 }) => {
   const { i18n } = useTranslation()
-  const getChapterPageUrl = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
+  const getChapterPageUrl = useQuery([`chapter-grid-chapter-${chapter.id}`], () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
     } else {

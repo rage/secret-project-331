@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { UseMutationResult, UseQueryResult } from "react-query"
 
 import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"

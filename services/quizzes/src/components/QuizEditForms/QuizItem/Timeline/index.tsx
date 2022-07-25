@@ -235,7 +235,7 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ item }) => {
         </StyledBtn>
       </StyledForm>
     </Wrapper>
-  )
+  );
 }
 
 export default TimelineEditor

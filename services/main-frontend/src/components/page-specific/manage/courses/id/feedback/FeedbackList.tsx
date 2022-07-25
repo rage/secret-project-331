@@ -1,8 +1,8 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -28,9 +28,8 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const getFeedbackCount = useQuery(`feedback-count-${courseId}`, () =>
-    fetchFeedbackCount(courseId),
-  )
+  const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
+    fetchFeedbackCount(courseId))
 
   if (getFeedbackCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />

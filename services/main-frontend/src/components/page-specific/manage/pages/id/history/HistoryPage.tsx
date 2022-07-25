@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
@@ -27,9 +27,8 @@ const HistoryPage: React.FC<Props> = ({
   onRestore,
 }) => {
   const { t } = useTranslation()
-  const getPageHistory = useQuery(`page-history-${pageId}-${page}-${limit}`, () =>
-    fetchHistoryForPage(pageId, page, limit),
-  )
+  const getPageHistory = useQuery([`page-history-${pageId}-${page}-${limit}`], () =>
+    fetchHistoryForPage(pageId, page, limit))
 
   if (getPageHistory.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />

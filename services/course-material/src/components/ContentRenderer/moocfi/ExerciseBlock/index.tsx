@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery, useQueryClient } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -75,7 +75,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const getCourseMaterialExercise = useQuery([queryUniqueKey], () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {
@@ -335,7 +335,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     },
                     {
                       onSuccess: () => {
-                        queryClient.setQueryData(queryUniqueKey, (old) => {
+                        queryClient.setQueryData([queryUniqueKey], (old) => {
                           // Update slide submission counts without refetching
                           const oldData = old as CourseMaterialExercise
                           const oldSubmissionCounts =
@@ -417,7 +417,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         </Centered>
       </div>
     </BreakFromCentered>
-  )
+  );
 }
 
 export default withErrorBoundary(ExerciseBlock)

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseById } from "../../services/backend"
 import Banner from "../../shared-module/components/Banner/Banner"
@@ -20,9 +20,8 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
   organizationSlug,
 }) => {
   const { t } = useTranslation()
-  const getCourseById = useQuery(`correct-course-${correctCourseId}`, () =>
-    fetchCourseById(correctCourseId),
-  )
+  const getCourseById = useQuery([`correct-course-${correctCourseId}`], () =>
+    fetchCourseById(correctCourseId))
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />

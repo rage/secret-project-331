@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -51,7 +51,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
 }) => {
   const { t } = useTranslation()
   const getCourseWeekdayHourSubmissionCount = useQuery(
-    `course-submissions-by-weekday-and-hour-${courseId}`,
+    [`course-submissions-by-weekday-and-hour-${courseId}`],
     () => fetchCourseWeekdayHourSubmissionCounts(courseId),
     {
       select: (data) => {
@@ -59,7 +59,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
         const maxValue = max(data.map((o) => o.count)) || 10000
         return { apiData: data, dataByWeekDay, maxValue }
       },
-    },
+    }
   )
 
   const isodowToWeekdayName = {

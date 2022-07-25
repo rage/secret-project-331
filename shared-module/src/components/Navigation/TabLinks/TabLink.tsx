@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
+import { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { UrlObject } from "node:url"
 import React from "react"
-import { UseQueryResult } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"

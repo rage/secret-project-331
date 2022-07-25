@@ -1,13 +1,13 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
-import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
   useQueryClient,
-} from "react-query"
+} from "@tanstack/react-query"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"

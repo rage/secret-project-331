@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -18,9 +18,8 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
   courseInstanceId,
 }) => {
   const { t } = useTranslation()
-  const getChaptersPagesWithExercises = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
-    fetchChaptersPagesWithExercises(chapterId),
-  )
+  const getChaptersPagesWithExercises = useQuery([`chapter-${chapterId}-pages-with-exercises`], () =>
+    fetchChaptersPagesWithExercises(chapterId))
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 

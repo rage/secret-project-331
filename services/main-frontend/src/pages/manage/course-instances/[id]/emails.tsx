@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewEmailTemplateForm from "../../../../components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
@@ -28,8 +28,8 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
   const { t } = useTranslation()
   const courseInstanceId = query.id
   const getCourseInstanceEmailTemplates = useQuery(
-    `course-instance-${courseInstanceId}-emails`,
-    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
+    [`course-instance-${courseInstanceId}-emails`],
+    () => fetchCourseInstanceEmailTemplates(courseInstanceId)
   )
   const [showForm, setShowForm] = useState(false)
 

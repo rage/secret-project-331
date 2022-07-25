@@ -1,5 +1,5 @@
+import { QueryObserverResult } from "@tanstack/react-query"
 import React from "react"
-import { QueryObserverResult } from "react-query"
 
 import { ExerciseService } from "../../../../shared-module/bindings"
 

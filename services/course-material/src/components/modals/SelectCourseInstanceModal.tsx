@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"

@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
@@ -31,9 +31,9 @@ const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query })
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
   const getExamsInstructions = useQuery(
-    `exam-${examsId}-instructions`,
+    [`exam-${examsId}-instructions`],
     () => fetchExamsInstructions(examsId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
+    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) }
   )
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {

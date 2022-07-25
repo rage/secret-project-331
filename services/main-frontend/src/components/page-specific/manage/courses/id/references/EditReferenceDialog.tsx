@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { Dialog, DialogContent, DialogTitle } from "@mui/material"
+import { UseQueryResult } from "@tanstack/react-query"
 import { t } from "i18next"
-import { UseQueryResult } from "react-query"
 
 import { deleteReference, postReferenceUpdate } from "../../../../../../services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"

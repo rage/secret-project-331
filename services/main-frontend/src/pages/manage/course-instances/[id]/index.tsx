@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
@@ -32,9 +32,8 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
   const courseInstanceId = query.id
   const router = useRouter()
 
-  const getCourseInstances = useQuery(`course-instance-${courseInstanceId}`, () =>
-    fetchCourseInstance(courseInstanceId),
-  )
+  const getCourseInstances = useQuery([`course-instance-${courseInstanceId}`], () =>
+    fetchCourseInstance(courseInstanceId))
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {

@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React from "react"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
@@ -23,8 +23,8 @@ const CompletionPage: React.FC<CompletionPageProps> = ({ query }) => {
   const { courseModuleId } = query
   const router = useRouter()
   const userCompletionInformation = useQuery(
-    `course-module-${courseModuleId}-completion-information`,
-    () => fetchUserCompletionInformation(courseModuleId),
+    [`course-module-${courseModuleId}-completion-information`],
+    () => fetchUserCompletionInformation(courseModuleId)
   )
   return (
     <Layout>

@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchPageNavigationData } from "../../../../services/backend"
@@ -28,7 +28,7 @@ const NextPage: React.FC<NextPageProps> = ({
   const [nextPageChapterOpen, setnextPageChapterOpen] = React.useState(false)
 
   const getPageRoutingData = useQuery(
-    `pages-${chapterId}-page-routing-data`,
+    [`pages-${chapterId}-page-routing-data`],
     () => fetchPageNavigationData(currentPageId),
     {
       onSuccess: (data) => {
@@ -42,7 +42,7 @@ const NextPage: React.FC<NextPageProps> = ({
         const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
         setnextPageChapterOpen(diffSeconds <= 0)
       },
-    },
+    }
   )
 
   if (getPageRoutingData.isError) {

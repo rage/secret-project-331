@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import ExerciseSubmissionList from "../../../../components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
@@ -20,9 +20,8 @@ interface SubmissionPageProps {
 
 const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const getExerciseSubmissions = useQuery(`exercise-${query.id}-submissions`, () =>
-    fetchExerciseSubmissions(query.id),
-  )
+  const getExerciseSubmissions = useQuery([`exercise-${query.id}-submissions`], () =>
+    fetchExerciseSubmissions(query.id))
 
   return (
     <Layout navVariant="simple">

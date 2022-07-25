@@ -1,7 +1,7 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
 import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
@@ -39,9 +39,8 @@ const HistoryList: React.FC<Props> = ({
     initialSelectedRevisionId,
   )
 
-  const getPageHistoryCount = useQuery(`page-history-count-${pageId}`, () =>
-    fetchHistoryCountForPage(pageId),
-  )
+  const getPageHistoryCount = useQuery([`page-history-count-${pageId}`], () =>
+    fetchHistoryCountForPage(pageId))
 
   function compare(history: PageHistory) {
     setSelectedRevisionId(history.id)

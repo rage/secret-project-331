@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -18,9 +18,9 @@ const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
   const getUserCourseProgress = useQuery(
-    `course-instance-${courseInstanceId}-progress`,
+    [`course-instance-${courseInstanceId}-progress`],
     () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
-    { enabled: !!courseInstanceId },
+    { enabled: !!courseInstanceId }
   )
   const loginStateContext = useContext(LoginStateContext)
 

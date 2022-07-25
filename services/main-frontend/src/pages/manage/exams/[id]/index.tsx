@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
@@ -22,7 +22,7 @@ interface OrganizationPageProps {
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const getExam = useQuery(`exam-${query.id}`, () => fetchExam(query.id))
+  const getExam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {

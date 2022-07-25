@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseDailySubmissionCounts } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -20,7 +20,7 @@ export interface CourseSubmissionsByDayProps {
 const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseDailySubmissionCounts = useQuery(
-    `course-daily-submission-counts-${courseId}`,
+    [`course-daily-submission-counts-${courseId}`],
     () => fetchCourseDailySubmissionCounts(courseId),
     {
       select: (data) => {
@@ -32,7 +32,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
         const maxValue = max(data.map((o) => o.count)) || 10000
         return { apiData: data, eChartsData, maxValue }
       },
-    },
+    }
   )
 
   if (getCourseDailySubmissionCounts.isError) {

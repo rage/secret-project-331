@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog, DialogContentText } from "@mui/material"
+import { UseQueryResult } from "@tanstack/react-query"
 import { t } from "i18next"
 import React from "react"
-import { UseQueryResult } from "react-query"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
 import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"

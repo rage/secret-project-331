@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseInstances } from "../../../../../../services/backend/courses"
@@ -22,9 +22,8 @@ import PointExportButton from "./PointExportButton"
 const CourseCourseInstances: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
-  const getCourseInstances = useQuery(`course-${courseId}-course-instances`, () =>
-    fetchCourseInstances(courseId),
-  )
+  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
+    fetchCourseInstances(courseId))
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)

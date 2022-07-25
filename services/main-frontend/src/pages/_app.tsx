@@ -1,9 +1,9 @@
 import { config } from "@fortawesome/fontawesome-svg-core"
 import { ThemeProvider } from "@mui/material"
+import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"
-import { QueryClientProvider } from "react-query"
 
 import { LoginStateContextProvider } from "../shared-module/contexts/LoginStateContext"
 import useLanguage from "../shared-module/hooks/useLanguage"

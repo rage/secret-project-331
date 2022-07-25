@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { UseQueryResult } from "react-query"
 
 import { baseTheme } from "../../../../../shared-module/styles"
 

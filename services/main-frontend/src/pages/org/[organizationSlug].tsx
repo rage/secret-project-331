@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
@@ -22,9 +22,8 @@ interface OrganizationPageProps {
 
 const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
   const { t } = useTranslation()
-  const getOrganizationBySlug = useQuery(`organization-${query.organizationSlug}`, () =>
-    fetchOrganizationBySlug(query.organizationSlug),
-  )
+  const getOrganizationBySlug = useQuery([`organization-${query.organizationSlug}`], () =>
+    fetchOrganizationBySlug(query.organizationSlug))
 
   return (
     <Layout>

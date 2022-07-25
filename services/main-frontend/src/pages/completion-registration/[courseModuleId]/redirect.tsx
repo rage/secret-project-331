@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
@@ -19,11 +19,11 @@ const CompletionRedirectPage: React.FC<CompletionRedirectPageProps> = ({ query }
   const { courseModuleId } = query
   const { t } = useTranslation()
   const userCompletionInformation = useQuery(
-    `course-${courseModuleId}-completion-registration-link`,
+    [`course-${courseModuleId}-completion-registration-link`],
     () => fetchCompletionRegistrationLink(courseModuleId),
     {
       onSuccess: (data) => window.location.replace(data.url),
-    },
+    }
   )
   return (
     <Layout>

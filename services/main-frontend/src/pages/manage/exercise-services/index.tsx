@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
@@ -52,7 +52,7 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
-  const getExerciseServices = useQuery(`exercise-services`, () => fetchExerciseServices())
+  const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
 
   const handleClose = () => {
     setOpen(false)

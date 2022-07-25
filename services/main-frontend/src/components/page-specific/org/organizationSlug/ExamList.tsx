@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import Button from "../../../../shared-module/components/Button"
@@ -21,17 +21,13 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
-  const getOrgExams = useQuery(
-    "organization-exams",
-    () => {
-      if (organizationId) {
-        return fetchOrganizationExams(organizationId)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    { enabled: !!organizationId },
-  )
+  const getOrgExams = useQuery(['organization-exams'], () => {
+    if (organizationId) {
+      return fetchOrganizationExams(organizationId)
+    } else {
+      return Promise.reject(new Error("Organization ID undefined"))
+    }
+  }, { enabled: !!organizationId })
 
   const loginStateContext = useContext(LoginStateContext)
 

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import {
   fetchEditProposals,
@@ -23,9 +23,9 @@ interface Props {
 const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onChange }) => {
   const { t } = useTranslation()
   const getEditProposalList = useQuery(
-    `edit-proposal-list-${courseId}-${pending}-${page}-${limit}`,
+    [`edit-proposal-list-${courseId}-${pending}-${page}-${limit}`],
     () => fetchEditProposals(courseId, pending, page, limit),
-    { select: (data) => data.filter((p) => p.pending === pending) },
+    { select: (data) => data.filter((p) => p.pending === pending) }
   )
 
   async function handleProposal(

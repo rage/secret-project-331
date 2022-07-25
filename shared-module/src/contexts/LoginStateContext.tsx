@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { ComponentType, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
@@ -26,7 +26,7 @@ export default LoginStateContext
 
 export const LoginStateContextProvider: React.FC = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const isLoggedIn = useQuery(`logged-in`, loggedIn)
+  const isLoggedIn = useQuery([`logged-in`], loggedIn)
 
   useEffect(() => {
     setLoginState((prev) => ({

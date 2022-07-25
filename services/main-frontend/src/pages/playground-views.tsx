@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
@@ -169,36 +169,34 @@ const IframeViewPlayground: React.FC = () => {
   }
 
   const serviceInfoQuery = useQuery(
-    `iframe-view-playground-service-info-${url}`,
+    [`iframe-view-playground-service-info-${url}`],
     async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(url)
       return res.data
-    },
+    }
   )
 
   const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
 
-  const publicSpecQuery = useQuery(
-    `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
-    async (): Promise<unknown> => {
-      if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
-        throw new Error("This query should be disabled.")
-      }
-      const res = await axios.post(
-        `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        privateSpecParsed,
-      )
-      return res.data
-    },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+  const publicSpecQuery = useQuery([
+    `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`
+  ], async (): Promise<unknown> => {
+    if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
+      throw new Error("This query should be disabled.")
+    }
+    const res = await axios.post(
+      `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
+      privateSpecParsed,
+    )
+    return res.data
+  }, {
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   const [userAnswer, setUserAnswer] = useState<unknown>(null)
   const submitAnswerMutation = useToastMutation<
@@ -231,27 +229,25 @@ const IframeViewPlayground: React.FC = () => {
     { notify: true, method: "POST" },
   )
 
-  const modelSolutionSpecQuery = useQuery(
-    `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
-    async (): Promise<unknown> => {
-      if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
-        throw new Error("This query should be disabled.")
-      }
-      const res = await axios.post(
-        `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        privateSpecParsed,
-      )
-      return res.data
-    },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+  const modelSolutionSpecQuery = useQuery([
+    `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`
+  ], async (): Promise<unknown> => {
+    if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
+      throw new Error("This query should be disabled.")
+    }
+    const res = await axios.post(
+      `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
+      privateSpecParsed,
+    )
+    return res.data
+  }, {
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   return (
     <Layout>

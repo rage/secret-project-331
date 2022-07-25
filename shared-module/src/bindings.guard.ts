@@ -1252,6 +1252,7 @@ export function isPageRoutingData(obj: any, _argumentName?: string): obj is Page
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.url_path === "string" &&
     typeof obj.title === "string" &&
+    typeof obj.page_id === "string" &&
     typeof obj.chapter_number === "number" &&
     typeof obj.chapter_id === "string" &&
     (obj.chapter_opens_at === null || obj.chapter_opens_at instanceof Date) &&

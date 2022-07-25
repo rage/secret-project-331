@@ -18,7 +18,7 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
         text-decoration: none !important;
         list-style: none !important;
         margin: 0 !important;
-        background: ${baseTheme.colors.clear[200]} !important;
+        background: #fff;
         padding: 0.7rem 1rem !important;
         min-width: 10rem !important;
         border-width: 0 0 2px !important;
@@ -34,7 +34,7 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
           margin: 0 !important;
           padding: 0 !important;
           font-size: 16px !important;
-          background: ${baseTheme.colors.clear[200]} !important;
+          background: #fff !important;
           color: ${baseTheme.colors.green[500]} !important;
           border: 0 !important;
 

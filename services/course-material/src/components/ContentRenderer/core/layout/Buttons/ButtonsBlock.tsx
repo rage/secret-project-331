@@ -62,6 +62,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
       backgroundColor,
       className,
       fontSize,
+      fontFamily,
       gradient,
       linkTarget,
       placeholder,
@@ -101,6 +102,7 @@ const ButtonsBlock: React.FC<BlockRendererProps<ButtonsAttributes>> = ({ data })
             )} !important;`}
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
             ${width && `width: calc(100% - ${1 - width / 100}rem);`}
+            ${fontFamily && `font-family: ${fontFamily};`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;
           `}

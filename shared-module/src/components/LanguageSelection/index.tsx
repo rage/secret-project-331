@@ -36,10 +36,14 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
     modifiers: [{ name: ARROW, options: { element: arrowElement } }],
   })
   const { i18n, t } = useTranslation()
+  const LANGUAGE_COOKIE_KEY = "selected-language"
 
   const handleLanguageChange = (newLanguage: string) => {
     i18n.changeLanguage(newLanguage)
     setVisible(false)
+    const selectedLanguage = newLanguage.split("-")
+    // eslint-disable-next-line i18next/no-literal-string
+    document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
   return (

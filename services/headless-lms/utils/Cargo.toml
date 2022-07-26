@@ -47,7 +47,7 @@ url = "2.2.2"
 # Application-level tracing for Rust.
 tracing = "0.1.35"
 # generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "71bba3a18cdc5bc02c63b2772fd5324b1b07227b", features = [
+ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "8b0a9fd00acb43447c28271eb36fa770c7646609", features = [
   "chrono-impl",
   "serde-compat",
   "serde-json-impl",

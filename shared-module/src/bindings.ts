@@ -451,8 +451,8 @@ export interface Feedback {
   marked_as_read: boolean
   created_at: Date
   blocks: Array<FeedbackBlock>
-  page_title: string | null
-  page_url_path: string | null
+  page_title: string
+  page_url_path: string
 }
 
 export interface FeedbackBlock {
@@ -858,9 +858,9 @@ export interface ExerciseSlideSubmissionCount {
 }
 
 export interface ExerciseSlideSubmissionCountByExercise {
-  exercise_id: string | null
+  exercise_id: string
   count: number | null
-  exercise_name: string | null
+  exercise_name: string
 }
 
 export interface ExerciseSlideSubmissionCountByWeekAndHour {
@@ -966,11 +966,11 @@ export interface UserCourseInstanceProgress {
 }
 
 export interface ExerciseUserCounts {
-  exercise_name: string | null
-  exercise_order_number: number | null
-  page_order_number: number | null
-  chapter_number: number | null
-  exercise_id: string | null
+  exercise_name: string
+  exercise_order_number: number
+  page_order_number: number
+  chapter_number: number
+  exercise_id: string
   n_users_attempted: number
   n_users_with_some_points: number
   n_users_with_max_points: number
@@ -1072,14 +1072,14 @@ export interface MarkAsRead {
 
 export interface GetFeedbackQuery {
   read: boolean
-  page?: number
-  limit?: number
+  "page?": number
+  "limit?": number
 }
 
 export interface GetEditProposalsQuery {
   pending: boolean
-  page?: number
-  limit?: number
+  "page?": number
+  "limit?": number
 }
 
 export interface ErrorResponse {
@@ -1092,8 +1092,8 @@ export interface ErrorResponse {
 export type ErrorData = { block_id: string }
 
 export interface Pagination {
-  page?: number
-  limit?: number
+  "page?": number
+  "limit?": number
 }
 
 export interface OEmbedResponse {

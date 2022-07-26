@@ -26,8 +26,12 @@ export const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
-export const AdvancedBoxModalOpenClass = (clickYLocation: number | undefined) => css`
+export const AdvancedBoxModalOpenClass = (
+  clickYLocation: number | undefined,
+  optionCount?: number,
+) => css`
   ${clickYLocation &&
+  ((optionCount !== undefined && optionCount < 3) || optionCount === undefined) &&
   // eslint-disable-next-line i18next/no-literal-string
   `
     position: fixed;

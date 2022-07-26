@@ -20,8 +20,9 @@ const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
-const StyledEmotionBox = (heightOffset: number | undefined) => css`
+const StyledEmotionBox = (heightOffset: number | undefined, optionCount?: number) => css`
   ${heightOffset &&
+  ((optionCount !== undefined && optionCount < 3) || optionCount === undefined) &&
   // eslint-disable-next-line i18next/no-literal-string
   `
     position: fixed;
@@ -105,7 +106,7 @@ const MultipleChoiceButton: React.FC<MultipleChoiceButtonProps> = ({ option, ind
         onClose={() => dispatch(setOptionEditing(storeOption.id, false))}
       >
         <Fade in={variables.optionEditing}>
-          <StyledBox className={StyledEmotionBox(heightOffset)}>
+          <StyledBox className={StyledEmotionBox(heightOffset, storeItem.options.length)}>
             <CloseButton
               aria-label={t("close")}
               onClick={() => dispatch(setOptionEditing(storeOption.id, false))}

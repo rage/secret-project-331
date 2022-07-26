@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{
     course_modules,
-    pages::{NewPage, Page, PageWithExercises},
+    pages::{NewPage, Page, PageMetadata, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
 };
@@ -125,6 +125,12 @@ pub struct ChapterUpdate {
     pub opens_at: Option<DateTime<Utc>>,
     /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
     pub course_module_id: Option<Uuid>,
+}
+
+pub struct ChapterInfo {
+    pub chapter_id: Uuid,
+    pub chapter_name: String,
+    pub chapter_front_page_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -431,7 +437,7 @@ RETURNING *;
     .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
-        GutenbergBlock::hero_section("Insert chapter heading...", "Insert chapter subheading..."),
+        GutenbergBlock::hero_section(&chapter.name, ""),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -526,6 +532,52 @@ pub async fn get_user_course_instance_chapter_progress(
             .transpose()?,
     };
     Ok(result)
+}
+
+pub async fn get_chapter_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<DatabaseChapter> {
+    let chapter = sqlx::query_as!(
+        DatabaseChapter,
+        "
+SELECT c.*
+FROM chapters c,
+  pages p
+WHERE c.id = p.chapter_id
+  AND p.id = $1;
+    ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter)
+}
+
+pub async fn get_chapter_info_by_page_metadata(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<ChapterInfo> {
+    let chapter_page = sqlx::query_as!(
+        ChapterInfo,
+        "
+        SELECT
+            c.id as chapter_id,
+            c.name as chapter_name,
+            c.front_page_id as chapter_front_page_id
+        FROM chapters c
+        WHERE c.id = $1
+        AND c.course_id = $2
+            AND c.deleted_at IS NULL;
+        ",
+        current_page_metadata.chapter_id,
+        current_page_metadata.course_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter_page)
 }
 
 #[cfg(test)]

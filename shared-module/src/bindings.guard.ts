@@ -86,6 +86,7 @@ import {
   GradingProgress,
   HistoryChangeReason,
   HistoryRestoreData,
+  IsChapterFrontPage,
   Login,
   MarkAsRead,
   MaterialReference,
@@ -104,8 +105,9 @@ import {
   PageChapterAndCourseInformation,
   PageHistory,
   PageInfo,
+  PageNavigationInformation,
   PageProposal,
-  PageRoutingDataWithChapterStatus,
+  PageRoutingData,
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
@@ -139,6 +141,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
 } from "./bindings"
@@ -474,7 +477,8 @@ export function isCourse(obj: any, _argumentName?: string): obj is Course {
     (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
     typeof obj.course_language_group_id === "string" &&
     typeof obj.is_draft === "boolean" &&
-    typeof obj.is_test_mode === "boolean"
+    typeof obj.is_test_mode === "boolean" &&
+    typeof obj.base_module_completion_requires_n_submodule_completions === "number"
   )
 }
 
@@ -975,6 +979,21 @@ export function isUserCompletionInformation(
   )
 }
 
+export function isUserModuleCompletionStatus(
+  obj: any,
+  _argumentName?: string,
+): obj is UserModuleCompletionStatus {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.completed === "boolean" &&
+    typeof obj.default === "boolean" &&
+    typeof obj.module_id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number" &&
+    typeof obj.prerequisite_modules_completed === "boolean"
+  )
+}
+
 export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1157,22 +1176,6 @@ export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
   )
 }
 
-export function isPageRoutingDataWithChapterStatus(
-  obj: any,
-  _argumentName?: string,
-): obj is PageRoutingDataWithChapterStatus {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    typeof obj.chapter_number === "number" &&
-    typeof obj.chapter_id === "string" &&
-    (obj.chapter_opens_at === null || obj.chapter_opens_at instanceof Date) &&
-    (obj.chapter_front_page_id === null || typeof obj.chapter_front_page_id === "string") &&
-    (isChapterStatus(obj.chapter_status) as boolean)
-  )
-}
-
 export function isPageSearchRequest(obj: any, _argumentName?: string): obj is PageSearchRequest {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1243,6 +1246,38 @@ export function isPageChapterAndCourseInformation(
     (obj.chapter_front_page_url_path === null ||
       typeof obj.chapter_front_page_url_path === "string") &&
     typeof obj.organization_slug === "string"
+  )
+}
+
+export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.is_chapter_front_page === "boolean"
+  )
+}
+
+export function isPageRoutingData(obj: any, _argumentName?: string): obj is PageRoutingData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.url_path === "string" &&
+    typeof obj.title === "string" &&
+    typeof obj.page_id === "string" &&
+    typeof obj.chapter_number === "number" &&
+    typeof obj.chapter_id === "string" &&
+    (obj.chapter_opens_at === null || obj.chapter_opens_at instanceof Date) &&
+    (obj.chapter_front_page_id === null || typeof obj.chapter_front_page_id === "string")
+  )
+}
+
+export function isPageNavigationInformation(
+  obj: any,
+  _argumentName?: string,
+): obj is PageNavigationInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (obj.chapter_front_page === null || (isPageRoutingData(obj.chapter_front_page) as boolean)) &&
+    (obj.next_page === null || (isPageRoutingData(obj.next_page) as boolean)) &&
+    (obj.previous_page === null || (isPageRoutingData(obj.previous_page) as boolean))
   )
 }
 

@@ -59,6 +59,7 @@
   "hide": "hide",
   "submit": "Submit",
   "set-field-value": "Set {{name}}",
+  "in-this-page": "In this page",
   "points": "Points",
   "peer-review-instructions": "Evaluate the answer with the given questions and statements.",
   "strongly-disagree": "strongly disagree",
@@ -77,6 +78,8 @@
   "linkert-scale": "Linkert Scale",
   "select-question": "Select question type",
   "what-you-will-learn": "What you will learn in this chapter",
+  "open-heading-menu": "Open heading navigation",
+  "close-heading-menu": "Close heading navigation",
   "sponsor": "Sponsors",
   "exercises-attempted": "Exercises attempted",
   "tips": "Tips",
@@ -85,10 +88,10 @@
   "about-this-project": "About this project",
   "project-github": "Project Github",
   "contribute-image-cover": "Contribute image cover",
-  "title-references": "Reference",
+  "title-references": "References",
   "about-this-project-description": "This website is powered by an open source software developed by the MOOC Center of the University of Helsinki. Star the project on GitHub for more details:",
   "add-peer-review": "Add peer review",
-  "register": "Register",
-  "generate-certicate": "Generate certificate",
-  "congratulation": "Congratulations"
+  "next-page": "Next page",
+  "previous-page": "Previous page",
+  "chapter-front-page": "Chapter front page"
 }

@@ -5,7 +5,7 @@ import { isEqual } from "lodash"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { UseMutationResult } from "react-query"
+import { UseMutationResult, useQuery } from "react-query"
 
 import {
   blockTypeMapForFrontPages,
@@ -16,16 +16,19 @@ import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supporte
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import { fetchNextPageRoutingData } from "../../services/backend/pages"
 import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Menu from "../../shared-module/components/Navigation/NavBar/Menu/Menu"
 import Spinner from "../../shared-module/components/Spinner"
 import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
+import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
@@ -120,6 +123,18 @@ const PageEditor: React.FC<PageEditorProps> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
+  const getNextPageRoutingData = useQuery(`pages-${data.id}-page-navigation`, () =>
+    fetchNextPageRoutingData(data.id),
+  )
+
+  const pageRoutingData = getNextPageRoutingData.data
+  let nextPageUrl = "/"
+
+  if (pageRoutingData && pageRoutingData.next_page) {
+    nextPageUrl = coursePageRoute(pageRoutingData.next_page.page_id)
+  } else {
+    nextPageUrl = coursePageRoute(data.id)
+  }
   const saveAndReset = (
     <div>
       {pageInfo.data && (
@@ -183,6 +198,15 @@ const PageEditor: React.FC<PageEditorProps> = ({
         >
           {t("reset")}
         </Button>
+        <Menu variant="bottom">
+          <li>
+            <a href={nextPageUrl}>
+              <Button size="medium" variant="primary">
+                {"next-page"}
+              </Button>
+            </a>
+          </li>
+        </Menu>
       </div>
     </div>
   )

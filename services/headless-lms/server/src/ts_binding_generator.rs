@@ -128,6 +128,7 @@ fn ts_binding_generator() {
 
         library::progressing::CompletionRegistrationLink,
         library::progressing::UserCompletionInformation,
+        library::progressing::UserModuleCompletionStatus,
 
         organizations::Organization,
 
@@ -144,12 +145,14 @@ fn ts_binding_generator() {
         pages::HistoryRestoreData,
         pages::Page,
         pages::PageInfo,
-        pages::PageRoutingDataWithChapterStatus,
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::NewPage,
         pages::PageChapterAndCourseInformation,
+        pages::IsChapterFrontPage,
+        pages::PageRoutingData,
+        pages::PageNavigationInformation,
 
         peer_reviews::PeerReview,
         peer_reviews::PeerReviewAcceptingStrategy,

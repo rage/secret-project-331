@@ -1,0 +1,18 @@
+[
+  {
+    "completed": false,
+    "default": true,
+    "module_id": "299eba99-9aa2-4023-bd64-bd4b5d7578ba",
+    "name": "Course",
+    "order_number": 0,
+    "prerequisite_modules_completed": false
+  },
+  {
+    "completed": true,
+    "default": false,
+    "module_id": "c6c89368-c05d-498f-a2e3-10d7c327752c",
+    "name": "Module",
+    "order_number": 1,
+    "prerequisite_modules_completed": false
+  }
+]

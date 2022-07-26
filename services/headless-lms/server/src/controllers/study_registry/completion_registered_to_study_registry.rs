@@ -1,4 +1,15 @@
 //! Controllers for requests starting with `/api/v0/study-registry/completion-registered-to-study-registry`
+//!
+//! The study registry provides an access to student completion records. It is generally only available
+//! to authorized study registries, meaning that most endpoints will require a valid authorization token
+//! to access.
+//!
+//! When accessing study registry, the authorization token should be given as the following header:
+//! ```http
+//! Authorization: Basic documentationOnlyExampleSecretKey-12345
+//! ```
+//!
+//! For more details, please view the individual functions.
 
 use models::course_module_completion_registered_to_study_registries::RegisteredCompletion;
 
@@ -11,9 +22,8 @@ marked as registered.
 This endpoint is only available to authorized study registries, and requires a valid authorization token
 to access.
 
-Example:
+# Example request:
 
-Request
 ```http
 POST /api/v0/completion-registered-to-study-registry HTTP/1.1
 Authorization: Basic documentationOnlyExampleSecretKey-12345
@@ -61,6 +71,7 @@ The name starts with an underline in order to appear before other functions in t
 
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
+#[doc(hidden)]
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_completions));
 }

@@ -11,6 +11,7 @@ import {
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
+  IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
   NewMaterialReference,
@@ -18,7 +19,7 @@ import {
   OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
-  PageRoutingDataWithChapterStatus,
+  PageNavigationInformation,
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
@@ -30,6 +31,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
 } from "../shared-module/bindings"
 import {
   isChaptersWithStatus,
@@ -39,10 +41,12 @@ import {
   isCourseMaterialPeerReviewData,
   isCoursePageWithUserData,
   isExamData,
+  isIsChapterFrontPage,
+  isMaterialReference,
   isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
-  isPageRoutingDataWithChapterStatus,
+  isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
@@ -51,6 +55,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserModuleCompletionStatus,
 } from "../shared-module/bindings.guard"
 import {
   isArray,
@@ -187,6 +192,16 @@ export const fetchUserCourseProgress = async (
   return validateResponse(response, isArray(isUserCourseInstanceProgress))
 }
 
+export const fetchUserModuleCompletionStatuses = async (
+  courseInstanceId: string,
+): Promise<Array<UserModuleCompletionStatus>> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/module-completions`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isUserModuleCompletionStatus))
+}
+
 export const fetchUserChapterInstanceChapterProgress = async (
   courseInstanceId: string,
   chapterId: string,
@@ -230,11 +245,11 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const fetchNextPageRoutingData = async (
+export const fetchPageNavigationData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+): Promise<PageNavigationInformation> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
+  return validateResponse(response, isPageNavigationInformation)
 }
 
 export const fetchPageChapterAndCourse = async (
@@ -378,7 +393,8 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
 }
 
 export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {
-  return (await courseMaterialClient.get(`/courses/${courseId}/references`)).data
+  const response = await courseMaterialClient.get(`/courses/${courseId}/references`)
+  return validateResponse(response, isArray(isMaterialReference))
 }
 
 export const postNewReference = async (
@@ -386,4 +402,9 @@ export const postNewReference = async (
   data: NewMaterialReference,
 ): Promise<void> => {
   await courseMaterialClient.post(`/courses/${courseId}/references`, data)
+}
+
+export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
+  const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
+  return validateResponse(response, isIsChapterFrontPage)
 }

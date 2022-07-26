@@ -10,9 +10,9 @@ use headless_lms_models::{
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
-    course_instances,
-    course_instances::NewCourseInstance,
-    course_modules, courses,
+    course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
+    courses,
     courses::NewCourse,
     exams,
     exams::NewExam,
@@ -22,7 +22,7 @@ use headless_lms_models::{
     exercises::GradingProgress,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, organizations,
+    glossary, open_university_registration_links, organizations,
     page_history::HistoryChangeReason,
     pages,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage},
@@ -343,6 +343,37 @@ async fn main() -> Result<()> {
         &users,
     )
     .await?;
+    let automatic_completions_id = seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+        "Automatic Completions",
+        "automatic-completions",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_default_module.id,
+        &AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("EXAMPLE123".to_string()),
+    )
+    .await?;
+    open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
+        .await?;
+
     roles::insert(
         &mut conn,
         language_teacher,
@@ -3016,6 +3047,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
         content: serde_json::json!([
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
+            heading("First heading", Uuid::parse_str("731aa55f-238b-42f4-8c40-c093dd95ee7f")?, 2),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes!{
@@ -3024,6 +3056,7 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
                 .with_id(Uuid::parse_str("9ebddb78-23f6-4440-8d8f-5e4b33abb16f")?),
+                heading("Second heading", Uuid::parse_str("a70aac40-acda-48e3-8f53-b64370be4585")?, 3),
             GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes!{
@@ -3040,6 +3073,23 @@ async fn seed_cs_course_material(conn: &mut PgConnection, org: Uuid, admin: Uuid
                 },
             )
             .with_id(Uuid::parse_str("3693e92b-9cf0-485a-b026-2851de58e9cf")?),
+            heading("Third heading", Uuid::parse_str("4d16bfea-4fa9-4355-bbd4-4c61e33d3d7c")?, 2),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Sed quis fermentum mi. Integer commodo turpis a fermentum tristique. Integer convallis, nunc sed scelerisque varius, mi tellus molestie metus, eu ultrices justo tellus non arcu. Cras euismod, lectus eu scelerisque mattis, odio ex ornare ipsum, a dapibus nulla leo maximus orci. Etiam laoreet venenatis lorem, vitae iaculis mauris. Nullam lobortis, tortor eget ullamcorper lobortis, tellus odio tincidunt dolor, vitae gravida nibh turpis ac sem. Integer non sodales eros.",
+                  "dropCap": false
+                },
+            )
+                .with_id(Uuid::parse_str("4ef39962-634d-488c-be82-f44e5db19421")?),
+            GutenbergBlock::block_with_name_and_attributes(
+                "core/paragraph",
+                attributes!{
+                  "content": "Vestibulum a scelerisque ante. Fusce interdum eros elit, posuere mattis sapien tristique id. Integer commodo mi orci, sit amet tempor libero vulputate in. Ut id gravida quam. Proin massa dolor, posuere nec metus eu, dignissim viverra nulla. Vestibulum quis neque bibendum, hendrerit diam et, fermentum diam. Sed risus nibh, suscipit in neque nec, bibendum interdum nibh. Aliquam ut enim a mi ultricies finibus. Nam tristique felis ac risus interdum molestie. Nulla venenatis, augue sed porttitor ultrices, lacus ante sollicitudin dui, vel vehicula ex enim ac mi.",
+                  "dropCap": false
+                },
+            )
+            .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ]),
     };
     create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;

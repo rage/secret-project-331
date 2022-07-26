@@ -213,7 +213,7 @@ WHERE proposed_block_edits.deleted_at IS NULL
             current_text: content.to_string(),
             changed_text: changed_text.to_string(),
             status: block_proposal_status,
-            original_text,
+            original_text: original_text.to_string(),
         });
     }
 

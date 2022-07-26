@@ -1408,6 +1408,75 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
+  "15ff21e4097eb3bbeca2a1277c0f85b8e418b6de3433f580ae11738e94b2bc8d": {
+    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)\n        RETURNING id,\n        user_exercise_state_id,\n        created_at,\n        updated_at,\n        deleted_at,\n        score_given,\n        teacher_decision AS \"teacher_decision: _\",\n        suspected_plagiarism;\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_exercise_state_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 2,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 3,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 4,
+          "name": "deleted_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "score_given",
+          "type_info": "Float4"
+        },
+        {
+          "ordinal": 6,
+          "name": "teacher_decision: _",
+          "type_info": {
+            "Custom": {
+              "name": "teacher_decision_type",
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 7,
+          "name": "suspected_plagiarism",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "name": "teacher_decision_type",
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              }
+            }
+          },
+          "Float4"
+        ]
+      },
+      "nullable": [false, false, false, false, true, false, false, false]
+    }
+  },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {
     "query": "\nSELECT id,\n  exercise_task_submission_id,\n  grading_before_regrading,\n  grading_after_regrading,\n  regrading_id\nFROM exercise_task_regrading_submissions\nWHERE id = $1\n",
     "describe": {
@@ -15083,76 +15152,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "f1a8bbdd0947e0592f10708a7f74dfb861360cb8fa213553ab71a06c3c8c229f": {
-    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism, teacher_decision, score_given) VALUES ($1, $2, $3, $4)\n        RETURNING id,\n        user_exercise_state_id,\n        created_at,\n        updated_at,\n        deleted_at,\n        score_given,\n        teacher_decision AS \"teacher_decision: _\",\n        suspected_plagiarism;\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 1,
-          "name": "user_exercise_state_id",
-          "type_info": "Uuid"
-        },
-        {
-          "ordinal": 2,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 3,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 4,
-          "name": "deleted_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 5,
-          "name": "score_given",
-          "type_info": "Float4"
-        },
-        {
-          "ordinal": 6,
-          "name": "teacher_decision: _",
-          "type_info": {
-            "Custom": {
-              "name": "teacher_decision_type",
-              "kind": {
-                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 7,
-          "name": "suspected_plagiarism",
-          "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Bool",
-          {
-            "Custom": {
-              "name": "teacher_decision_type",
-              "kind": {
-                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
-              }
-            }
-          },
-          "Float4"
-        ]
-      },
-      "nullable": [false, false, false, false, true, false, false, false]
     }
   },
   "f21c96c64d0bf9550cd3cd8b51a1090200ead72843ce423169401549eadb5790": {

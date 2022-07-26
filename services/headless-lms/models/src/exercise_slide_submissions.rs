@@ -714,14 +714,13 @@ pub async fn update_user_exercise_state(
 pub async fn add_teacher_grading_decision(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
-    suspected_of_plagiarism: bool,
     action: TeacherDecisionType,
     score_given: f32,
 ) -> ModelResult<TeacherGradingDecision> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-        INSERT INTO teacher_grading_decisions (user_exercise_state_id, suspected_plagiarism, teacher_decision, score_given) VALUES ($1, $2, $3, $4)
+        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)
         RETURNING id,
         user_exercise_state_id,
         created_at,
@@ -732,7 +731,6 @@ pub async fn add_teacher_grading_decision(
         suspected_plagiarism;
         "#,
         user_exercise_state_id,
-        suspected_of_plagiarism,
         action as TeacherDecisionType,
         score_given
     )

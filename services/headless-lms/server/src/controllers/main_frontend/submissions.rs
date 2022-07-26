@@ -58,7 +58,6 @@ async fn update_submission(
     )
     .await?;
     let points_given;
-    let mut suspected_of_plagiarism = false;
     if *action == TeacherDecisionType::FullPoints {
         let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
         points_given = exercise.score_maximum as f32;
@@ -68,7 +67,6 @@ async fn update_submission(
         points_given = manual_points.unwrap_or(0.0);
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
-        suspected_of_plagiarism = true;
     } else {
         return Err(ControllerError::BadRequest("Invalid query".to_string()));
     }
@@ -83,7 +81,6 @@ async fn update_submission(
     models::exercise_slide_submissions::add_teacher_grading_decision(
         &mut conn,
         user_exercise_state_id,
-        suspected_of_plagiarism,
         *action,
         points_given,
     )

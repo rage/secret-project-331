@@ -11,7 +11,7 @@ CREATE TABLE teacher_grading_decisions (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
   score_given real NOT NULL,
-  teacher_decision teacher_decision_type NOT NULL,
+  teacher_decision teacher_decision_type NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON teacher_grading_decisions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

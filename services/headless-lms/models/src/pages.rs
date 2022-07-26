@@ -113,6 +113,7 @@ pub struct NormalizedCmsExerciseTask {
 pub struct PageRoutingData {
     pub url_path: String,
     pub title: String,
+    pub page_id: Uuid,
     pub chapter_number: i32,
     pub chapter_id: Uuid,
     pub chapter_opens_at: Option<DateTime<Utc>>,
@@ -1235,10 +1236,10 @@ WHERE id = $2;
 
 #[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
-    id: Uuid,
-    private_spec: Option<serde_json::Value>,
-    public_spec: Option<serde_json::Value>,
-    model_solution_spec: Option<serde_json::Value>,
+    pub id: Uuid,
+    pub private_spec: Option<serde_json::Value>,
+    pub public_spec: Option<serde_json::Value>,
+    pub model_solution_spec: Option<serde_json::Value>,
 }
 
 async fn fetch_derived_spec(
@@ -1625,6 +1626,7 @@ async fn get_next_page_by_order_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -1660,6 +1662,7 @@ async fn get_next_page_by_chapter_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
@@ -1733,6 +1736,7 @@ pub async fn get_page_navigation_data(
                 Ok(PageRoutingData {
                     url_path: front_page.url_path,
                     title: front_page.title,
+                    page_id: front_page.id,
                     chapter_number: chapter_front_page_chapter.chapter_number,
                     chapter_id: chapter_front_page_chapter.id,
                     chapter_opens_at: chapter_front_page_chapter.opens_at,
@@ -1792,6 +1796,7 @@ async fn get_previous_page_by_order_number(
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
+  p.id as page_id,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,
   c.front_page_id as chapter_front_page_id
@@ -1826,6 +1831,7 @@ async fn get_previous_page_by_chapter_number(
         "
 SELECT p.url_path as url_path,
   p.title as title,
+  p.id as page_id,
   c.chapter_number as chapter_number,
   c.id as chapter_id,
   c.opens_at as chapter_opens_at,

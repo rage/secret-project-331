@@ -43,7 +43,7 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
       onClose={onClose}
       role="dialog"
       aria-labelledby="label"
-      title={t("new-reference-dialog")}
+      title={t("new-reference")}
       fullWidth
     >
       <DialogTitle>

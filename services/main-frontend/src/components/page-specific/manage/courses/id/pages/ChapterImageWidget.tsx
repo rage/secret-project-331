@@ -51,7 +51,7 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
 
   return (
     <div>
-      {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
+      {!!error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapterImageUrl ? (
         <>
           <img src={chapterImageUrl} alt={t("image-alt-what-to-display-on-chapter")} />

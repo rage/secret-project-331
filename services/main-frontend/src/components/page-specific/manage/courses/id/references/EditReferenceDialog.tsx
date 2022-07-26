@@ -68,7 +68,7 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
       onClose={onClose}
       role="dialog"
       aria-labelledby="label"
-      title={t("edit-reference-dialog")}
+      title={t("edit-reference")}
       fullWidth
     >
       <DialogTitle>

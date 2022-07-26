@@ -10,7 +10,8 @@ const SponsorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorP
 ) => {
   return (
     <BreakFromCentered sidebar={false}>
-      <Sponsor logos={props.data.innerBlocks} />
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <Sponsor logos={props.data.innerBlocks as any} />
     </BreakFromCentered>
   )
 }

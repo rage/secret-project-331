@@ -1842,8 +1842,8 @@ export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is Get
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.read === "boolean" &&
-    typeof obj["page?"] === "number" &&
-    typeof obj["limit?"] === "number"
+    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
+    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
   )
 }
 
@@ -1854,8 +1854,8 @@ export function isGetEditProposalsQuery(
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.pending === "boolean" &&
-    typeof obj["page?"] === "number" &&
-    typeof obj["limit?"] === "number"
+    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
+    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
   )
 }
 
@@ -1879,8 +1879,8 @@ export function isErrorData(obj: any, _argumentName?: string): obj is ErrorData 
 export function isPagination(obj: any, _argumentName?: string): obj is Pagination {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj["page?"] === "number" &&
-    typeof obj["limit?"] === "number"
+    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
+    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
   )
 }
 

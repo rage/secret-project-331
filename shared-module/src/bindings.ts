@@ -1072,14 +1072,14 @@ export interface MarkAsRead {
 
 export interface GetFeedbackQuery {
   read: boolean
-  "page?": number
-  "limit?": number
+  page: number | undefined
+  limit: number | undefined
 }
 
 export interface GetEditProposalsQuery {
   pending: boolean
-  "page?": number
-  "limit?": number
+  page: number | undefined
+  limit: number | undefined
 }
 
 export interface ErrorResponse {
@@ -1092,8 +1092,8 @@ export interface ErrorResponse {
 export type ErrorData = { block_id: string }
 
 export interface Pagination {
-  "page?": number
-  "limit?": number
+  page: number | undefined
+  limit: number | undefined
 }
 
 export interface OEmbedResponse {

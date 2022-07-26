@@ -48,7 +48,7 @@ const UserOnWrongCourseNotification: React.FC<
           >
             <Trans t={t} i18nKey="message-already-on-different-language-version">
               Looks like you&apos;re already on a different language version of this course. Before
-              answering any exercises, please return to <b>{getCourseById.data.name}</b>
+              answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
               or change your active language in the settings.
             </Trans>
           </a>

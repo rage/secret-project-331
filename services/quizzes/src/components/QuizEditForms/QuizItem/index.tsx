@@ -118,7 +118,11 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction
       return <Timeline item={item} />
     }
     default: {
-      return <div>{t("unsupported")}</div>
+      return (
+        <div>
+          <>{t("unsupported")}</>
+        </div>
+      )
     }
   }
 }

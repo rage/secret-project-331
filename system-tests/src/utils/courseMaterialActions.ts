@@ -12,9 +12,9 @@ const isSelectCourseInstanceModalOpen = async (page: Page) => {
 export async function selectCourseInstanceIfPrompted(page: Page, courseVariantName = "default") {
   // Give a moment for the dialog to appear
   if (!(await isSelectCourseInstanceModalOpen(page))) {
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(100)
     if (!(await isSelectCourseInstanceModalOpen(page))) {
-      await page.waitForTimeout(200)
+      await page.waitForTimeout(100)
     }
   }
 

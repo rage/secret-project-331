@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog, DialogContentText } from "@mui/material"
 import { UseQueryResult } from "@tanstack/react-query"
-import { t } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
 import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"
@@ -23,6 +23,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   open,
   close,
 }) => {
+  const { t } = useTranslation()
   const createExamMutation = useToastMutation(
     (exam: NewExam) => createExam(organizationId, exam),
     {

@@ -47,7 +47,7 @@ const OrganizationImageWidget: React.FC<
 
   return (
     <div>
-      {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
+      {!!error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {organization.organization_image_url ? (
         <>
           <img

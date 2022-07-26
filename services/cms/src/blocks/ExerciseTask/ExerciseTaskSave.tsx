@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const ExerciseTaskSave: React.FC<React.PropsWithChildren<unknown>> = () => {
+const ExerciseTaskSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const HeroSectionSave: React.FC<React.PropsWithChildren<unknown>> = () => {
+const HeroSectionSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

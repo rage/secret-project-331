@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const SponsorSave: React.FC<React.PropsWithChildren<unknown>> = () => {
+const SponsorSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

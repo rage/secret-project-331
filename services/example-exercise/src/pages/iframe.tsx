@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 
-import { Renderer } from "../components/Renderer"
+import Renderer from "../components/Renderer"
 import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"

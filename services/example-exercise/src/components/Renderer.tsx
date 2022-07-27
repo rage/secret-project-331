@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { ExerciseFeedback } from "../pages/api/grade"
 import { State } from "../pages/iframe"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import Editor from "./Editor"
 import Exercise from "./Exercise"
@@ -14,11 +15,7 @@ interface RendererProps {
   port: MessagePort | null
 }
 
-export const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({
-  state,
-  setState,
-  port,
-}) => {
+const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, setState, port }) => {
   const { t } = useTranslation()
 
   if (!port) {
@@ -49,3 +46,5 @@ export const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({
     return <>{t("waiting-for-content")}</>
   }
 }
+
+export default withNoSsr(Renderer)

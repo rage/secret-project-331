@@ -5,7 +5,7 @@ import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
-import { Renderer } from "../components/Renderer"
+import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"

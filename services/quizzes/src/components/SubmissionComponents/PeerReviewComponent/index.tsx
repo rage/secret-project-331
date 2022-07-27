@@ -37,6 +37,8 @@ const Wrapper = styled.div`
 
   details summary {
     padding: 1rem;
+    display: flex;
+    align-items: center;
     position: relative;
     cursor: pointer;
     font-weight: 500;
@@ -79,15 +81,16 @@ const Wrapper = styled.div`
 `
 const Notification = styled.div`
   display: inline-block;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: #44827e;
   color: #fff;
+  line-height: 113%;
   font-size: 15px;
   font-family: ${headingFont};
   border-radius: 50%;
   text-align: center;
-  margin-left: 1rem;
+  margin-left: 0.5rem;
 `
 
 const arr = [{ peerReview: 1 }, { peerReview: 2 }, { peerReview: 3 }]

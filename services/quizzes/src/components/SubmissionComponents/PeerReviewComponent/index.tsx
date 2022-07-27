@@ -77,6 +77,19 @@ const Wrapper = styled.div`
     opacity: 0.9;
   }
 `
+const Notification = styled.div`
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: #44827e;
+  color: #fff;
+  font-size: 15px;
+  font-family: ${headingFont};
+  border-radius: 50%;
+  text-align: center;
+  margin-left: 1rem;
+`
+
 const arr = [{ peerReview: 1 }, { peerReview: 2 }, { peerReview: 3 }]
 
 // interface PeerReviewProps {}
@@ -85,7 +98,9 @@ const PeerReview: React.FunctionComponent /*<PeerReviewProps>*/ = () => {
   return (
     <Wrapper>
       <details>
-        <summary>{PLACEHOLDER_HEADING}</summary>
+        <summary>
+          {PLACEHOLDER_HEADING} <Notification>{arr.length}</Notification>
+        </summary>
         {arr?.map((item, index) => (
           <Reviews orderNumber={index} key={index} />
         ))}

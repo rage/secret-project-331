@@ -5,7 +5,7 @@ const Wrapper = styled.div`
   padding: 1rem;
 
   h4 {
-    font-size: 17px !important;
+    font-size: 16px !important;
     color: #215887;
     line-height: 1.4;
     margin-bottom: 0.8rem;

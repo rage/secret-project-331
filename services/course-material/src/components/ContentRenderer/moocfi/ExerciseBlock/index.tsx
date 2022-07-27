@@ -25,7 +25,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, secondaryFont } from "../../../../shared-module/styles"
+import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -206,9 +206,9 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               />{" "}
               <h2
                 className={css`
-                  font-size: 2rem;
-                  font-weight: 400;
-                  font-family: ${secondaryFont} !important;
+                  font-size: 1.8rem;
+                  font-weight: 600;
+                  font-family: ${headingFont} !important;
                   overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;

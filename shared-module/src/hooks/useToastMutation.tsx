@@ -1,12 +1,12 @@
 /* eslint-disable i18next/no-literal-string */
 import {
   MutationFunction,
+  // eslint-disable-next-line no-restricted-imports
   useMutation,
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
 import toast, { ToastOptions } from "react-hot-toast"
-// eslint-disable-next-line no-restricted-imports
 
 import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"

@@ -114,6 +114,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const { t } = useTranslation()
 
+  const parsedPeerReviews = JSON.parse(attributes.peer_review_config) as CmsPeerReview[]
+
+  const parsedPeerReviewQuestion = JSON.parse(
+    attributes.peer_review_questions_config,
+  ) as CmsPeerReviewQuestion[]
+
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },
     { label: t("linkert-scale"), value: "Scale" },
@@ -138,7 +144,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   ]
 
   const handlePeerReviewValueChange = (id: string, value: any, field: keyof CmsPeerReview) => {
-    const peerReviews = (JSON.parse(attributes.peer_review_config) as CmsPeerReview[]).map((pr) => {
+    const peerReviews = parsedPeerReviews.map((pr) => {
       if (pr.id === id) {
         switch (field) {
           case "accepting_strategy":
@@ -162,9 +168,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     value: any,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions = (
-      JSON.parse(attributes.peer_review_questions_config) as CmsPeerReviewQuestion[]
-    ).map((prq) => {
+    const peerReviewQuestions = parsedPeerReviewQuestion.map((prq) => {
       if (prq.id === id) {
         switch (field) {
           case "question":
@@ -182,7 +186,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const addPeerReview = () => {
     setAttributes({
       peer_review_config: JSON.stringify([
-        ...JSON.parse(attributes.peer_review_config),
+        ...parsedPeerReviews,
         {
           id: v4(),
           course_id: courseId,
@@ -199,7 +203,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const addPeerReviewQuestion = (peerReviewId: string) => {
     setAttributes({
       peer_review_questions_config: JSON.stringify([
-        ...JSON.parse(attributes.peer_review_questions_config),
+        ...parsedPeerReviewQuestion,
         {
           id: v4(),
           question: "",
@@ -214,18 +218,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const deletePeerReview = (id: string) => {
     setAttributes({
-      peer_review_config: JSON.stringify(
-        (JSON.parse(attributes.peer_review_config) as CmsPeerReview[]).filter((x) => x.id !== id),
-      ),
+      peer_review_config: JSON.stringify(parsedPeerReviews.filter((x) => x.id !== id)),
     })
   }
 
   const deletePeerReviewQuestion = (id: string) => {
     setAttributes({
       peer_review_questions_config: JSON.stringify(
-        (JSON.parse(attributes.peer_review_questions_config) as CmsPeerReviewQuestion[]).filter(
-          (x) => x.id !== id,
-        ),
+        parsedPeerReviewQuestion.filter((x) => x.id !== id),
       ),
     })
   }
@@ -239,7 +239,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         <Button variant="primary" size="medium" onClick={addPeerReview}>
           {t("add-peer-review")}
         </Button>
-        {(JSON.parse(attributes.peer_review_config) as CmsPeerReview[]).map((pr) => {
+        {parsedPeerReviews.map((pr) => {
           return (
             <div key={pr.id} id={pr.id}>
               <Button variant="secondary" size="medium" onClick={() => deletePeerReview(pr.id)}>
@@ -291,10 +291,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 />
 
                 <h2>{HEADING_TEXT}</h2>
-                {JSON.parse(attributes.peer_review_questions_config) &&
-                  (
-                    JSON.parse(attributes.peer_review_questions_config) as CmsPeerReviewQuestion[]
-                  ).map(({ id, question, question_type }) => (
+                {parsedPeerReviewQuestion &&
+                  parsedPeerReviewQuestion.map(({ id, question, question_type }) => (
                     <List key={id} id={id}>
                       <StyledQuestion>
                         <StyledSelectField

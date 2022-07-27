@@ -1,8 +1,8 @@
 import { Frame, Page, test } from "@playwright/test"
 
-import expectPath from "../../../utils/expect"
-import { closeModal, fillQuizItemOptionModal } from "../../../utils/quizzesActions"
-import waitForFunction from "../../../utils/waitForFunction"
+import expectPath from "../../utils/expect"
+import { closeModal, fillQuizItemOptionModal } from "../../utils/quizzesActions"
+import waitForFunction from "../../utils/waitForFunction"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

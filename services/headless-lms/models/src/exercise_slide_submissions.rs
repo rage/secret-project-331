@@ -58,7 +58,6 @@ pub struct TeacherGradingDecision {
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_given: f32,
     pub teacher_decision: TeacherDecisionType,
-    pub suspected_plagiarism: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -727,8 +726,7 @@ pub async fn add_teacher_grading_decision(
         updated_at,
         deleted_at,
         score_given,
-        teacher_decision AS "teacher_decision: _",
-        suspected_plagiarism;
+        teacher_decision AS "teacher_decision: _";
         "#,
         user_exercise_state_id,
         action as TeacherDecisionType,

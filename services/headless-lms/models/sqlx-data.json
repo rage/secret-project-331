@@ -1408,8 +1408,8 @@
       "nullable": [false, false, false, true, true, true, false, false, true, false, false, true]
     }
   },
-  "15ff21e4097eb3bbeca2a1277c0f85b8e418b6de3433f580ae11738e94b2bc8d": {
-    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)\n        RETURNING id,\n        user_exercise_state_id,\n        created_at,\n        updated_at,\n        deleted_at,\n        score_given,\n        teacher_decision AS \"teacher_decision: _\",\n        suspected_plagiarism;\n        ",
+  "16ecc41b22b60b3e86ac9a66796c7ba3e6d23381d97f31acf398194e4379e2e8": {
+    "query": "\n        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)\n        RETURNING id,\n        user_exercise_state_id,\n        created_at,\n        updated_at,\n        deleted_at,\n        score_given,\n        teacher_decision AS \"teacher_decision: _\";\n        ",
     "describe": {
       "columns": [
         {
@@ -1453,11 +1453,6 @@
               }
             }
           }
-        },
-        {
-          "ordinal": 7,
-          "name": "suspected_plagiarism",
-          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -1474,7 +1469,7 @@
           "Float4"
         ]
       },
-      "nullable": [false, false, false, false, true, false, false, false]
+      "nullable": [false, false, false, false, true, false, false]
     }
   },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {

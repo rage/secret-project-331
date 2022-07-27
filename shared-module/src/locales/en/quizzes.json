@@ -1,5 +1,7 @@
 {
   "add-new-quiz-item": "Add new quiz item",
+  "create-quiz-item-same-type": "Create new quiz item of same type",
+  "create-quiz-item-duplicate": "Duplicate previous quiz item",
   "add-option": "Add option",
   "add-new-event": "Add new event",
   "all-answers-correct": "All answers correct (no matter what one answers it is correct)",

@@ -2,7 +2,12 @@ import produce from "immer"
 import { createReducer } from "typesafe-actions"
 
 import { action, Quiz, QuizVariables } from "../../../../types/types"
-import { createdNewItem, createdNewQuiz, initializedEditor } from "../editorActions"
+import {
+  createdDuplicateItem,
+  createdNewItem,
+  createdNewQuiz,
+  initializedEditor,
+} from "../editorActions"
 import { editedQuizzesDeadline } from "../quiz/quizActions"
 
 import { setAddNewQuizItem, setNewItemType } from "./quizVariableActions"
@@ -75,6 +80,12 @@ export const quizVariableReducers = createReducer<{ [quizId: string]: QuizVariab
   })
 
   .handleAction(createdNewItem, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.quizId].newItems.push(action.payload.itemId)
+    })
+  })
+
+  .handleAction(createdDuplicateItem, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.quizId].newItems.push(action.payload.itemId)
     })

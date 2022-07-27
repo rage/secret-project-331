@@ -13,6 +13,7 @@ import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
+import PeerReviewRecieved from "./SubmissionComponents/PeerReviewComponent/index"
 import Timeline from "./SubmissionComponents/Timeline"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
@@ -104,34 +105,37 @@ const Submission: React.FC<SubmissionProps> = ({
             (ia) => ia.quizItemId === item.id,
           )[0]
           return (
-            <div key={item.id}>
-              <Component
-                key={item.id}
-                public_quiz_item={item}
-                quiz_item_feedback={itemFeedback}
-                quiz_item_model_solution={itemModelSolution}
-                user_quiz_item_answer={quizItemAnswer}
-              />
-              {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
-                <div
-                  className={css`
-                    background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
-                    border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
-                    box-sizing: border-box;
-                    border-radius: 4px;
-                    color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
-                    margin: 1.5rem auto;
-                    margin-bottom: 0;
-                    padding: 0.25rem 1.5rem;
-                    width: fit-content;
-                  `}
-                >
-                  {itemFeedback.quiz_item_correct
-                    ? t("your-answer-was-correct")
-                    : t("your-answer-was-not-correct")}
-                </div>
-              )}
-            </div>
+            <>
+              <div key={item.id}>
+                <Component
+                  key={item.id}
+                  public_quiz_item={item}
+                  quiz_item_feedback={itemFeedback}
+                  quiz_item_model_solution={itemModelSolution}
+                  user_quiz_item_answer={quizItemAnswer}
+                />
+                {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
+                  <div
+                    className={css`
+                      background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
+                      border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
+                      box-sizing: border-box;
+                      border-radius: 4px;
+                      color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
+                      margin: 1.5rem auto;
+                      margin-bottom: 0;
+                      padding: 0.25rem 1.5rem;
+                      width: fit-content;
+                    `}
+                  >
+                    {itemFeedback.quiz_item_correct
+                      ? t("your-answer-was-correct")
+                      : t("your-answer-was-not-correct")}
+                  </div>
+                )}
+              </div>
+              {true && <PeerReviewRecieved />}
+            </>
           )
         })}
     </>

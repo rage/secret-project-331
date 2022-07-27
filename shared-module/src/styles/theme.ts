@@ -136,6 +136,19 @@ export const theme = {
     disabledBg: baseTheme.colors.clear[100],
     disabledBorder: baseTheme.colors.clear[100],
   },
+  white: {
+    text: baseTheme.colors.grey[500],
+    border: baseTheme.colors.clear[100],
+    bg: baseTheme.colors.grey[700],
+    hoverText: baseTheme.colors.grey[700],
+    hoverBg: baseTheme.colors.clear[100],
+    hoverBorder: baseTheme.colors.clear[100],
+    focusBorder: baseTheme.colors.clear[100],
+    activeBg: baseTheme.colors.clear[100],
+    disabledText: baseTheme.colors.grey[400],
+    disabledBg: baseTheme.colors.clear[100],
+    disabledBorder: baseTheme.colors.clear[100],
+  },
   buttonSizes: {
     small: {
       fontSize: baseTheme.fontSizes[1],

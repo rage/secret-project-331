@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faCircleExclamation, faFlag } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   Dialog,
@@ -66,9 +66,10 @@ const TopBar = styled.div`
 const ControlPanel = styled.div`
   background: #f5f5f5;
   width: 100%;
-  height: 90px;
+  height: 150px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 `
 
 const AnswersRequiringAttentionList: React.FC<Props> = ({
@@ -243,16 +244,28 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                 </div>
               </StatusPanel>
               <ControlPanel>
-                <div>
+                <div
+                  className={css`
+                    margin-left: 1em;
+                  `}
+                >
                   <h3
                     className={css`
-                      margin-left: 1em;
                       color: #4b4b4b;
                     `}
                   >
                     {" "}
                     {t("grading")}
                   </h3>
+                  <p
+                    className={css`
+                      color: #4b4b4b;
+                      margin-bottom: 0.5em;
+                    `}
+                  >
+                    {" "}
+                    {t("grading-description")}
+                  </p>
                 </div>
                 <div
                   className={css`
@@ -277,13 +290,16 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                         // eslint-disable-next-line i18next/no-literal-string
                         "ZeroPoints",
                       )
-                    } // Accept answer
+                    }
                   >
                     {t("button-text-zero-points")}
                   </Button>
                   <Button
                     size="medium"
                     variant="primary"
+                    className={css`
+                      margin-right: 0.5em;
+                    `}
                     onClick={() =>
                       handleControlPanel(
                         answerRequiringAttention.id,
@@ -295,7 +311,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                   >
                     {t("button-text-full-points")}
                   </Button>
-                  <Button size="medium" variant="blue" onClick={() => setOpen(true)}>
+                  <Button size="medium" variant="white" onClick={() => setOpen(true)}>
                     {t("button-text-custom-points")}
                   </Button>
                   <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="dialog-label">
@@ -317,7 +333,6 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           value={sliderValue}
                           size="small"
                           onChange={handleInputFieldChange}
-                          // onBlur={handleBlur}
                           inputProps={{
                             step: 0.1,
                             min: 0.0,
@@ -354,10 +369,11 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                   >
                     <Button
                       className={css`
-                        margin-left: 0.5em;
+                        margin-right: 1em;
                       `}
                       size="medium"
                       variant="tertiary"
+                      aria-label={t("button-text-flag-as-plagiarism")}
                       onClick={() =>
                         handleControlPanel(
                           answerRequiringAttention.id,
@@ -365,9 +381,9 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           // eslint-disable-next-line i18next/no-literal-string
                           "SuspectedPlagiarism",
                         )
-                      } // flag as plagiarism
+                      }
                     >
-                      {t("button-text-flag-as-plagiarism")}
+                      <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
                     </Button>
                   </div>
                 </div>

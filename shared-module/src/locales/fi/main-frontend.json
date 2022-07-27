@@ -13,6 +13,7 @@
   "block-id": "Lohkon tunniste: {{id}}",
   "blocks": "Lohkot:",
   "grading": "Arvostelu",
+  "grading-description": "Käytä mukautettuja pisteitä, kun haluat antaa muuta kuin 0 tai täydet pisteet",
   "button-compare": "Vertaa",
   "button-mark-as-read": "Merkitse luetuksi",
   "button-mark-as-unread": "Merkitse lukemattomaksi",

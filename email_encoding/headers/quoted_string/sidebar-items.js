@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["encode",""]]});
+initSidebarItems({"fn":[["encode","Encode a string that may need to be quoted."]]});

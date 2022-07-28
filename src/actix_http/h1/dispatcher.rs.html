@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.0.4/src/h1/dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-http-3.2.1/src/h1/dispatcher.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dispatcher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_http/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -1267,70 +1267,6 @@
 <span id="1260">1260</span>
 <span id="1261">1261</span>
 <span id="1262">1262</span>
-<span id="1263">1263</span>
-<span id="1264">1264</span>
-<span id="1265">1265</span>
-<span id="1266">1266</span>
-<span id="1267">1267</span>
-<span id="1268">1268</span>
-<span id="1269">1269</span>
-<span id="1270">1270</span>
-<span id="1271">1271</span>
-<span id="1272">1272</span>
-<span id="1273">1273</span>
-<span id="1274">1274</span>
-<span id="1275">1275</span>
-<span id="1276">1276</span>
-<span id="1277">1277</span>
-<span id="1278">1278</span>
-<span id="1279">1279</span>
-<span id="1280">1280</span>
-<span id="1281">1281</span>
-<span id="1282">1282</span>
-<span id="1283">1283</span>
-<span id="1284">1284</span>
-<span id="1285">1285</span>
-<span id="1286">1286</span>
-<span id="1287">1287</span>
-<span id="1288">1288</span>
-<span id="1289">1289</span>
-<span id="1290">1290</span>
-<span id="1291">1291</span>
-<span id="1292">1292</span>
-<span id="1293">1293</span>
-<span id="1294">1294</span>
-<span id="1295">1295</span>
-<span id="1296">1296</span>
-<span id="1297">1297</span>
-<span id="1298">1298</span>
-<span id="1299">1299</span>
-<span id="1300">1300</span>
-<span id="1301">1301</span>
-<span id="1302">1302</span>
-<span id="1303">1303</span>
-<span id="1304">1304</span>
-<span id="1305">1305</span>
-<span id="1306">1306</span>
-<span id="1307">1307</span>
-<span id="1308">1308</span>
-<span id="1309">1309</span>
-<span id="1310">1310</span>
-<span id="1311">1311</span>
-<span id="1312">1312</span>
-<span id="1313">1313</span>
-<span id="1314">1314</span>
-<span id="1315">1315</span>
-<span id="1316">1316</span>
-<span id="1317">1317</span>
-<span id="1318">1318</span>
-<span id="1319">1319</span>
-<span id="1320">1320</span>
-<span id="1321">1321</span>
-<span id="1322">1322</span>
-<span id="1323">1323</span>
-<span id="1324">1324</span>
-<span id="1325">1325</span>
-<span id="1326">1326</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections::VecDeque</span>,
     <span class="ident">fmt</span>,
@@ -1348,13 +1284,14 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">Buf</span>, <span class="ident">BytesMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core::ready</span>;
 <span class="kw">use</span> <span class="ident">pin_project_lite::pin_project</span>;
+<span class="kw">use</span> <span class="ident">tracing</span>::{<span class="ident">error</span>, <span class="ident">trace</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">body</span>::{<span class="ident">BodySize</span>, <span class="ident">BoxBody</span>, <span class="ident">MessageBody</span>},
     <span class="ident">config::ServiceConfig</span>,
     <span class="ident">error</span>::{<span class="ident">DispatchError</span>, <span class="ident">ParseError</span>, <span class="ident">PayloadError</span>},
     <span class="ident">service::HttpFlow</span>,
-    <span class="ident">ConnectionType</span>, <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
+    <span class="ident">Error</span>, <span class="ident">Extensions</span>, <span class="ident">OnConnectData</span>, <span class="ident">Request</span>, <span class="ident">Response</span>, <span class="ident">StatusCode</span>,
 };
 
 <span class="kw">use</span> <span class="kw">super</span>::{
@@ -1669,7 +1606,7 @@
         <span class="kw">while</span> <span class="ident">written</span> <span class="op">&lt;</span> <span class="ident">len</span> {
             <span class="kw">match</span> <span class="ident">io</span>.<span class="ident">as_mut</span>().<span class="ident">poll_write</span>(<span class="ident">cx</span>, <span class="kw-2">&amp;</span><span class="ident">write_buf</span>[<span class="ident">written</span>..])<span class="question-mark">?</span> {
                 <span class="ident">Poll::Ready</span>(<span class="number">0</span>) =&gt; {
-                    <span class="macro">log::error!</span>(<span class="string">&quot;write zero; closing&quot;</span>);
+                    <span class="macro">error!</span>(<span class="string">&quot;write zero; closing&quot;</span>);
                     <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">io::Error::new</span>(<span class="ident">io::ErrorKind::WriteZero</span>, <span class="string">&quot;&quot;</span>)));
                 }
 
@@ -1901,7 +1838,7 @@
                 }
 
                 <span class="ident">StateProj::ExpectCall</span> { <span class="ident">fut</span> } =&gt; {
-                    <span class="macro">log::trace!</span>(<span class="string">&quot;  calling expect service&quot;</span>);
+                    <span class="macro">trace!</span>(<span class="string">&quot;  calling expect service&quot;</span>);
 
                     <span class="kw">match</span> <span class="ident">fut</span>.<span class="ident">poll</span>(<span class="ident">cx</span>) {
                         <span class="comment">// expect resolved. write continue to buffer and set InnerDispatcher state</span>
@@ -2023,73 +1960,11 @@
         <span class="kw">let</span> <span class="ident">can_not_read</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">can_read</span>(<span class="ident">cx</span>);
 
         <span class="comment">// limit amount of non-processed requests</span>
-        <span class="kw">if</span> <span class="ident">pipeline_queue_full</span> {
+        <span class="kw">if</span> <span class="ident">pipeline_queue_full</span> <span class="op">|</span><span class="op">|</span> <span class="ident">can_not_read</span> {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
-
-        <span class="kw">if</span> <span class="ident">can_not_read</span> {
-            <span class="macro">log::debug!</span>(<span class="string">&quot;cannot read request payload&quot;</span>);
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sender</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">this</span>.<span class="ident">payload</span> {
-                <span class="comment">// ...maybe handler does not want to read any more payload...</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PayloadStatus::Dropped</span> <span class="op">=</span> <span class="ident">sender</span>.<span class="ident">need_read</span>(<span class="ident">cx</span>) {
-                    <span class="macro">log::debug!</span>(<span class="string">&quot;handler dropped payload early; attempt to clean connection&quot;</span>);
-                    <span class="comment">// ...in which case poll request payload a few times</span>
-                    <span class="kw">loop</span> {
-                        <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">codec</span>.<span class="ident">decode</span>(<span class="ident">this</span>.<span class="ident">read_buf</span>)<span class="question-mark">?</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">msg</span>) =&gt; {
-                                <span class="kw">match</span> <span class="ident">msg</span> {
-                                    <span class="comment">// payload decoded did not yield EOF yet</span>
-                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; {
-                                        <span class="comment">// if non-clean connection, next loop iter will detect empty</span>
-                                        <span class="comment">// read buffer and close connection</span>
-                                    }
-
-                                    <span class="comment">// connection is in clean state for next request</span>
-                                    <span class="ident">Message::Chunk</span>(<span class="prelude-val">None</span>) =&gt; {
-                                        <span class="macro">log::debug!</span>(<span class="string">&quot;connection successfully cleaned&quot;</span>);
-
-                                        <span class="comment">// reset dispatcher state</span>
-                                        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>();
-                                        <span class="ident">this</span>.<span class="ident">state</span>.<span class="ident">set</span>(<span class="ident">State::None</span>);
-
-                                        <span class="comment">// break out of payload decode loop</span>
-                                        <span class="kw">break</span>;
-                                    }
-
-                                    <span class="comment">// Either whole payload is read and loop is broken or more data</span>
-                                    <span class="comment">// was expected in which case connection is closed. In both</span>
-                                    <span class="comment">// situations dispatcher cannot get here.</span>
-                                    <span class="ident">Message::Item</span>(<span class="kw">_</span>) =&gt; {
-                                        <span class="macro">unreachable!</span>(<span class="string">&quot;dispatcher is in payload receive state&quot;</span>)
-                                    }
-                                }
-                            }
-
-                            <span class="comment">// not enough info to decide if connection is going to be clean or not</span>
-                            <span class="prelude-val">None</span> =&gt; {
-                                <span class="macro">log::error!</span>(
-                                    <span class="string">&quot;handler did not read whole payload and dispatcher could not \
-                                    drain read buf; return 500 and close connection&quot;</span>
-                                );
-
-                                <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::SHUTDOWN</span>);
-                                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Response::internal_server_error</span>().<span class="ident">drop_body</span>();
-                                <span class="ident">res</span>.<span class="ident">head_mut</span>().<span class="ident">set_connection_type</span>(<span class="ident">ConnectionType::Close</span>);
-                                <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(<span class="ident">res</span>));
-                                <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DispatchError::HandlerDroppedPayload</span>);
-                                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
-                            }
-                        }
-                    }
-                }
-            } <span class="kw">else</span> {
-                <span class="comment">// can_not_read and no request payload</span>
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>);
-            }
-        }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">updated</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
@@ -2146,7 +2021,7 @@
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span> {
                                 <span class="ident">payload</span>.<span class="ident">feed_data</span>(<span class="ident">chunk</span>);
                             } <span class="kw">else</span> {
-                                <span class="macro">log::error!</span>(<span class="string">&quot;Internal server error: unexpected payload chunk&quot;</span>);
+                                <span class="macro">error!</span>(<span class="string">&quot;Internal server error: unexpected payload chunk&quot;</span>);
                                 <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::READ_DISCONNECT</span>);
                                 <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(
                                     <span class="ident">Response::internal_server_error</span>().<span class="ident">drop_body</span>(),
@@ -2160,7 +2035,7 @@
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>() {
                                 <span class="ident">payload</span>.<span class="ident">feed_eof</span>();
                             } <span class="kw">else</span> {
-                                <span class="macro">log::error!</span>(<span class="string">&quot;Internal server error: unexpected eof&quot;</span>);
+                                <span class="macro">error!</span>(<span class="string">&quot;Internal server error: unexpected eof&quot;</span>);
                                 <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::READ_DISCONNECT</span>);
                                 <span class="ident">this</span>.<span class="ident">messages</span>.<span class="ident">push_back</span>(<span class="ident">DispatcherMessage::Error</span>(
                                     <span class="ident">Response::internal_server_error</span>().<span class="ident">drop_body</span>(),
@@ -2177,7 +2052,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">break</span>,
 
                 <span class="prelude-val">Err</span>(<span class="ident">ParseError::Io</span>(<span class="ident">err</span>)) =&gt; {
-                    <span class="macro">log::trace!</span>(<span class="string">&quot;I/O error: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
+                    <span class="macro">trace!</span>(<span class="string">&quot;I/O error: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
                     <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">client_disconnected</span>();
                     <span class="ident">this</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">project</span>();
                     <span class="kw-2">*</span><span class="ident">this</span>.<span class="ident">error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DispatchError::Io</span>(<span class="ident">err</span>));
@@ -2185,7 +2060,7 @@
                 }
 
                 <span class="prelude-val">Err</span>(<span class="ident">ParseError::TooLarge</span>) =&gt; {
-                    <span class="macro">log::trace!</span>(<span class="string">&quot;request head was too big; returning 431 response&quot;</span>);
+                    <span class="macro">trace!</span>(<span class="string">&quot;request head was too big; returning 431 response&quot;</span>);
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>() {
                         <span class="ident">payload</span>.<span class="ident">set_error</span>(<span class="ident">PayloadError::Overflow</span>);
@@ -2205,7 +2080,7 @@
                 }
 
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">log::trace!</span>(<span class="string">&quot;parse error {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
+                    <span class="macro">trace!</span>(<span class="string">&quot;parse error {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
 
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">payload</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">payload</span>.<span class="ident">take</span>() {
                         <span class="ident">payload</span>.<span class="ident">set_error</span>(<span class="ident">PayloadError::EncodingCorrupted</span>);
@@ -2236,10 +2111,7 @@
             <span class="kw">if</span> <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
                 <span class="comment">// timeout on first request (slow request) return 408</span>
 
-                <span class="macro">log::trace!</span>(
-                    <span class="string">&quot;timed out on slow request; \
-                        replying with 408 and closing connection&quot;</span>
-                );
+                <span class="macro">trace!</span>(<span class="string">&quot;timed out on slow request; replying with 408 and closing connection&quot;</span>);
 
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_mut</span>().<span class="ident">send_error_response</span>(
                     <span class="ident">Response::with_body</span>(<span class="ident">StatusCode::REQUEST_TIMEOUT</span>, ()),
@@ -2282,7 +2154,7 @@
             <span class="comment">// keep-alive timer has timed out</span>
             <span class="kw">if</span> <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
                 <span class="comment">// no tasks at hand</span>
-                <span class="macro">log::trace!</span>(<span class="string">&quot;timer timed out; closing connection&quot;</span>);
+                <span class="macro">trace!</span>(<span class="string">&quot;timer timed out; closing connection&quot;</span>);
                 <span class="ident">this</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::SHUTDOWN</span>);
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">deadline</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">config</span>.<span class="ident">client_disconnect_deadline</span>() {
@@ -2312,7 +2184,7 @@
 
             <span class="comment">// timed-out during shutdown; drop connection</span>
             <span class="kw">if</span> <span class="ident">timer</span>.<span class="ident">as_mut</span>().<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">is_ready</span>() {
-                <span class="macro">log::trace!</span>(<span class="string">&quot;timed-out during shutdown&quot;</span>);
+                <span class="macro">trace!</span>(<span class="string">&quot;timed-out during shutdown&quot;</span>);
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">DispatchError::DisconnectTimeout</span>);
             }
         }
@@ -2471,12 +2343,12 @@
 
         <span class="kw">match</span> <span class="ident">this</span>.<span class="ident">inner</span>.<span class="ident">project</span>() {
             <span class="ident">DispatcherStateProj::Upgrade</span> { <span class="ident">fut</span>: <span class="ident">upgrade</span> } =&gt; <span class="ident">upgrade</span>.<span class="ident">poll</span>(<span class="ident">cx</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                <span class="macro">log::error!</span>(<span class="string">&quot;Upgrade handler error: {}&quot;</span>, <span class="ident">err</span>);
+                <span class="macro">error!</span>(<span class="string">&quot;Upgrade handler error: {}&quot;</span>, <span class="ident">err</span>);
                 <span class="ident">DispatchError::Upgrade</span>
             }),
 
             <span class="ident">DispatcherStateProj::Normal</span> { <span class="kw-2">mut</span> <span class="ident">inner</span> } =&gt; {
-                <span class="macro">log::trace!</span>(<span class="string">&quot;start flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">flags</span>);
+                <span class="macro">trace!</span>(<span class="string">&quot;start flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">flags</span>);
 
                 <span class="ident">trace_timer_states</span>(
                     <span class="string">&quot;start&quot;</span>,
@@ -2583,7 +2455,7 @@
 
                     <span class="comment">// client is gone</span>
                     <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::WRITE_DISCONNECT</span>) {
-                        <span class="macro">log::trace!</span>(<span class="string">&quot;client is gone; disconnecting&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">&quot;client is gone; disconnecting&quot;</span>);
                         <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Ok</span>(()));
                     }
 
@@ -2592,14 +2464,14 @@
 
                     <span class="comment">// read half is closed; we do not process any responses</span>
                     <span class="kw">if</span> <span class="ident">inner_p</span>.<span class="ident">flags</span>.<span class="ident">contains</span>(<span class="ident">Flags::READ_DISCONNECT</span>) <span class="op">&amp;&amp;</span> <span class="ident">state_is_none</span> {
-                        <span class="macro">log::trace!</span>(<span class="string">&quot;read half closed; start shutdown&quot;</span>);
+                        <span class="macro">trace!</span>(<span class="string">&quot;read half closed; start shutdown&quot;</span>);
                         <span class="ident">inner_p</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::SHUTDOWN</span>);
                     }
 
                     <span class="comment">// keep-alive and stream errors</span>
                     <span class="kw">if</span> <span class="ident">state_is_none</span> <span class="op">&amp;&amp;</span> <span class="ident">inner_p</span>.<span class="ident">write_buf</span>.<span class="ident">is_empty</span>() {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">inner_p</span>.<span class="ident">error</span>.<span class="ident">take</span>() {
-                            <span class="macro">log::error!</span>(<span class="string">&quot;stream error: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
+                            <span class="macro">error!</span>(<span class="string">&quot;stream error: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">err</span>);
                             <span class="kw">return</span> <span class="ident">Poll::Ready</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>));
                         }
 
@@ -2628,7 +2500,7 @@
                     <span class="ident">Poll::Pending</span>
                 };
 
-                <span class="macro">log::trace!</span>(<span class="string">&quot;end flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">flags</span>);
+                <span class="macro">trace!</span>(<span class="string">&quot;end flags: {:?}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">inner</span>.<span class="ident">flags</span>);
 
                 <span class="ident">poll</span>
             }
@@ -2643,18 +2515,18 @@
     <span class="ident">ka_timer</span>: <span class="kw-2">&amp;</span><span class="ident">TimerState</span>,
     <span class="ident">shutdown_timer</span>: <span class="kw-2">&amp;</span><span class="ident">TimerState</span>,
 ) {
-    <span class="macro">log::trace!</span>(<span class="string">&quot;{} timers:&quot;</span>, <span class="ident">label</span>);
+    <span class="macro">trace!</span>(<span class="string">&quot;{} timers:&quot;</span>, <span class="ident">label</span>);
 
     <span class="kw">if</span> <span class="ident">head_timer</span>.<span class="ident">is_enabled</span>() {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;  head {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">head_timer</span>);
+        <span class="macro">trace!</span>(<span class="string">&quot;  head {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">head_timer</span>);
     }
 
     <span class="kw">if</span> <span class="ident">ka_timer</span>.<span class="ident">is_enabled</span>() {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;  keep-alive {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">ka_timer</span>);
+        <span class="macro">trace!</span>(<span class="string">&quot;  keep-alive {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">ka_timer</span>);
     }
 
     <span class="kw">if</span> <span class="ident">shutdown_timer</span>.<span class="ident">is_enabled</span>() {
-        <span class="macro">log::trace!</span>(<span class="string">&quot;  shutdown {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">shutdown_timer</span>);
+        <span class="macro">trace!</span>(<span class="string">&quot;  shutdown {}&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">shutdown_timer</span>);
     }
 }
 </code></pre></div>

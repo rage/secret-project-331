@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["SinkRateLimitExt","Allows converting a [`futures::Sink`] combinator into a rate-limited sink."],["StreamRateLimitExt","Allows converting a [`futures::Stream`] combinator into a rate-limited stream."]]});

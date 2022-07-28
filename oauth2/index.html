@@ -3,8 +3,8 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../oauth2/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"><a href="#">Crate oauth2</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 4.2.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div></section><div id="sidebar-vars" data-name="oauth2" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../oauth2/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oauth2</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/oauth2/lib.rs.html#1-3165">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
+        </a><h2 class="location"><a href="#">Crate oauth2</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 4.2.3</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div></section><div id="sidebar-vars" data-name="oauth2" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../oauth2/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">oauth2</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/oauth2/lib.rs.html#1-3161">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>An extensible, strongly-typed implementation of OAuth2
 (<a href="https://tools.ietf.org/html/rfc6749">RFC 6749</a>) including token introspection (<a href="https://tools.ietf.org/html/rfc7662">RFC 7662</a>)
 and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>).</p>
 <h2 id="contents"><a href="#contents">Contents</a></h2>
@@ -13,7 +13,7 @@ and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
 <li><a href="#getting-started-authorization-code-grant-w-pkce">Getting started: Authorization Code Grant w/ PKCE</a>
 <ul>
 <li><a href="#example-synchronous-blocking-api">Example: Synchronous (blocking) API</a></li>
-<li><a href="#example-asyncawait-api">Example: Async/Await API</a></li>
+<li><a href="#example-asynchronous-api">Example: Asynchronous API</a></li>
 </ul>
 </li>
 <li><a href="#implicit-grant">Implicit Grant</a></li>
@@ -29,21 +29,18 @@ and token revocation (<a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
 <h2 id="importing-oauth2-selecting-an-http-client-interface"><a href="#importing-oauth2-selecting-an-http-client-interface">Importing <code>oauth2</code>: selecting an HTTP client interface</a></h2>
 <p>This library offers a flexible HTTP client interface with two modes:</p>
 <ul>
-<li>
-<p><strong>Synchronous (blocking)</strong></p>
-<p>The synchronous interface is available for any combination of feature flags.</p>
-<p>Example import in <code>Cargo.toml</code>:</p>
-<div class="example-wrap"><pre class="language-toml"><code>oauth2 = &quot;4.1&quot;</code></pre></div></li>
+<li><strong>Synchronous (blocking)</strong></li>
+<li><strong>Asynchronous</strong></li>
 </ul>
 <p>For the HTTP client modes described above, the following HTTP client implementations can be
 used:</p>
 <ul>
 <li>
 <p><strong><a href="reqwest/index.html" title="reqwest"><code>reqwest</code></a></strong></p>
-<p>The <code>reqwest</code> HTTP client supports both modes. By default, <code>reqwest</code> 0.11 is enabled,
-which supports the synchronous and asynchronous <code>futures</code> 0.3 APIs.</p>
+<p>The <code>reqwest</code> HTTP client supports both the synchronous and asynchronous modes and is enabled
+by default.</p>
 <p>Synchronous client: <a href="reqwest/fn.http_client.html" title="reqwest::http_client"><code>reqwest::http_client</code></a></p>
-<p>Async/await <code>futures</code> 0.3 client: <a href="reqwest/fn.async_http_client.html" title="reqwest::async_http_client"><code>reqwest::async_http_client</code></a></p>
+<p>Asynchronous client: <a href="reqwest/fn.async_http_client.html" title="reqwest::async_http_client"><code>reqwest::async_http_client</code></a></p>
 </li>
 <li>
 <p><strong>[<code>curl</code>]</strong></p>
@@ -54,20 +51,22 @@ which supports the synchronous and asynchronous <code>futures</code> 0.3 APIs.</
 <li>
 <p><strong>[<code>ureq</code>]</strong></p>
 <p>The <code>ureq</code> HTTP client is a simple HTTP client with minimal dependencies. It only supports
-the synchronous HTTP client mode and can be enabled in <code>Cargo.toml</code> via the <code>ureq</code> feature flag.</p>
+the synchronous HTTP client mode and can be enabled in <code>Cargo.toml</code> via the <code>ureq</code> feature
+flag.</p>
 </li>
 <li>
 <p><strong>Custom</strong></p>
 <p>In addition to the clients above, users may define their own HTTP clients, which must accept
 an <a href="struct.HttpRequest.html" title="HttpRequest"><code>HttpRequest</code></a> and return an <a href="struct.HttpResponse.html" title="HttpResponse"><code>HttpResponse</code></a> or error. Users writing their own clients
-may wish to disable the default <code>reqwest</code> 0.10 dependency by specifying
-<code>default-features = false</code> in <code>Cargo.toml</code>:</p>
-<div class="example-wrap"><pre class="language-toml"><code>oauth2 = { version = &quot;4.1&quot;, default-features = false }</code></pre></div>
+may wish to disable the default <code>reqwest</code> dependency by specifying
+<code>default-features = false</code> in <code>Cargo.toml</code> (replacing <code>...</code> with the desired version of this
+crate):</p>
+<div class="example-wrap"><pre class="language-toml"><code>oauth2 = { version = &quot;...&quot;, default-features = false }</code></pre></div>
 <p>Synchronous HTTP clients should implement the following trait:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">RE</span><span class="op">&gt;</span>
 <span class="kw">where</span> <span class="ident">RE</span>: <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="lifetime">&#39;static</span></code></pre></div>
-<p>Async/await HTTP clients should implement the following trait:</p>
+<p>Asynchronous HTTP clients should implement the following trait:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="ident">FnOnce</span>(<span class="ident">HttpRequest</span>) -&gt; <span class="ident">F</span>
 <span class="kw">where</span>
@@ -80,7 +79,7 @@ may wish to disable the default <code>reqwest</code> 0.10 dependency by specifyi
 client secret or has a client secret that cannot remain confidential (e.g., native, mobile, or
 client-side web applications).</p>
 <h3 id="example-synchronous-blocking-api"><a href="#example-synchronous-blocking-api">Example: Synchronous (blocking) API</a></h3>
-<p>This example works with <code>oauth2</code>’s default feature flags, which include <code>reqwest</code> 0.10.</p>
+<p>This example works with <code>oauth2</code>’s default feature flags, which include <code>reqwest</code>.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
@@ -141,8 +140,8 @@ client-side web applications).</p>
         .<span class="ident">request</span>(<span class="ident">http_client</span>)<span class="question-mark">?</span>;
 
 <span class="comment">// Unwrapping token_result will either produce a Token or a RequestTokenError.</span></code></pre></div>
-<h3 id="example-asyncawait-api"><a href="#example-asyncawait-api">Example: Async/Await API</a></h3>
-<p>One can use async/await as follows:</p>
+<h3 id="example-asynchronous-api"><a href="#example-asynchronous-api">Example: Asynchronous API</a></h3>
+<p>The example below uses async/await:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">anyhow</span>;
 <span class="kw">use</span> <span class="ident">oauth2</span>::{
@@ -402,11 +401,11 @@ via the <code>state</code> parameter.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IntrospectionRequest.html" title="oauth2::IntrospectionRequest struct">IntrospectionRequest</a></div><div class="item-right docblock-short"><p>A request to introspect an access token.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.IntrospectionUrl.html" title="oauth2::IntrospectionUrl struct">IntrospectionUrl</a></div><div class="item-right docblock-short"><p>URL of the client’s <a href="https://tools.ietf.org/html/rfc7662">RFC 7662 OAuth 2.0 Token Introspection</a> endpoint.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PasswordTokenRequest.html" title="oauth2::PasswordTokenRequest struct">PasswordTokenRequest</a></div><div class="item-right docblock-short"><p>A request to exchange resource owner credentials for an access token.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeChallenge.html" title="oauth2::PkceCodeChallenge struct">PkceCodeChallenge</a></div><div class="item-right docblock-short"><p>Code Challenge used for <a href="(https://tools.ietf.org/html/rfc7636)">PKCE</a> protection via the
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeChallenge.html" title="oauth2::PkceCodeChallenge struct">PkceCodeChallenge</a></div><div class="item-right docblock-short"><p>Code Challenge used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection via the
 <code>code_challenge</code> parameter.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeChallengeMethod.html" title="oauth2::PkceCodeChallengeMethod struct">PkceCodeChallengeMethod</a></div><div class="item-right docblock-short"><p>Code Challenge Method used for <a href="(https://tools.ietf.org/html/rfc7636)">PKCE</a> protection
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeChallengeMethod.html" title="oauth2::PkceCodeChallengeMethod struct">PkceCodeChallengeMethod</a></div><div class="item-right docblock-short"><p>Code Challenge Method used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection
 via the <code>code_challenge_method</code> parameter.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeVerifier.html" title="oauth2::PkceCodeVerifier struct">PkceCodeVerifier</a></div><div class="item-right docblock-short"><p>Code Verifier used for <a href="(https://tools.ietf.org/html/rfc7636)">PKCE</a> protection via the
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PkceCodeVerifier.html" title="oauth2::PkceCodeVerifier struct">PkceCodeVerifier</a></div><div class="item-right docblock-short"><p>Code Verifier used for <a href="https://tools.ietf.org/html/rfc7636">PKCE</a> protection via the
 <code>code_verifier</code> parameter. The value must have a minimum length of 43 characters and a
 maximum length of 128 characters.  Each character must be ASCII alphanumeric or one of
 the characters “-” / “.” / “_” / “~”.</p>

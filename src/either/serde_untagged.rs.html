@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/either-1.6.1/src/serde_untagged.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>serde_untagged.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/either-1.7.0/src/serde_untagged.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>serde_untagged.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../either/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -72,10 +72,6 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Untagged serialization/deserialization support for Either&lt;L, R&gt;.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! `Either` uses default, externally-tagged representation.</span>
@@ -84,15 +80,11 @@
 <span class="doccomment">//! but in typical cases Vec&lt;String&gt; would suffice, too.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
-<span class="doccomment">//! #[macro_use]</span>
-<span class="doccomment">//! extern crate serde;</span>
-<span class="doccomment">//! // or `use serde::{Serialize, Deserialize};` in newer rust versions.</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
 <span class="doccomment">//! use either::Either;</span>
 <span class="doccomment">//! use std::collections::HashMap;</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! #[derive(Serialize, Deserialize, Debug)]</span>
+<span class="doccomment">//! #[derive(serde::Serialize, serde::Deserialize, Debug)]</span>
 <span class="doccomment">//! #[serde(transparent)]</span>
 <span class="doccomment">//! struct IntOrString {</span>
 <span class="doccomment">//!     #[serde(with = &quot;either::serde_untagged&quot;)]</span>
@@ -117,7 +109,7 @@
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Either</span><span class="op">&lt;</span><span class="ident">L</span>, <span class="ident">R</span><span class="op">&gt;</span> {
     <span class="ident">Left</span>(<span class="ident">L</span>),
@@ -131,8 +123,8 @@
     <span class="ident">R</span>: <span class="ident">Serialize</span>,
 {
     <span class="kw">let</span> <span class="ident">untagged</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">this</span> {
-        <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::Either::Left</span>(<span class="kw-2">ref</span> <span class="ident">left</span>) =&gt; <span class="ident">Either::Left</span>(<span class="ident">left</span>),
-        <span class="kw-2">&amp;</span><span class="ident"><span class="kw">super</span>::Either::Right</span>(<span class="kw-2">ref</span> <span class="ident">right</span>) =&gt; <span class="ident">Either::Right</span>(<span class="ident">right</span>),
+        <span class="ident"><span class="kw">super</span>::Either::Left</span>(<span class="ident">left</span>) =&gt; <span class="ident">Either::Left</span>(<span class="ident">left</span>),
+        <span class="ident"><span class="kw">super</span>::Either::Right</span>(<span class="ident">right</span>) =&gt; <span class="ident">Either::Right</span>(<span class="ident">right</span>),
     };
     <span class="ident">untagged</span>.<span class="ident">serialize</span>(<span class="ident">serializer</span>)
 }

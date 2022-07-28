@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/transport/smtp/client/net.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>net.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><script defer src="../../../../../main.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/net.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>net.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><script defer src="../../../../../main.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -357,20 +357,68 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Read</span>, <span class="ident">Write</span>},
     <span class="ident">mem</span>,
     <span class="ident">net</span>::{<span class="ident">IpAddr</span>, <span class="ident">Ipv4Addr</span>, <span class="ident">Shutdown</span>, <span class="ident">SocketAddr</span>, <span class="ident">SocketAddrV4</span>, <span class="ident">TcpStream</span>, <span class="ident">ToSocketAddrs</span>},
+    <span class="ident">sync::Arc</span>,
     <span class="ident">time::Duration</span>,
 };
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">boring::ssl::SslStream</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">native_tls::TlsStream</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">rustls</span>::{<span class="ident">ClientConnection</span>, <span class="ident">ServerName</span>, <span class="ident">StreamOwned</span>};
 <span class="kw">use</span> <span class="ident">socket2</span>::{<span class="ident">Domain</span>, <span class="ident">Protocol</span>, <span class="ident">Type</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::InnerTlsParameters</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::TlsParameters</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transport::smtp</span>::{<span class="ident">error</span>, <span class="ident">Error</span>};
@@ -393,6 +441,8 @@
     <span class="doccomment">/// Encrypted TCP stream</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
     <span class="ident">RustlsTls</span>(<span class="ident">StreamOwned</span><span class="op">&lt;</span><span class="ident">ClientConnection</span>, <span class="ident">TcpStream</span><span class="op">&gt;</span>),
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+    <span class="ident">BoringTls</span>(<span class="ident">SslStream</span><span class="op">&lt;</span><span class="ident">TcpStream</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Can&#39;t be built</span>
     <span class="prelude-val">None</span>,
 }
@@ -414,6 +464,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">peer_addr</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">peer_addr</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">peer_addr</span>(),
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">SocketAddr::V4</span>(<span class="ident">SocketAddrV4::new</span>(
@@ -432,6 +484,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">shutdown</span>(<span class="ident">how</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">shutdown</span>(<span class="ident">how</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">get_ref</span>().<span class="ident">shutdown</span>(<span class="ident">how</span>),
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(())
@@ -495,13 +549,17 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade_tls</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tls_parameters</span>: <span class="kw-2">&amp;</span><span class="ident">TlsParameters</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(
+                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>,
+                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>,
+                <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>
+            )))]</span>
             <span class="ident">InnerNetworkStream::Tcp</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">tls_parameters</span>;
                 <span class="macro">panic!</span>(<span class="string">&quot;Trying to upgrade an NetworkStream without having enabled either the native-tls or the rustls-tls feature&quot;</span>);
             }
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
             <span class="ident">InnerNetworkStream::Tcp</span>(<span class="kw">_</span>) =&gt; {
                 <span class="comment">// get owned TcpStream</span>
                 <span class="kw">let</span> <span class="ident">tcp_stream</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>, <span class="ident">InnerNetworkStream::None</span>);
@@ -517,7 +575,7 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
     <span class="kw">fn</span> <span class="ident">upgrade_tls_impl</span>(
         <span class="ident">tcp_stream</span>: <span class="ident">TcpStream</span>,
         <span class="ident">tls_parameters</span>: <span class="kw-2">&amp;</span><span class="ident">TlsParameters</span>,
@@ -534,10 +592,20 @@
             <span class="ident">InnerTlsParameters::RustlsTls</span>(<span class="ident">connector</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">ServerName::try_from</span>(<span class="ident">tls_parameters</span>.<span class="ident">domain</span>())
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">error::connection</span>(<span class="string">&quot;domain isn&#39;t a valid DNS name&quot;</span>))<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span>
-                    <span class="ident">ClientConnection::new</span>(<span class="ident">connector</span>.<span class="ident">clone</span>(), <span class="ident">domain</span>).<span class="ident">map_err</span>(<span class="ident">error::connection</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">ClientConnection::new</span>(<span class="ident">Arc::clone</span>(<span class="ident">connector</span>), <span class="ident">domain</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">error::connection</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">StreamOwned::new</span>(<span class="ident">connection</span>, <span class="ident">tcp_stream</span>);
                 <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="ident">stream</span>)
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerTlsParameters::BoringTls</span>(<span class="ident">connector</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">connector</span>
+                    .<span class="ident">configure</span>()
+                    .<span class="ident">map_err</span>(<span class="ident">error::connection</span>)<span class="question-mark">?</span>
+                    .<span class="ident">verify_hostname</span>(<span class="ident">tls_parameters</span>.<span class="ident">accept_invalid_hostnames</span>)
+                    .<span class="ident">connect</span>(<span class="ident">tls_parameters</span>.<span class="ident">domain</span>(), <span class="ident">tcp_stream</span>)
+                    .<span class="ident">map_err</span>(<span class="ident">error::connection</span>)<span class="question-mark">?</span>;
+                <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="ident">stream</span>)
             }
         })
     }
@@ -549,6 +617,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="bool-val">false</span>
@@ -556,7 +626,7 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peer_certificate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
             <span class="ident">InnerNetworkStream::Tcp</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">error::client</span>(<span class="string">&quot;Connection is not encrypted&quot;</span>)),
@@ -576,6 +646,13 @@
                 .<span class="ident">unwrap</span>()
                 .<span class="ident">clone</span>()
                 .<span class="number">0</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="ident">stream</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">stream</span>
+                .<span class="ident">ssl</span>()
+                .<span class="ident">peer_certificate</span>()
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">to_der</span>()
+                .<span class="ident">map_err</span>(<span class="ident">error::tls</span>)<span class="question-mark">?</span>),
             <span class="ident">InnerNetworkStream::None</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>),
         }
     }
@@ -589,6 +666,10 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
+                <span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">set_read_timeout</span>(<span class="ident">duration</span>)
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
                 <span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">set_read_timeout</span>(<span class="ident">duration</span>)
             }
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
@@ -611,7 +692,10 @@
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
                 <span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">set_write_timeout</span>(<span class="ident">duration</span>)
             }
-
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stream</span>) =&gt; {
+                <span class="ident">stream</span>.<span class="ident">get_ref</span>().<span class="ident">set_write_timeout</span>(<span class="ident">duration</span>)
+            }
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(())
@@ -628,6 +712,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">read</span>(<span class="ident">buf</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">read</span>(<span class="ident">buf</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">read</span>(<span class="ident">buf</span>),
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>)
@@ -644,6 +730,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">buf</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">buf</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">buf</span>),
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(<span class="number">0</span>)
@@ -658,6 +746,8 @@
             <span class="ident">InnerNetworkStream::NativeTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">flush</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>)]</span>
             <span class="ident">InnerNetworkStream::RustlsTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">flush</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>)]</span>
+            <span class="ident">InnerNetworkStream::BoringTls</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">flush</span>(),
             <span class="ident">InnerNetworkStream::None</span> =&gt; {
                 <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">&quot;InnerNetworkStream::None must never be built&quot;</span>);
                 <span class="prelude-val">Ok</span>(())

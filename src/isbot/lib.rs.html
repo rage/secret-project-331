@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.2/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/isbot-0.1.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../isbot/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -342,12 +342,6 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
 </pre><pre class="rust"><code><span class="doccomment">//! [![github]](https://github.com/BryanMorgan/isbot)&amp;ensp;[![crates-io]](https://crates.io/crates/isbot)</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [github]: &lt;https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github&gt;</span>
@@ -366,8 +360,8 @@
 <span class="doccomment">//! use isbot::Bots;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! let bots = Bots::default();</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;), true);</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;), false);</span>
+<span class="doccomment">//! assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));</span>
+<span class="doccomment">//! assert!(!bots.is_bot(&quot;Opera/9.60 (Windows NT 6.0; U; en) Presto/2.1.1&quot;));</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! User-agent regular expressions can be added or removed for specific use cases.</span>
@@ -377,10 +371,10 @@
 <span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! // By default Chrome Lighthouse is considered a bot</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), true);</span>
+<span class="doccomment">//! assert!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));</span>
 <span class="doccomment">//! // Remove the Chrome Lighthouse regular expression pattern to indicate it is not a bot</span>
 <span class="doccomment">//! bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;), false);</span>
+<span class="doccomment">//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;));</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Or append a new user-agent to detect a custom bot:</span>
@@ -388,9 +382,9 @@
 <span class="doccomment">//! let mut bots = isbot::Bots::default();</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! // Append a new custom bot user-agent regular expression</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), false);</span>
+<span class="doccomment">//! assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
 <span class="doccomment">//! bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
-<span class="doccomment">//! assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), true);</span>
+<span class="doccomment">//! assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
 <span class="doccomment">//! ```</span>
 
 <span class="kw">use</span> <span class="ident">regex::Regex</span>;
@@ -429,7 +423,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let bots = Bots::default();</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Googlebot&quot;), true);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Bots::new</span>(<span class="ident">BOT_PATTERNS</span>)
@@ -451,9 +445,9 @@
     <span class="doccomment">/// bingpreview/&quot;#;</span>
     <span class="doccomment">/// let bots = Bots::new(custom_user_agent_patterns);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;), true);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;), true);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Googlebot&quot;), false);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot-Image/1.0&quot;));</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Googlebot&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bot_entries</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">user_agent_patterns</span> <span class="op">=</span> <span class="ident">Bots::parse_lines</span>(<span class="kw-2">&amp;</span><span class="ident">bot_entries</span>.<span class="ident">to_ascii_lowercase</span>());
@@ -475,8 +469,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let bots = Bots::default();</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Googlebot/2.1 (+http://www.google.com/bot.html)&quot;), true);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)&quot;), false);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Googlebot/2.1 (+http://www.google.com/bot.html)&quot;));</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Dalvik/2.1.0 (Linux; U; Android 8.0.0; SM-G930F Build/R16NW)&quot;));</span>
     <span class="doccomment">/// ```    </span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">user_agent</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">user_agents_regex</span>
@@ -493,13 +487,13 @@
     <span class="doccomment">/// use isbot::Bots;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut bots = Bots::default();</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), false);</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
     <span class="doccomment">/// bots.append(&amp;[r&quot;CustomNewTestB0T\s/\d\.\d&quot;]);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;), true);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (CustomNewTestB0T /1.2)&quot;));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let new_bot_patterns = vec![&quot;GoogleMetaverse&quot;, &quot;^Special/&quot;];</span>
     <span class="doccomment">/// bots.append(&amp;new_bot_patterns);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (GoogleMetaverse/1.0)&quot;), true);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Mozilla/5.0 (GoogleMetaverse/1.0)&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bots</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) {
         <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">bots</span> {
@@ -518,14 +512,14 @@
     <span class="doccomment">/// let mut bots = Bots::default();</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Chrome-Lighthouse&quot;), true);</span>
+    <span class="doccomment">/// assert!(bots.is_bot(&quot;Chrome-Lighthouse&quot;));</span>
     <span class="doccomment">/// bots.remove(&amp;[&quot;Chrome-Lighthouse&quot;]);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Chrome-Lighthouse&quot;), false);</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Chrome-Lighthouse&quot;));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let bot_patterns_to_remove = vec![&quot;bingpreview/&quot;, &quot;Google Favicon&quot;];</span>
     <span class="doccomment">/// bots.remove(&amp;bot_patterns_to_remove);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;), false);</span>
-    <span class="doccomment">/// assert_eq!(bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon&quot;), false);</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b&quot;));</span>
+    <span class="doccomment">/// assert!(!bots.is_bot(&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bots</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) {
         <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">bots</span> {
@@ -589,7 +583,7 @@
     <span class="kw">fn</span> <span class="ident">good_bots</span>() {
         <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
         <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">GOOD_BOTS</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="bool-val">true</span>, <span class="string">&quot;Invalid bot: &#39;{}&#39;&quot;</span>, <span class="ident">bot</span>);
+            <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="string">&quot;Invalid bot: &#39;{}&#39;&quot;</span>, <span class="ident">bot</span>);
         }
     }
 
@@ -597,7 +591,7 @@
     <span class="kw">fn</span> <span class="ident">not_bots</span>() {
         <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
         <span class="kw">for</span> <span class="ident">bot</span> <span class="kw">in</span> <span class="ident">NOT_BOTS</span> {
-            <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="bool-val">false</span>, <span class="string">&quot;Is a bot{}&quot;</span>, <span class="ident">bot</span>);
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="ident">bot</span>), <span class="string">&quot;Is a bot{}&quot;</span>, <span class="ident">bot</span>);
         }
     }
 
@@ -608,89 +602,83 @@
             anything\\s+bot\n\
             Numerical\\d{4}\\.\\d{4}\\.\\d{4}\\.\\d{4}&quot;</span>;
         <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">custom_user_agent_patterns</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;InvalidBot&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Simplebot/1.2&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot; Simplebot/1.2&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Anything  Bot&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;AnythingBot&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1101.2001.3987.4781&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1.2.3.4&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;InvalidBot&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Simplebot/1.2&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot; Simplebot/1.2&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Anything  Bot&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;AnythingBot&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1101.2001.3987.4781&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;numerical1.2.3.4&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">empty_user_agent_patterns</span>() {
         <span class="kw">let</span> <span class="ident">empty_user_agent_patterns</span> <span class="op">=</span> <span class="string">&quot;&quot;</span>;
         <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">empty_user_agent_patterns</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;1&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;1&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">single_user_agent_patterns</span>() {
         <span class="kw">let</span> <span class="ident">single_user_agent_patterns</span> <span class="op">=</span> <span class="string">&quot;me&quot;</span>;
         <span class="kw">let</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::new</span>(<span class="ident">single_user_agent_patterns</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;M&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Me&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;M&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Me&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Googlebot&quot;</span>));
     }
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">add_pattern</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
         <span class="ident">bots</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span>[<span class="string">r&quot;FancyNewTestB0T\s/\d\.\d&quot;</span>]);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">add_multiple_patterns</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>), <span class="bool-val">false</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">new_bot_patterns</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;FancyNewTestB0T&quot;</span>, <span class="string">&quot;^GoogleMetaverse&quot;</span>, <span class="string">&quot;^Special/&quot;</span>];
         <span class="ident">bots</span>.<span class="ident">append</span>(<span class="kw-2">&amp;</span><span class="ident">new_bot_patterns</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (FancyNewTestB0T /1.2)&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Special/1.0&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;GoogleMetaverse/2.1 (experimental)&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">remove_pattern</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
         <span class="ident">bots</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span>[<span class="string">&quot;Chrome-Lighthouse&quot;</span>]);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Chrome-Lighthouse&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&quot;</span>), <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) adbeat.com/policy AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36&quot;</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">remove_multiple_patterns</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bots</span> <span class="op">=</span> <span class="ident">Bots::default</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>), <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>),
-            <span class="bool-val">true</span>
-        );
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
+        <span class="macro">assert!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">bot_patterns_to_remove</span> <span class="op">=</span>
             <span class="macro">vec!</span>[<span class="string">&quot;datadog agent&quot;</span>, <span class="string">&quot;Chrome-Lighthouse&quot;</span>, <span class="string">&quot;outbrain&quot;</span>, <span class="string">&quot;google-&quot;</span>];
         <span class="ident">bots</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">bot_patterns_to_remove</span>);
 
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>), <span class="bool-val">false</span>);
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>),
-            <span class="bool-val">false</span>
-        );
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Datadog Agent/5.10.1&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36 Chrome-Lighthouse&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (Java) outbrain&quot;</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">bots</span>.<span class="ident">is_bot</span>(<span class="string">&quot;Mozilla/5.0 (compatible; Google-Site-Verification/1.0)&quot;</span>));
     }
 }
 </code></pre></div>

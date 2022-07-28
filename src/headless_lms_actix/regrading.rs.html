@@ -1193,7 +1193,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::test_helper</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_submission</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -1289,7 +1289,7 @@
         <span class="macro">assert_eq!</span>(<span class="ident">grading</span>.<span class="ident">score_given</span>, <span class="prelude-val">Some</span>(<span class="number">0.0</span>))
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_complete</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -1380,7 +1380,7 @@
         <span class="macro">assert!</span>(<span class="ident">regrading_1</span>.<span class="ident">regrading_completed_at</span>.<span class="ident">is_some</span>());
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">regrades_partial</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, <span class="ident">slide</span>: <span class="ident">slide_1</span>);
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -1535,7 +1535,7 @@
         <span class="macro">assert!</span>(<span class="ident">regrading_2</span>.<span class="ident">regrading_completed_at</span>.<span class="ident">is_none</span>());
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">updates_exercise_state</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>);
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -1652,7 +1652,7 @@
         );
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fail_on_missing_service</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>, :<span class="ident">page</span>, :<span class="ident">exercise</span>, :<span class="ident">slide</span>, :<span class="ident">task</span>);
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();

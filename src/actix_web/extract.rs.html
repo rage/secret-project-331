@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.1/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.1.0/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -535,6 +535,25 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Request extractors</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{
@@ -555,9 +574,11 @@
 <span class="doccomment">/// A type that implements [`FromRequest`] is called an **extractor** and can extract data from</span>
 <span class="doccomment">/// the request. Some types that implement this trait are: [`Json`], [`Header`], and [`Path`].</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// Check out [`ServiceRequest::extract`](crate::dev::ServiceRequest::extract) if you want to</span>
+<span class="doccomment">/// leverage extractors when implementing middlewares.</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Configuration</span>
 <span class="doccomment">/// An extractor can be customized by injecting the corresponding configuration with one of:</span>
-<span class="doccomment">///</span>
 <span class="doccomment">/// - [`App::app_data()`][crate::App::app_data]</span>
 <span class="doccomment">/// - [`Scope::app_data()`][crate::Scope::app_data]</span>
 <span class="doccomment">/// - [`Resource::app_data()`][crate::Resource::app_data]</span>
@@ -601,13 +622,29 @@
     <span class="doccomment">/// The associated error which can be returned.</span>
     <span class="kw">type</span> <span class="ident">Error</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Future that resolves to a Self.</span>
+    <span class="doccomment">/// Future that resolves to a `Self`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To use an async function or block, the futures must be boxed. The following snippet will be</span>
+    <span class="doccomment">/// common when creating async/await extractors (that do not consume the body).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore</span>
+    <span class="doccomment">/// type Future = Pin&lt;Box&lt;dyn Future&lt;Output = Result&lt;Self, Self::Error&gt;&gt;&gt;&gt;;</span>
+    <span class="doccomment">/// // or</span>
+    <span class="doccomment">/// type Future = futures_util::future::LocalBoxFuture&lt;&#39;static, Result&lt;Self, Self::Error&gt;&gt;;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn from_request(req: HttpRequest, ...) -&gt; Self::Future {</span>
+    <span class="doccomment">///     let req = req.clone();</span>
+    <span class="doccomment">///     Box::pin(async move {</span>
+    <span class="doccomment">///         ...</span>
+    <span class="doccomment">///     })</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">type</span> <span class="ident">Future</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Create a Self from request parts asynchronously.</span>
+    <span class="doccomment">/// Create a `Self` from request parts asynchronously.</span>
     <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span>;
 
-    <span class="doccomment">/// Create a Self from request head asynchronously.</span>
+    <span class="doccomment">/// Create a `Self` from request head asynchronously.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is short for `T::from_request(req, &amp;mut Payload::None)`.</span>
     <span class="kw">fn</span> <span class="ident">extract</span>(<span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span>) -&gt; <span class="ident"><span class="self">Self</span>::Future</span> {
@@ -615,9 +652,9 @@
     }
 }
 
-<span class="doccomment">/// Optionally extract a field from the request</span>
+<span class="doccomment">/// Optionally extract from the request.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If the FromRequest for T fails, return None rather than returning an error response</span>
+<span class="doccomment">/// If the inner `T::from_request` returns an error, handler will receive `None` instead.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
@@ -702,9 +739,10 @@
     }
 }
 
-<span class="doccomment">/// Optionally extract a field from the request or extract the Error if unsuccessful</span>
+<span class="doccomment">/// Extract from the request, passing error type through to handler.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// If the `FromRequest` for T fails, inject Err into handler rather than returning an error response</span>
+<span class="doccomment">/// If the inner `T::from_request` returns an error, allow handler to receive the error rather than</span>
+<span class="doccomment">/// immediately returning an error response.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>

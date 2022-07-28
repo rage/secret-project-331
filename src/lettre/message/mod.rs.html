@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/message/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -729,6 +729,62 @@
 <span id="722">722</span>
 <span id="723">723</span>
 <span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Provides a strongly typed way to build emails</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Usage</span>
@@ -963,6 +1019,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MessageBuilder</span> {
     <span class="ident">headers</span>: <span class="ident">Headers</span>,
     <span class="ident">envelope</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Envelope</span><span class="op">&gt;</span>,
+    <span class="ident">drop_bcc</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">MessageBuilder</span> {
@@ -971,24 +1028,26 @@
         <span class="self">Self</span> {
             <span class="ident">headers</span>: <span class="ident">Headers::new</span>(),
             <span class="ident">envelope</span>: <span class="prelude-val">None</span>,
+            <span class="ident">drop_bcc</span>: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// Set custom header to message</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
-        <span class="self">self</span>
+    <span class="doccomment">/// Set or add mailbox to `From` header</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Shortcut for `self.mailbox(header::From(mbox))`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::From::from</span>(<span class="ident">Mailboxes::from</span>(<span class="ident">mbox</span>)))
     }
 
-    <span class="doccomment">/// Add mailbox to header</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mailbox</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span> <span class="op">+</span> <span class="ident">MailboxesHeader</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>() {
-            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">header_</span>) =&gt; {
-                <span class="ident">header_</span>.<span class="ident">join_mailboxes</span>(<span class="ident">header</span>);
-                <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header_</span>)
-            }
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header</span>),
-        }
+    <span class="doccomment">/// Set `Sender` header. Should be used when providing several `From` mailboxes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Shortcut for `self.header(header::Sender(mbox))`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sender</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Sender::from</span>(<span class="ident">mbox</span>))
     }
 
     <span class="doccomment">/// Add `Date` header to message</span>
@@ -1004,41 +1063,6 @@
     <span class="doccomment">/// if no date has been provided.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">date_now</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">date</span>(<span class="ident">SystemTime::now</span>())
-    }
-
-    <span class="doccomment">/// Set `Subject` header to message</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::Subject(subject.into()))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">subject</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">subject</span>.<span class="ident">into</span>();
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">s</span>))
-    }
-
-    <span class="doccomment">/// Set `MIME-Version` header to 1.0</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::MIME_VERSION_1_0)`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Not exposed as it is set by body methods</span>
-    <span class="kw">fn</span> <span class="ident">mime_1_0</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::MIME_VERSION_1_0</span>)
-    }
-
-    <span class="doccomment">/// Set `Sender` header. Should be used when providing several `From` mailboxes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.header(header::Sender(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sender</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Sender::from</span>(<span class="ident">mbox</span>))
-    }
-
-    <span class="doccomment">/// Set or add mailbox to `From` header</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Defined in [RFC5322](https://tools.ietf.org/html/rfc5322#section-3.6.2).</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Shortcut for `self.mailbox(header::From(mbox))`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="self">self</span>, <span class="ident">mbox</span>: <span class="ident">Mailbox</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">mailbox</span>(<span class="ident">header::From::from</span>(<span class="ident">Mailboxes::from</span>(<span class="ident">mbox</span>)))
     }
 
     <span class="doccomment">/// Set or add mailbox to `ReplyTo` header</span>
@@ -1083,6 +1107,14 @@
         <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::References::from</span>(<span class="ident">id</span>))
     }
 
+    <span class="doccomment">/// Set `Subject` header to message</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Shortcut for `self.header(header::Subject(subject.into()))`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subject</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">subject</span>: <span class="ident">S</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">s</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">subject</span>.<span class="ident">into</span>();
+        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">s</span>))
+    }
+
     <span class="doccomment">/// Set [Message-ID</span>
     <span class="doccomment">/// header](https://tools.ietf.org/html/rfc5322#section-3.6.4)</span>
     <span class="doccomment">///</span>
@@ -1116,9 +1148,40 @@
         <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::UserAgent::from</span>(<span class="ident">id</span>))
     }
 
+    <span class="doccomment">/// Set custom header to message</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">set</span>(<span class="ident">header</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Add mailbox to header</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mailbox</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Header</span> <span class="op">+</span> <span class="ident">MailboxesHeader</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">header</span>: <span class="ident">H</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">headers</span>.<span class="ident">get</span>::<span class="op">&lt;</span><span class="ident">H</span><span class="op">&gt;</span>() {
+            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">header_</span>) =&gt; {
+                <span class="ident">header_</span>.<span class="ident">join_mailboxes</span>(<span class="ident">header</span>);
+                <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header_</span>)
+            }
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header</span>),
+        }
+    }
+
     <span class="doccomment">/// Force specific envelope (by default it is derived from headers)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">envelope</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">envelope</span>: <span class="ident">Envelope</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">envelope</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">envelope</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Keep the `Bcc` header</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default the `Bcc` header is removed from the email after</span>
+    <span class="doccomment">/// using it to generate the message envelope. In some cases though,</span>
+    <span class="doccomment">/// like when saving the email as an `.eml`, or sending through</span>
+    <span class="doccomment">/// some transports (like the Gmail API) that don&#39;t take a separate</span>
+    <span class="doccomment">/// envelope value, it becomes necessary to keep the `Bcc` header.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Calling this method overrides the default behaviour.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_bcc</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">drop_bcc</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="self">self</span>
     }
 
@@ -1154,8 +1217,10 @@
             <span class="prelude-val">None</span> =&gt; <span class="ident">Envelope::try_from</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>.<span class="ident">headers</span>)<span class="question-mark">?</span>,
         };
 
-        <span class="comment">// Remove `Bcc` headers now the envelope is set</span>
-        <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">header::Bcc</span><span class="op">&gt;</span>();
+        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">drop_bcc</span> {
+            <span class="comment">// Remove `Bcc` headers now the envelope is set</span>
+            <span class="ident">res</span>.<span class="ident">headers</span>.<span class="ident">remove</span>::<span class="op">&lt;</span><span class="ident">header::Bcc</span><span class="op">&gt;</span>();
+        }
 
         <span class="prelude-val">Ok</span>(<span class="ident">Message</span> {
             <span class="ident">headers</span>: <span class="ident">res</span>.<span class="ident">headers</span>,
@@ -1185,6 +1250,15 @@
     <span class="doccomment">/// Create message using mime body ([`SinglePart`][self::SinglePart])</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">singlepart</span>(<span class="self">self</span>, <span class="ident">part</span>: <span class="ident">SinglePart</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Message</span>, <span class="ident">EmailError</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">mime_1_0</span>().<span class="ident">build</span>(<span class="ident">MessageBody::Mime</span>(<span class="ident">Part::Single</span>(<span class="ident">part</span>)))
+    }
+
+    <span class="doccomment">/// Set `MIME-Version` header to 1.0</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Shortcut for `self.header(header::MIME_VERSION_1_0)`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Not exposed as it is set by body methods</span>
+    <span class="kw">fn</span> <span class="ident">mime_1_0</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">header</span>(<span class="ident">header::MIME_VERSION_1_0</span>)
     }
 }
 
@@ -1359,7 +1433,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">email_message</span>() {
+    <span class="kw">fn</span> <span class="ident">email_message_no_bcc</span>() {
         <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT</span>
         <span class="kw">let</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">SystemTime::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">784887151</span>);
 
@@ -1384,6 +1458,44 @@
             <span class="ident">String::from_utf8</span>(<span class="ident">email</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
             <span class="macro">concat!</span>(
                 <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
+                <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
+                <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
+                <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,
+                <span class="string">&quot;Content-Transfer-Encoding: 7bit\r\n&quot;</span>,
+                <span class="string">&quot;\r\n&quot;</span>,
+                <span class="string">&quot;Happy new year!&quot;</span>
+            )
+        );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">email_message_keep_bcc</span>() {
+        <span class="comment">// Tue, 15 Nov 1994 08:12:31 GMT</span>
+        <span class="kw">let</span> <span class="ident">date</span> <span class="op">=</span> <span class="ident">SystemTime::UNIX_EPOCH</span> <span class="op">+</span> <span class="ident">Duration::from_secs</span>(<span class="number">784887151</span>);
+
+        <span class="kw">let</span> <span class="ident">email</span> <span class="op">=</span> <span class="ident">Message::builder</span>()
+            .<span class="ident">date</span>(<span class="ident">date</span>)
+            .<span class="ident">bcc</span>(<span class="string">&quot;hidden@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+            .<span class="ident">keep_bcc</span>()
+            .<span class="ident">header</span>(<span class="ident">header::From</span>(
+                <span class="macro">vec!</span>[<span class="ident">Mailbox::new</span>(
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;Каи&quot;</span>.<span class="ident">into</span>()),
+                    <span class="string">&quot;kayo@example.com&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
+                )]
+                .<span class="ident">into</span>(),
+            ))
+            .<span class="ident">header</span>(<span class="ident">header::To</span>(
+                <span class="macro">vec!</span>[<span class="string">&quot;Pony O.P. &lt;pony@domain.tld&gt;&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()].<span class="ident">into</span>(),
+            ))
+            .<span class="ident">header</span>(<span class="ident">header::Subject::from</span>(<span class="ident">String::from</span>(<span class="string">&quot;яңа ел белән!&quot;</span>)))
+            .<span class="ident">body</span>(<span class="ident">String::from</span>(<span class="string">&quot;Happy new year!&quot;</span>))
+            .<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">String::from_utf8</span>(<span class="ident">email</span>.<span class="ident">formatted</span>()).<span class="ident">unwrap</span>(),
+            <span class="macro">concat!</span>(
+                <span class="string">&quot;Date: Tue, 15 Nov 1994 08:12:31 +0000\r\n&quot;</span>,
+                <span class="string">&quot;Bcc: hidden@example.com\r\n&quot;</span>,
                 <span class="string">&quot;From: =?utf-8?b?0JrQsNC4?= &lt;kayo@example.com&gt;\r\n&quot;</span>,
                 <span class="string">&quot;To: \&quot;Pony O.P.\&quot; &lt;pony@domain.tld&gt;\r\n&quot;</span>,
                 <span class="string">&quot;Subject: =?utf-8?b?0Y/So9CwINC10Lsg0LHQtdC705nQvQ==?=!\r\n&quot;</span>,

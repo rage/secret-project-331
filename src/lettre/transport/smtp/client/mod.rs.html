@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.0-rc.7/src/transport/smtp/client/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><script defer src="../../../../../main.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/lettre-0.10.1/src/transport/smtp/client/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><script defer src="../../../../../main.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../lettre/index.html"><div class="logo-container"><img src="https://avatars0.githubusercontent.com/u/15113230?v=4" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -150,6 +150,10 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="doccomment">//! SMTP client</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! `SmtpConnection` allows manually sending SMTP commands.</span>
@@ -182,8 +186,10 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tokio1&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;async-std1&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::async_net::AsyncNetworkStream</span>;
 <span class="kw">use</span> <span class="ident"><span class="self">self</span>::net::NetworkStream</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::tls::InnerTlsParameters</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rustls-tls&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;boring-tls&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::tls::TlsVersion</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::{
     <span class="ident">connection::SmtpConnection</span>,
     <span class="ident">tls</span>::{<span class="ident">Certificate</span>, <span class="ident">Tls</span>, <span class="ident">TlsParameters</span>, <span class="ident">TlsParametersBuilder</span>},
@@ -198,58 +204,55 @@
 <span class="kw">mod</span> <span class="ident">tls</span>;
 
 <span class="doccomment">/// The codec used for transparency</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde&quot;</span>, <span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>))]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">struct</span> <span class="ident">ClientCodec</span> {
-    <span class="ident">escape_count</span>: <span class="ident">u8</span>,
+    <span class="ident">status</span>: <span class="ident">CodecStatus</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ClientCodec</span> {
     <span class="doccomment">/// Creates a new client codec</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ClientCodec::default</span>()
+        <span class="self">Self</span> {
+            <span class="ident">status</span>: <span class="ident">CodecStatus::StartOfNewLine</span>,
+        }
     }
 
     <span class="doccomment">/// Adds transparency</span>
     <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">frame</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">buf</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">match</span> <span class="ident">frame</span>.<span class="ident">len</span>() {
-            <span class="number">0</span> =&gt; {
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">escape_count</span> {
-                    <span class="number">0</span> =&gt; <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\r\n.\r\n&quot;</span>),
-                    <span class="number">1</span> =&gt; <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;\n.\r\n&quot;</span>),
-                    <span class="number">2</span> =&gt; <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;.\r\n&quot;</span>),
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">b</span> <span class="kw">in</span> <span class="ident">frame</span> {
+            <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">b</span>);
+            <span class="kw">match</span> (<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">status</span>) {
+                (<span class="string">b&#39;\r&#39;</span>, <span class="kw">_</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::StartingNewLine</span>;
                 }
-                <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">=</span> <span class="number">0</span>;
-            }
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">byte</span>) <span class="kw">in</span> <span class="ident">frame</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">escape_count</span> {
-                        <span class="number">0</span> =&gt; <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;\r&#39;</span> { <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> },
-                        <span class="number">1</span> =&gt; <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;\n&#39;</span> { <span class="number">2</span> } <span class="kw">else</span> { <span class="number">0</span> },
-                        <span class="number">2</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;.&#39;</span> {
-                                <span class="number">3</span>
-                            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">byte</span> <span class="op">==</span> <span class="string">b&#39;\r&#39;</span> {
-                                <span class="number">1</span>
-                            } <span class="kw">else</span> {
-                                <span class="number">0</span>
-                            }
-                        }
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-                    }
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">==</span> <span class="number">3</span> {
-                        <span class="self">self</span>.<span class="ident">escape_count</span> <span class="op">=</span> <span class="number">0</span>;
-                        <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">frame</span>[<span class="ident">start</span>..<span class="ident">idx</span>]);
-                        <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="string">b&quot;.&quot;</span>);
-                        <span class="ident">start</span> <span class="op">=</span> <span class="ident">idx</span>;
-                    }
+                (<span class="string">b&#39;\n&#39;</span>, <span class="ident">CodecStatus::StartingNewLine</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::StartOfNewLine</span>;
                 }
-                <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">frame</span>[<span class="ident">start</span>..]);
+                (<span class="kw">_</span>, <span class="ident">CodecStatus::StartingNewLine</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
+                }
+                (<span class="string">b&#39;.&#39;</span>, <span class="ident">CodecStatus::StartOfNewLine</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
+                    <span class="ident">buf</span>.<span class="ident">push</span>(<span class="string">b&#39;.&#39;</span>);
+                }
+                (<span class="kw">_</span>, <span class="ident">CodecStatus::StartOfNewLine</span>) =&gt; {
+                    <span class="self">self</span>.<span class="ident">status</span> <span class="op">=</span> <span class="ident">CodecStatus::MiddleOfLine</span>;
+                }
+                <span class="kw">_</span> =&gt; {}
             }
         }
     }
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::enum_variant_names</span>)]</span>
+<span class="kw">enum</span> <span class="ident">CodecStatus</span> {
+    <span class="doccomment">/// We are past the first character of the current line</span>
+    <span class="ident">MiddleOfLine</span>,
+    <span class="doccomment">/// We just read a `\r` character</span>
+    <span class="ident">StartingNewLine</span>,
+    <span class="doccomment">/// We are at the start of a new line</span>
+    <span class="ident">StartOfNewLine</span>,
 }
 
 <span class="doccomment">/// Returns the string replacing all the CRLF with &quot;\&lt;CRLF\&gt;&quot;</span>
@@ -265,9 +268,10 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_codec</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">codec</span> <span class="op">=</span> <span class="ident">ClientCodec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
+        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
@@ -278,9 +282,13 @@
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.test\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;.test\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
+        <span class="ident">codec</span>.<span class="ident">encode</span>(<span class="string">b&quot;test.\r\n&quot;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">buf</span>);
         <span class="macro">assert_eq!</span>(
             <span class="ident">String::from_utf8</span>(<span class="ident">buf</span>).<span class="ident">unwrap</span>(),
-            <span class="string">&quot;test\r\ntest\r\n\r\n..\r\n\r\ntestte\r\n..\r\nsttesttest.test\n.test\ntest&quot;</span>
+            <span class="string">&quot;..\r\ntest\r\ntest\r\n\r\n..\r\n\r\ntestte\r\n..\r\nsttesttest.test\n.test\ntesttesttest\r\n..test\r\ntest.\r\n&quot;</span>
         );
     }
 

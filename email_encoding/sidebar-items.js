@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["body",""],["headers",""]]});
+initSidebarItems({"mod":[["body","Email body encoding algorithms."],["headers","Email header encoding algorithms."]]});

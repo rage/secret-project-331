@@ -290,8 +290,8 @@ WHERE id = $2
     <span class="kw">pub</span> <span class="ident">marked_as_read</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">created_at</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FeedbackBlock</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">page_title</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">page_url_path</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_feedback_for_course</span>(

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/postgres/connection/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/postgres/connection/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -208,23 +208,26 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">FutureExt</span>, <span class="ident">TryFutureExt</span>};
+<span class="kw">use</span> <span class="ident">futures_util::FutureExt</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::StatementCache</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection</span>::{<span class="ident">Connection</span>, <span class="ident">LogSettings</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor::Executor</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::io::Decode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{
     <span class="ident">Close</span>, <span class="ident">Message</span>, <span class="ident">MessageFormat</span>, <span class="ident">Query</span>, <span class="ident">ReadyForQuery</span>, <span class="ident">Terminate</span>, <span class="ident">TransactionStatus</span>,
 };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgConnectOptions</span>, <span class="ident">PgTypeInfo</span>, <span class="ident">Postgres</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::transaction::Transaction</span>;
 
@@ -256,14 +259,14 @@
 
     <span class="comment">// sequence of statement IDs for use in preparing statements</span>
     <span class="comment">// in PostgreSQL, the statement is prepared to a user-supplied identifier</span>
-    <span class="ident">next_statement_id</span>: <span class="ident">u32</span>,
+    <span class="ident">next_statement_id</span>: <span class="ident">Oid</span>,
 
     <span class="comment">// cache statement by query string to the id and columns</span>
-    <span class="ident">cache_statement</span>: <span class="ident">StatementCache</span><span class="op">&lt;</span>(<span class="ident">u32</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="ident">cache_statement</span>: <span class="ident">StatementCache</span><span class="op">&lt;</span>(<span class="ident">Oid</span>, <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">PgStatementMetadata</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 
     <span class="comment">// cache user-defined types by id &lt;-&gt; info</span>
-    <span class="ident">cache_type_info</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span>,
-    <span class="ident">cache_type_oid</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">UStr</span>, <span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="ident">cache_type_info</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">PgTypeInfo</span><span class="op">&gt;</span>,
+    <span class="ident">cache_type_oid</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">UStr</span>, <span class="ident">Oid</span><span class="op">&gt;</span>,
 
     <span class="comment">// number of ReadyForQuery messages that we are currently expecting</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">pending_ready_for_query_count</span>: <span class="ident">usize</span>,
@@ -276,6 +279,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PgConnection</span> {
+    <span class="doccomment">/// the version number of the server in `libpq` format</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">server_version_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">server_version_num</span>
+    }
+
     <span class="comment">// will return when the connection is ready for another query</span>
     <span class="kw">pub</span>(<span class="kw">in</span> <span class="ident"><span class="kw">crate</span>::postgres</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">wait_until_ready</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">wbuf</span>.<span class="ident">is_empty</span>() {
@@ -347,9 +355,24 @@
         })
     }
 
+    <span class="kw">fn</span> <span class="ident">close_hard</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">shutdown</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+            <span class="prelude-val">Ok</span>(())
+        })
+    }
+
     <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="comment">// Users were complaining about this showing up in query statistics on the server.</span>
         <span class="comment">// By sending a comment we avoid an error if the connection was in the middle of a rowset</span>
-        <span class="self">self</span>.<span class="ident">execute</span>(<span class="string">&quot;/* SQLx ping */&quot;</span>).<span class="ident">map_ok</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()).<span class="ident">boxed</span>()
+        <span class="comment">// self.execute(&quot;/* SQLx ping */&quot;).map_ok(|_| ()).boxed()</span>
+
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="comment">// The simplest call-and-response that&#39;s possible.</span>
+            <span class="self">self</span>.<span class="ident">write_sync</span>();
+            <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span>
+        })
     }
 
     <span class="kw">fn</span> <span class="ident">begin</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
@@ -394,23 +417,6 @@
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">fn</span> <span class="ident">should_flush</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="op">!</span><span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">wbuf</span>.<span class="ident">is_empty</span>()
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">PgConnectionInfo</span> {
-    <span class="doccomment">/// the version number of the server in `libpq` format</span>
-    <span class="kw">fn</span> <span class="ident">server_version_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>;
-}
-
-<span class="kw">impl</span> <span class="ident">PgConnectionInfo</span> <span class="kw">for</span> <span class="ident">PgConnection</span> {
-    <span class="kw">fn</span> <span class="ident">server_version_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">server_version_num</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">PgConnectionInfo</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::pool::PoolConnection</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">server_version_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">server_version_num</span>
     }
 }
 </code></pre></div>

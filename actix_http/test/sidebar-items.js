@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["TestBuffer","Async I/O test buffer."],["TestRequest","Test `Request` builder"],["TestSeqBuffer","Async I/O test buffer with ability to incrementally add to the read buffer."],["TestSeqInner",""]]});
+initSidebarItems({"struct":[["TestBuffer","Async I/O test buffer."],["TestRequest","Test `Request` builder."],["TestSeqBuffer","Async I/O test buffer with ability to incrementally add to the read buffer."],["TestSeqInner",""]]});

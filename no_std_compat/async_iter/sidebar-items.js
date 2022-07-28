@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["from_iter","Converts an iterator into an async iterator."]],"struct":[["FromIter","An async iterator that was created from iterator."]],"trait":[["AsyncIterator","An interface for dealing with asynchronous iterators."]]});

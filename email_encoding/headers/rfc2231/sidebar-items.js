@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["encode",""]]});
+initSidebarItems({"fn":[["encode","Encode a string via RFC 2231."]]});

@@ -1780,8 +1780,8 @@
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionCountByExercise</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="ident">ExerciseSlideSubmissionCountByExercise</span> {
-            <span class="ident">exercise_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-            <span class="ident">exercise_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">exercise_id</span>: <span class="ident">id</span>,
+            <span class="ident">exercise_name</span>: <span class="string">&quot;Best exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">123</span>),
         }]
     );
@@ -1801,8 +1801,8 @@
                 <span class="ident">order_number</span>: <span class="prelude-val">Some</span>(<span class="number">0</span>)
             }],
             <span class="ident">page_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;bba0eda6-882b-4a0f-ad91-b02de1de4770&quot;</span>).<span class="ident">unwrap</span>()),
-            <span class="ident">page_title</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;The title of the page&quot;</span>.<span class="ident">to_string</span>()),
-            <span class="ident">page_url_path</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;/path-to-page&quot;</span>.<span class="ident">to_string</span>())
+            <span class="ident">page_title</span>: <span class="string">&quot;The title of the page&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">page_url_path</span>: <span class="string">&quot;/path-to-page&quot;</span>.<span class="ident">to_string</span>()
         }]
     );
     <span class="macro">write_docs!</span>(<span class="ident">FeedbackCount</span>, <span class="ident">FeedbackCount</span> { <span class="ident">read</span>: <span class="number">1</span>, <span class="ident">unread</span>: <span class="number">2</span> });

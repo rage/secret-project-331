@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.1/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.1.0/src/service.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>service.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -848,6 +848,29 @@
 <span id="841">841</span>
 <span id="842">842</span>
 <span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">cell</span>::{<span class="ident">Ref</span>, <span class="ident">RefMut</span>},
     <span class="ident">fmt</span>, <span class="ident">net</span>,
@@ -874,7 +897,7 @@
     <span class="ident">guard</span>::{<span class="ident">Guard</span>, <span class="ident">GuardContext</span>},
     <span class="ident">info::ConnectionInfo</span>,
     <span class="ident">rmap::ResourceMap</span>,
-    <span class="ident">Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>,
+    <span class="ident">Error</span>, <span class="ident">FromRequest</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>,
 };
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">BoxedHttpService</span> <span class="op">=</span> <span class="ident">BoxService</span><span class="op">&lt;</span><span class="ident">ServiceRequest</span>, <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">BoxBody</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span>;
@@ -928,21 +951,46 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ServiceRequest</span> {
-    <span class="doccomment">/// Construct service request</span>
+    <span class="doccomment">/// Construct `ServiceRequest` from parts.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>, <span class="ident">payload</span>: <span class="ident">Payload</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">req</span>, <span class="ident">payload</span> }
     }
 
-    <span class="doccomment">/// Deconstruct request into parts</span>
+    <span class="doccomment">/// Deconstruct `ServiceRequest` into inner parts.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_parts</span>(<span class="self">self</span>) -&gt; (<span class="ident">HttpRequest</span>, <span class="ident">Payload</span>) {
         (<span class="self">self</span>.<span class="ident">req</span>, <span class="self">self</span>.<span class="ident">payload</span>)
     }
 
-    <span class="doccomment">/// Get mutable access to inner `HttpRequest` and `Payload`</span>
+    <span class="doccomment">/// Returns mutable accessors to inner parts.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parts_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">HttpRequest</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Payload</span>) {
         (<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">payload</span>)
+    }
+
+    <span class="doccomment">/// Derives a type from this request using an [extractor](crate::FromRequest).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns the `T` extractor&#39;s `Future` type which can be `await`ed. This is particularly handy</span>
+    <span class="doccomment">/// when you want to use an extractor in a middleware implementation.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use actix_web::{</span>
+    <span class="doccomment">///     dev::{ServiceRequest, ServiceResponse},</span>
+    <span class="doccomment">///     web::Path, Error</span>
+    <span class="doccomment">/// };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// async fn my_helper(mut srv_req: ServiceRequest) -&gt; Result&lt;ServiceResponse, Error&gt; {</span>
+    <span class="doccomment">///     let path = srv_req.extract::&lt;Path&lt;(String, u32)&gt;&gt;().await?;</span>
+    <span class="doccomment">///     // [...]</span>
+    <span class="doccomment">/// #   todo!()</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">FromRequest</span><span class="op">&gt;</span><span class="ident">::Future</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">FromRequest</span>,
+    {
+        <span class="ident">T::from_request</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">req</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">payload</span>)
     }
 
     <span class="doccomment">/// Construct request from parts.</span>
@@ -955,9 +1003,7 @@
         <span class="self">Self</span> { <span class="ident">req</span>, <span class="ident">payload</span> }
     }
 
-    <span class="doccomment">/// Construct request from request.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The returned `ServiceRequest` would have no payload.</span>
+    <span class="doccomment">/// Construct `ServiceRequest` with no payload from given `HttpRequest`.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_request</span>(<span class="ident">req</span>: <span class="ident">HttpRequest</span>) -&gt; <span class="self">Self</span> {
         <span class="ident">ServiceRequest</span> {
@@ -966,63 +1012,63 @@
         }
     }
 
-    <span class="doccomment">/// Create service response</span>
+    <span class="doccomment">/// Create `ServiceResponse` from this request and given response.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_response</span><span class="op">&lt;</span><span class="ident">B</span>, <span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Response</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">res</span>: <span class="ident">R</span>) -&gt; <span class="ident">ServiceResponse</span><span class="op">&lt;</span><span class="ident">B</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::from</span>(<span class="ident">res</span>.<span class="ident">into</span>());
         <span class="ident">ServiceResponse::new</span>(<span class="self">self</span>.<span class="ident">req</span>, <span class="ident">res</span>)
     }
 
-    <span class="doccomment">/// Create service response for error</span>
+    <span class="doccomment">/// Create `ServiceResponse` from this request and given error.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_response</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">err</span>: <span class="ident">E</span>) -&gt; <span class="ident">ServiceResponse</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">HttpResponse::from_error</span>(<span class="ident">err</span>.<span class="ident">into</span>());
         <span class="ident">ServiceResponse::new</span>(<span class="self">self</span>.<span class="ident">req</span>, <span class="ident">res</span>)
     }
 
-    <span class="doccomment">/// This method returns reference to the request head</span>
+    <span class="doccomment">/// Returns a reference to the request head.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">RequestHead</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">head</span>()
     }
 
-    <span class="doccomment">/// This method returns reference to the request head</span>
+    <span class="doccomment">/// Returns a mutable reference to the request head.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">RequestHead</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">head_mut</span>()
     }
 
-    <span class="doccomment">/// Request&#39;s uri.</span>
+    <span class="doccomment">/// Returns the request URI.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uri</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Uri</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">uri</span>
     }
 
-    <span class="doccomment">/// Read the Request method.</span>
+    <span class="doccomment">/// Returns the request method.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">method</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Method</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">method</span>
     }
 
-    <span class="doccomment">/// Read the Request Version.</span>
+    <span class="doccomment">/// Returns the request version.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Version</span> {
         <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">version</span>
     }
 
+    <span class="doccomment">/// Returns a reference to request headers.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Returns request&#39;s headers.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">HeaderMap</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">head</span>().<span class="ident">headers</span>
     }
 
+    <span class="doccomment">/// Returns a mutable reference to request headers.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="doccomment">/// Returns mutable request&#39;s headers.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">headers_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">HeaderMap</span> {
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">head_mut</span>().<span class="ident">headers</span>
     }
 
-    <span class="doccomment">/// The target path of this Request.</span>
+    <span class="doccomment">/// Returns request path.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">uri</span>.<span class="ident">path</span>()
@@ -1034,7 +1080,7 @@
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">query_string</span>()
     }
 
-    <span class="doccomment">/// Peer socket address.</span>
+    <span class="doccomment">/// Returns peer&#39;s socket address.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Peer address is the directly connected peer&#39;s socket address. If a proxy is used in front of</span>
     <span class="doccomment">/// the Actix Web server, then it would be address of this proxy.</span>
@@ -1047,24 +1093,23 @@
         <span class="self">self</span>.<span class="ident">head</span>().<span class="ident">peer_addr</span>
     }
 
-    <span class="doccomment">/// Get *ConnectionInfo* for the current request.</span>
+    <span class="doccomment">/// Returns a reference to connection info.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">ConnectionInfo</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">connection_info</span>()
     }
 
-    <span class="doccomment">/// Returns a reference to the Path parameters.</span>
+    <span class="doccomment">/// Returns reference to the Path parameters.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Params is a container for URL parameters.</span>
-    <span class="doccomment">/// A variable segment is specified in the form `{identifier}`,</span>
-    <span class="doccomment">/// where the identifier can be used later in a request handler to</span>
-    <span class="doccomment">/// access the matched value for that segment.</span>
+    <span class="doccomment">/// Params is a container for URL parameters. A variable segment is specified in the form</span>
+    <span class="doccomment">/// `{identifier}`, where the identifier can be used later in a request handler to access the</span>
+    <span class="doccomment">/// matched value for that segment.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">match_info</span>()
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the Path parameters.</span>
+    <span class="doccomment">/// Returns a mutable reference to the path match information.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_info_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">match_info_mut</span>()
@@ -1082,13 +1127,13 @@
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">match_pattern</span>()
     }
 
-    <span class="doccomment">/// Get a reference to a `ResourceMap` of current application.</span>
+    <span class="doccomment">/// Returns a reference to the application&#39;s resource map.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resource_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ResourceMap</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">resource_map</span>()
     }
 
-    <span class="doccomment">/// Service configuration</span>
+    <span class="doccomment">/// Returns a reference to the application&#39;s configuration.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">AppConfig</span> {
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">app_config</span>()
@@ -1112,6 +1157,7 @@
         <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">conn_data</span>()
     }
 
+    <span class="doccomment">/// Return request cookies.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cookies&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cookies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ref</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cookie</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">CookieParseError</span><span class="op">&gt;</span> {

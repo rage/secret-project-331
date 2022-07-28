@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Protocol","Represents the `:protocol` pseudo-header used by the Extended CONNECT Protocol."]]});
+initSidebarItems({"struct":[["Protocol","Represents the `:protocol` pseudo-header used by the Extended CONNECT Protocol."],["ReasonPhrase","A reason phrase in an HTTP/1 response."]]});

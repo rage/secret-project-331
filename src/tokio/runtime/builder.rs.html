@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.19.2/src/runtime/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.1/src/runtime/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -814,6 +814,161 @@
 <span id="809">809</span>
 <span id="810">810</span>
 <span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::handle::Handle</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">blocking</span>, <span class="ident">driver</span>, <span class="ident">Callback</span>, <span class="ident">Runtime</span>, <span class="ident">Spawner</span>};
 
@@ -900,6 +1055,90 @@
 
     <span class="doccomment">/// How many ticks before yielding to the driver for timer and I/O events?</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">event_interval</span>: <span class="ident">u32</span>,
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">unhandled_panic</span>: <span class="ident">UnhandledPanic</span>,
+}
+
+<span class="macro">cfg_unstable!</span> {
+    <span class="doccomment">/// How the runtime should respond to unhandled panics.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Instances of `UnhandledPanic` are passed to `Builder::unhandled_panic`</span>
+    <span class="doccomment">/// to configure the runtime behavior when a spawned task panics.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See [`Builder::unhandled_panic`] for more details.</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+    <span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
+    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">UnhandledPanic</span> {
+        <span class="doccomment">/// The runtime should ignore panics on spawned tasks.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The panic is forwarded to the task&#39;s [`JoinHandle`] and all spawned</span>
+        <span class="doccomment">/// tasks continue running normally.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This is the default behavior.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Examples</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">/// use tokio::runtime::{self, UnhandledPanic};</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # pub fn main() {</span>
+        <span class="doccomment">/// let rt = runtime::Builder::new_current_thread()</span>
+        <span class="doccomment">///     .unhandled_panic(UnhandledPanic::Ignore)</span>
+        <span class="doccomment">///     .build()</span>
+        <span class="doccomment">///     .unwrap();</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// let task1 = rt.spawn(async { panic!(&quot;boom&quot;); });</span>
+        <span class="doccomment">/// let task2 = rt.spawn(async {</span>
+        <span class="doccomment">///     // This task completes normally</span>
+        <span class="doccomment">///     &quot;done&quot;</span>
+        <span class="doccomment">/// });</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// rt.block_on(async {</span>
+        <span class="doccomment">///     // The panic on the first task is forwarded to the `JoinHandle`</span>
+        <span class="doccomment">///     assert!(task1.await.is_err());</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">///     // The second task completes normally</span>
+        <span class="doccomment">///     assert!(task2.await.is_ok());</span>
+        <span class="doccomment">/// })</span>
+        <span class="doccomment">/// # }</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`JoinHandle`]: struct@crate::task::JoinHandle</span>
+        <span class="ident">Ignore</span>,
+
+        <span class="doccomment">/// The runtime should immediately shutdown if a spawned task panics.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The runtime will immediately shutdown even if the panicked task&#39;s</span>
+        <span class="doccomment">/// [`JoinHandle`] is still available. All further spawned tasks will be</span>
+        <span class="doccomment">/// immediately dropped and call to [`Runtime::block_on`] will panic.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Examples</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```should_panic</span>
+        <span class="doccomment">/// use tokio::runtime::{self, UnhandledPanic};</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # pub fn main() {</span>
+        <span class="doccomment">/// let rt = runtime::Builder::new_current_thread()</span>
+        <span class="doccomment">///     .unhandled_panic(UnhandledPanic::ShutdownRuntime)</span>
+        <span class="doccomment">///     .build()</span>
+        <span class="doccomment">///     .unwrap();</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// rt.spawn(async { panic!(&quot;boom&quot;); });</span>
+        <span class="doccomment">/// rt.spawn(async {</span>
+        <span class="doccomment">///     // This task never completes.</span>
+        <span class="doccomment">/// });</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// rt.block_on(async {</span>
+        <span class="doccomment">///     // Do some work</span>
+        <span class="doccomment">/// # loop { tokio::task::yield_now().await; }</span>
+        <span class="doccomment">/// })</span>
+        <span class="doccomment">/// # }</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`JoinHandle`]: struct@crate::task::JoinHandle</span>
+        <span class="ident">ShutdownRuntime</span>,
+    }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">ThreadNameFn</span> <span class="op">=</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>() -&gt; <span class="ident">String</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
@@ -979,6 +1218,9 @@
             <span class="comment">// as parameters.</span>
             <span class="ident">global_queue_interval</span>,
             <span class="ident">event_interval</span>,
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
+            <span class="ident">unhandled_panic</span>: <span class="ident">UnhandledPanic::Ignore</span>,
         }
     }
 
@@ -1016,7 +1258,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default value is the number of cores available to the system.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
+    <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// When using the `current_thread` runtime this method will panic, since</span>
     <span class="doccomment">/// those variants do not allow setting worker thread counts.</span>
@@ -1053,9 +1295,10 @@
     <span class="doccomment">/// rt.block_on(async move {});</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
+    <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will panic if `val` is not larger than `0`.</span>
+    <span class="attribute">#[<span class="ident">track_caller</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">worker_threads</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="ident">val</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="string">&quot;Worker threads cannot be set to 0&quot;</span>);
         <span class="self">self</span>.<span class="ident">worker_threads</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">val</span>);
@@ -1071,7 +1314,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default value is 512.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panic</span>
+    <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will panic if `val` is not larger than `0`.</span>
     <span class="doccomment">///</span>
@@ -1083,6 +1326,7 @@
     <span class="doccomment">/// [`spawn_blocking`]: fn@crate::task::spawn_blocking</span>
     <span class="doccomment">/// [`worker_threads`]: Self::worker_threads</span>
     <span class="doccomment">/// [`thread_keep_alive`]: Self::thread_keep_alive</span>
+    <span class="attribute">#[<span class="ident">track_caller</span>]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">alias</span> <span class="op">=</span> <span class="string">&quot;max_threads&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_blocking_threads</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">usize</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="macro">assert!</span>(<span class="ident">val</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="string">&quot;Max blocking threads cannot be set to 0&quot;</span>);
@@ -1447,7 +1691,69 @@
         <span class="self">self</span>
     }
 
+    <span class="macro">cfg_unstable!</span> {
+        <span class="doccomment">/// Configure how the runtime responds to an unhandled panic on a</span>
+        <span class="doccomment">/// spawned task.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// By default, an unhandled panic (i.e. a panic not caught by</span>
+        <span class="doccomment">/// [`std::panic::catch_unwind`]) has no impact on the runtime&#39;s</span>
+        <span class="doccomment">/// execution. The panic is error value is forwarded to the task&#39;s</span>
+        <span class="doccomment">/// [`JoinHandle`] and all other spawned tasks continue running.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The `unhandled_panic` option enables configuring this behavior.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// * `UnhandledPanic::Ignore` is the default behavior. Panics on</span>
+        <span class="doccomment">///   spawned tasks have no impact on the runtime&#39;s execution.</span>
+        <span class="doccomment">/// * `UnhandledPanic::ShutdownRuntime` will force the runtime to</span>
+        <span class="doccomment">///   shutdown immediately when a spawned task panics even if that</span>
+        <span class="doccomment">///   task&#39;s `JoinHandle` has not been dropped. All other spawned tasks</span>
+        <span class="doccomment">///   will immediatetly terminate and further calls to</span>
+        <span class="doccomment">///   [`Runtime::block_on`] will panic.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Unstable</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This option is currently unstable and its implementation is</span>
+        <span class="doccomment">/// incomplete. The API may change or be removed in the future. See</span>
+        <span class="doccomment">/// tokio-rs/tokio#4516 for more details.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Examples</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The following demonstrates a runtime configured to shutdown on</span>
+        <span class="doccomment">/// panic. The first spawned task panics and results in the runtime</span>
+        <span class="doccomment">/// shutting down. The second spawned task never has a chance to</span>
+        <span class="doccomment">/// execute. The call to `block_on` will panic due to the runtime being</span>
+        <span class="doccomment">/// forcibly shutdown.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```should_panic</span>
+        <span class="doccomment">/// use tokio::runtime::{self, UnhandledPanic};</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # pub fn main() {</span>
+        <span class="doccomment">/// let rt = runtime::Builder::new_current_thread()</span>
+        <span class="doccomment">///     .unhandled_panic(UnhandledPanic::ShutdownRuntime)</span>
+        <span class="doccomment">///     .build()</span>
+        <span class="doccomment">///     .unwrap();</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// rt.spawn(async { panic!(&quot;boom&quot;); });</span>
+        <span class="doccomment">/// rt.spawn(async {</span>
+        <span class="doccomment">///     // This task never completes.</span>
+        <span class="doccomment">/// });</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// rt.block_on(async {</span>
+        <span class="doccomment">///     // Do some work</span>
+        <span class="doccomment">/// # loop { tokio::task::yield_now().await; }</span>
+        <span class="doccomment">/// })</span>
+        <span class="doccomment">/// # }</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`JoinHandle`]: struct@crate::task::JoinHandle</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unhandled_panic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">behavior</span>: <span class="ident">UnhandledPanic</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+            <span class="self">self</span>.<span class="ident">unhandled_panic</span> <span class="op">=</span> <span class="ident">behavior</span>;
+            <span class="self">self</span>
+        }
+    }
+
     <span class="kw">fn</span> <span class="ident">build_basic_runtime</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::basic_scheduler::Config</span>;
         <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">BasicScheduler</span>, <span class="ident">HandleInner</span>, <span class="ident">Kind</span>};
 
         <span class="kw">let</span> (<span class="ident">driver</span>, <span class="ident">resources</span>) <span class="op">=</span> <span class="ident">driver::Driver::new</span>(<span class="self">self</span>.<span class="ident">get_cfg</span>())<span class="question-mark">?</span>;
@@ -1471,10 +1777,14 @@
         <span class="kw">let</span> <span class="ident">scheduler</span> <span class="op">=</span> <span class="ident">BasicScheduler::new</span>(
             <span class="ident">driver</span>,
             <span class="ident">handle_inner</span>,
-            <span class="self">self</span>.<span class="ident">before_park</span>.<span class="ident">clone</span>(),
-            <span class="self">self</span>.<span class="ident">after_unpark</span>.<span class="ident">clone</span>(),
-            <span class="self">self</span>.<span class="ident">global_queue_interval</span>,
-            <span class="self">self</span>.<span class="ident">event_interval</span>,
+            <span class="ident">Config</span> {
+                <span class="ident">before_park</span>: <span class="self">self</span>.<span class="ident">before_park</span>.<span class="ident">clone</span>(),
+                <span class="ident">after_unpark</span>: <span class="self">self</span>.<span class="ident">after_unpark</span>.<span class="ident">clone</span>(),
+                <span class="ident">global_queue_interval</span>: <span class="self">self</span>.<span class="ident">global_queue_interval</span>,
+                <span class="ident">event_interval</span>: <span class="self">self</span>.<span class="ident">event_interval</span>,
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
+                <span class="ident">unhandled_panic</span>: <span class="self">self</span>.<span class="ident">unhandled_panic</span>.<span class="ident">clone</span>(),
+            },
         );
         <span class="kw">let</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">Spawner::Basic</span>(<span class="ident">scheduler</span>.<span class="ident">spawner</span>().<span class="ident">clone</span>());
 

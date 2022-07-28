@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/diff-0.1.12/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/diff-0.1.13/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../diff/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -129,24 +129,70 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp</span>;
-
-<span class="doccomment">/// A fragment of a computed diff.</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+</pre><pre class="rust"><code><span class="doccomment">/// A fragment of a computed diff.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// An element that only exists in the left input.</span>
     <span class="ident">Left</span>(<span class="ident">T</span>),
+    <span class="doccomment">/// Elements that exist in both inputs.</span>
     <span class="ident">Both</span>(<span class="ident">T</span>, <span class="ident">T</span>),
+    <span class="doccomment">/// An element that only exists in the right input.</span>
     <span class="ident">Right</span>(<span class="ident">T</span>),
 }
 
 <span class="doccomment">/// Computes the diff between two slices.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">slice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>], <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>(<span class="ident">left</span>.<span class="ident">iter</span>(), <span class="ident">right</span>.<span class="ident">iter</span>())
+    <span class="ident">do_diff</span>(<span class="ident">left</span>, <span class="ident">right</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>)
 }
 
 <span class="doccomment">/// Computes the diff between the lines of two strings.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lines</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">iter</span>(<span class="ident">left</span>.<span class="ident">lines</span>(), <span class="ident">right</span>.<span class="ident">lines</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">do_diff</span>(
+        <span class="kw-2">&amp;</span><span class="ident">left</span>.<span class="ident">lines</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">lines</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        <span class="op">|</span><span class="ident">str</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">str</span>,
+    );
     <span class="comment">// str::lines() does not yield an empty str at the end if the str ends with</span>
     <span class="comment">// &#39;\n&#39;. We handle this special case by inserting one last diff item,</span>
     <span class="comment">// depending on whether the left string ends with &#39;\n&#39;, or the right one,</span>
@@ -167,93 +213,129 @@
 
 <span class="doccomment">/// Computes the diff between the chars of two strings.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">chars</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">iter</span>(<span class="ident">left</span>.<span class="ident">chars</span>(), <span class="ident">right</span>.<span class="ident">chars</span>())
+    <span class="ident">do_diff</span>(
+        <span class="kw-2">&amp;</span><span class="ident">left</span>.<span class="ident">chars</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">right</span>.<span class="ident">chars</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+        <span class="op">|</span><span class="ident">char</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">char</span>,
+    )
 }
 
-<span class="kw">fn</span> <span class="ident">iter</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="ident">I</span>, <span class="ident">right</span>: <span class="ident">I</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
+<span class="kw">fn</span> <span class="ident">do_diff</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>], <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">T</span>], <span class="ident">mapper</span>: <span class="ident">F</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">I</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">T</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">DoubleEndedIterator</span>,
     <span class="ident">T</span>: <span class="ident">PartialEq</span>,
+    <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">T</span>) -&gt; <span class="ident">U</span>,
 {
-    <span class="kw">let</span> <span class="ident">left_count</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">clone</span>().<span class="ident">count</span>();
-    <span class="kw">let</span> <span class="ident">right_count</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">clone</span>().<span class="ident">count</span>();
-    <span class="kw">let</span> <span class="ident">min_count</span> <span class="op">=</span> <span class="ident">cmp::min</span>(<span class="ident">left_count</span>, <span class="ident">right_count</span>);
-
-    <span class="kw">let</span> <span class="ident">leading_equals</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">clone</span>()
-        .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">clone</span>())
-        .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">p</span>.<span class="number">1</span>)
+    <span class="kw">let</span> <span class="ident">leading_equals</span> <span class="op">=</span> <span class="ident">left</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">iter</span>())
+        .<span class="ident">take_while</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">l</span> <span class="op">==</span> <span class="ident">r</span>)
         .<span class="ident">count</span>();
-    <span class="kw">let</span> <span class="ident">trailing_equals</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">clone</span>()
+    <span class="kw">let</span> <span class="ident">trailing_equals</span> <span class="op">=</span> <span class="ident">left</span>[<span class="ident">leading_equals</span>..]
+        .<span class="ident">iter</span>()
         .<span class="ident">rev</span>()
-        .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">clone</span>().<span class="ident">rev</span>())
-        .<span class="ident">take</span>(<span class="ident">min_count</span> <span class="op">-</span> <span class="ident">leading_equals</span>)
-        .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">p</span>.<span class="number">1</span>)
+        .<span class="ident">zip</span>(<span class="ident">right</span>[<span class="ident">leading_equals</span>..].<span class="ident">iter</span>().<span class="ident">rev</span>())
+        .<span class="ident">take_while</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">l</span> <span class="op">==</span> <span class="ident">r</span>)
         .<span class="ident">count</span>();
 
-    <span class="kw">let</span> <span class="ident">left_diff_size</span> <span class="op">=</span> <span class="ident">left_count</span> <span class="op">-</span> <span class="ident">leading_equals</span> <span class="op">-</span> <span class="ident">trailing_equals</span>;
-    <span class="kw">let</span> <span class="ident">right_diff_size</span> <span class="op">=</span> <span class="ident">right_count</span> <span class="op">-</span> <span class="ident">leading_equals</span> <span class="op">-</span> <span class="ident">trailing_equals</span>;
+    <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Vec2</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> {
+        <span class="kw">let</span> <span class="ident">left_diff_size</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">leading_equals</span> <span class="op">-</span> <span class="ident">trailing_equals</span>;
+        <span class="kw">let</span> <span class="ident">right_diff_size</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">leading_equals</span> <span class="op">-</span> <span class="ident">trailing_equals</span>;
 
-    <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">right_diff_size</span> <span class="op">+</span> <span class="number">1</span>]; <span class="ident">left_diff_size</span> <span class="op">+</span> <span class="number">1</span>];
-        <span class="kw">let</span> <span class="ident">left_skip</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">clone</span>().<span class="ident">skip</span>(<span class="ident">leading_equals</span>).<span class="ident">take</span>(<span class="ident">left_diff_size</span>);
-        <span class="kw">let</span> <span class="ident">right_skip</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">clone</span>().<span class="ident">skip</span>(<span class="ident">leading_equals</span>).<span class="ident">take</span>(<span class="ident">right_diff_size</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">Vec2::new</span>(<span class="number">0</span>, [<span class="ident">left_diff_size</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">right_diff_size</span> <span class="op">+</span> <span class="number">1</span>]);
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">left_skip</span>.<span class="ident">clone</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">for</span> (<span class="ident">j</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="ident">right_skip</span>.<span class="ident">clone</span>().<span class="ident">enumerate</span>() {
-                <span class="ident">table</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>][<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">=</span> <span class="kw">if</span> <span class="ident">l</span> <span class="op">==</span> <span class="ident">r</span> {
-                    <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">+</span> <span class="number">1</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">std::cmp::max</span>(<span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>], <span class="ident">table</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>][<span class="ident">j</span>])
-                };
+        <span class="kw">let</span> <span class="ident">left_skip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">left</span>[<span class="ident">leading_equals</span>..<span class="ident">left</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">trailing_equals</span>];
+        <span class="kw">let</span> <span class="ident">right_skip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">right</span>[<span class="ident">leading_equals</span>..<span class="ident">right</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">trailing_equals</span>];
+
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">left_skip</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">for</span> (<span class="ident">j</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="ident">right_skip</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                <span class="ident">table</span>.<span class="ident">set</span>(
+                    [<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>],
+                    <span class="kw">if</span> <span class="ident">l</span> <span class="op">==</span> <span class="ident">r</span> {
+                        <span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span>, <span class="ident">j</span>]) <span class="op">+</span> <span class="number">1</span>
+                    } <span class="kw">else</span> {
+                        <span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span>, <span class="ident">j</span> <span class="op">+</span> <span class="number">1</span>]).<span class="ident">max</span>(<span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">j</span>]))
+                    },
+                );
             }
         }
 
         <span class="ident">table</span>
     };
 
-    <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">left_diff_size</span> <span class="op">+</span> <span class="ident">right_diff_size</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">left_diff_size</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">right_diff_size</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">li</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">clone</span>().<span class="ident">rev</span>().<span class="ident">skip</span>(<span class="ident">trailing_equals</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ri</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">clone</span>().<span class="ident">rev</span>().<span class="ident">skip</span>(<span class="ident">trailing_equals</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">left</span>.<span class="ident">len</span>().<span class="ident">max</span>(<span class="ident">right</span>.<span class="ident">len</span>()));
+
+    <span class="ident">diff</span>.<span class="ident">extend</span>(
+        <span class="ident">left</span>[..<span class="ident">leading_equals</span>]
+            .<span class="ident">iter</span>()
+            .<span class="ident">zip</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>[..<span class="ident">leading_equals</span>])
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">Result::Both</span>(<span class="ident">mapper</span>(<span class="ident">l</span>), <span class="ident">mapper</span>(<span class="ident">r</span>))),
+    );
+
+    {
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">diff</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">table</span>.<span class="ident">len</span>[<span class="number">0</span>] <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">j</span> <span class="op">=</span> <span class="ident">table</span>.<span class="ident">len</span>[<span class="number">1</span>] <span class="op">-</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">left</span>[<span class="ident">leading_equals</span>..];
+        <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">right</span>[<span class="ident">leading_equals</span>..];
 
         <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="ident">j</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">==</span> <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>]) {
+            <span class="kw">if</span> <span class="ident">j</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span>, <span class="ident">j</span>]) <span class="op">==</span> <span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span>, <span class="ident">j</span> <span class="op">-</span> <span class="number">1</span>])) {
                 <span class="ident">j</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Right</span>(<span class="ident">ri</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>()));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">j</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">table</span>[<span class="ident">i</span>][<span class="ident">j</span>] <span class="op">==</span> <span class="ident">table</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="ident">j</span>]) {
+                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Right</span>(<span class="ident">mapper</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>[<span class="ident">j</span>])));
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> (<span class="ident">j</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span>, <span class="ident">j</span>]) <span class="op">==</span> <span class="ident">table</span>.<span class="ident">get</span>([<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>, <span class="ident">j</span>])) {
                 <span class="ident">i</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Left</span>(<span class="ident">li</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>()));
+                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Left</span>(<span class="ident">mapper</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>[<span class="ident">i</span>])));
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">j</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="ident">i</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                 <span class="ident">j</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Both</span>(<span class="ident">li</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>(), <span class="ident">ri</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>()));
+                <span class="ident">diff</span>.<span class="ident">push</span>(<span class="ident">Result::Both</span>(<span class="ident">mapper</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>[<span class="ident">i</span>]), <span class="ident">mapper</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>[<span class="ident">j</span>])));
             } <span class="kw">else</span> {
                 <span class="kw">break</span>;
             }
         }
+        <span class="ident">diff</span>[<span class="ident">start</span>..].<span class="ident">reverse</span>();
+    }
 
-        <span class="ident">diff</span>
-    };
-
-    <span class="kw">let</span> <span class="ident">diff_size</span> <span class="op">=</span> <span class="ident">leading_equals</span> <span class="op">+</span> <span class="ident">diff</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">trailing_equals</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_diff</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">diff_size</span>);
-
-    <span class="ident">total_diff</span>.<span class="ident">extend</span>(
-        <span class="ident">left</span>.<span class="ident">clone</span>()
-            .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">clone</span>())
-            .<span class="ident">take</span>(<span class="ident">leading_equals</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">Result::Both</span>(<span class="ident">l</span>, <span class="ident">r</span>)),
-    );
-    <span class="ident">total_diff</span>.<span class="ident">extend</span>(<span class="ident">diff</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>());
-    <span class="ident">total_diff</span>.<span class="ident">extend</span>(
-        <span class="ident">left</span>.<span class="ident">skip</span>(<span class="ident">leading_equals</span> <span class="op">+</span> <span class="ident">left_diff_size</span>)
-            .<span class="ident">zip</span>(<span class="ident">right</span>.<span class="ident">skip</span>(<span class="ident">leading_equals</span> <span class="op">+</span> <span class="ident">right_diff_size</span>))
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">Result::Both</span>(<span class="ident">l</span>, <span class="ident">r</span>)),
+    <span class="ident">diff</span>.<span class="ident">extend</span>(
+        <span class="ident">left</span>[<span class="ident">left</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">trailing_equals</span>..]
+            .<span class="ident">iter</span>()
+            .<span class="ident">zip</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>[<span class="ident">right</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">trailing_equals</span>..])
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="ident">Result::Both</span>(<span class="ident">mapper</span>(<span class="ident">l</span>), <span class="ident">mapper</span>(<span class="ident">r</span>))),
     );
 
-    <span class="ident">total_diff</span>
+    <span class="ident">diff</span>
+}
+
+<span class="kw">struct</span> <span class="ident">Vec2</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">len</span>: [<span class="ident">usize</span>; <span class="number">2</span>],
+    <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Vec2</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">len</span>: [<span class="ident">usize</span>; <span class="number">2</span>]) -&gt; <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">Clone</span>,
+    {
+        <span class="ident">Vec2</span> {
+            <span class="ident">len</span>,
+            <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">value</span>; <span class="ident">len</span>[<span class="number">0</span>] <span class="op">*</span> <span class="ident">len</span>[<span class="number">1</span>]],
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: [<span class="ident">usize</span>; <span class="number">2</span>]) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
+        <span class="macro">debug_assert!</span>(<span class="ident">index</span>[<span class="number">0</span>] <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">0</span>]);
+        <span class="macro">debug_assert!</span>(<span class="ident">index</span>[<span class="number">1</span>] <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">1</span>]);
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>[<span class="ident">index</span>[<span class="number">0</span>] <span class="op">*</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">index</span>[<span class="number">1</span>]]
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: [<span class="ident">usize</span>; <span class="number">2</span>], <span class="ident">value</span>: <span class="ident">T</span>) {
+        <span class="macro">debug_assert!</span>(<span class="ident">index</span>[<span class="number">0</span>] <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">0</span>]);
+        <span class="macro">debug_assert!</span>(<span class="ident">index</span>[<span class="number">1</span>] <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">1</span>]);
+        <span class="self">self</span>.<span class="ident">data</span>[<span class="ident">index</span>[<span class="number">0</span>] <span class="op">*</span> <span class="self">self</span>.<span class="ident">len</span>[<span class="number">1</span>] <span class="op">+</span> <span class="ident">index</span>[<span class="number">1</span>]] <span class="op">=</span> <span class="ident">value</span>;
+    }
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="diff" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>

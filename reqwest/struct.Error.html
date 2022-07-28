@@ -19,7 +19,7 @@ sure to remove it (<a href="struct.Error.html#method.without_url"><code>without_
         }
     }
 }</code></pre></div>
-</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.url_mut" class="method has-srclink"><span class="rightside"><a class="srclink" href="../src/reqwest/error.rs.html#68-70">source</a></span><a href="#method.url_mut" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.url_mut" class="fnname">url_mut</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.62.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;mut <a class="struct" href="struct.Url.html" title="struct reqwest::Url">Url</a>&gt;</h4></section></summary><div class="docblock"><p>Returns a mutable referene to the URL related to this error</p>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.url_mut" class="method has-srclink"><span class="rightside"><a class="srclink" href="../src/reqwest/error.rs.html#68-70">source</a></span><a href="#method.url_mut" class="anchor"></a><h4 class="code-header">pub fn <a href="#method.url_mut" class="fnname">url_mut</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.62.1/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;mut <a class="struct" href="struct.Url.html" title="struct reqwest::Url">Url</a>&gt;</h4></section></summary><div class="docblock"><p>Returns a mutable reference to the URL related to this error</p>
 <p>This is useful if you need to remove sensitive information from the URL
 (e.g. an API key in the query), but do not want to remove the URL
 entirely.</p>

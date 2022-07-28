@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.0/src/named.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-files-0.6.2/src/named.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>named.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_files/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -634,6 +634,58 @@
 <span id="629">629</span>
 <span id="630">630</span>
 <span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">fs::Metadata</span>,
     <span class="ident">io</span>,
@@ -659,6 +711,7 @@
 <span class="kw">use</span> <span class="ident">bitflags::bitflags</span>;
 <span class="kw">use</span> <span class="ident">derive_more</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 <span class="kw">use</span> <span class="ident">futures_core::future::LocalBoxFuture</span>;
+<span class="kw">use</span> <span class="ident">mime::Mime</span>;
 <span class="kw">use</span> <span class="ident">mime_guess::from_path</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">encoding::equiv_utf8_text</span>, <span class="ident">range::HttpRange</span>};
@@ -712,8 +765,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">md</span>: <span class="ident">Metadata</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">flags</span>: <span class="ident">Flags</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">status_code</span>: <span class="ident">StatusCode</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_type</span>: <span class="ident">mime::Mime</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_disposition</span>: <span class="ident">header::ContentDisposition</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_type</span>: <span class="ident">Mime</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">content_disposition</span>: <span class="ident">ContentDisposition</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">encoding</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span><span class="op">&gt;</span>,
 }
 
@@ -764,7 +817,7 @@
             <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">from_path</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">first_or_octet_stream</span>();
 
             <span class="kw">let</span> <span class="ident">disposition</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ct</span>.<span class="ident">type_</span>() {
-                <span class="ident">mime::IMAGE</span> <span class="op">|</span> <span class="ident">mime::TEXT</span> <span class="op">|</span> <span class="ident">mime::VIDEO</span> =&gt; <span class="ident">DispositionType::Inline</span>,
+                <span class="ident">mime::IMAGE</span> <span class="op">|</span> <span class="ident">mime::TEXT</span> <span class="op">|</span> <span class="ident">mime::AUDIO</span> <span class="op">|</span> <span class="ident">mime::VIDEO</span> =&gt; <span class="ident">DispositionType::Inline</span>,
                 <span class="ident">mime::APPLICATION</span> =&gt; <span class="kw">match</span> <span class="ident">ct</span>.<span class="ident">subtype</span>() {
                     <span class="ident">mime::JAVASCRIPT</span> <span class="op">|</span> <span class="ident">mime::JSON</span> =&gt; <span class="ident">DispositionType::Inline</span>,
                     <span class="ident">name</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;wasm&quot;</span> =&gt; <span class="ident">DispositionType::Inline</span>,
@@ -845,11 +898,10 @@
         <span class="ident"><span class="self">Self</span>::from_file</span>(<span class="ident">file</span>, <span class="ident">path</span>)
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">rustdoc::broken_intra_doc_links</span>)]</span>
     <span class="doccomment">/// Attempts to open a file asynchronously in read-only mode.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// When the `experimental-io-uring` crate feature is enabled, this will be async.</span>
-    <span class="doccomment">/// Otherwise, it will be just like [`open`][Self::open].</span>
+    <span class="doccomment">/// When the `experimental-io-uring` crate feature is enabled, this will be async. Otherwise, it</span>
+    <span class="doccomment">/// will behave just like `open`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
@@ -874,13 +926,13 @@
         <span class="ident"><span class="self">Self</span>::from_file</span>(<span class="ident">file</span>, <span class="ident">path</span>)
     }
 
-    <span class="doccomment">/// Returns reference to the underlying `File` object.</span>
+    <span class="doccomment">/// Returns reference to the underlying file object.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">File</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">file</span>
     }
 
-    <span class="doccomment">/// Retrieve the path of this file.</span>
+    <span class="doccomment">/// Returns the filesystem path to this file.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">/// ```</span>
@@ -898,16 +950,53 @@
         <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_path</span>()
     }
 
-    <span class="doccomment">/// Set response **Status Code**</span>
+    <span class="doccomment">/// Returns the time the file was last modified.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `None` only on unsupported platforms; see [`std::fs::Metadata::modified()`].</span>
+    <span class="doccomment">/// Therefore, it is usually safe to unwrap this.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modified</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SystemTime</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">modified</span>
+    }
+
+    <span class="doccomment">/// Returns the filesystem metadata associated with this file.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">metadata</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Metadata</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">md</span>
+    }
+
+    <span class="doccomment">/// Returns the `Content-Type` header that will be used when serving this file.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Mime</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content_type</span>
+    }
+
+    <span class="doccomment">/// Returns the `Content-Disposition` that will be used when serving this file.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_disposition</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ContentDisposition</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">content_disposition</span>
+    }
+
+    <span class="doccomment">/// Returns the `Content-Encoding` that will be used when serving this file.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A return value of `None` indicates that the content is not already using a compressed</span>
+    <span class="doccomment">/// representation and may be subject to compression downstream.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">content_encoding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ContentEncoding</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">encoding</span>
+    }
+
+    <span class="doccomment">/// Set response status code.</span>
+    <span class="attribute">#[<span class="ident">deprecated</span>(<span class="ident">since</span> <span class="op">=</span> <span class="string">&quot;0.7.0&quot;</span>, <span class="ident">note</span> <span class="op">=</span> <span class="string">&quot;Prefer `Responder::customize()`.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_status_code</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">status</span>: <span class="ident">StatusCode</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">status_code</span> <span class="op">=</span> <span class="ident">status</span>;
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Set the MIME Content-Type for serving this file. By default the Content-Type is inferred</span>
-    <span class="doccomment">/// from the filename extension.</span>
+    <span class="doccomment">/// Sets the `Content-Type` header that will be used when serving this file. By default the</span>
+    <span class="doccomment">/// `Content-Type` is inferred from the filename extension.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mime_type</span>: <span class="ident">mime::Mime</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_type</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">mime_type</span>: <span class="ident">Mime</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">content_type</span> <span class="op">=</span> <span class="ident">mime_type</span>;
         <span class="self">self</span>
     }
@@ -920,15 +1009,15 @@
     <span class="doccomment">/// filename is taken from the path provided in the `open` method after converting it to UTF-8</span>
     <span class="doccomment">/// (using `to_string_lossy`).</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cd</span>: <span class="ident">header::ContentDisposition</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cd</span>: <span class="ident">ContentDisposition</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">content_disposition</span> <span class="op">=</span> <span class="ident">cd</span>;
         <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">insert</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>);
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Disable `Content-Disposition` header.</span>
+    <span class="doccomment">/// Disables `Content-Disposition` header.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// By default Content-Disposition` header is enabled.</span>
+    <span class="doccomment">/// By default, the `Content-Disposition` header is sent.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_content_disposition</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">flags</span>.<span class="ident">remove</span>(<span class="ident">Flags::CONTENT_DISPOSITION</span>);
@@ -1127,11 +1216,26 @@
                     <span class="ident">length</span> <span class="op">=</span> <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">length</span>;
                     <span class="ident">offset</span> <span class="op">=</span> <span class="ident">ranges</span>[<span class="number">0</span>].<span class="ident">start</span>;
 
-                    <span class="comment">// don&#39;t allow compression middleware to modify partial content</span>
-                    <span class="ident">res</span>.<span class="ident">insert_header</span>((
-                        <span class="ident">header::CONTENT_ENCODING</span>,
-                        <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;identity&quot;</span>),
-                    ));
+                    <span class="comment">// When a Content-Encoding header is present in a 206 partial content response</span>
+                    <span class="comment">// for video content, it prevents browser video players from starting playback</span>
+                    <span class="comment">// before loading the whole video and also prevents seeking.</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// See: https://github.com/actix/actix-web/issues/2815</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// The assumption of this fix is that the video player knows to not send an</span>
+                    <span class="comment">// Accept-Encoding header for this request and that downstream middleware will</span>
+                    <span class="comment">// not attempt compression for requests without it.</span>
+                    <span class="comment">//</span>
+                    <span class="comment">// TODO: Solve question around what to do if self.encoding is set and partial</span>
+                    <span class="comment">// range is requested. Reject request? Ignoring self.encoding seems wrong, too.</span>
+                    <span class="comment">// In practice, it should not come up.</span>
+                    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">header::ACCEPT_ENCODING</span>) {
+                        <span class="comment">// don&#39;t allow compression middleware to modify partial content</span>
+                        <span class="ident">res</span>.<span class="ident">insert_header</span>((
+                            <span class="ident">header::CONTENT_ENCODING</span>,
+                            <span class="ident">HeaderValue::from_static</span>(<span class="string">&quot;identity&quot;</span>),
+                        ));
+                    }
 
                     <span class="ident">res</span>.<span class="ident">insert_header</span>((
                         <span class="ident">header::CONTENT_RANGE</span>,

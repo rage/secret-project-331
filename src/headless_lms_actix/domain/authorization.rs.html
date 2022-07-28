@@ -1030,7 +1030,7 @@ token.authorized_ok(web::Json(cms_page_info))
     <span class="kw">use</span> <span class="ident">headless_lms_models</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">models::roles::RoleDomain</span>;
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_authorization</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
@@ -1070,7 +1070,7 @@ token.authorized_ok(web::Json(cms_page_info))
         .<span class="ident">unwrap</span>();
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">course_role_chapter_resource</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, <span class="ident">instance</span>: <span class="ident">_instance</span>, :<span class="ident">course_module</span>, :<span class="ident">chapter</span>);
 
@@ -1102,7 +1102,7 @@ token.authorized_ok(web::Json(cms_page_info))
         .<span class="ident">unwrap</span>();
     }
 
-    <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
+    <span class="attribute">#[<span class="ident">actix_web::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">anonymous_user_can_view_open_course</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>);
 

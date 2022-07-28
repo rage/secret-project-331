@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.0.1/src/test/test_request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-web-4.1.0/src/test/test_request.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>test_request.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../actix_web/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -439,6 +439,9 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">net::SocketAddr</span>, <span class="ident">rc::Rc</span>};
 
 <span class="kw">use</span> <span class="ident">actix_http</span>::{<span class="ident">test::TestRequest</span> <span class="kw">as</span> <span class="ident">HttpTestRequest</span>, <span class="ident">Request</span>};
@@ -465,16 +468,16 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// For unit testing, actix provides a request builder type and a simple handler runner. TestRequest implements a builder-like pattern.</span>
 <span class="doccomment">/// You can generate various types of request via TestRequest&#39;s methods:</span>
-<span class="doccomment">///  * `TestRequest::to_request` creates `actix_http::Request` instance.</span>
-<span class="doccomment">///  * `TestRequest::to_srv_request` creates `ServiceRequest` instance, which is used for testing middlewares and chain adapters.</span>
-<span class="doccomment">///  * `TestRequest::to_srv_response` creates `ServiceResponse` instance.</span>
-<span class="doccomment">///  * `TestRequest::to_http_request` creates `HttpRequest` instance, which is used for testing handlers.</span>
+<span class="doccomment">/// - [`TestRequest::to_request`] creates an [`actix_http::Request`](Request).</span>
+<span class="doccomment">/// - [`TestRequest::to_srv_request`] creates a [`ServiceRequest`], which is used for testing middlewares and chain adapters.</span>
+<span class="doccomment">/// - [`TestRequest::to_srv_response`] creates a [`ServiceResponse`].</span>
+<span class="doccomment">/// - [`TestRequest::to_http_request`] creates an [`HttpRequest`], which is used for testing handlers.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use actix_web::{test, HttpRequest, HttpResponse, HttpMessage};</span>
 <span class="doccomment">/// use actix_web::http::{header, StatusCode};</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// async fn index(req: HttpRequest) -&gt; HttpResponse {</span>
+<span class="doccomment">/// async fn handler(req: HttpRequest) -&gt; HttpResponse {</span>
 <span class="doccomment">///     if let Some(hdr) = req.headers().get(header::CONTENT_TYPE) {</span>
 <span class="doccomment">///         HttpResponse::Ok().into()</span>
 <span class="doccomment">///     } else {</span>
@@ -483,15 +486,18 @@
 <span class="doccomment">/// }</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// #[actix_web::test]</span>
+<span class="doccomment">/// # // force rustdoc to display the correct thing and also compile check the test</span>
+<span class="doccomment">/// # async fn _test() {}</span>
 <span class="doccomment">/// async fn test_index() {</span>
-<span class="doccomment">///     let req = test::TestRequest::default().insert_header(&quot;content-type&quot;, &quot;text/plain&quot;)</span>
+<span class="doccomment">///     let req = test::TestRequest::default()</span>
+<span class="doccomment">///         .insert_header(header::ContentType::plaintext())</span>
 <span class="doccomment">///         .to_http_request();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     let resp = index(req).await.unwrap();</span>
+<span class="doccomment">///     let resp = handler(req).await;</span>
 <span class="doccomment">///     assert_eq!(resp.status(), StatusCode::OK);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     let req = test::TestRequest::default().to_http_request();</span>
-<span class="doccomment">///     let resp = index(req).await.unwrap();</span>
+<span class="doccomment">///     let resp = handler(req).await;</span>
 <span class="doccomment">///     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>

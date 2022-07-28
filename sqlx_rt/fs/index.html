@@ -21,12 +21,26 @@ type. Adaptions also extend to traits like <code>std::io::Read</code> where meth
 return <code>std::io::Result</code>. Be warned that these adapted methods may return
 <code>std::io::ErrorKind::WouldBlock</code> if a <em>worker</em> thread can not be converted
 to a <em>backup</em> thread immediately.</p>
+<p><strong>Warning</strong>: These adapters may create a large number of temporary tasks,
+especially when reading large files. When performing a lot of operations
+in one batch, it may be significantly faster to use <a href="../../tokio/task/blocking/fn.spawn_blocking.html"><code>spawn_blocking</code></a>
+directly:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">tokio::fs::File</span>;
+<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufReader</span>, <span class="ident">BufRead</span>};
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">count_lines</span>(<span class="ident">file</span>: <span class="ident">File</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">std::io::Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">file</span>.<span class="ident">into_std</span>().<span class="kw">await</span>;
+    <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">line_count</span> <span class="op">=</span> <span class="ident">BufReader::new</span>(<span class="ident">file</span>).<span class="ident">lines</span>().<span class="ident">count</span>();
+        <span class="prelude-val">Ok</span>(<span class="ident">line_count</span>)
+    }).<span class="kw">await</span><span class="question-mark">?</span>
+}</code></pre></div>
 </div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DirBuilder.html" title="sqlx_rt::fs::DirBuilder struct">DirBuilder</a></div><div class="item-right docblock-short"><p>A builder for creating directories in various manners.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.DirEntry.html" title="sqlx_rt::fs::DirEntry struct">DirEntry</a></div><div class="item-right docblock-short"><p>Entries returned by the <a href="struct.ReadDir.html"><code>ReadDir</code></a> stream.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.File.html" title="sqlx_rt::fs::File struct">File</a></div><div class="item-right docblock-short"><p>A reference to an open file on the filesystem.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.OpenOptions.html" title="sqlx_rt::fs::OpenOptions struct">OpenOptions</a></div><div class="item-right docblock-short"><p>Options and flags which can be used to configure how a file is opened.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ReadDir.html" title="sqlx_rt::fs::ReadDir struct">ReadDir</a></div><div class="item-right docblock-short"><p>Reads the the entries in a directory.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ReadDir.html" title="sqlx_rt::fs::ReadDir struct">ReadDir</a></div><div class="item-right docblock-short"><p>Reads the entries in a directory.</p>
 </div></div></div><h2 id="functions" class="small-section-header"><a href="#functions">Functions</a></h2>
 <div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.canonicalize.html" title="sqlx_rt::fs::canonicalize fn">canonicalize</a></div><div class="item-right docblock-short"><p>Returns the canonical, absolute form of a path with all intermediate
 components normalized and symbolic links resolved.</p>

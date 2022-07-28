@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["encode",""],["encoded_len",""]]});
+initSidebarItems({"fn":[["encode","Base64 encode the provided bytes."],["encoded_len","Predict how many bytes [`encode`] is going to write given a `input_len` input length."]]});

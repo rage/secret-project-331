@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Error",""],["StubTransport","This transport logs messages and always returns the given response"]]});
+initSidebarItems({"struct":[["Error","An error returned by the stub transport"],["StubTransport","This transport logs messages and always returns the given response"]]});

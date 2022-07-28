@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/postgres/connection/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/postgres/connection/describe.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>describe.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><script defer src="../../../../main.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -508,18 +508,19 @@
 <span id="503">503</span>
 <span id="504">504</span>
 <span id="505">505</span>
+<span id="506">506</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ext::ustr::UStr</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::message</span>::{<span class="ident">ParameterDescription</span>, <span class="ident">RowDescription</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::statement::PgStatementMetadata</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::type_info</span>::{<span class="ident">PgCustomType</span>, <span class="ident">PgType</span>, <span class="ident">PgTypeKind</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres::types::Oid</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::postgres</span>::{<span class="ident">PgArguments</span>, <span class="ident">PgColumn</span>, <span class="ident">PgConnection</span>, <span class="ident">PgTypeInfo</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::query_as</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_scalar</span>::{<span class="ident">query_scalar</span>, <span class="ident">query_scalar_with</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Json</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMap</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
@@ -657,7 +658,7 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">maybe_fetch_type_info_by_oid</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">u32</span>,
+        <span class="ident">oid</span>: <span class="ident">Oid</span>,
         <span class="ident">should_fetch</span>: <span class="ident">bool</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// first we check if this is a built-in type</span>
@@ -693,9 +694,9 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">fetch_type_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">u32</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">fetch_type_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">Oid</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">typ_type</span>, <span class="ident">category</span>, <span class="ident">relation_id</span>, <span class="ident">element</span>, <span class="ident">base_type</span>): (<span class="ident">String</span>, <span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>) <span class="op">=</span> <span class="ident">query_as</span>(
+            <span class="kw">let</span> (<span class="ident">name</span>, <span class="ident">typ_type</span>, <span class="ident">category</span>, <span class="ident">relation_id</span>, <span class="ident">element</span>, <span class="ident">base_type</span>): (<span class="ident">String</span>, <span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">Oid</span>, <span class="ident">Oid</span>, <span class="ident">Oid</span>) <span class="op">=</span> <span class="ident">query_as</span>(
                 <span class="string">&quot;SELECT typname, typtype, typcategory, typrelid, typelem, typbasetype FROM pg_catalog.pg_type WHERE oid = $1&quot;</span>,
             )
             .<span class="ident">bind</span>(<span class="ident">oid</span>)
@@ -747,7 +748,7 @@
         })
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_enum_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">u32</span>, <span class="ident">name</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_enum_by_oid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">oid</span>: <span class="ident">Oid</span>, <span class="ident">name</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">variants</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
             <span class="string">r#&quot;
 SELECT enumlabel
@@ -769,12 +770,12 @@ ORDER BY enumsortorder
 
     <span class="kw">fn</span> <span class="ident">fetch_composite_by_oid</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">u32</span>,
-        <span class="ident">relation_id</span>: <span class="ident">u32</span>,
+        <span class="ident">oid</span>: <span class="ident">Oid</span>,
+        <span class="ident">relation_id</span>: <span class="ident">Oid</span>,
         <span class="ident">name</span>: <span class="ident">String</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">raw_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query_as</span>(
+            <span class="kw">let</span> <span class="ident">raw_fields</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Oid</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">query_as</span>(
                 <span class="string">r#&quot;
 SELECT attname, atttypid
 FROM pg_catalog.pg_attribute
@@ -806,8 +807,8 @@ ORDER BY attnum
 
     <span class="kw">fn</span> <span class="ident">fetch_domain_by_oid</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">u32</span>,
-        <span class="ident">base_type</span>: <span class="ident">u32</span>,
+        <span class="ident">oid</span>: <span class="ident">Oid</span>,
+        <span class="ident">base_type</span>: <span class="ident">Oid</span>,
         <span class="ident">name</span>: <span class="ident">String</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
@@ -823,11 +824,11 @@ ORDER BY attnum
 
     <span class="kw">fn</span> <span class="ident">fetch_range_by_oid</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">oid</span>: <span class="ident">u32</span>,
+        <span class="ident">oid</span>: <span class="ident">Oid</span>,
         <span class="ident">name</span>: <span class="ident">String</span>,
     ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PgTypeInfo</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">element_oid</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
+            <span class="kw">let</span> <span class="ident">element_oid</span>: <span class="ident">Oid</span> <span class="op">=</span> <span class="ident">query_scalar</span>(
                 <span class="string">r#&quot;
 SELECT rngsubtype
 FROM pg_catalog.pg_range
@@ -848,13 +849,13 @@ WHERE rngtypid = $1
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_type_id_by_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_type_id_by_name</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Oid</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">oid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache_type_oid</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
             <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">oid</span>);
         }
 
         <span class="comment">// language=SQL</span>
-        <span class="kw">let</span> (<span class="ident">oid</span>,): (<span class="ident">u32</span>,) <span class="op">=</span> <span class="ident">query_as</span>(
+        <span class="kw">let</span> (<span class="ident">oid</span>,): (<span class="ident">Oid</span>,) <span class="op">=</span> <span class="ident">query_as</span>(
             <span class="string">&quot;
 SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
                 &quot;</span>,
@@ -872,7 +873,7 @@ SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_nullable_for_columns</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">stmt_id</span>: <span class="ident">u32</span>,
+        <span class="ident">stmt_id</span>: <span class="ident">Oid</span>,
         <span class="ident">meta</span>: <span class="kw-2">&amp;</span><span class="ident">PgStatementMetadata</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">meta</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
@@ -934,10 +935,13 @@ SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
     <span class="doccomment">/// and returns `None` for all others.</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">nullables_from_explain</span>(
         <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">stmt_id</span>: <span class="ident">u32</span>,
+        <span class="ident">stmt_id</span>: <span class="ident">Oid</span>,
         <span class="ident">params_len</span>: <span class="ident">usize</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">explain</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;EXPLAIN (VERBOSE, FORMAT JSON) EXECUTE sqlx_s_{}&quot;</span>, <span class="ident">stmt_id</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">explain</span> <span class="op">=</span> <span class="macro">format!</span>(
+            <span class="string">&quot;EXPLAIN (VERBOSE, FORMAT JSON) EXECUTE sqlx_s_{}&quot;</span>,
+            <span class="ident">stmt_id</span>.<span class="number">0</span>
+        );
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">comma</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="kw">if</span> <span class="ident">params_len</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -973,10 +977,8 @@ SELECT oid FROM pg_catalog.pg_type WHERE typname ILIKE $1
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plan_outputs</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">plan</span>.<span class="ident">output</span> {
         <span class="comment">// all outputs of a Full Join must be marked nullable</span>
         <span class="comment">// otherwise, all outputs of the inner half of an outer join must be marked nullable</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Full&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Inner&quot;</span>) <span class="op">=</span> <span class="ident">plan</span>
-            .<span class="ident">join_type</span>
-            .<span class="ident">as_deref</span>()
-            .<span class="ident">or</span>(<span class="ident">plan</span>.<span class="ident">parent_relation</span>.<span class="ident">as_deref</span>())
+        <span class="kw">if</span> <span class="ident">plan</span>.<span class="ident">join_type</span>.<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Full&quot;</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">plan</span>.<span class="ident">parent_relation</span>.<span class="ident">as_deref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;Inner&quot;</span>)
         {
             <span class="kw">for</span> <span class="ident">output</span> <span class="kw">in</span> <span class="ident">plan_outputs</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">outputs</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">o</span><span class="op">|</span> <span class="ident">o</span> <span class="op">==</span> <span class="ident">output</span>) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.5.13/src/pool/options.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/pool/options.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -261,41 +261,325 @@
 <span id="256">256</span>
 <span id="257">257</span>
 <span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::inner::SharedPool</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::inner::PoolInner</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::Pool</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
-<span class="kw">use</span> <span class="ident">sqlx_rt::spawn</span>;
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
-<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
 
+<span class="doccomment">/// Configuration options for [`Pool`][super::Pool].</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ### Callback Functions: Why Do I Need `Box::pin()`?</span>
+<span class="doccomment">/// Essentially, because it&#39;s impossible to write generic bounds that describe a closure</span>
+<span class="doccomment">/// with a higher-ranked lifetime parameter, returning a future with that same lifetime.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Ideally, you could define it like this:</span>
+<span class="doccomment">/// ```rust,ignore</span>
+<span class="doccomment">/// async fn takes_foo_callback(f: impl for&lt;&#39;a&gt; Fn(&amp;&#39;a mut Foo) -&gt; impl Future&lt;&#39;a, Output = ()&gt;)</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// However, the compiler does not allow using `impl Trait` in the return type of an `impl Fn`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// And if you try to do it like this:</span>
+<span class="doccomment">/// ```rust,ignore</span>
+<span class="doccomment">/// async fn takes_foo_callback&lt;F, Fut&gt;(f: F)</span>
+<span class="doccomment">/// where</span>
+<span class="doccomment">///     F: for&lt;&#39;a&gt; Fn(&amp;&#39;a mut Foo) -&gt; Fut,</span>
+<span class="doccomment">///     Fut: for&lt;&#39;a&gt; Future&lt;Output = ()&gt; + &#39;a</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// There&#39;s no way to tell the compiler that those two `&#39;a`s should be the same lifetime.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// It&#39;s possible to make this work with a custom trait, but it&#39;s fiddly and requires naming</span>
+<span class="doccomment">///  the type of the closure parameter.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Having the closure return `BoxFuture` allows us to work around this, as all the type information</span>
+<span class="doccomment">/// fits into a single generic parameter.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// We still need to `Box` the future internally to give it a concrete type to avoid leaking a type</span>
+<span class="doccomment">/// parameter everywhere, and `Box` is in the prelude so it doesn&#39;t need to be manually imported,</span>
+<span class="doccomment">/// so having the closure return `Pin&lt;Box&lt;dyn Future&gt;` directly is the path of least resistance from</span>
+<span class="doccomment">/// the perspectives of both API designer and consumer.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">test_before_acquire</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">after_connect</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
         <span class="ident">Box</span><span class="op">&lt;</span>
-            <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
-        <span class="op">&gt;</span>,
-    <span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">before_acquire</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">Box</span><span class="op">&lt;</span>
-            <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>, <span class="ident">PoolConnectionMetadata</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
                 <span class="op">+</span> <span class="lifetime">&#39;static</span>
                 <span class="op">+</span> <span class="ident">Send</span>
                 <span class="op">+</span> <span class="ident">Sync</span>,
         <span class="op">&gt;</span>,
     <span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">after_release</span>:
-        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">before_acquire</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
+        <span class="ident">Box</span><span class="op">&lt;</span>
+            <span class="kw">dyn</span> <span class="ident">Fn</span>(
+                    <span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>,
+                    <span class="ident">PoolConnectionMetadata</span>,
+                ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+                <span class="op">+</span> <span class="lifetime">&#39;static</span>
+                <span class="op">+</span> <span class="ident">Send</span>
+                <span class="op">+</span> <span class="ident">Sync</span>,
+        <span class="op">&gt;</span>,
+    <span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">after_release</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
+        <span class="ident">Box</span><span class="op">&lt;</span>
+            <span class="kw">dyn</span> <span class="ident">Fn</span>(
+                    <span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>,
+                    <span class="ident">PoolConnectionMetadata</span>,
+                ) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+                <span class="op">+</span> <span class="lifetime">&#39;static</span>
+                <span class="op">+</span> <span class="ident">Send</span>
+                <span class="op">+</span> <span class="ident">Sync</span>,
+        <span class="op">&gt;</span>,
+    <span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">max_connections</span>: <span class="ident">u32</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">connect_timeout</span>: <span class="ident">Duration</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">acquire_timeout</span>: <span class="ident">Duration</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">min_connections</span>: <span class="ident">u32</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">max_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">idle_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">fair</span>: <span class="ident">bool</span>,
+}
+
+<span class="doccomment">/// Metadata for the connection being processed by a [`PoolOptions`] callback.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span> <span class="comment">// Don&#39;t want to commit to any other trait impls yet.</span>
+<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span> <span class="comment">// So we can safely add fields in the future.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PoolConnectionMetadata</span> {
+    <span class="doccomment">/// The duration since the connection was first opened.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For [`after_connect`][PoolOptions::after_connect], this is [`Duration::ZERO`].</span>
+    <span class="kw">pub</span> <span class="ident">age</span>: <span class="ident">Duration</span>,
+
+    <span class="doccomment">/// The duration that the connection spent in the idle queue.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for [`before_acquire`][PoolOptions::before_acquire].</span>
+    <span class="doccomment">/// For other callbacks, this is [`Duration::ZERO`].</span>
+    <span class="kw">pub</span> <span class="ident">idle_for</span>: <span class="ident">Duration</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
@@ -305,15 +589,23 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns a default &quot;sane&quot; configuration, suitable for testing or light-duty applications.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Production applications will likely want to at least modify</span>
+    <span class="doccomment">/// [`max_connections`][Self::max_connections].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See the source of this method for the current default values.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
+            <span class="comment">// User-specifiable routines</span>
             <span class="ident">after_connect</span>: <span class="prelude-val">None</span>,
-            <span class="ident">test_before_acquire</span>: <span class="bool-val">true</span>,
             <span class="ident">before_acquire</span>: <span class="prelude-val">None</span>,
             <span class="ident">after_release</span>: <span class="prelude-val">None</span>,
+            <span class="ident">test_before_acquire</span>: <span class="bool-val">true</span>,
+            <span class="comment">// A production application will want to set a higher limit than this.</span>
             <span class="ident">max_connections</span>: <span class="number">10</span>,
             <span class="ident">min_connections</span>: <span class="number">0</span>,
-            <span class="ident">connect_timeout</span>: <span class="ident">Duration::from_secs</span>(<span class="number">30</span>),
+            <span class="ident">acquire_timeout</span>: <span class="ident">Duration::from_secs</span>(<span class="number">30</span>),
             <span class="ident">idle_timeout</span>: <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span> <span class="op">*</span> <span class="number">60</span>)),
             <span class="ident">max_lifetime</span>: <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">30</span> <span class="op">*</span> <span class="number">60</span>)),
             <span class="ident">fair</span>: <span class="bool-val">true</span>,
@@ -321,16 +613,12 @@
     }
 
     <span class="doccomment">/// Set the maximum number of connections that this pool should maintain.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Be mindful of the connection limits for your database as well as other applications</span>
+    <span class="doccomment">/// which may want to connect to the same database (or even multiple instances of the same</span>
+    <span class="doccomment">/// application in high-availability deployments).</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connections</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">max_connections</span> <span class="op">=</span> <span class="ident">max</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Set the amount of time to attempt connecting to the database.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// If this timeout elapses, [`Pool::acquire`] will return an error.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">timeout</span>;
         <span class="self">self</span>
     }
 
@@ -338,13 +626,44 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// When the pool is built, this many connections will be automatically spun up.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If any connection is reaped by [`max_lifetime`] or [`idle_timeout`] and it brings</span>
-    <span class="doccomment">/// the connection count below this amount, a new connection will be opened to replace it.</span>
+    <span class="doccomment">/// If any connection is reaped by [`max_lifetime`] or [`idle_timeout`], or explicitly closed,</span>
+    <span class="doccomment">/// and it brings the connection count below this amount, a new connection will be opened to</span>
+    <span class="doccomment">/// replace it.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is only done on a best-effort basis, however. The routine that maintains this value</span>
+    <span class="doccomment">/// has a deadline so it doesn&#39;t wait forever if the database is being slow or returning errors.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This value is clamped internally to not exceed [`max_connections`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// We&#39;ve chosen not to assert `min_connections &lt;= max_connections` anywhere</span>
+    <span class="doccomment">/// because it shouldn&#39;t break anything internally if the condition doesn&#39;t hold,</span>
+    <span class="doccomment">/// and if the application allows either value to be dynamically set</span>
+    <span class="doccomment">/// then it should be checking this condition itself and returning</span>
+    <span class="doccomment">/// a nicer error than a panic anyway.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`max_lifetime`]: Self::max_lifetime</span>
     <span class="doccomment">/// [`idle_timeout`]: Self::idle_timeout</span>
+    <span class="doccomment">/// [`max_connections`]: Self::max_connections</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_connections</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">min</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">min_connections</span> <span class="op">=</span> <span class="ident">min</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the maximum amount of time to spend waiting for a connection in [`Pool::acquire()`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Caps the total amount of time `Pool::acquire()` can spend waiting across multiple phases:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * First, it may need to wait for a permit from the semaphore, which grants it the privilege</span>
+    <span class="doccomment">///   of opening a connection or popping one from the idle queue.</span>
+    <span class="doccomment">/// * If an existing idle connection is acquired, by default it will be checked for liveness</span>
+    <span class="doccomment">///   and integrity before being returned, which may require executing a command on the</span>
+    <span class="doccomment">///   connection. This can be disabled with [`test_before_acquire(false)`][Self::test_before_acquire].</span>
+    <span class="doccomment">///     * If [`before_acquire`][Self::before_acquire] is set, that will also be executed.</span>
+    <span class="doccomment">/// * If a new connection needs to be opened, that will obviously require I/O, handshaking,</span>
+    <span class="doccomment">///   and initialization commands.</span>
+    <span class="doccomment">///     * If [`after_connect`][Self::after_connect] is set, that will also be executed.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">acquire_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">acquire_timeout</span> <span class="op">=</span> <span class="ident">timeout</span>;
         <span class="self">self</span>
     }
 
@@ -369,7 +688,7 @@
 
     <span class="doccomment">/// Set a maximum idle duration for individual connections.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Any connection with an idle duration longer than this will be closed.</span>
+    <span class="doccomment">/// Any connection that remains in the idle queue longer than this will be closed.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For usage-based database server billing, this can be a cost saver.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">idle_timeout</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timeout</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
@@ -404,38 +723,102 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Perform an action after connecting to the database.</span>
+    <span class="doccomment">/// Perform an asynchronous action after connecting to the database.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">/// If the operation returns with an error then the error is logged, the connection is closed</span>
+    <span class="doccomment">/// and a new one is opened in its place and the callback is invoked again.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This occurs in a backoff loop to avoid high CPU usage and spamming logs during a transient</span>
+    <span class="doccomment">/// error condition.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that this may be called for internally opened connections, such as when maintaining</span>
+    <span class="doccomment">/// [`min_connections`][Self::min_connections], that are then immediately returned to the pool</span>
+    <span class="doccomment">/// without invoking [`after_release`][Self::after_release].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example: Additional Parameters</span>
+    <span class="doccomment">/// This callback may be used to set additional configuration parameters</span>
+    <span class="doccomment">/// that are not exposed by the database&#39;s `ConnectOptions`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This example is written for PostgreSQL but can likely be adapted to other databases.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```no_run</span>
     <span class="doccomment">/// # async fn f() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-    <span class="doccomment">/// use sqlx_core::executor::Executor;</span>
-    <span class="doccomment">/// use sqlx_core::postgres::PgPoolOptions;</span>
-    <span class="doccomment">/// // PostgreSQL</span>
-    <span class="doccomment">/// let pool = PgPoolOptions::new()</span>
-    <span class="doccomment">///     .after_connect(|conn| Box::pin(async move {</span>
-    <span class="doccomment">///        conn.execute(&quot;SET application_name = &#39;your_app&#39;;&quot;).await?;</span>
-    <span class="doccomment">///        conn.execute(&quot;SET search_path = &#39;my_schema&#39;;&quot;).await?;</span>
+    <span class="doccomment">/// use sqlx::Executor;</span>
+    <span class="doccomment">/// use sqlx::postgres::PgPoolOptions;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">///        Ok(())</span>
-    <span class="doccomment">///     }))</span>
+    <span class="doccomment">/// let pool = PgPoolOptions::new()</span>
+    <span class="doccomment">///     .after_connect(|conn, _meta| Box::pin(async move {</span>
+    <span class="doccomment">///         // When directly invoking `Executor` methods,</span>
+    <span class="doccomment">///         // it is possible to execute multiple statements with one call.</span>
+    <span class="doccomment">///         conn.execute(&quot;SET application_name = &#39;your_app&#39;; SET search_path = &#39;my_schema&#39;;&quot;)</span>
+    <span class="doccomment">///             .await?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         Ok(())</span>
+    <span class="doccomment">///     }))    </span>
     <span class="doccomment">///     .connect(&quot;postgres:// …&quot;).await?;</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For a discussion on why `Box::pin()` is required, see [the type-level docs][Self].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">after_connect</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>:
-            <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
+        <span class="comment">// We&#39;re passing the `PoolConnectionMetadata` here mostly for future-proofing.</span>
+        <span class="comment">// `age` and `idle_for` are obviously not useful for fresh connections.</span>
+        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>, <span class="ident">PoolConnectionMetadata</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            <span class="op">+</span> <span class="lifetime">&#39;static</span>
+            <span class="op">+</span> <span class="ident">Send</span>
+            <span class="op">+</span> <span class="ident">Sync</span>,
     {
         <span class="self">self</span>.<span class="ident">after_connect</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">callback</span>));
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Perform an asynchronous action on a previously idle connection before giving it out.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Alongside the connection, the closure gets [`PoolConnectionMetadata`] which contains</span>
+    <span class="doccomment">/// potentially useful information such as the connection&#39;s age and the duration it was</span>
+    <span class="doccomment">/// idle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the operation returns `Ok(true)`, the connection is returned to the task that called</span>
+    <span class="doccomment">/// [`Pool::acquire`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the operation returns `Ok(false)` or an error, the error is logged (if applicable)</span>
+    <span class="doccomment">/// and then the connection is closed and [`Pool::acquire`] tries again with another idle</span>
+    <span class="doccomment">/// connection. If it runs out of idle connections, it opens a new connection instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is *not* invoked for new connections. Use [`after_connect`][Self::after_connect]</span>
+    <span class="doccomment">/// for those.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example: Custom `test_before_acquire` Logic</span>
+    <span class="doccomment">/// If you only want to ping connections if they&#39;ve been idle a certain amount of time,</span>
+    <span class="doccomment">/// you can implement your own logic here:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This example is written for Postgres but should be trivially adaptable to other databases.</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # async fn f() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// use sqlx::{Connection, Executor};</span>
+    <span class="doccomment">/// use sqlx::postgres::PgPoolOptions;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let pool = PgPoolOptions::new()</span>
+    <span class="doccomment">///     .test_before_acquire(false)</span>
+    <span class="doccomment">///     .before_acquire(|conn, meta| Box::pin(async move {</span>
+    <span class="doccomment">///         // One minute</span>
+    <span class="doccomment">///         if meta.idle_for.as_secs() &gt; 60 {</span>
+    <span class="doccomment">///             conn.ping().await?;</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         Ok(true)</span>
+    <span class="doccomment">///     }))</span>
+    <span class="doccomment">///     .connect(&quot;postgres:// …&quot;).await?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">///```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For a discussion on why `Box::pin()` is required, see [the type-level docs][Self].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_acquire</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>, <span class="ident">PoolConnectionMetadata</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
             <span class="op">+</span> <span class="lifetime">&#39;static</span>
             <span class="op">+</span> <span class="ident">Send</span>
             <span class="op">+</span> <span class="ident">Sync</span>,
@@ -444,67 +827,130 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Perform an asynchronous action on a connection before it is returned to the pool.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Alongside the connection, the closure gets [`PoolConnectionMetadata`] which contains</span>
+    <span class="doccomment">/// potentially useful information such as the connection&#39;s age.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the operation returns `Ok(true)`, the connection is returned to the pool&#39;s idle queue.</span>
+    <span class="doccomment">/// If the operation returns `Ok(false)` or an error, the error is logged (if applicable)</span>
+    <span class="doccomment">/// and the connection is closed, allowing a task waiting on [`Pool::acquire`] to</span>
+    <span class="doccomment">/// open a new one in its place.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example (Postgres): Close Memory-Hungry Connections</span>
+    <span class="doccomment">/// Instead of relying on [`max_lifetime`][Self::max_lifetime] to close connections,</span>
+    <span class="doccomment">/// we can monitor their memory usage directly and close any that have allocated too much.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Note that this is purely an example showcasing a possible use for this callback</span>
+    <span class="doccomment">/// and may be flawed as it has not been tested.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This example queries [`pg_backend_memory_contexts`](https://www.postgresql.org/docs/current/view-pg-backend-memory-contexts.html)</span>
+    <span class="doccomment">/// which is only allowed for superusers.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # async fn f() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// use sqlx::{Connection, Executor};</span>
+    <span class="doccomment">/// use sqlx::postgres::PgPoolOptions;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let pool = PgPoolOptions::new()</span>
+    <span class="doccomment">///     // Let connections live as long as they want.</span>
+    <span class="doccomment">///     .max_lifetime(None)</span>
+    <span class="doccomment">///     .after_release(|conn, meta| Box::pin(async move {</span>
+    <span class="doccomment">///         // Only check connections older than 6 hours.</span>
+    <span class="doccomment">///         if meta.age.as_secs() &lt; 6 * 60 * 60 {</span>
+    <span class="doccomment">///             return Ok(true);</span>
+    <span class="doccomment">///         }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         let total_memory_usage: i64 = sqlx::query_scalar(</span>
+    <span class="doccomment">///             &quot;select sum(used_bytes) from pg_backend_memory_contexts&quot;</span>
+    <span class="doccomment">///         )</span>
+    <span class="doccomment">///         .fetch_one(conn)</span>
+    <span class="doccomment">///         .await?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///         // Close the connection if the backend memory usage exceeds 256 MiB.</span>
+    <span class="doccomment">///         Ok(total_memory_usage &lt;= (2 &lt;&lt; 28))</span>
+    <span class="doccomment">///     }))</span>
+    <span class="doccomment">///     .connect(&quot;postgres:// …&quot;).await?;</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">after_release</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>) -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span>,
+        <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="kw-2">mut</span> <span class="ident">DB::Connection</span>, <span class="ident">PoolConnectionMetadata</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
+            <span class="op">+</span> <span class="lifetime">&#39;static</span>
+            <span class="op">+</span> <span class="ident">Send</span>
+            <span class="op">+</span> <span class="ident">Sync</span>,
     {
         <span class="self">self</span>.<span class="ident">after_release</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">callback</span>));
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Creates a new pool from this configuration and immediately establishes one connection.</span>
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">connect_with</span>(<span class="ident">uri</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>).<span class="kw">await</span>
+    <span class="doccomment">/// Create a new pool from this `PoolOptions` and immediately open at least one connection.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This ensures the configuration is correct.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The total number of connections opened is &lt;code&gt;min(1, [min_connections][Self::min_connections])&lt;/code&gt;.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]</span>
+    <span class="doccomment">/// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]</span>
+    <span class="doccomment">/// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]</span>
+    <span class="doccomment">/// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]</span>
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="self">self</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">connect_with</span>(<span class="ident">url</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>).<span class="kw">await</span>
     }
 
-    <span class="doccomment">/// Creates a new pool from this configuration and immediately establishes one connection.</span>
+    <span class="doccomment">/// Create a new pool from this `PoolOptions` and immediately open at least one connection.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This ensures the configuration is correct.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The total number of connections opened is &lt;code&gt;min(1, [min_connections][Self::min_connections])&lt;/code&gt;.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect_with</span>(
         <span class="self">self</span>,
         <span class="ident">options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>,
     ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">SharedPool::new_arc</span>(<span class="self">self</span>, <span class="ident">options</span>);
+        <span class="comment">// Don&#39;t take longer than `acquire_timeout` starting from when this is called.</span>
+        <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">acquire_timeout</span>;
 
-        <span class="ident">init_min_connections</span>(<span class="kw-2">&amp;</span><span class="ident">shared</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">PoolInner::new_arc</span>(<span class="self">self</span>, <span class="ident">options</span>);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Pool</span>(<span class="ident">shared</span>))
-    }
-
-    <span class="doccomment">/// Creates a new pool from this configuration and will establish a connections as the pool</span>
-    <span class="doccomment">/// starts to be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy</span>(<span class="self">self</span>, <span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">connect_lazy_with</span>(<span class="ident">uri</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>))
-    }
-
-    <span class="doccomment">/// Creates a new pool from this configuration and will establish a connections as the pool</span>
-    <span class="doccomment">/// starts to be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy_with</span>(<span class="self">self</span>, <span class="ident">options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>) -&gt; <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">SharedPool::new_arc</span>(<span class="self">self</span>, <span class="ident">options</span>);
-
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">spawn</span>({
-            <span class="kw">let</span> <span class="ident">shared</span> <span class="op">=</span> <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">shared</span>);
-            <span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">init_min_connections</span>(<span class="kw-2">&amp;</span><span class="ident">shared</span>).<span class="kw">await</span>;
-            }
-        });
-
-        <span class="ident">Pool</span>(<span class="ident">shared</span>)
-    }
-}
-
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">init_min_connections</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span>(<span class="ident">pool</span>: <span class="kw-2">&amp;</span><span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">SharedPool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">cmp::max</span>(<span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">min_connections</span>, <span class="number">1</span>) {
-        <span class="kw">let</span> <span class="ident">deadline</span> <span class="op">=</span> <span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">pool</span>.<span class="ident">options</span>.<span class="ident">connect_timeout</span>;
-        <span class="kw">let</span> <span class="ident">permit</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">semaphore</span>.<span class="ident">acquire</span>(<span class="number">1</span>).<span class="kw">await</span>;
-
-        <span class="comment">// this guard will prevent us from exceeding `max_size`</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">guard</span>) <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">try_increment_size</span>(<span class="ident">permit</span>) {
-            <span class="comment">// [connect] will raise an error when past deadline</span>
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">connection</span>(<span class="ident">deadline</span>, <span class="ident">guard</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">pool</span>.<span class="ident">release</span>(<span class="ident">conn</span>);
+        <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">options</span>.<span class="ident">min_connections</span> <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="comment">// If the idle reaper is spawned then this will race with the call from that task</span>
+            <span class="comment">// and may not report any connection errors.</span>
+            <span class="ident">inner</span>.<span class="ident">try_min_connections</span>(<span class="ident">deadline</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         }
+
+        <span class="comment">// If `min_connections` is nonzero then we&#39;ll likely just pull a connection</span>
+        <span class="comment">// from the idle queue here, but it should at least get tested first.</span>
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">inner</span>.<span class="ident">release</span>(<span class="ident">conn</span>);
+
+        <span class="prelude-val">Ok</span>(<span class="ident">Pool</span>(<span class="ident">inner</span>))
     }
 
-    <span class="prelude-val">Ok</span>(())
+    <span class="doccomment">/// Create a new pool from this `PoolOptions`, but don&#39;t open any connections right now.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If [`min_connections`][Self::min_connections] is set, a background task will be spawned to</span>
+    <span class="doccomment">/// optimistically establish that many connections for the pool.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Refer to the relevant `ConnectOptions` impl for your database for the expected URL format:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]</span>
+    <span class="doccomment">/// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]</span>
+    <span class="doccomment">/// * SQLite: [`SqliteConnectOptions`][crate::sqlite::SqliteConnectOptions]</span>
+    <span class="doccomment">/// * MSSQL: [`MssqlConnectOptions`][crate::mssql::MssqlConnectOptions]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy</span>(<span class="self">self</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">connect_lazy_with</span>(<span class="ident">url</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>))
+    }
+
+    <span class="doccomment">/// Create a new pool from this `PoolOptions`, but don&#39;t open any connections right now.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If [`min_connections`][Self::min_connections] is set, a background task will be spawned to</span>
+    <span class="doccomment">/// optimistically establish that many connections for the pool.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_lazy_with</span>(<span class="self">self</span>, <span class="ident">options</span>: <span class="op">&lt;</span><span class="ident">DB::Connection</span> <span class="kw">as</span> <span class="ident">Connection</span><span class="op">&gt;</span><span class="ident">::Options</span>) -&gt; <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
+        <span class="comment">// `min_connections` is guaranteed by the idle reaper now.</span>
+        <span class="ident">Pool</span>(<span class="ident">PoolInner::new_arc</span>(<span class="self">self</span>, <span class="ident">options</span>))
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> <span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span> {
@@ -512,7 +958,7 @@
         <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;PoolOptions&quot;</span>)
             .<span class="ident">field</span>(<span class="string">&quot;max_connections&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">max_connections</span>)
             .<span class="ident">field</span>(<span class="string">&quot;min_connections&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">min_connections</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;connect_timeout&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">connect_timeout</span>)
+            .<span class="ident">field</span>(<span class="string">&quot;connect_timeout&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">acquire_timeout</span>)
             .<span class="ident">field</span>(<span class="string">&quot;max_lifetime&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">max_lifetime</span>)
             .<span class="ident">field</span>(<span class="string">&quot;idle_timeout&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">idle_timeout</span>)
             .<span class="ident">field</span>(<span class="string">&quot;test_before_acquire&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">test_before_acquire</span>)

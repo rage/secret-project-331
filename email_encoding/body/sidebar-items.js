@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Encoding",""],["StrOrBytes",""]],"mod":[["base64",""]]});
+initSidebarItems({"enum":[["Encoding","A possible email `Content-Transfer-Encoding`"],["StrOrBytes","A borrowed `str` or `[u8]`"]],"mod":[["base64","Base64 email body encoder."]]});

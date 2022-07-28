@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["direct","Direct rate limiters (those that can only hold one state)."],["keyed","Keyed rate limiters (those that can hold one state per key)."]],"struct":[["InMemoryState","An in-memory representation of a GCRA’s rate-limiting state."],["RateLimiter","A rate limiter."]],"trait":[["StateStore","A way for rate limiters to keep state."]]});

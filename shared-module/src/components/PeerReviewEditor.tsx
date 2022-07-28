@@ -142,7 +142,7 @@ const PeerReviewEditor: React.FC<
   const options = [
     { label: t("select-question"), value: "", disabled: true },
     { label: t("essay"), value: t("essay") },
-    { label: t("linkert-scale"), value: t("linkert-scale") },
+    { label: t("likert-scale"), value: t("likert-scale") },
   ]
 
   const handleChange = (e: any) => {

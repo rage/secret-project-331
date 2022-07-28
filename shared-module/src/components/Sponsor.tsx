@@ -91,7 +91,7 @@ const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorP
 
   return (
     <Container>
-      <h2> {t("sponsor")} </h2>
+      <h2> {t("partners")} </h2>
       <SponsorBox>
         {logos.map(({ attributes, clientId }) => {
           return (

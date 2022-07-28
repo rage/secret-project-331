@@ -1,6 +1,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { renderHook } from "@testing-library/react-hooks/dom"
+import { renderHook, waitFor } from "@testing-library/react"
 
 import useStateQuery from "../../src/hooks/useStateQuery"
 
@@ -38,8 +38,11 @@ describe("useStateQuery hook", () => {
     })
     hookResult.rerender()
     expect(hookResult.result.current.state).toBe("loading")
-    await hookResult.waitForNextUpdate()
-    expect(hookResult.result.current.state).toBe("ready")
+
+    await waitFor(() => {
+      expect(hookResult.result.current.state).toBe("ready")
+    })
+
     expect(query).toBeCalled()
   })
 
@@ -53,19 +56,21 @@ describe("useStateQuery hook", () => {
     })
     hookResult.rerender()
     expect(hookResult.result.current.state).toBe("loading")
-    await hookResult.waitForNextUpdate()
-    expect(hookResult.result.current.state).toBe("error")
+    await waitFor(() => {
+      expect(hookResult.result.current.state).toBe("error")
+    })
   })
 
-  test("returns undefined data properly", async () => {
+  // A feature of react-query
+  test("errors on undefined data", async () => {
     const query = jest.fn().mockReturnValue(Promise.resolve(undefined))
     const hookResult = renderHook(() => useStateQuery(["undefined-test"], query), {
       wrapper: Wrapper,
     })
     hookResult.rerender()
-    await hookResult.waitForNextUpdate()
-    expect(hookResult.result.current.state).toBe("ready")
-    expect(hookResult.result.current.data).toBe(undefined)
+    await waitFor(() => {
+      expect(hookResult.result.current.state).toBe("error")
+    })
   })
 
   test("returns null data properly", async () => {
@@ -74,7 +79,9 @@ describe("useStateQuery hook", () => {
       wrapper: Wrapper,
     })
     hookResult.rerender()
-    await hookResult.waitForNextUpdate()
+    await waitFor(() => {
+      expect(hookResult.result.current.state).toBe("ready")
+    })
     expect(hookResult.result.current.state).toBe("ready")
     expect(hookResult.result.current.data).toBe(null)
   })

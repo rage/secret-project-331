@@ -8,11 +8,9 @@ import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-export const MultipleChoiceClickable: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
-}) => {
+export const MultipleChoiceClickable: React.FunctionComponent<
+  React.PropsWithChildren<QuizItemComponentProps>
+> = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (!quizItemAnswerState) {
       return

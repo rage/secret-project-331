@@ -8,9 +8,9 @@ import LandingPageHeroSection, {
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
 
-const LandingPageHeroSectionBlock: React.FC<BlockRendererProps<LandingPageHeroSectionProps>> = (
-  props,
-) => {
+const LandingPageHeroSectionBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<LandingPageHeroSectionProps>>
+> = (props) => {
   return (
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection

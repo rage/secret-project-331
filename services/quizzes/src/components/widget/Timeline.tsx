@@ -153,7 +153,7 @@ export interface Time {
   text: string
 }
 
-const Timeline: React.FunctionComponent<QuizItemComponentProps> = ({
+const Timeline: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,

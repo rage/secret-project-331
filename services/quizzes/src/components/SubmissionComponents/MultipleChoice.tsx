@@ -41,12 +41,9 @@ const gradingOptionCorrectAndSelected = css`
   color: ${quizTheme.gradingCorrectItemColor};
 `
 
-const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  quiz_item_model_solution,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-}) => {
+const MultipleChoiceSubmission: React.FC<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
   const { t } = useTranslation()
 
   // Column means that all the options are always diplayed on top of each other, regardless of the
@@ -162,7 +159,10 @@ interface RowSubmissionFeedbackProps {
   correct: boolean
 }
 
-const RowSubmissionFeedback: React.FC<RowSubmissionFeedbackProps> = ({ feedback, correct }) => {
+const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedbackProps>> = ({
+  feedback,
+  correct,
+}) => {
   return feedback ? (
     <div
       className={css`

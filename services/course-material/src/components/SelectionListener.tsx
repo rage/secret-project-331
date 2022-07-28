@@ -7,7 +7,10 @@ interface Props {
   updateSelectionPosition: (pos: { x: number; y: number }) => void
 }
 
-const SelectionListener: React.FC<Props> = ({ onSelectionChange, updateSelectionPosition }) => {
+const SelectionListener: React.FC<React.PropsWithChildren<Props>> = ({
+  onSelectionChange,
+  updateSelectionPosition,
+}) => {
   function isChildOfCourseMaterialBlock(node: Node | null | undefined): boolean {
     if (node === null || node === undefined) {
       return false

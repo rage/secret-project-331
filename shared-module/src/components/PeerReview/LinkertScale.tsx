@@ -29,7 +29,7 @@ const Linkerts = styled.div`
 `
 
 /* eslint-disable i18next/no-literal-string */
-const Linkert = styled.div`
+const Likert = styled.div`
   width: 150px;
   display: flex;
   flex-direction: column;
@@ -51,7 +51,7 @@ const Linkert = styled.div`
     }
   }
 
-  .linkert-scale-text {
+  .likert-scale-text {
     margin-top: 6px;
     font-size: 15px;
     font-weight: 500;
@@ -71,44 +71,41 @@ interface StyledProps {
   active: boolean
 }
 
-const LinkertScale: React.FC<LikertScaleProps> = ({
-  question,
-  answerRequired,
-  selectedOption,
-  setSelectedOption,
-}) => {
+const LinkertScale: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<LikertScaleProps>>
+> = ({ question, answerRequired, selectedOption, setSelectedOption }) => {
   const { t } = useTranslation()
 
   const arr = [
     {
-      text: t("strongly-disagree"),
+      text: t("likert-scale-strongly-disagree"),
     },
     {
-      text: t("disagree"),
+      text: t("likert-scale-disagree"),
     },
     {
-      text: t("neutral"),
+      text: t("likert-scale-neither-agree-nor-disagree"),
     },
     {
-      text: t("agree"),
+      text: t("likert-scale-agree"),
     },
     {
-      text: t("strongly-agree"),
+      text: t("likert-scale-strongly-agree"),
     },
   ]
 
   const SVGmatcher = (identifier: string) => {
     switch (identifier) {
-      case "agree":
+      case "likert-scale-agree":
         return <Agree />
         break
       case "strongly agree":
         return <StronglyAgree />
         break
-      case "neutral":
+      case "likert-scale-neither-agree-nor-disagree":
         return <Neutral />
         break
-      case "disagree":
+      case "likert-scale-disagree":
         return <Disagree />
         break
       case "strongly disagree":
@@ -126,7 +123,7 @@ const LinkertScale: React.FC<LikertScaleProps> = ({
 
       <Linkerts>
         {arr.map((option, n) => (
-          <Linkert
+          <Likert
             key={n}
             onClick={() => {
               setSelectedOption(n)
@@ -134,8 +131,8 @@ const LinkertScale: React.FC<LikertScaleProps> = ({
             active={selectedOption === n}
           >
             {SVGmatcher(option.text)}
-            <p className="linkert-scale-text">{option.text}</p>
-          </Linkert>
+            <p className="likert-scale-text">{option.text}</p>
+          </Likert>
         ))}
       </Linkerts>
     </Wrapper>

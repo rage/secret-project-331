@@ -15,7 +15,7 @@ const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const ReferenceList: React.FC<ReferencesProps> = ({ courseId }) => {
+const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ courseId }) => {
   const pageRefs = usePageReferences(courseId)
 
   if (!pageRefs || pageRefs.length === 0) {

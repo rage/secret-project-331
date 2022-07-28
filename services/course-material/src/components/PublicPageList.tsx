@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchAllCoursePages } from "../services/backend"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
@@ -13,9 +13,12 @@ interface PublicPageListProps {
   organizationSlug: string
 }
 
-const PublicPageList: React.FC<PublicPageListProps> = ({ courseId, organizationSlug }) => {
+const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = ({
+  courseId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
-  const getAllCoursePages = useQuery(`course-${courseId}-all-pages`, () =>
+  const getAllCoursePages = useQuery([`course-${courseId}-all-pages`], () =>
     fetchAllCoursePages(courseId),
   )
 
@@ -24,7 +27,7 @@ const PublicPageList: React.FC<PublicPageListProps> = ({ courseId, organizationS
       {getAllCoursePages.isError && (
         <ErrorBanner variant={"readOnly"} error={getAllCoursePages.error} />
       )}
-      {(getAllCoursePages.isLoading || getAllCoursePages.isIdle) && <Spinner variant={"medium"} />}
+      {getAllCoursePages.isLoading && <Spinner variant={"medium"} />}
       {getAllCoursePages.isSuccess && (
         <>
           {getAllCoursePages.data.length === 0 ? (

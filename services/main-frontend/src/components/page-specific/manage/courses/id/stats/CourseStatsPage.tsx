@@ -7,7 +7,9 @@ import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"
 import CourseUsersCountsByExercise from "./CourseUsersCountsByExercise"
 
-const CourseStatsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   return (
     <>

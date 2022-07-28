@@ -8,7 +8,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import NextPage from "./NextPage"
 
-const NavigationContainer: React.FC = () => {
+const NavigationContainer: React.FC<React.PropsWithChildren<unknown>> = () => {
   const pageContext = useContext(PageContext)
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")

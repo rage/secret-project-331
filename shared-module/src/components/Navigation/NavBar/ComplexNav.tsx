@@ -224,7 +224,9 @@ const StyledIcon = styled(FontAwesomeIcon)`
   color: ${baseTheme.colors.grey[700]};
 `
 
-const Navigation: React.FC<NavigationProps> = () => {
+const Navigation: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
+> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)

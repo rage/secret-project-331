@@ -72,9 +72,9 @@ interface LearningObjectiveProps {
   title: string
 }
 
-const LearningObjectiveSectionBlock: React.FC<BlockRendererProps<LearningObjectiveProps>> = (
-  props,
-) => {
+const LearningObjectiveSectionBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<LearningObjectiveProps>>
+> = (props) => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const pageId = pageContext.pageData?.id

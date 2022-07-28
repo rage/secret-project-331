@@ -150,6 +150,10 @@ test("test", async ({ page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   // Click text=New
   await frame.click("text=New")
 
@@ -240,6 +244,9 @@ test("test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  if (!frame2) {
+    throw new Error("Could not find frame2")
+  }
   await (await frame2.frameElement()).scrollIntoViewIfNeeded()
 
   // Click text=Automatically testing the whole system

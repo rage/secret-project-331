@@ -31,7 +31,9 @@ type QuizItemType =
   | "timeline"
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
-  const mapTypeToComponent: { [key: string]: React.FC<QuizItemComponentProps> } = {
+  const mapTypeToComponent: {
+    [key: string]: React.FC<React.PropsWithChildren<QuizItemComponentProps>>
+  } = {
     essay: Essay,
     "multiple-choice": MultipleChoice,
     checkbox: Checkbox,
@@ -89,7 +91,7 @@ function reducer(state: WidgetReducerState, action: Action): WidgetReducerState 
   }
 }
 
-const Widget: React.FC<WidgetProps> = ({ port, quiz }) => {
+const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) => {
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
     quiz: quiz,

@@ -16,7 +16,7 @@ interface NewCourseFormProps {
   initialSelectedInstanceId?: string
 }
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({
+const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   courseInstances,
   onSubmitForm,
   initialSelectedInstanceId,

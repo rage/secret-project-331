@@ -8,7 +8,9 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ExercisesInChapter from "./ExercisesInChapter"
 
-const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const ExerciseInChapterBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<unknown>>
+> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

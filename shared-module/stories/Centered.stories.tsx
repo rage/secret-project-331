@@ -43,7 +43,9 @@ const children = (
   </>
 )
 
-const Wrapper: React.FC = ({ children }) => (
+const Wrapper: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+  children,
+}) => (
   <div
     className={css`
       p {

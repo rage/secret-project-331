@@ -48,14 +48,9 @@ const StyledLink = styled.a`
 
 export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
-const NextSectionLink: React.FC<NextSectionLinkProps> = ({
-  title,
-  subtitle,
-  nextTitle,
-  url,
-  previous,
-  chapterFrontPageURL,
-}) => {
+const NextSectionLink: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<NextSectionLinkProps>>
+> = ({ title, subtitle, nextTitle, url, previous, chapterFrontPageURL }) => {
   const { t } = useTranslation()
   return (
     <div

@@ -18,7 +18,9 @@ interface OptionEditorProps {
   option: NormalizedQuizItemOption
 }
 
-export const OptionModalContent: React.FC<OptionEditorProps> = ({ option }) => {
+export const OptionModalContent: React.FC<React.PropsWithChildren<OptionEditorProps>> = ({
+  option,
+}) => {
   const { t } = useTranslation()
   const storeOption = useTypedSelector((state) => state.editor.options[option.id])
   const dispatch = useDispatch()

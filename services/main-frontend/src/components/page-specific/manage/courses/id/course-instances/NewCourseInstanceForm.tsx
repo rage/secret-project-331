@@ -22,7 +22,11 @@ interface Fields {
   teacherEmail: string
 }
 
-const NewCourseInstanceForm: React.FC<FormProps> = ({ initialData, onSubmit, onCancel }) => {
+const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
+  initialData,
+  onSubmit,
+  onCancel,
+}) => {
   const { t } = useTranslation()
   const {
     register,

@@ -19,7 +19,7 @@ interface Props {
   onChooseItem: (task: ExerciseTaskTypes) => void
 }
 
-const ExerciseServiceList: React.FC<Props> = ({ onChooseItem }) => {
+const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {
   const { t } = useTranslation()
   return (
     <div>

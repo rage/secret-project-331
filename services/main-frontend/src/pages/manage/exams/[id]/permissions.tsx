@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { PermissionPage } from "../../../../components/PermissionPage"
@@ -20,9 +20,9 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ExamPermissions: React.FC<Props> = ({ query }) => {
+const ExamPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const exam = useQuery(`exam-${query.id}`, () => fetchExam(query.id))
+  const exam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
 
   return (
     <Layout navVariant="simple">

@@ -58,8 +58,8 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
  * @param WrappedComponent
  */
 function enforceExerciseIdDefined(
-  WrappedComponent: ComponentType<BlockEditProps<ExerciseAttributes>>,
-): ComponentType<BlockEditProps<ExerciseAttributes>> {
+  WrappedComponent: ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>>,
+): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseAttributes>) => {

@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { sortBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseUsersCountByExercise } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -17,9 +17,11 @@ export interface CourseUsersCountsByExerciseProps {
   courseId: string
 }
 
-const CourseUsersCountsByExercise: React.FC<CourseUsersCountsByExerciseProps> = ({ courseId }) => {
+const CourseUsersCountsByExercise: React.FC<
+  React.PropsWithChildren<CourseUsersCountsByExerciseProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
-  const query = useQuery(`course-users-counts-by-exercise-${courseId}`, () =>
+  const query = useQuery([`course-users-counts-by-exercise-${courseId}`], () =>
     fetchCourseUsersCountByExercise(courseId),
   )
 

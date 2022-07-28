@@ -9,7 +9,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ChapterGrid from "./ChapterGrid"
 
-const CourseChapterGridBlock: React.FC = () => {
+const CourseChapterGridBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

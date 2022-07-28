@@ -1,6 +1,21 @@
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 
+// TODO - workaround until cms is updated to react 18 and we can turn useSuspense on
+// Increases the bundle size slightly
+import "../locales/en/cms.json"
+import "../locales/en/course-material.json"
+import "../locales/en/example-exercise.json"
+import "../locales/en/main-frontend.json"
+import "../locales/en/quizzes.json"
+import "../locales/en/shared-module.json"
+import "../locales/fi/quizzes.json"
+import "../locales/fi/cms.json"
+import "../locales/fi/example-exercise.json"
+import "../locales/fi/course-material.json"
+import "../locales/fi/main-frontend.json"
+import "../locales/fi/shared-module.json"
+
 // Why implement this instead of just using next-i18next?
 // One of the great powers of Next.js is that it allows us to choose our preferred rendering strategy for each page.
 // next-i18next requires either `getStaticProps` or `getServerSideProps` on each page, and we don't want to limit ourselves to those two options.

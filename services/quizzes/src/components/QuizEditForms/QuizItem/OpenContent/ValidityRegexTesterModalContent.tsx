@@ -34,7 +34,9 @@ interface ModalContentProps {
   item: NormalizedQuizItem
 }
 
-export const ValidityRegexTesterModalContent: React.FC<ModalContentProps> = ({ item }) => {
+export const ValidityRegexTesterModalContent: React.FC<
+  React.PropsWithChildren<ModalContentProps>
+> = ({ item }) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])

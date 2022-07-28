@@ -6,7 +6,9 @@ import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import colorMapper from "../../../../styles/colorMapper"
 import DefaultBlock from "../../DefaultBlock"
 
-const ColumnBlock: React.FC<BlockRendererProps<ColumnAttributes>> = ({ data }) => {
+const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAttributes>>> = ({
+  data,
+}) => {
   const {
     anchor,
     backgroundColor,

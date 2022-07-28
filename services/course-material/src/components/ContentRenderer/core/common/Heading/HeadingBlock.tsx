@@ -11,7 +11,9 @@ import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-const HeadingBlock: React.FC<BlockRendererProps<HeadingAttributes>> = ({ data }) => {
+const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingAttributes>>> = ({
+  data,
+}) => {
   const {
     content,
     level,

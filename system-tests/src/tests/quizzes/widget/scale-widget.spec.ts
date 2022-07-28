@@ -27,6 +27,10 @@ test("widget, scale", async ({ page, headless }) => {
     frame,
   })
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   // Click input[type="radio"]
   await frame.click('input[type="radio"]')
 

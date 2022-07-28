@@ -9,7 +9,9 @@ interface CourseTestModeNotificationProps {
   isTestMode: boolean
 }
 
-const CourseTestModeNotification: React.FC<CourseTestModeNotificationProps> = ({ isTestMode }) => {
+const CourseTestModeNotification: React.FC<
+  React.PropsWithChildren<CourseTestModeNotificationProps>
+> = ({ isTestMode }) => {
   const { t } = useTranslation()
   if (!isTestMode) {
     return null

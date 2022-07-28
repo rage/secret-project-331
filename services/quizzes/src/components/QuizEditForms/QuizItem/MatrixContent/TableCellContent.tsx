@@ -57,7 +57,7 @@ interface TableCellContentProps {
   handleTextarea: (text: string, column: number, row: number) => void
 }
 
-const TableCellContent: React.FC<TableCellContentProps> = ({
+const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>> = ({
   columnLoop,
   rowLoop,
   cellText,
@@ -104,7 +104,11 @@ interface BorderDivProps {
   matrixSize: number[]
 }
 
-const BorderDiv: React.FC<BorderDivProps> = ({ column, row, matrixSize }) => {
+const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
+  column,
+  row,
+  matrixSize,
+}) => {
   return (
     <>
       {column === 0 && row === 0 ? (

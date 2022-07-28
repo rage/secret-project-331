@@ -4,7 +4,9 @@ import React from "react"
 import { BlockRendererProps } from "../.."
 import { SpacerAttributes } from "../../../../../types/GutenbergBlockAttributes"
 
-const SpacerBlock: React.FC<BlockRendererProps<SpacerAttributes>> = ({ data }) => {
+const SpacerBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SpacerAttributes>>> = ({
+  data,
+}) => {
   const { height, anchor } = data.attributes
   return (
     <div

@@ -338,7 +338,7 @@ mod test {
     use super::*;
     use crate::test_helper::*;
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn exports() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 

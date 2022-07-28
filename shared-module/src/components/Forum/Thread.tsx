@@ -102,7 +102,7 @@ interface ThreadProps {
 const REPLY = "reply"
 const SUBMIT = "submit"
 
-const Thread: React.FC<ThreadProps> = (props) => {
+const Thread: React.FC<React.PropsWithChildren<React.PropsWithChildren<ThreadProps>>> = (props) => {
   const {
     state: { items },
   } = props

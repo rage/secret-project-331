@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
 import {
@@ -24,7 +24,7 @@ import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
 
-const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
+const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
   parentExerciseQuery,
@@ -34,7 +34,7 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
     new Map(),
   )
 
-  const query = useQuery(`exercise-${exerciseId}-peer-review`, () => {
+  const query = useQuery([`exercise-${exerciseId}-peer-review`], () => {
     return fetchPeerReviewDataByExerciseId(exerciseId)
   })
 

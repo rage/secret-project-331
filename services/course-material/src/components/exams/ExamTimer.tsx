@@ -48,7 +48,7 @@ export interface ExamTimerProps {
   secondsLeft: number
 }
 
-const ExamTimer: React.FC<ExamTimerProps> = ({
+const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
   endsAt,
   hour12,
   maxScore,

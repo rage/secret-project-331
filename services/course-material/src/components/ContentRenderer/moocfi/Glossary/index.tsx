@@ -8,7 +8,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import Glossary from "./Glossary"
 
-const GlossaryBlock: React.FC = () => {
+const GlossaryBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

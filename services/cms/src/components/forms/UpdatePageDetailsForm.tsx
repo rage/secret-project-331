@@ -14,7 +14,10 @@ interface UpdatePageDetailsFormProps {
   setTitle: (newTitle: string) => void
 }
 
-const UpdatePageDetailsForm: React.FC<UpdatePageDetailsFormProps> = ({ title, setTitle }) => {
+const UpdatePageDetailsForm: React.FC<React.PropsWithChildren<UpdatePageDetailsFormProps>> = ({
+  title,
+  setTitle,
+}) => {
   const { t } = useTranslation()
   return (
     <div

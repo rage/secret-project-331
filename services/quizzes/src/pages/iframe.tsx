@@ -5,7 +5,7 @@ import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
-import { Renderer } from "../components/Renderer"
+import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
@@ -31,7 +31,7 @@ export type State =
     }
   | { viewType: "exercise-editor"; privateSpec: Quiz }
 
-const IFrame: React.FC = () => {
+const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width

@@ -7,7 +7,7 @@ import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
+export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const { t } = useTranslation()
   const { url } = props
   let video = url?.split("v=")[1]

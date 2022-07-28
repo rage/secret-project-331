@@ -29,7 +29,9 @@ const TotalWrapper = styled.div`
   padding: 0.8rem 3rem 1.5rem 3rem;
 `
 
-const CourseProgress: React.FC<CourseProgressProps> = ({ userCourseInstanceProgress }) => {
+const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({
+  userCourseInstanceProgress,
+}) => {
   const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
 

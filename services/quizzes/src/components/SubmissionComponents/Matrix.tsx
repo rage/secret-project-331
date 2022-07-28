@@ -32,7 +32,7 @@ interface isCellCorrectObject {
   correct: boolean | undefined
 }
 
-const MatrixSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
+const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
   quiz_item_model_solution,
   user_quiz_item_answer,
 }) => {
@@ -116,7 +116,11 @@ interface MatrixTableProps {
   isStudent?: boolean
 }
 
-const MatrixTable: React.FC<MatrixTableProps> = ({ tempArray, findOptionText, isStudent }) => {
+const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
+  tempArray,
+  findOptionText,
+  isStudent,
+}) => {
   return (
     <MatrixTableContainer>
       <tbody>

@@ -38,7 +38,7 @@ const DeleteButton = styled.button`
   height: 2rem;
 `
 
-const ButtonEditor: React.FC<Props> = ({ item, onDelete, onChange }) => {
+const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({ item, onDelete, onChange }) => {
   const { t } = useTranslation()
   return (
     <StyledButtonEditor>

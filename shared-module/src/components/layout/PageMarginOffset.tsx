@@ -5,11 +5,9 @@ interface PageMarginOffsetProps {
   marginBottom: string
 }
 
-export const PageMarginOffset: React.FC<PageMarginOffsetProps> = ({
-  marginBottom,
-  marginTop,
-  children,
-}) => {
+export const PageMarginOffset: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<PageMarginOffsetProps>>
+> = ({ marginBottom, marginTop, children }) => {
   return (
     <div
       className={css`

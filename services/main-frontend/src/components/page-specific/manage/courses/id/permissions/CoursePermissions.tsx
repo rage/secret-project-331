@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse } from "../../../../../../services/backend/courses"
@@ -10,9 +10,11 @@ import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import { PermissionPage } from "../../../../../PermissionPage"
 
-const CoursePermissions: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
-  const course = useQuery(`course-${courseId}-permissions`, () => getCourse(courseId))
+  const course = useQuery([`course-${courseId}-permissions`], () => getCourse(courseId))
 
   return (
     <div

@@ -83,8 +83,8 @@ pub struct Feedback {
     pub marked_as_read: bool,
     pub created_at: DateTime<Utc>,
     pub blocks: Vec<FeedbackBlock>,
-    pub page_title: Option<String>,
-    pub page_url_path: Option<String>,
+    pub page_title: String,
+    pub page_url_path: String,
 }
 
 pub async fn get_feedback_for_course(

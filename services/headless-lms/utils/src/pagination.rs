@@ -12,10 +12,10 @@ use ts_rs::TS;
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
-    #[cfg_attr(feature = "ts_rs", ts(rename = "page?"))]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     page: u32,
     // the deserialize implementation contains a default value for limit
-    #[cfg_attr(feature = "ts_rs", ts(rename = "limit?"))]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     limit: u32,
 }
 

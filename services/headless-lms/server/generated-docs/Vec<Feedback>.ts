@@ -8,6 +8,6 @@ type Vec<Feedback> = Array<{
   marked_as_read: boolean
   created_at: Date
   blocks: Array<FeedbackBlock>
-  page_title: string | null
-  page_url_path: string | null
+  page_title: string
+  page_url_path: string
 }>

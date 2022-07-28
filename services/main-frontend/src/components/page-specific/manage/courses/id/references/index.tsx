@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseReferences } from "../../../../../../services/backend/courses"
@@ -22,12 +22,14 @@ const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const References: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showNewReferenceModal, setShowNewReferenceModal] = useState(false)
   const [showEditReferenceModal, setShowEditReferenceModal] = useState(false)
   const [reference, setReference] = useState<MaterialReference | null>(null)
-  const getCourseReferences = useQuery(`course-${courseId}-references`, () =>
+  const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
     fetchCourseReferences(courseId),
   )
 

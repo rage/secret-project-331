@@ -80,6 +80,6 @@ injectGlobal`
 ${globalCss}
 `
 
-const GlobalStyles: React.FC = () => null
+const GlobalStyles: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = () => null
 
 export default GlobalStyles

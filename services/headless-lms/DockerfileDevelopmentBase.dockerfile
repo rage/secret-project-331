@@ -9,7 +9,7 @@ RUN apt-get update \
 
 RUN git clone https://github.com/rui314/mold.git \
   && cd mold \
-  && git checkout v1.0.0 \
+  && git checkout v1.3.1 \
   && make -j$(nproc)
 
 # Provides a mapping from ip to country

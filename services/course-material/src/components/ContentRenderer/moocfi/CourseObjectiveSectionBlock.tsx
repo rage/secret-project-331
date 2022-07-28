@@ -8,9 +8,9 @@ import CourseObjectiveSection, {
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
 
-const CourseObjectiveSectionBlock: React.FC<BlockRendererProps<CourseObjectiveSectionProps>> = (
-  props,
-) => {
+const CourseObjectiveSectionBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<CourseObjectiveSectionProps>>
+> = (props) => {
   return (
     <BreakFromCentered sidebar={false}>
       <CourseObjectiveSection title={props.data.attributes.title}>

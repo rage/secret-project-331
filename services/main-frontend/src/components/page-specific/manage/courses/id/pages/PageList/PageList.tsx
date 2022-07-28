@@ -29,7 +29,13 @@ interface Props {
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
 }
 
-const PageList: React.FC<Props> = ({ data, refetch, courseId, chapter, pageOrderDispatch }) => {
+const PageList: React.FC<React.PropsWithChildren<Props>> = ({
+  data,
+  refetch,
+  courseId,
+  chapter,
+  pageOrderDispatch,
+}) => {
   const { t } = useTranslation()
   const [showNewPageForm, setShowNewPageForm] = useState(false)
   const deletePageMutation = useToastMutation(

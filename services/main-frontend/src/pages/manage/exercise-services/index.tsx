@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
@@ -16,7 +16,7 @@ import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 
-const ExerciseServicePage: React.FC = () => {
+const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [exerciseService, setExerciseService] = useState({
@@ -52,7 +52,7 @@ const ExerciseServicePage: React.FC = () => {
     })
   }
 
-  const getExerciseServices = useQuery(`exercise-services`, () => fetchExerciseServices())
+  const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
 
   const handleClose = () => {
     setOpen(false)
@@ -88,9 +88,7 @@ const ExerciseServicePage: React.FC = () => {
         {getExerciseServices.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
         )}
-        {(getExerciseServices.isLoading || getExerciseServices.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
         {getExerciseServices.isSuccess && (
           <>
             <ExerciseServiceContainer

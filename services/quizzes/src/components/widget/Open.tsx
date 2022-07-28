@@ -8,7 +8,7 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Open: React.FC<QuizItemComponentProps> = ({
+const Open: React.FC<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,

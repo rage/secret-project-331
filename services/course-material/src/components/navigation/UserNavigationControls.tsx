@@ -15,7 +15,7 @@ export interface UserNavigationControlsProps {
   courseId?: string | null
 }
 
-const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
+const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationControlsProps>> = ({
   styles,
   currentPagePath,
   courseId,

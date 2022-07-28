@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import {
   fetchEditProposals,
@@ -20,10 +20,16 @@ interface Props {
   onChange: () => Promise<unknown>
 }
 
-const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onChange }) => {
+const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  page,
+  limit,
+  pending,
+  onChange,
+}) => {
   const { t } = useTranslation()
   const getEditProposalList = useQuery(
-    `edit-proposal-list-${courseId}-${pending}-${page}-${limit}`,
+    [`edit-proposal-list-${courseId}-${pending}-${page}-${limit}`],
     () => fetchEditProposals(courseId, pending, page, limit),
     { select: (data) => data.filter((p) => p.pending === pending) },
   )
@@ -42,7 +48,7 @@ const EditProposalPage: React.FC<Props> = ({ courseId, page, limit, pending, onC
     return <ErrorBanner variant={"readOnly"} error={getEditProposalList.error} />
   }
 
-  if (getEditProposalList.isLoading || getEditProposalList.isIdle) {
+  if (getEditProposalList.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

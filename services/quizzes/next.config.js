@@ -21,9 +21,7 @@ const config = {
       },
     ]
   },
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

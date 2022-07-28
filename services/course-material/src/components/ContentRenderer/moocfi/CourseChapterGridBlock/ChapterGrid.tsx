@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
@@ -30,10 +30,10 @@ const COLORS_ARRAY = [
   "#08457A",
 ]
 
-const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
+const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
-  const getChaptersInCourse = useQuery(`course-${courseId}-chapters`, () =>
+  const getChaptersInCourse = useQuery([`course-${courseId}-chapters`], () =>
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
@@ -64,9 +64,7 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}
-      {(getChaptersInCourse.isLoading || getChaptersInCourse.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
       {getChaptersInCourse.isSuccess && (
         <>
           {getChaptersInCourse.data.modules

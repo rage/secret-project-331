@@ -44,7 +44,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
+const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,

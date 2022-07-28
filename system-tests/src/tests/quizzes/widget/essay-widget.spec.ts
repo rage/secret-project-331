@@ -26,6 +26,10 @@ test("widget, essay", async ({ page, headless }) => {
     frame,
   })
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.fill(
     `textarea:below(:text("Min words"))`,
     "I think I enrolled in the wrong course XD",

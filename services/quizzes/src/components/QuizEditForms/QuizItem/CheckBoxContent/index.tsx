@@ -30,7 +30,7 @@ interface ContentBoxProps {
 const Container = styled.div`
   padding: 1rem;
 `
-const CheckBoxContent: React.FC<ContentBoxProps> = ({ item }) => {
+const CheckBoxContent: React.FC<React.PropsWithChildren<ContentBoxProps>> = ({ item }) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const quizId = useTypedSelector((state) => state.editor.quizId)

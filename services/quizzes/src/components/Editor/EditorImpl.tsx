@@ -10,7 +10,7 @@ import QuizItems from "../QuizEditForms/QuizItems"
 
 import { EditorProps } from "."
 
-const EditorImpl: React.FC<EditorProps> = ({ port, privateSpec }) => {
+const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, privateSpec }) => {
   const [render, setRender] = useState(false)
   const dispatch = useDispatch()
   useEffect(() => {

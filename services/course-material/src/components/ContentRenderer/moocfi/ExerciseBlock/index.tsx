@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery, useQueryClient } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -57,7 +57,9 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
-const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+const ExerciseBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
+> = (props) => {
   const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
@@ -75,7 +77,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
   const queryUniqueKey = `exercise-${id}`
-  const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
+  const getCourseMaterialExercise = useQuery([queryUniqueKey], () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {
@@ -114,7 +116,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading || getCourseMaterialExercise.isIdle) {
+  if (getCourseMaterialExercise.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -335,7 +337,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                     },
                     {
                       onSuccess: () => {
-                        queryClient.setQueryData(queryUniqueKey, (old) => {
+                        queryClient.setQueryData([queryUniqueKey], (old) => {
                           // Update slide submission counts without refetching
                           const oldData = old as CourseMaterialExercise
                           const oldSubmissionCounts =

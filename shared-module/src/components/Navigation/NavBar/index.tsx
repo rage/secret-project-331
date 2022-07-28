@@ -16,7 +16,9 @@ export interface NavigationProps {
   SearchDialogComponent?: React.ReactNode
 }
 
-const NavBar: React.FC<NavigationProps> = (props) => {
+const NavBar: React.FC<React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>> = (
+  props,
+) => {
   if (props.variant === "simple") {
     return <SimpleNav {...props} />
   }

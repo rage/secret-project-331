@@ -10,7 +10,9 @@ interface AsideBlockProps {
   separatorColor: string
 }
 
-const AsideBLock: React.FC<BlockRendererProps<AsideBlockProps>> = (props) => {
+const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlockProps>>> = (
+  props,
+) => {
   return (
     <div
       className={css`

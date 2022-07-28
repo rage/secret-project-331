@@ -10,7 +10,9 @@ export interface TextAttributes {
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
-const LatexBlock: React.FC<BlockRendererProps<TextAttributes>> = ({ data }) => {
+const LatexBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TextAttributes>>> = ({
+  data,
+}) => {
   const attributes: TextAttributes = data.attributes
 
   const convert_to_latex = () => {

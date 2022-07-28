@@ -7,7 +7,7 @@ const EmptyBox = styled(Box)`
   height: 200px;
 `
 
-export const CustomModalContent: React.FC = () => {
+export const CustomModalContent: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <>
       <EmptyBox />

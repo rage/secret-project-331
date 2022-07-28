@@ -54,9 +54,9 @@ pub struct ExerciseSlideSubmissionCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCountByExercise {
-    pub exercise_id: Option<Uuid>,
+    pub exercise_id: Uuid,
     pub count: Option<i32>,
-    pub exercise_name: Option<String>,
+    pub exercise_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

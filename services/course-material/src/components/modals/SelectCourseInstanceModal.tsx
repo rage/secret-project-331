@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
@@ -16,10 +16,9 @@ export interface CourseInstanceSelectModalProps {
   manualOpen?: boolean
 }
 
-const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
-  onClose,
-  manualOpen = false,
-}) => {
+const CourseInstanceSelectModal: React.FC<
+  React.PropsWithChildren<CourseInstanceSelectModalProps>
+> = ({ onClose, manualOpen = false }) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
@@ -68,7 +67,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
         setSubmitError(e)
       }
     },
-    [onClose],
+    [onClose, pageState],
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -88,7 +87,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
           margin: 1rem;
         `}
       >
-        {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
+        {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h1
           className={css`
             font-size: clamp(18px, 2vw, 20px);
@@ -107,9 +106,7 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
-        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
         {getCourseInstances.isSuccess && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}

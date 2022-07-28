@@ -43,6 +43,10 @@ test("test quizzes clickable multiple-choice feedback", async ({ headless, page 
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=Pick all the programming languages from below")
 
   await frame.click(`button:text("AC")`)

@@ -4,7 +4,9 @@ import { BlockRendererProps } from "../.."
 import { HtmlAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
-const CustomHTMLBlock: React.FC<BlockRendererProps<HtmlAttributes>> = ({ data }) => {
+const CustomHTMLBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HtmlAttributes>>> = ({
+  data,
+}) => {
   const { content } = data.attributes
 
   return (

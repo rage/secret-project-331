@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchPageNavigationData } from "../../../../services/backend"
@@ -17,7 +17,7 @@ export interface NextPageProps {
   organizationSlug: string
 }
 
-const NextPage: React.FC<NextPageProps> = ({
+const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
   organizationSlug,
@@ -28,7 +28,7 @@ const NextPage: React.FC<NextPageProps> = ({
   const [nextPageChapterOpen, setnextPageChapterOpen] = React.useState(false)
 
   const getPageRoutingData = useQuery(
-    `pages-${chapterId}-page-routing-data`,
+    [`pages-${chapterId}-page-routing-data`],
     () => fetchPageNavigationData(currentPageId),
     {
       onSuccess: (data) => {
@@ -48,7 +48,7 @@ const NextPage: React.FC<NextPageProps> = ({
   if (getPageRoutingData.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getPageRoutingData.isLoading || getPageRoutingData.isIdle) {
+  if (getPageRoutingData.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

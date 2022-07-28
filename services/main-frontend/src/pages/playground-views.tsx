@@ -2,11 +2,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
@@ -120,7 +120,7 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const IframeViewPlayground: React.FC = () => {
+const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
@@ -169,7 +169,7 @@ const IframeViewPlayground: React.FC = () => {
   }
 
   const serviceInfoQuery = useQuery(
-    `iframe-view-playground-service-info-${url}`,
+    [`iframe-view-playground-service-info-${url}`],
     async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(url)
       return res.data
@@ -179,7 +179,7 @@ const IframeViewPlayground: React.FC = () => {
   const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
 
   const publicSpecQuery = useQuery(
-    `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+    [`iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
     async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
@@ -232,7 +232,7 @@ const IframeViewPlayground: React.FC = () => {
   )
 
   const modelSolutionSpecQuery = useQuery(
-    `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+    [`iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
     async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
@@ -366,7 +366,9 @@ const IframeViewPlayground: React.FC = () => {
                 <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
               )}
               {publicSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {publicSpecQuery.isIdle && <p>{t("error-cannot-load-with-the-given-inputs")}</p>}
+              {publicSpecQuery.fetchStatus === "idle" && (
+                <p>{t("error-cannot-load-with-the-given-inputs")}</p>
+              )}
               {publicSpecQuery.isSuccess && (
                 <StyledPre>{JSON.stringify(publicSpecQuery.data, undefined, 2)}</StyledPre>
               )}
@@ -383,7 +385,7 @@ const IframeViewPlayground: React.FC = () => {
                 <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
               )}
               {modelSolutionSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {modelSolutionSpecQuery.isIdle && (
+              {modelSolutionSpecQuery.fetchStatus === "idle" && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {modelSolutionSpecQuery.isSuccess && (

@@ -19,7 +19,7 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
         list-style: none !important;
         margin: 0 !important;
         background: #fff;
-        padding: 0.7rem 1rem !important;
+
         min-width: 10rem !important;
         border-width: 0 0 2px !important;
         border-style: solid !important;
@@ -32,14 +32,22 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
           text-transform: capitalize;
           list-style: none !important;
           margin: 0 !important;
-          padding: 0 !important;
+          padding: 0.7rem 1rem !important;
           font-size: 16px !important;
           background: #fff !important;
           color: ${baseTheme.colors.green[500]} !important;
           border: 0 !important;
+          width: 100%;
+          text-align: left;
 
           :hover {
             color: ${baseTheme.colors.green[700]} !imporant;
+            filter: brightness(92%) contrast(110%);
+          }
+
+          :focus-visible {
+            outline: 2px solid ${baseTheme.colors.green[500]};
+            outline-offset: -2px;
           }
         `}
         variant="primary"

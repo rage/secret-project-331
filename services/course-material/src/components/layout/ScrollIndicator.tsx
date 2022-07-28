@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 
 import useShouldHideStuffFromSystemTestScreenshots from "../../shared-module/hooks/useShouldHideStuffForSystemTestScreenshots"
 
-const ScrollIndicator: React.FC = () => {
+const ScrollIndicator: React.FC<React.PropsWithChildren<unknown>> = () => {
   const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
   const [scrolled, setScrolled] = useState("0")
 

@@ -16,12 +16,9 @@ interface NewCourseLanguageVersionDialogProps {
   onSubmit: () => Promise<void>
 }
 
-const NewCourseInstanceDialog: React.FC<NewCourseLanguageVersionDialogProps> = ({
-  courseId,
-  onClose,
-  showDialog,
-  onSubmit,
-}) => {
+const NewCourseInstanceDialog: React.FC<
+  React.PropsWithChildren<NewCourseLanguageVersionDialogProps>
+> = ({ courseId, onClose, showDialog, onSubmit }) => {
   const { t } = useTranslation()
   const mutation = useToastMutation(
     async (form: CourseInstanceForm) => {

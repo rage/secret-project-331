@@ -39,7 +39,7 @@ interface EssayContentProps {
   item: NormalizedQuizItem
 }
 
-const EssayContent: React.FC<EssayContentProps> = ({ item }) => {
+const EssayContent: React.FC<React.PropsWithChildren<EssayContentProps>> = ({ item }) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])

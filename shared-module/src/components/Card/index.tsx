@@ -36,7 +36,7 @@ const variantToComponent = {
   illustration: IllustrationCard,
 }
 
-const Card: React.FC<CardProps> = (props) => {
+const Card: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = (props) => {
   const Component = variantToComponent[props.variant]
 
   if (props.url && (props.open || props.allowedToPreview)) {

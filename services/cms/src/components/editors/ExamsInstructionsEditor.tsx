@@ -26,7 +26,7 @@ const ExamsInstructionsGutenbergEditor = dynamic(() => import("./GutenbergEditor
   loading: () => EditorLoading,
 })
 
-const ExamsInstructionsEditor: React.FC<ExamsInstructionsEditorProps> = ({
+const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstructionsEditorProps>> = ({
   data,
   handleSave,
   needToRunMigrationsAndValidations,

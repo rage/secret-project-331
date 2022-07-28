@@ -197,7 +197,9 @@ TertiaryButton
 IconButton
 Link */
 
-const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
+const Button: React.FC<React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>> = (
+  props: ButtonProps,
+) => {
   switch (props.variant) {
     case "primary":
       return <PrimaryButton {...props} />

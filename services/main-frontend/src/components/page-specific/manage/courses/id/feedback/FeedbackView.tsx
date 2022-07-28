@@ -29,7 +29,10 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
-const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback, setRead }) => {
+const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
+  feedback,
+  setRead,
+}) => {
   const { t } = useTranslation()
 
   const markAsReadMutation = useToastMutation(

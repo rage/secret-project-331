@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseById } from "../../services/backend"
 import Banner from "../../shared-module/components/Banner/Banner"
@@ -15,12 +15,11 @@ export interface UserOnWrongCourseNotificationProps {
   organizationSlug: string
 }
 
-const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps> = ({
-  correctCourseId,
-  organizationSlug,
-}) => {
+const UserOnWrongCourseNotification: React.FC<
+  React.PropsWithChildren<UserOnWrongCourseNotificationProps>
+> = ({ correctCourseId, organizationSlug }) => {
   const { t } = useTranslation()
-  const getCourseById = useQuery(`correct-course-${correctCourseId}`, () =>
+  const getCourseById = useQuery([`correct-course-${correctCourseId}`], () =>
     fetchCourseById(correctCourseId),
   )
 
@@ -28,7 +27,7 @@ const UserOnWrongCourseNotification: React.FC<UserOnWrongCourseNotificationProps
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
-  if (getCourseById.isLoading || getCourseById.isIdle) {
+  if (getCourseById.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

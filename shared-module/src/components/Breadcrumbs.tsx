@@ -64,7 +64,9 @@ export interface BreadcrumbPiece {
 
 const MARKER = "›"
 
-const Breadcrumbs: React.FC<BreakcrumbProps> = ({ pieces }) => {
+const Breadcrumbs: React.FC<React.PropsWithChildren<React.PropsWithChildren<BreakcrumbProps>>> = ({
+  pieces,
+}) => {
   const { t } = useTranslation()
 
   return (

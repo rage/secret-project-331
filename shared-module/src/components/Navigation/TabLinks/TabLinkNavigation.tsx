@@ -13,11 +13,9 @@ interface TabLinkNavigationProps {
   enableRouting?: boolean
 }
 
-const TabLinkNavigation: React.FC<TabLinkNavigationProps> = ({
-  children,
-  orientation = "horizontal",
-  enableRouting = false,
-}) => {
+const TabLinkNavigation: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<TabLinkNavigationProps>>
+> = ({ children, orientation = "horizontal", enableRouting = false }) => {
   const tabsRef = useRef<HTMLDivElement>(null)
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()

@@ -20,6 +20,10 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-clickable",

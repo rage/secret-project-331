@@ -5,7 +5,7 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Checkbox: React.FC<QuizItemComponentProps> = ({
+const Checkbox: React.FC<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,

@@ -8,7 +8,9 @@ interface Props {
   exerciseSubmissions: ExerciseSlideSubmission[]
 }
 
-const ExerciseSubmissionList: React.FC<Props> = ({ exerciseSubmissions }) => {
+const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
+  exerciseSubmissions,
+}) => {
   const { t } = useTranslation()
   if (exerciseSubmissions.length === 0) {
     return <div>{t("no-submissions")}</div>

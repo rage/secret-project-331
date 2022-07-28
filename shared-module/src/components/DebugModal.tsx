@@ -27,7 +27,7 @@ const HeaderBar = styled.div`
   }
 `
 
-const DebugModal: React.FC<DebugModalProps> = ({
+const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<DebugModalProps>>> = ({
   data,
   readOnly = true,
   updateDataOnClose,

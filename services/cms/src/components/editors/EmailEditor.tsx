@@ -28,7 +28,7 @@ const EmailGutenbergEditor = dynamic(() => import("./GutenbergEditor"), {
   loading: () => EditorLoading,
 })
 
-const EmailEditor: React.FC<EmailEditorProps> = ({
+const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   data,
   handleSave,
   needToRunMigrationsAndValidations,

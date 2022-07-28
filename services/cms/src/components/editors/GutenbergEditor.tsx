@@ -79,7 +79,7 @@ interface GutenbergEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
+const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
   content,
   onContentChange,
   allowedBlockVariations,

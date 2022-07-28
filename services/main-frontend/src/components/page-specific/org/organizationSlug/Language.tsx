@@ -31,7 +31,7 @@ export const DEFAULT_FLAG_CLIP_PATH = "circle(25% at 42% 50%)"
 const LANGUAGE: {
   [languageCode: string]: {
     humanReadableName: string
-    image: React.FC<React.SVGProps<SVGSVGElement>>
+    image: React.FC<React.PropsWithChildren<React.SVGProps<SVGSVGElement>>>
     clipPath?: string
   }
 } = {

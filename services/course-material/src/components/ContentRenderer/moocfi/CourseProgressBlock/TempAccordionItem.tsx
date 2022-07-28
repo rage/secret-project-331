@@ -7,12 +7,9 @@ import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/acces
 
 // This should be replaced once the issues with the shared module one are resolved.
 // (it seems to only render child components)
-const TempAccordion: React.FC<{ title: string; open: boolean; onClick: () => void }> = ({
-  title,
-  open,
-  onClick,
-  children,
-}) => {
+const TempAccordion: React.FC<
+  React.PropsWithChildren<{ title: string; open: boolean; onClick: () => void }>
+> = ({ title, open, onClick, children }) => {
   const faIcon = open ? faAngleUp : faAngleDown
   return (
     <div>

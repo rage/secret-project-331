@@ -6,6 +6,7 @@ declare module "react-i18next" {
     resources: {
       "shared-module": typeof sharedModule
     }
+    allowObjectInHTMLChildren: true
   }
 
   type Trans = string // typeof Reacti18Next.Trans

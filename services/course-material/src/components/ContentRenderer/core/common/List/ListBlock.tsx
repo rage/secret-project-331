@@ -6,7 +6,9 @@ import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
+const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = ({
+  data,
+}) => {
   const {
     ordered,
     values,

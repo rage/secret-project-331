@@ -1,9 +1,9 @@
-import { useQuery } from "react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import { fetchPageInfo } from "../services/backend/pages"
 
 const usePageInfo = (pageId: string) => {
-  const data = useQuery(`page-info-id-${pageId}`, () => {
+  const data = useQuery([`page-info-id-${pageId}`], () => {
     if (!pageId) {
       return null
     }

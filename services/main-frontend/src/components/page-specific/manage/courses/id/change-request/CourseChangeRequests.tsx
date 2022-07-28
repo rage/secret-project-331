@@ -10,7 +10,9 @@ import TabLinkPanel from "../../../../../../shared-module/components/Navigation/
 
 import EditProposalList from "./EditProposalList"
 
-const ChangeRequestsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const [pending, setPending] = useState(true)
   const { t } = useTranslation()
   const router = useRouter()

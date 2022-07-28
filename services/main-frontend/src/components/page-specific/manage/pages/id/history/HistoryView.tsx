@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
@@ -16,14 +16,14 @@ interface Props {
   pageId: string
 }
 
-const HistoryView: React.FC<Props> = ({ pageId }) => {
+const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   const { t } = useTranslation()
   const [currentTitle, setCurrentTitle] = useState<string | null>(null)
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null)
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
-  const getCurrentPageHistory = useQuery(`page-history-current-${pageId}`, async () => {
+  const getCurrentPageHistory = useQuery([`page-history-current-${pageId}`], async () => {
     const history = await fetchHistoryForPage(pageId, 1, 1)
     if (history.length === 0) {
       // there is always at least one history entry corresponding to the current state of the page
@@ -65,9 +65,7 @@ const HistoryView: React.FC<Props> = ({ pageId }) => {
       {getCurrentPageHistory.isError && (
         <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
       )}
-      {(getCurrentPageHistory.isLoading || getCurrentPageHistory.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
       {getCurrentPageHistory.isSuccess && (
         <div>
           <p

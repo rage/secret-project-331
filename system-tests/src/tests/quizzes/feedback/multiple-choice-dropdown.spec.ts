@@ -43,6 +43,10 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=Choose the right answer from given options.")
 
   await frame.selectOption(

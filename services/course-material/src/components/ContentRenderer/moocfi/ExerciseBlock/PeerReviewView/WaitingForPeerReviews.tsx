@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../../shared-module/styles"
 
-const WaitingForPeerReviews: React.FC = () => {
+const WaitingForPeerReviews: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
   return (

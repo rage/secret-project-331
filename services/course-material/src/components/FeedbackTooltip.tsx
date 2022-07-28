@@ -11,7 +11,10 @@ interface FeedbackProps {
   onClick: () => void
 }
 
-const FeedbackTooltip: React.FC<FeedbackProps> = ({ onClick, selectionRect }) => {
+const FeedbackTooltip: React.FC<React.PropsWithChildren<FeedbackProps>> = ({
+  onClick,
+  selectionRect,
+}) => {
   const { t } = useTranslation()
   const x = Math.max(0, Math.min(window.innerWidth - 150, window.scrollX + selectionRect.x - 60))
   const y = Math.max(window.screenY, window.scrollY + selectionRect.y - 70)

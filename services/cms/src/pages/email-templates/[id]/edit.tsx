@@ -29,7 +29,9 @@ export interface EmailTemplateEditProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const EmailTemplateEdit: React.FC<EmailTemplateEditProps> = ({ query }) => {
+const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps>> = ({
+  query,
+}) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const emailTemplateId = query.id
   // eslint-disable-next-line i18next/no-literal-string

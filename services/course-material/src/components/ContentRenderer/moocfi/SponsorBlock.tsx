@@ -5,10 +5,13 @@ import BreakFromCentered from "../../../shared-module/components/Centering/Break
 import Sponsor, { SponsorProps } from "../../../shared-module/components/Sponsor"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
-const SponsorBlock: React.FC<BlockRendererProps<SponsorProps>> = (props) => {
+const SponsorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SponsorProps>>> = (
+  props,
+) => {
   return (
     <BreakFromCentered sidebar={false}>
-      <Sponsor logos={props.data.innerBlocks} />
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      <Sponsor logos={props.data.innerBlocks as any} />
     </BreakFromCentered>
   )
 }

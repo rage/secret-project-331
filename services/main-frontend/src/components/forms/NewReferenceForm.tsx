@@ -21,7 +21,10 @@ interface NewReferenceFields {
 
 const REFERENCE = "Bibtex reference"
 
-const NewReferenceForm: React.FC<NewReferenceFormProps> = ({ onCreateNewReference, onCancel }) => {
+const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>> = ({
+  onCreateNewReference,
+  onCancel,
+}) => {
   const { t } = useTranslation()
   const {
     register,

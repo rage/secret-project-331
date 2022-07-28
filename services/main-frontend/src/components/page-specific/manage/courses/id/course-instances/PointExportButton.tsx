@@ -1,9 +1,8 @@
 import { useTranslation } from "react-i18next"
 
-const PointExportButton: React.FC<{ courseInstanceId: string; courseInstanceName: string }> = ({
-  courseInstanceId,
-  courseInstanceName,
-}) => {
+const PointExportButton: React.FC<
+  React.PropsWithChildren<{ courseInstanceId: string; courseInstanceName: string }>
+> = ({ courseInstanceId, courseInstanceName }) => {
   const { t } = useTranslation()
   return (
     <a

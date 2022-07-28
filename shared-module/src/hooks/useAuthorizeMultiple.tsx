@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { useQuery, UseQueryResult } from "react-query"
+import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
 import { ActionOnResource } from "../bindings"
 import { authorizeMultiple } from "../services/backend/auth"
@@ -20,11 +20,10 @@ export default function useAuthorizeMultiple(
   })
 
   const res = useQuery(
-    key,
+    [key],
     () => {
       return authorizeMultiple(requests)
-    },
-    // 15 minutes
+    }, // 15 minutes
     { cacheTime: 15 * 60 * 1000, enabled: requests.length > 0 },
   )
 

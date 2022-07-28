@@ -471,7 +471,7 @@ mod test {
     use headless_lms_models::*;
     use models::roles::RoleDomain;
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn test_authorization() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
@@ -511,7 +511,7 @@ mod test {
         .unwrap();
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn course_role_chapter_resource() {
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter);
 
@@ -543,7 +543,7 @@ mod test {
         .unwrap();
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn anonymous_user_can_view_open_course() {
         insert_data!(:tx, :user, :org, :course);
 

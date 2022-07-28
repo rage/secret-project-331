@@ -5,7 +5,9 @@ import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttribut
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
-const PullquoteBlock: React.FC<BlockRendererProps<PullquoteAttributes>> = ({ data }) => {
+const PullquoteBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<PullquoteAttributes>>
+> = ({ data }) => {
   const {
     citation,
     align,

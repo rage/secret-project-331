@@ -44,6 +44,10 @@ test("feedback test", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=b")
 
   await page.click("text=So big", {
@@ -105,6 +109,9 @@ test("feedback test", async ({ headless, page }) => {
   await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
   // await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback")
+
+  // Makes sure the components have rendered so that the next waitForThisToBeVisibleAndStable always works with the placeholder
+  await page.waitForSelector(`text="Page: Page One"`)
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({

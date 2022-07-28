@@ -11,7 +11,9 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
-const TableBlock: React.FC<BlockRendererProps<TableAttributes>> = ({ data }) => {
+const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttributes>>> = ({
+  data,
+}) => {
   const {
     hasFixedLayout,
     caption,

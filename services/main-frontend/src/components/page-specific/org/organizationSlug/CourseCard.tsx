@@ -4,7 +4,6 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
-import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
@@ -123,14 +122,13 @@ const capitalizeFirstLetter: (language: string) => string = (language) => {
 
 const LANGUAGE_TEXT = "Language"
 
-const CourseComponent: React.FC<CourseCardProps> = ({
+const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   title,
   isDraft,
   description,
   languageCode,
   manageHref,
   navigateToCourseHref,
-  id,
   showManageButton,
 }) => {
   const loginStateContext = useContext(LoginStateContext)

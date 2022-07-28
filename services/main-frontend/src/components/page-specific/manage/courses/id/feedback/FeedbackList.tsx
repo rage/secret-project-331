@@ -1,8 +1,8 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -16,7 +16,7 @@ interface Props {
   perPage: number
 }
 
-const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read, perPage }) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -28,7 +28,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const getFeedbackCount = useQuery(`feedback-count-${courseId}`, () =>
+  const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
     fetchFeedbackCount(courseId),
   )
 
@@ -36,7 +36,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
   }
 
-  if (getFeedbackCount.isLoading || getFeedbackCount.isIdle) {
+  if (getFeedbackCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

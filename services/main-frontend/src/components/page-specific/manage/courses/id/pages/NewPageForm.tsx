@@ -24,7 +24,7 @@ interface NewPageFormProps {
   prefix?: string
 }
 
-const NewPageForm: React.FC<NewPageFormProps> = ({
+const NewPageForm: React.FC<React.PropsWithChildren<NewPageFormProps>> = ({
   courseId,
   onSubmitForm,
   chapterId,

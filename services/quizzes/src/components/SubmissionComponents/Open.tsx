@@ -33,7 +33,7 @@ const incorrectAnswer = css`
   border-radius: 5px;
 `
 
-const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
+const OpenFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
   public_quiz_item,
   quiz_item_feedback,
   user_quiz_item_answer,

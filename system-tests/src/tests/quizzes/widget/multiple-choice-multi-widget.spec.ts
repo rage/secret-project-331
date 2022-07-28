@@ -22,6 +22,10 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless })
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   await frame.click("text=#00ff00")

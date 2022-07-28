@@ -40,7 +40,7 @@ test("blocks render correctly", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "content-components-renderer-view",
-    waitForThisToBeVisibleAndStable: null,
+    waitForThisToBeVisibleAndStable: undefined,
     toMatchSnapshotOptions: { threshold: 0.4 },
     pageScreenshotOptions: { fullPage: true },
   })

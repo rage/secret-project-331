@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-const UnsupportedEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+const UnsupportedEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = ({ clientId }) => {
   const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper id={clientId}>

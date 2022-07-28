@@ -3,7 +3,7 @@ import React from "react"
 
 import { MarkDownTextProps } from "."
 
-const MarkdownTextImpl: React.FC<MarkDownTextProps> = ({ text }) => {
+const MarkdownTextImpl: React.FC<React.PropsWithChildren<MarkDownTextProps>> = ({ text }) => {
   const reader = new Parser()
   const writer = new HtmlRenderer()
 

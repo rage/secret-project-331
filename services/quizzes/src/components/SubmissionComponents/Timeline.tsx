@@ -124,12 +124,9 @@ export interface Time {
   text: string
 }
 
-const Timeline: React.FunctionComponent<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  quiz_item_model_solution,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-}) => {
+const Timeline: React.FunctionComponent<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
   const { t } = useTranslation()
   return (
     <TimelineWrapper>

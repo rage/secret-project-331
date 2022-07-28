@@ -24,7 +24,7 @@ interface EditReferenceFields {
   reference: string
 }
 
-const EditReferenceForm: React.FC<EditReferenceFormProps> = ({
+const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
   onDelete,
   onCancel,

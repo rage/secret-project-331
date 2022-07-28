@@ -2,7 +2,7 @@ import LinkertScale from "../../../../../../shared-module/components/PeerReview/
 
 import { PeerReviewQuestionProps } from "."
 
-const ScalePeerReviewQuestion: React.FC<PeerReviewQuestionProps> = ({
+const ScalePeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionProps>> = ({
   question,
   setPeerReviewQuestionAnswer,
   peerReviewQuestionAnswer,

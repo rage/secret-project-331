@@ -1,10 +1,10 @@
 import Link from "next/link"
 
-const LinkOrNoLink: React.FC<{ url: string | undefined; linkClassName?: string }> = ({
-  url,
-  children,
-  linkClassName,
-}) => {
+const LinkOrNoLink: React.FC<
+  React.PropsWithChildren<
+    React.PropsWithChildren<{ url: string | undefined; linkClassName?: string }>
+  >
+> = ({ url, children, linkClassName }) => {
   if (!url) {
     return <>{children}</>
   }

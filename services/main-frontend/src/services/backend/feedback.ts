@@ -9,7 +9,7 @@ export const fetchFeedback = async (
   page?: number,
   limit?: number,
 ): Promise<Array<Feedback>> => {
-  const params: GetFeedbackQuery = { read }
+  const params: GetFeedbackQuery = { read, page: undefined, limit: undefined }
   params.page = page
   params.limit = limit
 

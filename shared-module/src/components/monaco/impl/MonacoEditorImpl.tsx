@@ -7,7 +7,9 @@ import monacoFontFixer from "../../../styles/monacoFontFixer"
 
 const WORDWRAP_DEFAULT_VALUE = "on"
 
-const MonacoEditorImpl: React.FC<EditorProps> = (props) => {
+const MonacoEditorImpl: React.FC<React.PropsWithChildren<React.PropsWithChildren<EditorProps>>> = (
+  props,
+) => {
   const options = props.options ?? {}
   options.fontFamily = monospaceFont
   if (!options.wordWrap) {

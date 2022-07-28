@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { Dialog, DialogContent, DialogTitle } from "@mui/material"
-import { t } from "i18next"
-import { UseQueryResult } from "react-query"
+import { UseQueryResult } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 import { deleteReference, postReferenceUpdate } from "../../../../../../services/backend/courses"
 import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"
@@ -16,13 +16,14 @@ interface EditReferenceDialogProps {
   open: boolean
 }
 
-const EditReferenceDialog: React.FC<EditReferenceDialogProps> = ({
+const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogProps>> = ({
   courseId,
   getCourseReferences,
   reference,
   onClose,
   open,
 }) => {
+  const { t } = useTranslation()
   const updateReferenceMutation = useToastMutation(
     ({
       courseId,
@@ -67,7 +68,7 @@ const EditReferenceDialog: React.FC<EditReferenceDialogProps> = ({
       onClose={onClose}
       role="dialog"
       aria-labelledby="label"
-      title={t("edit-reference-dialog")}
+      title={t("edit-reference")}
       fullWidth
     >
       <DialogTitle>

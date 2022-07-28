@@ -61,13 +61,9 @@ const hasDropCap = css`
   }
 `
 
-const ParagraphBlock: React.FC<BlockRendererProps<ParagraphAttributes>> = ({
-  data,
-  id,
-  editing,
-  selectedBlockId,
-  setEdits,
-}) => {
+const ParagraphBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ParagraphAttributes>>
+> = ({ data, id, editing, selectedBlockId, setEdits }) => {
   const {
     textColor,
     backgroundColor,

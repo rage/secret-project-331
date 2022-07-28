@@ -9,7 +9,7 @@ export interface ExerciseProps {
   quiz: PublicQuiz
 }
 
-const Exercise: React.FC<ExerciseProps> = ({ port, quiz }) => {
+const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({ port, quiz }) => {
   return <Widget port={port} quiz={quiz} />
 }
 

@@ -12,7 +12,7 @@ export interface ExamInstructionsProps {
   timeMinutes: number
 }
 
-const ExamStartBanner: React.FC<ExamInstructionsProps> = ({
+const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> = ({
   onStart,
   examHasStarted,
   examHasEnded,

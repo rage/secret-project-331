@@ -7,9 +7,9 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
-const ExercisesInChapterEditor: React.FC<BlockEditProps<Record<string, never>>> = ({
-  clientId,
-}) => {
+const ExercisesInChapterEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = ({ clientId }) => {
   const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper id={clientId}>

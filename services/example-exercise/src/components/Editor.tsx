@@ -36,7 +36,7 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, port }) => {
+const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, port }) => {
   const { t } = useTranslation()
 
   useEffect(() => {

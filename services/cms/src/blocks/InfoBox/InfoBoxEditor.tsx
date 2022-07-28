@@ -11,7 +11,7 @@ import BlockWrapper from "../BlockWrapper"
 
 import { InfoBoxComponentProps } from "."
 
-const InfoBoxEditor: React.FC<BlockEditProps<InfoBoxComponentProps>> = ({
+const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComponentProps>>> = ({
   clientId,
   attributes,
   setAttributes,

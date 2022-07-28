@@ -45,6 +45,10 @@ test.describe("Model solutions", () => {
       }),
     )
 
+    if (!frame) {
+      throw new Error("Could not find frame")
+    }
+
     const stableElement = await frame.waitForSelector("text=a")
 
     await expectScreenshotsToMatchSnapshots({
@@ -56,8 +60,12 @@ test.describe("Model solutions", () => {
       beforeScreenshot: async () => {
         await page.evaluate(() => {
           const divs = document.querySelectorAll("div")
-          for (const div of divs) {
-            if (div.children.length === 0 && div.textContent.includes("Submitted at")) {
+          for (const div of Array.from(divs)) {
+            if (
+              div.children.length === 0 &&
+              div.textContent &&
+              div.textContent.includes("Submitted at")
+            ) {
               div.innerHTML = "Submitted at yyyy-mm-dd by xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             }
           }
@@ -97,6 +105,10 @@ test.describe("Model solutions", () => {
         return f.url().startsWith("http://project-331.local/example-exercise/iframe")
       }),
     )
+
+    if (!frame) {
+      throw new Error("Could not find frame")
+    }
 
     const stableElement = await frame.waitForSelector("text=a")
 

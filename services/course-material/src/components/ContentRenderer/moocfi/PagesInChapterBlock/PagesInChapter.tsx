@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -16,14 +16,14 @@ export interface PagesInChapterProps {
   courseSlug: string
 }
 
-const PagesInChapter: React.FC<PagesInChapterProps> = ({
+const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = ({
   chapterId,
   courseSlug,
   organizationSlug,
 }) => {
   const { t } = useTranslation()
   const getPagesInChapterExcludeFrontpage = useQuery(
-    `chapter-${chapterId}-pages-excluding-frontpage`,
+    [`chapter-${chapterId}-pages-excluding-frontpage`],
     () => fetchChaptersPagesExcludeFrontpage(chapterId),
   )
 
@@ -52,8 +52,7 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
           {getPagesInChapterExcludeFrontpage.isError && (
             <ErrorBanner variant={"readOnly"} error={getPagesInChapterExcludeFrontpage.error} />
           )}
-          {(getPagesInChapterExcludeFrontpage.isLoading ||
-            getPagesInChapterExcludeFrontpage.isIdle) && <Spinner variant={"medium"} />}
+          {getPagesInChapterExcludeFrontpage.isLoading && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
               {getPagesInChapterExcludeFrontpage.data

@@ -14,7 +14,7 @@ export interface PeerReviewQuestionProps {
   peerReviewQuestionAnswer: CourseMaterialPeerReviewQuestionAnswer | null
 }
 
-const PeerReviewQuestion: React.FC<PeerReviewQuestionProps> = ({
+const PeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionProps>> = ({
   question,
   setPeerReviewQuestionAnswer,
   peerReviewQuestionAnswer,

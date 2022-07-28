@@ -34,7 +34,7 @@ type QuizItemType =
   | "timeline"
 
 interface QuizItemSubmissionComponentDescriptor {
-  component: React.FC<QuizItemSubmissionComponentProps>
+  component: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>>
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
 }
 
@@ -75,7 +75,7 @@ const componentDescriptorByTypeName = (
   return mapTypeToComponent[typeName]
 }
 
-const Submission: React.FC<SubmissionProps> = ({
+const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   publicAlternatives,
   modelSolutions,
   gradingFeedbackJson: feedback_json,

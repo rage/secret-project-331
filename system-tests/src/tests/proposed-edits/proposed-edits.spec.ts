@@ -46,6 +46,10 @@ test("test", async ({ page, headless }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Coudl not find frame")
+  }
+
   await frame.waitForSelector("text=b")
 
   // Click text=Give feedback
@@ -195,6 +199,12 @@ test("test", async ({ page, headless }) => {
     page.waitForEvent("popup"),
     page.locator("text=Open page in new tab").first().click(),
   ])
+
+  // Wait for the exercise to load because otherwise it might mess up the screenshot
+  await page1
+    .frameLocator(`[title="Exercise 1, task 0 content"]`)
+    .locator(`button:text-is("a")`)
+    .waitFor()
 
   await page1.locator(`text=Like this!!!!!`).scrollIntoViewIfNeeded()
 

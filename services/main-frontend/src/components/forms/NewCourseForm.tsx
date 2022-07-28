@@ -30,7 +30,7 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({
+const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   organizationId,
   onSubmitNewCourseForm,
   onSubmitDuplicateCourseForm,

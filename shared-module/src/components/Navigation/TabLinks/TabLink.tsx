@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
+import { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { UrlObject } from "node:url"
 import React from "react"
-import { UseQueryResult } from "react-query"
 
 import useQueryParameter from "../../../hooks/useQueryParameter"
 import { baseTheme, theme } from "../../../styles"
@@ -16,7 +16,12 @@ export interface TabLinkProps {
   countHook?: () => UseQueryResult<number, unknown>
 }
 
-const TabLink: React.FC<TabLinkProps> = ({ children, url, isActive, countHook }) => {
+const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkProps>>> = ({
+  children,
+  url,
+  isActive,
+  countHook,
+}) => {
   const count = countHook?.()
   const path = `${useQueryParameter("path")}`
   const router = useRouter()

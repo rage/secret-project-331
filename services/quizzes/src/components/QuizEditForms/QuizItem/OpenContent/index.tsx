@@ -55,7 +55,7 @@ interface OpenContentProps {
   item: NormalizedQuizItem
 }
 
-const OpenContent: React.FC<OpenContentProps> = ({ item }) => {
+const OpenContent: React.FC<React.PropsWithChildren<OpenContentProps>> = ({ item }) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])

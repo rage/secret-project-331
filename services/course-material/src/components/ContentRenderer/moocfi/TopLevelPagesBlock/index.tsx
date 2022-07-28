@@ -10,7 +10,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import TopLevelPages from "./TopLevelPage"
 
-const TopLevelPageBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 

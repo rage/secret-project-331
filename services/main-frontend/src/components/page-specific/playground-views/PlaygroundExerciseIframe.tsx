@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { UseQueryResult } from "react-query"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
@@ -17,14 +17,11 @@ interface PlaygroundExerciseIframeProps {
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const PlaygroundExerciseIframe: React.FC<PlaygroundExerciseIframeProps> = ({
-  url,
-  publicSpecQuery,
-  setCurrentStateReceivedFromIframe,
-  showIframeBorders,
-}) => {
+const PlaygroundExerciseIframe: React.FC<
+  React.PropsWithChildren<PlaygroundExerciseIframeProps>
+> = ({ url, publicSpecQuery, setCurrentStateReceivedFromIframe, showIframeBorders }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError || publicSpecQuery.isIdle) {
+  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
   // Makes sure the iframe renders again when the data changes

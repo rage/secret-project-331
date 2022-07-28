@@ -33,7 +33,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
+const Matrix: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {

@@ -69,12 +69,9 @@ export interface LandingPageHeroSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
 
-const LandingPageHeroSection: React.FC<CardProps> = ({
-  title,
-  children,
-  backgroundImage,
-  backgroundColor,
-}) => {
+const LandingPageHeroSection: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CardProps>>
+> = ({ title, children, backgroundImage, backgroundColor }) => {
   const { t } = useTranslation()
   return (
     <div

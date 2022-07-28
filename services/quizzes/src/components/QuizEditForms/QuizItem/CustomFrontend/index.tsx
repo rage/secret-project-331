@@ -36,7 +36,9 @@ const EditButtonWrapper = styled.div`
   justify-content: flex-end;
 `
 
-export const CustomFrontend: React.FC<CustomFrontendProps> = ({ item }) => {
+export const CustomFrontend: React.FC<React.PropsWithChildren<CustomFrontendProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])

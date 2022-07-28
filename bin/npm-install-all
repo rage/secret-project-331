@@ -8,8 +8,12 @@ if [ -z ${1+x} ]
     exit 1
 fi
 
-PACKAGE=$1
+echo -e "${BLUE}Hint: you can give this script multiple arguments "
+echo -e "Example:${BOLD} bin/npm-install-all --save-dev @types/react @types/node ${RESET_EVERYTHING}${BLUE}"
+echo -e "$RESET_EVERYTHING"
 
-run_command npx concurrently -n "cms,course-material,main-frontend,example-exercise,shared-module,quizzes" -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold,magenta.bold,cyan.bold" "bash -c 'cd services/cms/ && npm install ${PACKAGE}'" "bash -c 'cd services/course-material/ && npm install ${PACKAGE}'" "bash -c 'cd services/main-frontend && npm install ${PACKAGE}'" "bash -c 'cd services/example-exercise && npm install ${PACKAGE}'" "bash -c 'cd shared-module && npm install ${PACKAGE}'" "bash -c 'cd services/quizzes/ && npm install ${PACKAGE}'"
+PACKAGES=$*
+
+run_command npx concurrently -n "cms,course-material,main-frontend,example-exercise,shared-module,quizzes" -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold,magenta.bold,cyan.bold" "bash -c 'cd services/cms/ && npm install ${PACKAGES}'" "bash -c 'cd services/course-material/ && npm install ${PACKAGES}'" "bash -c 'cd services/main-frontend && npm install ${PACKAGES}'" "bash -c 'cd services/example-exercise && npm install ${PACKAGES}'" "bash -c 'cd shared-module && npm install ${PACKAGES}'" "bash -c 'cd services/quizzes/ && npm install ${PACKAGES}'"
 
 echo "finished"

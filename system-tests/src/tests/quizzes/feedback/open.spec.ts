@@ -43,6 +43,10 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector(
     "text=When you started studying at the uni? Give the date in yyyy-mm-dd format.",
   )

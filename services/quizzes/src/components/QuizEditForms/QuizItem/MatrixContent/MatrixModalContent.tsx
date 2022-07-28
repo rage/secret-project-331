@@ -23,7 +23,9 @@ interface EditorModalProps {
   item: NormalizedQuizItem
 }
 
-export const MatrixModalContent: React.FC<EditorModalProps> = ({ item }) => {
+export const MatrixModalContent: React.FC<React.PropsWithChildren<EditorModalProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   return (
     <ModalWrapper>

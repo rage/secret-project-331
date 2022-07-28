@@ -11,7 +11,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import PagesInChapter from "./PagesInChapter"
 
-const PagesInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const courseSlug = useQueryParameter("courseSlug")

@@ -45,7 +45,11 @@ interface NavLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   className?: string
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ children, className, ...rest }) => {
+const NavLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<NavLinkProps>>> = ({
+  children,
+  className,
+  ...rest
+}) => {
   return (
     <li className={cx(className)}>
       <a className={cx(NavLinkStyles)} {...rest}>

@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { UseMutationResult, UseQueryResult } from "react-query"
 
 import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
@@ -25,7 +25,9 @@ interface PlaygroundViewSubmissionIframeProps {
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const PlaygroundViewSubmissionIframe: React.FC<PlaygroundViewSubmissionIframeProps> = ({
+const PlaygroundViewSubmissionIframe: React.FC<
+  React.PropsWithChildren<PlaygroundViewSubmissionIframeProps>
+> = ({
   url,
   publicSpecQuery,
   gradingQuery,
@@ -36,17 +38,13 @@ const PlaygroundViewSubmissionIframe: React.FC<PlaygroundViewSubmissionIframePro
   sendModelsolutionSpec,
 }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError || publicSpecQuery.isIdle) {
+  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
-  if (
-    modelSolutionSpecQuery.isLoading ||
-    modelSolutionSpecQuery.isError ||
-    modelSolutionSpecQuery.isIdle
-  ) {
+  if (modelSolutionSpecQuery.isLoading || modelSolutionSpecQuery.isError) {
     return <>{t("error-no-model-solution-spec")}</>
   }
-  if (gradingQuery.isLoading || gradingQuery.isError || gradingQuery.isIdle) {
+  if (gradingQuery.isLoading || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
   const iframeState: IframeState = {

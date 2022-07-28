@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { fetchExam, setCourse, unsetCourse } from "../../../../services/backend/exams"
@@ -20,9 +20,9 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getExam = useQuery(`exam-${query.id}`, () => fetchExam(query.id))
+  const getExam = useQuery([`exam-${query.id}`], () => fetchExam(query.id))
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
@@ -61,7 +61,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
         `}
       >
         {getExam.isError && <ErrorBanner variant={"readOnly"} error={getExam.error} />}
-        {(getExam.isLoading || getExam.isIdle) && <Spinner variant={"medium"} />}
+        {getExam.isLoading && <Spinner variant={"medium"} />}
         {getExam.isSuccess && (
           <>
             <h1>

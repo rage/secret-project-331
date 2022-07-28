@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
@@ -20,9 +20,9 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">
 }
 
-const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getOrganizationBySlug = useQuery(`organization-${query.organizationSlug}`, () =>
+  const getOrganizationBySlug = useQuery([`organization-${query.organizationSlug}`], () =>
     fetchOrganizationBySlug(query.organizationSlug),
   )
 
@@ -55,9 +55,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             )}
           </>
         )}
-        {(getOrganizationBySlug.isLoading || getOrganizationBySlug.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getOrganizationBySlug.isLoading && <Spinner variant={"medium"} />}
         {getOrganizationBySlug.isError && (
           <ErrorBanner variant={"readOnly"} error={getOrganizationBySlug.error} />
         )}

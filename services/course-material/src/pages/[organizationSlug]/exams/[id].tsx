@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { addMinutes, differenceInSeconds, isPast, min } from "date-fns"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import ContentRenderer from "../../../components/ContentRenderer"
 import Page from "../../../components/Page"
@@ -30,7 +30,7 @@ interface ExamProps {
   query: SimplifiedUrlQuery<string>
 }
 
-const Exam: React.FC<ExamProps> = ({ query }) => {
+const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const { t } = useTranslation()
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(
@@ -40,7 +40,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
   )
   const now = useTime(5000)
 
-  const exam = useQuery(`exam-page-${examId}`, () => fetchExam(examId))
+  const exam = useQuery([`exam-page-${examId}`], () => fetchExam(examId))
 
   useEffect(() => {
     if (exam.isError) {
@@ -72,7 +72,7 @@ const Exam: React.FC<ExamProps> = ({ query }) => {
     await handleRefresh()
   }, [handleRefresh])
 
-  if (exam.isIdle || exam.isLoading) {
+  if (exam.isLoading) {
     return <Spinner variant="medium" />
   }
 

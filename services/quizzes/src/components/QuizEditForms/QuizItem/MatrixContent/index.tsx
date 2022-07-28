@@ -42,7 +42,7 @@ interface MatrixContentProps {
   item: NormalizedQuizItem
 }
 
-const MatrixContent: React.FC<MatrixContentProps> = ({ item }) => {
+const MatrixContent: React.FC<React.PropsWithChildren<MatrixContentProps>> = ({ item }) => {
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])

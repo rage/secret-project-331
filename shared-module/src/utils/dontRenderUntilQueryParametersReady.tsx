@@ -18,7 +18,9 @@ export type SimplifiedUrlQuery<T = unknown> = T extends string
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function dontRenderUntilQueryParametersReady<T, P = unknown>(
-  WrappedComponent: React.ComponentType<T & ProvidedExtraProps<P>>,
+  WrappedComponent: React.ComponentType<
+    React.PropsWithChildren<React.PropsWithChildren<T & ProvidedExtraProps<P>>>
+  >,
 ) {
   // Name to display in React Dev tools
   // eslint-disable-next-line i18next/no-literal-string

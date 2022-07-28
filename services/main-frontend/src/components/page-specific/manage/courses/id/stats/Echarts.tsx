@@ -15,7 +15,7 @@ export interface EchartsProps {
   height?: number
 }
 
-const Echarts: React.FC<EchartsProps> = ({ options, height = 300 }) => {
+const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, height = 300 }) => {
   return (
     <div>
       {/* eslint-disable-next-line react/forbid-component-props */}

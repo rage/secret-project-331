@@ -20,7 +20,7 @@ const viewPorts = {
 type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[0]
 
 interface ExpectScreenshotsToMatchSnapshotsProps {
-  headless: boolean
+  headless: boolean | undefined
   snapshotName: string
   waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
   clearNotifications?: boolean
@@ -39,7 +39,7 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
-  headless,
+  headless = false,
   snapshotName,
   toMatchSnapshotOptions = { threshold: 0.3 },
   waitForThisToBeVisibleAndStable,
@@ -55,16 +55,21 @@ export default async function expectScreenshotsToMatchSnapshots({
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders = true,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  if (!page && !frame) {
-    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
-  }
   let pageObjectToUse = page
-  let visibilityWaitContainer: Page | Frame = page
+  let visibilityWaitContainer: Page | Frame
   let originalViewPort = page?.viewportSize()
   if (frame) {
     pageObjectToUse = frame.page()
     originalViewPort = pageObjectToUse.viewportSize()
     visibilityWaitContainer = frame
+  } else if (page) {
+    visibilityWaitContainer = page
+  } else {
+    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
+  }
+
+  if (!pageObjectToUse) {
+    throw new Error("Could not determine pageObjectToUse")
   }
 
   // if frame is passed, then we take a screenshot of the frame istead of the page
@@ -75,17 +80,17 @@ export default async function expectScreenshotsToMatchSnapshots({
   }
 
   const elementHandle = await waitToBeVisible({
-    waitForThisToBeVisibleAndStable,
+    waitForThisToBeVisibleAndStable: waitForThisToBeVisibleAndStable || [],
     container: visibilityWaitContainer,
     replaceSomePartsWithPlaceholders,
   })
 
   if (clearNotifications) {
-    await page.evaluate(() => {
-      for (const notif of document.querySelectorAll("#give-feedback-button")) {
+    await (page || pageObjectToUse).evaluate(() => {
+      for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
         notif.remove()
       }
-      for (const notif of document.querySelectorAll(".toast-notification")) {
+      for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
         notif.remove()
       }
     })
@@ -125,8 +130,10 @@ export default async function expectScreenshotsToMatchSnapshots({
     replaceSomePartsWithPlaceholders,
   })
 
-  // always restore the original viewport
-  await pageObjectToUse.setViewportSize(originalViewPort)
+  if (originalViewPort) {
+    // always restore the original viewport
+    await pageObjectToUse.setViewportSize(originalViewPort)
+  }
 }
 
 interface SnapshotWithViewPortProps {
@@ -167,19 +174,27 @@ async function snapshotWithViewPort({
   }
 
   let pageObjectToUse = page
-  let thingBeingScreenshotted: Page | ElementHandle<Node> = page
-  let thingBeingScreenshottedObject: Page | Frame = page
+  let thingBeingScreenshotted: Page | ElementHandle<Node> | undefined = page
+  let thingBeingScreenshottedObject: Page | Frame | undefined = page
   if (frame) {
     pageObjectToUse = frame.page()
     thingBeingScreenshotted = await frame.frameElement()
     if (elementId) {
-      thingBeingScreenshotted = await thingBeingScreenshotted.$(elementId)
+      thingBeingScreenshotted = (await thingBeingScreenshotted.$(elementId)) ?? undefined
     }
     thingBeingScreenshottedObject = frame
   }
-  if (elementId) {
-    thingBeingScreenshotted = await page.$(elementId)
+  if (!pageObjectToUse || !thingBeingScreenshottedObject || !thingBeingScreenshotted) {
+    throw new Error("Cannot get the the thing being screenshotted")
   }
+  if (elementId) {
+    const element = await pageObjectToUse.$(elementId)
+    if (!element) {
+      throw new Error("Could not find the element with id " + elementId)
+    }
+    thingBeingScreenshotted = element
+  }
+
   // typing caret sometimes blinks and fails screenshot tests
   const style = await thingBeingScreenshottedObject.addStyleTag({
     content: `
@@ -208,7 +223,7 @@ async function snapshotWithViewPort({
 
   // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
   if (scrollToYCoordinate) {
-    await page.evaluate(async (coord) => {
+    await (page || pageObjectToUse).evaluate(async (coord) => {
       window.scrollTo(0, coord)
     }, scrollToYCoordinate)
     // 100ms was not enough at the time of writing this
@@ -281,18 +296,22 @@ export async function waitToBeVisible({
   if (replaceSomePartsWithPlaceholders) {
     await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   }
-  let elementHandle: ElementHandle | ElementHandle[] = null
+  let elementHandle: ElementHandle | ElementHandle[]
   if (typeof waitForThisToBeVisibleAndStable == "string") {
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)
   } else if (Array.isArray(waitForThisToBeVisibleAndStable)) {
+    elementHandle = []
     for (const element of waitForThisToBeVisibleAndStable) {
-      // for some reason eslint mistakes recursion as an unsused variable
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      elementHandle = await waitToBeVisible({
+      const recursiveRes = await waitToBeVisible({
         waitForThisToBeVisibleAndStable: element,
         container: page,
         replaceSomePartsWithPlaceholders,
       })
+      if (Array.isArray(recursiveRes)) {
+        elementHandle.push(...recursiveRes)
+      } else {
+        elementHandle.push(recursiveRes)
+      }
     }
   } else {
     elementHandle = waitForThisToBeVisibleAndStable

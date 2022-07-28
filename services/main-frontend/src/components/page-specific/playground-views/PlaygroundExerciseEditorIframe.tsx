@@ -15,12 +15,9 @@ interface PlaygroundExerciseEditorIframeProps {
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const PlaygroundExerciseEditorIframe: React.FC<PlaygroundExerciseEditorIframeProps> = ({
-  url,
-  privateSpec,
-  setCurrentStateReceivedFromIframe,
-  showIframeBorders,
-}) => {
+const PlaygroundExerciseEditorIframe: React.FC<
+  React.PropsWithChildren<PlaygroundExerciseEditorIframeProps>
+> = ({ url, privateSpec, setCurrentStateReceivedFromIframe, showIframeBorders }) => {
   // Makes sure the iframe renders again when the data changes
   const iframeKey = url + JSON.stringify(privateSpec)
   return (

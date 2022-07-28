@@ -20,6 +20,10 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   await expectScreenshotsToMatchSnapshots({
@@ -29,32 +33,16 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
   })
 
   // Click [aria-label="row: 0, column: 0"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .click('[aria-label="row: 0, column: 0"]')
+  await frame.click('[aria-label="row: 0, column: 0"]')
 
   // Fill [aria-label="row: 0, column: 0"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .fill('[aria-label="row: 0, column: 0"]', "1")
+  await frame.fill('[aria-label="row: 0, column: 0"]', "1")
 
   // Click [aria-label="row: 1, column: 1"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .click('[aria-label="row: 1, column: 1"]')
+  await frame.click('[aria-label="row: 1, column: 1"]')
 
   // Fill [aria-label="row: 1, column: 1"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .fill('[aria-label="row: 1, column: 1"]', "2")
+  await frame.fill('[aria-label="row: 1, column: 1"]', "2")
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -64,32 +52,16 @@ test("widget, matrix screenshot test", async ({ page, headless }) => {
   })
 
   // Click [aria-label="row: 0, column: 2"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .click('[aria-label="row: 0, column: 2"]')
+  await frame.click('[aria-label="row: 0, column: 2"]')
 
   // Fill [aria-label="row: 0, column: 2"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .fill('[aria-label="row: 0, column: 2"]', "5")
+  await frame.fill('[aria-label="row: 0, column: 2"]', "5")
 
   // Click [aria-label="row: 5, column: 5"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .click('[aria-label="row: 5, column: 5"]')
+  await frame.click('[aria-label="row: 5, column: 5"]')
 
   // Fill [aria-label="row: 5, column: 5"]
-  await page
-    .frame({
-      url: "http://project-331.local/quizzes/iframe?width=500",
-    })
-    .fill('[aria-label="row: 5, column: 5"]', "6")
+  await frame.fill('[aria-label="row: 5, column: 5"]', "6")
 
   await expectScreenshotsToMatchSnapshots({
     headless,

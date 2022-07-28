@@ -300,7 +300,7 @@ mod test {
     use super::*;
     use crate::test_helper::*;
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn regrades_submission() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -396,7 +396,7 @@ mod test {
         assert_eq!(grading.score_given, Some(0.0))
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn regrades_complete() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -487,7 +487,7 @@ mod test {
         assert!(regrading_1.regrading_completed_at.is_some());
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn regrades_partial() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -642,7 +642,7 @@ mod test {
         assert!(regrading_2.regrading_completed_at.is_none());
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn updates_exercise_state() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -759,7 +759,7 @@ mod test {
         );
     }
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn fail_on_missing_service() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();

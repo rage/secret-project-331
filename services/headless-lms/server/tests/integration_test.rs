@@ -22,7 +22,7 @@ pub async fn init_db() -> String {
     }
     dotenv::dotenv().ok();
     let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
-        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+        "postgres://headless-lms@localhost:54328/headless_lms_test_rust".to_string()
     });
     if Postgres::database_exists(&db)
         .await
@@ -85,7 +85,7 @@ pub async fn init_actix() -> (
 }
 
 #[ignore = "Only one integration test can be run at once in current setup."]
-#[tokio::test]
+#[actix_web::test]
 async fn gets_organizations() {
     let (actix, pool) = init_actix().await;
     let mut conn = pool.acquire().await.unwrap();

@@ -1,6 +1,7 @@
 {
   "add-new-quiz-item": "Lisää uusi Quiz-esine",
   "add-option": "Lisää vaihtoehto",
+  "additional-correctness-explanation-on-model-solution": "Lisäselitys vaihtoehdon oikeellisuudelle mallivastauksessa",
   "all-answers-correct": "Kaikki vastaukset ovat oikein (Ei väliä mikä vastaus on oikein)",
   "allow-selecting-multiple-options": "Salli usean vaihtoehdon valitseminen",
   "answer": "Vastaus",
@@ -9,7 +10,6 @@
   "choose-quiz-item-option-direction-help-text": "Valitse suunta mihin Quiz-esine vaihtoehdot menevät widgetin sisällä",
   "column": "Sarake",
   "correct-option": "Oikea vaihtoehto",
-  "incorrect-option": "Väärä vaihtoehto",
   "description-for-quiz-item": "Quiz-esineen kuvaus",
   "direction": "suunta",
   "edit-item": "Muokkaa esinettä",
@@ -22,6 +22,7 @@
   "given-text-matches-regular-expression": "Annettu teksti vastaa annettua säännöllistö lauseketta",
   "grant-only-when-fully-correct": "Myönnä vain kun kokonaan oikein",
   "grant-whenever-possible": "Myönnä heti kun mahdollista",
+  "incorrect-option": "Väärä vaihtoehto",
   "invalid-maximum-value": "Epäkelpo maksimiarvo",
   "invalid-minimum-value": "Epäkelpo minimiarvo",
   "invalid-regular-expression": "Epäkelpo säännöllinen lauseke",
@@ -37,6 +38,7 @@
   "matrix-option-editor-title": "Matriisi-editori",
   "max-words": "Maksimi sanat",
   "maximum": "Maksimi",
+  "message-after-submission-when-selected": "Valitun vaihtoehdon palaute palautuksen jälkeen",
   "min-words": "Minimi sanat",
   "minimum": "Minimi",
   "number-of-tries-allowed": "Sallittujen yritysten määrä",
@@ -53,12 +55,11 @@
   "regular-expression-tester": "Säännöllisen lausekkeen testaaja",
   "row": "Rivi",
   "section": "Luku",
+  "select-all-correct-options": "Valitse kaikki oikeat vaihtoehdot.",
   "shared-feedback-message": "Jaettu palauteviesti",
   "shared-feedback-message-option": "Jaettu palauteviesti jokaiselle vaihtoehdolle",
   "submit-message": "Viesti palautuksessa",
   "success-message": "Oikean vastauksen viesti",
-  "message-after-submission-when-selected": "Valitun vaihtoehdon palaute palautuksen jälkeen",
-  "additional-correctness-explanation-on-model-solution": "Lisäselitys vaihtoehdon oikeellisuudelle mallivastauksessa",
   "title": "Otsikko",
   "title-advanced-editing": "Edistynyt muokkaustyökalu",
   "title-options": "Vaihtoehdot",
@@ -69,6 +70,5 @@
   "waiting-for-port": "Odotetaan porttia...",
   "word-count": "Sanamäärä",
   "your-answer-was-correct": "Vastauksesi oli oikein.",
-  "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
-  "select-all-correct-options": "Valitse kaikki oikeat vaihtoehdot."
+  "your-answer-was-not-correct": "Vastauksesi ei ollut oikein."
 }

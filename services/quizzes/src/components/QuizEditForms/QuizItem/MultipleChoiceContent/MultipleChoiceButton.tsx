@@ -21,10 +21,8 @@ const StyledModal = styled(Modal)`
   justify-content: center;
 `
 
-const StyledEmotionBox = (heightOffset: number | undefined, optionCount?: number) => css`
+const StyledEmotionBox = (heightOffset: number | undefined) => css`
   ${heightOffset &&
-  ((optionCount !== undefined && optionCount < 3) || optionCount === undefined) &&
-  // eslint-disable-next-line i18next/no-literal-string
   `
     position: fixed;
     top: ${heightOffset + 15}px;

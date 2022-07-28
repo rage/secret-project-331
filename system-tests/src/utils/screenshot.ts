@@ -68,6 +68,10 @@ export default async function expectScreenshotsToMatchSnapshots({
     throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
   }
 
+  if (!pageObjectToUse) {
+    throw new Error("Could not determine pageObjectToUse")
+  }
+
   // if frame is passed, then we take a screenshot of the frame istead of the page
   if (frame) {
     const frameElement = await frame.frameElement()
@@ -76,17 +80,17 @@ export default async function expectScreenshotsToMatchSnapshots({
   }
 
   const elementHandle = await waitToBeVisible({
-    waitForThisToBeVisibleAndStable,
+    waitForThisToBeVisibleAndStable: waitForThisToBeVisibleAndStable || [],
     container: visibilityWaitContainer,
     replaceSomePartsWithPlaceholders,
   })
 
   if (clearNotifications) {
-    await page.evaluate(() => {
-      for (const notif of document.querySelectorAll("#give-feedback-button")) {
+    await (page || pageObjectToUse).evaluate(() => {
+      for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
         notif.remove()
       }
-      for (const notif of document.querySelectorAll(".toast-notification")) {
+      for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
         notif.remove()
       }
     })
@@ -126,8 +130,10 @@ export default async function expectScreenshotsToMatchSnapshots({
     replaceSomePartsWithPlaceholders,
   })
 
-  // always restore the original viewport
-  await pageObjectToUse.setViewportSize(originalViewPort)
+  if (originalViewPort) {
+    // always restore the original viewport
+    await pageObjectToUse.setViewportSize(originalViewPort)
+  }
 }
 
 interface SnapshotWithViewPortProps {
@@ -168,18 +174,18 @@ async function snapshotWithViewPort({
   }
 
   let pageObjectToUse = page
-  let thingBeingScreenshotted: Page | ElementHandle<Node> = page
-  let thingBeingScreenshottedObject: Page | Frame = page
+  let thingBeingScreenshotted: Page | ElementHandle<Node> | undefined = page
+  let thingBeingScreenshottedObject: Page | Frame | undefined = page
   if (frame) {
     pageObjectToUse = frame.page()
     thingBeingScreenshotted = await frame.frameElement()
     if (elementId) {
-      thingBeingScreenshotted = await thingBeingScreenshotted.$(elementId)
+      thingBeingScreenshotted = (await thingBeingScreenshotted.$(elementId)) ?? undefined
     }
     thingBeingScreenshottedObject = frame
   }
-  if (!pageObjectToUse) {
-    throw new Error("Cannot take screenshot without a page")
+  if (!pageObjectToUse || !thingBeingScreenshottedObject || !thingBeingScreenshotted) {
+    throw new Error("Cannot get the the thing being screenshotted")
   }
   if (elementId) {
     const element = await pageObjectToUse.$(elementId)

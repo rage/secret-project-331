@@ -44,6 +44,10 @@ test("feedback test", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=b")
 
   await page.click("text=So big", {

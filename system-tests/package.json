@@ -36,6 +36,7 @@
   "keywords": [],
   "devDependencies": {
     "@playwright/test": "^1.24.0",
+    "@types/node": "^18.6.2",
     "playwright": "^1.24.0",
     "typescript": "^4.7.4"
   },

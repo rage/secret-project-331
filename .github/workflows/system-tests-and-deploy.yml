@@ -176,3 +176,20 @@ jobs:
 
       - name: Deploy with Skaffold
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Run npm ci in repo root
+        run: npm ci
+
+      - name: Run npm ci system-tests
+        run: npm ci
+        working-directory: ./system-tests/
+
+      - name: Run tsc
+        run: npx tsc --noEmit
+        working-directory: ./system-tests/

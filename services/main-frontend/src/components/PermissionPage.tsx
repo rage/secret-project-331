@@ -292,9 +292,6 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                     <td>
                       <SelectField
                         id={"editing-role"}
-                        onBlur={() => {
-                          // no-op
-                        }}
                         onChange={(role) => {
                           setEditingRole({ userId: ur.id, newRole: role })
                         }}
@@ -386,9 +383,6 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
           <SelectField
             id={`adding-${t("label-role")}`}
             label={t("label-role")}
-            onBlur={() => {
-              // no-op
-            }}
             onChange={(role) => {
               setNewRole(role)
             }}

@@ -59,7 +59,9 @@ const StyledSpinner = styled.div<SpinnerProps>`
   animation-fill-mode: forwards;
 `
 
-const Spinner: React.FC<SpinnerProps> = (props) => {
+const Spinner: React.FC<React.PropsWithChildren<React.PropsWithChildren<SpinnerProps>>> = (
+  props,
+) => {
   return <StyledSpinner {...props}></StyledSpinner>
 }
 

@@ -10,7 +10,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ChapterProgress from "./ChapterProgress"
 
-const ChapterProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const ChapterProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const loginStateContext = useContext(LoginStateContext)

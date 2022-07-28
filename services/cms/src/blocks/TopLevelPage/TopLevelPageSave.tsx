@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const TopLevelPageSave: React.FC = () => {
+const TopLevelPageSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

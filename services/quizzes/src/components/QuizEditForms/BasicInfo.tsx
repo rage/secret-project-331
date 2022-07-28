@@ -12,7 +12,7 @@ const InfoContainer = styled.div`
   display: flex;
 `
 
-const BasicInformation: React.FC = () => {
+const BasicInformation: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
 

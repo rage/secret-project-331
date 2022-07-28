@@ -23,7 +23,7 @@ interface Comment {
   relatedBlocks: Array<FeedbackBlock>
 }
 
-const FeedbackDialog: React.FC<Props> = ({
+const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
   pageId,
   lastSelection,

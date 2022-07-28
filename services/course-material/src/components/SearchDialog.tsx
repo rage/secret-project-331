@@ -41,7 +41,10 @@ const StyledIcon = css`
   }
 `
 
-const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
+const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
+  courseId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")

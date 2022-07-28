@@ -18,7 +18,11 @@ interface Props {
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
 }
 
-const FrontPage: React.FC<Props> = ({ data, chapter, pageOrderDispatch }) => {
+const FrontPage: React.FC<React.PropsWithChildren<Props>> = ({
+  data,
+  chapter,
+  pageOrderDispatch,
+}) => {
   const { t } = useTranslation()
   if (!data) {
     return null

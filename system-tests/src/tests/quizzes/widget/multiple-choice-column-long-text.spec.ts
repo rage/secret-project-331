@@ -22,6 +22,10 @@ test("widget, multiple-choice multi screenshot test with long text", async ({ pa
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   await frame.click(`text="short answer"`)

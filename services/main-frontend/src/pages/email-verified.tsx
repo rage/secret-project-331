@@ -8,7 +8,7 @@ import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import { baseTheme } from "../shared-module/styles"
 
-const EmailVerifiedPage: React.FC = () => {
+const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <Layout>

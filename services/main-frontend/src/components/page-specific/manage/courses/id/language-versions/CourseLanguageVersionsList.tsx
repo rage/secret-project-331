@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { fetchCourseLanguageVersions } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -15,8 +15,10 @@ export interface CourseTranslationsListProps {
   courseId: string
 }
 
-const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ courseId }) => {
-  const getCourseLanguageVersions = useQuery(formatLanguageVersionsQueryKey(courseId), () =>
+const CourseLanguageVersionsList: React.FC<
+  React.PropsWithChildren<CourseTranslationsListProps>
+> = ({ courseId }) => {
+  const getCourseLanguageVersions = useQuery([formatLanguageVersionsQueryKey(courseId)], () =>
     fetchCourseLanguageVersions(courseId),
   )
 
@@ -25,9 +27,7 @@ const CourseLanguageVersionsList: React.FC<CourseTranslationsListProps> = ({ cou
       {getCourseLanguageVersions.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseLanguageVersions.error} />
       )}
-      {(getCourseLanguageVersions.isLoading || getCourseLanguageVersions.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCourseLanguageVersions.isLoading && <Spinner variant={"medium"} />}
       {getCourseLanguageVersions.isSuccess && (
         <ul>
           {getCourseLanguageVersions.data.map((course) => (

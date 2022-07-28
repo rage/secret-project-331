@@ -22,10 +22,9 @@ export interface ExerciseSlideAttributes {
   order_number: number
 }
 
-const ExerciseSlideEditor: React.FC<BlockEditProps<ExerciseSlideAttributes>> = ({
-  attributes,
-  clientId,
-}) => {
+const ExerciseSlideEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>
+> = ({ attributes, clientId }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()

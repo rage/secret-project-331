@@ -122,7 +122,9 @@ export interface FooterExtraProps {
 
 export type FooterProps = React.HTMLAttributes<HTMLDivElement> & FooterExtraProps
 
-const Footer: React.FC<FooterProps> = ({ licenseUrl }) => {
+const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = ({
+  licenseUrl,
+}) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   return (

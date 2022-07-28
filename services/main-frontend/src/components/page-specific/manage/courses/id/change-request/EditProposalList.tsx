@@ -1,8 +1,8 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchEditProposalCount } from "../../../../../../services/backend/proposedEdits"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
@@ -16,7 +16,11 @@ interface Props {
   perPage: number
 }
 
-const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
+const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  pending,
+  perPage,
+}) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -28,7 +32,7 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
   }
   const [page, setPage] = useState(initialPage)
 
-  const getEditProposalCount = useQuery(`edit-proposal-count-${courseId}`, () =>
+  const getEditProposalCount = useQuery([`edit-proposal-count-${courseId}`], () =>
     fetchEditProposalCount(courseId),
   )
 
@@ -36,7 +40,7 @@ const EditProposalList: React.FC<Props> = ({ courseId, pending, perPage }) => {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
   }
 
-  if (getEditProposalCount.isLoading || getEditProposalCount.isIdle) {
+  if (getEditProposalCount.isLoading) {
     return <Spinner variant="medium" />
   }
 

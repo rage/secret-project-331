@@ -1,7 +1,7 @@
 import { Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
 import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
@@ -17,7 +17,7 @@ interface Props {
   onCompare: (ph: PageHistory) => void
 }
 
-const HistoryList: React.FC<Props> = ({
+const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   pageId,
   initialSelectedRevisionId,
   onRestore,
@@ -39,7 +39,7 @@ const HistoryList: React.FC<Props> = ({
     initialSelectedRevisionId,
   )
 
-  const getPageHistoryCount = useQuery(`page-history-count-${pageId}`, () =>
+  const getPageHistoryCount = useQuery([`page-history-count-${pageId}`], () =>
     fetchHistoryCountForPage(pageId),
   )
 
@@ -66,9 +66,7 @@ const HistoryList: React.FC<Props> = ({
       {getPageHistoryCount.isError && (
         <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
       )}
-      {(getPageHistoryCount.isLoading || getPageHistoryCount.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
       {getPageHistoryCount.isSuccess && (
         <>
           <HistoryPage

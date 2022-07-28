@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { fromPairs } from "lodash"
 import { useContext, useEffect, useState } from "react"
-import { useQuery } from "react-query"
 
 import PageContext from "../contexts/PageContext"
 import { fetchCourseReferences } from "../services/backend"
@@ -11,7 +11,7 @@ const useReferences = (courseId: string) => {
   const [pageRefs, setPageRefs] =
     useState<{ reference: MaterialReference; referenceNumber: number }[]>()
 
-  const getCourseReferences = useQuery(`course-${courseId}-references`, () =>
+  const getCourseReferences = useQuery([`course-${courseId}-references`], () =>
     fetchCourseReferences(courseId),
   )
 

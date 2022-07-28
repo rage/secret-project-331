@@ -10,7 +10,9 @@ import TabLinkPanel from "../../../../../../shared-module/components/Navigation/
 
 import FeedbackList from "./FeedbackList"
 
-const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const [read, setRead] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()

@@ -54,7 +54,7 @@ const MaxField = styled(TextField)`
 interface ScaleContentProps {
   item: NormalizedQuizItem
 }
-const ScaleContent: React.FC<ScaleContentProps> = ({ item }) => {
+const ScaleContent: React.FC<React.PropsWithChildren<ScaleContentProps>> = ({ item }) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])

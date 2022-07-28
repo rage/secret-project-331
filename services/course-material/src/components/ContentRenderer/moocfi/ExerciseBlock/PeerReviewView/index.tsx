@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { UseQueryResult } from "react-query"
 
 import { baseTheme } from "../../../../../shared-module/styles"
 
@@ -17,7 +17,7 @@ export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>
   // eslint-disable-next-line i18next/no-literal-string
   `start-of-peer-review-${exerciseId}`
 
-const PeerReviewView: React.FC<PeerReviewViewProps> = (props) => {
+const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (props) => {
   const { t } = useTranslation()
 
   return (

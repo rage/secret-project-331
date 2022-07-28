@@ -4,7 +4,7 @@ interface Props {
   onChooseItem: (task: ExerciseTaskTypes) => void
 }
 
-const ChooseExerciseTaskType: React.FC<Props> = ({ onChooseItem }) => {
+const ChooseExerciseTaskType: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {
   return <ExerciseServiceList onChooseItem={onChooseItem} />
 }
 

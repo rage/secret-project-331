@@ -1382,7 +1382,22 @@ pub async fn upsert_peer_review_questions(
       ) ",
         );
 
-        sql.push_values(peer_review_questions.iter().take(1000), |mut x, prq| {
+        let peer_review_questions = peer_review_questions
+            .iter()
+            .take(1000)
+            .map(|prq| {
+                remapped_peer_review_ids
+                    .get(&prq.peer_review_id)
+                    .map(|r| (prq, r.id))
+                    .ok_or_else(|| {
+                        ModelError::Generic(
+                            "No peer review found for peer review questions".to_string(),
+                        )
+                    })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        sql.push_values(peer_review_questions, |mut x, (prq, peer_review_id)| {
             let peer_review_question_exists = existing_peer_review_questions
                 .iter()
                 .any(|id| *id == prq.id);
@@ -1393,10 +1408,6 @@ pub async fn upsert_peer_review_questions(
             };
             new_peer_review_question_id_to_old_id
                 .insert(safe_for_db_peer_review_question_id, prq.id);
-            let peer_review_id = remapped_peer_review_ids
-                .get(&prq.peer_review_id)
-                .unwrap()
-                .id;
 
             x.push_bind(safe_for_db_peer_review_question_id)
                 .push_bind(peer_review_id)

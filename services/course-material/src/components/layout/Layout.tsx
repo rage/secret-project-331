@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import PageContext from "../../contexts/PageContext"
 import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
+import LanguageSelection from "../../shared-module/components/LanguageSelection"
 import {
   Menu,
   NavBar,
@@ -21,6 +22,8 @@ import SearchDialog from "../SearchDialog"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
+
+const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 interface LayoutProps {
   children: ReactNode
@@ -81,6 +84,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
                   />
                 </NavItem>
               )}
+              <NavItem>
+                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+              </NavItem>
             </NavItems>
           </NavContainer>
           <Menu>

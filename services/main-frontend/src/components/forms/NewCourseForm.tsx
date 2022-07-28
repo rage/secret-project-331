@@ -243,9 +243,6 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <FieldContainer>
             <SelectMenu
               id="duplicate-course-select-menu"
-              onBlur={() => {
-                // no-op
-              }}
               defaultValue={courses[0].id}
               onChange={(e) => handleDuplicateMenu(e, courses)}
               options={courses.map((course) => {

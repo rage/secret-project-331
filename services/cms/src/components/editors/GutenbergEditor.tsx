@@ -310,9 +310,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                       // eslint-disable-next-line i18next/no-literal-string
                       { value: "block-menu", label: t("block-menu") },
                     ]}
-                    onBlur={() => {
-                      // noop
-                    }}
                     onChange={(val) => setSidebarView(val)}
                   />
                 </div>

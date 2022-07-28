@@ -126,9 +126,6 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         {duplicateExam && (
           <SelectMenu
             id={"parentId"}
-            onBlur={() => {
-              // no-op
-            }}
             onChange={(value) => handleSetExamToDuplicate(value)}
             options={exams.map((e) => {
               return { label: e.name, value: e.id }

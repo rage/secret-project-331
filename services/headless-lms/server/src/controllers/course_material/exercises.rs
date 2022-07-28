@@ -102,6 +102,30 @@ async fn get_peer_review_for_exercise(
 }
 
 /**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get peer review given for an exercise. This includes peer review submitted and the question asociated with it.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_review_given(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json> {
+    let mut conn = pool.acquire().await?;
+    let peer_review_data =
+        models::exercise_task_submissions::get_peer_review_recieved(&mut conn, *exercise_id)
+            .await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+    token.authorize_ok(web::Json(peer_review_data))
+}
+
+/**
 POST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an
 exercise.
 
@@ -361,6 +385,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/peer-review",
             web::get().to(get_peer_review_for_exercise),
+        )
+        .route(
+            "/{exercise_id}/peer-review-given",
+            web::get().to(get_peer_review_given),
         )
         .route(
             "/{exercise_id}/submissions",

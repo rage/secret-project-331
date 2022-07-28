@@ -228,6 +228,31 @@ const ErrorBanner: React.FC<BannerProps> = (props) => {
           </Content>
         </BannerWrapper>
       )
+    } else if (error instanceof Error) {
+      // caught error from somewhere (JSON.stringifying an error returns {})
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>{t("error-title")}</h2>
+            </Text>
+            <DetailTag>
+              <details>
+                <summary>{t("show-error-source")}</summary>
+                <ul>
+                  <li>
+                    <pre>
+                      {error.toString()}
+                      <br />
+                      {error.stack}
+                    </pre>
+                  </li>
+                </ul>
+              </details>
+            </DetailTag>
+          </Content>
+        </BannerWrapper>
+      )
     }
   }
 

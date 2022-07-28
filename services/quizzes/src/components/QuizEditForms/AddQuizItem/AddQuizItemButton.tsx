@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import Button from "../../../shared-module/components/Button"
@@ -12,13 +11,14 @@ interface ButtonProps {
 }
 
 export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
-  const { t } = useTranslation()
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)
+  const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1)
   return (
     <>
       <Button
-        title={t("open")}
+        // eslint-disable-next-line i18next/no-literal-string
+        title={`Add new ${capitalizedType}`}
         variant="outlined"
         transform="capitalize"
         onClick={() => dispatch(createdNewItem(quizId, type))}

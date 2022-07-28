@@ -1,6 +1,7 @@
 {
   "add-new-quiz-item": "Add new quiz item",
   "create-quiz-item-same-type": "Create new quiz item of same type",
+  "explain-add-new-quiz-item": "If you want to create different Quiz Type, please create new task with 'Add task'",
   "create-quiz-item-duplicate": "Duplicate previous quiz item",
   "add-option": "Add option",
   "add-new-event": "Add new event",

@@ -2,6 +2,7 @@
   "add-new-quiz-item": "Lisää uusi Quiz-esine",
   "add-option": "Lisää vaihtoehto",
   "all-answers-correct": "Kaikki vastaukset ovat oikein (Ei väliä mikä vastaus on oikein)",
+  "explain-add-new-quiz-item": "Jos haluat luoda eri tehtävätyypin niin lisää uusi tehtävä painamalla 'Lisää tehtävä'",
   "allow-selecting-multiple-options": "Salli usean vaihtoehdon valitseminen",
   "answer": "Vastaus",
   "aria-label-option-index": "Vaihtoehto {{index}}",

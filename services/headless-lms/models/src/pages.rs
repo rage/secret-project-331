@@ -8,6 +8,7 @@ use headless_lms_utils::document_schema_processor::{
     contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
 };
 use itertools::Itertools;
+use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
 use crate::{
@@ -1266,126 +1267,198 @@ RETURNING id,
 pub async fn upsert_peer_reviews(
     conn: &mut PgConnection,
     existing_peer_reviews: &[Uuid],
-    peer_reviews: &Vec<CmsPeerReview>,
+    peer_reviews: &[CmsPeerReview],
     retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReview>> {
-    let mut remapped_peer_reviews = HashMap::new();
-    for peer_review_update in peer_reviews {
-        let peer_review_exists = existing_peer_reviews
-            .iter()
-            .any(|id| *id == peer_review_update.id);
-        let safe_for_db_peer_review_id = if retain_ids || peer_review_exists {
-            peer_review_update.id
-        } else {
-            Uuid::new_v4()
-        };
+    if peer_reviews.is_empty() {
+        Ok(HashMap::new())
+    } else {
+        let mut new_peer_review_id_to_old_id = HashMap::new();
 
-        let peer_review = sqlx::query_as!(
+        let mut sql: QueryBuilder<Postgres> = QueryBuilder::new(
+            "INSERT INTO peer_reviews (
+        id,
+        course_id,
+        exercise_id,
+        peer_reviews_to_give,
+        peer_reviews_to_receive,
+        accepting_strategy,
+        accepting_threshold
+      ) ",
+        );
+
+        sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
+            let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
+            let safe_for_db_peer_review_id = if retain_ids || peer_review_exists {
+                pr.id
+            } else {
+                Uuid::new_v4()
+            };
+            new_peer_review_id_to_old_id.insert(safe_for_db_peer_review_id, pr.id);
+            x.push_bind(safe_for_db_peer_review_id)
+                .push_bind(pr.course_id)
+                .push_bind(pr.exercise_id)
+                .push_bind(pr.peer_reviews_to_give)
+                .push_bind(pr.peer_reviews_to_receive)
+                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.accepting_threshold);
+        });
+
+        sql.push(
+            " ON CONFLICT (id) DO
+UPDATE
+SET course_id = excluded.course_id,
+  exercise_id = excluded.exercise_id,
+  peer_reviews_to_give = excluded.peer_reviews_to_give,
+  peer_reviews_to_receive = excluded.peer_reviews_to_receive,
+  accepting_strategy = excluded.accepting_strategy,
+  accepting_threshold = excluded.accepting_threshold
+RETURNING id;
+",
+        );
+
+        let ids = sql
+            .build()
+            .fetch_all(&mut *conn)
+            .await?
+            .iter()
+            .map(|x| x.get(0))
+            .collect::<Vec<_>>();
+
+        let prs = sqlx::query_as!(
             CmsPeerReview,
             r#"
-INSERT INTO peer_reviews (
-    id,
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive,
-    accepting_strategy,
-    accepting_threshold
-  )
-VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
-UPDATE
-SET course_id = $2,
-  exercise_id = $3,
-  peer_reviews_to_give = $4,
-  peer_reviews_to_receive = $5,
-  accepting_strategy = $6,
-  accepting_threshold = $7
-RETURNING id,
-  course_id,
+SELECT id as "id!",
+  course_id as "course_id!",
   exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_strategy AS "accepting_strategy: _",
-  accepting_threshold;
-        "#,
-            safe_for_db_peer_review_id,
-            peer_review_update.course_id,
-            peer_review_update.exercise_id,
-            peer_review_update.peer_reviews_to_give,
-            peer_review_update.peer_reviews_to_receive,
-            peer_review_update.accepting_strategy as _,
-            peer_review_update.accepting_threshold
+  peer_reviews_to_give as "peer_reviews_to_give!",
+  peer_reviews_to_receive as "peer_reviews_to_receive!",
+  accepting_strategy AS "accepting_strategy!: _",
+  accepting_threshold "accepting_threshold!"
+FROM peer_reviews
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL;
+    "#,
+            &ids
         )
-        .fetch_one(&mut *conn)
+        .fetch_all(&mut *conn)
         .await?;
-        remapped_peer_reviews.insert(peer_review_update.id, peer_review);
+
+        let mut remapped_peer_reviews = HashMap::new();
+
+        for pr in prs {
+            let old_id = new_peer_review_id_to_old_id.get(&pr.id).ok_or_else(|| {
+                ModelError::Generic("Inserted peer reviews not found".to_string())
+            })?;
+            remapped_peer_reviews.insert(*old_id, pr);
+        }
+
+        Ok(remapped_peer_reviews)
     }
-    Ok(remapped_peer_reviews)
 }
 
 pub async fn upsert_peer_review_questions(
     conn: &mut PgConnection,
     existing_peer_review_questions: &[Uuid],
-    peer_review_questions: &Vec<CmsPeerReviewQuestion>,
+    peer_review_questions: &[CmsPeerReviewQuestion],
     remapped_peer_review_ids: &HashMap<Uuid, CmsPeerReview>,
     retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReviewQuestion>> {
-    let mut remapped_peer_review_questions = HashMap::new();
+    if peer_review_questions.is_empty() {
+        Ok(HashMap::new())
+    } else {
+        let mut new_peer_review_question_id_to_old_id = HashMap::new();
 
-    for peer_review_question_update in peer_review_questions {
-        let peer_review_question_exists = existing_peer_review_questions
+        let mut sql: QueryBuilder<Postgres> = QueryBuilder::new(
+            "INSERT INTO peer_review_questions (
+        id,
+        peer_review_id,
+        order_number,
+        question,
+        question_type,
+        answer_required
+      ) ",
+        );
+
+        sql.push_values(peer_review_questions.iter().take(1000), |mut x, prq| {
+            let peer_review_question_exists = existing_peer_review_questions
+                .iter()
+                .any(|id| *id == prq.id);
+            let safe_for_db_peer_review_question_id = if retain_ids || peer_review_question_exists {
+                prq.id
+            } else {
+                Uuid::new_v4()
+            };
+            new_peer_review_question_id_to_old_id
+                .insert(safe_for_db_peer_review_question_id, prq.id);
+            let peer_review_id = remapped_peer_review_ids
+                .get(&prq.peer_review_id)
+                .unwrap()
+                .id;
+
+            x.push_bind(safe_for_db_peer_review_question_id)
+                .push_bind(peer_review_id)
+                .push_bind(prq.order_number)
+                .push_bind(prq.question.as_str())
+                .push_bind(prq.question_type)
+                .push_bind(prq.answer_required);
+        });
+
+        sql.push(
+            " ON CONFLICT (id) DO
+UPDATE
+SET peer_review_id = excluded.peer_review_id,
+    order_number = excluded.order_number,
+    question = excluded.question,
+    question_type = excluded.question_type,
+    answer_required = excluded.answer_required
+RETURNING id;
+",
+        );
+
+        let ids = sql
+            .build()
+            .fetch_all(&mut *conn)
+            .await?
             .iter()
-            .any(|id| *id == peer_review_question_update.id);
-        let safe_for_db_peer_review_question_id = if retain_ids || peer_review_question_exists {
-            peer_review_question_update.id
-        } else {
-            Uuid::new_v4()
-        };
+            .map(|x| x.get(0))
+            .collect::<Vec<_>>();
 
-        let new_peer_review_id = remapped_peer_review_ids
-            .get(&peer_review_question_update.peer_review_id)
-            .ok_or_else(|| {
-                ModelError::NotFound("No peer review found for peer review question".to_string())
-            })?
-            .id;
-
-        let peer_review_question = sqlx::query_as!(
+        let prqs = sqlx::query_as!(
             CmsPeerReviewQuestion,
             r#"
-INSERT INTO peer_review_questions (
-    id,
-    peer_review_id,
-    order_number,
-    question,
-    question_type,
-    answer_required
+SELECT id AS "id!",
+  answer_required AS "answer_required!",
+  order_number AS "order_number!",
+  peer_review_id AS "peer_review_id!",
+  question AS "question!",
+  question_type AS "question_type!: _"
+FROM peer_review_questions
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO
-UPDATE
-SET peer_review_id = $2,
-  order_number = $3,
-  question = $4,
-  question_type = $5,
-  answer_required = $6
-RETURNING id,
-  peer_review_id,
-  order_number,
-  question,
-  question_type AS "question_type:_",
-  answer_required;
+  AND deleted_at is null;
         "#,
-            safe_for_db_peer_review_question_id,
-            new_peer_review_id,
-            peer_review_question_update.order_number,
-            peer_review_question_update.question,
-            peer_review_question_update.question_type as _,
-            peer_review_question_update.answer_required
+            &ids
         )
-        .fetch_one(&mut *conn)
+        .fetch_all(&mut *conn)
         .await?;
-        remapped_peer_review_questions.insert(peer_review_question_update.id, peer_review_question);
+
+        let mut remapped_peer_review_questions = HashMap::new();
+
+        for prq in prqs {
+            let old_id = new_peer_review_question_id_to_old_id
+                .get(&prq.id)
+                .ok_or_else(|| {
+                    ModelError::Generic("Inserted peer reviews not found".to_string())
+                })?;
+            remapped_peer_review_questions.insert(*old_id, prq);
+        }
+
+        Ok(remapped_peer_review_questions)
     }
-    Ok(remapped_peer_review_questions)
 }
 
 /// Only used when testing.

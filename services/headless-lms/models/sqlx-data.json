@@ -2890,6 +2890,63 @@
     },
     "query": "\n  INSERT INTO page_history (\n    page_id,\n    title,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n"
   },
+  "2bb661fa2a0fb8beaaf95798165d0b6bc51866bfc55af2a91d0155d2bc22ceab": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id!",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_reviews_to_give!",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_reviews_to_receive!",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "accepting_strategy!: _",
+          "ordinal": 5,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        },
+        {
+          "name": "accepting_threshold!",
+          "ordinal": 6,
+          "type_info": "Float4"
+        }
+      ],
+      "nullable": [true, true, true, true, true, true, true],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT id as \"id!\",\n  course_id as \"course_id!\",\n  exercise_id,\n  peer_reviews_to_give as \"peer_reviews_to_give!\",\n  peer_reviews_to_receive as \"peer_reviews_to_receive!\",\n  accepting_strategy AS \"accepting_strategy!: _\",\n  accepting_threshold \"accepting_threshold!\"\nFROM peer_reviews\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    "
+  },
   "2be6fd20afaeeb95299a5020a8455a6fc6e7ce347a0003cca2d87441f324d422": {
     "describe": {
       "columns": [],
@@ -4092,82 +4149,6 @@
       }
     },
     "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    peer_review_priority,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    received_enough_peer_reviews\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO\nUPDATE\nSET peer_review_priority = $4,\n  deleted_at = NULL\nRETURNING *\n        "
-  },
-  "4119600ccc55642e21db99a013d099258817451f706cc4d8ebb2336c563eda82": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exercise_id",
-          "ordinal": 2,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_reviews_to_give",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "peer_reviews_to_receive",
-          "ordinal": 4,
-          "type_info": "Int4"
-        },
-        {
-          "name": "accepting_strategy: _",
-          "ordinal": 5,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "automatically_accept_or_reject_by_average",
-                  "automatically_accept_or_manual_review_by_average",
-                  "manual_review_everything"
-                ]
-              },
-              "name": "peer_review_accepting_strategy"
-            }
-          }
-        },
-        {
-          "name": "accepting_threshold",
-          "ordinal": 6,
-          "type_info": "Float4"
-        }
-      ],
-      "nullable": [false, false, true, false, false, false, false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Int4",
-          "Int4",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "automatically_accept_or_reject_by_average",
-                  "automatically_accept_or_manual_review_by_average",
-                  "manual_review_everything"
-                ]
-              },
-              "name": "peer_review_accepting_strategy"
-            }
-          },
-          "Float4"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_strategy,\n    accepting_threshold\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET course_id = $2,\n  exercise_id = $3,\n  peer_reviews_to_give = $4,\n  peer_reviews_to_receive = $5,\n  accepting_strategy = $6,\n  accepting_threshold = $7\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_strategy AS \"accepting_strategy: _\",\n  accepting_threshold;\n        "
   },
   "42167df0ec995f62a66c65d2f9e6c837abac739f016c6b6173ad07e1a5e8e23e": {
     "describe": {
@@ -5996,68 +5977,6 @@
       }
     },
     "query": "\nINSERT INTO organizations (id, name, slug, description)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
-  },
-  "608a03aeb5cd11b713b669090a25533e66142cf48aacc341ebde24483afac8eb": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "question",
-          "ordinal": 3,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "question_type:_",
-          "ordinal": 4,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["essay", "scale"]
-              },
-              "name": "peer_review_question_type"
-            }
-          }
-        },
-        {
-          "name": "answer_required",
-          "ordinal": 5,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Int4",
-          "Varchar",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": ["essay", "scale"]
-              },
-              "name": "peer_review_question_type"
-            }
-          },
-          "Bool"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO peer_review_questions (\n    id,\n    peer_review_id,\n    order_number,\n    question,\n    question_type,\n    answer_required\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO\nUPDATE\nSET peer_review_id = $2,\n  order_number = $3,\n  question = $4,\n  question_type = $5,\n  answer_required = $6\nRETURNING id,\n  peer_review_id,\n  order_number,\n  question,\n  question_type AS \"question_type:_\",\n  answer_required;\n        "
   },
   "60e6d2eee33914249c9333a42070fad5105b0f818a6e492394980514e53daff5": {
     "describe": {
@@ -8152,6 +8071,54 @@
       }
     },
     "query": "\nSELECT chapters.course_module_id,\n  COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE ues.course_instance_id = $1\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.deleted_at IS NULL\nGROUP BY chapters.course_module_id;\n        "
+  },
+  "7ae0b386d21d0e08937dd0653b786b2470b84d28501462a2ce2cc631839d4449": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id!",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "answer_required!",
+          "ordinal": 1,
+          "type_info": "Bool"
+        },
+        {
+          "name": "order_number!",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_review_id!",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "question!",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type!: _",
+          "ordinal": 5,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT id AS \"id!\",\n  answer_required AS \"answer_required!\",\n  order_number AS \"order_number!\",\n  peer_review_id AS \"peer_review_id!\",\n  question AS \"question!\",\n  question_type AS \"question_type!: _\"\nFROM peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at is null;\n        "
   },
   "7afc90f9381a04e4c0390b627468f4e98af77da0570168747ef9fb7cc3c86042": {
     "describe": {

@@ -4,6 +4,8 @@ use serde_json::Value;
 use crate::{
     exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
     prelude::*,
     CourseOrExamId,
 };
@@ -21,6 +23,13 @@ pub struct ExerciseTaskSubmission {
     pub data_json: Option<serde_json::Value>,
     pub exercise_task_grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewsRecieved {
+    pub peer_review_questions: PeerReviewQuestion,
+    pub peer_review_question_submissions: PeerReviewQuestionSubmission,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -206,6 +215,26 @@ WHERE ets.id = $1
     .fetch_one(conn)
     .await?;
     CourseOrExamId::from(res.course_id, res.exam_id)
+}
+
+pub async fn get_peer_review_recieved(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<PeerReviewsRecieved> {
+    let peer_reviews = crate::peer_reviews::get_by_id(&mut *conn, exercise_id).await?;
+    let peer_review_questions =
+        crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_reviews.id).await?;
+    let peer_review_question_submissions =
+        crate::peer_review_question_submissions::get_by_peer_review_question_id(
+            &mut *conn,
+            peer_review_questions.id,
+        )
+        .await?;
+
+    Ok(PeerReviewsRecieved {
+        peer_review_questions,
+        peer_review_question_submissions,
+    })
 }
 
 pub async fn set_grading_id(

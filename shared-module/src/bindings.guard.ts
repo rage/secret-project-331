@@ -114,6 +114,7 @@ import {
   PeerReview,
   PeerReviewAcceptingStrategy,
   PeerReviewQuestion,
+  PeerReviewQuestionSubmission,
   PeerReviewQuestionType,
   PlaygroundExample,
   PlaygroundExampleData,
@@ -915,6 +916,21 @@ export function isCourseMaterialPeerReviewData(
   )
 }
 
+export function isCourseMaterialPeerReviewGivenData(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    Array.isArray(obj.peer_review_question_submissions) &&
+    obj.peer_review_question_submissions.every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    )
+  )
+}
+
 export function isCourseMaterialPeerReviewDataAnswerToReview(
   obj: any,
   _argumentName?: string,
@@ -1325,6 +1341,24 @@ export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is P
     typeof obj.question === "string" &&
     (isPeerReviewQuestionType(obj.question_type) as boolean) &&
     typeof obj.answer_required === "boolean"
+  )
+}
+
+export function isPeerReviewQuestionSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewQuestionSubmission {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.id === "string" &&
+      obj.created_at instanceof Date &&
+      obj.updated_at instanceof Date &&
+      (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+      typeof obj.peer_review_question_id === "string" &&
+      typeof obj.peer_review_submission_id === "string" &&
+      obj.text_data == null) ||
+    (typeof obj.text_data === "string" && obj.number_data == null) ||
+    typeof obj.number_data === "number"
   )
 }
 

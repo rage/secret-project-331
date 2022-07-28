@@ -134,10 +134,10 @@ const Submission: React.FC<SubmissionProps> = ({
                   </div>
                 )}
               </div>
-              {true && <PeerReviewRecieved />}
             </>
           )
         })}
+      {true && <PeerReviewRecieved />}
     </>
   )
 }

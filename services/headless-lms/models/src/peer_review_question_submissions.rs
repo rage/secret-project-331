@@ -41,6 +41,32 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_by_peer_review_question_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<PeerReviewQuestionSubmission> {
+    let res = sqlx::query_as!(
+        PeerReviewQuestionSubmission,
+        "
+    SELECT id,
+    created_at,
+    updated_at,
+    deleted_at,
+    peer_review_question_id,
+    peer_review_submission_id,
+    text_data,
+    number_data
+    FROM peer_review_question_submissions
+    WHERE peer_review_question_id = $1
+        AND deleted_at IS NULL;
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_received_question_submissions_for_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,

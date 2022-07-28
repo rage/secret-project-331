@@ -23,15 +23,17 @@ const arr = [
     // eslint-disable-next-line i18next/no-literal-string
     peerReviewType: "essay",
     // eslint-disable-next-line i18next/no-literal-string
-    question: "What is your opinion regarding the structure of the answer givern by student A",
+    question: "What is your opinion regarding the structure of the answer givern by student?",
     // eslint-disable-next-line i18next/no-literal-string
-    content: "Lorem ipsum is a placeholder",
+    content:
+      // eslint-disable-next-line i18next/no-literal-string
+      "Lorem ipsum is a placeholderIt is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
   },
   {
     // eslint-disable-next-line i18next/no-literal-string
     peerReviewType: "linkert",
     // eslint-disable-next-line i18next/no-literal-string
-    question: "Do you think the answer is sufficient",
+    question: "Do you think the answer is sufficient?",
     content: 4,
   },
 ]

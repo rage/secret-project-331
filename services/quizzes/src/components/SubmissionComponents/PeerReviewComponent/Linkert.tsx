@@ -2,12 +2,9 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Agree from "../../../shared-module/img/linkert/agree.svg"
-import Disagree from "../../../shared-module/img/linkert/disagree.svg"
-import Neutral from "../../../shared-module/img/linkert/neutral.svg"
-import StronglyAgree from "../../../shared-module/img/linkert/stronglyAgree.svg"
-import StronglyDisagree from "../../../shared-module/img/linkert/stronglyDisagree.svg"
 import { headingFont } from "../../../shared-module/styles"
+
+import SVGMatcher from "./SVGmatcher"
 
 interface LinkertProps {
   question: string
@@ -47,7 +44,7 @@ const Icon = styled.div<StyledProps>`
   padding: 25px 0;
   background-color: ${({ active }: StyledProps) => (active ? "#313947" : " #f5f6f7")};
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 2px;
   transition: all 0.2s;
 
   svg .bg {
@@ -83,32 +80,13 @@ const Linkert: React.FC<LinkertProps> = ({ question, content, index }) => {
     },
   ]
 
-  const SVGmatcher = (identifier: string) => {
-    switch (identifier) {
-      case "agree":
-        return <Agree />
-        break
-      case "strongly agree":
-        return <StronglyAgree />
-        break
-      case "neutral":
-        return <Neutral />
-        break
-      case "disagree":
-        return <Disagree />
-        break
-      case "strongly disagree":
-        return <StronglyDisagree />
-      default:
-    }
-  }
   return (
     <Wrapper>
       <Question>{`Question ${index + 1}: ${question}`}</Question>
       <IconContainer>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n}>
-            {/* {SVGmatcher(option.text)} */}
+            {SVGMatcher(option.text)}
             <p className="linkert-scale-text">{option.text}</p>
           </Icon>
         ))}

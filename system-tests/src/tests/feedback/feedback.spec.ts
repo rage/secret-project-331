@@ -110,6 +110,9 @@ test("feedback test", async ({ headless, page }) => {
   // await page.waitForURL((url) => url.searchParams.has("read"))
   expectPath(page, "/manage/courses/[id]/feedback")
 
+  // Makes sure the components have rendered so that the next waitForThisToBeVisibleAndStable always works with the placeholder
+  await page.waitForSelector(`text="Page: Page One"`)
+
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
     page,

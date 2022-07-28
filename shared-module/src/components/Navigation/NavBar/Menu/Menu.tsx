@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { useState } from "react"
+import { ReactNode, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../styles"
@@ -24,16 +24,15 @@ const MenuIcon = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
-  background: ${baseTheme.colors.clear[200]};
+  background: #fff;
   border-color: #cacaca;
-  top: 70px;
-  right: 17px;
   padding: 0;
   border-radius: 4px;
   position: absolute;
   margin-bottom: 10px;
   margin-left: -95px;
   z-index: 901;
+  box-shadow: 0px 0px 5px rgba(51, 51, 51, 0.1);
 
   li {
     text-decoration: none;
@@ -54,6 +53,7 @@ const ToolTip = css`
       padding: 0;
       font-size: 16px;
       background: inherit;
+      text-transform: none;
       color: ${baseTheme.colors.green[500]};
     }
 
@@ -68,10 +68,17 @@ const Hide = css`
   display: none;
 `
 
-const Menu: React.FC = ({ children }) => {
+export interface MenuProps {
+  variant?: "top" | "bottom"
+  children: ReactNode
+}
+
+const Menu: React.FC<MenuProps> = ({ children, variant }) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 
+  // eslint-disable-next-line i18next/no-literal-string
+  const buttonId = variant === "bottom" ? "" : "main-navigation-menu"
   const onClickHandler = () => {
     setClicked(!clicked)
   }
@@ -85,9 +92,22 @@ const Menu: React.FC = ({ children }) => {
         aria-label={t("open-menu")}
         tabIndex={0}
       >
-        <Hamburger isActive={clicked} toggleButton={onClickHandler} />
+        <Hamburger isActive={clicked} toggleButton={onClickHandler} buttonId={buttonId} />
       </div>
-      <ul className={clicked ? cx(ToolTip) : cx(Hide)}>{children}</ul>
+      <ul
+        className={
+          clicked
+            ? cx(
+                ToolTip,
+                css`
+                  ${variant === "bottom" ? "bottom: 70px;" : "top: 70px;right:17px;"}
+                `,
+              )
+            : cx(Hide)
+        }
+      >
+        {children}
+      </ul>
     </div>
   )
 }

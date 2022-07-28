@@ -56,6 +56,8 @@ test("Limited tries work", async ({ page }) => {
     page.locator("text=Limited tries").click(),
   ])
 
+  await page.locator("text=Objective #1").waitFor({ state: "attached" })
+
   await selectCourseInstanceIfPrompted(page)
 
   await page.locator("text=Start course").click()

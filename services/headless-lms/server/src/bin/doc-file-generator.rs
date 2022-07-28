@@ -1073,6 +1073,7 @@ fn main() {
             chapter_front_page: Some(PageRoutingData {
                 url_path: "/chapter-1".to_string(),
                 title: "Chapter 1".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,
@@ -1083,6 +1084,7 @@ fn main() {
             next_page: Some(PageRoutingData {
                 url_path: "/chapter-1/page-3".to_string(),
                 title: "Page 3".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,
@@ -1093,6 +1095,7 @@ fn main() {
             previous_page: Some(PageRoutingData {
                 url_path: "/chapter-1/page-1".to_string(),
                 title: "Page 1".to_string(),
+                page_id: Uuid::parse_str("25d1932b-ad97-4461-8280-412fe8b75ca2").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,

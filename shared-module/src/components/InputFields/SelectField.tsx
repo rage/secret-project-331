@@ -16,7 +16,7 @@ interface SelectMenuExtraProps<T extends string> {
   value?: string
   defaultValue?: T
   options: SelectOption<T>[]
-  onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void
   onChange: (value: T, name?: string) => void
   className?: string
 }
@@ -105,7 +105,7 @@ const SelectMenu = <T extends string>({
         <select
           id={id}
           onChange={({ target: { value } }) => onChange(value as T)}
-          onBlur={(event) => onBlur(event)}
+          onBlur={onBlur}
           defaultValue={defaultValue}
           {...rest}
         >

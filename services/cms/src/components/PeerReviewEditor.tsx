@@ -158,12 +158,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           default:
             break
         }
+      } else {
+        return pr
       }
     }) as CmsPeerReview[]
     setAttributes({ peer_review_config: JSON.stringify(peerReviews) })
   }
 
-  const handlePeerReviewQuestionValueChnage = (
+  const handlePeerReviewQuestionValueChange = (
     id: string,
     value: any,
     field: keyof CmsPeerReviewQuestion,
@@ -178,6 +180,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           default:
             break
         }
+      } else {
+        return prq
       }
     })
     setAttributes({ peer_review_questions_config: JSON.stringify(peerReviewQuestions) })
@@ -207,7 +211,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         {
           id: v4(),
           question: "",
-          question_type: "essay",
+          question_type: "Essay",
           peer_review_id: peerReviewId,
           answer_required: true,
           order_number: 0,
@@ -298,8 +302,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <StyledSelectField
                           label="Peer review question type"
                           onChange={(e) => {
-                            console.log(e)
-                            handlePeerReviewQuestionValueChnage(id, e, "question_type")
+                            handlePeerReviewQuestionValueChange(id, e, "question_type")
                           }}
                           defaultValue={question_type}
                           options={peerReviewQuestionTypeoptions}
@@ -311,7 +314,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         <TextAreaField
                           label="Peer review question"
                           onChange={(e) => {
-                            handlePeerReviewQuestionValueChnage(id, e, "question")
+                            handlePeerReviewQuestionValueChange(id, e, "question")
                           }}
                           defaultValue={question}
                           autoResize={true}

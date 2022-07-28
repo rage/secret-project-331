@@ -52,7 +52,6 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
 
   const dispatch = useDispatch()
-  console.log(variables)
   return (
     <>
       <StyledModal
@@ -61,10 +60,7 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
       >
         <Fade in={variables.advancedEditing}>
           <AdvancedBox
-            className={AdvancedBoxModalOpenClass(
-              variables.advancedEditingYAxisLocation,
-              storeItem.options.length,
-            )}
+            className={AdvancedBoxModalOpenClass(variables.advancedEditingYAxisLocation)}
           >
             <ModalButtonWrapper>
               <CloseButton

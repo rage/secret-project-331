@@ -1104,7 +1104,46 @@ dependencies = [
 ]
 
 [[package]]
-name = "headless-lms-actix"
+name = "headless-lms-entrypoint"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "anyhow",
+ "headless-lms-server",
+]
+
+[[package]]
+name = "headless-lms-models"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "derive_more",
+ "dotenv",
+ "futures",
+ "headless-lms-utils",
+ "indexmap",
+ "itertools",
+ "lettre",
+ "mockito",
+ "pretty_assertions",
+ "rand 0.8.5",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-error",
+ "tracing-log",
+ "tracing-subscriber",
+ "ts-rs",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-server"
 version = "0.1.0"
 dependencies = [
  "actix-extensible-rate-limit",
@@ -1153,35 +1192,6 @@ dependencies = [
  "uuid",
  "walkdir",
  "woothee",
-]
-
-[[package]]
-name = "headless-lms-models"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "derive_more",
- "dotenv",
- "futures",
- "headless-lms-utils",
- "indexmap",
- "itertools",
- "lettre",
- "pretty_assertions",
- "rand 0.8.5",
- "reqwest",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror",
- "tokio",
- "tracing",
- "tracing-error",
- "tracing-log",
- "tracing-subscriber",
- "ts-rs",
- "url",
- "uuid",
 ]
 
 [[package]]

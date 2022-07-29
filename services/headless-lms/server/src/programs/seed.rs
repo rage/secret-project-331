@@ -2,9 +2,9 @@
 
 use std::{env, process::Command};
 
+use crate::setup_tracing;
 use anyhow::Result;
 use chrono::{DateTime, Duration, TimeZone, Utc};
-use headless_lms_actix::setup_tracing;
 use headless_lms_models::{
     chapters,
     chapters::NewChapter,
@@ -42,8 +42,7 @@ use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+pub async fn main() -> anyhow::Result<()> {
     env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=warn");
 
     dotenv::dotenv().ok();

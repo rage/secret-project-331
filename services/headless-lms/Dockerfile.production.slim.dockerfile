@@ -25,4 +25,4 @@ COPY --from=builder /ips-to-country /ips-to-country
 
 USER user
 
-CMD [ "./headless-lms-actix" ]
+CMD [ "./headless-lms-server" ]

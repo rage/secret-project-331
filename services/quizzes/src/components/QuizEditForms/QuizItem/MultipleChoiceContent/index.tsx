@@ -54,7 +54,6 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
 
   const dispatch = useDispatch()
-
   return (
     <>
       <StyledModal

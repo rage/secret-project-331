@@ -3,11 +3,12 @@ import styled from "@emotion/styled"
 import { faTrash, faWindowClose } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Box, Button, Fade, Modal } from "@mui/material"
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import { NormalizedQuizItemOption } from "../../../../../types/types"
+import IframeHeightContext from "../../../../shared-module/contexts/IframeHeightContext"
 import { deletedOption } from "../../../../store/editor/editorActions"
 import { setOptionEditing } from "../../../../store/editor/optionVariables/optionVariableActions"
 import { useTypedSelector } from "../../../../store/store"
@@ -22,7 +23,6 @@ const StyledModal = styled(Modal)`
 
 const StyledEmotionBox = (heightOffset: number | undefined) => css`
   ${heightOffset &&
-  // eslint-disable-next-line i18next/no-literal-string
   `
     position: fixed;
     top: ${heightOffset + 15}px;
@@ -93,14 +93,17 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
   const variables = useTypedSelector((state) => state.editor.optionVariables[option.id])
   const dispatch = useDispatch()
   const [heightOffset, setHeightOffset] = useState<number | undefined>(undefined)
-
+  const iframeHeight = useContext(IframeHeightContext).height
   const ariaLabel = t("aria-label-option-index", { index })
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    setHeightOffset(event.pageY)
+    if (iframeHeight < event.pageY + 570) {
+      setHeightOffset(iframeHeight - 600)
+    } else {
+      setHeightOffset(event.pageY)
+    }
     dispatch(setOptionEditing(storeOption.id, true))
   }
-
   return (
     <>
       <StyledModal

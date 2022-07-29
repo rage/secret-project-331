@@ -1188,7 +1188,6 @@ dependencies = [
 name = "headless-lms-utils"
 version = "0.1.0"
 dependencies = [
- "actix-multipart",
  "anyhow",
  "async-trait",
  "blake3",

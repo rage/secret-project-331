@@ -29,8 +29,6 @@ pub struct ApplicationConfiguration {
 #[derive(Debug, Error)]
 pub enum UtilError {
     #[error(transparent)]
-    MultipartError(#[from] actix_multipart::MultipartError),
-    #[error(transparent)]
     UrlParse(#[from] url::ParseError),
     #[error(transparent)]
     Walkdir(#[from] walkdir::Error),
@@ -44,5 +42,5 @@ pub enum UtilError {
     CloudStorage(#[from] cloud_storage::Error),
 
     #[error("{0}")]
-    Other(&'static str),
+    Other(String),
 }

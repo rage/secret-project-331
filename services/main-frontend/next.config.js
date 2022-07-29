@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
+const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
@@ -24,7 +25,10 @@ const config = {
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
-      use: ["@svgr/webpack"],
+      loader: "@svgr/webpack",
+      options: {
+        svgoConfig: svgoConfig,
+      },
     })
 
     return config

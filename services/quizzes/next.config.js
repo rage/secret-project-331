@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const externallyEmbeddableIFrameResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").externallyEmbeddableIFrameResponseHeaders
+const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 const config = {
   eslint: {
@@ -26,7 +27,10 @@ const config = {
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
-      use: ["@svgr/webpack"],
+      loader: "@svgr/webpack",
+      options: {
+        svgoConfig: svgoConfig,
+      },
     })
 
     return config

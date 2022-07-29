@@ -115,13 +115,7 @@ async fn get_peer_review_given(
     let peer_review_data =
         models::exercise_task_submissions::get_peer_review_recieved(&mut conn, *exercise_id)
             .await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
+    let token = skip_authorize()?;
     token.authorize_ok(web::Json(peer_review_data))
 }
 

@@ -5,7 +5,7 @@ use crate::{
     exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
     prelude::*,
     CourseOrExamId,
 };
@@ -27,9 +27,17 @@ pub struct ExerciseTaskSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewsRecievedII {
+    pub id: Uuid,
+    pub question: String,
+    pub question_type: PeerReviewQuestionType,
+    pub text_data: Option<String>,
+    pub number_data: Option<f32>,
+}
+
 pub struct PeerReviewsRecieved {
-    pub peer_review_questions: PeerReviewQuestion,
-    pub peer_review_question_submissions: PeerReviewQuestionSubmission,
+    pub peer_review_questions: Vec<PeerReviewQuestion>,
+    pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -221,15 +229,35 @@ pub async fn get_peer_review_recieved(
     conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
-    let peer_reviews = crate::peer_reviews::get_by_id(&mut *conn, exercise_id).await?;
+    let peer_review = crate::peer_reviews::get_by_exercise_id(&mut *conn, exercise_id).await?;
     let peer_review_questions =
-        crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_reviews.id).await?;
+        crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_review.id).await?;
+
     let peer_review_question_submissions =
         crate::peer_review_question_submissions::get_by_peer_review_question_id(
             &mut *conn,
-            peer_review_questions.id,
+            &peer_review_questions
+                .iter()
+                .map(|x| (x.id))
+                .collect::<Vec<Uuid>>(),
         )
-        .await?;
+        .await?
+        .into_iter()
+        .map(|x| x.into())
+        .collect();
+
+    /* let mut peer_review_question_submissions: Vec<PeerReviewQuestion> = peer_review_questions
+    .into_iter()
+    .map(|p| {
+        (PeerReviewsRecieved {
+            id: p.id,
+            question: p.question,
+            question_type: p.question_type,
+            text_data: p.text_data,
+            number_data: p.number_data,
+        },)
+    })
+    .collect(); */
 
     Ok(PeerReviewsRecieved {
         peer_review_questions,

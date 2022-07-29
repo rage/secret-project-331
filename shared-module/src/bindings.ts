@@ -765,6 +765,17 @@ export interface PeerReviewQuestion {
   answer_required: boolean
 }
 
+export interface PeerReviewQuestionSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_question_id: string
+  peer_review_submission_id: string
+  text_data: string | null
+  number_data: number | null
+}
+
 export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PlaygroundExample {

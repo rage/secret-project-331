@@ -2679,4 +2679,91 @@ mod test {
             chapter_id: None,
         }
     }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+        let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
+        let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+        let pr1 = CmsPeerReview {
+            id:pr_id,
+            exercise_id: None,
+            course_id: course,
+            accepting_strategy: crate::peer_reviews::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_threshold:0.5,
+            peer_reviews_to_give:2,
+            peer_reviews_to_receive:1
+        };
+        let prq = CmsPeerReviewQuestion {
+            id: prq_id,
+            peer_review_id: pr_id,
+            answer_required: true,
+            order_number: 0,
+            question: "juu".to_string(),
+            question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+        };
+        let pr_res = upsert_peer_reviews(tx.as_mut(), &[], &[pr1], false)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, false)
+            .await
+            .unwrap();
+
+        assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
+        assert!(pr_res.get(&pr_id).unwrap().id != pr_id);
+
+        assert!(prq_res.get(&prq_id).unwrap().id != prq_id);
+        assert!(prq_res.get(&prq_id).unwrap().question == "juu".to_string());
+    }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work_retain_ids() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+        let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
+        let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+        let pr1 = CmsPeerReview {
+            id:pr_id,
+            exercise_id: None,
+            course_id: course,
+            accepting_strategy: crate::peer_reviews::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_threshold:0.5,
+            peer_reviews_to_give:2,
+            peer_reviews_to_receive:1
+        };
+        let prq = CmsPeerReviewQuestion {
+            id: prq_id,
+            peer_review_id: pr_id,
+            answer_required: true,
+            order_number: 0,
+            question: "juu".to_string(),
+            question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+        };
+        let pr_res = upsert_peer_reviews(tx.as_mut(), &[], &[pr1], true)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, true)
+            .await
+            .unwrap();
+
+        assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
+        assert!(pr_res.get(&pr_id).unwrap().id == pr_id);
+
+        assert!(prq_res.get(&prq_id).unwrap().id == prq_id);
+        assert!(prq_res.get(&prq_id).unwrap().question == "juu".to_string());
+    }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work_empty() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+
+        let pr_res = upsert_peer_reviews(tx.as_mut(), &[], &[], true)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[], &pr_res, true)
+            .await
+            .unwrap();
+
+        assert!(pr_res.is_empty());
+        assert!(prq_res.is_empty());
+    }
 }

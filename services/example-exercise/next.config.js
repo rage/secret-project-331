@@ -22,6 +22,28 @@ const config = {
     ]
   },
   output: "standalone",
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ["@svgr/webpack"],
+    })
+
+    return config
+  },
+  compiler: {
+    emotion: {
+      autoLabel: "always",
+      labelFormat: "[dirname]--[filename]--[local]",
+    },
+  },
+  experimental: {
+    modularizeImports: {
+      lodash: {
+        transform: "lodash/{{member}}",
+      },
+    },
+  },
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

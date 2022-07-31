@@ -10,6 +10,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
+  ref?: React.LegacyRef<HTMLButtonElement> | undefined
 }
 
 // BaseButtonStyles is the primary button

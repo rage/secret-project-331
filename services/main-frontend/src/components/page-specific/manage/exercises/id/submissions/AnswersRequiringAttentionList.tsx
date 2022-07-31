@@ -2,17 +2,10 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faCircleExclamation, faFlag } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Input,
-  Slider,
-} from "@mui/material"
+import { Input, Slider } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { usePopper } from "react-popper"
 
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
 import {
@@ -33,8 +26,8 @@ interface Props {
 const Layout = styled.div`
   max-width: 48rem;
   margin: auto;
+  padding-bottom: 20em;
 `
-
 const StyledIconDark = styled(FontAwesomeIcon)`
   font-size: 4rem;
   color: white;
@@ -79,6 +72,18 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [sliderValue, setSliderValue] = useState<number>(0)
+  const [referenceElement, setReferenceElement] = useState<Element | null>(null)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
+  const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
+
+  const PLACEMENT = "bottom"
+
+  const ARROW = "arrow"
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: PLACEMENT,
+    modifiers: [{ name: ARROW, options: { element: arrowElement } }],
+  })
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (typeof newValue === "number") {
@@ -311,13 +316,29 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                   >
                     {t("button-text-full-points")}
                   </Button>
-                  <Button size="medium" variant="white" onClick={() => setOpen(true)}>
+                  <Button
+                    size="medium"
+                    variant="white"
+                    type="button"
+                    id="custom-point-button-v2"
+                    ref={setReferenceElement}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setOpen(!open)
+                    }}
+                  >
                     {t("button-text-custom-points")}
                   </Button>
-                  <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="dialog-label">
-                    <DialogTitle> {t("button-text-custom-points")}</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>{t("custom-points-modal-description")}</DialogContentText>
+                  {open ? (
+                    <div
+                      id="custom-point-popup"
+                      ref={setPopperElement}
+                      // eslint-disable-next-line react/forbid-dom-props
+                      style={styles.popper}
+                      {...attributes.popper}
+                    >
+                      {/* eslint-disable-next-line react/forbid-dom-props */}
+                      <div ref={setArrowElement} style={styles.arrow} />
                       <div>
                         <Slider
                           value={typeof sliderValue === "number" ? sliderValue : 0.0}
@@ -343,9 +364,15 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           }}
                         />
                       </div>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button size="medium" variant="reject" onClick={() => setOpen(false)}>
+                      <Button
+                        type="button"
+                        variant="white"
+                        size="medium"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setOpen(!open)
+                        }}
+                      >
                         {t("button-text-cancel")}
                       </Button>
                       <Button
@@ -360,32 +387,32 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                       >
                         {t("button-text-give-custom-points")}
                       </Button>
-                    </DialogActions>
-                  </Dialog>
-                  <div
+                    </div>
+                  ) : null}
+                </div>
+                <div
+                  className={css`
+                    margin-left: auto;
+                  `}
+                >
+                  <Button
                     className={css`
-                      margin-left: auto;
+                      margin-right: 1em;
                     `}
+                    size="medium"
+                    variant="tertiary"
+                    aria-label={t("button-text-flag-as-plagiarism")}
+                    onClick={() =>
+                      handleControlPanel(
+                        answerRequiringAttention.id,
+                        answerRequiringAttention.exercise_id,
+                        // eslint-disable-next-line i18next/no-literal-string
+                        "SuspectedPlagiarism",
+                      )
+                    }
                   >
-                    <Button
-                      className={css`
-                        margin-right: 1em;
-                      `}
-                      size="medium"
-                      variant="tertiary"
-                      aria-label={t("button-text-flag-as-plagiarism")}
-                      onClick={() =>
-                        handleControlPanel(
-                          answerRequiringAttention.id,
-                          answerRequiringAttention.exercise_id,
-                          // eslint-disable-next-line i18next/no-literal-string
-                          "SuspectedPlagiarism",
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
-                    </Button>
-                  </div>
+                    <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
+                  </Button>
                 </div>
               </ControlPanel>
             </div>

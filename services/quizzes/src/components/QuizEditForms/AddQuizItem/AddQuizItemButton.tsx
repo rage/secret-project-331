@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { t } from "i18next"
 import React from "react"
 import { useDispatch } from "react-redux"
 
@@ -18,7 +19,7 @@ export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
     <>
       <Button
         // eslint-disable-next-line i18next/no-literal-string
-        title={`Add new ${capitalizedType}`}
+        title={t("add-new-quiz-title-text", { capitalizedType })}
         variant="outlined"
         transform="capitalize"
         onClick={() => dispatch(createdNewItem(quizId, type))}

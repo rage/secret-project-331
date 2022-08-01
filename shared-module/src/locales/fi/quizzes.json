@@ -1,4 +1,5 @@
 {
+  "add-new-quiz-title-text": "Lisää uusi {{capitalizedType}}",
   "add-new-quiz-item": "Lisää uusi Quiz-esine",
   "add-option": "Lisää vaihtoehto",
   "all-answers-correct": "Kaikki vastaukset ovat oikein (Ei väliä mikä vastaus on oikein)",

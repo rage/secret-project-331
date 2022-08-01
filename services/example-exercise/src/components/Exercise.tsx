@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 import { Answer, PublicAlternative } from "../util/stateInterfaces"
 
 import ExerciseBase from "./ExerciseBase"
@@ -10,7 +10,7 @@ interface Props {
   port: MessagePort
 }
 
-const Exercise: React.FC<Props> = ({ port, state }) => {
+const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
   const setSelectedId: typeof _setSelectedId = (value) => {

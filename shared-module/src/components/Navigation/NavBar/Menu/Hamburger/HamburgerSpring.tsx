@@ -129,6 +129,10 @@ type ButtonProps = {
    * Callback to invoke on button click to toggle active state, default () => {}
    */
   toggleButton?: () => void
+  /**
+   * id to differirentiate Hamburger menus from each other, needed for accesibility
+   */
+  buttonId?: string
 }
 
 type StyledButtonProps = {
@@ -153,7 +157,7 @@ const StyledButton = styled.div<StyledButtonProps>`
   overflow: visible;
 `
 
-const Button: React.FC<ButtonProps> = (props) => {
+const Button: React.FC<React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>> = (props) => {
   const {
     barColor = "black",
     Box = StyledBox,
@@ -163,6 +167,7 @@ const Button: React.FC<ButtonProps> = (props) => {
     isActive = false,
     Lines = StyledLines,
     toggleButton,
+    buttonId,
     ...rest
   } = props
 
@@ -171,7 +176,7 @@ const Button: React.FC<ButtonProps> = (props) => {
       onClick={toggleButton}
       {...{ buttonWidth, buttonColor, className }}
       {...rest}
-      id="main-navigation-menu"
+      id={buttonId}
     >
       <Box {...{ buttonWidth }}>
         <Lines {...{ buttonWidth, barColor, isActive }} />
@@ -198,6 +203,6 @@ const StyledBox = styled.div<StyledBoxProps>`
   position: relative;
 `
 
-export const HamburgerSpring: React.FC<ButtonProps> = (props) => (
-  <Button {...props} Lines={StyledLinesSpring} />
-)
+export const HamburgerSpring: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>
+> = (props) => <Button {...props} Lines={StyledLinesSpring} />

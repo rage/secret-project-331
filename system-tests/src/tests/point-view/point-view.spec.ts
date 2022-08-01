@@ -48,6 +48,9 @@ test("test", async ({ page, headless }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
   await frame.click("text=b")
 
   // Click text=Submit

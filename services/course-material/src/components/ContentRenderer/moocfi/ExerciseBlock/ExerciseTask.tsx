@@ -8,7 +8,7 @@ import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
 import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { IframeState } from "../../../../shared-module/iframe-protocol-types"
+import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../../../../shared-module/styles"
 import { narrowContainerWidthPx } from "../../../../shared-module/styles/constants"
 
@@ -23,7 +23,7 @@ interface ExerciseTaskProps {
   exerciseNumber: number
 }
 
-const ExerciseTask: React.FC<ExerciseTaskProps> = ({
+const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   canPostSubmission,
   exerciseTask,
   isExam,

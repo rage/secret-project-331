@@ -7,7 +7,7 @@ import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Scale: React.FC<QuizItemComponentProps> = ({
+const Scale: React.FC<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,

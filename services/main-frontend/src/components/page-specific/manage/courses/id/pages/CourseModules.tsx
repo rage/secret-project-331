@@ -416,7 +416,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                   setNewModuleEndChapter(lastChapter)
                 }}
               >
-                {t("button-reset")}
+                {t("button-restore")}
               </Button>
             </div>
           </div>

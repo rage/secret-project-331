@@ -37,7 +37,7 @@ export async function fillQuizItemOptionModal(
       if (props.additionalCorrectnessExplanationOnModelSolution) {
         await frame.fill(
           `label:has-text("Additional correctness explanation on model solution") input`,
-          props.messageAfterSubmissionWhenSelected,
+          props.additionalCorrectnessExplanationOnModelSolution,
         )
       }
     }

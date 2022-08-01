@@ -147,7 +147,7 @@ const Wrapper = styled.div`
   }
 `
 
-const CreateAccountForm: React.FC = () => {
+const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { register, formState, watch, reset, handleSubmit } = useForm<FormFields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",

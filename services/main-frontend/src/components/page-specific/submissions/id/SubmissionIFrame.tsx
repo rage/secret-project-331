@@ -8,6 +8,7 @@ import {
   StudentExerciseTaskSubmissionResult,
 } from "../../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../shared-module/utils/typeMappter"
 
 const VIEW_SUBMISSION = "view-submission"
 const TITLE = "VIEW SUBMISSION"
@@ -26,7 +27,7 @@ interface SubmissionState {
   public_spec: unknown
 }
 
-const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
+const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>> = ({
   url,
   public_spec,
   submission,
@@ -69,7 +70,7 @@ const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
           public_spec: state.public_spec,
           user_answer: state.user_answer,
           model_solution_spec: state.submission_result.model_solution_spec,
-          grading: state.submission_result.grading,
+          grading: exerciseTaskGradingToExerciseTaskGradingResult(state.submission_result.grading),
         },
       }}
       title={TITLE}

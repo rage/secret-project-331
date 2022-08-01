@@ -688,8 +688,8 @@ fn main() {
     write_docs!(
         Vec<ExerciseSlideSubmissionCountByExercise>,
         vec![ExerciseSlideSubmissionCountByExercise {
-            exercise_id: Some(id),
-            exercise_name: Some("Best exercise".to_string()),
+            exercise_id: id,
+            exercise_name: "Best exercise".to_string(),
             count: Some(123),
         }]
     );
@@ -709,8 +709,8 @@ fn main() {
                 order_number: Some(0)
             }],
             page_id: Some(Uuid::parse_str("bba0eda6-882b-4a0f-ad91-b02de1de4770").unwrap()),
-            page_title: Some("The title of the page".to_string()),
-            page_url_path: Some("/path-to-page".to_string())
+            page_title: "The title of the page".to_string(),
+            page_url_path: "/path-to-page".to_string()
         }]
     );
     write_docs!(FeedbackCount, FeedbackCount { read: 1, unread: 2 });
@@ -1041,6 +1041,7 @@ fn main() {
             chapter_front_page: Some(PageRoutingData {
                 url_path: "/chapter-1".to_string(),
                 title: "Chapter 1".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,
@@ -1051,6 +1052,7 @@ fn main() {
             next_page: Some(PageRoutingData {
                 url_path: "/chapter-1/page-3".to_string(),
                 title: "Page 3".to_string(),
+                page_id: Uuid::parse_str("634d1116-4a00-4f97-988d-e2fd523ac43a").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,
@@ -1061,6 +1063,7 @@ fn main() {
             previous_page: Some(PageRoutingData {
                 url_path: "/chapter-1/page-1".to_string(),
                 title: "Page 1".to_string(),
+                page_id: Uuid::parse_str("25d1932b-ad97-4461-8280-412fe8b75ca2").unwrap(),
                 chapter_number: 1,
                 chapter_id: Uuid::parse_str("22552232-c1b6-4067-9aae-e09221b63e8f").unwrap(),
                 chapter_opens_at: None,

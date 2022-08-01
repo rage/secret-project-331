@@ -3,17 +3,17 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 
-import { Renderer } from "../components/Renderer"
-import { ExerciseTaskGrading } from "../shared-module/bindings"
+import Renderer from "../components/Renderer"
+import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
-import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 import { ExerciseFeedback } from "./api/grade"
 
 export interface SubmissionData {
-  grading: ExerciseTaskGrading
+  grading: ExerciseTaskGradingResult
   user_answer: Answer
   public_spec: PublicAlternative[]
 }
@@ -29,14 +29,14 @@ export type State =
       answer: Answer
       feedback_json: ExerciseFeedback | null
       model_solution_spec: ModelSolutionApi | null
-      grading: ExerciseTaskGrading | null
+      grading: ExerciseTaskGradingResult | null
     }
   | {
       view_type: "exercise-editor"
       private_spec: Alternative[]
     }
 
-const Iframe: React.FC = () => {
+const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width

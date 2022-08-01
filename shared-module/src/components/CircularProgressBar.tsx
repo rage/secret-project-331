@@ -57,7 +57,9 @@ const CircleBox = styled.div`
   }
 `
 
-const CircularProgressBar: React.FC<CircularProgressBarProps> = ({ scoreMaximum, userPoints }) => {
+const CircularProgressBar: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CircularProgressBarProps>>
+> = ({ scoreMaximum, userPoints }) => {
   const complete = userPoints / scoreMaximum
   return (
     <CircleBox point={complete}>

@@ -224,10 +224,14 @@ const StyledIcon = styled(FontAwesomeIcon)`
   color: ${baseTheme.colors.grey[700]};
 `
 
-const Navigation: React.FC<NavigationProps> = () => {
+const Navigation: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
+> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
+  // eslint-disable-next-line i18next/no-literal-string
+  const buttonId = "main-navigation-menu"
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
@@ -243,7 +247,7 @@ const Navigation: React.FC<NavigationProps> = () => {
         role="button"
         aria-label={t("open-menu")}
       >
-        <Hamburger isActive={clicked} toggleButton={callback} />
+        <Hamburger isActive={clicked} toggleButton={callback} buttonId={buttonId} />
       </div>
 
       <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>

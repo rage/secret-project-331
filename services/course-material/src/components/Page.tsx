@@ -20,7 +20,7 @@ interface Props {
   organizationSlug: string
 }
 
-const Page: React.FC<Props> = ({ onRefresh, organizationSlug }) => {
+const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   // block id -> new block contents
   const [edits, setEdits] = useState<Map<string, NewProposedBlockEdit>>(new Map())
   const pageContext = useContext(PageContext)

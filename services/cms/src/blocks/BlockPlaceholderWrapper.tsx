@@ -7,7 +7,10 @@ interface BlockPlaceholderWrapperProps {
   id: string
 }
 
-const BlockPlaceholderWrapper: React.FC<BlockPlaceholderWrapperProps> = ({ id, children }) => {
+const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholderWrapperProps>> = ({
+  id,
+  children,
+}) => {
   return (
     <div className={"wp-block wp-block-embed"} id={"placeholder-block-" + id}>
       <div className={"components-placeholder"}>{children}</div>

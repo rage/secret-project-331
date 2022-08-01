@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const LatexSave: React.FC = () => {
+const LatexSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

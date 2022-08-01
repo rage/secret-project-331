@@ -13,7 +13,11 @@ interface SubmissionProps {
   modelSolutionSpec: ModelSolutionApi | null
 }
 
-const Submission: React.FC<SubmissionProps> = ({ publicSpec, modelSolutionSpec, answer }) => {
+const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
+  publicSpec,
+  modelSolutionSpec,
+  answer,
+}) => {
   // Border colors
   const GREEN = baseTheme.colors.green[300]
   const RED = baseTheme.colors.red[300]

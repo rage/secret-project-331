@@ -5,7 +5,7 @@ import TextArea from "../../../../../../shared-module/components/InputFields/Tex
 
 import { PeerReviewQuestionProps } from "."
 
-const EssayPeerReviewQuestion: React.FC<PeerReviewQuestionProps> = ({
+const EssayPeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionProps>> = ({
   question,
   setPeerReviewQuestionAnswer,
   peerReviewQuestionAnswer,

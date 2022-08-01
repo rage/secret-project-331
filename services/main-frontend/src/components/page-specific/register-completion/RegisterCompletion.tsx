@@ -15,7 +15,10 @@ export interface RegisterCompletionProps {
   registrationFormUrl: string
 }
 
-const RegisterCompletion: React.FC<RegisterCompletionProps> = ({ data, registrationFormUrl }) => {
+const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionProps>> = ({
+  data,
+  registrationFormUrl,
+}) => {
   const { t } = useTranslation()
   return (
     <div>

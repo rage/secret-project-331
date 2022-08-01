@@ -8,7 +8,7 @@ import { wordCount } from "../../shared-module/utils/strings"
 
 import { QuizItemComponentProps } from "."
 
-const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
+const Essay: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,

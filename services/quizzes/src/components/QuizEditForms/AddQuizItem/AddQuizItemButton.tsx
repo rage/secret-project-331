@@ -11,7 +11,7 @@ interface ButtonProps {
   type: string
 }
 
-export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
+export const AddQuizItemButton: React.FC<React.PropsWithChildren<ButtonProps>> = ({ type }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)

@@ -42,7 +42,9 @@ const EXAMPLE_QUESTION = "Example question"
 
 export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement>
 
-const Review: React.FC<ReviewComponentProps> = () => {
+const Review: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ReviewComponentProps>>
+> = () => {
   const { t } = useTranslation()
   return (
     <Wrapper>

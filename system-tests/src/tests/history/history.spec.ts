@@ -109,6 +109,10 @@ test("history test", async ({ page, headless }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   // Click [placeholder="Option text"]

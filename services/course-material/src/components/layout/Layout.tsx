@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import PageContext from "../../contexts/PageContext"
 import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
+import LanguageSelection from "../../shared-module/components/LanguageSelection"
 import {
   Menu,
   NavBar,
@@ -21,6 +22,8 @@ import SearchDialog from "../SearchDialog"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
+
+const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 interface LayoutProps {
   children: ReactNode
@@ -37,7 +40,7 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<LayoutProps> = ({
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
@@ -81,6 +84,9 @@ const Layout: React.FC<LayoutProps> = ({
                   />
                 </NavItem>
               )}
+              <NavItem>
+                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+              </NavItem>
             </NavItems>
           </NavContainer>
           <Menu>

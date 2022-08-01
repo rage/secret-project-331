@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { State } from "../pages/iframe"
-import { CurrentStateMessage } from "../shared-module/iframe-protocol-types"
+import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
 
 import ButtonEditor from "./ButtonEditor"
@@ -36,7 +36,7 @@ const NewButton = styled.button`
   }
 `
 
-const Editor: React.FC<Props> = ({ state, setState, port }) => {
+const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, port }) => {
   const { t } = useTranslation()
 
   useEffect(() => {

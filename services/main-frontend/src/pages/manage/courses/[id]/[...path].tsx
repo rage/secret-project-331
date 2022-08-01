@@ -36,7 +36,7 @@ interface CourseManagementPageProps {
 }
 
 const CourseManagementPageTabs: {
-  [key: string]: React.FC<CourseManagementPagesProps>
+  [key: string]: React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
 } = {
   overview: CourseOverview,
   pages: CoursePages,
@@ -52,7 +52,9 @@ const CourseManagementPageTabs: {
   stats: CourseStatsPage,
 }
 
-const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) => {
+const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
+  query,
+}) => {
   const courseId = query.id
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()

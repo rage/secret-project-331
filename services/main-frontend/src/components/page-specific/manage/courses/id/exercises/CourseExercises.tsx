@@ -4,7 +4,9 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 
 import ExerciseList from "./ExerciseList"
 
-const CourseExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   return (
     <>

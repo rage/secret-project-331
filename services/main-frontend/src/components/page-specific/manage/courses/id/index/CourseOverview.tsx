@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse } from "../../../../../../services/backend/courses"
@@ -7,8 +7,10 @@ import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import ManageCourse from "../index/ManageCourse"
 
-const CourseOverview: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
-  const getCourseQuery = useQuery(`course-${courseId}`, () => getCourse(courseId))
+const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
+  const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
 
   return (
     <>

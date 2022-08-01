@@ -22,7 +22,7 @@ const Option = styled.div<StyledProps>`
   padding: 5px;
 `
 
-const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
+const CheckBoxFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
   public_quiz_item,
   user_quiz_item_answer,
   quiz_item_feedback,

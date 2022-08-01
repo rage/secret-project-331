@@ -30,7 +30,7 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<NewCourseFormProps> = ({
+const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   organizationId,
   onSubmitNewCourseForm,
   onSubmitDuplicateCourseForm,
@@ -243,9 +243,6 @@ const NewCourseForm: React.FC<NewCourseFormProps> = ({
           <FieldContainer>
             <SelectMenu
               id="duplicate-course-select-menu"
-              onBlur={() => {
-                // no-op
-              }}
               defaultValue={courses[0].id}
               onChange={(e) => handleDuplicateMenu(e, courses)}
               options={courses.map((course) => {

@@ -23,7 +23,9 @@ export interface CongratulationsLinksProps {
   module: UserModuleCompletionStatus
 }
 
-const CongratulationsLinks: React.FC<CongratulationsLinksProps> = ({ module }) => {
+const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
+  module,
+}) => {
   const { t } = useTranslation()
   return (
     <CTAWrapper>

@@ -31,6 +31,10 @@ test("widget, open", async ({ page, headless }) => {
     frame,
   })
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   // Fill input[type="text"]
   await frame.fill(
     'input:below(:text("Enter the date of the next leap day in ISO 8601 format (YYYY-MM-DD)."))',

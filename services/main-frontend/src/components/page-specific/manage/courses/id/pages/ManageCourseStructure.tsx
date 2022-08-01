@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog } from "@mui/material"
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "react-query"
 
 import managePageOrderReducer, {
   managePageOrderInitialState,
@@ -22,7 +22,6 @@ import useToastMutation from "../../../../../../shared-module/hooks/useToastMuta
 import { baseTheme, typography } from "../../../../../../shared-module/styles"
 
 import ChapterImageWidget from "./ChapterImageWidget"
-import CourseModules from "./CourseModules"
 import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
@@ -34,7 +33,7 @@ export interface ManageCourseStructureProps {
   ) => Promise<QueryObserverResult<CourseStructure, unknown>>
 }
 
-const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
+const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStructureProps>> = ({
   courseStructure,
   refetch,
 }) => {

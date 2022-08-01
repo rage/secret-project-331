@@ -9,7 +9,9 @@ import { TwitterEmbedBlock } from "./variants/TwitterEmbedBlock"
 import { VimeoEmbedBlock } from "./variants/VimeoEmbedBlock"
 import { YoutubeEmbedBlock } from "./variants/YoutubeEmbedBlock"
 
-const EmbedBlock: React.FC<BlockRendererProps<EmbedAttributes>> = (props) => {
+const EmbedBlock: React.FC<React.PropsWithChildren<BlockRendererProps<EmbedAttributes>>> = (
+  props,
+) => {
   const { data } = props
   const type = data.attributes.providerNameSlug
 

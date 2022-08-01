@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
 import {
@@ -17,13 +17,14 @@ import PeerReviewProgress from "../../../../../shared-module/components/PeerRevi
 import Spinner from "../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
 
-const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
+const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
   parentExerciseQuery,
@@ -33,7 +34,7 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
     new Map(),
   )
 
-  const query = useQuery(`exercise-${exerciseId}-peer-review`, () => {
+  const query = useQuery([`exercise-${exerciseId}-peer-review`], () => {
     return fetchPeerReviewDataByExerciseId(exerciseId)
   })
 
@@ -199,7 +200,9 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
                       view_type: "view-submission",
                       exercise_task_id: course_material_exercise_task.id,
                       data: {
-                        grading: course_material_exercise_task.previous_submission_grading,
+                        grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                          course_material_exercise_task.previous_submission_grading,
+                        ),
                         user_answer: course_material_exercise_task.previous_submission?.data_json,
                         public_spec: course_material_exercise_task.public_spec,
                         model_solution_spec: course_material_exercise_task.model_solution_spec,

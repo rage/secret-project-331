@@ -41,7 +41,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_by_peer_review_question_id(
+pub async fn get_by_peer_review_question_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
 ) -> ModelResult<Vec<PeerReviewQuestionSubmission>> {
@@ -50,7 +50,9 @@ pub async fn get_by_peer_review_question_id(
         "
     SELECT *
     FROM peer_review_question_submissions
-    WHERE peer_review_question_id = ANY($1)
+    WHERE peer_review_question_id IN (
+        SELECT UNNEST($1::uuid [])
+    )
         AND deleted_at IS NULL;
         ",
         ids

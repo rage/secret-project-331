@@ -113,7 +113,7 @@ async fn get_peer_review_given(
 ) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
     let peer_review_data =
-        models::exercise_task_submissions::get_peer_review_recieved(&mut conn, *exercise_id)
+        models::exercise_task_submissions::get_peer_review_received(&mut conn, *exercise_id)
             .await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(peer_review_data))

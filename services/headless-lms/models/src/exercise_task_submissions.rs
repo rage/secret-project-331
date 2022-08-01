@@ -228,8 +228,8 @@ WHERE ets.id = $1
     .await?;
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
-
-pub async fn get_peer_review_recieved(
+//typo received
+pub async fn get_peer_review_received(
     conn: &mut PgConnection,
     exercise_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
@@ -238,30 +238,14 @@ pub async fn get_peer_review_recieved(
         crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_review.id).await?;
 
     let peer_review_question_submissions =
-        crate::peer_review_question_submissions::get_by_peer_review_question_id(
+        crate::peer_review_question_submissions::get_by_peer_review_question_ids(
             &mut *conn,
             &peer_review_questions
                 .iter()
                 .map(|x| (x.id))
-                .collect::<Vec<Uuid>>(),
+                .collect::<Vec<_>>(),
         )
-        .await?
-        .into_iter()
-        .map(|x| x.into())
-        .collect();
-
-    /* let mut peer_review_question_submissions: Vec<PeerReviewQuestion> = peer_review_questions
-    .into_iter()
-    .map(|p| {
-        (PeerReviewsRecieved {
-            id: p.id,
-            question: p.question,
-            question_type: p.question_type,
-            text_data: p.text_data,
-            number_data: p.number_data,
-        },)
-    })
-    .collect(); */
+        .await?;
 
     Ok(PeerReviewsRecieved {
         peer_review_questions,

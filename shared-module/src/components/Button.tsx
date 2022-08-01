@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { forwardRef, Ref } from "react"
 
 import { baseTheme, fontWeights, headingFont, theme } from "../styles"
 import { defaultFontSizePx } from "../styles/constants"
@@ -10,7 +10,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
-  ref?: React.LegacyRef<HTMLButtonElement> | undefined
 }
 
 // BaseButtonStyles is the primary button
@@ -251,25 +250,28 @@ TertiaryButton
 IconButton
 Link */
 
-const Button: React.FC<ButtonProps> = (props: ButtonProps) => {
+const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => {
   switch (props.variant) {
     case "primary":
-      return <PrimaryButton {...props} />
+      return <PrimaryButton ref={ref} {...props} />
     case "secondary":
-      return <SecondaryButton {...props} />
+      return <SecondaryButton ref={ref} {...props} />
     case "reject":
-      return <RejectButton {...props} />
+      return <RejectButton ref={ref} {...props} />
     case "tertiary":
-      return <TertiaryButton {...props} />
+      return <TertiaryButton ref={ref} {...props} />
     case "outlined":
-      return <SecondaryButton {...props} />
+      return <SecondaryButton ref={ref} {...props} />
     case "blue":
-      return <BlueButton {...props} />
+      return <BlueButton ref={ref} {...props} />
     case "white":
-      return <WhiteButton {...props} />
+      return <WhiteButton ref={ref} {...props} />
     default:
-      return <PrimaryButton {...props} />
+      return <PrimaryButton ref={ref} {...props} />
   }
-}
+})
+
+// eslint-disable-next-line i18next/no-literal-string
+Button.displayName = "Button"
 
 export default Button

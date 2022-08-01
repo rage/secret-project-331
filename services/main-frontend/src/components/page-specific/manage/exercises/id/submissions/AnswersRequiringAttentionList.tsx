@@ -1,6 +1,6 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCircleExclamation, faFlag } from "@fortawesome/free-solid-svg-icons"
+import { faAngleDown, faCircleExclamation, faFlag } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Input, Slider } from "@mui/material"
 import React, { useState } from "react"
@@ -48,6 +48,11 @@ const StatusPanel = styled.div`
   align-items: center;
 `
 
+const CustomPointPopup = css`
+  background-color: #e2e4e6;
+  padding: 2em;
+`
+
 const TopBar = styled.div`
   width: 100%;
   height: 108px;
@@ -72,17 +77,25 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [sliderValue, setSliderValue] = useState<number>(0)
-  const [referenceElement, setReferenceElement] = useState<Element | null>(null)
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
-
   const PLACEMENT = "bottom"
 
   const ARROW = "arrow"
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: PLACEMENT,
-    modifiers: [{ name: ARROW, options: { element: arrowElement } }],
+    modifiers: [
+      { name: ARROW, options: { element: arrowElement, padding: 10 } },
+      {
+        // eslint-disable-next-line i18next/no-literal-string
+        name: "offset",
+        options: {
+          offset: [0, 20],
+        },
+      },
+    ],
   })
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
@@ -123,6 +136,11 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
       sliderValue,
     )
     setOpen(false)
+  }
+
+  const handleOpenPopup = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault()
+    setOpen(!open)
   }
 
   return (
@@ -322,23 +340,28 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                     type="button"
                     id="custom-point-button-v2"
                     ref={setReferenceElement}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setOpen(!open)
-                    }}
+                    onClick={handleOpenPopup}
                   >
                     {t("button-text-custom-points")}
+                    <FontAwesomeIcon
+                      className={css`
+                        margin-left: 0.5em;
+                      `}
+                      id="fa-angle-down"
+                      icon={faAngleDown}
+                    />
                   </Button>
                   {open ? (
                     <div
                       id="custom-point-popup"
                       ref={setPopperElement}
+                      className={cx(CustomPointPopup)}
                       // eslint-disable-next-line react/forbid-dom-props
                       style={styles.popper}
                       {...attributes.popper}
                     >
                       {/* eslint-disable-next-line react/forbid-dom-props */}
-                      <div ref={setArrowElement} style={styles.arrow} />
+                      <div id="arrow" ref={setArrowElement} style={styles.arrow} />
                       <div>
                         <Slider
                           value={typeof sliderValue === "number" ? sliderValue : 0.0}

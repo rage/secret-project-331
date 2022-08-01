@@ -32,8 +32,8 @@ const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = 
  * @param WrappedComponent
  */
 function enforceExerciseSlideIdDefined(
-  WrappedComponent: ComponentType<BlockEditProps<ExerciseSlideAttributes>>,
-): ComponentType<BlockEditProps<ExerciseSlideAttributes>> {
+  WrappedComponent: ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>>,
+): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
   const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {

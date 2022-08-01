@@ -1,7 +1,7 @@
+import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseInstances } from "../../../../../../services/backend/courses"
@@ -19,17 +19,19 @@ import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
 
-const CourseCourseInstances: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
-  const getCourseInstances = useQuery(`course-${courseId}-course-instances`, () =>
+  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
     fetchCourseInstances(courseId),
   )
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     // eslint-disable-next-line i18next/no-literal-string
-    queryClient.invalidateQueries(`course-${courseId}-course-instances`)
+    queryClient.invalidateQueries([`course-${courseId}-course-instances`])
   }
 
   return (
@@ -37,9 +39,7 @@ const CourseCourseInstances: React.FC<CourseManagementPagesProps> = ({ courseId 
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && (
         <div>
           <h2>{t("title-all-course-instances")}</h2>

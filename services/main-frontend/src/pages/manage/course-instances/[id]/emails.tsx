@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewEmailTemplateForm from "../../../../components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
@@ -24,11 +24,13 @@ export interface CourseInstanceEmailTemplatesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> = ({ query }) => {
+const CourseInstanceEmailTemplates: React.FC<
+  React.PropsWithChildren<CourseInstanceEmailTemplatesProps>
+> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
   const getCourseInstanceEmailTemplates = useQuery(
-    `course-instance-${courseInstanceId}-emails`,
+    [`course-instance-${courseInstanceId}-emails`],
     () => fetchCourseInstanceEmailTemplates(courseInstanceId),
   )
   const [showForm, setShowForm] = useState(false)
@@ -75,9 +77,7 @@ const CourseInstanceEmailTemplates: React.FC<CourseInstanceEmailTemplatesProps> 
         {getCourseInstanceEmailTemplates.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
         )}
-        {(getCourseInstanceEmailTemplates.isLoading || getCourseInstanceEmailTemplates.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
         {getCourseInstanceEmailTemplates.isSuccess && (
           <ul>
             {getCourseInstanceEmailTemplates.data.map((template) => {

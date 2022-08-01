@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { isPast } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
@@ -27,12 +27,14 @@ interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) => {
+const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstancesProps>> = ({
+  query,
+}) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
   const router = useRouter()
 
-  const getCourseInstances = useQuery(`course-instance-${courseInstanceId}`, () =>
+  const getCourseInstances = useQuery([`course-instance-${courseInstanceId}`], () =>
     fetchCourseInstance(courseInstanceId),
   )
   const [editing, setEditing] = useState(false)
@@ -156,9 +158,7 @@ const ManageCourseInstances: React.FC<ManageCourseInstancesProps> = ({ query }) 
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
-        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
         {getCourseInstances.isSuccess && instanceInfo}
       </div>
     </Layout>

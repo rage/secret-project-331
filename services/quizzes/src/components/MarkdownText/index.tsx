@@ -7,6 +7,8 @@ export interface MarkDownTextProps {
 // Dynamic import because we want to split commonmark into its own chunk
 const MarkdownTextImpl = dynamic(() => import("./MarkdownTextImpl"), { ssr: false })
 
-const MarkdownText: React.FC<MarkDownTextProps> = (props) => <MarkdownTextImpl {...props} />
+const MarkdownText: React.FC<React.PropsWithChildren<MarkDownTextProps>> = (props) => (
+  <MarkdownTextImpl {...props} />
+)
 
 export default MarkdownText

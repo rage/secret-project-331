@@ -20,7 +20,11 @@ export interface MarkdownEditorProps {
   label: string
 }
 
-export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ text, label, onChange }) => {
+export const MarkdownEditor: React.FC<React.PropsWithChildren<MarkdownEditorProps>> = ({
+  text,
+  label,
+  onChange,
+}) => {
   const { t } = useTranslation()
   const [previewVisible, setPreviewVisible] = useState(false)
   const [, setShowTabs] = useState(text.length > 0)

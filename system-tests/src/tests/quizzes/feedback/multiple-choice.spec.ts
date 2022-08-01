@@ -46,6 +46,10 @@ test("test quizzes multiple-choice feedback", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=Which one is the Rust package manager?")
 
   await frame.click("text=rustup")

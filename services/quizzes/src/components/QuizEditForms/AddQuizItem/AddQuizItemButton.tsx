@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
-import { t } from "i18next"
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import Button from "../../../shared-module/components/Button"
@@ -11,7 +11,8 @@ interface ButtonProps {
   type: string
 }
 
-export const AddQuizItemButton: React.FC<ButtonProps> = ({ type }) => {
+export const AddQuizItemButton: React.FC<React.PropsWithChildren<ButtonProps>> = ({ type }) => {
+  const { t } = useTranslation()
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1)

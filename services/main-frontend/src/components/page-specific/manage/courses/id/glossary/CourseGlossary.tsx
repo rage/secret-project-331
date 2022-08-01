@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
@@ -12,7 +12,9 @@ import TextField from "../../../../../../shared-module/components/InputFields/Te
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
-const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
 
   const [newTerm, setNewTerm] = useState("")
@@ -20,7 +22,7 @@ const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const [updatedTerm, setUpdatedTerm] = useState("")
   const [updatedDefinition, setUpdatedDefinition] = useState("")
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
-  const glossary = useQuery(`glossary-${courseId}`, () => fetchGlossary(courseId))
+  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
   const createMutation = useToastMutation(
     () => postNewTerm(courseId, newTerm, newDefinition),
     {
@@ -61,7 +63,7 @@ const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     <>
       <h1>{t("manage-glossary")}</h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
-      {(glossary.isIdle || glossary.isLoading) && <Spinner variant={"medium"} />}
+      {glossary.isLoading && <Spinner variant={"medium"} />}
       <div>
         <TextField
           label={t("new-term")}

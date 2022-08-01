@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchChaptersPagesWithExercises } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -13,13 +13,13 @@ import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
-const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string | undefined }> = ({
-  chapterId,
-  courseInstanceId,
-}) => {
+const ExercisesInChapter: React.FC<
+  React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
+> = ({ chapterId, courseInstanceId }) => {
   const { t } = useTranslation()
-  const getChaptersPagesWithExercises = useQuery(`chapter-${chapterId}-pages-with-exercises`, () =>
-    fetchChaptersPagesWithExercises(chapterId),
+  const getChaptersPagesWithExercises = useQuery(
+    [`chapter-${chapterId}-pages-with-exercises`],
+    () => fetchChaptersPagesWithExercises(chapterId),
   )
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
@@ -47,9 +47,7 @@ const ExercisesInChapter: React.FC<{ chapterId: string; courseInstanceId: string
       {getChaptersPagesWithExercises.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersPagesWithExercises.error} />
       )}
-      {(getChaptersPagesWithExercises.isLoading || getChaptersPagesWithExercises.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getChaptersPagesWithExercises.isLoading && <Spinner variant={"medium"} />}
       {getChaptersPagesWithExercises.isSuccess && (
         <>
           {getChaptersPagesWithExercises.data.map((page) => (

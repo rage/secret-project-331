@@ -3,7 +3,11 @@ extern crate tracing;
 
 use std::{env, sync::Arc};
 
-use actix_session::{storage::CookieSessionStore, SessionMiddleware};
+use actix_session::{
+    config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
+    storage::CookieSessionStore,
+    SessionMiddleware,
+};
 use actix_web::{
     cookie::{Key, SameSite},
     middleware::Logger,
@@ -86,11 +90,12 @@ async fn main() -> Result<()> {
                 .cookie_same_site(SameSite::Strict) // Default api can only be accessed from the main website. Public api will be less strict on this.
                 .cookie_http_only(true) // Cookie is inaccessible from javascript for security
                 .cookie_path("/api".to_string()) // browser won't send the cookie unless this path exists in the request url
-                .cookie_content_security(actix_session::CookieContentSecurity::Private)
-                // TODO: the session length should be made to auto-prolong once this is fixed: https://github.com/actix/actix-extras/issues/231
-                .session_length(actix_session::SessionLength::Predetermined {
-                    max_session_length: Some(actix_web::cookie::time::Duration::days(730)),
-                })
+                .cookie_content_security(CookieContentSecurity::Private)
+                .session_lifecycle(SessionLifecycle::PersistentSession(
+                    PersistentSession::default()
+                        .session_ttl(actix_web::cookie::time::Duration::days(100))
+                        .session_ttl_extension_policy(TtlExtensionPolicy::OnEveryRequest),
+                ))
                 .build(),
             )
             .wrap(Logger::new("%r %s %b bytes - %D ms"))

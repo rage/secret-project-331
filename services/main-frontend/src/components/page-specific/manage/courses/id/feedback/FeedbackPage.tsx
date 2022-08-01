@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { fetchFeedback, markAsRead } from "../../../../../../services/backend/feedback"
 import { Feedback } from "../../../../../../shared-module/bindings"
@@ -17,8 +17,14 @@ interface Props {
   onChange: () => Promise<unknown>
 }
 
-const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }) => {
-  const getFeedbackList = useQuery(`feedback-list-${courseId}-${read}-${page}-${limit}`, () =>
+const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  page,
+  limit,
+  read,
+  onChange,
+}) => {
+  const getFeedbackList = useQuery([`feedback-list-${courseId}-${read}-${page}-${limit}`], () =>
     fetchFeedback(courseId, read, page, limit),
   )
 
@@ -32,7 +38,7 @@ const FeedbackPage: React.FC<Props> = ({ courseId, page, limit, read, onChange }
     return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
   }
 
-  if (getFeedbackList.isLoading || getFeedbackList.isIdle) {
+  if (getFeedbackList.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

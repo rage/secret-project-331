@@ -1,11 +1,11 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
+import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import dynamic from "next/dynamic"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { UseMutationResult, useQuery } from "react-query"
 
 import {
   blockTypeMapForFrontPages,
@@ -60,7 +60,7 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
   return allSupportedBlocks
 }
 
-const PageEditor: React.FC<PageEditorProps> = ({
+const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   data,
   saveMutation,
   needToRunMigrationsAndValidations,
@@ -121,7 +121,7 @@ const PageEditor: React.FC<PageEditorProps> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
-  const getNextPageRoutingData = useQuery(`pages-${data.id}-page-navigation`, () =>
+  const getNextPageRoutingData = useQuery([`pages-${data.id}-page-navigation`], () =>
     fetchNextPageRoutingData(data.id),
   )
 

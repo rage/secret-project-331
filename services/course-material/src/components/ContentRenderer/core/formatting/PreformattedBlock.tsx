@@ -6,7 +6,9 @@ import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
-const PreformattedBlock: React.FC<BlockRendererProps<PreformattedAttributes>> = ({ data }) => {
+const PreformattedBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<PreformattedAttributes>>
+> = ({ data }) => {
   const { content, anchor, backgroundColor, fontSize, gradient, textColor } = data.attributes
   return (
     <pre

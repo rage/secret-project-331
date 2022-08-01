@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseDailySubmissionCounts } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
@@ -17,10 +17,12 @@ export interface CourseSubmissionsByDayProps {
   courseId: string
 }
 
-const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseId }) => {
+const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissionsByDayProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const getCourseDailySubmissionCounts = useQuery(
-    `course-daily-submission-counts-${courseId}`,
+    [`course-daily-submission-counts-${courseId}`],
     () => fetchCourseDailySubmissionCounts(courseId),
     {
       select: (data) => {
@@ -39,7 +41,7 @@ const CourseSubmissionsByDay: React.FC<CourseSubmissionsByDayProps> = ({ courseI
     return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
   }
 
-  if (getCourseDailySubmissionCounts.isLoading || getCourseDailySubmissionCounts.isIdle) {
+  if (getCourseDailySubmissionCounts.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

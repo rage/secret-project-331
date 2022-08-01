@@ -17,7 +17,7 @@ export interface ExerciseCountDisplayProps {
   totalExercises: number
 }
 
-const ExerciseCountDisplay: React.FC<ExerciseCountDisplayProps> = ({
+const ExerciseCountDisplay: React.FC<React.PropsWithChildren<ExerciseCountDisplayProps>> = ({
   exercisesAnswered,
   exercisesNeededToAnswer,
   totalExercises,

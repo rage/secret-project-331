@@ -687,8 +687,8 @@ fn main() {
     write_docs!(
         Vec<ExerciseSlideSubmissionCountByExercise>,
         vec![ExerciseSlideSubmissionCountByExercise {
-            exercise_id: Some(id),
-            exercise_name: Some("Best exercise".to_string()),
+            exercise_id: id,
+            exercise_name: "Best exercise".to_string(),
             count: Some(123),
         }]
     );
@@ -708,8 +708,8 @@ fn main() {
                 order_number: Some(0)
             }],
             page_id: Some(Uuid::parse_str("bba0eda6-882b-4a0f-ad91-b02de1de4770").unwrap()),
-            page_title: Some("The title of the page".to_string()),
-            page_url_path: Some("/path-to-page".to_string())
+            page_title: "The title of the page".to_string(),
+            page_url_path: "/path-to-page".to_string()
         }]
     );
     write_docs!(FeedbackCount, FeedbackCount { read: 1, unread: 2 });

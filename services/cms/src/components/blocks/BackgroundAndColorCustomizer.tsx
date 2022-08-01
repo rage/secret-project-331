@@ -33,10 +33,9 @@ interface BackgroundAndColorCustomizerProps {
   setAttributes: (attributes: Partial<RequiredAttributes>) => void
 }
 
-const BackgroundAndColorCustomizer: React.FC<BackgroundAndColorCustomizerProps> = ({
-  attributes,
-  setAttributes,
-}) => {
+const BackgroundAndColorCustomizer: React.FC<
+  React.PropsWithChildren<BackgroundAndColorCustomizerProps>
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   return (
     <PanelBody title={t("background")} initialOpen={false}>

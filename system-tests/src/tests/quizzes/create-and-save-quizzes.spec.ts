@@ -125,6 +125,10 @@ test("create quizzes test", async ({ page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Frame not found")
+  }
+
   await frame.click(`button:text("Essay")`)
   await frame.fill(`label:has-text("Min words") input`, "100")
   await frame.fill(`label:has-text("Max words") input`, "500")
@@ -145,6 +149,9 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+  if (!frame2) {
+    throw new Error("Frame2 not found")
+  }
   await scrollToFrame(page, frame2)
 
   await frame2.click(`button:text("Scale")`)
@@ -168,6 +175,9 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+  if (!frame3) {
+    throw new Error("Frame3 not found")
+  }
   await scrollToFrame(page, frame3)
 
   await frame3.click(`button:text("Open")`)
@@ -197,6 +207,9 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+  if (!frame4) {
+    throw new Error("Frame4 not found")
+  }
   await scrollToFrame(page, frame4)
 
   await frame4.click(`:nth-match(button:text("Multiple-Choice"), 1)`)
@@ -237,6 +250,9 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+  if (!frame5) {
+    throw new Error("Frame5 not found")
+  }
   await scrollToFrame(page, frame5)
 
   await frame5.click(`button:text("Checkbox")`)
@@ -257,6 +273,9 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+  if (!frame6) {
+    throw new Error("Frame6 not found")
+  }
   await scrollToFrame(page, frame6)
 
   await frame6.click(`button:text("Matrix")`)
@@ -276,7 +295,13 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+
+  if (!frame7) {
+    throw new Error("Frame7 not found")
+  }
+
   await scrollToFrame(page, frame7)
+
   await frame7.click(`:nth-match(button:text("Multiple-choice-dropdown"), 1)`)
   await frame7.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
   await frame7.click(`button:text("Add option")`)
@@ -310,7 +335,13 @@ test("create quizzes test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
+
+  if (!frame8) {
+    throw new Error("Frame8 not found")
+  }
+
   await scrollToFrame(page, frame8)
+
   await frame8.click(`:nth-match(button:text("Clickable-multiple-choice"), 1)`)
   await frame8.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
   await frame8.click(`button:text("Add option")`)
@@ -341,6 +372,9 @@ test("create quizzes test", async ({ page }) => {
 async function scrollToFrame(page: Page, frame: Frame) {
   const frameElement = await frame.frameElement()
   const boundingBox = await frameElement.boundingBox()
+  if (!boundingBox) {
+    throw new Error("Frame had no bounding box")
+  }
   const y = boundingBox.y
   await page.evaluate((y) => {
     window.scrollTo(0, window.scrollY + y)

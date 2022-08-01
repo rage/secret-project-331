@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -13,12 +13,12 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import CourseProgress from "./CourseProgress"
 
-const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
   const getUserCourseProgress = useQuery(
-    `course-instance-${courseInstanceId}-progress`,
+    [`course-instance-${courseInstanceId}-progress`],
     () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
     { enabled: !!courseInstanceId },
   )
@@ -39,9 +39,7 @@ const CourseProgressBlock: React.FC<BlockRendererProps<unknown>> = () => {
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
-      {(getUserCourseProgress.isLoading || getUserCourseProgress.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
         <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />
       )}

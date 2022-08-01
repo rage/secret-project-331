@@ -13,7 +13,7 @@ import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseM
 
 const VIMEO_MAX_WIDTH = 780
 
-export const VimeoEmbedBlock: React.FC<EmbedAttributes> = (props) => {
+export const VimeoEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const [embedHtml, setEmbedHtml] = useState(undefined)
   const [fetching, setFetching] = useState(true)
   const { t } = useTranslation()

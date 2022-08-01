@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { PermissionPage } from "../../../../components/PermissionPage"
@@ -20,9 +20,9 @@ interface Props {
   query: SimplifiedUrlQuery<"id">
 }
 
-const OrganizationPermissions: React.FC<Props> = ({ query }) => {
+const OrganizationPermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const organization = useQuery(`organization-${query.id}`, () => fetchOrganization(query.id))
+  const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
 
   return (
     <Layout navVariant="simple">

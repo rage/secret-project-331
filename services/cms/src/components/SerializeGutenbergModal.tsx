@@ -11,7 +11,9 @@ export interface SerializeGutenbergModalProps {
   content: BlockInstance[]
 }
 
-const SerializeGutenbergModal: React.FC<SerializeGutenbergModalProps> = ({ content }) => {
+const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbergModalProps>> = ({
+  content,
+}) => {
   const { t } = useTranslation()
   const [serialized, setSerialized] = useState<string | null>(null)
 

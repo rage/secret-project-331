@@ -230,7 +230,9 @@ const StyledArrow = styled(Arrow)`
 `
 export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
-const Contribute: React.FC<ContributeProps> = () => {
+const Contribute: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ContributeProps>>
+> = () => {
   const { t } = useTranslation()
   return (
     <BannerWrapper>

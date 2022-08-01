@@ -89,7 +89,11 @@ const Container = styled.div`
   flex-direction: row;
 `
 
-const Pagination: React.FC<PaginationProps> = ({ count, page, onChange }) => {
+const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<PaginationProps>>> = ({
+  count,
+  page,
+  onChange,
+}) => {
   const handleChangeEvent = (pageNumber: number) => (changeEvent: unknown) => {
     onChange(changeEvent, pageNumber)
   }

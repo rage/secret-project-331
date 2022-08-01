@@ -43,6 +43,10 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.waitForSelector("text=write an essay")
 
   await frame.fill(

@@ -10,7 +10,7 @@ interface Props {
   port: MessagePort
 }
 
-const Exercise: React.FC<Props> = ({ port, state }) => {
+const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => {
   const [selectedId, _setSelectedId] = useState<string | null>(null)
 
   const setSelectedId: typeof _setSelectedId = (value) => {

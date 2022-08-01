@@ -1,13 +1,13 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
-import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
   useQueryClient,
-} from "react-query"
+} from "@tanstack/react-query"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
@@ -16,7 +16,6 @@ import OnlyRenderIfPermissions from "../../../../../../shared-module/components/
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import CourseCourseInstances from "../course-instances/CourseCourseInstances"
-import ExerciseList from "../exercises/ExerciseList"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "../language-versions/CourseLanguageVersionsList"
@@ -30,7 +29,7 @@ interface Props {
   ) => Promise<QueryObserverResult<Course, unknown>>
 }
 
-const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
+const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
@@ -61,7 +60,7 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
     await postNewCourseTranslation(course.id, newCourse)
     await refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries(formatLanguageVersionsQueryKey(course.id))
+    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(course.id)])
   }
 
   return (

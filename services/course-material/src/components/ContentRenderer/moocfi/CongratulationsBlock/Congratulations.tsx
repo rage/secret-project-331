@@ -91,7 +91,7 @@ export interface CongratulationsProps {
   modules: Array<UserModuleCompletionStatus>
 }
 
-const Congratulations: React.FC<CongratulationsProps> = ({ modules }) => {
+const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
   const { t } = useTranslation()
   const multipleModules = modules.length > 1
   return (

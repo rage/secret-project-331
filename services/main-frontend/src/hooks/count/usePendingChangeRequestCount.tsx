@@ -1,11 +1,11 @@
-import { useQuery } from "react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import { fetchEditProposalCount } from "../../services/backend/proposedEdits"
 
 const createPendingChangeRequestCountHook = (courseId: string) => {
   const usePendingChangeRequestCount = () => {
     const getEditProposalCount = useQuery(
-      `edit-proposal-count-${courseId}`,
+      [`edit-proposal-count-${courseId}`],
       () => fetchEditProposalCount(courseId),
       { select: (data) => data.pending },
     )

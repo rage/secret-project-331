@@ -44,7 +44,9 @@ interface MultipleChoiceContentProps {
   item: NormalizedQuizItem
 }
 
-const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) => {
+const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceContentProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   const quizId = useTypedSelector((state) => state.editor.quizId)
   const storeOptions = useTypedSelector((state) => state.editor.options)
@@ -52,7 +54,6 @@ const MultipleChoiceContent: React.FC<MultipleChoiceContentProps> = ({ item }) =
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
 
   const dispatch = useDispatch()
-
   return (
     <>
       <StyledModal

@@ -5,7 +5,9 @@ import { BlockRendererProps } from "../.."
 import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import colorMapper from "../../../../styles/colorMapper"
 
-const SeparatorBlock: React.FC<BlockRendererProps<SeparatorAttributes>> = ({ data }) => {
+const SeparatorBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<SeparatorAttributes>>
+> = ({ data }) => {
   const { anchor, className, textColor, backgroundColor } = data.attributes
   return (
     <div>

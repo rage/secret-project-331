@@ -85,7 +85,7 @@ export interface Topic {
 
 export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
-const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
+const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationProps>> = () => {
   const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
   // eslint-disable-next-line i18next/no-literal-string
   const [activeHeading, setActiveHeading] = useState<string | undefined>(undefined)

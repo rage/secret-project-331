@@ -10,7 +10,7 @@ interface Props {
   model_solutions: ModelSolutionApi | null
 }
 
-const ExerciseBase: React.FC<Props> = ({
+const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
   alternatives,
   selectedId,
   onClick,

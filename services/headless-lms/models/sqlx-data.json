@@ -692,7 +692,7 @@
           "type_info": "Int8"
         }
       ],
-      "nullable": [true, true, true, true, true, true, true, true],
+      "nullable": [false, false, false, false, false, null, null, null],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -2940,7 +2940,7 @@
           "type_info": "Float4"
         }
       ],
-      "nullable": [true, true, true, true, true, true, true],
+      "nullable": [false, false, true, false, false, false, false],
       "parameters": {
         "Left": ["UuidArray"]
       }
@@ -11650,7 +11650,21 @@
           "type_info": "Varchar"
         }
       ],
-      "nullable": [true, true, true, true, true, true, true, true, true, true, true, true, true],
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        null,
+        null,
+        null,
+        false,
+        false
+      ],
       "parameters": {
         "Left": ["Uuid", "Bool", "Int8", "Int8"]
       }
@@ -11811,7 +11825,7 @@
           }
         }
       ],
-      "nullable": [true, true, true, true, true],
+      "nullable": [false, true, true, false, false],
       "parameters": {
         "Left": []
       }
@@ -14267,7 +14281,7 @@
           "type_info": "Varchar"
         }
       ],
-      "nullable": [true, true, true],
+      "nullable": [false, null, false],
       "parameters": {
         "Left": ["Uuid"]
       }

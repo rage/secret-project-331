@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
 import { State } from "../pages/iframe"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import DynamicallyLoadingComponentPlaceholder from "./ComponentPlaceholder"
 
@@ -26,7 +27,7 @@ interface RendererProps {
   port: MessagePort | null
 }
 
-export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
+const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, port }) => {
   const { t } = useTranslation()
 
   if (!port) {
@@ -54,3 +55,5 @@ export const Renderer: React.FC<RendererProps> = ({ state, port }) => {
     return <>{t("waiting-for-content")}</>
   }
 }
+
+export default withNoSsr(Renderer)

@@ -10,7 +10,10 @@ import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
 
-const ColumnsBlock: React.FC<BlockRendererProps<ColumnsAttributes>> = ({ data, isExam }) => {
+const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
+  data,
+  isExam,
+}) => {
   const innerBlocks = data.innerBlocks as Block<ColumnAttributes>[]
   const {
     isStackedOnMobile,

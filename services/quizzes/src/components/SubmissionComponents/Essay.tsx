@@ -7,7 +7,9 @@ import { wordCount } from "../../shared-module/utils/strings"
 
 import { QuizItemSubmissionComponentProps } from "."
 
-const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_item_answer }) => {
+const EssayFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
+  user_quiz_item_answer,
+}) => {
   const { t } = useTranslation()
   const text = user_quiz_item_answer.textData
   return (

@@ -13,7 +13,7 @@ export interface EditorProps {
   privateSpec: Quiz
 }
 // Wrapper enables to use the redux provider only for the editor
-const Editor: React.FC<EditorProps> = (props) => {
+const Editor: React.FC<React.PropsWithChildren<EditorProps>> = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={muiTheme}>

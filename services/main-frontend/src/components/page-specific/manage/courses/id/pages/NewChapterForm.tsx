@@ -27,7 +27,7 @@ interface Fields {
   chapter_number: number
 }
 
-const NewChapterForm: React.FC<NewChapterFormProps> = ({
+const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = ({
   courseId,
   onSubmitForm,
   chapterNumber,

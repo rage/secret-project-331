@@ -8,7 +8,9 @@ interface CardOpensTextProps {
   time: string | undefined
 }
 
-const CardOpensTextOverlay: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
+const CardOpensTextOverlay: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CardOpensTextProps>>
+> = ({ open, date, time }) => {
   return (
     <div
       className={css`

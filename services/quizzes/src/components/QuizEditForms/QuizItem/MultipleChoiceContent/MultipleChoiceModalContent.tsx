@@ -75,7 +75,9 @@ interface EditorModalProps {
   item: NormalizedQuizItem
 }
 
-export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item }) => {
+export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<EditorModalProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)

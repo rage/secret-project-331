@@ -16,7 +16,7 @@ interface UpdateEmailDetailsFormProps {
   setSubject: (newSubject: string) => void
 }
 
-const UpdateEmailDetailsForm: React.FC<UpdateEmailDetailsFormProps> = ({
+const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetailsFormProps>> = ({
   name,
   subject,
   setName,

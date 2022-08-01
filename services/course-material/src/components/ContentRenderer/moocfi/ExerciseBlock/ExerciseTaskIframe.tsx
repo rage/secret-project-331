@@ -12,7 +12,7 @@ interface ExerciseTaskIframeProps {
   title: string
 }
 
-const ExerciseTaskIframe: React.FC<ExerciseTaskIframeProps> = ({
+const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
   url,
   postThisStateToIFrame,
   setAnswer,

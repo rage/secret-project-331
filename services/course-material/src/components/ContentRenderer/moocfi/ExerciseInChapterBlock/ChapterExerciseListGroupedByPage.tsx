@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
-import { useQuery } from "react-query"
 
 import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../services/backend"
 import { PageWithExercises } from "../../../../shared-module/bindings"
@@ -20,16 +20,12 @@ export interface ChapterExerciseListGroupedByPageProps {
   page: PageWithExercises
 }
 
-const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPageProps> = ({
-  chapterId,
-  courseInstanceId,
-  courseSlug,
-  organizationSlug,
-  page,
-}) => {
+const ChapterExerciseListGroupedByPage: React.FC<
+  React.PropsWithChildren<ChapterExerciseListGroupedByPageProps>
+> = ({ chapterId, courseInstanceId, courseSlug, organizationSlug, page }) => {
   const loginStateContext = useContext(LoginStateContext)
   const getUserCourseInstanceChapterExercisesProgress = useQuery(
-    `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
+    [`user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`],
     () =>
       fetchUserCourseInstanceChapterExercisesProgress(
         assertNotNullOrUndefined(courseInstanceId),
@@ -52,8 +48,11 @@ const ChapterExerciseListGroupedByPage: React.FC<ChapterExerciseListGroupedByPag
     )
   }
 
-  if (getUserCourseInstanceChapterExercisesProgress.isLoading) {
-    // No isIdle check on this one because this component still works when we are logged out and the query is not enabled
+  if (
+    getUserCourseInstanceChapterExercisesProgress.isLoading &&
+    getUserCourseInstanceChapterExercisesProgress.fetchStatus !== "idle"
+  ) {
+    // No spinner when idle because this component still works when we are logged out and the query is not enabled
     return <Spinner variant={"medium"} />
   }
 

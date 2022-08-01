@@ -79,7 +79,7 @@ interface GutenbergEditorProps {
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
-const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
+const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
   content,
   onContentChange,
   allowedBlockVariations,
@@ -310,9 +310,6 @@ const GutenbergEditor: React.FC<GutenbergEditorProps> = ({
                       // eslint-disable-next-line i18next/no-literal-string
                       { value: "block-menu", label: t("block-menu") },
                     ]}
-                    onBlur={() => {
-                      // noop
-                    }}
                     onChange={(val) => setSidebarView(val)}
                   />
                 </div>

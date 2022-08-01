@@ -821,8 +821,8 @@ export function isFeedback(obj: any, _argumentName?: string): obj is Feedback {
     obj.created_at instanceof Date &&
     Array.isArray(obj.blocks) &&
     obj.blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
-    (obj.page_title === null || typeof obj.page_title === "string") &&
-    (obj.page_url_path === null || typeof obj.page_url_path === "string")
+    typeof obj.page_title === "string" &&
+    typeof obj.page_url_path === "string"
   )
 }
 
@@ -1516,9 +1516,9 @@ export function isExerciseSlideSubmissionCountByExercise(
 ): obj is ExerciseSlideSubmissionCountByExercise {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.exercise_id === "string" &&
     (obj.count === null || typeof obj.count === "number") &&
-    (obj.exercise_name === null || typeof obj.exercise_name === "string")
+    typeof obj.exercise_name === "string"
   )
 }
 
@@ -1696,11 +1696,11 @@ export function isUserCourseInstanceProgress(
 export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is ExerciseUserCounts {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.exercise_name === null || typeof obj.exercise_name === "string") &&
-    (obj.exercise_order_number === null || typeof obj.exercise_order_number === "number") &&
-    (obj.page_order_number === null || typeof obj.page_order_number === "number") &&
-    (obj.chapter_number === null || typeof obj.chapter_number === "number") &&
-    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
+    typeof obj.exercise_name === "string" &&
+    typeof obj.exercise_order_number === "number" &&
+    typeof obj.page_order_number === "number" &&
+    typeof obj.chapter_number === "number" &&
+    typeof obj.exercise_id === "string" &&
     typeof obj.n_users_attempted === "number" &&
     typeof obj.n_users_with_some_points === "number" &&
     typeof obj.n_users_with_max_points === "number"

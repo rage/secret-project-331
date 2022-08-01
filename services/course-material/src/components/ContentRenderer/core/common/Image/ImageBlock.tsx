@@ -6,7 +6,9 @@ import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
+const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const {
     alt,

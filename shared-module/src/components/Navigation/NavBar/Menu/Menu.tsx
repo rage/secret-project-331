@@ -24,7 +24,7 @@ const MenuIcon = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const ToolTip = css`
-  background: ${baseTheme.colors.clear[200]};
+  background: #fff;
   border-color: #cacaca;
   padding: 0;
   border-radius: 4px;
@@ -32,6 +32,7 @@ const ToolTip = css`
   margin-bottom: 10px;
   margin-left: -95px;
   z-index: 901;
+  box-shadow: 0px 0px 5px rgba(51, 51, 51, 0.1);
 
   li {
     text-decoration: none;
@@ -52,6 +53,7 @@ const ToolTip = css`
       padding: 0;
       font-size: 16px;
       background: inherit;
+      text-transform: none;
       color: ${baseTheme.colors.green[500]};
     }
 
@@ -71,7 +73,10 @@ export interface MenuProps {
   children: ReactNode
 }
 
-const Menu: React.FC<MenuProps> = ({ children, variant }) => {
+const Menu: React.FC<React.PropsWithChildren<React.PropsWithChildren<MenuProps>>> = ({
+  children,
+  variant,
+}) => {
   const [clicked, setClicked] = useState(false)
   const { t } = useTranslation()
 

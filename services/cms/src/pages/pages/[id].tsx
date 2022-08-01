@@ -1,6 +1,6 @@
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
-import { useQuery, useQueryClient } from "react-query"
 
 import Layout from "../../components/Layout"
 import PageContext from "../../contexts/PageContext"
@@ -31,7 +31,7 @@ const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
-  const getPage = useQuery(`page-${id}`, () => fetchPageWithId(id), {
+  const getPage = useQuery([`page-${id}`], () => fetchPageWithId(id), {
     select: (data) => {
       const page: Page = {
         ...data.page,
@@ -66,7 +66,7 @@ const Pages = ({ query }: PagesProps) => {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?
         // eslint-disable-next-line i18next/no-literal-string
-        queryClient.setQueryData(`page-${id}`, newData)
+        queryClient.setQueryData([`page-${id}`], newData)
       },
       retry: 3,
     },
@@ -74,7 +74,7 @@ const Pages = ({ query }: PagesProps) => {
   return (
     <Layout>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {(getPage.isLoading || getPage.isIdle) && <Spinner variant={"medium"} />}
+      {getPage.isLoading && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor

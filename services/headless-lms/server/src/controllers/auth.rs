@@ -2,7 +2,6 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
-use actix_governor::{Governor, GovernorConfigBuilder};
 use std::{env, time::Duration};
 
 use actix_session::Session;
@@ -16,8 +15,11 @@ use url::form_urlencoded::Target;
 
 use crate::{
     controllers::prelude::*,
-    domain::authorization::{
-        self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+    domain::{
+        authorization::{
+            self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
+        },
+        rate_limit_middleware_builder::build_rate_limiting_middleware,
     },
     OAuthClient,
 };
@@ -427,19 +429,26 @@ pub async fn get_user_from_moocfi(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    let governor_conf = GovernorConfigBuilder::default()
-        .period(Duration::from_secs(10))
-        .burst_size(10)
-        .finish()
-        .unwrap();
     cfg.service(
         web::resource("/signup")
-            .wrap(Governor::new(&governor_conf))
+            .wrap(build_rate_limiting_middleware(Duration::from_secs(60), 15))
+            .wrap(build_rate_limiting_middleware(
+                Duration::from_secs(60 * 60 * 24),
+                1000,
+            ))
             .to(signup),
     )
     .service(
         web::resource("/login")
-            .wrap(Governor::new(&governor_conf))
+            .wrap(build_rate_limiting_middleware(Duration::from_secs(60), 20))
+            .wrap(build_rate_limiting_middleware(
+                Duration::from_secs(60 * 60),
+                100,
+            ))
+            .wrap(build_rate_limiting_middleware(
+                Duration::from_secs(60 * 60 * 24),
+                500,
+            ))
             .to(login),
     )
     .route("/logout", web::post().to(logout))

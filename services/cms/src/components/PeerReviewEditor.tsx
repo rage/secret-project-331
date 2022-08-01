@@ -122,7 +122,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },
-    { label: t("linkert-scale"), value: "Scale" },
+    { label: t("likert-scale"), value: "Scale" },
   ]
 
   const peerReviewAcceptingStrategyOptions: {

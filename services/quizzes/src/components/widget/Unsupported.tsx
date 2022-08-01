@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-const Unsupported: React.FC = () => {
+const Unsupported: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <div>

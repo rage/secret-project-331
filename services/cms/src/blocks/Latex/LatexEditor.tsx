@@ -20,7 +20,7 @@ const Component = styled.div`
   padding: 10px;
 `
 
-const LatexEditor: React.FC<BlockEditProps<TextAttributes>> = (props) => {
+const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttributes>>> = (props) => {
   const { attributes, setAttributes } = props
 
   const update = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

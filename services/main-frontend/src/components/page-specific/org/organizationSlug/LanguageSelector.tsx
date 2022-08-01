@@ -84,7 +84,7 @@ export interface LanguageSelectorExtraProps {
 export type LanguageSelectorProps = React.HTMLAttributes<HTMLDivElement> &
   LanguageSelectorExtraProps
 
-const LanguageSelector: React.FC<LanguageSelectorProps> = (props) => {
+const LanguageSelector: React.FC<React.PropsWithChildren<LanguageSelectorProps>> = (props) => {
   const { t } = useTranslation()
   const [checked, setChecked] = useState<number | null>(null)
 

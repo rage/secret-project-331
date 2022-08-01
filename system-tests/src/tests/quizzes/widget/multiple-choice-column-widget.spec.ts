@@ -22,6 +22,10 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "widget-multiple-choice-column-initial",

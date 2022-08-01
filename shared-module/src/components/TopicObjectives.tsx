@@ -72,7 +72,9 @@ const StyledCheck = styled(Check)`
 
 export type TopicObjectives = React.HTMLAttributes<HTMLDivElement> /* & TopicObjectivesExtraProps */
 
-const TopicObjectives: React.FC<TopicObjectives> = () => {
+const TopicObjectives: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<TopicObjectives>>
+> = () => {
   const { t } = useTranslation()
   return (
     <Wrapper>

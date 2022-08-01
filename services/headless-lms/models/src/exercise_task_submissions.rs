@@ -25,18 +25,6 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
-// TODO: remove duplicated type at some point
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewsRecievedII {
-    pub id: Uuid,
-    pub question: String,
-    pub question_type: PeerReviewQuestionType,
-    pub text_data: Option<String>,
-    pub number_data: Option<f32>,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewsRecieved {
@@ -228,7 +216,7 @@ WHERE ets.id = $1
     .await?;
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
-//typo received
+
 pub async fn get_peer_review_received(
     conn: &mut PgConnection,
     exercise_id: Uuid,

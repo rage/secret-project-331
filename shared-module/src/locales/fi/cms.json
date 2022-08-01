@@ -1,4 +1,6 @@
 {
+  "add-peer-review": "Lisää vertaisarvio",
+  "add-peer-review-question": "Lisää vertaisarvio kysymys",
   "add-slide": "Lisää dia",
   "add-task": "Lisää tehtävä",
   "are-you-sure-you-want-to-discard-changes": "Haluatko varmasti hylätä tallennetamattomat muutokset?",
@@ -47,6 +49,10 @@
   "outdated-blocks-migrated-explanation": "{{num}} lohkoa olivat luotu editorin vanhemmalla versiolla ja ne täytyi automaattisesti muuttaa uuteen muotoon. Tallenna sivu pitääksesi muutokset.",
   "pages-in-chapter-placeholder": "Sivuja luvussa lohko",
   "pages-in-chapter-placeholder-explanation": "Tämä lohko sijoitetaan jokaisen luvun etusivulle, esim. /luku-1/ helpottaaksesi navigointia eri alaosioihin.",
+  "peer-review-accepting-strategy": "Vertaisarvion hyväksyntä strategia",
+  "peer-review-accepting-threshold": "Vertaisarvion hyväksynnän raja",
+  "peer-reviews-to-give": "Vertaisarvioita annettavana",
+  "peer-reviews-to-receive": "Vertaisarvioita saatava",
   "please-select-exercise-type": "Ole hyvä ja valitse harjoitustyyppi:",
   "remove": "Poista",
   "reset": "Palauta",

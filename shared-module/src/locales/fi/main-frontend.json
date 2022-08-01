@@ -5,6 +5,7 @@
   "add": "Lisää",
   "add-course": "Lisää kurssi",
   "add-new-reference": "Lisää uusi lähde",
+  "add-peer-review": "Lisää vertaisarvio",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-koski": "Näet opintopisteesi suorituksen rekisteröimisen jälkeen <strong>Koskessa</strong>: <4>{{koskiUrl}}</4> Huom! Suorituksen rekisteröimisen jälkeen kestää jonkin aikaa ennen kuin suoritus tulee näkyville Koskeen.",
   "american-english": "Englanti",
   "answered-at": "Vastattu: {{time}}",

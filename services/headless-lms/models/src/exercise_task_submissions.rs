@@ -5,7 +5,7 @@ use crate::{
     exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
+    peer_review_questions::PeerReviewQuestion,
     prelude::*,
     CourseOrExamId,
 };

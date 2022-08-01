@@ -924,7 +924,10 @@ export function isCourseMaterialPeerReviewGivenData(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.peer_review_questions) &&
     obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
-    Array.isArray(obj.peer_review_question_submissions)
+    Array.isArray(obj.peer_review_question_submissions) &&
+    obj.peer_review_question_submissions.every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    )
   )
 }
 

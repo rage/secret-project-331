@@ -3,6 +3,7 @@
 use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_task_submissions::PeerReviewsRecieved,
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{
@@ -109,14 +110,13 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get pee
 async fn get_peer_review_given(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    user: AuthUser,
-) -> ControllerResult<web::Json> {
+) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
     let peer_review_data =
         models::exercise_task_submissions::get_peer_review_recieved(&mut conn, *exercise_id)
             .await?;
     let token = skip_authorize()?;
-    token.authorize_ok(web::Json(peer_review_data))
+    token.authorized_ok(web::Json(peer_review_data))
 }
 
 /**

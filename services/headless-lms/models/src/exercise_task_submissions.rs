@@ -25,6 +25,8 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
+// TODO: remove duplicated type at some point
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewsRecievedII {
@@ -35,12 +37,14 @@ pub struct PeerReviewsRecievedII {
     pub number_data: Option<f32>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewsRecieved {
     pub peer_review_questions: Vec<PeerReviewQuestion>,
     pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionData {
     pub exercise_id: Uuid,

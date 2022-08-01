@@ -11,9 +11,7 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
   async headers() {
     return [
       {

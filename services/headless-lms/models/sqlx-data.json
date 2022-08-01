@@ -696,7 +696,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [true, true, true, true, true, true, true, true]
+      "nullable": [false, false, false, false, false, null, null, null]
     }
   },
   "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
@@ -11428,7 +11428,21 @@
       "parameters": {
         "Left": ["Uuid", "Bool", "Int8", "Int8"]
       },
-      "nullable": [true, true, true, true, true, true, true, true, true, true, true, true, true]
+      "nullable": [
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        null,
+        null,
+        null,
+        false,
+        false
+      ]
     }
   },
   "b534f245c3ae4841e86ae3315c5edd76923f74e4e6f9f04c2367c92ba3191952": {
@@ -11589,7 +11603,7 @@
       "parameters": {
         "Left": []
       },
-      "nullable": [true, true, true, true, true]
+      "nullable": [false, true, true, false, false]
     }
   },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
@@ -14045,7 +14059,7 @@
       "parameters": {
         "Left": ["Uuid"]
       },
-      "nullable": [true, true, true]
+      "nullable": [false, null, false]
     }
   },
   "e65d6596514988223d01d65d8e4f8edb6132170649516dfb8fb848df6798baaa": {

@@ -3,7 +3,7 @@ import { css } from "@emotion/css"
 import { baseTheme } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 
-const ColorPalette: React.FC = () => {
+const ColorPalette: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <div
       className={css`

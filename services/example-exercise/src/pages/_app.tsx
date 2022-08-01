@@ -1,9 +1,9 @@
 import { config } from "@fortawesome/fontawesome-svg-core"
 import { ThemeProvider } from "@mui/material"
+import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"
-import { QueryClientProvider } from "react-query"
 
 import useLanguage from "../shared-module/hooks/useLanguage"
 import { queryClient } from "../shared-module/services/appQueryClient"
@@ -21,7 +21,7 @@ const SERVICE_NAME = "example-exercise"
 
 const i18n = initI18n(SERVICE_NAME)
 
-const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
   const language = useLanguage()
   useEffect(() => {
     // Remove the server-side injected CSS.

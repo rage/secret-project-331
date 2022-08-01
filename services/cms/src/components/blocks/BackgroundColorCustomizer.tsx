@@ -45,13 +45,9 @@ export type BackgroundColorCustomizerProps =
   | BackgroundColorCustomizerPropsWithDefaultAttributeName
   | BackgroundColorCustomizerPropsWithCustomAttributeName
 
-const BackgroundColorCustomizer: React.FC<BackgroundColorCustomizerProps> = ({
-  attributes,
-  setAttributes,
-  defaultBackgroundColor,
-  customAttributeName,
-  customTitle,
-}) => {
+const BackgroundColorCustomizer: React.FC<
+  React.PropsWithChildren<BackgroundColorCustomizerProps>
+> = ({ attributes, setAttributes, defaultBackgroundColor, customAttributeName, customTitle }) => {
   const { t } = useTranslation()
   // eslint-disable-next-line i18next/no-literal-string
   const attributeName = customAttributeName ? customAttributeName : "backgroundColor"

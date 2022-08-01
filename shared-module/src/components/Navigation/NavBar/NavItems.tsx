@@ -1,6 +1,8 @@
 import { css } from "@emotion/css"
 
-const NavItems: React.FC = ({ children }) => {
+const NavItems: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+  children,
+}) => {
   return (
     <ul
       className={css`

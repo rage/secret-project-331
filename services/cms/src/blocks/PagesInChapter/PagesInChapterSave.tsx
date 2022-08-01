@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const PagesInChapterSave: React.FC = () => {
+const PagesInChapterSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />

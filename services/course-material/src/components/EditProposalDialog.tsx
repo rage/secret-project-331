@@ -17,7 +17,7 @@ interface Props {
   edits: Map<string, NewProposedBlockEdit>
 }
 
-const EditProposalDialog: React.FC<Props> = ({
+const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
   pageId,
   close,

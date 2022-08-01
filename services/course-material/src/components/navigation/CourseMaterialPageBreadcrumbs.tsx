@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPageChapterAndCourse } from "../../services/backend"
 import { Page } from "../../shared-module/bindings"
@@ -15,14 +15,13 @@ interface CourseMaterialPageBreadcrumbsProps {
   currentPagePath: string
 }
 
-const CourseMaterialPageBreadcrumbs: React.FC<CourseMaterialPageBreadcrumbsProps> = ({
-  page,
-  currentPagePath,
-}) => {
+const CourseMaterialPageBreadcrumbs: React.FC<
+  React.PropsWithChildren<CourseMaterialPageBreadcrumbsProps>
+> = ({ page, currentPagePath }) => {
   const isCourseFrontPage = currentPagePath === "/"
   const { t } = useTranslation()
   const data = useQuery(
-    `page-chapter-and-course-${page?.id}`,
+    [`page-chapter-and-course-${page?.id}`],
     () => {
       if (!page) {
         return null
@@ -44,7 +43,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<CourseMaterialPageBreadcrumbsProps
     return <ErrorBanner variant={"readOnly"} error={data.error} />
   }
 
-  if (data.isLoading || data.isIdle) {
+  if (data.isLoading) {
     return <Spinner variant={"small"} />
   }
 

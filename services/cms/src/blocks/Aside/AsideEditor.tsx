@@ -9,7 +9,7 @@ import BlockWrapper from "../BlockWrapper"
 
 import { AsideComponentProps } from "."
 
-const AsideEditor: React.FC<BlockEditProps<AsideComponentProps>> = ({
+const AsideEditor: React.FC<React.PropsWithChildren<BlockEditProps<AsideComponentProps>>> = ({
   clientId,
   attributes,
   setAttributes,

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
 import Progress from "../../../../shared-module/components/CourseProgress"
@@ -15,10 +15,13 @@ interface ChapterProgressProps {
   courseInstanceId: string
 }
 
-const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInstanceId }) => {
+const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> = ({
+  chapterId,
+  courseInstanceId,
+}) => {
   const { t } = useTranslation()
   const getUserChapterProgress = useQuery(
-    `course-instance-${courseInstanceId}-chapter-${chapterId}-progress`,
+    [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
     () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
   )
 
@@ -27,9 +30,7 @@ const ChapterProgress: React.FC<ChapterProgressProps> = ({ chapterId, courseInst
       {getUserChapterProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
       )}
-      {(getUserChapterProgress.isLoading || getUserChapterProgress.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getUserChapterProgress.isLoading && <Spinner variant={"medium"} />}
       {getUserChapterProgress.isSuccess && (
         <div
           className={css`

@@ -4,7 +4,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 import { baseTheme } from "../styles"
 
-const GenericInfobox: React.FC = ({ children }) => {
+const GenericInfobox: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = ({
+  children,
+}) => {
   return (
     <div
       className={css`

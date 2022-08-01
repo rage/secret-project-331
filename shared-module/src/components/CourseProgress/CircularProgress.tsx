@@ -81,13 +81,9 @@ const StyledSVG = styled.div<StyledSVGProps>`
     }
   }
 `
-const CircularProgress: React.FC<CircularProgressExtraProps> = ({
-  point = 10,
-  label,
-  given,
-  max,
-  required = 60,
-}) => {
+const CircularProgress: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CircularProgressExtraProps>>
+> = ({ point = 10, label, given, max, required = 60 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
 

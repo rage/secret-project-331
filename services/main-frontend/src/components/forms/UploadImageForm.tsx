@@ -13,7 +13,7 @@ export interface UploadImageFormProps {
   onSubmit: (data: File) => Promise<void>
 }
 
-const UploadImageForm: React.FC<UploadImageFormProps> = ({ onSubmit }) => {
+const UploadImageForm: React.FC<React.PropsWithChildren<UploadImageFormProps>> = ({ onSubmit }) => {
   const { t } = useTranslation()
   const fileInput = createRef<HTMLInputElement>()
   const [allowSubmit, setAllowSubmit] = useState(true)

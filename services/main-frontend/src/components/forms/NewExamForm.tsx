@@ -27,7 +27,7 @@ interface NewExamFields {
   parentId: string | null
 }
 
-const NewExamForm: React.FC<NewExamFormProps> = ({
+const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   initialData,
   organizationId,
   exams,
@@ -126,9 +126,6 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
         {duplicateExam && (
           <SelectMenu
             id={"parentId"}
-            onBlur={() => {
-              // no-op
-            }}
             onChange={(value) => handleSetExamToDuplicate(value)}
             options={exams.map((e) => {
               return { label: e.name, value: e.id }

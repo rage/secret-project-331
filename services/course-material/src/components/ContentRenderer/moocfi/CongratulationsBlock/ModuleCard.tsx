@@ -39,7 +39,7 @@ export interface ModuleCardProps {
   module: UserModuleCompletionStatus
 }
 
-const ModuleCard: React.FC<ModuleCardProps> = ({ module }) => {
+const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
   return (
     <Wrapper>
       {module.completed && <StyledSVG />}

@@ -32,6 +32,11 @@ const config: PlaywrightTestConfig = {
   },
 }
 
+if (!config.use) {
+  // To make typescript happy
+  config.use = {}
+}
+
 if (process.env.SLOWMO) {
   const launchOptions = config.use.launchOptions as LaunchOptions
   launchOptions.slowMo = envToNumber(process.env.SLOWMO, 200)

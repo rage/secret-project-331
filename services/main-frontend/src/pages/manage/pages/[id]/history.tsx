@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
 
-const History: React.FC<unknown> = () => {
+const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const id = router.query.id

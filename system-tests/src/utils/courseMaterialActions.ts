@@ -10,6 +10,8 @@ const isSelectCourseInstanceModalOpen = async (page: Page) => {
  * This should be used instead of `await page.click('button:has-text("Continue")')`. This is because we might have other system tests that use the same course with the same user and this function makes sure those tests don't race with each other.
  */
 export async function selectCourseInstanceIfPrompted(page: Page, courseVariantName = "default") {
+  // Wait until some blocks have rendered on the page. This is to make sure the page has actually loaded. Would not work on pages with no blocks.
+  await page.locator(`.course-material-block`).first().waitFor({ state: "attached" })
   // Give a moment for the dialog to appear
   if (!(await isSelectCourseInstanceModalOpen(page))) {
     await page.waitForTimeout(100)

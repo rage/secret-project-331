@@ -29,6 +29,10 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
     frame,
   })
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await frame.selectOption(
     `select:right-of(:text("How many different CSS hexadecimal color codes there are?"))`,
     { label: "at least two" },

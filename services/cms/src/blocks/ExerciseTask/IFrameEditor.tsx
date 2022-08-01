@@ -22,12 +22,9 @@ interface ExerciseTaskIFrameEditorProps {
   url: string | null | undefined
 }
 
-const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
-  exerciseTaskId,
-  onPrivateSpecChange,
-  privateSpec,
-  url,
-}) => {
+const ExerciseTaskIFrameEditor: React.FC<
+  React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
+> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
 
   const largeScreen = useMedia(respondToOrLarger.xl)

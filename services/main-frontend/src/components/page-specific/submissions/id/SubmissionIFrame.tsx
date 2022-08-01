@@ -27,7 +27,7 @@ interface SubmissionState {
   public_spec: unknown
 }
 
-const SubmissionIFrame: React.FC<SubmissionIFrameProps> = ({
+const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>> = ({
   url,
   public_spec,
   submission,

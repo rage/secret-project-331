@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { TFunction, useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
@@ -45,7 +45,7 @@ interface Props {
   domain: RoleDomain
 }
 
-export const PermissionPage: React.FC<Props> = ({ domain }) => {
+export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
   let { sort: sort_key } = router.query
@@ -86,7 +86,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
-  const roleQuery = useQuery(`roles-${domain}`, () => fetchRoles(query))
+  const roleQuery = useQuery([`roles-${domain}`], () => fetchRoles(query))
   const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)
@@ -121,7 +121,7 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
   )
 
   let userList
-  if (roleQuery.isIdle || roleQuery.isLoading) {
+  if (roleQuery.isLoading) {
     userList = <div>{t("loading-text")}</div>
   }
   if (roleQuery.isError) {
@@ -292,9 +292,6 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
                     <td>
                       <SelectField
                         id={"editing-role"}
-                        onBlur={() => {
-                          // no-op
-                        }}
                         onChange={(role) => {
                           setEditingRole({ userId: ur.id, newRole: role })
                         }}
@@ -386,9 +383,6 @@ export const PermissionPage: React.FC<Props> = ({ domain }) => {
           <SelectField
             id={`adding-${t("label-role")}`}
             label={t("label-role")}
-            onBlur={() => {
-              // no-op
-            }}
             onChange={(role) => {
               setNewRole(role)
             }}

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import Button from "../../../../shared-module/components/Button"
@@ -16,13 +16,16 @@ interface Props {
   organizationSlug: string
 }
 
-const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
+const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
+  organizationId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
 
   const getOrgExams = useQuery(
-    "organization-exams",
+    ["organization-exams"],
     () => {
       if (organizationId) {
         return fetchOrganizationExams(organizationId)
@@ -39,7 +42,7 @@ const ExamList: React.FC<Props> = ({ organizationId, organizationSlug }) => {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
   }
 
-  if (getOrgExams.isIdle || getOrgExams.isLoading) {
+  if (getOrgExams.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

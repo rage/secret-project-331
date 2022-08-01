@@ -6,7 +6,9 @@ import { FileAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import Button from "../../../../../shared-module/components/Button"
 import ExternalLinkSVG from "../../../../../shared-module/img/external-link.svg"
 
-const FileBlock: React.FC<BlockRendererProps<FileAttributes>> = ({ data }) => {
+const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttributes>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const {
     showDownloadButton,

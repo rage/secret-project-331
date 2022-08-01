@@ -210,7 +210,7 @@ macro_rules! insert_data {
                 front_page_id: None,
                 deadline: None,
                 opens_at: None,
-                course_module_id: Some($course_module),
+                course_module_id: Some($course_module.id),
             },
             $user
         )

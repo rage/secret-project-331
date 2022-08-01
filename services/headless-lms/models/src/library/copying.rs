@@ -701,7 +701,7 @@ mod tests {
             assert_eq!(copied_modules.len(), 1);
             assert_eq!(
                 copied_modules.first().unwrap().copied_from,
-                Some(course_module)
+                Some(course_module.id)
             )
         }
 

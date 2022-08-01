@@ -22,7 +22,7 @@ import useToastMutation from "../../../../../../shared-module/hooks/useToastMuta
 import { baseTheme, typography } from "../../../../../../shared-module/styles"
 
 import ChapterImageWidget from "./ChapterImageWidget"
-import ModuleList from "./ModuleList"
+import CourseModules from "./CourseModules"
 import NewChapterForm from "./NewChapterForm"
 import FrontPage from "./PageList/FrontPage"
 import PageList from "./PageList/PageList"
@@ -189,12 +189,6 @@ const ManageCourseStructure: React.FC<ManageCourseStructureProps> = ({
         >
           {t("button-text-new-chapter")}
         </Button>
-
-        <ModuleList
-          courseId={courseStructure.course.id}
-          courseStructure={courseStructure}
-          refetch={refetch}
-        />
 
         <Dialog
           open={!!showEditChapterForm}

@@ -135,6 +135,7 @@
   "link-manage-permissions": "Manage permissions",
   "link-overview": "Overview",
   "link-pages": "Pages",
+  "link-modules": "Modules",
   "link-permissions": "Permissions",
   "link-stats": "Stats",
   "link-view-points": "View points",
@@ -346,5 +347,17 @@
   "confirm-email-address-instructions-2": "Confirm your mooc.fi account email address.",
   "confirm-email-address-instructions-3": "Please go to your email and follow the link included in the mail to confirm your email address.",
   "label-valid": "Valid",
-  "error-no-public-spec": "No public spec"
+  "error-no-public-spec": "No public spec",
+  "default-module": "Default module",
+  "starts": "Starts",
+  "ends": "Ends",
+  "create-module": "Create module",
+  "edit-module": "Edit module",
+  "name-of-module": "Name of module",
+  "select-module-start-end-chapters": "Select starting chapter and ending chapter",
+  "confirm": "Confirm",
+  "save-changes": "Save changes",
+  "error-modules-noncontinuous-chapters": "The chapters between {{ prevChapter }} and {{ currChapter }} should be in the same module",
+  "error-modules-chapter-not-in-module": "Chapter {{ chapterNumber }}: {{ chapterName }} does not belong to any module",
+  "error-modules-empty-module": "Module {{ moduleName }} is empty"
 }

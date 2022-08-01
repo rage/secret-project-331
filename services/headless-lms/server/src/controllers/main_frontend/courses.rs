@@ -1,12 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
-use std::collections::HashMap;
-
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
-    chapters,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
-    course_modules,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -17,7 +13,7 @@ use models::{
     glossary::{Term, TermUpdate},
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
-    user_exercise_states::ExerciseUserCounts,
+    user_exercise_states::ExerciseUserCounts, course_modules, chapters,
 };
 
 use crate::controllers::prelude::*;
@@ -738,27 +734,25 @@ async fn delete_material_reference_by_id(
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewModule {
     name: String,
     order_number: i32,
-    chapters: Vec<Uuid>,
+    chapters: Vec<Uuid>
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ModuleUpdate {
-    new_name: Option<String>,
-    new_order_number: Option<i32>,
-    new_chapters: Vec<Uuid>,
+pub struct ModifiedModule {
+    id: Uuid,
+    name: String,
+    order_number: i32,
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ModuleUpdates {
-    new: Vec<NewModule>,
-    updated: HashMap<Uuid, ModuleUpdate>,
-    deleted: Vec<Uuid>,
+    new_modules: Vec<NewModule>,
+    deleted_modules: Vec<Uuid>,
+    modified_modules: Vec<ModifiedModule>,
+    moved_chapters: Vec<(Uuid, Uuid)>
 }
 
 #[instrument(skip(pool))]
@@ -769,36 +763,36 @@ pub async fn update_modules(
     payload: web::Json<ModuleUpdates>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let mut tx = conn.begin().await?;
 
     let updates = payload.into_inner();
-    for new in updates.new {
+    for new in updates.new_modules {
         let module =
-            course_modules::new(&mut tx, *course_id, &new.name, new.order_number, false).await?;
+            course_modules::insert(&mut tx, *course_id, Some(&new.name), new.order_number).await?;
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
     }
-    for (id, update) in updates.updated {
+    for modified in updates.modified_modules {
         course_modules::update(
             &mut tx,
-            id,
-            update.new_name.as_deref(),
-            update.new_order_number,
+            modified.id,
+            &modified.name,
+            modified.order_number,
         )
         .await?;
-        for chapter in update.new_chapters {
-            chapters::set_module(&mut tx, chapter, id).await?;
-        }
     }
-    for deleted in updates.deleted {
+    for (chapter, module) in updates.moved_chapters {
+        chapters::set_module(&mut tx, chapter, module).await?;
+    }
+    for deleted in updates.deleted_modules {
         course_modules::delete(&mut tx, deleted).await?;
     }
 
     tx.commit().await?;
-    Ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -881,5 +875,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references/{reference_id}",
             web::delete().to(delete_material_reference_by_id),
-        );
+        ).route("/{course_id}/course-modules", web::post().to(update_modules));
 }

@@ -6,7 +6,7 @@ use crate::controllers::{
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
-        courses::{GetFeedbackQuery, ModuleUpdate, ModuleUpdates, NewModule},
+        courses::{GetFeedbackQuery},
         exams::ExamCourseInfo,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,

@@ -227,7 +227,7 @@ export interface CourseStructure {
   course: Course
   pages: Array<Page>
   chapters: Array<Chapter>
-  modules: Array<Module>
+  modules: Array<CourseModule>
 }
 
 export interface CourseUpdate {

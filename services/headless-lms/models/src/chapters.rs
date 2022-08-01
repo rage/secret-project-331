@@ -580,6 +580,15 @@ pub async fn get_chapter_info_by_page_metadata(
     Ok(chapter_page)
 }
 
+pub async fn set_module(conn: &mut PgConnection, chapter_id: Uuid, module_id: Uuid) -> ModelResult<()> {
+    sqlx::query!("
+UPDATE chapters
+SET course_module_id = $2
+WHERE id = $1
+", chapter_id, module_id).execute(conn).await?;
+Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -624,7 +633,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: Some(course_module),
+                    course_module_id: Some(course_module.id),
                 },
                 user,
             )

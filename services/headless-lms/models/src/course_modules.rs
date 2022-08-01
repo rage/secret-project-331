@@ -26,27 +26,23 @@ impl CourseModule {
     }
 }
 
+
 pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
-    default: bool,
-) -> ModelResult<Module> {
+) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
-        Module,
+        CourseModule,
         "
-INSERT INTO course_modules (course_id, name, order_number, is_default)
-VALUES ($1, $2, $3, $4)
-RETURNING id,
-  name,
-  order_number,
-  is_default
+INSERT INTO course_modules (course_id, name, order_number)
+VALUES ($1, $2, $3)
+RETURNING *
 ",
         course_id,
         name,
-        order_number,
-        default
+        order_number
     )
     .fetch_one(conn)
     .await?;
@@ -56,7 +52,7 @@ RETURNING id,
 pub async fn insert_default_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Uuid> {
+) -> ModelResult<CourseModule> {
     insert(conn, course_id, None, 0).await
 }
 
@@ -64,12 +60,10 @@ pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResul
     sqlx::query!(
         "
 UPDATE course_modules
-SET name = COALESCE($1, name),
-  order_number = COALESCE($2, order_number)
-WHERE id = $3
+SET name = $1
+WHERE id = $2
 ",
         name,
-        order_number,
         id
     )
     .execute(conn)
@@ -291,4 +285,14 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn update(conn: &mut PgConnection, id: Uuid, name: &str, order_number: i32) -> ModelResult<()> {
+    sqlx::query!("
+UPDATE course_modules
+SET name = $1,
+  order_number = $2
+WHERE id = $3
+", name, order_number, id).execute(conn).await?;
+Ok(())
 }

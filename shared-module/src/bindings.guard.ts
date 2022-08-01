@@ -490,7 +490,7 @@ export function isCourseStructure(obj: any, _argumentName?: string): obj is Cour
     Array.isArray(obj.chapters) &&
     obj.chapters.every((e: any) => isChapter(e) as boolean) &&
     Array.isArray(obj.modules) &&
-    obj.modules.every((e: any) => isModule(e) as boolean)
+    obj.modules.every((e: any) => isCourseModule(e) as boolean)
   )
 }
 

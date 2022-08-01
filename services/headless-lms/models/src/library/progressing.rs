@@ -512,7 +512,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: Some(course_module_2),
+                    course_module_id: Some(course_module_2.id),
                 },
                 user,
             )
@@ -565,12 +565,12 @@ mod tests {
             .unwrap();
             course_modules::update_automatic_completion_status(
                 tx.as_mut(),
-                course_module,
+                course_module.id,
                 &automatic_completion_policy,
             )
             .await
             .unwrap();
-            let course_module = course_modules::get_by_id(tx.as_mut(), course_module)
+            let course_module = course_modules::get_by_id(tx.as_mut(), course_module.id)
                 .await
                 .unwrap();
             let course_module = course_modules::update_automatic_completion_status(
@@ -580,7 +580,7 @@ mod tests {
             )
             .await
             .unwrap();
-            let course_module_2 = course_modules::get_by_id(tx.as_mut(), course_module_2)
+            let course_module_2 = course_modules::get_by_id(tx.as_mut(), course_module_2.id)
                 .await
                 .unwrap();
             let course_module_2 = course_modules::update_automatic_completion_status(

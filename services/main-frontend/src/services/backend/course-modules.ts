@@ -31,3 +31,24 @@ export const fetchCompletionRegistrationLink = async (
   )
   return validateResponse(res, isCompletionRegistrationLink)
 }
+
+export const submitChanges = async (
+  courseId: string,
+  newModules: Array<{ name: string; order_number: number; chapters: Array<string> }>,
+  deletedModules: Array<string>,
+  modifiedModules: Array<{ id: string; name: string; order_number: number }>,
+  movedChapters: Array<[string, string]>,
+): Promise<void> => {
+  const _res = await mainFrontendClient.post(
+    `/courses/${courseId}/course-modules`,
+    {
+      new_modules: newModules,
+      deleted_modules: deletedModules,
+      modified_modules: modifiedModules,
+      moved_chapters: movedChapters,
+    },
+    {
+      responseType: "json",
+    },
+  )
+}

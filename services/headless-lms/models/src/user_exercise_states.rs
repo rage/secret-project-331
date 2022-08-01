@@ -1030,7 +1030,7 @@ mod tests {
             let res = get_single_module_course_instance_metrics(
                 tx.as_mut(),
                 instance.id,
-                course_module,
+                course_module.id,
                 user,
             )
             .await;

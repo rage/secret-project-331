@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import AddQuizItemButton from "./AddQuizItemButton"
+import { QUIZ_COMPONENTS, QuizItemOption } from "./QuizItemOption"
 
 const AddQuizItemWrapper = styled.div`
   display: flex;
@@ -20,18 +20,6 @@ const TypeContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-const TYPES = [
-  "essay",
-  "scale",
-  "open",
-  "multiple-choice",
-  "checkbox",
-  "matrix",
-  "multiple-choice-dropdown",
-  "clickable-multiple-choice",
-  "timeline",
-]
-
 export const AddQuizItem: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
@@ -39,8 +27,8 @@ export const AddQuizItem: React.FC<React.PropsWithChildren<unknown>> = () => {
       <AddQuizItemWrapper>
         <h3>{t("add-new-quiz-item")}</h3>
         <TypeContainer>
-          {TYPES.map((type) => (
-            <AddQuizItemButton key={type} type={type} />
+          {Object.keys(QUIZ_COMPONENTS).map((type, _) => (
+            <QuizItemOption key={type} type={type} />
           ))}
         </TypeContainer>
       </AddQuizItemWrapper>

@@ -14,10 +14,33 @@ use crate::setup_tracing;
 
 use futures::try_join;
 
-use sqlx::{migrate::MigrateDatabase, PgPool, Postgres};
+use sqlx::{migrate::MigrateDatabase, PgPool, Pool, Postgres};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
+    let db_pool = setup_seed_environment().await?;
+
+    // Run in parallel to improve performance.
+    let (_, seed_users_result, _) = try_join!(
+        seed_exercise_services::seed_exercise_services(&db_pool),
+        seed_users::seed_users(&db_pool),
+        seed_playground_examples::seed_playground_examples(&db_pool)
+    )?;
+
+    let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
+        seed_organizations::uh_cs::seed_organization_uh_cs(&db_pool, &seed_users_result),
+        seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
+            &db_pool,
+            &seed_users_result
+        )
+    )?;
+
+    seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
+
+    Ok(())
+}
+
+async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=warn");
 
     dotenv::dotenv().ok();
@@ -49,23 +72,5 @@ pub async fn main() -> anyhow::Result<()> {
         info!("running migrations");
         sqlx::migrate!("../migrations").run(&mut conn).await?;
     }
-
-    // Run in parallel to improve performance.
-    let (_, seed_users_result, _) = try_join!(
-        seed_exercise_services::seed_exercise_services(&db_pool),
-        seed_users::seed_users(&db_pool),
-        seed_playground_examples::seed_playground_examples(&db_pool)
-    )?;
-
-    let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
-        seed_organizations::uh_cs::seed_organization_uh_cs(&db_pool, &seed_users_result),
-        seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
-            &db_pool,
-            &seed_users_result
-        )
-    )?;
-
-    seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
-
-    Ok(())
+    Ok(db_pool)
 }

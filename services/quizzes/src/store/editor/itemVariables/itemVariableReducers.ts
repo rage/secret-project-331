@@ -4,6 +4,7 @@ import { createReducer } from "typesafe-actions"
 
 import { action, QuizItemVariables } from "../../../../types/types"
 import {
+  createdDuplicateItem,
   createdNewItem,
   createdNewOption,
   createdNewQuiz,
@@ -140,6 +141,32 @@ export const itemVariableReducers = createReducer<{ [itemId: string]: QuizItemVa
         validFormatRegex: true,
         array: [],
         newOptions: [],
+      }
+    })
+  })
+
+  .handleAction(createdDuplicateItem, (state, action) => {
+    let array: number[] = []
+    const item = action.payload.storeItem
+    if (item.minValue && item.maxValue) {
+      array = _.range(item.minValue, item.maxValue + 1)
+    }
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId] = {
+        advancedEditing: false,
+        advancedEditingYAxisLocation: undefined,
+        regex: item.validityRegex ? item.validityRegex : "",
+        formatRegex: item.formatRegex ? item.formatRegex : "",
+        validityRegexTestAnswer: "",
+        formatRegexTestAnswer: "",
+        scaleMax: item.maxValue ? item.maxValue : 0,
+        scaleMin: item.minValue ? item.minValue : 0,
+        testingRegex: false,
+        testingFormatRegex: false,
+        validRegex: true,
+        validFormatRegex: true,
+        array: array,
+        newOptions: action.payload.storeItem.options,
       }
     })
   })

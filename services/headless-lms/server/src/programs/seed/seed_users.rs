@@ -1,7 +1,6 @@
 use headless_lms_models::users;
+use sqlx::{Pool, Postgres};
 use uuid::Uuid;
-
-use crate::programs::seed::seed_helpers::seed_connect_to_db;
 
 pub struct SeedUsersResult {
     pub admin_user_id: Uuid,
@@ -13,9 +12,9 @@ pub struct SeedUsersResult {
     pub example_normal_user_ids: Vec<Uuid>,
 }
 
-pub async fn seed_users() -> anyhow::Result<SeedUsersResult> {
+pub async fn seed_users(db_pool: &Pool<Postgres>) -> anyhow::Result<SeedUsersResult> {
     info!("inserting users");
-    let mut conn = seed_connect_to_db().await?;
+    let mut conn = db_pool.acquire().await?;
 
     let admin_user_id = users::insert_with_id(
         &mut conn,

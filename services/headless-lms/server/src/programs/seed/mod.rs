@@ -10,11 +10,11 @@ pub mod seed_users;
 
 use std::{env, process::Command};
 
-use crate::{programs::seed::seed_helpers::seed_connect_to_db, setup_tracing};
+use crate::setup_tracing;
 
 use futures::try_join;
 
-use sqlx::{migrate::MigrateDatabase, Postgres};
+use sqlx::{migrate::MigrateDatabase, PgPool, Postgres};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
@@ -24,6 +24,9 @@ pub async fn main() -> anyhow::Result<()> {
     setup_tracing()?;
 
     let clean = env::args().any(|a| a == "clean");
+
+    let db_url = env::var("DATABASE_URL")?;
+    let db_pool = PgPool::connect(&db_url).await?;
 
     if clean {
         info!("cleaning");
@@ -40,25 +43,29 @@ pub async fn main() -> anyhow::Result<()> {
         let db_url = env::var("DATABASE_URL")?;
         Postgres::create_database(&db_url).await?;
     }
-    let mut conn = seed_connect_to_db().await?;
+
     if clean {
+        let mut conn = db_pool.acquire().await?;
         info!("running migrations");
         sqlx::migrate!("../migrations").run(&mut conn).await?;
     }
 
     // Run in parallel to improve performance.
     let (_, seed_users_result, _) = try_join!(
-        seed_exercise_services::seed_exercise_services(),
-        seed_users::seed_users(),
-        seed_playground_examples::seed_playground_examples()
+        seed_exercise_services::seed_exercise_services(&db_pool),
+        seed_users::seed_users(&db_pool),
+        seed_playground_examples::seed_playground_examples(&db_pool)
     )?;
 
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
-        seed_organizations::uh_cs::seed_organization_uh_cs(&seed_users_result),
-        seed_organizations::uh_mathstat::seed_organization_uh_mathstat(&seed_users_result)
+        seed_organizations::uh_cs::seed_organization_uh_cs(&db_pool, &seed_users_result),
+        seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
+            &db_pool,
+            &seed_users_result
+        )
     )?;
 
-    seed_roles::seed_roles(&seed_users_result, &uh_cs_organization_result).await?;
+    seed_roles::seed_roles(&db_pool, &seed_users_result, &uh_cs_organization_result).await?;
 
     Ok(())
 }

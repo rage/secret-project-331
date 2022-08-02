@@ -5,11 +5,12 @@ use headless_lms_models::{
 };
 use uuid::Uuid;
 
-use crate::programs::seed::seed_helpers::seed_connect_to_db;
+use sqlx::{Pool, Postgres};
 
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_organization_uh_mathstat(
+    db_pool: &Pool<Postgres>,
     seed_users_result: &SeedUsersResult,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
@@ -24,7 +25,7 @@ pub async fn seed_organization_uh_mathstat(
         example_normal_user_ids: _,
     } = seed_users_result;
 
-    let mut conn = seed_connect_to_db().await?;
+    let mut conn = db_pool.acquire().await?;
 
     let uh_mathstat_id = organizations::insert(
         &mut conn,

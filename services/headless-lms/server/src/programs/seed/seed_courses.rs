@@ -28,7 +28,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
-use sqlx::PgConnection;
+use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
@@ -36,7 +36,7 @@ use super::seed_helpers::heading;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn seed_sample_course(
-    conn: &mut PgConnection,
+    db_pool: &Pool<Postgres>,
     org: Uuid,
     course_id: Uuid,
     course_name: &str,
@@ -46,6 +46,7 @@ pub async fn seed_sample_course(
     users: &[Uuid],
 ) -> Result<Uuid> {
     info!("inserting sample course {}", course_name);
+    let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
         name: course_name.to_string(),
         organization_id: org,
@@ -58,7 +59,7 @@ pub async fn seed_sample_course(
         is_test_mode: false,
     };
     let (course, _front_page, default_instance) = courses::insert_course(
-        conn,
+        &mut conn,
         course_id,
         Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
         new_course,
@@ -66,7 +67,7 @@ pub async fn seed_sample_course(
     )
     .await?;
     course_instances::insert(
-        conn,
+        &mut conn,
         NewCourseInstance {
             id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
             course_id: course.id,
@@ -83,7 +84,7 @@ pub async fn seed_sample_course(
 
     // chapters and pages
 
-    let course_module_id = course_modules::insert(conn, course.id, None, 0)
+    let course_module_id = course_modules::insert(&mut conn, course.id, None, 0)
         .await
         .unwrap();
     let new_chapter = NewChapter {
@@ -95,8 +96,9 @@ pub async fn seed_sample_course(
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
         course_module_id: Some(course_module_id),
     };
-    let (chapter_1, _front_page_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
-    chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
+    let (chapter_1, _front_page_1) =
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
         course_id: course.id,
@@ -106,9 +108,10 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(course_module_id),
     };
-    let (chapter_2, _front_page_2) = chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let (chapter_2, _front_page_2) =
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
     chapters::set_opens_at(
-        conn,
+        &mut conn,
         chapter_2.id,
         Utc::now() + chrono::Duration::minutes(10),
     )
@@ -122,9 +125,10 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(course_module_id),
     };
-    let (chapter_3, _front_page_3) = chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let (chapter_3, _front_page_3) =
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
     chapters::set_opens_at(
-        conn,
+        &mut conn,
         chapter_3.id,
         Utc::now() + chrono::Duration::minutes(20),
     )
@@ -138,9 +142,10 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(course_module_id),
     };
-    let (chapter_4, _front_page_4) = chapters::insert_chapter(conn, new_chapter, admin).await?;
+    let (chapter_4, _front_page_4) =
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
     chapters::set_opens_at(
-        conn,
+        &mut conn,
         chapter_4.id,
         Utc::now() + (chrono::Duration::days(365) * 100),
     )
@@ -148,7 +153,7 @@ pub async fn seed_sample_course(
 
     tracing::info!("inserting modules");
     let second_module_id =
-        course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
+        course_modules::insert(&mut conn, course.id, Some("Another module"), 1).await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -159,7 +164,7 @@ pub async fn seed_sample_course(
         course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_1, _m1c1_front_page) =
-        chapters::insert_chapter(conn, new_chapter, admin).await?;
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
     let new_chapter = NewChapter {
         chapter_number: 6,
         course_id: course.id,
@@ -170,8 +175,8 @@ pub async fn seed_sample_course(
         course_module_id: Some(second_module_id),
     };
     let (_m1_chapter_2, _m1c2_front_page) =
-        chapters::insert_chapter(conn, new_chapter, admin).await?;
-    let module_id = course_modules::insert(conn, course.id, Some("Bonus module"), 2).await?;
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let module_id = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -182,7 +187,7 @@ pub async fn seed_sample_course(
         course_module_id: Some(module_id),
     };
     let (_m2_chapter_1, _m2c1_front_page) =
-        chapters::insert_chapter(conn, new_chapter, admin).await?;
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
     let new_chapter = NewChapter {
         chapter_number: 8,
         course_id: course.id,
@@ -193,10 +198,10 @@ pub async fn seed_sample_course(
         course_module_id: Some(module_id),
     };
     let (_m2_chapter_2, _m2c2_front_page) =
-        chapters::insert_chapter(conn, new_chapter, admin).await?;
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
 
     let (_page, _) = pages::insert_course_page(
-        conn,
+        &mut conn,
         course.id,
         "/welcome",
         "Welcome to Introduction to Everything",
@@ -234,7 +239,7 @@ pub async fn seed_sample_course(
         exercise_1_slide_1_task_1_spec_3_id,
     );
     let page_c1_1 = create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -318,7 +323,7 @@ pub async fn seed_sample_course(
     );
 
     let page2_id = create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -342,7 +347,7 @@ pub async fn seed_sample_course(
     )
     .await?;
 
-    url_redirections::insert(conn, page2_id, "/old-url", course.id).await?;
+    url_redirections::insert(&mut conn, page2_id, "/old-url", course.id).await?;
 
     let (
         quizzes_exercise_block_1,
@@ -747,7 +752,7 @@ pub async fn seed_sample_course(
     );
 
     let page_3 = create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -770,7 +775,7 @@ pub async fn seed_sample_course(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -793,7 +798,7 @@ pub async fn seed_sample_course(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -816,7 +821,7 @@ pub async fn seed_sample_course(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -839,7 +844,7 @@ pub async fn seed_sample_course(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -862,7 +867,7 @@ pub async fn seed_sample_course(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -965,7 +970,7 @@ pub async fn seed_sample_course(
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
         );
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_1.id),
@@ -1008,7 +1013,7 @@ pub async fn seed_sample_course(
         exercise_5_slide_1_task_1_spec_3_id,
     );
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),
@@ -1024,7 +1029,7 @@ pub async fn seed_sample_course(
     )
     .await?;
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         None,
@@ -1050,7 +1055,7 @@ pub async fn seed_sample_course(
     info!("sample enrollments, user exercise states, submissions, grades");
     for &user_id in users {
         course_instance_enrollments::insert_enrollment_and_set_as_current(
-            conn,
+            &mut conn,
             NewCourseInstanceEnrollment {
                 course_id,
                 course_instance_id: default_instance.id,
@@ -1060,7 +1065,7 @@ pub async fn seed_sample_course(
         .await?;
 
         submit_and_grade(
-            conn,
+            &mut conn,
             b"8c447aeb-1791-4236-8471-204d8bc27507",
             exercise_1_id,
             exercise_1_slide_1_id,
@@ -1074,7 +1079,7 @@ pub async fn seed_sample_course(
         .await?;
         // this submission is for the same exercise, but no points are removed due to the update strategy
         submit_and_grade(
-            conn,
+            &mut conn,
             b"a719fe25-5721-412d-adea-4696ccb3d883",
             exercise_1_id,
             exercise_1_slide_1_id,
@@ -1087,7 +1092,7 @@ pub async fn seed_sample_course(
         )
         .await?;
         submit_and_grade(
-            conn,
+            &mut conn,
             b"bbc16d4b-1f91-4bd0-a47f-047665a32196",
             exercise_1_id,
             exercise_1_slide_1_id,
@@ -1100,7 +1105,7 @@ pub async fn seed_sample_course(
         )
         .await?;
         submit_and_grade(
-            conn,
+            &mut conn,
             b"c60bf5e5-9b67-4f62-9df7-16d268c1b5f5",
             exercise_1_id,
             exercise_1_slide_1_id,
@@ -1113,7 +1118,7 @@ pub async fn seed_sample_course(
         )
         .await?;
         submit_and_grade(
-            conn,
+            &mut conn,
             b"e0ec1386-72aa-4eed-8b91-72bba420c23b",
             exercise_2_id,
             exercise_2_slide_1_id,
@@ -1126,7 +1131,7 @@ pub async fn seed_sample_course(
         )
         .await?;
         submit_and_grade(
-            conn,
+            &mut conn,
             b"02c9e1ad-6e4c-4473-a3e9-dbfab018a055",
             exercise_5_id,
             exercise_5_slide_1_id,
@@ -1139,7 +1144,7 @@ pub async fn seed_sample_course(
         )
         .await?;
         submit_and_grade(
-            conn,
+            &mut conn,
             b"75df4600-d337-4083-99d1-e8e3b6bf6192",
             exercise_1_id,
             exercise_1_slide_1_id,
@@ -1155,7 +1160,7 @@ pub async fn seed_sample_course(
 
     // peer reviews
     let peer_review_id = peer_reviews::insert_with_id(
-        conn,
+        &mut conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         course_id,
         None,
@@ -1172,7 +1177,7 @@ pub async fn seed_sample_course(
         answer_required: false,
     };
     let _peer_review_question_1_id = peer_review_questions::insert_with_id(
-        conn,
+        &mut conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         &new_peer_review_question,
     )
@@ -1187,7 +1192,7 @@ pub async fn seed_sample_course(
         answer_required: true,
     };
     let _peer_review_question_2_id = peer_review_questions::insert_with_id(
-        conn,
+        &mut conn,
         Uuid::new_v5(&course_id, b"6365df37-a9b5-4620-b2fb-926b0c29a954"),
         &new_peer_review_question2,
     )
@@ -1202,7 +1207,7 @@ pub async fn seed_sample_course(
         answer_required: true,
     };
     let _peer_review_question_3_id = peer_review_questions::insert_with_id(
-        conn,
+        &mut conn,
         Uuid::new_v5(&course_id, b"19b81b50-fc7f-4535-a285-8fc0604ed85c"),
         &new_peer_review_question3,
     )
@@ -1224,8 +1229,8 @@ pub async fn seed_sample_course(
         }],
         page_id: page_3,
     };
-    let feedback = feedback::insert(conn, Some(student), course.id, new_feedback).await?;
-    feedback::mark_as_read(conn, feedback, true).await?;
+    let feedback = feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
+    feedback::mark_as_read(&mut conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
         selected_text: Some("verything".to_string()),
@@ -1248,9 +1253,9 @@ pub async fn seed_sample_course(
         ],
         page_id: page_3,
     };
-    feedback::insert(conn, Some(student), course.id, new_feedback).await?;
+    feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
     feedback::insert(
-        conn,
+        &mut conn,
         None,
         course.id,
         NewFeedback {
@@ -1266,7 +1271,7 @@ pub async fn seed_sample_course(
     )
     .await?;
     feedback::insert(
-        conn,
+        &mut conn,
         None,
         course.id,
         NewFeedback {
@@ -1289,7 +1294,7 @@ pub async fn seed_sample_course(
             changed_text: "So bg, that we need many, many paragraphs.".to_string(),
         }],
     };
-    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![
@@ -1307,22 +1312,23 @@ pub async fn seed_sample_course(
             },
         ],
     };
-    proposed_page_edits::insert(conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
 
     // acronyms
-    glossary::insert(conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
-    glossary::insert(conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
-    glossary::insert(conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
-    glossary::insert(conn, "KB", "Keyboard.", course.id).await?;
+    glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
+    glossary::insert(&mut conn, "HDD", "Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user's disk is holding one of the keys required of running Windows.",  course.id).await?;
+    glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
+    glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
 
     Ok(course.id)
 }
 
 pub async fn seed_cs_course_material(
-    conn: &mut PgConnection,
+    db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
 ) -> Result<Uuid> {
+    let mut conn = db_pool.acquire().await?;
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -1336,7 +1342,7 @@ pub async fn seed_cs_course_material(
         is_test_mode: false,
     };
     let (course, front_page, _default_instance) = courses::insert_course(
-        conn,
+        &mut conn,
         Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
         Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
         new_course,
@@ -1593,7 +1599,7 @@ pub async fn seed_cs_course_material(
     );
 
     pages::update_page(
-        conn,
+        &mut conn,
         front_page.id,
         CmsPageUpdate {
             title: "Introduction to Course Material".to_string(),
@@ -1622,8 +1628,8 @@ pub async fn seed_cs_course_material(
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
     let (_page, _history) =
-        pages::insert_course_page(conn, course.id, "/faq", "FAQ", 1, admin).await?;
-    let course_module_id = course_modules::insert(conn, course.id, None, 0).await?;
+        pages::insert_course_page(&mut conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let course_module_id = course_modules::insert(&mut conn, course.id, None, 0).await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -1635,11 +1641,12 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(course_module_id),
     };
-    let (chapter_1, front_page_ch_1) = chapters::insert_chapter(conn, new_chapter, admin).await?;
-    chapters::set_opens_at(conn, chapter_1.id, Utc::now()).await?;
+    let (chapter_1, front_page_ch_1) =
+        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
 
     pages::update_page(
-        conn,
+        &mut conn,
         front_page_ch_1.id,
         CmsPageUpdate {
             title: "User Interface".to_string(),
@@ -1723,7 +1730,14 @@ pub async fn seed_cs_course_material(
             .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ]),
     };
-    create_page(conn, course.id, admin, Some(chapter_1.id), design_content).await?;
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        design_content,
+    )
+    .await?;
 
     // /chapter-1/human-machine-interface
     let content_b = CmsPageUpdate {
@@ -1762,7 +1776,7 @@ pub async fn seed_cs_course_material(
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ]),
     };
-    create_page(conn, course.id, admin, Some(chapter_1.id), content_b).await?;
+    create_page(&mut conn, course.id, admin, Some(chapter_1.id), content_b).await?;
 
     // Chapter-2
     let new_chapter_2 = NewChapter {
@@ -1774,11 +1788,12 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(course_module_id),
     };
-    let (chapter_2, front_page_ch_2) = chapters::insert_chapter(conn, new_chapter_2, admin).await?;
-    chapters::set_opens_at(conn, chapter_2.id, Utc::now()).await?;
+    let (chapter_2, front_page_ch_2) =
+        chapters::insert_chapter(&mut conn, new_chapter_2, admin).await?;
+    chapters::set_opens_at(&mut conn, chapter_2.id, Utc::now()).await?;
 
     pages::update_page(
-        conn,
+        &mut conn,
         front_page_ch_2.id,
         CmsPageUpdate {
             url_path: "/chapter-2".to_string(),
@@ -1842,12 +1857,19 @@ pub async fn seed_cs_course_material(
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
     };
-    create_page(conn, course.id, admin, Some(chapter_2.id), page_content).await?;
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_2.id),
+        page_content,
+    )
+    .await?;
 
     let page_content = include_str!("../../assets/example-page.json");
     let parse_page_content = serde_json::from_str(page_content)?;
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),
@@ -1866,7 +1888,7 @@ pub async fn seed_cs_course_material(
     // Multiple choice
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),
@@ -1889,7 +1911,7 @@ pub async fn seed_cs_course_material(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),
@@ -1912,7 +1934,7 @@ pub async fn seed_cs_course_material(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),
@@ -1935,7 +1957,7 @@ pub async fn seed_cs_course_material(
     .await?;
 
     create_page(
-        conn,
+        &mut conn,
         course.id,
         admin,
         Some(chapter_2.id),

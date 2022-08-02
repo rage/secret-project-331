@@ -10,10 +10,11 @@ use uuid::Uuid;
 
 use crate::programs::seed::{
     seed_courses::{seed_cs_course_material, seed_sample_course},
-    seed_helpers::{create_exam, seed_connect_to_db},
+    seed_helpers::create_exam,
 };
 
 use super::super::seed_users::SeedUsersResult;
+use sqlx::{Pool, Postgres};
 
 pub struct SeedOrganizationUhCsResult {
     pub uh_cs_organization_id: Uuid,
@@ -21,6 +22,7 @@ pub struct SeedOrganizationUhCsResult {
 }
 
 pub async fn seed_organization_uh_cs(
+    db_pool: &Pool<Postgres>,
     seed_users_result: &SeedUsersResult,
 ) -> anyhow::Result<SeedOrganizationUhCsResult> {
     info!("inserting organization uh-cs");
@@ -34,7 +36,7 @@ pub async fn seed_organization_uh_cs(
         example_normal_user_ids,
     } = seed_users_result;
 
-    let mut conn = seed_connect_to_db().await?;
+    let mut conn = db_pool.acquire().await?;
 
     let uh_cs_organization_id = organizations::insert(
         &mut conn,
@@ -47,7 +49,7 @@ pub async fn seed_organization_uh_cs(
 
     info!("inserting uh-cs courses");
     let cs_intro = seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
         "Introduction to everything",
@@ -58,7 +60,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
         "Introduction to feedback",
@@ -69,7 +71,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
         "Introduction to history",
@@ -80,7 +82,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
         "Introduction to edit proposals",
@@ -91,7 +93,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     let introduction_to_localizing = seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
         "Introduction to localizing",
@@ -102,7 +104,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
         "Point view for teachers",
@@ -113,7 +115,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
         "Advanced course instance management",
@@ -124,7 +126,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
         "Advanced exercise states",
@@ -135,7 +137,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
         "Glossary course",
@@ -146,7 +148,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
         "Permission management",
@@ -157,7 +159,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
         "Redirections",
@@ -168,7 +170,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
         "Limited tries",
@@ -179,7 +181,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
         "Course Structure",
@@ -190,7 +192,7 @@ pub async fn seed_organization_uh_cs(
     )
     .await?;
     let automatic_completions_id = seed_sample_course(
-        &mut conn,
+        db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
         "Automatic Completions",
@@ -299,7 +301,7 @@ pub async fn seed_organization_uh_cs(
 
     info!("cs");
     let _cs_design =
-        seed_cs_course_material(&mut conn, uh_cs_organization_id, *admin_user_id).await?;
+        seed_cs_course_material(db_pool, uh_cs_organization_id, *admin_user_id).await?;
     let new_course = NewCourse {
         name: "Introduction to Computer Science".to_string(),
         slug: "introduction-to-computer-science".to_string(),

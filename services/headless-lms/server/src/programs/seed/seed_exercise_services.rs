@@ -1,10 +1,10 @@
 use headless_lms_models::exercise_services;
+use sqlx::{Pool, Postgres};
 
-use crate::programs::seed::seed_helpers::seed_connect_to_db;
-
-pub async fn seed_exercise_services() -> anyhow::Result<()> {
+pub async fn seed_exercise_services(db_pool: &Pool<Postgres>) -> anyhow::Result<()> {
     info!("inserting exercise services");
-    let mut conn = seed_connect_to_db().await?;
+    let mut conn = db_pool.acquire().await?;
+
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
     &mut conn,
     &exercise_services::ExerciseServiceNewOrUpdate {

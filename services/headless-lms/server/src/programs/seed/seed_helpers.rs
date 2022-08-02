@@ -1,5 +1,3 @@
-use std::env;
-
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
@@ -16,7 +14,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
-use sqlx::{Connection, PgConnection};
+use sqlx::PgConnection;
 use uuid::Uuid;
 
 #[allow(clippy::too_many_arguments)]
@@ -430,9 +428,4 @@ pub async fn create_exam(
     .await?;
     exams::set_course(conn, new_exam_id, course_id).await?;
     Ok(())
-}
-
-pub async fn seed_connect_to_db() -> Result<PgConnection> {
-    let db_url = env::var("DATABASE_URL")?;
-    Ok(PgConnection::connect(&db_url).await?)
 }

@@ -3,6 +3,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Switch } from "@mui/material"
 import { Spinner } from "@wordpress/components"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
@@ -182,20 +183,26 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     setAttributes({ peer_review_questions_config: JSON.stringify(peerReviewQuestions) })
   }
 
-  const addPeerReview = () => {
+  const togglePeerReview = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAttributes({
-      peer_review_config: JSON.stringify([
-        ...parsedPeerReviews,
-        {
-          id: v4(),
-          course_id: courseId,
-          exercise_id: exerciseId,
-          peer_reviews_to_give: 0,
-          peer_reviews_to_receive: 0,
-          accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
-          accepting_threshold: 0,
-        },
-      ]),
+      peer_review_config: JSON.stringify(
+        e.target.checked
+          ? [
+              {
+                id: v4(),
+                course_id: courseId,
+                exercise_id: exerciseId,
+                peer_reviews_to_give: 0,
+                peer_reviews_to_receive: 0,
+                accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+                accepting_threshold: 0,
+              },
+            ]
+          : [],
+      ),
+      peer_review_questions_config: JSON.stringify(
+        e.target.checked ? parsedPeerReviewQuestion : [],
+      ),
     })
   }
 
@@ -244,16 +251,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           display: block;
         `}
       >
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={addPeerReview}
-          className={css`
-            margin-bottom: 0.5rem;
-          `}
-        >
-          {t("add-peer-review")}
-        </Button>
+        <span>{t("add-peer-review")}</span>
+        <Switch onChange={togglePeerReview} checked={parsedPeerReviews.length > 0} />
         {parsedPeerReviews.map((pr) => {
           return (
             <div key={pr.id} id={pr.id}>

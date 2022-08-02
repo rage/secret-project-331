@@ -25,4 +25,4 @@ COPY --from=builder /ips-to-country /ips-to-country
 
 USER user
 
-CMD [ "./headless-lms-server" ]
+CMD [ "./headless-lms-entrypoint", "start-server" ]

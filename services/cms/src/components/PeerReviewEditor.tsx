@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { TextField } from "@mui/material"
 import { Spinner } from "@wordpress/components"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
@@ -88,11 +88,6 @@ const StyledQuestionType = styled.div`
   }
 `
 
-const PLACEHOLDER = "Write the PeerReview instruction"
-const QUESTION = "question"
-const INSTRUCTION = "instruction"
-const TYPE = "questionType"
-const QUESTION_PLACEHOLDER = "Write the question"
 const HEADING_TEXT = "Configure review answers option"
 
 export interface PeerReviewEditorExtraProps {
@@ -220,16 +215,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  const deletePeerReview = (id: string) => {
+  const deletePeerReview = (peerReviewId: string) => {
     setAttributes({
-      peer_review_config: JSON.stringify(parsedPeerReviews.filter((x) => x.id !== id)),
+      peer_review_config: JSON.stringify(parsedPeerReviews.filter((pr) => pr.id !== peerReviewId)),
+    })
+    setAttributes({
+      peer_review_questions_config: JSON.stringify(
+        parsedPeerReviewQuestion.filter((prq) => prq.peer_review_id != peerReviewId),
+      ),
     })
   }
 
-  const deletePeerReviewQuestion = (id: string) => {
+  const deletePeerReviewQuestion = (peerReviewQuestionId: string) => {
     setAttributes({
       peer_review_questions_config: JSON.stringify(
-        parsedPeerReviewQuestion.filter((x) => x.id !== id),
+        parsedPeerReviewQuestion.filter((x) => x.id !== peerReviewQuestionId),
       ),
     })
   }
@@ -239,8 +239,19 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   }
   return (
     <>
-      <div>
-        <Button variant="primary" size="medium" onClick={addPeerReview}>
+      <div
+        className={css`
+          display: block;
+        `}
+      >
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={addPeerReview}
+          className={css`
+            margin-bottom: 0.5rem;
+          `}
+        >
           {t("add-peer-review")}
         </Button>
         {parsedPeerReviews.map((pr) => {
@@ -250,9 +261,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 {t("delete")}
               </Button>
               <Wrapper>
-                <span>{t("peer-review-instructions")}</span>
-                <TextField name={INSTRUCTION} placeholder={PLACEHOLDER} onChange={() => null} />
-                <span>{t("peer-reviews-to-receive")}</span>
+                <span
+                  className={css`
+                    width: 100%;
+                  `}
+                >
+                  {t("peer-reviews-to-receive")}
+                </span>
                 <input
                   type={"number"}
                   min={0}
@@ -262,8 +277,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(pr.id, e.target.value, "peer_reviews_to_receive")
                   }}
                 />
-
-                <span>{t("peer-reviews-to-give")}</span>
+                <span
+                  className={css`
+                    width: 100%;
+                  `}
+                >
+                  {t("peer-reviews-to-give")}
+                </span>
                 <input
                   type={"number"}
                   min={0}
@@ -273,7 +293,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(pr.id, e.target.value, "peer_reviews_to_give")
                   }
                 />
-                <span>{t("peer-review-accepting-strategy")}</span>
+                <span
+                  className={css`
+                    width: 100%;
+                  `}
+                >
+                  {t("peer-review-accepting-strategy")}
+                </span>
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   onBlur={() => null}
@@ -282,7 +308,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   }}
                   options={peerReviewAcceptingStrategyOptions}
                 />
-                <span>{t("peer-review-accepting-threshold")}</span>
+                <span
+                  className={css`
+                    width: 100%;
+                  `}
+                >
+                  {t("peer-review-accepting-threshold")}
+                </span>
                 <input
                   type={"number"}
                   step="0.01"

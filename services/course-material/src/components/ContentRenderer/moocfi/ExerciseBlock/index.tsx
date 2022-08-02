@@ -31,6 +31,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ExerciseTask from "./ExerciseTask"
 import PeerReviewView from "./PeerReviewView"
+import PeerReviewGiven from "./PeerReviewView/PeerReviewGivenComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
@@ -359,6 +360,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 {t("submit-button")}
               </Button>
             )}
+            {true && <PeerReviewGiven id={id} />}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
                 {!ranOutOfTries && (

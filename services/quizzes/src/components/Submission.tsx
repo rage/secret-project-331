@@ -13,7 +13,6 @@ import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
-import PeerReviewRecieved from "./SubmissionComponents/PeerReviewComponent/index"
 import Timeline from "./SubmissionComponents/Timeline"
 import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
@@ -137,7 +136,6 @@ const Submission: React.FC<SubmissionProps> = ({
             </>
           )
         })}
-      {true && <PeerReviewRecieved />}
     </>
   )
 }

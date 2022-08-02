@@ -1,8 +1,12 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import * as React from "react"
+import { useQuery } from "react-query"
 
-import { baseTheme, headingFont } from "../../../shared-module/styles"
+import { fetchPeerReviewDataGivenByExerciseId } from "../../../../../../services/backend"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import Reviews from "./Reviews"
 
@@ -95,9 +99,24 @@ const Notification = styled.div`
 
 const arr = [{ peerReview: 1 }, { peerReview: 2 }, { peerReview: 3 }]
 
-// interface PeerReviewProps {}
+interface PeerReviewProps {
+  id: string
+}
 
-const PeerReview: React.FunctionComponent /*<PeerReviewProps>*/ = () => {
+const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
+  const getPeerReviewReceived = useQuery(`exerciSse-${id}-peer-review-received`, () =>
+    fetchPeerReviewDataGivenByExerciseId(id),
+  )
+
+  if (getPeerReviewReceived.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getPeerReviewReceived.error} />
+  }
+  if (getPeerReviewReceived.isLoading || getPeerReviewReceived.isIdle) {
+    return <Spinner variant={"medium"} />
+  }
+
+  // eslint-disable-next-line i18next/no-literal-string
+  console.log("getPeerReviewReceived", getPeerReviewReceived.data)
   return (
     <Wrapper>
       <details>

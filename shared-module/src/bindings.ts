@@ -501,6 +501,11 @@ export interface CourseMaterialPeerReviewData {
   num_peer_reviews_given: number
 }
 
+export interface CourseMaterialPeerReviewGivenData {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialPeerReviewDataAnswerToReview {
   exercise_slide_submission_id: string
   course_material_exercise_tasks: Array<CourseMaterialExerciseTask>

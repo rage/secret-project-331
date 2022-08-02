@@ -37,6 +37,7 @@ import {
   CourseMaterialExerciseTask,
   CourseMaterialPeerReviewData,
   CourseMaterialPeerReviewDataAnswerToReview,
+  CourseMaterialPeerReviewGivenData,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
@@ -919,7 +920,7 @@ export function isCourseMaterialPeerReviewData(
 export function isCourseMaterialPeerReviewGivenData(
   obj: any,
   _argumentName?: string,
-): obj is CourseMaterialPeerReviewData {
+): obj is CourseMaterialPeerReviewGivenData {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     Array.isArray(obj.peer_review_questions) &&

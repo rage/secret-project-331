@@ -14,7 +14,7 @@ use crate::setup_tracing;
 
 use futures::try_join;
 
-use sqlx::{migrate::MigrateDatabase, PgPool, Pool, Postgres};
+use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions, Pool, Postgres};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
@@ -49,7 +49,11 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     let clean = env::args().any(|a| a == "clean");
 
     let db_url = env::var("DATABASE_URL")?;
-    let db_pool = PgPool::connect(&db_url).await?;
+    let db_pool = PgPoolOptions::new()
+        .max_connections(50)
+        .min_connections(20)
+        .connect(&db_url)
+        .await?;
 
     if clean {
         info!("cleaning");

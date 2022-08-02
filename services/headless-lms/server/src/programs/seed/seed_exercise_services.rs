@@ -1,6 +1,6 @@
 use headless_lms_models::exercise_services;
 
-use super::seed_connect_to_db;
+use crate::programs::seed::seed_helpers::seed_connect_to_db;
 
 pub async fn seed_exercise_services() -> anyhow::Result<()> {
     info!("inserting exercise services");

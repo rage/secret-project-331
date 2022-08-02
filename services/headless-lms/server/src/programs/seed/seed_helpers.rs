@@ -1,5 +1,26 @@
+use std::env;
+
+use anyhow::Result;
+use chrono::{DateTime, Utc};
+use headless_lms_models::{
+    exams::{self, NewExam},
+    exercise_slide_submissions,
+    exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
+    exercise_task_submissions,
+    exercises::{self, GradingProgress},
+    page_history::HistoryChangeReason,
+    pages::{
+        self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
+    },
+    user_exercise_slide_states, user_exercise_states,
+};
+use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
+use serde_json::Value;
+use sqlx::{Connection, PgConnection};
+use uuid::Uuid;
+
 #[allow(clippy::too_many_arguments)]
-async fn create_page(
+pub async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
@@ -40,8 +61,7 @@ async fn create_page(
     .await?;
     Ok(page.id)
 }
-
-fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
+pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
         is_valid: true,
@@ -53,8 +73,7 @@ fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
         inner_blocks: vec![],
     }
 }
-
-fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
+pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/heading".to_string(),
         is_valid: true,
@@ -68,7 +87,7 @@ fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn create_best_exercise(
+pub fn create_best_exercise(
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -122,7 +141,7 @@ fn create_best_exercise(
 }
 
 #[allow(clippy::type_complexity)]
-fn example_exercise_flexible(
+pub fn example_exercise_flexible(
     exercise_id: Uuid,
     exercise_name: String,
     exercise_slides: Vec<(Uuid, Vec<(Uuid, String, Value, Value)>)>,
@@ -195,7 +214,7 @@ fn example_exercise_flexible(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn quizzes_exercise(
+pub fn quizzes_exercise(
     name: String,
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
@@ -249,7 +268,7 @@ fn quizzes_exercise(
 }
 
 #[allow(clippy::too_many_arguments)]
-async fn submit_and_grade(
+pub async fn submit_and_grade(
     conn: &mut PgConnection,
     id: &[u8],
     exercise_id: Uuid,
@@ -330,7 +349,7 @@ async fn submit_and_grade(
     Ok(())
 }
 
-async fn create_exam(
+pub async fn create_exam(
     conn: &mut PgConnection,
     name: String,
     starts_at: Option<DateTime<Utc>>,
@@ -364,7 +383,7 @@ async fn create_exam(
             Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
             false,
             serde_json::from_str(include_str!(
-                "../assets/quizzes-multiple-choice-feedback.json"
+                "../../assets/quizzes-multiple-choice-feedback.json"
             ))?,
             None,
         );

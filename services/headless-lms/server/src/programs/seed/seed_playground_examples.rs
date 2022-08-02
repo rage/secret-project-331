@@ -1,7 +1,7 @@
 use chrono::{TimeZone, Utc};
 use headless_lms_models::playground_examples::{self, PlaygroundExampleData};
 
-use super::seed_connect_to_db;
+use crate::programs::seed::seed_helpers::seed_connect_to_db;
 
 pub async fn seed_playground_examples() -> anyhow::Result<()> {
     info!("playground examples");

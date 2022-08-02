@@ -1,7 +1,7 @@
 use headless_lms_models::users;
 use uuid::Uuid;
 
-use super::seed_connect_to_db;
+use crate::programs::seed::seed_helpers::seed_connect_to_db;
 
 pub struct SeedUsersResult {
     pub admin_user_id: Uuid,

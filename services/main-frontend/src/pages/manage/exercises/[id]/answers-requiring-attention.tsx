@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import AnswersRequiringAttentionList from "../../../../components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
@@ -23,7 +23,7 @@ interface SubmissionPageProps {
 const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const getAnswersRequiringAttention = useQuery(
-    `exercise-${query.id}-answers-requiring-attention`,
+    [`exercises-${query.id}-answers-requiring-attention`],
     () => fetchAnswersRequiringAttention(query.id),
   )
   return (
@@ -47,9 +47,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
         {getAnswersRequiringAttention.isError && (
           <ErrorBanner variant={"readOnly"} error={getAnswersRequiringAttention.error} />
         )}
-        {(getAnswersRequiringAttention.isLoading || getAnswersRequiringAttention.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getAnswersRequiringAttention.isLoading && <Spinner variant={"medium"} />}
         {getAnswersRequiringAttention.isSuccess && (
           <AnswersRequiringAttentionList
             answersRequiringAttention={getAnswersRequiringAttention.data.data}

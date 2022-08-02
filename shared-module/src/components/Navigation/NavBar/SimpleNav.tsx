@@ -41,7 +41,9 @@ const NavbarLogo = css`
   }
 `
 
-const Navigation: React.FC<NavigationProps> = ({ children }) => {
+const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>> = ({
+  children,
+}) => {
   const { t } = useTranslation()
 
   return (

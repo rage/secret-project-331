@@ -5,7 +5,10 @@ export interface LanguageMenuProps {
   visible: boolean
 }
 
-const LanguageMenu: React.FC<LanguageMenuProps> = ({ children, visible }) => {
+const LanguageMenu: React.FC<React.PropsWithChildren<LanguageMenuProps>> = ({
+  children,
+  visible,
+}) => {
   return visible ? (
     <div
       className={css`

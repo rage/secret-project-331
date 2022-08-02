@@ -7,11 +7,9 @@ import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-export const MultipleChoiceDropdown: React.FunctionComponent<QuizItemComponentProps> = ({
-  quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
-}) => {
+export const MultipleChoiceDropdown: React.FunctionComponent<
+  React.PropsWithChildren<QuizItemComponentProps>
+> = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (!quizItemAnswerState) {

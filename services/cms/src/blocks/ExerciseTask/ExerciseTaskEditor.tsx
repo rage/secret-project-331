@@ -75,11 +75,9 @@ export interface ExerciseTaskAttributes {
   order_number: number
 }
 
-const ExerciseTaskEditor: React.FC<BlockEditProps<ExerciseTaskAttributes>> = ({
-  attributes,
-  clientId,
-  setAttributes,
-}) => {
+const ExerciseTaskEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
+> = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const [privateSpecOnFirstRender] = useState(attributes.private_spec)

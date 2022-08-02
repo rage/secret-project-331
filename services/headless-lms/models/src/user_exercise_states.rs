@@ -196,11 +196,11 @@ pub struct CourseInstanceExerciseMetrics {
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
-    exercise_name: Option<String>,
-    exercise_order_number: Option<i32>,
-    page_order_number: Option<i32>,
-    chapter_number: Option<i32>,
-    exercise_id: Option<Uuid>,
+    exercise_name: String,
+    exercise_order_number: i32,
+    page_order_number: i32,
+    chapter_number: i32,
+    exercise_id: Uuid,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     n_users_attempted: Option<i64>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]

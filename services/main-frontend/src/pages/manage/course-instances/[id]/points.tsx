@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import { getPoints } from "../../../../services/backend/course-instances"
@@ -33,7 +33,9 @@ const SCORE = "score"
 const EMAIL = "email"
 const DOWN_ARROW = "v"
 
-const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ query }) => {
+const CourseInstancePointsList: React.FC<
+  React.PropsWithChildren<CourseInstancePointsListProps>
+> = ({ query }) => {
   const courseInstanceId = query.id
   const { t } = useTranslation()
 
@@ -55,7 +57,7 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
     }
   }
 
-  const getPointsList = useQuery(`point-list-${courseInstanceId}`, () =>
+  const getPointsList = useQuery([`point-list-${courseInstanceId}`], () =>
     getPoints(courseInstanceId),
   )
 
@@ -89,7 +91,7 @@ const CourseInstancePointsList: React.FC<CourseInstancePointsListProps> = ({ que
           {t("point-summary")}: {courseInstanceId}
         </h2>
         {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
-        {(getPointsList.isLoading || getPointsList.isIdle) && <Spinner variant={"medium"} />}
+        {getPointsList.isLoading && <Spinner variant={"medium"} />}
         {getPointsList.isSuccess && (
           <>
             <div

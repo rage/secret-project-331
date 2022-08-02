@@ -61,7 +61,14 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time, bg }) => {
+const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+  title,
+  chapterNumber,
+  open,
+  date,
+  time,
+  bg,
+}) => {
   const { t } = useTranslation()
 
   return (

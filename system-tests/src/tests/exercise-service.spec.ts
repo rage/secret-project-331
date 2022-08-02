@@ -10,7 +10,7 @@ test.use({
 const replaceTimeComponentDates = async (page: Page) => {
   await page.evaluate(() => {
     const components = document.querySelectorAll(".time-component-date")
-    for (const comp of components) {
+    for (const comp of Array.from(components)) {
       comp.innerHTML = "yyyy-MM-dd HH:mm"
     }
   })

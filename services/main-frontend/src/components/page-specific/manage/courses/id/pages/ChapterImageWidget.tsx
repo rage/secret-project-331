@@ -11,7 +11,10 @@ export interface ChapterImageControlsProps {
   onChapterUpdated?: () => void
 }
 
-const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onChapterUpdated }) => {
+const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsProps>> = ({
+  chapter,
+  onChapterUpdated,
+}) => {
   const { t } = useTranslation()
   const [allowRemove, setAllowRemove] = useState(true)
   const [error, setError] = useState<unknown>()
@@ -48,7 +51,7 @@ const ChapterImageWidget: React.FC<ChapterImageControlsProps> = ({ chapter, onCh
 
   return (
     <div>
-      {error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
+      {!!error && <pre>{JSON.stringify(`${error}`, undefined, 2)}</pre>}
       {chapterImageUrl ? (
         <>
           <img src={chapterImageUrl} alt={t("image-alt-what-to-display-on-chapter")} />

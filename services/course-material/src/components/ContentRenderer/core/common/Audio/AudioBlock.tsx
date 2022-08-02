@@ -4,7 +4,9 @@ import { BlockRendererProps } from "../../.."
 import { AudioAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
-const AudioBlock: React.FC<BlockRendererProps<AudioAttributes>> = ({ data }) => {
+const AudioBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AudioAttributes>>> = ({
+  data,
+}) => {
   const { anchor, autoplay, caption, loop, preload, src } = data.attributes
   return (
     <figure {...(anchor && { id: anchor })}>

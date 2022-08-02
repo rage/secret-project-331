@@ -11,13 +11,9 @@ export interface CheckboxFieldWrapperProps {
   initialChecked?: boolean
 }
 
-const CheckboxFieldWrapper: React.FC<CheckboxFieldWrapperProps> = ({
-  fieldName,
-  className,
-  children,
-  onUncheck,
-  initialChecked,
-}) => {
+const CheckboxFieldWrapper: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CheckboxFieldWrapperProps>>
+> = ({ fieldName, className, children, onUncheck, initialChecked }) => {
   const { t } = useTranslation()
   const [checked, setChecked] = useState(initialChecked ?? false)
   return (

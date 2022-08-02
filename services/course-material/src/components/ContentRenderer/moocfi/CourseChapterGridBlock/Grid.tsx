@@ -13,7 +13,7 @@ export interface GridProps {
   previewable: boolean
 }
 
-const Grid: React.FC<GridProps> = ({
+const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
   chapters,
   courseSlug,
   now,

@@ -32,7 +32,7 @@ const TYPES = [
   "timeline",
 ]
 
-export const AddQuizItem: React.FC = () => {
+export const AddQuizItem: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <>

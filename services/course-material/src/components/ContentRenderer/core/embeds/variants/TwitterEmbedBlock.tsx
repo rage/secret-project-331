@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 
-export const TwitterEmbedBlock: React.FC<EmbedAttributes> = (props) => {
+export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const blob = new Blob(
     [
       // eslint-disable-next-line i18next/no-literal-string

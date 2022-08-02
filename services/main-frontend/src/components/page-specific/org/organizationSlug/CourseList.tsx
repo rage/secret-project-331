@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { Box, Dialog, Pagination } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
 import {
@@ -27,7 +27,11 @@ interface Props {
   perPage: number
 }
 
-const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage }) => {
+const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
+  organizationId,
+  organizationSlug,
+  perPage,
+}) => {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -98,12 +102,7 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (
-    getOrgCourses.isLoading ||
-    getOrgCourses.isIdle ||
-    getOrgCourseCount.isLoading ||
-    getOrgCourseCount.isIdle
-  ) {
+  if (getOrgCourses.isLoading || getOrgCourseCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

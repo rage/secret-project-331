@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 mod integration_test;
 
-#[tokio::test]
+#[actix_web::test]
 async fn gets_and_registers_completions() {
     let (actix, pool) = integration_test::init_actix().await;
     let mut conn = pool.acquire().await.unwrap();

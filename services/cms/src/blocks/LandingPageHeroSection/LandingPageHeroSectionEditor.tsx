@@ -23,11 +23,9 @@ const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
-const LandingPageHeroSectionEditor: React.FC<BlockEditProps<LandingPageHeroSectionAttributes>> = ({
-  clientId,
-  attributes,
-  setAttributes,
-}) => {
+const LandingPageHeroSectionEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
+> = ({ clientId, attributes, setAttributes }) => {
   const { title } = attributes
   const { t } = useTranslation()
   return (

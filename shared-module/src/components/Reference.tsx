@@ -111,7 +111,9 @@ const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
-const Reference: React.FC<ReferenceProps> = ({ data }) => {
+const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<ReferenceProps>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()
@@ -135,8 +137,9 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     // eslint-disable-next-line i18next/no-literal-string
     const references = document.querySelectorAll(".reference")
 
-    const eventHandler = (evt: any) => {
+    const eventHandler = (evt: Event) => {
       const target = evt.target
+      // @ts-expect-error: Type not aware of the field
       const citationId = target?.parentNode?.dataset.citationId || ""
       const el = data.find((item) => item.id === citationId)
 
@@ -150,7 +153,11 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
 
         const wrapperEl = document.getElementById("wrapper")
 
+        if (!target) {
+          return
+        }
         if (evt.type === "mouseover") {
+          // @ts-expect-error: Type not aware of the field
           target.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
           wrapper.style.cssText =
             "opacity: 1; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
@@ -159,6 +166,7 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
+          // @ts-expect-error: Type not aware of the field
           target.style.cssText = "text-decoration: none; color: #46749B;"
           wrapperEl && wrapperEl.remove()
         }

@@ -24,7 +24,9 @@ type ProgressExtraProps = CircularProgressExtraProps | ProgressBarExtraProps
 
 type ProgressProps = React.HTMLAttributes<HTMLDivElement> & ProgressExtraProps
 
-const Progress: React.FC<ProgressProps> = (props) => {
+const Progress: React.FC<React.PropsWithChildren<React.PropsWithChildren<ProgressProps>>> = (
+  props,
+) => {
   return (
     <>{props.variant === "circle" ? <CircularProgress {...props} /> : <ProgressBar {...props} />}</>
   )

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
@@ -9,9 +10,7 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
   async headers() {
     return [
       {

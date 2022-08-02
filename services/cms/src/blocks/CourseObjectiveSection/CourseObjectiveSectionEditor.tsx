@@ -56,11 +56,9 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
   ],
 ]
 
-const CourseObjectiveSectionEditor: React.FC<BlockEditProps<CourseObjectiveSectionAttributes>> = ({
-  clientId,
-  attributes,
-  setAttributes,
-}) => {
+const CourseObjectiveSectionEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<CourseObjectiveSectionAttributes>>
+> = ({ clientId, attributes, setAttributes }) => {
   const { title } = attributes
   return (
     <BlockWrapper id={clientId}>

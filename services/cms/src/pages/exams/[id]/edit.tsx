@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
@@ -27,11 +27,13 @@ export interface ExamInstructionsEditProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query }) => {
+const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructionsEditProps>> = ({
+  query,
+}) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
   const getExamsInstructions = useQuery(
-    `exam-${examsId}-instructions`,
+    [`exam-${examsId}-instructions`],
     () => fetchExamsInstructions(examsId),
     { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
   )
@@ -44,7 +46,7 @@ const ExamsInstructionsEditor: React.FC<ExamInstructionsEditProps> = ({ query })
     return res
   }
 
-  if (getExamsInstructions.isIdle || getExamsInstructions.isLoading) {
+  if (getExamsInstructions.isLoading) {
     return <Spinner variant="medium" />
   }
 

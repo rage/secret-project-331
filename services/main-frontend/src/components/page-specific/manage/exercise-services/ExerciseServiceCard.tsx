@@ -11,9 +11,9 @@ import DialogActions from "@mui/material/DialogActions"
 import DialogContent from "@mui/material/DialogContent"
 import DialogContentText from "@mui/material/DialogContentText"
 import DialogTitle from "@mui/material/DialogTitle"
+import { QueryObserverResult } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { QueryObserverResult } from "react-query"
 
 import {
   deleteExerciseService,
@@ -40,7 +40,7 @@ enum UpdateStatus {
   "failed",
 }
 
-const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
+const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
   key,
   exerciseService,
   refetch,

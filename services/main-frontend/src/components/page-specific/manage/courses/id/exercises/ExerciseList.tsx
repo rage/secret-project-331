@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, mapValues } from "lodash"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
 import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
@@ -14,10 +14,11 @@ export interface ExerciseListProps {
   courseId: string
 }
 
-const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
+const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseExercises = useQuery(`course-${courseId}-exercises`, () =>
-    fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
+  const getCourseExercises = useQuery(
+    [`courses-${courseId}-exercises-and-count-of-answers-requiring-attention`],
+    () => fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
   )
   const courseStructure = useCourseStructure(courseId)
 
@@ -29,12 +30,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
     return <ErrorBanner variant={"readOnly"} error={courseStructure.error} />
   }
 
-  if (
-    getCourseExercises.isLoading ||
-    getCourseExercises.isIdle ||
-    courseStructure.isLoading ||
-    courseStructure.isIdle
-  ) {
+  if (getCourseExercises.isLoading || courseStructure.isLoading) {
     return <Spinner variant={"medium"} />
   }
 

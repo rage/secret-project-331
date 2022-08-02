@@ -10,7 +10,7 @@ import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
 
-const Home: React.FC = () => {
+const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <Layout>

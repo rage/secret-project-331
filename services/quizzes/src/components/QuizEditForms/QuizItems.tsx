@@ -31,7 +31,6 @@ const TitleIcon = styled(FontAwesomeIcon)`
 const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
-
   storeItems.sort((item1, item2) => item1.order - item2.order)
   return (
     <>
@@ -49,7 +48,7 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         )
       })}
-      <AddQuizItem />
+      <AddQuizItem storeItems={storeItems} />
     </>
   )
 }

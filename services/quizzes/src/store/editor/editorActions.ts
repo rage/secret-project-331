@@ -1,7 +1,7 @@
 import { createAction } from "typesafe-actions"
 import { v4 } from "uuid"
 
-import { Entities, Quiz } from "../../../types/types"
+import { Entities, NormalizedQuizItem, Quiz } from "../../../types/types"
 
 export const initializedEditor = createAction(
   "INITIALIZED_EDITOR",
@@ -16,6 +16,15 @@ export const createdNewItem = createAction("CREATED_NEW_ITEM", (quizId: string, 
   type: type,
   itemId: v4(),
 }))<{ quizId: string; type: string; itemId: string }>()
+
+export const createdDuplicateItem = createAction(
+  "CREATED_DUPLICATE_ITEM",
+  (quizId: string, storeItem: NormalizedQuizItem) => ({
+    quizId: quizId,
+    storeItem: storeItem,
+    itemId: v4(),
+  }),
+)<{ quizId: string; storeItem: NormalizedQuizItem; itemId: string }>()
 
 export const deletedItem = createAction("DELETED_ITEM", (itemId: string, quizId: string) => ({
   itemId: itemId,

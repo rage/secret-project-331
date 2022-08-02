@@ -5,6 +5,7 @@ import { createReducer } from "typesafe-actions"
 import { action, NormalizedQuizItem, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
 import {
+  createdDuplicateItem,
   createdNewItem,
   createdNewOption,
   createdNewQuiz,
@@ -147,6 +148,39 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         allAnswersCorrect: false,
         direction: "column",
         timelineItems: [],
+      }
+      draftState[action.payload.itemId] = newItem
+    })
+  })
+
+  .handleAction(createdDuplicateItem, (state, action) => {
+    return produce(state, (draftState) => {
+      const oldItem = action.payload.storeItem
+      const newItem: NormalizedQuizItem = {
+        id: action.payload.itemId,
+        quizId: action.payload.quizId,
+        type: oldItem.type,
+        title: oldItem.title,
+        body: oldItem.body,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        successMessage: oldItem.successMessage,
+        failureMessage: oldItem.failureMessage,
+        formatRegex: oldItem.formatRegex,
+        validityRegex: oldItem.validityRegex,
+        maxValue: oldItem.maxValue,
+        minValue: oldItem.minValue,
+        maxWords: oldItem.maxWords,
+        minWords: oldItem.minWords,
+        multi: oldItem.multi,
+        order: Object.keys(state).length,
+        usesSharedOptionFeedbackMessage: oldItem.usesSharedOptionFeedbackMessage,
+        sharedOptionFeedbackMessage: oldItem.sharedOptionFeedbackMessage,
+        options: oldItem.options,
+        optionCells: oldItem.optionCells,
+        allAnswersCorrect: oldItem.allAnswersCorrect,
+        direction: oldItem.direction,
+        timelineItems: oldItem.timelineItems,
       }
       draftState[action.payload.itemId] = newItem
     })

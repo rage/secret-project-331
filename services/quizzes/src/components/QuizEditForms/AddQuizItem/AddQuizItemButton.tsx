@@ -15,10 +15,12 @@ export const AddQuizItemButton: React.FC<React.PropsWithChildren<ButtonProps>> =
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)
+  const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1)
   return (
     <>
       <Button
-        title={t("open")}
+        // eslint-disable-next-line i18next/no-literal-string
+        title={t("add-new-quiz-title-text", { capitalizedType })}
         variant="outlined"
         transform="capitalize"
         onClick={() => dispatch(createdNewItem(quizId, type))}

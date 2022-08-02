@@ -1,7 +1,11 @@
 {
+  "add-new-quiz-title-text": "Add new {{capitalizedType}}",
   "add": "Add",
   "add-new-event": "Add new event",
   "add-new-quiz-item": "Add new quiz item",
+  "create-quiz-item-same-type": "Create new quiz item of same type",
+  "explain-add-new-quiz-item": "If you want to create different Quiz Type, please create new task with 'Add task'",
+  "create-quiz-item-duplicate": "Duplicate previous quiz item",
   "add-option": "Add option",
   "additional-correctness-explanation-on-model-solution": "Additional correctness explanation on model solution",
   "all-answers-correct": "All answers correct (no matter what one answers it is correct)",

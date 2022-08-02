@@ -41,21 +41,32 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_by_peer_review_question_ids(
+pub async fn get_by_peer_reviews_question_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
+    user_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewQuestionSubmission>> {
     let res = sqlx::query_as!(
         PeerReviewQuestionSubmission,
         "
-    SELECT *
-    FROM peer_review_question_submissions
+    SELECT qs.id,
+        qs.created_at,
+        qs.updated_at,
+        qs.deleted_at,
+        qs.peer_review_question_id,
+        qs.peer_review_submission_id,
+        qs.text_data,
+        qs.number_data
+    FROM peer_review_question_submissions qs
+        JOIN peer_review_submissions s ON (qs.peer_review_submission_id = s.id)
     WHERE peer_review_question_id IN (
         SELECT UNNEST($1::uuid [])
     )
-        AND deleted_at IS NULL;
+        AND s.user_id = $2
+        AND qs.deleted_at IS NULL;
         ",
-        ids
+        ids,
+        user_id
     )
     .fetch_all(conn)
     .await?;

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -24,10 +25,11 @@ interface EssayProps {
 }
 
 const Essay: React.FunctionComponent<EssayProps> = ({ question, content, index }) => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
       {""}
-      <h4>{`${QUESTION} ${index + 1}: ${question}`}</h4>
+      <h4>{`${t("question")} ${index + 1}: ${question}`}</h4>
       <span>{content}</span>
     </Wrapper>
   )

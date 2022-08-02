@@ -104,7 +104,7 @@ interface PeerReviewProps {
 }
 
 const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
-  const getPeerReviewReceived = useQuery(`exerciSse-${id}-peer-review-received`, () =>
+  const getPeerReviewReceived = useQuery(`exerciSse-${id}-peer-reviews-received`, () =>
     fetchPeerReviewDataGivenByExerciseId(id),
   )
 

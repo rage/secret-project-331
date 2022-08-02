@@ -241,7 +241,7 @@ export const fetchPeerReviewDataByExerciseId = async (
 export const fetchPeerReviewDataGivenByExerciseId = async (
   id: string,
 ): Promise<CourseMaterialPeerReviewGivenData> => {
-  const response = await courseMaterialClient.get(`/exercises/${id}/peer-review-given`, {
+  const response = await courseMaterialClient.get(`/exercises/${id}/peer-reviews-given`, {
     responseType: "json",
   })
   return validateResponse(response, isCourseMaterialPeerReviewGivenData)

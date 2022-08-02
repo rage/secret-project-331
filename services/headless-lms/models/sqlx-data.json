@@ -8078,6 +8078,57 @@
     },
     "query": "\nSELECT DISTINCT user_id\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
   },
+  "7e067d9b0cac67c0ba4dd13ff088d4926047843a02fb79d8b3bb0ed4422b015f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "peer_review_question_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_submission_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "text_data",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "number_data",
+          "ordinal": 7,
+          "type_info": "Float4"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, true, true],
+      "parameters": {
+        "Left": ["UuidArray", "Uuid"]
+      }
+    },
+    "query": "\n    SELECT qs.id,\n        qs.created_at,\n        qs.updated_at,\n        qs.deleted_at,\n        qs.peer_review_question_id,\n        qs.peer_review_submission_id,\n        qs.text_data,\n        qs.number_data\n    FROM peer_review_question_submissions qs\n        JOIN peer_review_submissions s ON (qs.peer_review_submission_id = s.id)\n    WHERE peer_review_question_id IN (\n        SELECT UNNEST($1::uuid [])\n    )\n        AND s.user_id = $2\n        AND qs.deleted_at IS NULL;\n        "
+  },
   "7e8a1529d1b3f6ab629888c8382b9d78c79a31e3c71271a44e43698ad3335791": {
     "describe": {
       "columns": [
@@ -14600,57 +14651,6 @@
       }
     },
     "query": "\nUPDATE user_exercise_slide_states\nSET score_given = $1,\n  grading_progress = $2\nWHERE id = $3\n  AND deleted_at IS NULL\n        "
-  },
-  "ed45e4a73d2a77b4a9c8a85fdd601a1d58d524abcdb882b9b7d79f60bff5b7c6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "peer_review_question_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_submission_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "text_data",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "number_data",
-          "ordinal": 7,
-          "type_info": "Float4"
-        }
-      ],
-      "nullable": [false, false, false, true, false, false, true, true],
-      "parameters": {
-        "Left": ["UuidArray"]
-      }
-    },
-    "query": "\n    SELECT *\n    FROM peer_review_question_submissions\n    WHERE peer_review_question_id IN (\n        SELECT UNNEST($1::uuid [])\n    )\n        AND deleted_at IS NULL;\n        "
   },
   "ed7c776d9fcc896386fd70d3da41c7d99eaa2b483f536a6fbbf5a47414ef8562": {
     "describe": {

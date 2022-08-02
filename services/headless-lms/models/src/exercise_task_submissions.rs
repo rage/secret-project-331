@@ -217,21 +217,23 @@ WHERE ets.id = $1
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-pub async fn get_peer_review_received(
+pub async fn get_peer_reviews_received(
     conn: &mut PgConnection,
     exercise_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
     let peer_review = crate::peer_reviews::get_by_exercise_id(&mut *conn, exercise_id).await?;
     let peer_review_questions =
         crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_review.id).await?;
 
     let peer_review_question_submissions =
-        crate::peer_review_question_submissions::get_by_peer_review_question_ids(
+        crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
             &mut *conn,
             &peer_review_questions
                 .iter()
                 .map(|x| (x.id))
                 .collect::<Vec<_>>(),
+            user_id,
         )
         .await?;
 

@@ -110,11 +110,15 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get pee
 async fn get_peer_review_given(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
-    let peer_review_data =
-        models::exercise_task_submissions::get_peer_review_received(&mut conn, *exercise_id)
-            .await?;
+    let peer_review_data = models::exercise_task_submissions::get_peer_review_received(
+        &mut conn,
+        *exercise_id,
+        user.id,
+    )
+    .await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(peer_review_data))
 }
@@ -381,8 +385,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_peer_review_for_exercise),
         )
         .route(
-            "/{exercise_id}/peer-review-given",
-            web::get().to(get_peer_review_given),
+            "/{exercise_id}/peer-reviews-given",
+            web::get().to(get_peer_reviews_given),
         )
         .route(
             "/{exercise_id}/submissions",

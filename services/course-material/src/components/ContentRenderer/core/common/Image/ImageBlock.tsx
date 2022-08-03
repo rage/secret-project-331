@@ -96,18 +96,18 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
               )}
             </a>
           </div>
-          <figcaption
-            className={css`
-              caption-side: bottom;
-              text-align: center;
-              font-size: 0.8125rem;
-              margin-top: 0.5rem;
-              margin-bottom: 0.8125rem;
-            `}
-            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
-          />
         </figure>
       </Zoom>
+      <figcaption
+        className={css`
+          caption-side: bottom;
+          text-align: center;
+          font-size: 0.8125rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.8125rem;
+        `}
+        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+      />
     </div>
   )
 }

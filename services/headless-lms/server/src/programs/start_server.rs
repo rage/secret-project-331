@@ -21,7 +21,7 @@ use headless_lms_utils::{
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
-use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use url::Url;
 
 /// The entrypoint to the server.
@@ -50,7 +50,11 @@ pub async fn main() -> anyhow::Result<()> {
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
 
-    let db_pool = PgPool::connect(&database_url).await?;
+    let db_pool = PgPoolOptions::new()
+        .max_connections(15)
+        .min_connections(5)
+        .connect(&database_url)
+        .await?;
 
     let auth_url: Url = "https://tmc.mooc.fi/oauth/token"
         .parse()

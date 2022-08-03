@@ -60,8 +60,8 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
 
     let db_url = env::var("DATABASE_URL")?;
     let db_pool = PgPoolOptions::new()
-        .max_connections(50)
-        .min_connections(20)
+        .max_connections(10)
+        .min_connections(5)
         .connect(&db_url)
         .await?;
 

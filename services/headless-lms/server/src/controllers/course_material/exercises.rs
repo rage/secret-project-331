@@ -107,13 +107,13 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get pee
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_peer_review_given(
+async fn get_peer_reviews_given(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
-    let peer_review_data = models::exercise_task_submissions::get_peer_review_received(
+    let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
         &mut conn,
         *exercise_id,
         user.id,

@@ -108,20 +108,32 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     fetchPeerReviewDataGivenByExerciseId(id),
   )
 
-  if (getPeerReviewReceived.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPeerReviewReceived.error} />
-  }
   if (getPeerReviewReceived.isLoading || getPeerReviewReceived.isIdle) {
     return <Spinner variant={"medium"} />
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
-  console.log("getPeerReviewReceived", getPeerReviewReceived.data)
+  if (getPeerReviewReceived.isError) {
+    console.log(getPeerReviewReceived.error)
+  }
+
+  // WORK ON THE LOOP
+
+  /*   if (
+    getPeerReviewReceived.isSuccess &&
+    getPeerReviewReceived.data.peer_review_question_submissions.length > 0
+  ) {
+    const result = getPeerReviewReceived.data.peer_review_questions.map((item) =>
+      getPeerReviewReceived.data.peer_review_question_submissions.includes(item.id),
+    )
+  } */
   return (
     <Wrapper>
       <details>
         <summary>
-          {PLACEHOLDER_HEADING} <Notification>{arr.length}</Notification>
+          {PLACEHOLDER_HEADING}{" "}
+          <Notification>
+            {getPeerReviewReceived.data?.peer_review_question_submissions.length}
+          </Notification>
         </summary>
         {arr?.map((item, index) => (
           <Reviews orderNumber={index} key={index} />
@@ -129,6 +141,9 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
       </details>
     </Wrapper>
   )
+
+  // eslint-disable-next-line i18next/no-literal-string
+  /* console.log("getPeerReviewReceived", getPeerReviewReceived.data) */
 }
 
 export default PeerReview

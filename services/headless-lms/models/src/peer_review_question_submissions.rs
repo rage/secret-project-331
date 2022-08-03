@@ -59,10 +59,11 @@ pub async fn get_by_peer_reviews_question_ids(
         qs.number_data
     FROM peer_review_question_submissions qs
         JOIN peer_review_submissions s ON (qs.peer_review_submission_id = s.id)
+        JOIN exercise_slide_submissions es ON (s.exercise_slide_submission_id = es.id)
     WHERE peer_review_question_id IN (
         SELECT UNNEST($1::uuid [])
     )
-        AND s.user_id = $2
+        AND es.user_id = $2
         AND qs.deleted_at IS NULL;
         ",
         ids,

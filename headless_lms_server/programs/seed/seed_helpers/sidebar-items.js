@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["create_best_exercise",""],["create_exam",""],["create_page",""],["example_exercise_flexible",""],["heading",""],["paragraph",""],["quizzes_exercise",""],["submit_and_grade",""]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_extension_from_filename",""],["upload_media_to_storage",""]]});
+initSidebarItems({"fn":[["get_extension_from_filename",""]]});

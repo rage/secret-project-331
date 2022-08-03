@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["main",""],["setup_seed_environment",""]],"mod":[["seed_courses",""],["seed_exercise_services",""],["seed_helpers",""],["seed_organizations",""],["seed_playground_examples",""],["seed_roles",""],["seed_users",""]]});

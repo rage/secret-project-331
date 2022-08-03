@@ -215,6 +215,10 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">percent_decode_str</span>, <span class="ident">utf8_percent_encode</span>, <span class="ident">NON_ALPHANUMERIC</span>};
@@ -326,9 +330,13 @@
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;url={}&amp;format=json&quot;</span>, <span class="ident">url</span>),
             );
         }
-        <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;Link not supported for embedding.&quot;</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(
+            <span class="string">&quot;Link not supported for embedding.&quot;</span>.<span class="ident">to_string</span>(),
+        ))
     } <span class="kw">else</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(<span class="string">&quot;Failed to parse host from URL.&quot;</span>))
+        <span class="prelude-val">Err</span>(<span class="ident">UtilError::Other</span>(
+            <span class="string">&quot;Failed to parse host from URL.&quot;</span>.<span class="ident">to_string</span>(),
+        ))
     }
 }
 

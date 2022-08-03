@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["run_parallelly","For use with join! or try_join! Makes the future to run parallelly with other tasks instead of concurrently. See: https://docs.rs/tokio/latest/tokio/macro.try_join.html#runtime-characteristics"]]});

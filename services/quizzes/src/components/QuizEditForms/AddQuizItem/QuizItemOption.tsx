@@ -3,6 +3,7 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
+import { headingFont } from "../../../shared-module/styles"
 import { createdNewItem } from "../../../store/editor/editorActions"
 import { useTypedSelector } from "../../../store/store"
 
@@ -76,6 +77,7 @@ const QuizCardTitle = styled.div`
   position: relative;
   font-size: 24px;
   font-weight: bold;
+  font-family: ${headingFont};
 `
 
 const QuizCardDescription = styled.div`

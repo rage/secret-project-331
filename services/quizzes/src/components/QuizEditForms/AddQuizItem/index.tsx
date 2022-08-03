@@ -8,7 +8,7 @@ import { NormalizedQuizItem } from "../../../../types/types"
 import Button from "../../../shared-module/components/Button"
 import { createdDuplicateItem, createdNewItem } from "../../../store/editor/editorActions"
 
-import AddQuizItemButton from "./AddQuizItemButton"
+import { QUIZ_COMPONENTS, QuizItemOption } from "./QuizItemOption"
 
 const AddQuizItemWrapper = styled.div`
   display: flex;
@@ -34,91 +34,88 @@ const DuplicateContainer = styled.div`
   margin-bottom: 1rem;
 `
 
-const TYPES = [
-  "essay",
-  "scale",
-  "open",
-  "multiple-choice",
-  "checkbox",
-  "matrix",
-  "multiple-choice-dropdown",
-  "clickable-multiple-choice",
-  "timeline",
-]
-
 interface AddQuizItemProps {
   storeItems: NormalizedQuizItem[]
 }
 
-export const AddQuizItem: React.FC<AddQuizItemProps> = (storeItems) => {
+const QuizDuplicationMenu: React.FC<AddQuizItemProps> = ({ storeItems }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
+
   return (
-    <>
-      {storeItems.storeItems.length > 0 ? (
-        <AddQuizItemWrapper>
-          <div
+    <AddQuizItemWrapper>
+      <div
+        className={css`
+          text-align: center;
+        `}
+      >
+        <h3>{t("add-new-quiz-item")}</h3>
+        <p>{t("explain-add-new-quiz-item")}</p>
+      </div>
+      <TypeContainer>
+        <DuplicateContainer>
+          <Button
+            title={t("create-quiz-item-same-type")}
+            variant="outlined"
+            transform="capitalize"
+            onClick={() => dispatch(createdNewItem(storeItems[0].quizId, storeItems[0].type))}
+            size={"medium"}
             className={css`
-              text-align: center;
+              margin-bottom: 1rem;
+              margin-left: 1rem;
             `}
           >
-            <h3>{t("add-new-quiz-item")}</h3>
-            <p>{t("explain-add-new-quiz-item")}</p>
-          </div>
-          <TypeContainer>
-            <DuplicateContainer>
-              <Button
-                title={t("create-quiz-item-same-type")}
-                variant="outlined"
-                transform="capitalize"
-                onClick={() =>
-                  dispatch(
-                    createdNewItem(storeItems.storeItems[0].quizId, storeItems.storeItems[0].type),
-                  )
-                }
-                size={"medium"}
-                className={css`
-                  margin-bottom: 1rem;
-                  margin-left: 1rem;
-                `}
-              >
-                {t("create-quiz-item-same-type")}
-              </Button>
-              <Button
-                title={t("create-quiz-item-duplicate")}
-                variant="outlined"
-                transform="capitalize"
-                size={"medium"}
-                className={css`
-                  margin-bottom: 1rem;
-                  margin-left: 1rem;
-                `}
-                onClick={() =>
-                  dispatch(
-                    createdDuplicateItem(
-                      storeItems.storeItems[storeItems.storeItems.length - 1].quizId,
-                      storeItems.storeItems[storeItems.storeItems.length - 1],
-                    ),
-                  )
-                }
-              >
-                {t("create-quiz-item-duplicate")}
-              </Button>
-            </DuplicateContainer>
-          </TypeContainer>
-        </AddQuizItemWrapper>
-      ) : (
-        <AddQuizItemWrapper>
-          <h3>{t("add-new-quiz-item")}</h3>
-          <TypeContainer>
-            {TYPES.map((type) => (
-              <AddQuizItemButton key={type} type={type} />
-            ))}
-          </TypeContainer>
-        </AddQuizItemWrapper>
-      )}
-    </>
+            {t("create-quiz-item-same-type")}
+          </Button>
+          <Button
+            title={t("create-quiz-item-duplicate")}
+            variant="outlined"
+            transform="capitalize"
+            size={"medium"}
+            className={css`
+              margin-bottom: 1rem;
+              margin-left: 1rem;
+            `}
+            onClick={() =>
+              dispatch(
+                createdDuplicateItem(
+                  storeItems[storeItems.length - 1].quizId,
+                  storeItems[storeItems.length - 1],
+                ),
+              )
+            }
+          >
+            {t("create-quiz-item-duplicate")}
+          </Button>
+        </DuplicateContainer>
+      </TypeContainer>
+    </AddQuizItemWrapper>
   )
 }
+
+const QuizItemSelection: React.FC = () => {
+  const { t } = useTranslation()
+
+  return (
+    <AddQuizItemWrapper>
+      <h3>{t("add-new-quiz-item")}</h3>
+      <TypeContainer>
+        {Object.keys(QUIZ_COMPONENTS).map((type, _) => (
+          <QuizItemOption key={type} type={type} />
+        ))}
+      </TypeContainer>
+    </AddQuizItemWrapper>
+  )
+}
+
+export const AddQuizItem: React.FC<AddQuizItemProps> = (storeItems) => (
+  <>
+    {storeItems.storeItems.length > 0 ? (
+      <QuizDuplicationMenu storeItems={storeItems.storeItems} />
+    ) : (
+      <QuizItemSelection />
+    )}
+  </>
+)
 
 export default AddQuizItem

@@ -129,7 +129,7 @@ test("create quizzes test", async ({ page }) => {
     throw new Error("Frame not found")
   }
 
-  await frame.click(`button:text("Essay")`)
+  await frame.click(`#quiz-option-card-essay`)
   await frame.fill(`label:has-text("Min words") input`, "100")
   await frame.fill(`label:has-text("Max words") input`, "500")
 
@@ -154,7 +154,7 @@ test("create quizzes test", async ({ page }) => {
   }
   await scrollToFrame(page, frame2)
 
-  await frame2.click(`button:text("Scale")`)
+  await frame2.click(`#quiz-option-card-scale`)
   await frame2.fill(`label:has-text("Title") input`, "Answer this question 1-6")
   await frame2.fill(`label:has-text("Minimum") input`, "1")
   await frame2.fill(`label:has-text("Maximum") input`, "6")
@@ -180,7 +180,7 @@ test("create quizzes test", async ({ page }) => {
   }
   await scrollToFrame(page, frame3)
 
-  await frame3.click(`button:text("Open")`)
+  await frame3.click(`#quiz-option-card-open`)
   await frame3.fill(`label:has-text("Validity regular expression") input`, `1\\/2`)
   await frame3.fill(`label:has-text("Format regular expression") input`, `\\d+\\/\\d+`)
   await frame3.click(
@@ -212,7 +212,7 @@ test("create quizzes test", async ({ page }) => {
   }
   await scrollToFrame(page, frame4)
 
-  await frame4.click(`:nth-match(button:text("Multiple-Choice"), 1)`)
+  await frame4.click(`#quiz-option-card-multiple-choice`)
   await frame4.fill(`label:has-text("Title") input`, `What is the answer to this question?`)
   await frame4.click(`button:text("Add option")`)
   await frame4.click(`button:text("Add option")`)
@@ -255,7 +255,7 @@ test("create quizzes test", async ({ page }) => {
   }
   await scrollToFrame(page, frame5)
 
-  await frame5.click(`button:text("Checkbox")`)
+  await frame5.click(`#quiz-option-card-checkbox`)
   await frame5.fill(`label:has-text("Title") input:below(h4:text("checkbox"))`, `Please check this`)
 
   await page.click(`[aria-label="Close"]`)
@@ -278,7 +278,7 @@ test("create quizzes test", async ({ page }) => {
   }
   await scrollToFrame(page, frame6)
 
-  await frame6.click(`button:text("Matrix")`)
+  await frame6.click(`#quiz-option-card-matrix`)
   await frame6.fill(`tr:nth-child(1) td:nth-child(1) input`, "1")
   await frame6.fill(`tr:nth-child(1) td:nth-child(2) input`, "2")
   await frame6.fill(`tr:nth-child(2) td:nth-child(1) input`, "3")
@@ -302,7 +302,7 @@ test("create quizzes test", async ({ page }) => {
 
   await scrollToFrame(page, frame7)
 
-  await frame7.click(`:nth-match(button:text("Multiple-choice-dropdown"), 1)`)
+  await frame7.click(`#quiz-option-card-multiple-choice-dropdown`)
   await frame7.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
   await frame7.click(`button:text("Add option")`)
   await frame7.click(`button:text("Add option")`)
@@ -342,7 +342,7 @@ test("create quizzes test", async ({ page }) => {
 
   await scrollToFrame(page, frame8)
 
-  await frame8.click(`:nth-match(button:text("Clickable-multiple-choice"), 1)`)
+  await frame8.click(`#quiz-option-card-clickable-multiple-choice`)
   await frame8.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
   await frame8.click(`button:text("Add option")`)
   await frame8.click(`button:text("Add option")`)

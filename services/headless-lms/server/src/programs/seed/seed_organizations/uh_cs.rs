@@ -1,4 +1,5 @@
 use chrono::{Duration, Utc};
+use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
@@ -6,6 +7,7 @@ use headless_lms_models::{
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
 };
+use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::programs::seed::{
@@ -48,160 +50,39 @@ pub async fn seed_organization_uh_cs(
     .await?;
 
     info!("inserting uh-cs courses");
-    let cs_intro = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
-        "Introduction to everything",
-        "introduction-to-everything",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
-        "Introduction to feedback",
-        "introduction-to-feedback",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
-        "Introduction to history",
-        "introduction-to-history",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
-        "Introduction to edit proposals",
-        "introduction-to-edit-proposals",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    let introduction_to_localizing = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
-        "Introduction to localizing",
-        "introduction-to-localizing",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
-        "Point view for teachers",
-        "point-view-for-teachers",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
-        "Advanced course instance management",
-        "advanced-course-instance-management",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
-        "Advanced exercise states",
-        "advanced-exercise-states",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
-        "Glossary course",
-        "glossary-course",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
-        "Permission management",
-        "permission-management",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
-        "Redirections",
-        "redirections",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
-        "Limited tries",
-        "limited-tries",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
-        "Course Structure",
-        "course-structure",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
-    let automatic_completions_id = seed_sample_course(
-        &db_pool,
-        uh_cs_organization_id,
-        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
-        "Automatic Completions",
-        "automatic-completions",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-    )
-    .await?;
+
+    // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
+    let ((cs_intro, automatic_completions_id, introduction_to_localizing), ..) = try_join!(
+        run_parallelly(courses_group_1(
+            db_pool.clone(),
+            uh_cs_organization_id,
+            admin_user_id,
+            student_user_id,
+            example_normal_user_ids.clone(),
+        )),
+        run_parallelly(courses_group_2(
+            db_pool.clone(),
+            uh_cs_organization_id,
+            admin_user_id,
+            student_user_id,
+            example_normal_user_ids.clone(),
+        )),
+        run_parallelly(courses_group_3(
+            db_pool.clone(),
+            uh_cs_organization_id,
+            admin_user_id,
+            student_user_id,
+            example_normal_user_ids.clone(),
+        )),
+        run_parallelly(courses_group_4(
+            db_pool.clone(),
+            uh_cs_organization_id,
+            admin_user_id,
+            student_user_id,
+            example_normal_user_ids.clone(),
+        ))
+    )?;
+
     let automatic_default_module =
         course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
     let automatic_default_module = course_modules::update_automatic_completion_status(
@@ -340,4 +221,203 @@ pub async fn seed_organization_uh_cs(
         uh_cs_organization_id,
         cs_intro_course_id: cs_intro,
     })
+}
+
+async fn courses_group_1(
+    db_pool: Pool<Postgres>,
+    uh_cs_organization_id: Uuid,
+    admin_user_id: Uuid,
+    student_user_id: Uuid,
+    example_normal_user_ids: Vec<Uuid>,
+) -> anyhow::Result<(Uuid, Uuid, Uuid)> {
+    let cs_intro = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
+        "Introduction to everything",
+        "introduction-to-everything",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    let automatic_completions_id = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
+        "Automatic Completions",
+        "automatic-completions",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    let introduction_to_localizing = seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
+        "Introduction to localizing",
+        "introduction-to-localizing",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    Ok((
+        cs_intro,
+        automatic_completions_id,
+        introduction_to_localizing,
+    ))
+}
+
+async fn courses_group_2(
+    db_pool: Pool<Postgres>,
+    uh_cs_organization_id: Uuid,
+    admin_user_id: Uuid,
+    student_user_id: Uuid,
+    example_normal_user_ids: Vec<Uuid>,
+) -> anyhow::Result<()> {
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
+        "Introduction to feedback",
+        "introduction-to-feedback",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
+        "Introduction to history",
+        "introduction-to-history",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
+        "Introduction to edit proposals",
+        "introduction-to-edit-proposals",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+
+    Ok(())
+}
+
+async fn courses_group_3(
+    db_pool: Pool<Postgres>,
+    uh_cs_organization_id: Uuid,
+    admin_user_id: Uuid,
+    student_user_id: Uuid,
+    example_normal_user_ids: Vec<Uuid>,
+) -> anyhow::Result<()> {
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
+        "Point view for teachers",
+        "point-view-for-teachers",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
+        "Advanced course instance management",
+        "advanced-course-instance-management",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
+        "Advanced exercise states",
+        "advanced-exercise-states",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
+        "Glossary course",
+        "glossary-course",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    Ok(())
+}
+
+async fn courses_group_4(
+    db_pool: Pool<Postgres>,
+    uh_cs_organization_id: Uuid,
+    admin_user_id: Uuid,
+    student_user_id: Uuid,
+    example_normal_user_ids: Vec<Uuid>,
+) -> anyhow::Result<()> {
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
+        "Permission management",
+        "permission-management",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
+        "Redirections",
+        "redirections",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
+        "Limited tries",
+        "limited-tries",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
+        "Course Structure",
+        "course-structure",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    Ok(())
 }

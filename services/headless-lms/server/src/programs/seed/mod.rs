@@ -14,24 +14,34 @@ use crate::setup_tracing;
 
 use futures::try_join;
 
+use headless_lms_utils::futures::run_parallelly;
 use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions, Pool, Postgres};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
     let db_pool = setup_seed_environment().await?;
 
-    // Run in parallel to improve performance.
+    // Run parallelly to improve performance.
     let (_, seed_users_result, _) = try_join!(
-        seed_exercise_services::seed_exercise_services(&db_pool),
-        seed_users::seed_users(&db_pool),
-        seed_playground_examples::seed_playground_examples(&db_pool)
+        run_parallelly(seed_exercise_services::seed_exercise_services(
+            db_pool.clone()
+        ),),
+        run_parallelly(seed_users::seed_users(db_pool.clone())),
+        run_parallelly(seed_playground_examples::seed_playground_examples(
+            db_pool.clone()
+        ),),
     )?;
 
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
-        seed_organizations::uh_cs::seed_organization_uh_cs(&db_pool, &seed_users_result),
-        seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
-            &db_pool,
-            &seed_users_result
+        run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
+            db_pool.clone(),
+            seed_users_result.clone()
+        )),
+        run_parallelly(
+            seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
+                db_pool.clone(),
+                seed_users_result.clone()
+            )
         )
     )?;
 

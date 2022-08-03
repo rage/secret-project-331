@@ -3,7 +3,7 @@ use headless_lms_models::playground_examples::{self, PlaygroundExampleData};
 
 use sqlx::{Pool, Postgres};
 
-pub async fn seed_playground_examples(db_pool: &Pool<Postgres>) -> anyhow::Result<()> {
+pub async fn seed_playground_examples(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("playground examples");
     let mut conn = db_pool.acquire().await?;
     playground_examples::insert_playground_example(

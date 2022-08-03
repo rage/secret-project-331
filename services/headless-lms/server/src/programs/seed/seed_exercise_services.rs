@@ -1,7 +1,7 @@
 use headless_lms_models::exercise_services;
 use sqlx::{Pool, Postgres};
 
-pub async fn seed_exercise_services(db_pool: &Pool<Postgres>) -> anyhow::Result<()> {
+pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<()> {
     info!("inserting exercise services");
     let mut conn = db_pool.acquire().await?;
 

@@ -10,8 +10,8 @@ use sqlx::{Pool, Postgres};
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_organization_uh_mathstat(
-    db_pool: &Pool<Postgres>,
-    seed_users_result: &SeedUsersResult,
+    db_pool: Pool<Postgres>,
+    seed_users_result: SeedUsersResult,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
 
@@ -52,7 +52,7 @@ pub async fn seed_organization_uh_mathstat(
             Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
             Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
             new_course,
-            *admin_user_id,
+            admin_user_id,
         )
         .await?;
     let _statistics_course_instance = course_instances::insert(
@@ -87,7 +87,7 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
         Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
         draft_course,
-        *admin_user_id,
+        admin_user_id,
     )
     .await?;
     Ok(uh_mathstat_id)

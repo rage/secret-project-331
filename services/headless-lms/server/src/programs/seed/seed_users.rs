@@ -2,6 +2,7 @@ use headless_lms_models::users;
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
+#[derive(Clone)]
 pub struct SeedUsersResult {
     pub admin_user_id: Uuid,
     pub teacher_user_id: Uuid,
@@ -12,7 +13,7 @@ pub struct SeedUsersResult {
     pub example_normal_user_ids: Vec<Uuid>,
 }
 
-pub async fn seed_users(db_pool: &Pool<Postgres>) -> anyhow::Result<SeedUsersResult> {
+pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResult> {
     info!("inserting users");
     let mut conn = db_pool.acquire().await?;
 

@@ -4,7 +4,6 @@ import * as React from "react"
 import { useQuery } from "react-query"
 
 import { fetchPeerReviewDataGivenByExerciseId } from "../../../../../../services/backend"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
@@ -118,14 +117,22 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
 
   // WORK ON THE LOOP
 
-  /*   if (
+  if (
     getPeerReviewReceived.isSuccess &&
     getPeerReviewReceived.data.peer_review_question_submissions.length > 0
   ) {
-    const result = getPeerReviewReceived.data.peer_review_questions.map((item) =>
-      getPeerReviewReceived.data.peer_review_question_submissions.includes(item.id),
+    const { peer_review_questions, peer_review_question_submissions } = getPeerReviewReceived.data
+    const result = peer_review_questions.map((item) =>
+      peer_review_question_submissions.filter((o) => {
+        item.id === o.peer_review_question_id
+        return {
+          id: item.id,
+          question: item.question,
+          type: item.question_type === "Essay" ? o.text_data : o.number_data,
+        }
+      }),
     )
-  } */
+  }
   return (
     <Wrapper>
       <details>

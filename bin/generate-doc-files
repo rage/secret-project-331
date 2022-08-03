@@ -11,7 +11,7 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command cargo run --bin doc-file-generator --features ts_rs
+run_command cargo run --features ts_rs -- doc-file-generator
 
 # Fix formatting
 run_command npm run eslint:format-generated-docs

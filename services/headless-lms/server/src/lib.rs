@@ -1,7 +1,7 @@
 pub mod controllers;
 pub mod domain;
-pub mod regrading;
 
+pub mod programs;
 #[cfg(test)]
 pub mod test_helper;
 #[cfg(test)]

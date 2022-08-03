@@ -1,0 +1,17 @@
+[package]
+name = "headless-lms-entrypoint"
+version = "0.1.0"
+authors = ["Henrik Nygren <nygrenh@gmail.com>"]
+edition = "2021"
+rust-version = "1.56.0"  # minimum required Rust version, update if you use a new API
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# To add a new dependency, search for it using `cargo search` and take the latest version of the package
+# and the comment from there.
+[dependencies]
+headless-lms-server = { path = "../server" }
+
+# Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
+actix-web = "4.0.1"
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.57"

@@ -1,9 +1,9 @@
 use std::{env, usize};
 
+use crate::setup_tracing;
 use anyhow::Result;
 use dotenv::dotenv;
 use futures::stream::{self, StreamExt};
-use headless_lms_actix::setup_tracing;
 use headless_lms_models::{
     exercise_service_info::{fetch_and_upsert_service_info, ExerciseServiceInfo},
     exercise_services::ExerciseService,
@@ -14,8 +14,7 @@ use tracing::info;
 
 const N: usize = 10;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+pub async fn main() -> anyhow::Result<()> {
     // Setting the sqlx log level to warn stops sql statements being printed to the console.
     // This is useful here since this is being run in a loop in background and the sql statements
     // would create a lot of noise to the log.

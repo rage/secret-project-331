@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 use crate::{ApplicationConfiguration, UtilError};
 
-pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, UtilError>>>>;
+pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**
 Allows storing files to a file storage backend.
 */
@@ -62,7 +62,8 @@ fn path_to_str(path: &Path) -> Result<&str, UtilError> {
     match str {
         Some(s) => Ok(s),
         None => Err(UtilError::Other(
-            "Could not convert path to string because it contained invalid UTF-8 characters.",
+            "Could not convert path to string because it contained invalid UTF-8 characters."
+                .to_string(),
         )),
     }
 }

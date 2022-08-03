@@ -20,7 +20,7 @@ npm run eslint
 
 ## Documentation
 
-Backend: [https://rage.github.io/secret-project-331/headless_lms_actix/index.html](https://rage.github.io/secret-project-331/headless_lms_actix/index.html)
+Backend: [https://rage.github.io/secret-project-331/headless_lms_server/index.html](https://rage.github.io/secret-project-331/headless_lms_server/index.html)
 
 Database: [https://github.com/rage/secret-project-331-db-docs#headless_lms_dev](https://github.com/rage/secret-project-331-db-docs#headless_lms_dev)
 

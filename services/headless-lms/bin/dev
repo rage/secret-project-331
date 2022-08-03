@@ -2,7 +2,7 @@
 set -euo pipefail
 
 COMMAND="systemfd"
-ARGUMENTS=(--no-pid -s http::0.0.0.0:3001 -- cargo watch -x run "$@")
+ARGUMENTS=(--no-pid -s http::0.0.0.0:3001 -- cargo watch -x 'run -- start-server' "$@")
 
 echo "> $COMMAND" "$(printf "%q " "${ARGUMENTS[@]}")"
 exec "$COMMAND" "${ARGUMENTS[@]}"

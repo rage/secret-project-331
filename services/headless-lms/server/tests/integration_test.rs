@@ -3,8 +3,8 @@ use std::{env, sync::Arc};
 use actix_http::{body::BoxBody, Request};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, dev::ServiceResponse, test, web::Data, App};
-use headless_lms_actix::setup_tracing;
 use headless_lms_models::organizations::{self, Organization};
+use headless_lms_server::setup_tracing;
 use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
 use tokio::sync::Mutex;
@@ -69,7 +69,7 @@ pub async fn init_actix() -> (
         development_uuid_login: false,
     };
     let app = App::new()
-        .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
+        .configure(move |config| headless_lms_server::configure(config, file_store, app_conf))
         .wrap(
             SessionMiddleware::builder(
                 CookieSessionStore::default(),

@@ -18,4 +18,4 @@ run_command kubectl exec -it "$POD_NAME" -- env PGPASSWORD=only-for-local-develo
 
 run_command kubectl exec -it "$POD_NAME" -- sqlx database setup --database-url postgres://headless-lms:only-for-local-development-intentionally-public@postgres:5432/headless_lms_test
 
-run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public ./seed "$@"
+run_command kubectl exec -it "$POD_NAME" "$@" -- env PGPASSWORD=only-for-local-development-intentionally-public ./headless-lms-entrypoint seed "$@"

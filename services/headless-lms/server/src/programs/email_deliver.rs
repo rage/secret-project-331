@@ -92,8 +92,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     Ok(())
 }
 
-#[tokio::main]
-pub async fn main() -> Result<()> {
+pub async fn main() -> anyhow::Result<()> {
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
         interval.tick().await;

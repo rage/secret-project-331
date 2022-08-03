@@ -5,7 +5,6 @@ use std::{
     pin::Pin,
 };
 
-use anyhow::Result;
 use futures::{
     future::FutureExt,
     stream::{FuturesUnordered, StreamExt},
@@ -14,7 +13,7 @@ use itertools::Itertools;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use headless_lms_models::{
+use crate::{
     self as models,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{get_internal_grade_url, ExerciseService},
@@ -30,7 +29,7 @@ type GradingFutures =
 pub async fn regrade(
     conn: &mut PgConnection,
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
-) -> Result<()> {
+) -> ModelResult<()> {
     // stores all the futures which will resolve into new gradings
     let mut grading_futures = GradingFutures::new();
     // set of regradings that should not be marked as completed by the end
@@ -147,7 +146,7 @@ async fn do_single_regrading(
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
     regrading_id: Uuid,
     grading_futures: &mut GradingFutures,
-) -> Result<RegradingStatus> {
+) -> ModelResult<RegradingStatus> {
     let mut regrading_status = RegradingStatus {
         exercise_services_full: false,
         missing_exercise_services: HashSet::new(),
@@ -300,7 +299,7 @@ mod test {
     use super::*;
     use crate::test_helper::*;
 
-    #[actix_web::test]
+    #[tokio::test]
     async fn regrades_submission() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -396,7 +395,7 @@ mod test {
         assert_eq!(grading.score_given, Some(0.0))
     }
 
-    #[actix_web::test]
+    #[tokio::test]
     async fn regrades_complete() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -487,7 +486,7 @@ mod test {
         assert!(regrading_1.regrading_completed_at.is_some());
     }
 
-    #[actix_web::test]
+    #[tokio::test]
     async fn regrades_partial() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, slide: slide_1);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -642,7 +641,7 @@ mod test {
         assert!(regrading_2.regrading_completed_at.is_none());
     }
 
-    #[actix_web::test]
+    #[tokio::test]
     async fn updates_exercise_state() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -759,7 +758,7 @@ mod test {
         );
     }
 
-    #[actix_web::test]
+    #[tokio::test]
     async fn fail_on_missing_service() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
@@ -824,7 +823,7 @@ mod test {
         exercise_slide_id: Uuid,
         submission: StudentExerciseSlideSubmission,
         mock_results: HashMap<Uuid, ExerciseTaskGradingResult>,
-    ) -> Result<StudentExerciseSlideSubmissionResult> {
+    ) -> ModelResult<StudentExerciseSlideSubmissionResult> {
         user_exercise_states::upsert_selected_exercise_slide_id(
             conn,
             user_id,
@@ -844,7 +843,7 @@ mod test {
         .await?;
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise.clone(), user_exercise_state).unwrap();
-        let grading = headless_lms_models::library::grading::grade_user_submission(
+        let grading = crate::library::grading::grade_user_submission(
             conn,
             &mut exercise_with_user_state,
             submission,
@@ -859,7 +858,7 @@ mod test {
         conn: &mut PgConnection,
         service_slug: String,
         max_reprocessing_submissions_at_once: i32,
-    ) -> Result<(ExerciseService, ExerciseServiceInfo)> {
+    ) -> ModelResult<(ExerciseService, ExerciseServiceInfo)> {
         let exercise_service = models::exercise_services::insert_exercise_service(
             conn,
             &exercise_services::ExerciseServiceNewOrUpdate {

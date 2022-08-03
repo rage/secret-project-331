@@ -9,8 +9,6 @@ rust-version = "1.56.0"  # minimum required Rust version, update if you use a ne
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
-# Multipart form support for Actix web.
-actix-multipart = "0.4.0"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { version = "1.19.2", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.

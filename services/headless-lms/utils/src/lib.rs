@@ -4,6 +4,7 @@ pub mod document_schema_processor;
 pub mod email_processor;
 pub mod file_store;
 pub mod folder_checksum;
+pub mod futures;
 pub mod ip_to_country;
 pub mod language_tag_to_name;
 pub mod merge_edits;
@@ -29,8 +30,6 @@ pub struct ApplicationConfiguration {
 #[derive(Debug, Error)]
 pub enum UtilError {
     #[error(transparent)]
-    MultipartError(#[from] actix_multipart::MultipartError),
-    #[error(transparent)]
     UrlParse(#[from] url::ParseError),
     #[error(transparent)]
     Walkdir(#[from] walkdir::Error),
@@ -44,5 +43,5 @@ pub enum UtilError {
     CloudStorage(#[from] cloud_storage::Error),
 
     #[error("{0}")]
-    Other(&'static str),
+    Other(String),
 }

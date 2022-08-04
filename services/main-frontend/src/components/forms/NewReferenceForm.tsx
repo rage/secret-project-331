@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -20,7 +20,8 @@ interface NewReferenceFields {
 }
 
 const REFERENCE = "Bibtex reference"
-
+const EMPTY_STRING = ""
+const FORMAT_ERROR = "Error: This format is not supported or recognized"
 const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>> = ({
   onCreateNewReference,
   onCancel,
@@ -32,16 +33,25 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
     formState: { errors },
   } = useForm<NewReferenceFields>()
 
+  const [errorMessage, setErrorMessage] = useState("")
   const onCreateNewReferenceWrapper = handleSubmit((data) => {
-    const cite = new Cite(data.references)
-    const references = cite.data.map((c: { id: string }) => {
-      const ci = new Cite(c)
-      return {
-        citation_key: c.id,
-        reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
-      }
-    })
-    onCreateNewReference(references)
+    try {
+      const cite = new Cite(data.references)
+      const references = cite.data.map((c: { id: string }) => {
+        const ci = new Cite(c)
+        return {
+          citation_key: c.id,
+          reference: ci.get({ type: "string", style: "bibtex", lang: "en-US" }),
+        }
+      })
+      onCreateNewReference(references)
+    } catch (error: any) {
+      console.log(error)
+      setErrorMessage(FORMAT_ERROR)
+      setTimeout(() => {
+        setErrorMessage(EMPTY_STRING)
+      }, 5000)
+    }
   })
 
   return (
@@ -57,6 +67,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
         placeholder={REFERENCE}
         register={register}
         defaultValue={null}
+        errorMessage={errorMessage}
         className={css`
           width: 100%;
           margin-bottom: 0.5rem;

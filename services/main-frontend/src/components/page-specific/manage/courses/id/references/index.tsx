@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +22,10 @@ const TYPE = "string"
 const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
+
+const ErrorHeader = styled.h5`
+  color: red;
+`
 
 const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -60,29 +65,48 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
           />
           <ul>
             {getCourseReferences.data.map((r, idx) => {
-              const c = Cite(r.reference)
-              return (
-                <li key={idx}>
-                  <h5>
-                    {r.citation_key},{" "}
-                    {c.format(BIBLIOGRAPHY, {
-                      type: TYPE,
-                      style: STYLE,
-                      lang: LANG,
-                    })}
-                  </h5>
-                  <Button
-                    size="medium"
-                    variant="secondary"
-                    onClick={() => {
-                      setReference(r)
-                      setShowEditReferenceModal(true)
-                    }}
-                  >
-                    {t("edit-reference")}
-                  </Button>
-                </li>
-              )
+              try {
+                const c = Cite(r.reference)
+
+                return (
+                  <li key={idx}>
+                    <h5>
+                      {r.citation_key},{" "}
+                      {c.format(BIBLIOGRAPHY, {
+                        type: TYPE,
+                        style: STYLE,
+                        lang: LANG,
+                      })}
+                    </h5>
+                    <Button
+                      size="medium"
+                      variant="secondary"
+                      onClick={() => {
+                        setReference(r)
+                        setShowEditReferenceModal(true)
+                      }}
+                    >
+                      {t("edit-reference")}
+                    </Button>
+                  </li>
+                )
+              } catch (error) {
+                return (
+                  <li key={idx}>
+                    <ErrorHeader>{r.citation_key}</ErrorHeader>
+                    <Button
+                      size="medium"
+                      variant="secondary"
+                      onClick={() => {
+                        setReference(r)
+                        setShowEditReferenceModal(true)
+                      }}
+                    >
+                      {t("edit-reference")}
+                    </Button>
+                  </li>
+                )
+              }
             })}
           </ul>
           {reference && (

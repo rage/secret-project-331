@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
 
-import MarkdownText from "./MarkdownText"
+import TextNode from "./TextNode"
 
 interface ITextEditorProps {
   latex?: boolean
@@ -53,6 +53,7 @@ const TextEditor: React.FC<ITextEditorProps> = ({
   const [preview, setPreview] = useState(false)
   const markdownParser = new MarkdownParser()
   const htmlWriter = new HtmlRenderer()
+  const INVALID_FORMAT_MESSAGE = "Invalid format: Make sure the tags are not overlapping"
 
   /**
    * Validate the text by check if there is overlapping tags.
@@ -137,7 +138,7 @@ const TextEditor: React.FC<ITextEditorProps> = ({
 
   const formatText = (text: string) => {
     if ((latex || markdown) && !validateText(text)) {
-      return text
+      return INVALID_FORMAT_MESSAGE
     }
     let formattedText = text
     if (latex) {
@@ -157,7 +158,7 @@ const TextEditor: React.FC<ITextEditorProps> = ({
     <EditorWrapper>
       <FlexWrapper>
         {preview ? (
-          <MarkdownText text={formatText(text)} />
+          <TextNode text={formatText(text)} />
         ) : (
           <TextField value={text} label={label} disabled={false} onChange={onChange} />
         )}

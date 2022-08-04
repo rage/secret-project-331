@@ -6,6 +6,7 @@ import { TextNodeProps } from "."
 const sanitizeHTML = (dirty: string) => {
   return DOMPurify.sanitize(dirty, {
     RETURN_TRUSTED_TYPE: true,
+    ADD_TAGS: ["semantics"],
   }).toString()
 }
 

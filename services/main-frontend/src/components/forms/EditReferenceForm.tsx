@@ -25,7 +25,7 @@ interface EditReferenceFields {
 }
 
 const EMPTY_STRING = ""
-const FORMAT_ERROR = "Error: This format is not supported or recognized"
+
 const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
   onDelete,
@@ -52,7 +52,7 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
       })
     } catch (error: any) {
       console.log(error)
-      setErrorMessage(FORMAT_ERROR)
+      setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {
         setErrorMessage(EMPTY_STRING)
       }, 5000)

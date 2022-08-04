@@ -21,7 +21,7 @@ interface NewReferenceFields {
 
 const REFERENCE = "Bibtex reference"
 const EMPTY_STRING = ""
-const FORMAT_ERROR = "Error: This format is not supported or recognized"
+
 const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>> = ({
   onCreateNewReference,
   onCancel,
@@ -47,7 +47,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
       onCreateNewReference(references)
     } catch (error: any) {
       console.log(error)
-      setErrorMessage(FORMAT_ERROR)
+      setErrorMessage(t("reference-parsing-error"))
       setTimeout(() => {
         setErrorMessage(EMPTY_STRING)
       }, 5000)

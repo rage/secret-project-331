@@ -1,8 +1,6 @@
-#[macro_use]
-extern crate tracing;
-
 use std::{env, sync::Arc};
 
+use crate::{setup_tracing, OAuthClient};
 use actix_session::{
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
     storage::CookieSessionStore,
@@ -14,9 +12,7 @@ use actix_web::{
     web::Data,
     App, HttpServer,
 };
-use anyhow::Result;
 use dotenv::dotenv;
-use headless_lms_actix::{setup_tracing, OAuthClient};
 use headless_lms_utils::{
     file_store::{
         google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore, FileStore,
@@ -25,12 +21,11 @@ use headless_lms_utils::{
 };
 use listenfd::ListenFd;
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, TokenUrl};
-use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use url::Url;
 
-/// The entrypoint to the application.
-#[actix_web::main]
-async fn main() -> Result<()> {
+/// The entrypoint to the server.
+pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
 
@@ -55,7 +50,11 @@ async fn main() -> Result<()> {
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
 
-    let db_pool = PgPool::connect(&database_url).await?;
+    let db_pool = PgPoolOptions::new()
+        .max_connections(15)
+        .min_connections(5)
+        .connect(&database_url)
+        .await?;
 
     let auth_url: Url = "https://tmc.mooc.fi/oauth/token"
         .parse()
@@ -79,7 +78,7 @@ async fn main() -> Result<()> {
         let file_store = setup_file_store();
 
         App::new()
-            .configure(move |config| headless_lms_actix::configure(config, file_store, app_conf))
+            .configure(move |config| crate::configure(config, file_store, app_conf))
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),

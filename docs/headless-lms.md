@@ -265,7 +265,7 @@ https://user-images.githubusercontent.com/1922896/119937781-0ed77b80-bf94-11eb-8
 
 ### Writing unit tests that use the database
 
-Use the `headless_lms_actix::test_helper::Conn` helper struct. It can be initialized using `Conn::init`, after which the only method available for it is `Conn::begin`, which starts a transaction and returns a wrapper struct that can be used in place of `&mut PgConnection` by calling `AsMut::as_mut`. For example:
+Use the `headless_lms_server::test_helper::Conn` helper struct. It can be initialized using `Conn::init`, after which the only method available for it is `Conn::begin`, which starts a transaction and returns a wrapper struct that can be used in place of `&mut PgConnection` by calling `AsMut::as_mut`. For example:
 
 ```rust
 let mut conn = Conn::init().await;

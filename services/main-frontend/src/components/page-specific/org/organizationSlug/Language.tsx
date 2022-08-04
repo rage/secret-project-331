@@ -6,6 +6,7 @@ import Croatia from "../../../../imgs/flags/Croatia.svg"
 import Czech from "../../../../imgs/flags/Czech.svg"
 import Denmark from "../../../../imgs/flags/Denmark.svg"
 import Estonia from "../../../../imgs/flags/Estonia.svg"
+import Finland from "../../../../imgs/flags/Finland.svg"
 import France from "../../../../imgs/flags/France.svg"
 import Germany from "../../../../imgs/flags/Germany.svg"
 import Greece from "../../../../imgs/flags/Greece.svg"
@@ -23,8 +24,6 @@ import Spain from "../../../../imgs/flags/Spain.svg"
 import Sweden from "../../../../imgs/flags/Sweden.svg"
 import USA from "../../../../imgs/flags/USA.svg"
 import UK from "../../../../imgs/flags/United_Kingdom.svg"
-
-import Finland from ".../../../../imgs/flags/Finland.svg"
 
 export const DEFAULT_FLAG_CLIP_PATH = "circle(25% at 42% 50%)"
 

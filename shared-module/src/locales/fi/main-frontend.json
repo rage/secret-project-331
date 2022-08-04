@@ -23,6 +23,7 @@
   "button-restore": "Palauta",
   "custom-points-modal-description": "Käytä tätä valikkoa antaaksesi mukautetut pisteet vastauksesta.",
   "button-text-give-custom-points": "Anna mukautetut pisteet",
+  "give-custom-points-confirmation": "Oletko varma että haluat antaa {{ custom-points }} pistettä?",
   "button-text-full-points": "Täydet pisteet",
   "button-text-zero-points": "Nolla pistettä",
   "button-text-custom-points": "Mukautetut pisteet",

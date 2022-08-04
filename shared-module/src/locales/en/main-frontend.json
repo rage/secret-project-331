@@ -22,6 +22,7 @@
   "status": "Status",
   "spam-flag": "Spam flag",
   "grading": "Grading",
+  "give-custom-points-confirmation": "Are you sure you want to give {{ custom-points }} points?",
   "grading-description": "Use custom point for points excluding 0 and max point.",
   "custom-points-modal-description": "Use this prompt to give custom points for the answer.",
   "button-text-give-custom-points": "Give custom points",

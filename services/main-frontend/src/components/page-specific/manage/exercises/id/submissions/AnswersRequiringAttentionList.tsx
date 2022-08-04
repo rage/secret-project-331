@@ -143,6 +143,15 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
     setOpen(!open)
   }
 
+  const handleCustomPointConfirmation = async (
+    user_exercise_state_id: string,
+    exercise_id: string,
+  ) => {
+    if (window.confirm(t("give-custom-points-confirmation", { "custom-points": sliderValue }))) {
+      handleSubmitAndClose(user_exercise_state_id, exercise_id)
+    }
+  }
+
   return (
     <>
       <Layout>
@@ -362,7 +371,12 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                     >
                       {/* eslint-disable-next-line react/forbid-dom-props */}
                       <div id="arrow" ref={setArrowElement} style={styles.arrow} />
-                      <div>
+                      <div
+                        className={css`
+                          display: flex;
+                          flex-direction: row;
+                        `}
+                      >
                         <Slider
                           value={typeof sliderValue === "number" ? sliderValue : 0.0}
                           step={0.1}
@@ -371,9 +385,11 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           onChange={handleSliderChange}
                           aria-labelledby="input-slider"
                         />
-                      </div>
-                      <div>
                         <Input
+                          className={css`
+                            margin-left: 1.5em;
+                            max-width: 4em;
+                          `}
                           value={sliderValue}
                           size="small"
                           onChange={handleInputFieldChange}
@@ -401,8 +417,13 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                       <Button
                         size="medium"
                         variant="primary"
+                        disabled={
+                          sliderValue > exercise_max_points ||
+                          sliderValue < 0 ||
+                          sliderValue.toString().length > exercise_max_points.toString().length + 4
+                        }
                         onClick={() =>
-                          handleSubmitAndClose(
+                          handleCustomPointConfirmation(
                             answerRequiringAttention.id,
                             answerRequiringAttention.exercise_id,
                           )
@@ -412,30 +433,30 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                       </Button>
                     </div>
                   ) : null}
-                </div>
-                <div
-                  className={css`
-                    margin-left: auto;
-                  `}
-                >
-                  <Button
+                  <div
                     className={css`
-                      margin-right: 1em;
+                      margin-left: auto;
                     `}
-                    size="medium"
-                    variant="tertiary"
-                    aria-label={t("button-text-flag-as-plagiarism")}
-                    onClick={() =>
-                      handleControlPanel(
-                        answerRequiringAttention.id,
-                        answerRequiringAttention.exercise_id,
-                        // eslint-disable-next-line i18next/no-literal-string
-                        "SuspectedPlagiarism",
-                      )
-                    }
                   >
-                    <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
-                  </Button>
+                    <Button
+                      className={css`
+                        margin-right: 1em;
+                      `}
+                      size="medium"
+                      variant="tertiary"
+                      aria-label={t("button-text-flag-as-plagiarism")}
+                      onClick={() =>
+                        handleControlPanel(
+                          answerRequiringAttention.id,
+                          answerRequiringAttention.exercise_id,
+                          // eslint-disable-next-line i18next/no-literal-string
+                          "SuspectedPlagiarism",
+                        )
+                      }
+                    >
+                      <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
+                    </Button>
+                  </div>
                 </div>
               </ControlPanel>
             </div>

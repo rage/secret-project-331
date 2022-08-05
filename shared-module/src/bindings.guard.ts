@@ -1917,7 +1917,7 @@ export function isModifiedModule(obj: any, _argumentName?: string): obj is Modif
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
-    (obj.order_number === null || typeof obj.order_number === "number")
+    typeof obj.order_number === "number"
   )
 }
 

@@ -1116,7 +1116,7 @@ export interface NewModule {
 export interface ModifiedModule {
   id: string
   name: string | null
-  order_number: number | null
+  order_number: number
 }
 
 export interface ModuleUpdates {

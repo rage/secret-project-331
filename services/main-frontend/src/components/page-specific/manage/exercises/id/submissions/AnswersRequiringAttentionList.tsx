@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faCircleExclamation, faFlag } from "@fortawesome/free-solid-svg-icons"
+import { faAngleDown, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Input, Slider } from "@mui/material"
 import React, { useState } from "react"
@@ -141,15 +141,6 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   const handleOpenPopup = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault()
     setOpen(!open)
-  }
-
-  const handleCustomPointConfirmation = async (
-    user_exercise_state_id: string,
-    exercise_id: string,
-  ) => {
-    if (window.confirm(t("give-custom-points-confirmation", { "custom-points": sliderValue }))) {
-      handleSubmitAndClose(user_exercise_state_id, exercise_id)
-    }
   }
 
   return (

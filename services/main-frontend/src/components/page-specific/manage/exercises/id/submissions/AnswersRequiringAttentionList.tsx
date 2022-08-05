@@ -366,6 +366,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                         className={css`
                           display: flex;
                           flex-direction: row;
+                          margin-bottom: 1em;
                         `}
                       >
                         <Slider
@@ -394,34 +395,37 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           }}
                         />
                       </div>
-                      <Button
-                        type="button"
-                        variant="white"
-                        size="medium"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setOpen(!open)
-                        }}
-                      >
-                        {t("button-text-cancel")}
-                      </Button>
-                      <Button
-                        size="medium"
-                        variant="primary"
-                        disabled={
-                          sliderValue > exercise_max_points ||
-                          sliderValue < 0 ||
-                          sliderValue.toString().length > exercise_max_points.toString().length + 4
-                        }
-                        onClick={() =>
-                          handleSubmitAndClose(
-                            answerRequiringAttention.id,
-                            answerRequiringAttention.exercise_id,
-                          )
-                        }
-                      >
-                        {t("button-text-give-custom-points")}
-                      </Button>
+                      <div>
+                        <Button
+                          type="button"
+                          variant="white"
+                          size="medium"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setOpen(!open)
+                          }}
+                        >
+                          {t("button-text-cancel")}
+                        </Button>
+                        <Button
+                          size="medium"
+                          variant="primary"
+                          disabled={
+                            sliderValue > exercise_max_points ||
+                            sliderValue < 0 ||
+                            sliderValue.toString().length >
+                              exercise_max_points.toString().length + 4
+                          }
+                          onClick={() =>
+                            handleSubmitAndClose(
+                              answerRequiringAttention.id,
+                              answerRequiringAttention.exercise_id,
+                            )
+                          }
+                        >
+                          {t("button-text-give-custom-points")}
+                        </Button>
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -429,8 +433,8 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
             </div>
           </AnswerLayout>
         ))}
-        <DebugModal data={answersRequiringAttention}></DebugModal>
       </Layout>
+      <DebugModal data={answersRequiringAttention}></DebugModal>
     </>
   )
 }

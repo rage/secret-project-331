@@ -127,7 +127,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     )
     .await
     .unwrap();
-    let (course, _, instance) = headless_lms_models::courses::insert_course(
+    let (course, _, instance, _) = headless_lms_models::courses::insert_course(
         conn,
         Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
         Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
@@ -155,7 +155,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
-            course_module_id: course_module,
+            course_module_id: course_module.id,
             user_id: user_1,
             completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
@@ -181,7 +181,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
-            course_module_id: course_module,
+            course_module_id: course_module.id,
             user_id: user_2,
             completion_date: Utc.ymd(2022, 6, 13).and_hms(0, 0, 0),
             completion_registration_attempt_date: None,
@@ -206,7 +206,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         user_1,
         org,
         course.id,
-        course_module,
+        course_module.id,
         course_module_completion_id,
         course_module_completion_2_id,
     )

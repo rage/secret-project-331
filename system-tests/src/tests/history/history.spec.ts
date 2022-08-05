@@ -26,7 +26,8 @@ test("history test", async ({ page, headless }) => {
     page.click("text=Introduction to history"),
   ])
 
-  await page.click('input[label="Default"]')
+  // Click text=default
+  await page.click("text=default")
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 

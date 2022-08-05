@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::prelude::*;
+use crate::{chapters, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -25,7 +25,6 @@ impl CourseModule {
         self.name.is_none()
     }
 }
-
 
 pub async fn insert(
     conn: &mut PgConnection,
@@ -72,6 +71,13 @@ WHERE id = $2
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    let associated_chapters = chapters::get_for_module(conn, id).await?;
+    if !associated_chapters.is_empty() {
+        return Err(ModelError::InvalidRequest(format!(
+            "Cannot remove module {id} because it has {} chapters associated with it",
+            associated_chapters.len()
+        )));
+    }
     sqlx::query!(
         "
 UPDATE course_modules
@@ -287,12 +293,24 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn update(conn: &mut PgConnection, id: Uuid, name: &str, order_number: i32) -> ModelResult<()> {
-    sqlx::query!("
+pub async fn update(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: Option<&str>,
+    order_number: i32,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
 UPDATE course_modules
-SET name = $1,
+SET name = COALESCE($1, name),
   order_number = $2
 WHERE id = $3
-", name, order_number, id).execute(conn).await?;
-Ok(())
+",
+        name,
+        order_number,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

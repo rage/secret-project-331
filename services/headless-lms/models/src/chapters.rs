@@ -580,13 +580,38 @@ pub async fn get_chapter_info_by_page_metadata(
     Ok(chapter_page)
 }
 
-pub async fn set_module(conn: &mut PgConnection, chapter_id: Uuid, module_id: Uuid) -> ModelResult<()> {
-    sqlx::query!("
+pub async fn set_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
 UPDATE chapters
 SET course_module_id = $2
 WHERE id = $1
-", chapter_id, module_id).execute(conn).await?;
-Ok(())
+",
+        chapter_id,
+        module_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_for_module(conn: &mut PgConnection, module_id: Uuid) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM chapters
+WHERE course_module_id = $1
+",
+        module_id
+    )
+    .map(|c| c.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]

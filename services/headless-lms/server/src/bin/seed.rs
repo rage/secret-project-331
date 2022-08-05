@@ -365,6 +365,17 @@ async fn main() -> Result<()> {
         }),
     )
     .await?;
+    seed_sample_course(
+        &mut conn,
+        uh_cs,
+        Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
+        "Course Modules",
+        "course-modules",
+        admin,
+        student,
+        &users,
+    )
+    .await?;
     course_modules::update_uh_course_code(
         &mut conn,
         automatic_default_module.id,
@@ -1491,8 +1502,7 @@ async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let second_module =
-        course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
+    let second_module = course_modules::insert(conn, course.id, Some("Another module"), 1).await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,

@@ -4,20 +4,22 @@ import CheckIcon from "@mui/icons-material/Check"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import { IconButton } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import { CourseStructure } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, theme } from "../../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
+import BottomPanel from "../../../../../BottomPanel"
 
 interface Props {
   courseId: string
@@ -29,8 +31,11 @@ type ModuleView = {
   order_number: number
   firstChapter: number | null
   lastChapter: number | null
+  isNew: boolean
 }
+
 type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
+
 type ModuleList = {
   modules: Array<ModuleView>
   chapters: Array<ChapterView>
@@ -40,24 +45,37 @@ type ModuleList = {
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  // course structure query
-  const courseStructure = useQuery(`course-structure-${courseId}`, () =>
-    fetchCourseStructure(courseId),
-  )
-
   // new module state
-  const chapterNumbers = courseStructure.isSuccess
-    ? courseStructure.data.chapters
-        .sort((l, r) => l.chapter_number - r.chapter_number)
-        .map((c) => c.chapter_number)
-    : [1]
+  const [chapterNumbers, setChapterNumbers] = useState([1])
+  const [newModuleName, setNewModuleName] = useState("")
+  const [newModuleStartChapter, setNewModuleStartChapter] = useState(1)
+  const [newModuleEndChapter, setNewModuleEndChapter] = useState(1)
   const firstChapter = chapterNumbers[0]
   const lastChapter = chapterNumbers[chapterNumbers.length - 1]
-  const [newModuleName, setNewModuleName] = useState("")
-  const [newModuleStartChapter, setNewModuleStartChapter] = useState(firstChapter)
-  const [newModuleEndChapter, setNewModuleEndChapter] = useState(lastChapter)
 
   // module list state
+  const [initialModuleList, setInitialModuleList] = useState<ModuleList>({
+    modules: [],
+    chapters: [],
+    error: null,
+  })
+  const [{ modules, chapters, error }, setModuleList] = useState<ModuleList>({
+    modules: [],
+    chapters: [],
+    error: null,
+  })
+
+  // editing module state
+  const [editingModuleId, setEditingModuleId] = useState<string | null>(null)
+  const [editingModuleName, setEditingModuleName] = useState<string | null>(null)
+  const [editingModuleStarts, setEditingModuleStarts] = useState(firstChapter)
+  const [editingModuleEnds, setEditingModuleEnds] = useState(lastChapter)
+
+  // submitting state
+  const [edited, setEdited] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  // helper functions
   const validateModuleList = (
     modules: Array<ModuleView>,
     chapters: Array<ChapterView>,
@@ -66,19 +84,30 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
     // check that the chapters are continuous to disallow configurations such as:
     // module 1: [chapter 1, chapter 3], module 2: [chapter 2]
+    // also checks that all chapters belong to some module
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
     let currentModule: string | null = null
     for (const chapter of chapters) {
+      console.log(chapter)
       if (chapter.module !== null) {
         if (chapter.module !== currentModule) {
           currentModule = chapter.module
           // should be unseen module
           const prevChapter = seenModules.get(chapter.module)
           if (prevChapter !== undefined) {
-            return t("error-modules-noncontinuous-chapters", {
-              prevChapter,
-              currChapter: chapter.chapter_number,
-            })
+            const erroringModule = modules.find((m) => m.id === currentModule)
+            if (erroringModule?.name === null) {
+              return t("error-modules-default-noncontinuous-chapters", {
+                prevChapter,
+                currChapter: chapter.chapter_number,
+              })
+            } else {
+              return t("error-modules-noncontinuous-chapters", {
+                moduleName: erroringModule?.name ?? "",
+                prevChapter,
+                currChapter: chapter.chapter_number,
+              })
+            }
           }
         }
         seenModules.set(chapter.module, chapter.chapter_number)
@@ -100,7 +129,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     // all ok
     return null
   }
-  const firstAndLastChapters = (
+  const firstAndLastChaptersOfModule = (
     moduleId: string,
     chapters: Array<ChapterView>,
   ): [number | null, number | null] => {
@@ -120,34 +149,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
     return [first, last]
   }
-  const dataFromStructure = (courseStructure: CourseStructure): ModuleList => {
-    const chapters = courseStructure.chapters
-      .sort((l, r) => l.chapter_number - r.chapter_number)
-      .map((c) => {
-        return {
-          id: c.id,
-          name: c.name,
-          module: c.course_module_id,
-          chapter_number: c.chapter_number,
-        }
-      })
-    const modules = courseStructure.modules.map((m) => {
-      const [firstChapter, lastChapter] = firstAndLastChapters(m.id, chapters)
-      return { id: m.id, name: m.name, order_number: m.order_number, firstChapter, lastChapter }
-    })
-    const error = validateModuleList(modules, chapters)
-    return { modules, chapters, error }
-  }
-  const initialModuleList = courseStructure.isSuccess
-    ? dataFromStructure(courseStructure.data)
-    : { modules: [], chapters: [], error: null }
-  const [{ modules, chapters, error }, setModuleList] = useState(initialModuleList)
-
-  // editing module state
-  const [editingModule, setEditingModule] = useState<string | null>(null)
-  const [editingModuleName, setEditingModuleName] = useState("")
-  const [editingModuleStarts, setEditingModuleStarts] = useState(firstChapter)
-  const [editingModuleEnds, setEditingModuleEnds] = useState(lastChapter)
   const sortAndUpdateOrderNumbers = (modules: Array<ModuleView>): Array<ModuleView> => {
     modules.sort((l, r) => {
       // sort default module first
@@ -156,7 +157,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       } else if (r.name === null) {
         1
       }
-      // sort according to first chapters, chapterless modules last
+      // sort according to first chapters, empty modules last
       return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
     })
 
@@ -168,7 +169,160 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     })
     return modules
   }
-  const insertNewModule = () => {
+  const resetNewModuleForm = () => {
+    setNewModuleName("")
+    setNewModuleStartChapter(firstChapter)
+    setNewModuleEndChapter(lastChapter)
+  }
+
+  // queries and mutations
+  const courseStructureQuery = useQuery(
+    ["course-structure", courseId],
+    () => fetchCourseStructure(courseId),
+    {
+      onSuccess: (courseStructure) => {
+        const chapterNumbers = courseStructure.chapters
+          .sort((l, r) => l.chapter_number - r.chapter_number)
+          .map((c) => c.chapter_number)
+        setChapterNumbers(chapterNumbers)
+        setNewModuleStartChapter(chapterNumbers[0])
+        setNewModuleEndChapter(chapterNumbers[chapterNumbers.length - 1])
+
+        const makeModuleList = () => {
+          const chapters = courseStructure.chapters
+            .sort((l, r) => l.chapter_number - r.chapter_number)
+            .map((c) => {
+              return {
+                id: c.id,
+                name: c.name,
+                module: c.course_module_id,
+                chapter_number: c.chapter_number,
+              }
+            })
+          const modules = courseStructure.modules.map((m) => {
+            const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+            return {
+              id: m.id,
+              name: m.name,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+            }
+          })
+          const error = validateModuleList(modules, chapters)
+          return { modules, chapters, error }
+        }
+        setInitialModuleList(makeModuleList())
+        setModuleList(makeModuleList())
+      },
+    },
+  )
+  const moduleUpdatesMutation = useToastMutation(
+    () => {
+      console.log(modules)
+      console.log(initialModuleList.modules)
+      setSubmitting(true)
+
+      // check new and modified modules
+      const newModules = new Map<
+        string,
+        {
+          name: string
+          order_number: number
+          chapters: Array<string>
+        }
+      >()
+      const modifiedModules = new Array<{
+        id: string
+        name: string | null
+        order_number: number
+      }>()
+      const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
+        (map, module) => map.set(module.id, module),
+        new Map(),
+      )
+      for (const module of modules) {
+        if (module.name !== null) {
+          // cannot add or modify default module
+          const initialModule = idToInitialModule.get(module.id)
+          if (initialModule === undefined) {
+            // new module
+            newModules.set(module.id, {
+              name: module.name,
+              order_number: module.order_number,
+              chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
+            })
+          } else {
+            // old module, check for modifications
+            if (
+              module.name !== initialModule.name ||
+              module.order_number !== initialModule.order_number
+            ) {
+              modifiedModules.push({
+                id: module.id,
+                name: module.name !== initialModule.name ? module.name : null,
+                order_number: module.order_number,
+              })
+            }
+          }
+        }
+      }
+
+      // check deleted modules
+      const deletedModules = new Array<string>()
+      const idToUpdatedModule = modules.reduce<Map<string, ModuleView>>(
+        (map, module) => map.set(module.id, module),
+        new Map(),
+      )
+      for (const module of initialModuleList.modules) {
+        if (!idToUpdatedModule.has(module.id)) {
+          deletedModules.push(module.id)
+        }
+      }
+
+      // check moved chapters
+      const movedChapters = new Array<[string, string]>()
+      const idToInitialChapter = initialModuleList.chapters.reduce<Map<string, ChapterView>>(
+        (map, chapter) => map.set(chapter.id, chapter),
+        new Map(),
+      )
+      for (const chapter of chapters) {
+        const initialChapter = idToInitialChapter.get(chapter.id)
+        if (
+          initialChapter !== undefined &&
+          chapter.module !== null &&
+          // chapters moved to a new module are handled as part of creating the new module
+          !newModules.has(chapter.module) &&
+          initialChapter.module !== chapter.module
+        ) {
+          movedChapters.push([chapter.id, chapter.module])
+        }
+      }
+
+      return submitModuleChanges(
+        courseId,
+        Array.from(newModules.values()),
+        deletedModules,
+        modifiedModules,
+        movedChapters,
+      )
+    },
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        setEdited(false)
+        courseStructureQuery.refetch()
+      },
+      onSettled: () => {
+        setSubmitting(false)
+      },
+    },
+  )
+
+  // onClick functions
+  const clickCreateNewModule = () => {
+    setEdited(true)
     const newModuleId = v4()
     setModuleList((old) => {
       // update chapters
@@ -188,123 +342,94 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           order_number: 1,
           firstChapter: 1,
           lastChapter: 1,
+          isNew: true,
         },
       ]
       modules.forEach((m) => {
-        const [first, last] = firstAndLastChapters(m.id, chapters)
+        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
         m.firstChapter = first
         m.lastChapter = last
       })
 
       return {
-        modules,
+        modules: sortAndUpdateOrderNumbers(modules),
         chapters,
         error: validateModuleList(modules, chapters),
       }
     })
-
-    // reset form
-    setNewModuleName("")
-    setNewModuleStartChapter(firstChapter)
-    setNewModuleEndChapter(lastChapter)
+    resetNewModuleForm()
+  }
+  const clickResetModuleForm = resetNewModuleForm
+  const clickSaveModuleEdits = () => {
+    setEditingModuleId(null)
+    setEdited(true)
+    setModuleList((old) => {
+      const chapters = [...old.chapters]
+      chapters.forEach((c) => {
+        if (editingModuleStarts <= c.chapter_number && c.chapter_number <= editingModuleEnds) {
+          c.module = editingModuleId
+        } else if (c.module === editingModuleId) {
+          c.module = null
+        }
+      })
+      const modules = [...old.modules]
+      modules.forEach((m) => {
+        if (m.id === editingModuleId) {
+          m.name = editingModuleName
+        }
+        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
+        m.firstChapter = first
+        m.lastChapter = last
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const clickCancelModuleEdits = () => {
+    setEditingModuleId(null)
+  }
+  const clickEditModule = (module: ModuleView) => {
+    setEditingModuleId(module.id)
+    setEditingModuleName(module.name)
+    setEditingModuleStarts(module.firstChapter ?? firstChapter)
+    setEditingModuleEnds(module.lastChapter ?? lastChapter)
+  }
+  const clickDeleteModule = (module: ModuleView) => {
+    setEdited(true)
+    setModuleList((old) => {
+      const modules = old.modules.filter((m) => m.id !== module.id)
+      const chapters = [...old.chapters].map((c) => {
+        const updated = { ...c }
+        if (updated.module === module.id) {
+          updated.module = null
+        }
+        return updated
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const clickSubmit = () => {
+    moduleUpdatesMutation.mutate()
+  }
+  const clickReset = () => {
+    setEditingModuleId(null)
+    resetNewModuleForm()
+    setEdited(false)
+    setModuleList(initialModuleList)
   }
 
-  // update state
-  const [submitting, setSubmitting] = useState(false)
-  const postModuleUpdates = useToastMutation(
-    () => {
-      setSubmitting(true)
-      const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
-        (map, module) => map.set(module.id, module),
-        new Map(),
-      )
-      const idToInitialChapter = initialModuleList.chapters.reduce<Map<string, ChapterView>>(
-        (map, chapter) => map.set(chapter.id, chapter),
-        new Map(),
-      )
-      const idToUpdatedModule = modules.reduce<Map<string, ModuleView>>(
-        (map, module) => map.set(module.id, module),
-        new Map(),
-      )
-
-      // check new and modified modules
-      const newModules = new Array<{
-        name: string
-        order_number: number
-        chapters: Array<string>
-      }>()
-      const modifiedModules = new Array<{ id: string; name: string; order_number: number }>()
-      for (const module of modules) {
-        if (module.name !== null) {
-          // cannot add or modify default module
-          const initialModule = idToInitialModule.get(module.id)
-          if (initialModule === undefined) {
-            newModules.push({
-              name: module.name,
-              order_number: module.order_number,
-              chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
-            })
-          } else {
-            if (
-              module.name !== initialModule.name ||
-              module.order_number !== initialModule.order_number
-            ) {
-              modifiedModules.push({
-                id: module.id,
-                name: module.name,
-                order_number: module.order_number,
-              })
-            }
-          }
-        }
-      }
-
-      // check deleted modules
-      const deletedModules = new Array<string>()
-      for (const module of initialModuleList.modules) {
-        if (!idToUpdatedModule.has(module.id)) {
-          deletedModules.push(module.id)
-        }
-      }
-
-      // check moved chapters
-      const movedChapters = new Array<[string, string]>()
-      for (const chapter of chapters) {
-        const initialChapter = idToInitialChapter.get(chapter.id)
-        if (
-          initialChapter !== undefined &&
-          chapter.module !== null &&
-          initialChapter.module !== chapter.module
-        ) {
-          movedChapters.push([chapter.id, chapter.module])
-        }
-      }
-
-      return submitModuleChanges(
-        courseId,
-        newModules,
-        deletedModules,
-        modifiedModules,
-        movedChapters,
-      )
-    },
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        courseStructure.refetch()
-      },
-      onSettled: () => {
-        setSubmitting(false)
-      },
-    },
-  )
-
-  if (courseStructure.isError) {
-    return <ErrorBanner variant={"link"} error={courseStructure.error} />
-  } else if (courseStructure.isLoading || courseStructure.isIdle) {
+  if (courseStructureQuery.isError) {
+    return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
+  } else if (courseStructureQuery.isLoading) {
     return <Spinner variant={"medium"} />
   }
-
   return (
     <>
       <div
@@ -342,6 +467,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           <div
             className={css`
               display: flex;
+              flex-wrap: wrap;
               flex-direction: row;
               justify-content: space-between;
             `}
@@ -365,9 +491,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 })}
                 value={newModuleStartChapter.toString()}
                 onChange={(val) => setNewModuleStartChapter(parseInt(val))}
-                onBlur={() => {
-                  //
-                }}
               />
               <SelectField
                 className={css`
@@ -380,9 +503,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 })}
                 value={newModuleEndChapter.toString()}
                 onChange={(val) => setNewModuleEndChapter(parseInt(val))}
-                onBlur={() => {
-                  //
-                }}
               />
             </div>
             <div
@@ -395,28 +515,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               <Button
                 className={css`
                   max-height: 3rem;
+                  align-self: flex-end;
+                  margin: 1rem;
                 `}
                 size="medium"
                 variant="tertiary"
                 disabled={newModuleName.length === 0}
-                onClick={insertNewModule}
+                onClick={clickCreateNewModule}
               >
                 {t("confirm")}
-              </Button>
-              <Button
-                className={css`
-                  max-height: 3rem;
-                  margin-left: 1rem;
-                `}
-                size="medium"
-                variant="outlined"
-                onClick={() => {
-                  setNewModuleName("")
-                  setNewModuleStartChapter(firstChapter)
-                  setNewModuleEndChapter(lastChapter)
-                }}
-              >
-                {t("button-restore")}
               </Button>
             </div>
           </div>
@@ -429,17 +536,19 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             <div
               className={css`
                 margin-bottom: 2rem;
-                min-width: 80%;
+                width: 100%;
+                ${respondToOrLarger.sm} {
+                  width: 80%;
+                }
               `}
               key={module.id}
             >
               <div
                 className={css`
-                  background-color: #44827e;
-                  color: #ffffff;
-                  height: ${editingModule === module.id ? "7rem" : "3.5rem"};
-                  min-width: 80%;
                   display: flex;
+                  flex-wrap: wrap;
+                  background-color: ${theme.primary.bg};
+                  color: ${theme.primary.text};
                   align-items: center;
                   margin-bottom: 0.5rem;
                   justify-content: space-between;
@@ -447,17 +556,24 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               >
                 <div
                   className={css`
-                    margin-left: 2rem;
                     text-transform: uppercase;
                     font-weight: 600;
+                    margin: 1rem;
+                    flex-grow: 1;
+                    ${respondToOrLarger.sm} {
+                      max-width: 16rem;
+                    }
                   `}
                 >
                   {module.name ? (
-                    editingModule === module.id ? (
+                    editingModuleId === module.id ? (
                       <TextField
                         label={t("edit-module")}
+                        labelStyle={css`
+                          color: ${baseTheme.colors.clear[100]};
+                        `}
                         placeholder={t("name-of-module")}
-                        value={editingModuleName}
+                        value={editingModuleName ?? ""}
                         onChange={setEditingModuleName}
                       />
                     ) : (
@@ -470,11 +586,21 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 <div
                   className={css`
                     display: flex;
-                    align-items: center;
+                    flex-wrap: wrap;
+                    align-items: flex-end;
+                    flex-grow: 1;
+                    justify-content: space-between;
                   `}
                 >
-                  {editingModule === module.id ? (
-                    <>
+                  {editingModuleId === module.id ? (
+                    <div
+                      className={css`
+                        display: flex;
+                        margin-left: 1rem;
+                        margin-right: 1rem;
+                        margin-bottom: 1rem;
+                      `}
+                    >
                       <SelectField
                         className={css`
                           min-width: 5rem;
@@ -482,130 +608,97 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                         `}
                         id="editing-module-start"
                         label={t("starts")}
+                        labelStyle={css`
+                          color: ${baseTheme.colors.clear[100]};
+                        `}
                         options={chapterNumbers.map((cn) => {
                           return { value: cn.toString(), label: cn.toString() }
                         })}
                         value={editingModuleStarts.toString()}
                         onChange={(val) => setEditingModuleStarts(parseInt(val))}
-                        onBlur={() => {
-                          //
-                        }}
                       />
                       <SelectField
                         className={css`
                           min-width: 5rem;
-                          margin-right: 1rem;
+                          margin-left: 1rem;
                         `}
                         id="editing-module-ends"
                         label={t("ends")}
+                        labelStyle={css`
+                          color: ${baseTheme.colors.clear[100]};
+                        `}
                         options={chapterNumbers.map((cn) => {
                           return { value: cn.toString(), label: cn.toString() }
                         })}
                         value={editingModuleEnds.toString()}
                         onChange={(val) => setEditingModuleEnds(parseInt(val))}
-                        onBlur={() => {
-                          //
-                        }}
                       />
-                      <IconButton
-                        className={css`
-                          background-color: #6a9b98;
-                          border-radius: 0;
-                          height: 3.5rem;
-                          width: 3.5rem;
-                        `}
-                        onClick={() => {
-                          setModuleList((old) => {
-                            const chapters = [...old.chapters]
-                            chapters.forEach((c) => {
-                              if (
-                                editingModuleStarts <= c.chapter_number &&
-                                c.chapter_number <= editingModuleEnds
-                              ) {
-                                c.module = editingModule
-                              } else if (c.module === editingModule) {
-                                c.module = null
-                              }
-                            })
-                            const modules = [...old.modules]
-                            modules.forEach((m) => {
-                              if (m.id === editingModule) {
-                                m.name = editingModuleName
-                              }
-                              const [first, last] = firstAndLastChapters(m.id, chapters)
-                              m.firstChapter = first
-                              m.lastChapter = last
-                            })
-                            return {
-                              modules: sortAndUpdateOrderNumbers(modules),
-                              chapters,
-                              error: validateModuleList(modules, chapters),
-                            }
-                          })
-                          setEditingModule(null)
-                        }}
-                      >
-                        <CheckIcon />
-                      </IconButton>
-                      <IconButton
-                        className={css`
-                          background-color: #6a9b98;
-                          border-radius: 0;
-                          height: 3.5rem;
-                          width: 3.5rem;
-                        `}
-                        onClick={() => {
-                          setEditingModule(null)
-                        }}
-                      >
-                        <CancelIcon />
-                      </IconButton>
-                    </>
+                    </div>
                   ) : (
-                    <IconButton
-                      className={css`
-                        background-color: #6a9b98;
-                        border-radius: 0;
-                        height: 3.5rem;
-                        width: 3.5rem;
-                      `}
-                      onClick={() => {
-                        setEditingModule(module.id)
-                        setEditingModuleName(module.name ?? "")
-                        setEditingModuleStarts(module.firstChapter ?? firstChapter)
-                        setEditingModuleEnds(module.lastChapter ?? lastChapter)
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
+                    <div></div>
                   )}
-
-                  <IconButton
+                  <div
                     className={css`
-                      background-color: #8fb4b2;
-                      border-radius: 0;
-                      height: 3.5rem;
-                      width: 3.5rem;
+                      display: flex;
+                      align-items: flex-end;
                     `}
-                    onClick={() => {
-                      setModuleList((old) => {
-                        const modules = [...old.modules].filter((m) => m.id !== module.id)
-                        const chapters = [...old.chapters]
-                        chapters.forEach((c) => {
-                          if (c.module === module.id) {
-                            c.module = null
-                          }
-                        })
-                        return {
-                          modules: sortAndUpdateOrderNumbers(modules),
-                          chapters,
-                          error: validateModuleList(modules, chapters),
-                        }
-                      })
-                    }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
+                    {editingModuleId === module.id ? (
+                      <>
+                        <IconButton
+                          aria-label={t("button-text-save")}
+                          className={css`
+                            background-color: ${baseTheme.colors.green[400]};
+                            border-radius: 0;
+                            height: 3.5rem;
+                            width: 3.5rem;
+                          `}
+                          onClick={clickSaveModuleEdits}
+                        >
+                          <CheckIcon />
+                        </IconButton>
+                        <IconButton
+                          aria-label={t("button-text-cancel")}
+                          className={css`
+                            background-color: ${baseTheme.colors.green[400]};
+                            border-radius: 0;
+                            height: 3.5rem;
+                            width: 3.5rem;
+                          `}
+                          onClick={clickCancelModuleEdits}
+                        >
+                          <CancelIcon />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <IconButton
+                        aria-label={t("edit")}
+                        className={css`
+                          background-color: ${baseTheme.colors.green[400]};
+                          border-radius: 0;
+                          height: 3.5rem;
+                          width: 3.5rem;
+                        `}
+                        onClick={() => clickEditModule(module)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    )}
+                    {module.name !== null && (
+                      <IconButton
+                        aria-label={t("button-text-delete")}
+                        className={css`
+                          background-color: ${baseTheme.colors.green[300]};
+                          border-radius: 0;
+                          height: 3.5rem;
+                          width: 3.5rem;
+                        `}
+                        onClick={() => clickDeleteModule(module)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
+                  </div>
                 </div>
               </div>
               {chapters
@@ -613,8 +706,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 .map((c) => (
                   <div
                     className={css`
-                      background-color: #dae6e5;
-                      color: #065853;
+                      background-color: ${baseTheme.colors.green[100]};
+                      color: ${baseTheme.colors.green[700]};
                       height: 3.5rem;
                       margin-top: 0.25rem;
                       margin-bottom: 0.25rem;
@@ -637,27 +730,17 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             </div>
           ))}
       </div>
-      <div
-        className={css`
-          position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          z-index: 1;
-          text-align: right;
-        `}
-      >
-        {error !== null && <div>{`${t("error-title")}: ${error}`}</div>}
-        <Button
-          variant="primary"
-          size="large"
-          disabled={error !== null || submitting === true}
-          onClick={() => {
-            postModuleUpdates.mutate()
-          }}
-        >
-          {t("save-changes")}
-        </Button>
-      </div>
+      <BottomPanel
+        title={t("title-dialog-module-save")}
+        error={error}
+        show={edited}
+        leftButtonText={t("save-changes")}
+        leftButtonDisabled={error !== null || submitting}
+        onClickLeft={clickSubmit}
+        rightButtonText={t("button-reset")}
+        onClickRight={clickReset}
+        rightButtonDisabled={submitting}
+      />
     </>
   )
 }

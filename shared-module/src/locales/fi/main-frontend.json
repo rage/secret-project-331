@@ -184,7 +184,6 @@
   "link-manage-permissions": "Hallitse käyttäjien oikeuksia",
   "link-overview": "Yleiskatsaus",
   "link-pages": "Sivut",
-  "link-modules": "Moduulit",
   "link-permissions": "Oikeudet",
   "link-stats": "Tilastot",
   "link-view-points": "Näytä pisteet",
@@ -354,10 +353,7 @@
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
-  "references": "Lähteet",
-  "add-new-reference": "Lisää uusi lähde",
-  "new-reference": "Uusi lähde",
-  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
+  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta",
   "default-module": "Oletusmoduuli",
   "starts": "Alku",
   "ends": "Loppu",
@@ -367,7 +363,10 @@
   "select-module-start-end-chapters": "Valitse luvut jotka kuuluvat moduuliin",
   "confirm": "Vahvista",
   "save-changes": "Tallenna muutokset",
-  "error-modules-noncontinuous-chapters": "Lukujen {{ prevChapter }} ja {{ currChapter }} välissä olevien lukujen pitäisi olla samassa moduulissa",
+  "error-modules-default-noncontinuous-chapters": "Oletusmoduulista puuttuu kappaleita kappaleiden {{ prevChapter }} ja {{ currChapter }} välistä",
+  "error-modules-noncontinuous-chapters": "Moduulista {{ moduleName }} puuttuu kappaleita kappaleiden {{ prevChapter }} ja {{ currChapter }} välistä",
   "error-modules-chapter-not-in-module": "Luku {{ chapterNumber }}: {{ chapterName }} ei ole missään moduulissa",
-  "error-modules-empty-module": "Moduuli {{ moduleName }} on tyhjä"
+  "error-modules-empty-module": "Moduuli {{ moduleName }} on tyhjä",
+  "link-modules": "Moduulit",
+  "title-dialog-module-save": "Haluatko tallentaa muutokset kurssin moduuleihin?"
 }

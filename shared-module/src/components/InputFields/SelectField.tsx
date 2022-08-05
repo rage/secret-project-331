@@ -10,6 +10,7 @@ interface SelectOption<T extends string> {
 interface SelectMenuExtraProps<T extends string> {
   id: string
   label?: string
+  labelStyle?: string
   name?: string
   placeholder?: string
   error?: string
@@ -91,6 +92,7 @@ const SelectMenu = <T extends string>({
             color: #333;
             font-size: 14px;
             font-weight: 500;
+            ${rest.labelStyle}
           }
 
           .select + label {

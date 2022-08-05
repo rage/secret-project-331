@@ -25,7 +25,8 @@ test("test", async ({ page, headless }) => {
     page.click("text=Point view for teachers"),
   ])
 
-  await page.click('input[label="Default"]')
+  // Click text=default
+  await page.click("text=default")
 
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)

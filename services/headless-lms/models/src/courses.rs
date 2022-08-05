@@ -7,8 +7,9 @@ use crate::{
     chapters::{course_chapters, Chapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
+    course_modules::CourseModule,
     pages::{course_pages, NewPage, Page},
-    prelude::*, course_modules::CourseModule,
+    prelude::*,
 };
 
 pub struct CourseInfo {
@@ -431,8 +432,7 @@ RETURNING id,
     .await?;
 
     // Create default course module
-    let default_module =
-        crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
 
     tx.commit().await?;
     Ok((course, page, default_course_instance, default_module))

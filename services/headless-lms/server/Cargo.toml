@@ -105,6 +105,8 @@ actix-extensible-rate-limit = "0.2.1"
 isbot = "0.1.2"
 # user-agent strings parser
 woothee = "0.13.0"
+# Utilities for random number generation
+rand = "0.8.5"
 
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.

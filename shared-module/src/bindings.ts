@@ -1107,6 +1107,25 @@ export interface OEmbedResponse {
   version: string
 }
 
+export interface NewModule {
+  name: string
+  order_number: number
+  chapters: Array<string>
+}
+
+export interface ModifiedModule {
+  id: string
+  name: string | null
+  order_number: number | null
+}
+
+export interface ModuleUpdates {
+  new_modules: Array<NewModule>
+  deleted_modules: Array<string>
+  modified_modules: Array<ModifiedModule>
+  moved_chapters: Array<[string, string]>
+}
+
 export interface MaterialReference {
   id: string
   course_id: string

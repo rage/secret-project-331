@@ -5177,16 +5177,6 @@
     },
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM url_redirections\n  JOIN pages on pages.id = url_redirections.destination_page_id\nWHERE url_redirections.course_id = $1\n  AND old_url_path = $2\n  AND url_redirections.deleted_at IS NULL\n  AND pages.deleted_at IS NULL;\n    "
   },
-  "4f06479ab9ed3ea07312f39b95be5bf38f9d6dfd3bd25fab01032e5201a08783": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Int4", "Uuid"]
-      }
-    },
-    "query": "\nUPDATE course_modules\nSET name = $1,\n  order_number = $2\nWHERE id = $3\n"
-  },
   "4f7e2b9650e10a87e8df9091b99fb43d3eb68974730a3c08dc6a63ae3ec4f92e": {
     "describe": {
       "columns": [
@@ -10523,6 +10513,16 @@
       }
     },
     "query": "\nINSERT INTO exercise_tasks (\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n"
+  },
+  "a670b7eda0b82b828d1dfb15b504fc15365649b5e69aa07eaa96cd3c9de0d302": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Int4", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2\nWHERE id = $3\n"
   },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {
     "describe": {
@@ -16097,6 +16097,22 @@
       }
     },
     "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.course_id = $1\n  and p.chapter_id is null\n  and p.deleted_at is null;\n"
+  },
+  "ff112be03d6a199c5c9fcab4b918b6950efcdb5e0a970c6cdf0faca52639465c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id\nFROM chapters\nWHERE course_module_id = $1\n"
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {
     "describe": {

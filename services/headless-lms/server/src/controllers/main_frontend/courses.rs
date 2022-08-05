@@ -2,7 +2,9 @@
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
+    chapters,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    course_modules,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -13,7 +15,7 @@ use models::{
     glossary::{Term, TermUpdate},
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
-    user_exercise_states::ExerciseUserCounts, course_modules, chapters,
+    user_exercise_states::ExerciseUserCounts,
 };
 
 use crate::controllers::prelude::*;
@@ -81,8 +83,6 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-    // Create default course module
-    models::course_modules::insert_default_for_course(&mut tx, course.id).await?;
     models::roles::insert(
         &mut tx,
         user.id,
@@ -734,27 +734,31 @@ async fn delete_material_reference_by_id(
 }
 
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewModule {
     name: String,
     order_number: i32,
-    chapters: Vec<Uuid>
+    chapters: Vec<Uuid>,
 }
 
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ModifiedModule {
     id: Uuid,
-    name: String,
+    name: Option<String>,
     order_number: i32,
 }
 
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ModuleUpdates {
     new_modules: Vec<NewModule>,
     deleted_modules: Vec<Uuid>,
     modified_modules: Vec<ModifiedModule>,
-    moved_chapters: Vec<(Uuid, Uuid)>
+    moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
+#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_modules(
     course_id: web::Path<Uuid>,
@@ -768,19 +772,37 @@ pub async fn update_modules(
     let mut tx = conn.begin().await?;
 
     let updates = payload.into_inner();
+    // scramble order of modified and deleted modules
+    for module_id in updates
+        .modified_modules
+        .iter()
+        .map(|m| m.id)
+        .chain(updates.deleted_modules.iter().copied())
+    {
+        course_modules::update(&mut tx, module_id, None, rand::random()).await?;
+    }
+    let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
+        // insert with a random order number to avoid conflicts
         let module =
-            course_modules::insert(&mut tx, *course_id, Some(&new.name), new.order_number).await?;
+            course_modules::insert(&mut tx, *course_id, Some(&new.name), rand::random()).await?;
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
+        // modify the order number with the rest
+        modified_and_new_modules.push(ModifiedModule {
+            id: module.id,
+            name: None,
+            order_number: new.order_number,
+        })
     }
-    for modified in updates.modified_modules {
+    // update modified and new modules
+    for module in modified_and_new_modules {
         course_modules::update(
             &mut tx,
-            modified.id,
-            &modified.name,
-            modified.order_number,
+            module.id,
+            module.name.as_deref(),
+            module.order_number,
         )
         .await?;
     }
@@ -875,5 +897,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references/{reference_id}",
             web::delete().to(delete_material_reference_by_id),
-        ).route("/{course_id}/course-modules", web::post().to(update_modules));
+        )
+        .route(
+            "/{course_id}/course-modules",
+            web::post().to(update_modules),
+        );
 }

@@ -29,6 +29,7 @@ import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
 const QuizContent = styled.div`
   padding: 1rem;
   display: flex;
+  width: 100%;
   @media only screen and (max-width: 600px) {
     width: 100%;
   }

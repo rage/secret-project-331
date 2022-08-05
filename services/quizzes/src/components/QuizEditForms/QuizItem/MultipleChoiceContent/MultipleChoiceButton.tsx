@@ -12,6 +12,8 @@ import IframeHeightContext from "../../../../shared-module/contexts/IframeHeight
 import { deletedOption } from "../../../../store/editor/editorActions"
 import { setOptionEditing } from "../../../../store/editor/optionVariables/optionVariableActions"
 import { useTypedSelector } from "../../../../store/store"
+import { quizTheme } from "../../../../styles/QuizStyles"
+import ParsedText from "../../../ParsedText"
 
 import OptionModalContent from "./OptionModalContent"
 
@@ -59,22 +61,37 @@ const DeleteOptionButton = styled(Button)`
   padding: 1rem !important;
   float: right;
 `
-
-const CorrectButton = styled(Button)`
+// eslint-disable-next-line i18next/no-literal-string
+const BUTTON_BASE = `
   display: flex;
-  border-width: 5px 5px 5px 5px !important;
-  border-color: green !important;
+  border: none;
+  flex: 1;
+  flex-wrap: wrap;
+  padding: 0 1rem;
+  height: 85px;
+  width:90%;
+  color: ${quizTheme.gradingWrongItemColor};
+
   @media only screen and (max-width: 600px) {
-    width: 100% !important;
+    width: 100%;
   }
 `
-
+// eslint-disable-next-line i18next/no-literal-string
+const CorrectButton = styled(Button)`
+  ${BUTTON_BASE}
+  background-color: ${quizTheme.quizCorrectAnswer};
+  :hover {
+    background-color: ${quizTheme.quizCorrectAnswerHover};
+    border: none;
+  }
+`
+// eslint-disable-next-line i18next/no-literal-string
 const IncorrectButton = styled(Button)`
-  display: flex;
-  border-width: 5px 5px 5px 5px !important;
-  border-color: red !important;
-  @media only screen and (max-width: 600px) {
-    width: 100% !important;
+  ${BUTTON_BASE}
+  background-color: ${quizTheme.quizWrongAnswer};
+  :hover {
+    background-color: ${quizTheme.quizWrongAnswerHover};
+    border: none;
   }
 `
 
@@ -141,13 +158,23 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
           {storeOption.correct ? (
             <>
               <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-                {storeOption.title}
+                <ParsedText
+                  text={storeOption.title}
+                  errorText={t("quiz-title-invalid-format")}
+                  parseLatex
+                  parseMarkdown
+                />
               </CorrectButton>
             </>
           ) : (
             <>
               <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-                {storeOption.title}
+                <ParsedText
+                  text={storeOption.title}
+                  errorText={t("quiz-title-invalid-format")}
+                  parseLatex
+                  parseMarkdown
+                />
               </IncorrectButton>
             </>
           )}

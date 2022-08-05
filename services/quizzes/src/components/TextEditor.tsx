@@ -5,9 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import Button from "../shared-module/components/Button"
 import TextField from "../shared-module/components/InputFields/TextField"
-import { formatText, isValidText } from "../util/tagParser"
 
-import TextNode from "./TextNode"
+import ParsedText from "./ParsedText"
 
 interface TextEditorProps {
   latex?: boolean
@@ -66,12 +65,11 @@ const TextEditor: React.FC<TextEditorProps> = ({
       <FlexWrapper>
         {preview ? (
           <PreviewWrapper>
-            <TextNode
-              text={
-                isValidText(latex, markdown, text)
-                  ? formatText(latex, markdown, text)
-                  : t("quiz-title-invalid-format")
-              }
+            <ParsedText
+              text={text}
+              parseLatex={latex}
+              parseMarkdown={markdown}
+              errorText={t("quiz-title-invalid-format")}
             />
           </PreviewWrapper>
         ) : (

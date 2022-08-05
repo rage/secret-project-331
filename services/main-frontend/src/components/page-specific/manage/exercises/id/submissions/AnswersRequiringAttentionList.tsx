@@ -423,7 +423,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                           sliderValue.toString().length > exercise_max_points.toString().length + 4
                         }
                         onClick={() =>
-                          handleCustomPointConfirmation(
+                          handleSubmitAndClose(
                             answerRequiringAttention.id,
                             answerRequiringAttention.exercise_id,
                           )
@@ -433,30 +433,6 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                       </Button>
                     </div>
                   ) : null}
-                  <div
-                    className={css`
-                      margin-left: auto;
-                    `}
-                  >
-                    <Button
-                      className={css`
-                        margin-right: 1em;
-                      `}
-                      size="medium"
-                      variant="tertiary"
-                      aria-label={t("button-text-flag-as-plagiarism")}
-                      onClick={() =>
-                        handleControlPanel(
-                          answerRequiringAttention.id,
-                          answerRequiringAttention.exercise_id,
-                          // eslint-disable-next-line i18next/no-literal-string
-                          "SuspectedPlagiarism",
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon id="flag-as-plagiarism" icon={faFlag} />
-                    </Button>
-                  </div>
                 </div>
               </ControlPanel>
             </div>

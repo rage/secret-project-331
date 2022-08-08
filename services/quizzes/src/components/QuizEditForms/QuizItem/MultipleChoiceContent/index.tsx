@@ -13,7 +13,6 @@ import { createdNewOption, deletedItem } from "../../../../store/editor/editorAc
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 import {
   AdvancedBox,
   AdvancedBoxModalOpenClass,
@@ -22,6 +21,7 @@ import {
   ModalButtonWrapper,
   StyledModal,
 } from "../../../Shared/Modal"
+import TextEditor from "../../../TextEditor"
 
 import MultipleChoiceButton from "./MultipleChoiceButton"
 import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
@@ -92,7 +92,10 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
           </AdvancedBox>
         </Fade>
       </StyledModal>
-      <MarkdownEditor
+      <TextEditor
+        latex
+        markdown
+        inline
         label={t("title")}
         onChange={(value) => dispatch(editedQuizItemTitle(value.trimStart(), storeItem.id))}
         text={storeItem.title ?? ""}

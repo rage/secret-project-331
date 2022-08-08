@@ -11,6 +11,7 @@ import ParsedText from "./ParsedText"
 interface TextEditorProps {
   latex?: boolean
   markdown?: boolean
+  inline?: boolean
   onChange: (value: string, name?: string) => void
   label: string
   text: string
@@ -49,6 +50,7 @@ const PreviewWrapper = styled.div`
 const TextEditor: React.FC<TextEditorProps> = ({
   latex = false,
   markdown = false,
+  inline = false,
   onChange,
   label,
   text,
@@ -69,6 +71,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
               text={text}
               parseLatex={latex}
               parseMarkdown={markdown}
+              inline={inline}
               errorText={t("quiz-title-invalid-format")}
             />
           </PreviewWrapper>

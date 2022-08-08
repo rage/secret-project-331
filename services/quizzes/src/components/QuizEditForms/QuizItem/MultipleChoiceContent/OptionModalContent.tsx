@@ -51,6 +51,7 @@ export const OptionModalContent: React.FC<React.PropsWithChildren<OptionEditorPr
           label={t("option-title")}
           text={storeOption.title ?? ""}
           latex={true}
+          inline
           markdown={true}
           onChange={(value) => dispatch(editedOptionTitle(value, storeOption.id))}
         />
@@ -60,6 +61,7 @@ export const OptionModalContent: React.FC<React.PropsWithChildren<OptionEditorPr
           label={t("message-after-submission-when-selected")}
           text={storeOption.messageAfterSubmissionWhenSelected ?? ""}
           latex={true}
+          inline
           markdown={true}
           onChange={(value) =>
             dispatch(editedOptionAfterSubmissionSelectedMessage(storeOption.id, value))
@@ -71,6 +73,7 @@ export const OptionModalContent: React.FC<React.PropsWithChildren<OptionEditorPr
           label={t("additional-correctness-explanation-on-model-solution")}
           text={storeOption.additionalCorrectnessExplanationOnModelSolution ?? ""}
           latex={true}
+          inline
           markdown={true}
           onChange={(value) =>
             dispatch(

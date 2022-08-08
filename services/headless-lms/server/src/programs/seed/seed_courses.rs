@@ -173,7 +173,7 @@ pub async fn seed_sample_course(
     };
     let (_m1_chapter_2, _m1c2_front_page) =
         chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
-    let module = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 1).await?;
+    let module = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,

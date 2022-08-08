@@ -72,7 +72,7 @@ test("test", async ({ page, headless }) => {
   // Click text=View points
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/points' }*/),
-    page.click("text=View points"),
+    page.locator("text=View points").nth(1).click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({

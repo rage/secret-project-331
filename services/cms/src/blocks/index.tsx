@@ -13,6 +13,7 @@ import ExerciseSlide from "./ExerciseSlide"
 import ExerciseTask from "./ExerciseTask"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
+import HightlightBox from "./HighlightBox"
 import InfoBox from "./InfoBox"
 import LandingPageHeroSection from "./LandingPageHeroSection"
 import Latex from "./Latex"
@@ -42,6 +43,7 @@ export const blockTypeMapForPages = [
   ["moocfi/learning-objectives", LearningObjectives],
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
+  ["moocfi/highlightbox", HightlightBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

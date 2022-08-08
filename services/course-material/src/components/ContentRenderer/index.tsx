@@ -43,6 +43,7 @@ import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import HighlightBox from "./moocfi/HighglightBox"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
@@ -123,6 +124,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/learning-objectives": LearningObjectiveBlock,
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/sponsor": SponsorBlock,
+  "moocfi/highlightbox": HighlightBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
 }
 

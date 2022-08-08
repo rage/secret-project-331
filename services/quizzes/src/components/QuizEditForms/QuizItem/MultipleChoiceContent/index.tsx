@@ -105,11 +105,6 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
         {t("title-options")}
       </h3>
       <QuizContentLineContainer>
-        {storeItem.options.map((option, i) => (
-          <QuizContent key={option}>
-            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
-          </QuizContent>
-        ))}
         <QuizContent>
           <Button
             title={t("add-option")}
@@ -120,6 +115,11 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
             {t("add-option")}
           </Button>
         </QuizContent>
+        {storeItem.options.map((option, i) => (
+          <QuizContent key={option}>
+            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
+          </QuizContent>
+        ))}
       </QuizContentLineContainer>
     </>
   )

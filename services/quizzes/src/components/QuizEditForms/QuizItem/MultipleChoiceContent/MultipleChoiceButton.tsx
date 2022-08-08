@@ -148,35 +148,31 @@ const MultipleChoiceButton: React.FC<React.PropsWithChildren<MultipleChoiceButto
         </Fade>
       </StyledModal>
       {storeItem.allAnswersCorrect ? (
-        <>
-          <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-            {storeOption.title}
-          </CorrectButton>
-        </>
+        <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
+          {storeOption.title}
+        </CorrectButton>
       ) : (
         <>
           {storeOption.correct ? (
-            <>
-              <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-                <ParsedText
-                  text={storeOption.title}
-                  errorText={t("quiz-title-invalid-format")}
-                  parseLatex
-                  parseMarkdown
-                />
-              </CorrectButton>
-            </>
+            <CorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
+              <ParsedText
+                text={storeOption.title}
+                errorText={t("quiz-title-invalid-format")}
+                inline
+                parseLatex
+                parseMarkdown
+              />
+            </CorrectButton>
           ) : (
-            <>
-              <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
-                <ParsedText
-                  text={storeOption.title}
-                  errorText={t("quiz-title-invalid-format")}
-                  parseLatex
-                  parseMarkdown
-                />
-              </IncorrectButton>
-            </>
+            <IncorrectButton aria-label={ariaLabel} onClick={handleClick} variant="outlined">
+              <ParsedText
+                text={storeOption.title}
+                errorText={t("quiz-title-invalid-format")}
+                inline
+                parseLatex
+                parseMarkdown
+              />
+            </IncorrectButton>
           )}
         </>
       )}

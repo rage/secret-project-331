@@ -81,10 +81,10 @@ const validateText = (latex = false, markdown = false, text: string) => {
  * @param text String in latex format
  * @returns LaTex in HTML
  */
-const parseLatex = (text: string) => {
+const parseLatex = (text: string, displayMode: boolean) => {
   return KaTex.renderToString(text, {
     throwOnError: false,
-    displayMode: true,
+    displayMode,
     output: KATEX_OUTPUT_FORMAT,
   })
 }
@@ -119,10 +119,10 @@ const isValidText = (latex = false, markdown = false, text: string) => {
  * @param text Text with tags that to be parsed
  * @returns Text, where tags are replaced with html
  */
-const formatText = (latex = false, markdown = false, text: string) => {
+const formatText = (latex = false, markdown = false, text: string, inline = false) => {
   let formattedText = text
   if (latex) {
-    formattedText = formattedText.replace(LATEX_REGEX, (_, latex) => parseLatex(latex))
+    formattedText = formattedText.replace(LATEX_REGEX, (_, latex) => parseLatex(latex, !inline))
   }
 
   if (markdown) {

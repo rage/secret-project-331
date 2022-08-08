@@ -16,8 +16,9 @@ import { formatText, isValidText } from "./tagParser"
 interface ParsedTextProps {
   text: string
   errorText?: string
-  parseLatex: boolean
-  parseMarkdown: boolean
+  parseLatex?: boolean
+  parseMarkdown?: boolean
+  inline?: boolean
 }
 
 const ParsedText: React.FC<ParsedTextProps> = ({
@@ -25,12 +26,13 @@ const ParsedText: React.FC<ParsedTextProps> = ({
   errorText = undefined,
   parseLatex = false,
   parseMarkdown = false,
+  inline = false,
 }) => {
   if (errorText && !isValidText(parseLatex, parseMarkdown, text)) {
     return <div>{errorText}</div>
   }
 
-  const parsedText = formatText(parseLatex, parseMarkdown, text)
+  const parsedText = formatText(parseLatex, parseMarkdown, text, inline)
 
   return <TextNode text={parsedText} />
 }

@@ -1283,7 +1283,8 @@ pub async fn upsert_peer_reviews(
         peer_reviews_to_give,
         peer_reviews_to_receive,
         accepting_strategy,
-        accepting_threshold
+        accepting_threshold,
+        deleted_at
       ) ",
         );
 
@@ -1301,7 +1302,8 @@ pub async fn upsert_peer_reviews(
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.accepting_strategy)
-                .push_bind(pr.accepting_threshold);
+                .push_bind(pr.accepting_threshold)
+                .push("NULL");
         });
 
         sql.push(
@@ -1312,7 +1314,8 @@ SET course_id = excluded.course_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
   accepting_strategy = excluded.accepting_strategy,
-  accepting_threshold = excluded.accepting_threshold
+  accepting_threshold = excluded.accepting_threshold,
+  deleted_at = NULL
 RETURNING id;
 ",
         );
@@ -1378,7 +1381,8 @@ pub async fn upsert_peer_review_questions(
         order_number,
         question,
         question_type,
-        answer_required
+        answer_required,
+        deleted_at
       ) ",
         );
 
@@ -1414,7 +1418,8 @@ pub async fn upsert_peer_review_questions(
                 .push_bind(prq.order_number)
                 .push_bind(prq.question.as_str())
                 .push_bind(prq.question_type)
-                .push_bind(prq.answer_required);
+                .push_bind(prq.answer_required)
+                .push("NULL");
         });
 
         sql.push(
@@ -1424,7 +1429,8 @@ SET peer_review_id = excluded.peer_review_id,
     order_number = excluded.order_number,
     question = excluded.question,
     question_type = excluded.question_type,
-    answer_required = excluded.answer_required
+    answer_required = excluded.answer_required,
+    deleted_at = NULL
 RETURNING id;
 ",
         );

@@ -14,6 +14,7 @@ import {
   CmsPeerReview,
   CmsPeerReviewQuestion,
   PeerReviewAcceptingStrategy,
+  PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
@@ -216,27 +217,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           question_type: "Essay",
           peer_review_id: peerReviewId,
           answer_required: true,
-          order_number: 0,
+          order_number: parsedPeerReviewQuestion.length,
         },
       ]),
-    })
-  }
-
-  const deletePeerReview = (peerReviewId: string) => {
-    setAttributes({
-      peer_review_config: JSON.stringify(parsedPeerReviews.filter((pr) => pr.id !== peerReviewId)),
-    })
-    setAttributes({
-      peer_review_questions_config: JSON.stringify(
-        parsedPeerReviewQuestion.filter((prq) => prq.peer_review_id != peerReviewId),
-      ),
     })
   }
 
   const deletePeerReviewQuestion = (peerReviewQuestionId: string) => {
     setAttributes({
       peer_review_questions_config: JSON.stringify(
-        parsedPeerReviewQuestion.filter((x) => x.id !== peerReviewQuestionId),
+        parsedPeerReviewQuestion
+          .filter((x) => x.id !== peerReviewQuestionId)
+          .map((prq, idx) => {
+            return { ...prq, order_number: idx } as PeerReviewQuestion
+          }),
       ),
     })
   }
@@ -256,9 +250,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         {parsedPeerReviews.map((pr) => {
           return (
             <div key={pr.id} id={pr.id}>
-              <Button variant="secondary" size="medium" onClick={() => deletePeerReview(pr.id)}>
-                {t("delete")}
-              </Button>
               <Wrapper>
                 <span
                   className={css`

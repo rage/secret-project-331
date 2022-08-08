@@ -109,9 +109,13 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
                 &format!("url={}&format=json", url),
             );
         }
-        Err(UtilError::Other("Link not supported for embedding."))
+        Err(UtilError::Other(
+            "Link not supported for embedding.".to_string(),
+        ))
     } else {
-        Err(UtilError::Other("Failed to parse host from URL."))
+        Err(UtilError::Other(
+            "Failed to parse host from URL.".to_string(),
+        ))
     }
 }
 

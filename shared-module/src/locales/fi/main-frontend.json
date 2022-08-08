@@ -352,5 +352,6 @@
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
-  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>."
+  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
+  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta"
 }

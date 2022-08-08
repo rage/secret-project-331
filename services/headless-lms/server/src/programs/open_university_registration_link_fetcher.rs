@@ -1,9 +1,9 @@
 use std::env;
 
-use anyhow::{Context, Result};
+use crate::setup_tracing;
+use anyhow::Context;
 use chrono::{NaiveDateTime, Utc};
 use dotenv::dotenv;
-use headless_lms_actix::setup_tracing;
 use headless_lms_models as models;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -14,8 +14,7 @@ const OPEN_UNIVERSITY_REGISTRATION_BASE_URL: &str =
 const OPEN_UNIVERSITY_COURSE_URL: &str = "OPEN_UNIVERSITY_COURSE_URL";
 const OPEN_UNIVERSITY_TOKEN: &str = "OPEN_UNIVERSITY_TOKEN";
 
-#[tokio::main]
-async fn main() -> Result<()> {
+pub async fn main() -> anyhow::Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
     dotenv().ok();
     setup_tracing()?;

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
+const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 const normalResponseHeaders = generateNormalResponseHeaders()
 
@@ -17,6 +18,31 @@ const config = {
         headers: normalResponseHeaders,
       },
     ]
+  },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      loader: "@svgr/webpack",
+      options: {
+        svgoConfig: svgoConfig,
+      },
+    })
+
+    return config
+  },
+  compiler: {
+    emotion: {
+      autoLabel: "always",
+      labelFormat: "[dirname]--[filename]--[local]",
+    },
+  },
+  experimental: {
+    modularizeImports: {
+      lodash: {
+        transform: "lodash/{{member}}",
+      },
+    },
   },
 }
 

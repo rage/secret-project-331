@@ -16,7 +16,6 @@ const Wrapper = styled.div`
     color: #535a66;
   }
 `
-const QUESTION = "Question"
 
 interface EssayProps {
   question: string

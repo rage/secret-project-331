@@ -1,6 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { useQuery } from "react-query"
 
 import { fetchPeerReviewDataGivenByExerciseId } from "../../../../../../services/backend"
@@ -18,7 +19,6 @@ const slideDown = keyframes`
   from { opacity: 0; height: 0; padding: 0;}
   to { opacity: 1; height: 100%; padding: 10px;}
 `
-const PLACEHOLDER_HEADING = "Recieved peer review from other students"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -103,6 +103,7 @@ interface PeerReviewProps {
 }
 
 const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
+  const { t } = useTranslation()
   const getPeerReviewReceived = useQuery(`exerciSse-${id}-peer-reviews-received`, () =>
     fetchPeerReviewDataGivenByExerciseId(id),
   )
@@ -137,7 +138,7 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     <Wrapper>
       <details>
         <summary>
-          {PLACEHOLDER_HEADING}{" "}
+          {t("peer-review-received-from-other-student")}
           <Notification>
             {getPeerReviewReceived.data?.peer_review_question_submissions.length}
           </Notification>

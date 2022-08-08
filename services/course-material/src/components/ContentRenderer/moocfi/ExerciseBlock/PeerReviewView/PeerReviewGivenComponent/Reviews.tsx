@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 
 import Essay from "./Essay"
 import Linkert from "./Linkert"
@@ -38,12 +39,11 @@ const arr = [
   },
 ]
 
-const HEADING_PLACEHOLDER = "Peer review"
-
 const Reviews: React.FunctionComponent<ReviewProps> = ({ orderNumber }) => {
+  const { t } = useTranslation()
   return (
     <Wrapper>
-      <Heading>{`${HEADING_PLACEHOLDER} #${orderNumber + 1}`}</Heading>
+      <Heading>{`${t("peer-review")} #${orderNumber + 1}`}</Heading>
       {arr.map(({ peerReviewType, question, content }, index) =>
         peerReviewType === "essay" ? (
           <Essay question={question} content={content} index={index} />

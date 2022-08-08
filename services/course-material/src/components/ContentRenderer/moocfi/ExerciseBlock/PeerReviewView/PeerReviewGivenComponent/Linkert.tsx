@@ -82,7 +82,7 @@ const Linkert: React.FC<LinkertProps> = ({ question, content, index }) => {
 
   return (
     <Wrapper>
-      <Question>{`Question ${index + 1}: ${question}`}</Question>
+      <Question>{`${t("question")} ${index + 1}: ${question}`}</Question>
       <IconContainer>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n}>

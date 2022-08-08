@@ -694,11 +694,12 @@ mod tests {
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
-            let copied_modules =
+            let mut copied_modules =
                 crate::course_modules::get_by_course_id(tx.as_mut(), copied_course.id)
                     .await
                     .unwrap();
-            assert_eq!(copied_modules.len(), 1);
+            copied_modules.sort_by_key(|m| m.order_number);
+            assert_eq!(copied_modules.len(), 2);
             assert_eq!(
                 copied_modules.first().unwrap().copied_from,
                 Some(course_module.id)

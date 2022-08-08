@@ -198,7 +198,7 @@ macro_rules! insert_data {
         .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
-        let $course_module = $crate::course_modules::insert($tx.as_mut(), $course, None, 0).await.unwrap();
+        let $course_module = $crate::course_modules::insert($tx.as_mut(), $course, Some("extra module"), 999).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
         let $chapter = $crate::chapters::insert_chapter(

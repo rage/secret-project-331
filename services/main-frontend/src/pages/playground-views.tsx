@@ -4,7 +4,7 @@ import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -30,12 +30,14 @@ import { GradingRequest } from "../shared-module/exercise-service-protocol-types
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
 import { respondToOrLarger } from "../shared-module/styles/respond"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 interface PlaygroundFields {
   url: string
   width: string
   private_spec: string
   showIframeBorders: boolean
+  disableSandbox: boolean
 }
 
 const Area = styled.div`
@@ -120,6 +122,8 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
+const DEFAULT_SERVICE_INFO_URL = "http://project-331.local/example-exercise/api/service-info"
+
 const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
@@ -129,17 +133,19 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
     useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       // eslint-disable-next-line i18next/no-literal-string
-      url: "http://project-331.local/example-exercise/api/service-info",
+      url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
       width: "700",
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
+      disableSandbox: false,
     },
   })
 
@@ -147,6 +153,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const url = watch("url")
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
+  const disableSandbox = watch("disableSandbox")
 
   let exerciseServiceHost = ""
   try {
@@ -177,6 +184,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 
   const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
+
+  useEffect(() => {
+    if (isValidServiceInfo) {
+      // eslint-disable-next-line i18next/no-literal-string
+      localStorage.setItem("service-info-url", url)
+    }
+  }, [isValidServiceInfo, url])
 
   const publicSpecQuery = useQuery(
     [`iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
@@ -287,6 +301,20 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   {isValidServiceInfo ? t("valid-service-info") : t("invalid-service-info")}
                 </span>
                 <DebugModal data={serviceInfoQuery.data} buttonSize="small" />
+                {url !== DEFAULT_SERVICE_INFO_URL && (
+                  <Button
+                    variant={"secondary"}
+                    size={"small"}
+                    className={css`
+                      margin-left: 0.5rem;
+                    `}
+                    onClick={() => {
+                      setValue("url", DEFAULT_SERVICE_INFO_URL)
+                    }}
+                  >
+                    {t("button-text-reset-url")}
+                  </Button>
+                )}
               </div>
             )}
           </ServiceInfoUrlGridArea>
@@ -297,6 +325,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               register={register("width")}
             />
             <CheckBox label={t("show-iframe-borders")} register={register("showIframeBorders")} />
+            <CheckBox label={t("disable-sandbox")} register={register("disableSandbox")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
@@ -397,7 +426,29 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       </BreakFromCentered>
 
       <Area>
-        <h2>{t("title-iframe")}</h2>
+        <div
+          className={css`
+            display: flex;
+            align-items: center;
+            h2 {
+              margin-right: 1rem;
+            }
+            button {
+              height: 40px;
+            }
+          `}
+        >
+          <h2>{t("title-iframe")}</h2>{" "}
+          <Button
+            variant={"secondary"}
+            size={"small"}
+            onClick={() => {
+              setRefreshKey((prev) => prev + 1)
+            }}
+          >
+            {t("button-text-reload")}
+          </Button>
+        </div>
         <Area>
           <div
             className={css`
@@ -459,60 +510,65 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             </button>
           </div>
         </Area>
-        {serviceInfoQuery.data && isValidServiceInfo && serviceInfoQuery.data && privateSpec && (
-          <>
-            {currentView === "exercise-editor" && (
-              <PlaygroundExerciseEditorIframe
-                url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                privateSpec={privateSpec}
-                setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
-                showIframeBorders={showIframeBorders}
-              />
-            )}
-            {currentView === "exercise" && (
-              <>
-                <PlaygroundExerciseIframe
+        <div key={refreshKey}>
+          {serviceInfoQuery.data && isValidServiceInfo && serviceInfoQuery.data && privateSpec && (
+            <>
+              {currentView === "exercise-editor" && (
+                <PlaygroundExerciseEditorIframe
                   url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                  publicSpecQuery={publicSpecQuery}
+                  privateSpec={privateSpec}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
+                  disableSandbox={disableSandbox}
                 />
-                <Button
-                  variant={"primary"}
-                  size={"medium"}
-                  disabled={
-                    currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
-                  }
-                  onClick={() => submitAnswerMutation.mutate(undefined)}
-                >
-                  {t("button-text-submit")}
-                </Button>
-              </>
-            )}
-            {currentView === "view-submission" && (
-              <>
-                <CheckBox
-                  // eslint-disable-next-line i18next/no-literal-string
-                  label="Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)"
-                  checked={submissionViewSendModelsolutionSpec}
-                  onChange={() => {
-                    setSubmissionViewSendModelsolutionSpec(!submissionViewSendModelsolutionSpec)
-                  }}
-                />
-                <PlaygroundViewSubmissionIframe
-                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                  publicSpecQuery={publicSpecQuery}
-                  setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
-                  showIframeBorders={showIframeBorders}
-                  gradingQuery={submitAnswerMutation}
-                  modelSolutionSpecQuery={modelSolutionSpecQuery}
-                  userAnswer={userAnswer}
-                  sendModelsolutionSpec={submissionViewSendModelsolutionSpec}
-                />
-              </>
-            )}
-          </>
-        )}
+              )}
+              {currentView === "exercise" && (
+                <>
+                  <PlaygroundExerciseIframe
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    publicSpecQuery={publicSpecQuery}
+                    setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
+                    showIframeBorders={showIframeBorders}
+                    disableSandbox={disableSandbox}
+                  />
+                  <Button
+                    variant={"primary"}
+                    size={"medium"}
+                    disabled={
+                      currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
+                    }
+                    onClick={() => submitAnswerMutation.mutate(undefined)}
+                  >
+                    {t("button-text-submit")}
+                  </Button>
+                </>
+              )}
+              {currentView === "view-submission" && (
+                <>
+                  <CheckBox
+                    // eslint-disable-next-line i18next/no-literal-string
+                    label={t("label-send-model-solution-spec")}
+                    checked={submissionViewSendModelsolutionSpec}
+                    onChange={() => {
+                      setSubmissionViewSendModelsolutionSpec(!submissionViewSendModelsolutionSpec)
+                    }}
+                  />
+                  <PlaygroundViewSubmissionIframe
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    publicSpecQuery={publicSpecQuery}
+                    setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
+                    showIframeBorders={showIframeBorders}
+                    gradingQuery={submitAnswerMutation}
+                    modelSolutionSpecQuery={modelSolutionSpecQuery}
+                    userAnswer={userAnswer}
+                    sendModelsolutionSpec={submissionViewSendModelsolutionSpec}
+                    disableSandbox={disableSandbox}
+                  />
+                </>
+              )}
+            </>
+          )}
+        </div>
       </Area>
 
       <Area>
@@ -571,4 +627,4 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default IframeViewPlayground
+export default withNoSsr(IframeViewPlayground)

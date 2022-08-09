@@ -283,6 +283,7 @@
   "serial-number": "Sarjanumero",
   "service-info-url": "Palvelun tiedot URL",
   "show-iframe-borders": "Näytä IFramen reunat",
+  "disable-sandbox": "Poista hiekkalaatikko käytöstä",
   "sign-in-if-you-have-an-account": "Onko sinulla jo käyttäjätunnus? Kirjaudu sisään.",
   "sign-up-with-mooc-subtitle": "Tämä kurssi käyttää mooc.fi käyttäjätunnuksia. Jos olet aikaisemmin opiskellut mooc.fi:n kursseja, voit käyttää olemassaolevia käyttäjätunnuksiasi sisäänkirjautumissivulla. Tällä sivulla voit luoda uuden käyttäjätunnuksen joka toimii suurimmalla osalla mooc.fi:n kursseilla ja palveluilla.",
   "skip-to-content": "Siirry sisältöön",
@@ -353,5 +354,8 @@
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
-  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta"
+  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta",
+  "button-text-reload": "Lataa uudestaan",
+  "button-text-reset-url": "Nollaa URL",
+  "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydeet pisteet tehtävästä)"
 }

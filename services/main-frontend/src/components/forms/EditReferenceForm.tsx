@@ -59,8 +59,13 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
     }
   })
 
-  const cite = new Cite(reference.reference)
-  const defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
+  let defaultValueReference: string = reference.reference
+  try {
+    const cite = new Cite(reference.reference)
+    defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
+  } catch (error: any) {
+    console.log(error)
+  }
 
   return (
     <form

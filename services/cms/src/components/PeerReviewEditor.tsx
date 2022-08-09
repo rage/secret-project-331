@@ -20,6 +20,7 @@ import {
 import Button from "../shared-module/components/Button"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
+import TextField from "../shared-module/components/InputFields/TextField"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -251,68 +252,42 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           return (
             <div key={pr.id} id={pr.id}>
               <Wrapper>
-                <span
-                  className={css`
-                    width: 100%;
-                  `}
-                >
-                  {t("peer-reviews-to-receive")}
-                </span>
-                <input
+                <TextField
                   type={"number"}
                   min={0}
+                  label={t("peer-reviews-to-receive")}
                   required
                   value={pr.peer_reviews_to_receive}
                   onChange={(e) => {
-                    handlePeerReviewValueChange(pr.id, e.target.value, "peer_reviews_to_receive")
+                    handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_receive")
                   }}
                 />
-                <span
-                  className={css`
-                    width: 100%;
-                  `}
-                >
-                  {t("peer-reviews-to-give")}
-                </span>
-                <input
+                <TextField
                   type={"number"}
                   min={0}
                   required
                   value={pr.peer_reviews_to_give}
-                  onChange={(e) =>
-                    handlePeerReviewValueChange(pr.id, e.target.value, "peer_reviews_to_give")
-                  }
+                  label={t("peer-reviews-to-give")}
+                  onChange={(e) => handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_give")}
                 />
-                <span
-                  className={css`
-                    width: 100%;
-                  `}
-                >
-                  {t("peer-review-accepting-strategy")}
-                </span>
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
+                  label={t("peer-review-accepting-strategy")}
                   onBlur={() => null}
                   onChange={(e) => {
                     handlePeerReviewValueChange(pr.id, e, "accepting_strategy")
                   }}
                   options={peerReviewAcceptingStrategyOptions}
                 />
-                <span
-                  className={css`
-                    width: 100%;
-                  `}
-                >
-                  {t("peer-review-accepting-threshold")}
-                </span>
-                <input
+                <TextField
+                  label={t("peer-review-accepting-threshold")}
                   type={"number"}
                   step="0.01"
                   min={0}
                   required
                   value={pr.accepting_threshold}
                   onChange={(e) => {
-                    handlePeerReviewValueChange(pr.id, e.target.value, "accepting_threshold")
+                    handlePeerReviewValueChange(pr.id, e, "accepting_threshold")
                   }}
                 />
 

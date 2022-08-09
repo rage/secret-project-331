@@ -71,7 +71,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     chapters.sort((l, r) => l.chapter_number - r.chapter_number)
     let currentModule: string | null = null
     for (const chapter of chapters) {
-      console.log(chapter)
       if (chapter.module !== null) {
         if (chapter.module !== currentModule) {
           currentModule = chapter.module

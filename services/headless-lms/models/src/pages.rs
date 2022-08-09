@@ -2644,7 +2644,7 @@ mod test {
         };
 
         // Works without exercises
-        assert!(create_update(vec![], vec![], vec![])
+        assert!(create_update(vec![], vec![], vec![], vec![], vec![])
             .validate_exercise_data()
             .is_ok());
 
@@ -2653,17 +2653,21 @@ mod test {
             vec![e1.clone()],
             vec![e1_s1.clone()],
             vec![e1_s1_t1.clone()],
+            vec![],
+            vec![]
         )
         .validate_exercise_data()
         .is_ok());
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
-            .validate_exercise_data()
-            .is_err());
+        assert!(
+            create_update(vec![e1.clone()], vec![], vec![e1_s1_t1], vec![], vec![])
+                .validate_exercise_data()
+                .is_err()
+        );
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
+        assert!(create_update(vec![e1], vec![e1_s1], vec![], vec![], vec![])
             .validate_exercise_data()
             .is_err());
     }
@@ -2672,14 +2676,16 @@ mod test {
         exercises: Vec<CmsPageExercise>,
         exercise_slides: Vec<CmsPageExerciseSlide>,
         exercise_tasks: Vec<CmsPageExerciseTask>,
+        peer_reviews: Vec<CmsPeerReview>,
+        peer_review_questions: Vec<CmsPeerReviewQuestion>,
     ) -> CmsPageUpdate {
         CmsPageUpdate {
             content: serde_json::json!([]),
             exercises,
             exercise_slides,
             exercise_tasks,
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
+            peer_reviews: peer_reviews,
+            peer_review_questions: peer_review_questions,
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,

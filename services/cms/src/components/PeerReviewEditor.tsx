@@ -246,8 +246,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           display: block;
         `}
       >
-        <span>{t("add-peer-review")}</span>
-        <Switch onChange={togglePeerReview} checked={parsedPeerReviews.length > 0} />
+        <label htmlFor="switch">{t("add-peer-review")}</label>
+        <Switch
+          id="switch"
+          aria-label="switch"
+          onChange={togglePeerReview}
+          checked={parsedPeerReviews.length > 0}
+        />
         {parsedPeerReviews.map((pr) => {
           return (
             <div key={pr.id} id={pr.id}>

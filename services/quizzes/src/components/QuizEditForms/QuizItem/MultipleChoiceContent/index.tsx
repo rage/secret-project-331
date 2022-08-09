@@ -13,7 +13,6 @@ import { createdNewOption, deletedItem } from "../../../../store/editor/editorAc
 import { setAdvancedEditing } from "../../../../store/editor/itemVariables/itemVariableActions"
 import { editedQuizItemTitle } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
-import MarkdownEditor from "../../../MarkdownEditor"
 import {
   AdvancedBox,
   AdvancedBoxModalOpenClass,
@@ -22,6 +21,7 @@ import {
   ModalButtonWrapper,
   StyledModal,
 } from "../../../Shared/Modal"
+import TextEditor from "../../../TextEditor"
 
 import MultipleChoiceButton from "./MultipleChoiceButton"
 import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
@@ -29,6 +29,7 @@ import MultipleChoiceModalContent from "./MultipleChoiceModalContent"
 const QuizContent = styled.div`
   padding: 1rem;
   display: flex;
+  width: 100%;
   @media only screen and (max-width: 600px) {
     width: 100%;
   }
@@ -91,7 +92,10 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
           </AdvancedBox>
         </Fade>
       </StyledModal>
-      <MarkdownEditor
+      <TextEditor
+        latex
+        markdown
+        inline
         label={t("title")}
         onChange={(value) => dispatch(editedQuizItemTitle(value.trimStart(), storeItem.id))}
         text={storeItem.title ?? ""}
@@ -104,11 +108,6 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
         {t("title-options")}
       </h3>
       <QuizContentLineContainer>
-        {storeItem.options.map((option, i) => (
-          <QuizContent key={option}>
-            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
-          </QuizContent>
-        ))}
         <QuizContent>
           <Button
             title={t("add-option")}
@@ -119,6 +118,11 @@ const MultipleChoiceContent: React.FC<React.PropsWithChildren<MultipleChoiceCont
             {t("add-option")}
           </Button>
         </QuizContent>
+        {storeItem.options.map((option, i) => (
+          <QuizContent key={option}>
+            <MultipleChoiceButton index={i + 1} option={storeOptions[option]} />
+          </QuizContent>
+        ))}
       </QuizContentLineContainer>
     </>
   )

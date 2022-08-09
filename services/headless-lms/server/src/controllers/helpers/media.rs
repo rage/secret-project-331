@@ -3,14 +3,16 @@
 use std::{path::PathBuf, sync::Arc};
 
 pub use crate::domain::authorization::AuthorizationToken;
-use crate::{controllers::prelude::*, domain::authorization::AuthorizedResponse};
+use crate::{
+    controllers::prelude::*,
+    domain::{authorization::AuthorizedResponse, file_uploading::upload_media_to_storage},
+};
 use actix_http::header::HeaderMap;
 use actix_multipart::Field;
 use actix_web::http::header;
 use futures::StreamExt;
 use headless_lms_utils::{
-    file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
-    strings::generate_random_string,
+    file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
 use models::organizations::DatabaseOrganization;
 

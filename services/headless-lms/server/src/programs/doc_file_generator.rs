@@ -2,8 +2,7 @@
 
 use std::{collections::HashMap, fs};
 
-use chrono::{NaiveDate, TimeZone, Utc};
-use headless_lms_actix::controllers::{
+use crate::controllers::{
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -11,6 +10,7 @@ use headless_lms_actix::controllers::{
     main_frontend::exercises::ExerciseSubmissions,
     UploadResult,
 };
+use chrono::{NaiveDate, TimeZone, Utc};
 use headless_lms_models::{
     chapters::{
         Chapter, ChapterStatus, ChapterWithStatus, DatabaseChapter,
@@ -93,7 +93,7 @@ macro_rules! write_docs {
     }};
 }
 
-fn main() {
+pub async fn main() -> anyhow::Result<()> {
     // reusable variables
     let id = Uuid::parse_str("307fa56f-9853-4f5c-afb9-a6736c232f32").unwrap();
     let id2 = Uuid::parse_str("3c6ca496-17ac-445c-88c0-4ded2f2dbe58").unwrap();
@@ -1090,6 +1090,7 @@ fn main() {
             }),
         }
     );
+    Ok(())
 }
 
 fn write_json<T: Serialize>(path: &str, value: T) {

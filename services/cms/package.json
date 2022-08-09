@@ -12,7 +12,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@emotion/babel-plugin": "^11.9.2",
     "@emotion/css": "^11.9.0",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
@@ -69,6 +68,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@svgr/webpack": "^6.3.1",
     "@types/jest": "^27.5.0",
     "@types/node": "^18.6.1",
     "@types/react": "^17.0.39",
@@ -84,7 +84,6 @@
     "@types/wordpress__deprecated": "^2.4.3",
     "@types/wordpress__media-utils": "^3.0.0",
     "@wordpress/scripts": "^23.5.0",
-    "babel-plugin-inline-react-svg": "^2.0.1",
     "jest": "^27.5.1",
     "jsdom": "^20.0.0",
     "json-schema-to-typescript": "^11.0.1",

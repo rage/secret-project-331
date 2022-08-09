@@ -76,7 +76,7 @@ const BottomPanel: React.FC<Props> = ({
       {error !== undefined && error !== null && (
         <div
           className={css`
-            border-radius: 1rem;
+            border-radius: 2px;
             padding: 1rem;
             margin-bottom: 0.6rem;
             color: ${baseTheme.colors.clear[200]};

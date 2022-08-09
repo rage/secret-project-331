@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
+import ParsedText from "../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -64,7 +65,7 @@ const MultipleChoiceSubmission: React.FC<
           font-family: "Raleway", sans-serif;
         `}
       >
-        {public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}
+        <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
       </div>
       <p
         className={css`
@@ -119,7 +120,7 @@ const MultipleChoiceSubmission: React.FC<
                       max-width: 50ch;
                     `}
                   >
-                    <MarkdownText text={qo.title || qo.body || ""} />
+                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
                   </div>
                   <div>
                     <div

@@ -81,7 +81,7 @@ pub async fn seed_playground_examples(db_pool: Pool<Postgres>) -> anyhow::Result
                 "items": [
                     {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
-                        "body": "Which of the color codes represent the color **red**?",
+                        "body": "[markdown]Which of the color codes represent the color **red**?[/markdown]",
                         "direction": "row",
                         "formatRegex": null,
                         "maxLabel": null,
@@ -161,7 +161,7 @@ pub async fn seed_playground_examples(db_pool: Pool<Postgres>) -> anyhow::Result
                 "items": [
                     {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
-                        "body": "Which of the color codes represent the color **red**?",
+                        "body": "[markdown]Which of the color codes represent the color **red**?[/markdown]",
                         "direction": "column",
                         "formatRegex": null,
                         "maxLabel": null,
@@ -306,7 +306,7 @@ pub async fn seed_playground_examples(db_pool: Pool<Postgres>) -> anyhow::Result
                 "items": [
                     {
                         "id": "a6bc7e17-dc82-409e-b0d4-08bb8d24dc76",
-                        "body": "Which of the color codes represent the color **red**?",
+                        "body": "[markdown]Which of the color codes represent the color **red**?[/markdown]",
                         "direction": "row",
                         "formatRegex": null,
                         "maxLabel": null,

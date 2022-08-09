@@ -252,24 +252,38 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           return (
             <div key={pr.id} id={pr.id}>
               <Wrapper>
-                <TextField
-                  type={"number"}
-                  min={0}
-                  label={t("peer-reviews-to-receive")}
-                  required
-                  value={pr.peer_reviews_to_receive}
-                  onChange={(e) => {
-                    handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_receive")
-                  }}
-                />
-                <TextField
-                  type={"number"}
-                  min={0}
-                  required
-                  value={pr.peer_reviews_to_give}
-                  label={t("peer-reviews-to-give")}
-                  onChange={(e) => handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_give")}
-                />
+                <div
+                  className={css`
+                    display: flex;
+                  `}
+                >
+                  <TextField
+                    className={css`
+                      width: 100%;
+                      margin-right: 0.5rem;
+                    `}
+                    type={"number"}
+                    min={0}
+                    label={t("peer-reviews-to-receive")}
+                    required
+                    value={pr.peer_reviews_to_receive}
+                    onChange={(e) => {
+                      handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_receive")
+                    }}
+                  />
+                  <TextField
+                    className={css`
+                      width: 100%;
+                      margin-left: 0.5rem;
+                    `}
+                    type={"number"}
+                    min={0}
+                    required
+                    value={pr.peer_reviews_to_give}
+                    label={t("peer-reviews-to-give")}
+                    onChange={(e) => handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_give")}
+                  />
+                </div>
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   label={t("peer-review-accepting-strategy")}

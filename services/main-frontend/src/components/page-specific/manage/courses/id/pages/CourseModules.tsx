@@ -1,9 +1,4 @@
 import { css } from "@emotion/css"
-import CancelIcon from "@mui/icons-material/Cancel"
-import CheckIcon from "@mui/icons-material/Check"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
-import { IconButton } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,21 +6,21 @@ import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, theme } from "../../../../../../shared-module/styles"
+import { baseTheme } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import BottomPanel from "../../../../../BottomPanel"
+
+import EditCourseModuleForm from "./EditCourseModuleForm"
+import NewCourseModuleForm from "./NewCourseModuleForm"
 
 interface Props {
   courseId: string
 }
 
-type ModuleView = {
+export type ModuleView = {
   id: string
   name: string | null
   order_number: number
@@ -45,13 +40,7 @@ type ModuleList = {
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  // new module state
   const [chapterNumbers, setChapterNumbers] = useState([1])
-  const [newModuleName, setNewModuleName] = useState("")
-  const [newModuleStartChapter, setNewModuleStartChapter] = useState(1)
-  const [newModuleEndChapter, setNewModuleEndChapter] = useState(1)
-  const firstChapter = chapterNumbers[0]
-  const lastChapter = chapterNumbers[chapterNumbers.length - 1]
 
   // module list state
   const [initialModuleList, setInitialModuleList] = useState<ModuleList>({
@@ -64,12 +53,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     chapters: [],
     error: null,
   })
-
-  // editing module state
-  const [editingModuleId, setEditingModuleId] = useState<string | null>(null)
-  const [editingModuleName, setEditingModuleName] = useState<string | null>(null)
-  const [editingModuleStarts, setEditingModuleStarts] = useState(firstChapter)
-  const [editingModuleEnds, setEditingModuleEnds] = useState(lastChapter)
 
   // submitting state
   const [edited, setEdited] = useState(false)
@@ -169,11 +152,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     })
     return modules
   }
-  const resetNewModuleForm = () => {
-    setNewModuleName("")
-    setNewModuleStartChapter(firstChapter)
-    setNewModuleEndChapter(lastChapter)
-  }
 
   // queries and mutations
   const courseStructureQuery = useQuery(
@@ -185,8 +163,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           .sort((l, r) => l.chapter_number - r.chapter_number)
           .map((c) => c.chapter_number)
         setChapterNumbers(chapterNumbers)
-        setNewModuleStartChapter(chapterNumbers[0])
-        setNewModuleEndChapter(chapterNumbers[chapterNumbers.length - 1])
 
         const makeModuleList = () => {
           const chapters = courseStructure.chapters
@@ -320,15 +296,84 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     },
   )
 
-  // onClick functions
-  const clickCreateNewModule = () => {
+  // handler functions
+  const handleSaveModuleEdits = (
+    id: string,
+    {
+      name,
+      starts,
+      ends,
+    }: {
+      name: string | null
+      starts: number
+      ends: number
+    },
+  ) => {
+    setModuleList((old) => {
+      const chapters = [...old.chapters]
+      chapters.forEach((c) => {
+        if (starts <= c.chapter_number && c.chapter_number <= ends) {
+          c.module = id
+        } else if (c.module === id) {
+          c.module = null
+        }
+      })
+      const modules = [...old.modules]
+      modules.forEach((m) => {
+        if (m.id === id) {
+          m.name = name
+        }
+        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
+        m.firstChapter = first
+        m.lastChapter = last
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const handleDeleteModule = (moduleId: string) => {
+    setEdited(true)
+    setModuleList((old) => {
+      const modules = old.modules.filter((m) => m.id !== moduleId)
+      const chapters = [...old.chapters].map((c) => {
+        const updated = { ...c }
+        if (updated.module === moduleId) {
+          updated.module = null
+        }
+        return updated
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const handleSubmit = () => moduleUpdatesMutation.mutate()
+  const handleReset = () => {
+    setEdited(false)
+    setModuleList(initialModuleList)
+  }
+
+  const onSaveNewModule = ({
+    name,
+    starts,
+    ends,
+  }: {
+    name: string
+    starts: number
+    ends: number
+  }) => {
     setEdited(true)
     const newModuleId = v4()
     setModuleList((old) => {
       // update chapters
       const chapters = [...old.chapters]
       chapters.forEach((c) => {
-        if (newModuleStartChapter <= c.chapter_number && c.chapter_number <= newModuleEndChapter) {
+        if (starts <= c.chapter_number && c.chapter_number <= ends) {
           c.module = newModuleId
         }
       })
@@ -338,7 +383,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         ...old.modules,
         {
           id: newModuleId,
-          name: newModuleName,
+          name,
           order_number: 1,
           firstChapter: 1,
           lastChapter: 1,
@@ -357,72 +402,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         error: validateModuleList(modules, chapters),
       }
     })
-    resetNewModuleForm()
-  }
-  const clickResetModuleForm = resetNewModuleForm
-  const clickSaveModuleEdits = () => {
-    setEditingModuleId(null)
-    setEdited(true)
-    setModuleList((old) => {
-      const chapters = [...old.chapters]
-      chapters.forEach((c) => {
-        if (editingModuleStarts <= c.chapter_number && c.chapter_number <= editingModuleEnds) {
-          c.module = editingModuleId
-        } else if (c.module === editingModuleId) {
-          c.module = null
-        }
-      })
-      const modules = [...old.modules]
-      modules.forEach((m) => {
-        if (m.id === editingModuleId) {
-          m.name = editingModuleName
-        }
-        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
-        m.firstChapter = first
-        m.lastChapter = last
-      })
-      return {
-        modules: sortAndUpdateOrderNumbers(modules),
-        chapters,
-        error: validateModuleList(modules, chapters),
-      }
-    })
-  }
-  const clickCancelModuleEdits = () => {
-    setEditingModuleId(null)
-  }
-  const clickEditModule = (module: ModuleView) => {
-    setEditingModuleId(module.id)
-    setEditingModuleName(module.name)
-    setEditingModuleStarts(module.firstChapter ?? firstChapter)
-    setEditingModuleEnds(module.lastChapter ?? lastChapter)
-  }
-  const clickDeleteModule = (module: ModuleView) => {
-    setEdited(true)
-    setModuleList((old) => {
-      const modules = old.modules.filter((m) => m.id !== module.id)
-      const chapters = [...old.chapters].map((c) => {
-        const updated = { ...c }
-        if (updated.module === module.id) {
-          updated.module = null
-        }
-        return updated
-      })
-      return {
-        modules: sortAndUpdateOrderNumbers(modules),
-        chapters,
-        error: validateModuleList(modules, chapters),
-      }
-    })
-  }
-  const clickSubmit = () => {
-    moduleUpdatesMutation.mutate()
-  }
-  const clickReset = () => {
-    setEditingModuleId(null)
-    resetNewModuleForm()
-    setEdited(false)
-    setModuleList(initialModuleList)
   }
 
   if (courseStructureQuery.isError) {
@@ -449,85 +428,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         >
           {t("modules")}
         </h1>
-        <div
-          className={css`
-            min-width: 60%;
-            padding: 2rem;
-            border: 0.1rem solid rgba(205, 205, 205, 0.8);
-            margin-bottom: 2rem;
-          `}
-        >
-          <TextField
-            label={t("create-module")}
-            placeholder={t("name-of-module")}
-            value={newModuleName}
-            onChange={setNewModuleName}
-          />
-          <div>{t("select-module-start-end-chapters")}</div>
-          <div
-            className={css`
-              display: flex;
-              flex-wrap: wrap;
-              flex-direction: row;
-              justify-content: space-between;
-            `}
-          >
-            <div
-              className={css`
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-              `}
-            >
-              <SelectField
-                className={css`
-                  min-width: 5rem;
-                  margin-right: 1rem;
-                `}
-                id="new-module-start"
-                label={t("starts")}
-                options={chapterNumbers.map((cn) => {
-                  return { value: cn.toString(), label: cn.toString() }
-                })}
-                value={newModuleStartChapter.toString()}
-                onChange={(val) => setNewModuleStartChapter(parseInt(val))}
-              />
-              <SelectField
-                className={css`
-                  min-width: 5rem;
-                `}
-                id="new-module-ends"
-                label={t("ends")}
-                options={chapterNumbers.map((cn) => {
-                  return { value: cn.toString(), label: cn.toString() }
-                })}
-                value={newModuleEndChapter.toString()}
-                onChange={(val) => setNewModuleEndChapter(parseInt(val))}
-              />
-            </div>
-            <div
-              className={css`
-                display: flex;
-                flex-direction: row;
-                justify-content: end;
-              `}
-            >
-              <Button
-                className={css`
-                  max-height: 3rem;
-                  align-self: flex-end;
-                  margin: 1rem;
-                `}
-                size="medium"
-                variant="tertiary"
-                disabled={newModuleName.length === 0}
-                onClick={clickCreateNewModule}
-              >
-                {t("confirm")}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <NewCourseModuleForm chapters={chapterNumbers} onSubmitForm={onSaveNewModule} />
         {modules
           .sort((l, r) => {
             return l.order_number - r.order_number
@@ -543,164 +444,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               `}
               key={module.id}
             >
-              <div
-                className={css`
-                  display: flex;
-                  flex-wrap: wrap;
-                  background-color: ${theme.primary.bg};
-                  color: ${theme.primary.text};
-                  align-items: center;
-                  margin-bottom: 0.5rem;
-                  justify-content: space-between;
-                `}
-              >
-                <div
-                  className={css`
-                    text-transform: uppercase;
-                    font-weight: 600;
-                    margin: 1rem;
-                    flex-grow: 1;
-                    ${respondToOrLarger.sm} {
-                      max-width: 16rem;
-                    }
-                  `}
-                >
-                  {module.name ? (
-                    editingModuleId === module.id ? (
-                      <TextField
-                        label={t("edit-module")}
-                        labelStyle={css`
-                          color: ${baseTheme.colors.clear[100]};
-                        `}
-                        placeholder={t("name-of-module")}
-                        value={editingModuleName ?? ""}
-                        onChange={setEditingModuleName}
-                      />
-                    ) : (
-                      `${module.order_number}: ${module.name}`
-                    )
-                  ) : (
-                    t("default-module")
-                  )}
-                </div>
-                <div
-                  className={css`
-                    display: flex;
-                    flex-wrap: wrap;
-                    align-items: flex-end;
-                    flex-grow: 1;
-                    justify-content: space-between;
-                  `}
-                >
-                  {editingModuleId === module.id ? (
-                    <div
-                      className={css`
-                        display: flex;
-                        margin-left: 1rem;
-                        margin-right: 1rem;
-                        margin-bottom: 1rem;
-                      `}
-                    >
-                      <SelectField
-                        className={css`
-                          min-width: 5rem;
-                          margin-right: 1rem;
-                        `}
-                        id="editing-module-start"
-                        label={t("starts")}
-                        labelStyle={css`
-                          color: ${baseTheme.colors.clear[100]};
-                        `}
-                        options={chapterNumbers.map((cn) => {
-                          return { value: cn.toString(), label: cn.toString() }
-                        })}
-                        value={editingModuleStarts.toString()}
-                        onChange={(val) => setEditingModuleStarts(parseInt(val))}
-                      />
-                      <SelectField
-                        className={css`
-                          min-width: 5rem;
-                          margin-left: 1rem;
-                        `}
-                        id="editing-module-ends"
-                        label={t("ends")}
-                        labelStyle={css`
-                          color: ${baseTheme.colors.clear[100]};
-                        `}
-                        options={chapterNumbers.map((cn) => {
-                          return { value: cn.toString(), label: cn.toString() }
-                        })}
-                        value={editingModuleEnds.toString()}
-                        onChange={(val) => setEditingModuleEnds(parseInt(val))}
-                      />
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
-                  <div
-                    className={css`
-                      display: flex;
-                      align-items: flex-end;
-                    `}
-                  >
-                    {editingModuleId === module.id ? (
-                      <>
-                        <IconButton
-                          aria-label={t("button-text-save")}
-                          className={css`
-                            background-color: ${baseTheme.colors.green[400]};
-                            border-radius: 0;
-                            height: 3.5rem;
-                            width: 3.5rem;
-                          `}
-                          onClick={clickSaveModuleEdits}
-                        >
-                          <CheckIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label={t("button-text-cancel")}
-                          className={css`
-                            background-color: ${baseTheme.colors.green[400]};
-                            border-radius: 0;
-                            height: 3.5rem;
-                            width: 3.5rem;
-                          `}
-                          onClick={clickCancelModuleEdits}
-                        >
-                          <CancelIcon />
-                        </IconButton>
-                      </>
-                    ) : (
-                      <IconButton
-                        aria-label={t("edit")}
-                        className={css`
-                          background-color: ${baseTheme.colors.green[400]};
-                          border-radius: 0;
-                          height: 3.5rem;
-                          width: 3.5rem;
-                        `}
-                        onClick={() => clickEditModule(module)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    )}
-                    {module.name !== null && (
-                      <IconButton
-                        aria-label={t("button-text-delete")}
-                        className={css`
-                          background-color: ${baseTheme.colors.green[300]};
-                          border-radius: 0;
-                          height: 3.5rem;
-                          width: 3.5rem;
-                        `}
-                        onClick={() => clickDeleteModule(module)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <EditCourseModuleForm
+                module={module}
+                chapters={chapterNumbers}
+                onSubmitForm={handleSaveModuleEdits}
+                onDeleteModule={handleDeleteModule}
+              />
               {chapters
                 .filter((c) => c.module === module.id)
                 .map((c) => (
@@ -736,9 +485,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         show={edited}
         leftButtonText={t("save-changes")}
         leftButtonDisabled={error !== null || submitting}
-        onClickLeft={clickSubmit}
+        onClickLeft={handleSubmit}
         rightButtonText={t("button-reset")}
-        onClickRight={clickReset}
+        onClickRight={handleReset}
         rightButtonDisabled={submitting}
       />
     </>

@@ -46,15 +46,19 @@ pub async fn seed_organization_uh_mathstat(
         is_draft: false,
         is_test_mode: false,
     };
-    let (statistics_course, _statistics_front_page, _statistics_default_course_instance) =
-        courses::insert_course(
-            &mut conn,
-            Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
-            Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
-            new_course,
-            admin_user_id,
-        )
-        .await?;
+    let (
+        statistics_course,
+        _statistics_front_page,
+        _statistics_default_course_instancem,
+        _statistics_default_course_module,
+    ) = courses::insert_course(
+        &mut conn,
+        Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
+        Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
+        new_course,
+        admin_user_id,
+    )
+    .await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
         NewCourseInstance {

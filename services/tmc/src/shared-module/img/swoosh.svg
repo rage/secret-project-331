@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect width="24" height="24" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Icon_Check_Circle_Sharp" opacity="0.5" clip-path="url(#clip-path)">
+    <rect id="Box" width="24" height="24" fill="none"/>
+    <path id="Icon_Check_Circle_Purple" d="M8,15,3,10,4.4,8.6,8,12.2l7.6-7.6L17,6ZM10,0A10,10,0,1,0,20,10,10.029,10.029,0,0,0,10,0Z" transform="translate(2 2)"/>
+  </g>
+</svg>

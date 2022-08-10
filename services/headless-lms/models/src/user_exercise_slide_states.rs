@@ -319,7 +319,7 @@ mod tests {
         async fn create_test_data(tx: &mut Tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id =
-                chapters::insert(tx.as_mut(), "chapter", course, 1, course_module).await?;
+                chapters::insert(tx.as_mut(), "chapter", course, 1, course_module.id).await?;
             let (page_id, _history) =
                 pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
             let exercise_id =

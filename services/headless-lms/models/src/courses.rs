@@ -7,6 +7,7 @@ use crate::{
     chapters::{course_chapters, Chapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
+    course_modules::CourseModule,
     pages::{course_pages, NewPage, Page},
     prelude::*,
 };
@@ -53,6 +54,7 @@ pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
     pub chapters: Vec<Chapter>,
+    pub modules: Vec<CourseModule>,
 }
 
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
@@ -244,10 +246,12 @@ pub async fn get_course_structure(
         .iter()
         .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
         .collect();
+    let modules = crate::course_modules::get_by_course_id(conn, course_id).await?;
     Ok(CourseStructure {
         course,
         pages,
         chapters,
+        modules,
     })
 }
 
@@ -348,7 +352,7 @@ pub async fn insert_course(
     default_instance_id: Uuid,
     new_course: NewCourse,
     user: Uuid,
-) -> ModelResult<(Course, Page, CourseInstance)> {
+) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
 
     let course_language_group_id = course_language_groups::insert(&mut tx).await?;
@@ -427,8 +431,11 @@ RETURNING id,
     )
     .await?;
 
+    // Create default course module
+    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+
     tx.commit().await?;
-    Ok((course, page, default_course_instance))
+    Ok((course, page, default_course_instance, default_module))
 }
 
 // Represents the subset of page fields that one is allowed to update in a course

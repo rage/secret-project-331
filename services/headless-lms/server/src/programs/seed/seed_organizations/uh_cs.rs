@@ -194,14 +194,15 @@ pub async fn seed_organization_uh_cs(
         is_draft: false,
         is_test_mode: false,
     };
-    let (cs_course, _cs_front_page, _cs_default_course_instance) = courses::insert_course(
-        &mut conn,
-        Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
-        Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
-        new_course,
-        admin_user_id,
-    )
-    .await?;
+    let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
+        courses::insert_course(
+            &mut conn,
+            Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+            Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
+            new_course,
+            admin_user_id,
+        )
+        .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
         NewCourseInstance {
@@ -258,6 +259,17 @@ async fn courses_group_1(
         Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
         "Introduction to localizing",
         "introduction-to-localizing",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
+        "Course Modules",
+        "course-modules",
         admin_user_id,
         student_user_id,
         &example_normal_user_ids,

@@ -10,6 +10,7 @@ interface TextFieldExtraProps {
   name?: string
   type?: "email" | "password" | "text" | "number"
   label?: string
+  labelStyle?: string
   hint?: string
   error?: string
   placeholder?: string
@@ -85,16 +86,19 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
       <label>
         {rest.label && (
           <div
-            className={css`
-              color: #333;
-              font-family: ${primaryFont};
-              font-weight: 500;
-              font-size: 14px;
-              display: inline-block;
-              margin-bottom: 2px;
-              ${disabled && `color: ${baseTheme.colors.grey[400]};`}
-              ${disabled && `cursor: not-allowed;`}
-            `}
+            className={cx(
+              css`
+                color: #333;
+                font-family: ${primaryFont};
+                font-weight: 500;
+                font-size: 14px;
+                display: inline-block;
+                margin-bottom: 2px;
+                ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+                ${disabled && `cursor: not-allowed;`}
+              `,
+              rest.labelStyle,
+            )}
           >
             {rest.label}
           </div>

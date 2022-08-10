@@ -27,8 +27,8 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     page.click("text=Advanced exercise states"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
+  // Click text=default
+  await page.click("text=default")
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 

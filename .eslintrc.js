@@ -191,6 +191,7 @@ module.exports = {
           "testPlaceholder",
           "sidebarPosition",
           "buttonSize",
+          "labelStyle",
         ],
         ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
         ignoreCallee: [

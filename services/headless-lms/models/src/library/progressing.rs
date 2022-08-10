@@ -403,7 +403,8 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, _submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, default_module, _submodule_1, _submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &default_module,
@@ -430,10 +431,11 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
             insert_data!(:tx);
-            let (mut tx, user, instance, _default_module, submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, _default_module, submodule_1, _submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &submodule,
+                &submodule_1,
                 instance,
                 user,
             )
@@ -448,7 +450,7 @@ mod tests {
             .unwrap();
             let status = statuses
                 .iter()
-                .find(|x| x.module_id == submodule.id)
+                .find(|x| x.module_id == submodule_1.id)
                 .unwrap();
             assert!(status.completed);
             assert!(!status.prerequisite_modules_completed);
@@ -458,10 +460,11 @@ mod tests {
         async fn grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
         {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, default_module, submodule_1, submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &submodule,
+                &default_module,
                 instance,
                 user,
             )
@@ -469,7 +472,15 @@ mod tests {
             .unwrap();
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &default_module,
+                &submodule_1,
+                instance,
+                user,
+            )
+            .await
+            .unwrap();
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                &submodule_2,
                 instance,
                 user,
             )
@@ -490,7 +501,7 @@ mod tests {
 
         async fn create_test_data(
             mut tx: Tx<'_>,
-        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule) {
+        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
             let automatic_completion_policy =
                 AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
                     number_of_exercises_attempted_treshold: Some(0),
@@ -512,7 +523,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: Some(course_module_2),
+                    course_module_id: Some(course_module_2.id),
                 },
                 user,
             )
@@ -563,16 +574,16 @@ mod tests {
             )
             .await
             .unwrap();
-            course_modules::update_automatic_completion_status(
+            let default_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let default_module = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
-                course_module,
+                default_module.id,
                 &automatic_completion_policy,
             )
             .await
             .unwrap();
-            let course_module = course_modules::get_by_id(tx.as_mut(), course_module)
-                .await
-                .unwrap();
             let course_module = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
                 course_module.id,
@@ -580,9 +591,6 @@ mod tests {
             )
             .await
             .unwrap();
-            let course_module_2 = course_modules::get_by_id(tx.as_mut(), course_module_2)
-                .await
-                .unwrap();
             let course_module_2 = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
                 course_module_2.id,
@@ -590,7 +598,14 @@ mod tests {
             )
             .await
             .unwrap();
-            (tx, user, instance.id, course_module, course_module_2)
+            (
+                tx,
+                user,
+                instance.id,
+                default_module,
+                course_module,
+                course_module_2,
+            )
         }
     }
 

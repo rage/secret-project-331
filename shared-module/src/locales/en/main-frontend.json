@@ -283,6 +283,7 @@
   "serial-number": "Serial number",
   "service-info-url": "Service info URL",
   "show-iframe-borders": "Show IFrame borders",
+  "disable-sandbox": "Disable sandbox",
   "sign-in-if-you-have-an-account": "Do you already have an account? Log in.",
   "sign-up-with-mooc-subtitle": "This course uses mooc.fi accounts. If you have previously taken mooc.fi courses, you can use your existing credentials on the login page. On this page you can create a new account that works in most mooc.fi courses and services.",
   "skip-to-content": "Skip to content",
@@ -368,5 +369,8 @@
   "error-modules-chapter-not-in-module": "Chapter {{ chapterNumber }}: {{ chapterName }} does not belong to any module",
   "error-modules-empty-module": "Module {{ moduleName }} is empty",
   "link-modules": "Modules",
-  "title-dialog-module-save": "Do you want to save the changes to the course modules?"
+  "title-dialog-module-save": "Do you want to save the changes to the course modules?",
+  "button-text-reload": "Reload",
+  "button-text-reset-url": "Reset URL",
+  "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)"
 }

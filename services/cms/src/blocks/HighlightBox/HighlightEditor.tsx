@@ -11,8 +11,6 @@ import BlockWrapper from "../BlockWrapper"
 
 import { HighlightAttributes } from "."
 
-const ALLOWED_BLOCKS = ["core/heading", "core/paragraph"]
-
 const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<HighlightAttributes>>> = ({
   clientId,
   attributes,

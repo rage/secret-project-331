@@ -6,7 +6,7 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 import TableEditor from "./TableEditor"
 import TableSave from "./TableSave"
 
-const SponsorConfiguration: BlockConfiguration = {
+const TableBoxConfiguration: BlockConfiguration = {
   title: "TableBox",
   description: "Block for adding custom TableBox",
   category: MOOCFI_CATEGORY_SLUG,
@@ -15,4 +15,4 @@ const SponsorConfiguration: BlockConfiguration = {
   save: TableSave,
 }
 
-export default SponsorConfiguration
+export default TableBoxConfiguration

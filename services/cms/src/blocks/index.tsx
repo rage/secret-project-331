@@ -20,6 +20,7 @@ import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
 import PagesInChapter from "./PagesInChapter"
 import SponsorBlock from "./Sponsor"
+import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
 
@@ -44,6 +45,7 @@ export const blockTypeMapForPages = [
   ["moocfi/pages-in-chapter", PagesInChapter],
   ["moocfi/unsupported-block-type", UnsupportedBlock],
   ["moocfi/highlightbox", HightlightBox],
+  ["moocfi/tablebox", TableBox],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

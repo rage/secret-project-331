@@ -10,9 +10,9 @@ export interface HighlightAttributes {
   content: string
 }
 
-const HighlightBlockConfiguration: BlockConfiguration<HighlightAttributes> = {
+const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
   title: "HighlightBox",
-  description: "Block for writing HighlightBox",
+  description: "Block for adding HighlightBox",
   category: "text",
   attributes: {
     title: {
@@ -31,4 +31,4 @@ const HighlightBlockConfiguration: BlockConfiguration<HighlightAttributes> = {
   save: HighlightSave,
 }
 
-export default HighlightBlockConfiguration
+export default HighlightBoxConfiguration

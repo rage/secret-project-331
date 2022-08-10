@@ -4,6 +4,7 @@ import React from "react"
 import { BlockRendererProps } from ".."
 import Centered from "../../../shared-module/components/Centering/Centered"
 import { baseTheme, monospaceFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface HighlightBoxAttributes {
@@ -24,7 +25,17 @@ const HightlightBlock: React.FC<
           border: 1px solid #e2e4e6;
         `}
       >
-        <Centered variant="narrow">
+        <div
+          className={css`
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0rem 1.375rem;
+            ${respondToOrLarger.md} {
+              padding: 0rem;
+            }
+          `}
+        >
           <span
             className={css`
               color: ${baseTheme.colors.green[700]};
@@ -35,7 +46,7 @@ const HightlightBlock: React.FC<
             {props.data.attributes.title}
           </span>
           <span>{props.data.attributes.content}</span>
-        </Centered>
+        </div>
       </div>
     </>
   )

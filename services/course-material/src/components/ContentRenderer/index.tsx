@@ -49,6 +49,7 @@ import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import SponsorBlock from "./moocfi/SponsorBlock"
+import TableBox from "./moocfi/TableBox"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
@@ -125,6 +126,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/sponsor": SponsorBlock,
   "moocfi/highlightbox": HighlightBox,
+  "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
 }
 

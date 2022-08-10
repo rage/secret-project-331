@@ -108,7 +108,25 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const courseCount = getOrgCourseCount.data.count
   if (courseCount <= 0) {
-    return <div>{t("no-courses-in-org")}</div>
+    return (
+      <div>
+        {t("no-courses-in-org")} <br />
+        {loginStateContext.signedIn && (
+          <OnlyRenderIfPermissions
+            action={{ type: "create_courses_or_exams" }}
+            resource={{ id: organizationId, type: "organization" }}
+          >
+            <Button
+              size="medium"
+              variant="primary"
+              onClick={() => setNewCourseFormOpen(!newCourseFormOpen)}
+            >
+              {t("button-text-create")}
+            </Button>
+          </OnlyRenderIfPermissions>
+        )}
+      </div>
+    )
   }
   const pageCount = Math.ceil(courseCount / perPage)
   if (page > pageCount) {

@@ -4,10 +4,13 @@ import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
+import { baseTheme } from "../../shared-module/styles"
+
 import { QuizItemSubmissionComponentProps } from "."
 
 const MatrixTableContainer = styled.table`
   margin: auto;
+  margin-top: 1rem;
   background-color: grey;
   border-collapse: collapse;
   td {
@@ -29,12 +32,13 @@ const MatrixTableContainer = styled.table`
 
 interface isCellCorrectObject {
   text: string
-  correct: boolean | undefined
+  correct: boolean | null
 }
 
 const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
   quiz_item_model_solution,
   user_quiz_item_answer,
+  quiz_item_feedback,
 }) => {
   const correctAnswers = quiz_item_model_solution?.optionCells
   const studentAnswers = user_quiz_item_answer.optionCells
@@ -44,37 +48,32 @@ const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionCompo
     throw new Error("No student answers")
   }
 
-  if (!correctAnswers) {
-    // eslint-disable-next-line i18next/no-literal-string
-    throw new Error("No correct answers")
-  }
-
-  const isMatrixCorrect: boolean[] = []
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 6; j++) {
-      isMatrixCorrect.push(correctAnswers[i][j] === studentAnswers[i][j])
-    }
-  }
-  const includesSingleFalse = isMatrixCorrect.includes(false)
+  const isIncorrect = !quiz_item_feedback?.quiz_item_correct
 
   const findOptionText = (
     column: number,
     row: number,
-    isStudent?: boolean,
+    isStudentsAnswer: boolean,
   ): isCellCorrectObject => {
-    let text = ""
-    if (isStudent === true) {
-      text = studentAnswers[row][column]
+    if (!correctAnswers) {
       return {
-        text,
-        correct: studentAnswers[row][column] === correctAnswers[row][column],
+        text: studentAnswers[row][column],
+        correct: null,
       }
-    } else {
-      return { text: correctAnswers[row][column], correct: true }
+    }
+    let correct = studentAnswers[row][column] === correctAnswers[row][column]
+    let text = studentAnswers[row][column]
+    if (!isStudentsAnswer) {
+      correct = true
+      text = correctAnswers[row][column]
+    }
+    return {
+      text: text,
+      correct: correct,
     }
   }
   const tempArray = [0, 1, 2, 3, 4, 5]
-  if (includesSingleFalse) {
+  if (isIncorrect) {
     return (
       <div
         // eslint-disable-next-line i18next/no-literal-string
@@ -86,16 +85,18 @@ const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionCompo
       >
         <div>
           <MatrixTable
-            isStudent={true}
+            isStudentsAnswer={true}
             tempArray={tempArray}
             findOptionText={findOptionText}
           ></MatrixTable>
-          <FontAwesomeIcon icon={faTimesCircle} color="red" size="lg" />
+          {correctAnswers && <FontAwesomeIcon icon={faTimesCircle} color="red" size="lg" />}
         </div>
-        <div>
-          <MatrixTable tempArray={tempArray} findOptionText={findOptionText}></MatrixTable>
-          <FontAwesomeIcon icon={faCheckCircle} color="green" size="lg" />
-        </div>
+        {correctAnswers && (
+          <div>
+            <MatrixTable tempArray={tempArray} findOptionText={findOptionText}></MatrixTable>
+            <FontAwesomeIcon icon={faCheckCircle} color="green" size="lg" />
+          </div>
+        )}
       </div>
     )
   } else {
@@ -112,14 +113,14 @@ const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionCompo
 
 interface MatrixTableProps {
   tempArray: number[]
-  findOptionText: (column: number, row: number, isStudent?: boolean) => isCellCorrectObject
-  isStudent?: boolean
+  findOptionText: (column: number, row: number, isStudentsAnswer: boolean) => isCellCorrectObject
+  isStudentsAnswer?: boolean
 }
 
 const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
   tempArray,
   findOptionText,
-  isStudent,
+  isStudentsAnswer = false,
 }) => {
   return (
     <MatrixTableContainer>
@@ -129,7 +130,7 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
             return (
               <tr key={`row${row}`}>
                 {tempArray.map((column) => {
-                  const cell = findOptionText(column, row, isStudent)
+                  const cell = findOptionText(column, row, isStudentsAnswer)
                   if (cell !== null) {
                     return (
                       <td
@@ -143,7 +144,9 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                       >
                         <div
                           className={css`
-                            display: block;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
                             width: 50px;
                             height: 50px;
                             border: 0;
@@ -158,12 +161,19 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                             `
                                 background-color: #DBDBDB;
                                 `}
-                                ${!cell.correct &&
-                            `background-color: red;
+                                ${cell.correct === false &&
+                            `background-color: ${baseTheme.colors.red[200]};
                                 `}
                           `}
                         >
-                          <p>{cell.text}</p>
+                          <p
+                            className={css`
+                              position: relative;
+                              bottom: -3px;
+                            `}
+                          >
+                            {cell.text}
+                          </p>
                         </div>
                       </td>
                     )

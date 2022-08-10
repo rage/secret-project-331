@@ -3,6 +3,7 @@
 use std::{collections::HashMap, fs};
 
 use crate::controllers::{
+    auth::UserInfo,
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -1074,6 +1075,12 @@ pub async fn main() -> anyhow::Result<()> {
                 ),
             }),
         }
+    );
+    write_docs!(
+        Option<UserInfo>,
+        Some(UserInfo {
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+        })
     );
     Ok(())
 }

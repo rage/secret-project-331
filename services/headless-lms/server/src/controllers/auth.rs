@@ -324,6 +324,7 @@ pub struct UserInfo {
 GET `/api/v0/auth/user-info` Returns the current user's info.
 **/
 #[instrument(skip(user))]
+#[generated_doc]
 pub async fn user_info(user: Option<AuthUser>) -> web::Json<Option<UserInfo>> {
     if let Some(user) = user {
         web::Json(Some(UserInfo { user_id: user.id }))

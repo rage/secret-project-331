@@ -10,14 +10,7 @@ interface Cell {
   tag: string
 }
 
-interface TableBoxAttributes {
-  head: any
-  body: any
-}
-
-const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttributes>>> = (
-  props,
-) => {
+const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<any>>> = (props) => {
   const innerBlocks: any = props.data.innerBlocks[0]
   return (
     innerBlocks && (
@@ -58,7 +51,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           ))}
         </div>
 
-        {innerBlocks.attributes?.body.map((item) => (
+        {innerBlocks.attributes?.body.map((item: any) => (
           <div
             className={css`
               display: grid;

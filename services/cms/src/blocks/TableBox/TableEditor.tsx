@@ -6,7 +6,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/table"]
 
-const TABLE_TEMPLATE: Template[] = [["core/table", { placeholder: "TableBox" }]]
+const TABLE_TEMPLATE: Template[] = [["core/table", { title: "TableBox" }]]
 
 const TableEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>> = ({
   clientId,

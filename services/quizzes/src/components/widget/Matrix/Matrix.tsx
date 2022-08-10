@@ -8,6 +8,7 @@ import MatrixCell from "./MatrixCell"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
+  margin-top: 1rem;
   background-color: grey;
   border-collapse: collapse;
   td {

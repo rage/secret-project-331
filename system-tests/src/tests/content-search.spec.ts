@@ -1,7 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectPath from "../utils/expect"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -17,7 +17,7 @@ test("content search", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Introduction to Course Material
   await Promise.all([
@@ -62,7 +62,7 @@ test("content search", async ({ page, headless }) => {
   // Click text=Human-machine interface
   await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
 
-  expectPath(
+  await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-course-material/chapter-1/human-machine-interface",
   )

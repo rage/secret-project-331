@@ -104,7 +104,15 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
             (ia) => ia.quizItemId === item.id,
           )[0]
           return (
-            <div key={item.id}>
+            <div
+              className={css`
+                margin-bottom: 1.5rem;
+                :last-of-type {
+                  margin-bottom: 0;
+                }
+              `}
+              key={item.id}
+            >
               <Component
                 key={item.id}
                 public_quiz_item={item}

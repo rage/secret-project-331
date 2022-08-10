@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectPath from "../../utils/expect"
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -66,11 +66,11 @@ test("history test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   // Click text=Page One
   await Promise.all([
@@ -148,11 +148,11 @@ test("history test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
@@ -188,7 +188,7 @@ test("history test", async ({ page, headless }) => {
 */
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
-  expectPath(page, "/manage/pages/[id]/history?page=4")
+  await expectUrlPathWithRandomUuid(page, "/manage/pages/[id]/history?page=4")
 
   /*
   const stableElement2 = await page.waitForSelector("text=core/paragraph")

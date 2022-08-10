@@ -7,7 +7,6 @@ use crate::controllers::{
     },
     main_frontend::{
         courses::GetFeedbackQuery,
-        courses::{ModifiedModule, ModuleUpdates, NewModule},
         exams::ExamCourseInfo,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
@@ -219,12 +218,13 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
-        NewModule,
-        ModifiedModule,
-        ModuleUpdates,
 
         material_references::MaterialReference,
-        material_references::NewMaterialReference
+        material_references::NewMaterialReference,
+
+        course_modules::ModifiedModule,
+        course_modules::ModuleUpdates,
+        course_modules::NewModule
     };
     res.unwrap();
 }

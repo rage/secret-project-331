@@ -2,9 +2,8 @@
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
-    chapters,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
-    course_modules,
+    course_modules::ModuleUpdates,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -733,31 +732,6 @@ async fn delete_material_reference_by_id(
     token.authorized_ok(web::Json(()))
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct NewModule {
-    name: String,
-    order_number: i32,
-    chapters: Vec<Uuid>,
-}
-
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ModifiedModule {
-    id: Uuid,
-    name: Option<String>,
-    order_number: i32,
-}
-
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ModuleUpdates {
-    new_modules: Vec<NewModule>,
-    deleted_modules: Vec<Uuid>,
-    modified_modules: Vec<ModifiedModule>,
-    moved_chapters: Vec<(Uuid, Uuid)>,
-}
-
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_modules(
@@ -769,51 +743,7 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    let mut tx = conn.begin().await?;
-
-    let updates = payload.into_inner();
-    // scramble order of modified and deleted modules
-    for module_id in updates
-        .modified_modules
-        .iter()
-        .map(|m| m.id)
-        .chain(updates.deleted_modules.iter().copied())
-    {
-        course_modules::update(&mut tx, module_id, None, rand::random()).await?;
-    }
-    let mut modified_and_new_modules = updates.modified_modules;
-    for new in updates.new_modules {
-        // insert with a random order number to avoid conflicts
-        let module =
-            course_modules::insert(&mut tx, *course_id, Some(&new.name), rand::random()).await?;
-        for chapter in new.chapters {
-            chapters::set_module(&mut tx, chapter, module.id).await?;
-        }
-        // modify the order number with the rest
-        modified_and_new_modules.push(ModifiedModule {
-            id: module.id,
-            name: None,
-            order_number: new.order_number,
-        })
-    }
-    // update modified and new modules
-    for module in modified_and_new_modules {
-        course_modules::update(
-            &mut tx,
-            module.id,
-            module.name.as_deref(),
-            module.order_number,
-        )
-        .await?;
-    }
-    for (chapter, module) in updates.moved_chapters {
-        chapters::set_module(&mut tx, chapter, module).await?;
-    }
-    for deleted in updates.deleted_modules {
-        course_modules::delete(&mut tx, deleted).await?;
-    }
-
-    tx.commit().await?;
+    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
     token.authorized_ok(web::Json(()))
 }
 

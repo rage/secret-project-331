@@ -641,6 +641,40 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1223,6 +1257,40 @@ WHERE c.id = p.chapter_id
     <span class="prelude-val">Ok</span>(<span class="ident">chapter_page</span>)
 }
 
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_module</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">chapter_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">module_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+UPDATE chapters
+SET course_module_id = $2
+WHERE id = $1
+&quot;</span>,
+        <span class="ident">chapter_id</span>,
+        <span class="ident">module_id</span>
+    )
+    .<span class="ident">execute</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_for_module</span>(<span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">module_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
+        <span class="string">&quot;
+SELECT id
+FROM chapters
+WHERE course_module_id = $1
+&quot;</span>,
+        <span class="ident">module_id</span>
+    )
+    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">id</span>)
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -1267,7 +1335,7 @@ WHERE c.id = p.chapter_id
                     <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
                     <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
                     <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>),
+                    <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">course_module</span>.<span class="ident">id</span>),
                 },
                 <span class="ident">user</span>,
             )

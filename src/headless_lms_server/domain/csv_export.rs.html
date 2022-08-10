@@ -841,7 +841,7 @@ HttpResponse::Ok()
         <span class="kw">let</span> <span class="ident">u2</span> <span class="op">=</span> <span class="ident">users::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;second@example.org&quot;</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">c2</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course</span>, <span class="number">2</span>, <span class="ident">course_module</span>)
+        <span class="kw">let</span> <span class="ident">c2</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;&quot;</span>, <span class="ident">course</span>, <span class="number">2</span>, <span class="ident">course_module</span>.<span class="ident">id</span>)
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page</span>, <span class="ident">c2</span>, <span class="number">0</span>)

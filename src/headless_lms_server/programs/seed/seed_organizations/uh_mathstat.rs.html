@@ -97,6 +97,10 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
     <span class="ident">courses</span>::{<span class="self">self</span>, <span class="ident">NewCourse</span>},
@@ -145,15 +149,19 @@
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
         <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
-    <span class="kw">let</span> (<span class="ident">statistics_course</span>, <span class="ident">_statistics_front_page</span>, <span class="ident">_statistics_default_course_instance</span>) <span class="op">=</span>
-        <span class="ident">courses::insert_course</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f307d05f-be34-4148-bb0c-21d6f7a35cdb&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e4aeba5-1958-49bc-9b40-c9f0f0680911&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">new_course</span>,
-            <span class="ident">admin_user_id</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (
+        <span class="ident">statistics_course</span>,
+        <span class="ident">_statistics_front_page</span>,
+        <span class="ident">_statistics_default_course_instancem</span>,
+        <span class="ident">_statistics_default_course_module</span>,
+    ) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f307d05f-be34-4148-bb0c-21d6f7a35cdb&quot;</span>)<span class="question-mark">?</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8e4aeba5-1958-49bc-9b40-c9f0f0680911&quot;</span>)<span class="question-mark">?</span>,
+        <span class="ident">new_course</span>,
+        <span class="ident">admin_user_id</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_statistics_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">NewCourseInstance</span> {

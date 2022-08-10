@@ -483,8 +483,8 @@ WHERE slug = ANY($1);&quot;</span>,
         <span class="ident">exercise_service_info</span>
     } <span class="kw">else</span> {
         <span class="macro">warn!</span>(<span class="string">&quot;Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.&quot;</span>, <span class="ident">exercise_service</span>.<span class="ident">name</span>, <span class="ident">exercise_service</span>.<span class="ident">slug</span>);
-        <span class="kw">let</span> <span class="ident">fetched_service_info</span> <span class="op">=</span> <span class="ident">fetch_and_upsert_service_info</span>(<span class="ident">conn</span>, <span class="ident">exercise_service</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">fetched_service_info</span>
+
+        <span class="ident">fetch_and_upsert_service_info</span>(<span class="ident">conn</span>, <span class="ident">exercise_service</span>).<span class="kw">await</span><span class="question-mark">?</span>
     };
     <span class="prelude-val">Ok</span>(<span class="ident">service_info</span>)
 }

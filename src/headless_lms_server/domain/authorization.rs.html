@@ -900,7 +900,7 @@ token.authorized_ok(web::Json(cms_page_info))
         }
     }
     <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">models::courses::get_organization_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="ident">check_organization_permission</span>(<span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">organization_id</span>).<span class="kw">await</span>;
+    <span class="ident">check_organization_permission</span>(<span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">organization_id</span>).<span class="kw">await</span>
 }
 
 <span class="doccomment">/// Also checks organization and course roles which are valid for course instances.</span>
@@ -925,7 +925,7 @@ token.authorized_ok(web::Json(cms_page_info))
         }
     }
     <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">models::course_instances::get_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">course_id</span>).<span class="kw">await</span>;
+    <span class="ident">check_course_permission</span>(<span class="ident">conn</span>, <span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">course_id</span>).<span class="kw">await</span>
 }
 
 <span class="doccomment">/// Also checks organization role which is valid for exams.</span>
@@ -942,7 +942,7 @@ token.authorized_ok(web::Json(cms_page_info))
         }
     }
     <span class="kw">let</span> <span class="ident">organization_id</span> <span class="op">=</span> <span class="ident">models::exams::get_organization_id</span>(<span class="ident">conn</span>, <span class="ident">exam_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">return</span> <span class="ident">check_organization_permission</span>(<span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">organization_id</span>).<span class="kw">await</span>;
+    <span class="ident">check_organization_permission</span>(<span class="ident">roles</span>, <span class="ident">action</span>, <span class="ident">organization_id</span>).<span class="kw">await</span>
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_course_or_exam_permission</span>(

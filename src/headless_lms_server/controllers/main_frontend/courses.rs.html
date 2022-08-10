@@ -820,11 +820,30 @@
 <span id="815">815</span>
 <span id="816">816</span>
 <span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">NewCourseInstance</span>},
+    <span class="ident">course_modules::ModuleUpdates</span>,
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="self">self</span>, <span class="ident">ExerciseSlideSubmissionCount</span>, <span class="ident">ExerciseSlideSubmissionCountByExercise</span>,
@@ -903,8 +922,6 @@ Content-Type: application/json
         <span class="ident">user</span>.<span class="ident">id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="comment">// Create default course module</span>
-    <span class="ident">models::course_modules::insert_default_for_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">models::roles::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
         <span class="ident">user</span>.<span class="ident">id</span>,
@@ -1555,6 +1572,21 @@ Creates redirects if url_path changes.
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
 }
 
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_modules</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">ModuleUpdates</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::course_modules::update_modules</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="ident">payload</span>.<span class="ident">into_inner</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+}
+
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -1635,6 +1667,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/references/{reference_id}&quot;</span>,
             <span class="ident">web::delete</span>().<span class="ident">to</span>(<span class="ident">delete_material_reference_by_id</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/course-modules&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">update_modules</span>),
         );
 }
 </code></pre></div>

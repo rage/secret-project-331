@@ -426,6 +426,18 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">futures::try_join</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
@@ -622,14 +634,15 @@
         <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
         <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
-    <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;06a7ccbd-8958-4834-918f-ad7b24e583fd&quot;</span>)<span class="question-mark">?</span>,
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;48399008-6523-43c5-8fd6-59ecc731a426&quot;</span>)<span class="question-mark">?</span>,
-        <span class="ident">new_course</span>,
-        <span class="ident">admin_user_id</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>, <span class="ident">_cs_default_course_module</span>) <span class="op">=</span>
+        <span class="ident">courses::insert_course</span>(
+            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;06a7ccbd-8958-4834-918f-ad7b24e583fd&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;48399008-6523-43c5-8fd6-59ecc731a426&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">new_course</span>,
+            <span class="ident">admin_user_id</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_cs_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">NewCourseInstance</span> {
@@ -686,6 +699,17 @@
         <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;639f4d25-9376-49b5-bcca-7cba18c38565&quot;</span>)<span class="question-mark">?</span>,
         <span class="string">&quot;Introduction to localizing&quot;</span>,
         <span class="string">&quot;introduction-to-localizing&quot;</span>,
+        <span class="ident">admin_user_id</span>,
+        <span class="ident">student_user_id</span>,
+        <span class="kw-2">&amp;</span><span class="ident">example_normal_user_ids</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="ident">db_pool</span>,
+        <span class="ident">uh_cs_organization_id</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edaa1c52-15cd-458d-8ce2-1e4010641244&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Course Modules&quot;</span>,
+        <span class="string">&quot;course-modules&quot;</span>,
         <span class="ident">admin_user_id</span>,
         <span class="ident">student_user_id</span>,
         <span class="kw-2">&amp;</span><span class="ident">example_normal_user_ids</span>,

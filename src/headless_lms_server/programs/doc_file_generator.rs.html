@@ -1092,6 +1092,7 @@
 <span id="1087">1087</span>
 <span id="1088">1088</span>
 <span id="1089">1089</span>
+<span id="1090">1090</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1759,7 +1760,8 @@
         <span class="ident">CourseStructure</span> {
             <span class="ident">chapters</span>: <span class="macro">vec!</span>[<span class="ident">chapter</span>.<span class="ident">clone</span>()],
             <span class="ident">course</span>: <span class="ident">course</span>.<span class="ident">clone</span>(),
-            <span class="ident">pages</span>: <span class="macro">vec!</span>[<span class="ident">page</span>.<span class="ident">clone</span>()]
+            <span class="ident">pages</span>: <span class="macro">vec!</span>[<span class="ident">page</span>.<span class="ident">clone</span>()],
+            <span class="ident">modules</span>: <span class="macro">vec!</span>[],
         }
     );
     <span class="macro">write_docs!</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Exercise</span><span class="op">&gt;</span>, <span class="macro">vec!</span>[<span class="ident">exercise</span>.<span class="ident">clone</span>()]);

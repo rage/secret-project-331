@@ -12,6 +12,7 @@ import {
   IframeViewType,
   ReadyMessage,
   SetStateMessage,
+  UserInformation,
 } from "./exercise-service-protocol-types"
 
 export function isCurrentStateMessage(
@@ -50,6 +51,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.previous_submission === null ||
         (((obj.data.previous_submission !== null &&
@@ -70,6 +72,7 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -88,7 +91,16 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
+  )
+}
+
+export function isUserInformation(obj: any, _argumentName?: string): obj is UserInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pseudonymous_id === "string" &&
+    typeof obj.signed_in === "boolean"
   )
 }
 
@@ -97,6 +109,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.previous_submission === null ||
         (((obj.data.previous_submission !== null &&
@@ -115,6 +128,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -131,6 +145,7 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )
 }

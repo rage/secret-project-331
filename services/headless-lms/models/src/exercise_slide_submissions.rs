@@ -478,11 +478,12 @@ GROUP BY exercise_slide_id;
 pub async fn get_exercise_slide_submission_info(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {
     let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
-    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id).await?;
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,

@@ -357,5 +357,7 @@
   "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta",
   "button-text-reload": "Lataa uudestaan",
   "button-text-reset-url": "Nollaa URL",
-  "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydeet pisteet tehtävästä)"
+  "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydeet pisteet tehtävästä)",
+  "button-text-signed-in": "Kirjautunut sisään",
+  "label-pseudonymous-user-id": "Pseudonyyminen käyttäjän id"
 }

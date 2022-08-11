@@ -2,11 +2,15 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import { useTranslation } from "react-i18next"
 
 import Renderer from "../components/Renderer"
 import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
+import {
+  isSetLanguageMessage,
+  isSetStateMessage,
+} from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
@@ -38,6 +42,7 @@ export type State =
     }
 
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -75,6 +80,8 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
           console.error("Unknown view type received from parent")
         }
       })
+    } else if (isSetLanguageMessage(messageData)) {
+      i18n.changeLanguage(messageData.data)
     } else {
       // eslint-disable-next-line i18next/no-literal-string
       console.error("Frame received an unknown message from message port")

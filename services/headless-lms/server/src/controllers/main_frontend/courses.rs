@@ -3,6 +3,7 @@
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    course_modules::ModuleUpdates,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -81,8 +82,6 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-    // Create default course module
-    models::course_modules::insert_default_for_course(&mut tx, course.id).await?;
     models::roles::insert(
         &mut tx,
         user.id,
@@ -733,6 +732,21 @@ async fn delete_material_reference_by_id(
     token.authorized_ok(web::Json(()))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn update_modules(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<ModuleUpdates>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    token.authorized_ok(web::Json(()))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -813,5 +827,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references/{reference_id}",
             web::delete().to(delete_material_reference_by_id),
+        )
+        .route(
+            "/{course_id}/course-modules",
+            web::post().to(update_modules),
         );
 }

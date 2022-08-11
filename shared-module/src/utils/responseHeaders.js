@@ -74,6 +74,10 @@ const externallyEmbeddableIFrameResponseHeaders = [
     key: "X-XSS-Protection",
     value: "1; mode=block",
   },
+  {
+    key: "Access-Control-Allow-Private-Network",
+    value: "true",
+  },
 ]
 
 module.exports = { generateNormalResponseHeaders, externallyEmbeddableIFrameResponseHeaders }

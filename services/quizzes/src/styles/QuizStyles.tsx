@@ -22,6 +22,12 @@ export const quizTheme = {
   quizTitleFontSize: "18px",
   selectedItemBackground: baseTheme.colors.grey[700],
   selectedItemColor: baseTheme.colors.clear[100],
+  // Quiz multiplechoices editor
+  quizAnswer: baseTheme.colors.clear[100],
+  quizWrongAnswer: baseTheme.colors.crimson[600],
+  quizWrongAnswerHover: baseTheme.colors.crimson[500],
+  quizCorrectAnswer: baseTheme.colors.green[600],
+  quizCorrectAnswerHover: baseTheme.colors.green[500],
 }
 
 export const SelectedQuizItem = css`

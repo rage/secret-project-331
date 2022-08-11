@@ -14,12 +14,12 @@ import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import CourseCourseInstances from "../course-instances/CourseCourseInstances"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "../language-versions/CourseLanguageVersionsList"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 
@@ -67,14 +67,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
   return (
     <>
       <h1
-        className={
-          css`
+        className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.grey[700]};
           font-family: ${headingFont};
           font-weight: bold;
-        `
-        }
+        `}
       >
         {course.name}
         {course.is_draft && ` (${t("draft")})`}

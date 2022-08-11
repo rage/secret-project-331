@@ -60,6 +60,38 @@ Example 2:
 }
 ```
 
+### set-language
+
+from: parent
+
+to: IFrame
+
+Parent informs the iframe of the language of the user interface. The data is the new language represented as an IETF primary language subtag tag (e.g "en" for English or "fi" for Finnish) or as a full IETF language tag (e.g. "en-US" for American English or "en-GB" for British English).
+
+Full tags should fall back to the primary language subtag if the full tag is not supported. For example if we set the language to "en-GB", the IFrame should fall back to "en" if it does not support "en-GB". If the parent sends a language tag that is not supported at all, the IFrame should fall back to some supported language (preferably "en").
+
+The parent will also send this message also when the iframe is first loaded.
+
+See also: https://en.wikipedia.org/wiki/IETF_language_tag
+
+Example 1:
+
+```js
+{
+  message: "set-language",
+  data: "en"
+}
+```
+
+Example 2:
+
+```js
+{
+  message: "set-language",
+  data: "en-GB"
+}
+```
+
 ### current-state
 
 from: IFrame

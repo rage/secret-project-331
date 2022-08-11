@@ -4,11 +4,12 @@ import React from "react"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-export const MultipleChoiceClickable: React.FunctionComponent<
+const MultipleChoiceClickable: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const handleOptionSelect = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -75,3 +76,5 @@ export const MultipleChoiceClickable: React.FunctionComponent<
     </div>
   )
 }
+
+export default withErrorBoundary(MultipleChoiceClickable)

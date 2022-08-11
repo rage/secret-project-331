@@ -77,9 +77,11 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
           >
             {t("references")}
           </h2>
-          <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
-            {t("add-new-reference")}
-          </Button>
+          {getCourseReferences.data.length > 10 && (
+            <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
+              {t("add-new-reference")}
+            </Button>
+          )}
           <NewReferenceDialog
             onClose={() => setShowNewReferenceModal(false)}
             courseId={courseId}
@@ -87,50 +89,52 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
             fetchCourseReferences={getCourseReferences}
           />
           <ul>
-            {getCourseReferences.data.map((r, idx) => {
-              try {
-                const c = Cite(r.reference)
+            {getCourseReferences.data
+              .sort((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
+              .map((r, idx) => {
+                try {
+                  const c = Cite(r.reference)
 
-                return (
-                  <li key={idx}>
-                    <h5>
-                      {r.citation_key},{" "}
-                      {c.format(BIBLIOGRAPHY, {
-                        type: TYPE,
-                        style: STYLE,
-                        lang: LANG,
-                      })}
-                    </h5>
-                    <Button
-                      size="medium"
-                      variant="secondary"
-                      onClick={() => {
-                        setReference(r)
-                        setShowEditReferenceModal(true)
-                      }}
-                    >
-                      {t("edit-reference")}
-                    </Button>
-                  </li>
-                )
-              } catch (error) {
-                return (
-                  <li key={idx}>
-                    <ErrorHeader>{r.citation_key}</ErrorHeader>
-                    <Button
-                      size="medium"
-                      variant="secondary"
-                      onClick={() => {
-                        setReference(r)
-                        setShowEditReferenceModal(true)
-                      }}
-                    >
-                      {t("edit-reference")}
-                    </Button>
-                  </li>
-                )
-              }
-            })}
+                  return (
+                    <li key={idx}>
+                      <h5>
+                        {r.citation_key},{" "}
+                        {c.format(BIBLIOGRAPHY, {
+                          type: TYPE,
+                          style: STYLE,
+                          lang: LANG,
+                        })}
+                      </h5>
+                      <Button
+                        size="medium"
+                        variant="secondary"
+                        onClick={() => {
+                          setReference(r)
+                          setShowEditReferenceModal(true)
+                        }}
+                      >
+                        {t("edit-reference")}
+                      </Button>
+                    </li>
+                  )
+                } catch (error) {
+                  return (
+                    <li key={idx}>
+                      <ErrorHeader>{r.citation_key}</ErrorHeader>
+                      <Button
+                        size="medium"
+                        variant="secondary"
+                        onClick={() => {
+                          setReference(r)
+                          setShowEditReferenceModal(true)
+                        }}
+                      >
+                        {t("edit-reference")}
+                      </Button>
+                    </li>
+                  )
+                }
+              })}
           </ul>
           {reference && (
             <EditReferenceDialog
@@ -143,6 +147,9 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
           )}
         </div>
       )}
+      <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
+        {t("add-new-reference")}
+      </Button>
     </div>
   )
 }

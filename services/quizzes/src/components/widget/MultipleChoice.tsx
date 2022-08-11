@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import { QuizItemAnswer } from "../../../types/types"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 import ParsedText from "../ParsedText"
 
@@ -44,7 +45,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,
@@ -154,4 +155,4 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
   )
 }
 
-export default MultipleChoice
+export default withErrorBoundary(MultipleChoice)

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React from "react"
 
 import { baseTheme } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -35,7 +36,7 @@ interface isCellCorrectObject {
   correct: boolean | null
 }
 
-const MatrixSubmission: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
+const MatrixSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   quiz_item_model_solution,
   user_quiz_item_answer,
   quiz_item_feedback,
@@ -188,4 +189,4 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
   )
 }
 
-export default MatrixSubmission
+export default withErrorBoundary(MatrixSubmission)

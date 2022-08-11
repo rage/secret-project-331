@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import Centered from "../../../shared-module/components/Centering/Centered"
 import { baseTheme, monospaceFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"

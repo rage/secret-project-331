@@ -92,7 +92,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
         border: 3px solid ${baseTheme.colors.clear[200]};
         border-radius: 6px;
         padding: 1rem;
-  `}
+      `}
     >
       <Echarts
         height={1000}

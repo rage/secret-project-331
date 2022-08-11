@@ -20,22 +20,25 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
   return (
     <div>
       {course.isLoading && (
-        <div className={css`
-          margin-top: 40px;
-          ${respondToOrLarger.sm} {
-            margin-top: 80px;
-        }
-      `}>
+        <div
+          className={css`
+            margin-top: 40px;
+            ${respondToOrLarger.sm} {
+              margin-top: 80px;
+            }
+          `}
+        >
           <Spinner variant="medium" />
         </div>
-        )}
+      )}
       {course.isError && (
-        <div className={css`
-          margin-top: 40px;
-          ${respondToOrLarger.sm} {
-            margin-top: 80px;
-          }
-          `}    
+        <div
+          className={css`
+            margin-top: 40px;
+            ${respondToOrLarger.sm} {
+              margin-top: 80px;
+            }
+          `}
         >
           <ErrorBanner variant="readOnly" error={course.error} />
         </div>
@@ -43,15 +46,12 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
       {course.isSuccess && (
         <>
           <h1
-            className={
-              css`
-                font-size: clamp(2rem, 3.6vh, 36px);
-                color: ${baseTheme.colors.grey[700]};
-                font-family: ${headingFont};
-                font-weight: bold;
-      
-              `
-            }
+            className={css`
+              font-size: clamp(2rem, 3.6vh, 36px);
+              color: ${baseTheme.colors.grey[700]};
+              font-family: ${headingFont};
+              font-weight: bold;
+            `}
           >
             {t("roles-for-course")} {course.data.name}
           </h1>

@@ -1,7 +1,7 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { css } from "@emotion/css"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
@@ -10,9 +10,9 @@ import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -64,16 +64,15 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   return (
     <>
       <h1
-      className={
-        css`
+        className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.grey[700]};
           font-family: ${headingFont};
           font-weight: bold;
-
-        `
-      }
-      >{t("manage-glossary")}</h1>
+        `}
+      >
+        {t("manage-glossary")}
+      </h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
       {glossary.isLoading && <Spinner variant={"medium"} />}
       <div>

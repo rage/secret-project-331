@@ -1,16 +1,16 @@
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { css } from "@emotion/css"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseInstances } from "../../../../../../services/backend/courses"
 import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -45,16 +45,15 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
       {getCourseInstances.isSuccess && (
         <div>
           <h2
-            className={
-              css`
-                font-size: clamp(2rem, 3.6vh, 36px);
-                color: ${baseTheme.colors.grey[700]};
-                font-family: ${headingFont};
-                font-weight: bold;
-      
-              `
-            }
-          >{t("title-all-course-instances")}</h2>
+            className={css`
+              font-size: clamp(2rem, 3.6vh, 36px);
+              color: ${baseTheme.colors.grey[700]};
+              font-family: ${headingFont};
+              font-weight: bold;
+            `}
+          >
+            {t("title-all-course-instances")}
+          </h2>
           <ul>
             {getCourseInstances.data
               .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())

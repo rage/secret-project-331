@@ -10,7 +10,7 @@ interface Cell {
   tag: string
 }
 
-const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<any>>> = (props) => {
+const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = (props) => {
   const innerBlocks: any = props.data.innerBlocks[0]
   return (
     innerBlocks && (

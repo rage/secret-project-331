@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
 
 import { BlockRendererProps } from ".."
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
@@ -12,6 +12,7 @@ interface Cell {
 
 const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = (props) => {
   const innerBlocks: any = props.data.innerBlocks[0]
+  const id = useId()
 
   return (
     innerBlocks && (
@@ -69,7 +70,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
                   margin-bottom: 0;
                 }
               `}
-              key={item.id}
+              key={id}
             >
               {item.cells.map((o: Cell) => (
                 <div

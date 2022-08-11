@@ -54,7 +54,7 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
           text-align: center;
           text-decoration: none;
           background: ${isActive ? theme.secondary.activeBg : "inherit"};
-          border-radius: 0.7rem;
+          border-radius: 0.2rem;
           padding: 0.75rem 0.35rem;
           ${respondToOrLarger.sm} {
             padding: 0.75rem 0;
@@ -72,13 +72,16 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         {count?.isSuccess && count.data !== 0 && (
           <span
             className={css`
-              background: ${baseTheme.colors.red[500]};
-              border-radius: 50%;
+              background: ${baseTheme.colors.red[400]};
+              border-radius: 20px;
+              line-height: 10px;
               padding: 1px 5px;
               text-align: center;
-              font-size: ${baseTheme.fontSizes[0]}px;
+              font-size: 14px;
               color: ${baseTheme.colors.primary[100]};
               margin-left: 3px;
+              width: 20px;
+              height: 20px;
             `}
           >
             {count?.data}

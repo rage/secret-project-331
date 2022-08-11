@@ -35,7 +35,7 @@ type QuizItemType =
   | "timeline"
 
 interface QuizItemSubmissionComponentDescriptor {
-  component: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>>
+  component: React.ComponentClass<QuizItemSubmissionComponentProps>
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
 }
 
@@ -55,7 +55,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
   },
   open: { component: OpenFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },
   "custom-frontend-accept-data": {
-    component: UnsupportedSubmissionViewComponent,
+    component: OpenFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   "multiple-choice-dropdown": {

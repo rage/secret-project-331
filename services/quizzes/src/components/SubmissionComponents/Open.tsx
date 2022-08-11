@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
 
@@ -33,7 +34,7 @@ const incorrectAnswer = css`
   border-radius: 5px;
 `
 
-const OpenFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
+const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   public_quiz_item,
   quiz_item_feedback,
   user_quiz_item_answer,
@@ -74,4 +75,4 @@ const OpenFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponent
   )
 }
 
-export default OpenFeedback
+export default withErrorBoundary(OpenFeedback)

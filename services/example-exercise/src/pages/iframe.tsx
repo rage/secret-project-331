@@ -8,6 +8,7 @@ import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
 import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 import { ExerciseFeedback } from "./api/grade"
@@ -95,4 +96,4 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default Iframe
+export default withErrorBoundary(Iframe)

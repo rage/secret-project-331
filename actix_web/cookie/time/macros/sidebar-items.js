@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["date",""],["datetime",""],["format_description",""],["offset",""],["time",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["date",""],["datetime",""],["format_description",""],["offset",""],["time",""]]};

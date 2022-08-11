@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["authorization",""],["csv_export",""],["file_uploading",""],["rate_limit_middleware_builder",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["authorization",""],["csv_export",""],["file_uploading",""],["rate_limit_middleware_builder",""]]};

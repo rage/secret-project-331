@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["seed_organization_uh_mathstat",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["seed_organization_uh_mathstat",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["media","Shared helper functions for multiple controllers."]]});
+window.SIDEBAR_ITEMS = {"mod":[["media","Shared helper functions for multiple controllers."]]};

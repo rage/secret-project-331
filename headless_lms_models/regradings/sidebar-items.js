@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["complete_regrading",""],["get_by_id",""],["get_uncompleted_regradings_and_mark_as_started",""],["insert",""],["set_error_message",""],["set_total_grading_progress",""]],"struct":[["Regrading",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["complete_regrading",""],["get_by_id",""],["get_uncompleted_regradings_and_mark_as_started",""],["insert",""],["set_error_message",""],["set_total_grading_progress",""]],"struct":[["Regrading",""]]};

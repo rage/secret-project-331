@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["backend",""]],"struct":[["RateLimiter","Rate limit middleware."],["RateLimiterBuilder",""]],"trait":[["HeaderCompatibleOutput","A trait that a [Backend::Output] should implement in order to use the [RateLimiterBuilder::add_headers] function."]]});
+window.SIDEBAR_ITEMS = {"mod":[["backend",""]],"struct":[["RateLimiter","Rate limit middleware."],["RateLimiterBuilder",""]],"trait":[["HeaderCompatibleOutput","A trait that a [Backend::Output] should implement in order to use the [RateLimiterBuilder::add_headers] function."]]};

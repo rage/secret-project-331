@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["EmailWriter","Wrapper around `Write` that remembers the length of the last line written to it."],["FoldingEmailWriter","Wrapper around `Write` that remembers the length of the last line and automatically line folds text written to it."]]});
+window.SIDEBAR_ITEMS = {"struct":[["EmailWriter","Wrapper around `Write` that remembers the length of the last line written to it."],["FoldingEmailWriter","Wrapper around `Write` that remembers the length of the last line and automatically line folds text written to it."]]};

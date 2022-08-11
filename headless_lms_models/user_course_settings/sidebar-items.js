@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_user_course_settings",""],["get_user_course_settings_by_course_id",""],["upsert_user_course_settings_for_enrollment","Creates new user course settings based on the enrollment or updates an existing one."]],"struct":[["UserCourseSettings",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_user_course_settings",""],["get_user_course_settings_by_course_id",""],["upsert_user_course_settings_for_enrollment","Creates new user course settings based on the enrollment or updates an existing one."]],"struct":[["UserCourseSettings",""]]};

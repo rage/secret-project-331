@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BlockProposalAction",""],["ProposalStatus",""]],"struct":[["BlockProposal",""],["BlockProposalInfo",""],["NewProposedBlockEdit",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["BlockProposalAction",""],["ProposalStatus",""]],"struct":[["BlockProposal",""],["BlockProposalInfo",""],["NewProposedBlockEdit",""]]};

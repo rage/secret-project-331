@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id`"],["get_module_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id/:course_module_id`"]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id`"],["get_module_completions","GET `/api/v0/main-frontend/study-registry/completions/:course_id/:course_module_id`"]]};

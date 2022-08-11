@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Server","General purpose TCP server that runs services receiving Tokio `TcpStream`s."],["ServerBuilder","[Server] builder."],["ServerHandle","Server handle."],["TestServer","A testing server."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Server","General purpose TCP server that runs services receiving Tokio `TcpStream`s."],["ServerBuilder","[Server] builder."],["ServerHandle","Server handle."],["TestServer","A testing server."]]};

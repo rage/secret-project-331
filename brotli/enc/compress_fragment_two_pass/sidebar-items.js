@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["BrotliCompressFragmentTwoPass",""],["BrotliStoreMetaBlockHeader",""],["BrotliWriteBits",""],["memcpy",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["BrotliCompressFragmentTwoPass",""],["BrotliStoreMetaBlockHeader",""],["BrotliWriteBits",""],["memcpy",""]]};

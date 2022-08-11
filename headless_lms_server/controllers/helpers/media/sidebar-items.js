@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["FileType",""],["StoreKind",""]],"fn":[["generate_audio_path",""],["generate_file_path",""],["generate_image_path",""],["path",""],["upload_image_for_organization",""],["upload_media",""],["validate_media_headers",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["FileType",""],["StoreKind",""]],"fn":[["generate_audio_path",""],["generate_file_path",""],["generate_image_path",""],["path",""],["upload_image_for_organization",""],["upload_media",""],["validate_media_headers",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["BrotliDecoderParameter",""],["BrotliDecoderResult",""],["c_void",""]],"struct":[["CAllocator",""]],"type":[["brotli_alloc_func",""],["brotli_free_func",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["BrotliDecoderParameter",""],["BrotliDecoderResult",""],["c_void",""]],"struct":[["CAllocator",""]],"type":[["brotli_alloc_func",""],["brotli_free_func",""]]};

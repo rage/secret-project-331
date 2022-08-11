@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["BitsEntropy",""],["BrotliPopulationCost",""],["ShannonEntropy",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["BitsEntropy",""],["BrotliPopulationCost",""],["ShannonEntropy",""]]};

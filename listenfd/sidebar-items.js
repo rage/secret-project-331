@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ListenFd","A helper object that gives access to raw file descriptors."]]});
+window.SIDEBAR_ITEMS = {"struct":[["ListenFd","A helper object that gives access to raw file descriptors."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Parser",""],["WootheeResult",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["Parser",""],["WootheeResult",""]]};

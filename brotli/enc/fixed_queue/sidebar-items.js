@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MAX_THREADS",""]],"struct":[["FixedQueue",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["MAX_THREADS",""]],"struct":[["FixedQueue",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["upload_media_to_storage",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["upload_media_to_storage",""]]};

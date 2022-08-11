@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["bufread","Types which operate over `AsyncBufRead` streams, both encoders and decoders for various formats."],["write","Types which operate over `AsyncWrite` streams, both encoders and decoders for various formats."]]});
+window.SIDEBAR_ITEMS = {"mod":[["bufread","Types which operate over `AsyncBufRead` streams, both encoders and decoders for various formats."],["write","Types which operate over `AsyncWrite` streams, both encoders and decoders for various formats."]]};

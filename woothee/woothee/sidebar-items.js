@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["VALUE_UNKNOWN",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["VALUE_UNKNOWN",""]]};

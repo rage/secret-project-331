@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main","The entrypoint to the server."],["setup_file_store","Setups file store so that it can be passed to actix web as data. Using Arc here so that this can be accessed from all the different worker threads."]]});
+window.SIDEBAR_ITEMS = {"fn":[["main","The entrypoint to the server."],["setup_file_store","Setups file store so that it can be passed to actix web as data. Using Arc here so that this can be accessed from all the different worker threads."]]};

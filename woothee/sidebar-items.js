@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_crawler",""]],"mod":[["dataset",""],["parser",""],["woothee",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["is_crawler",""]],"mod":[["dataset",""],["parser",""],["woothee",""]]};

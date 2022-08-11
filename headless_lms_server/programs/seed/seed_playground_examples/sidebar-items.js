@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["seed_playground_examples",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["seed_playground_examples",""]]};

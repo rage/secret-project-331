@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["NUM_LEAF_NODES",""]],"fn":[["HuffmanCost",""]],"struct":[["BucketPopIndex",""],["EntropyBucketPopulation",""],["EntropyPyramid",""],["EntropyTally",""]],"type":[["floatY",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["NUM_LEAF_NODES",""]],"fn":[["HuffmanCost",""]],"struct":[["BucketPopIndex",""],["EntropyBucketPopulation",""],["EntropyPyramid",""],["EntropyTally",""]],"type":[["floatY",""]]};

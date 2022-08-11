@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ModelError",""]],"trait":[["TryToOptional",""]],"type":[["ModelResult",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["ModelError",""]],"trait":[["TryToOptional",""]],"type":[["ModelResult",""]]};

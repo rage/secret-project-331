@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["seed_roles",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["seed_roles",""]]};

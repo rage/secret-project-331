@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["StrOrInt",""]],"struct":[["Pagination","Represents the URL query parameters `page` and `limit`, used for paginating database queries."]]});
+window.SIDEBAR_ITEMS = {"enum":[["StrOrInt",""]],"struct":[["Pagination","Represents the URL query parameters `page` and `limit`, used for paginating database queries."]]};

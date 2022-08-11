@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["IpToCountryMapper",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["IpToCountryMapper",""]]};

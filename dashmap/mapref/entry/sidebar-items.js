@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Entry",""]],"struct":[["OccupiedEntry",""],["VacantEntry",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Entry",""]],"struct":[["OccupiedEntry",""],["VacantEntry",""]]};

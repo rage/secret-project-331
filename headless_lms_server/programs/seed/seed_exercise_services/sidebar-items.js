@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["seed_exercise_services",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["seed_exercise_services",""]]};

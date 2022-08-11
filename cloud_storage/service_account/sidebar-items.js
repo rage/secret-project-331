@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ServiceAccount","A deserialized `service-account-********.json`-file."]]});
+window.SIDEBAR_ITEMS = {"struct":[["ServiceAccount","A deserialized `service-account-********.json`-file."]]};

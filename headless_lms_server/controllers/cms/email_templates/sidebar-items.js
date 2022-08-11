@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["_add_routes","Add a route for each controller in this module."],["get_email_template","GET `/api/v0/cms/email-templates/:id`"],["update_email_template","PUT `/api/v0/cms/email-templates/:id"]]});
+window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["get_email_template","GET `/api/v0/cms/email-templates/:id`"],["update_email_template","PUT `/api/v0/cms/email-templates/:id"]]};

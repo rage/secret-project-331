@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["sign","Take the payload of a JWT, sign it using the algorithm given and return the base64 url safe encoded of the result."],["verify","Compares the signature given with a re-computed signature for HMAC or using the public key for RSA/EC."]]});
+window.SIDEBAR_ITEMS = {"fn":[["sign","Take the payload of a JWT, sign it using the algorithm given and return the base64 url safe encoded of the result."],["verify","Compares the signature given with a re-computed signature for HMAC or using the public key for RSA/EC."]]};

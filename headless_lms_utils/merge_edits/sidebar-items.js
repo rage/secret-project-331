@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["merge",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["merge",""]]};

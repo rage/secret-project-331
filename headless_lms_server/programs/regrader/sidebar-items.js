@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main","Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading."]]});
+window.SIDEBAR_ITEMS = {"fn":[["main","Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading."]]};

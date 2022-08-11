@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["copying",""],["grading",""],["peer_reviewing",""],["progressing",""],["regrading",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["copying",""],["grading",""],["peer_reviewing",""],["progressing",""],["regrading",""]]};

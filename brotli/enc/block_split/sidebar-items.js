@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BlockSplit",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["BlockSplit",""]]};

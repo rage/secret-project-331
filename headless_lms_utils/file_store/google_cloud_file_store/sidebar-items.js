@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["BUFFER_SIZE",""]],"struct":[["GoogleCloudFileStore",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["BUFFER_SIZE",""]],"struct":[["GoogleCloudFileStore",""]]};

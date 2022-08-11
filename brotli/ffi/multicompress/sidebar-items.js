@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MAX_THREADS",""]],"fn":[["BrotliEncoderCompressMulti",""],["BrotliEncoderCompressWorkPool",""],["BrotliEncoderCreateWorkPool",""],["BrotliEncoderDestroyWorkPool",""],["BrotliEncoderMaxCompressedSizeMulti",""]],"struct":[["BrotliEncoderWorkPool",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["MAX_THREADS",""]],"fn":[["BrotliEncoderCompressMulti",""],["BrotliEncoderCompressWorkPool",""],["BrotliEncoderCreateWorkPool",""],["BrotliEncoderDestroyWorkPool",""],["BrotliEncoderMaxCompressedSizeMulti",""]],"struct":[["BrotliEncoderWorkPool",""]]};

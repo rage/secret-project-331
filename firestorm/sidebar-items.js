@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["profile_fn",""],["profile_method",""],["profile_section",""]]});
+window.SIDEBAR_ITEMS = {"macro":[["profile_fn",""],["profile_method",""],["profile_section",""]]};

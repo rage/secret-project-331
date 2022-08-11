@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["get_extension_from_filename",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["get_extension_from_filename",""]]};

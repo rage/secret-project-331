@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Reader","Implements the [`Read`] API around an [`Operation`]."],["Writer","Implements the [`Write`] API around an [`Operation`]."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Reader","Implements the [`Read`] API around an [`Operation`]."],["Writer","Implements the [`Write`] API around an [`Operation`]."]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["delete",""],["get_by_id",""],["get_by_secret_key",""],["insert",""]],"struct":[["StudyRegistryRegistrar",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["delete",""],["get_by_id",""],["get_by_secret_key",""],["insert",""]],"struct":[["StudyRegistryRegistrar",""]]};

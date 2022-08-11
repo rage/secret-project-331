@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["counter","Task-notifying counter."],["future","Asynchronous values."]]});
+window.SIDEBAR_ITEMS = {"mod":[["counter","Task-notifying counter."],["future","Asynchronous values."]]};

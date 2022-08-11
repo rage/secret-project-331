@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["BrotliDecoder","A brotli decoder, or decompressor."],["BrotliEncoder","A brotli encoder, or compressor."],["GzipDecoder","A gzip decoder, or decompressor."],["GzipEncoder","A gzip encoder, or compressor."]]});
+window.SIDEBAR_ITEMS = {"struct":[["BrotliDecoder","A brotli decoder, or decompressor."],["BrotliEncoder","A brotli encoder, or compressor."],["GzipDecoder","A gzip decoder, or decompressor."],["GzipEncoder","A gzip encoder, or compressor."]]};

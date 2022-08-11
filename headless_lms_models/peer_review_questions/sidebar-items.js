@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["PeerReviewQuestionType",""]],"fn":[["get_all_by_peer_review_id",""],["get_all_by_peer_review_id_as_map",""],["get_by_id",""],["insert",""],["insert_with_id",""]],"struct":[["NewPeerReviewQuestion",""],["PeerReviewQuestion",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["PeerReviewQuestionType",""]],"fn":[["get_all_by_peer_review_id",""],["get_all_by_peer_review_id_as_map",""],["get_by_id",""],["insert",""],["insert_with_id",""]],"struct":[["NewPeerReviewQuestion",""],["PeerReviewQuestion",""]]};

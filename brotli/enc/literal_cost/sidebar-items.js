@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["BrotliEstimateBitCostsForLiterals",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["BrotliEstimateBitCostsForLiterals",""]]};

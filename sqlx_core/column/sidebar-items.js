@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["Column",""],["ColumnIndex","A type that can be used to index into a `Row` or `Statement`."]]});
+window.SIDEBAR_ITEMS = {"trait":[["Column",""],["ColumnIndex","A type that can be used to index into a `Row` or `Statement`."]]};

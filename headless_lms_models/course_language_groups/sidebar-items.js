@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["insert",""],["insert_with_id",""]],"struct":[["CourseLanguageVersion",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["insert",""],["insert_with_id",""]],"struct":[["CourseLanguageVersion",""]]};

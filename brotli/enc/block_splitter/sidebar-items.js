@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["BrotliSplitBlock",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["BrotliSplitBlock",""]]};

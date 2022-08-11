@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LocalFileStore",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["LocalFileStore",""]]};

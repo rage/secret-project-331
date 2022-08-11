@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["do_single_regrading",""],["regrade",""]],"struct":[["GradingData",""],["RegradingStatus",""]],"type":[["GradingFutures",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["do_single_regrading",""],["regrade",""]],"struct":[["GradingData",""],["RegradingStatus",""]],"type":[["GradingFutures",""]]};

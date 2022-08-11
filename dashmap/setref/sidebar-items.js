@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["multiple",""],["one",""]]});
+window.SIDEBAR_ITEMS = {"mod":[["multiple",""],["one",""]]};

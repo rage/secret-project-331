@@ -1,1 +1,1 @@
-initSidebarItems({"static":[["kStaticDictionaryHash",""]]});
+window.SIDEBAR_ITEMS = {"static":[["kStaticDictionaryHash",""]]};

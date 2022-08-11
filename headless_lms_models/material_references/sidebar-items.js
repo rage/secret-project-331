@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["delete_reference",""],["get_reference_by_id",""],["get_references_by_course_id",""],["insert_reference",""],["update_material_reference_by_id",""]],"struct":[["MaterialReference",""],["NewMaterialReference",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["delete_reference",""],["get_reference_by_id",""],["get_references_by_course_id",""],["insert_reference",""],["update_material_reference_by_id",""]],"struct":[["MaterialReference",""],["NewMaterialReference",""]]};

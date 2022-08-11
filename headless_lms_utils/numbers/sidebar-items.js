@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["f32_approx_eq",""],["f32_max",""],["f32_to_two_decimals",""],["option_f32_to_f32_two_decimals",""]]});
+window.SIDEBAR_ITEMS = {"fn":[["f32_approx_eq",""],["f32_max",""],["f32_to_two_decimals",""],["option_f32_to_f32_two_decimals",""]]};

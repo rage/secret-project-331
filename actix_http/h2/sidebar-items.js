@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Dispatcher","Dispatcher for HTTP/2 protocol."],["H2Service","`ServiceFactory` implementation for HTTP/2 transport"],["Payload","HTTP/2 peer stream."]]});
+window.SIDEBAR_ITEMS = {"struct":[["Dispatcher","Dispatcher for HTTP/2 protocol."],["H2Service","`ServiceFactory` implementation for HTTP/2 transport"],["Payload","HTTP/2 peer stream."]]};

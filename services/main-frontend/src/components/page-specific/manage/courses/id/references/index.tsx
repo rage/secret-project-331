@@ -11,6 +11,8 @@ import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+
 
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
@@ -39,21 +41,39 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
   )
 
   return (
-    <div
-      className={css`
-        margin-top: 40px;
-        ${respondToOrLarger.sm} {
-          margin-top: 80px;
-        }
-      `}
-    >
-      {getCourseReferences.isLoading && <Spinner variant="medium" />}
+    <div>
+      {getCourseReferences.isLoading && (
+        <div className={css`
+          margin-top: 40px;
+            ${respondToOrLarger.sm} {
+              margin-top: 80px;
+            }
+      `}>
+        <Spinner variant="medium" />
+      </div>
+      )}
       {getCourseReferences.isError && (
+        <div className={css`
+        margin-top: 40px;
+          ${respondToOrLarger.sm} {
+            margin-top: 80px;
+          }
+    `}>
         <ErrorBanner variant="readOnly" error={getCourseReferences.error} />
+        </div>
       )}
       {getCourseReferences.isSuccess && (
         <div>
-          <h2>{t("references")}</h2>
+          <h2
+                  className={
+                    css`
+                    font-size: clamp(2rem, 3.6vh, 36px);
+                    color: ${baseTheme.colors.grey[700]};
+                    font-family: ${headingFont};
+                    font-weight: bold;
+                  `
+                  }
+          >{t("references")}</h2>
           <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
             {t("add-new-reference")}
           </Button>

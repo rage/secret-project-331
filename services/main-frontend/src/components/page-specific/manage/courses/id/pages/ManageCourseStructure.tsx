@@ -19,7 +19,7 @@ import Centered from "../../../../../../shared-module/components/Centering/Cente
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import DropdownMenu from "../../../../../../shared-module/components/DropdownMenu"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, typography } from "../../../../../../shared-module/styles"
+import { baseTheme, typography, headingFont } from "../../../../../../shared-module/styles"
 
 import ChapterImageWidget from "./ChapterImageWidget"
 import NewChapterForm from "./NewChapterForm"
@@ -83,7 +83,16 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
   return (
     <>
-      <h1>{t("course-pages-for", { "course-name": courseStructure.course.name })}</h1>
+      <h1
+        className={
+          css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `
+        }
+      >{t("course-pages-for", { "course-name": courseStructure.course.name })}</h1>
       <h2>{t("pages")}</h2>
       <FrontPage
         refetch={refetch}

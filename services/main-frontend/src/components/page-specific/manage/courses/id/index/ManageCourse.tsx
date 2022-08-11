@@ -19,6 +19,7 @@ import CourseCourseInstances from "../course-instances/CourseCourseInstances"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "../language-versions/CourseLanguageVersionsList"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 
@@ -65,7 +66,16 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   return (
     <>
-      <h1>
+      <h1
+        className={
+          css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `
+        }
+      >
         {course.name}
         {course.is_draft && ` (${t("draft")})`}
         {course.deleted_at && ` (${t("deleted")})`}

@@ -1,10 +1,12 @@
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { css } from "@emotion/css"
 
 import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import TabLink from "../../../../../../shared-module/components/Navigation/TabLinks/TabLink"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import TabLinkNavigation from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
 
@@ -25,7 +27,17 @@ const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPages
 
   return (
     <div>
-      <h3>{t("title-change-requests")}</h3>
+      <h3
+        className={
+          css`
+            font-size: clamp(2rem, 3.6vh, 36px);
+            color: ${baseTheme.colors.grey[700]};
+            font-family: ${headingFont};
+            font-weight: bold;
+  
+          `
+        }
+      >{t("title-change-requests")}</h3>
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <TabLinkNavigation>
         <TabLink

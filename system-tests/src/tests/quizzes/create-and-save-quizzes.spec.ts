@@ -314,10 +314,6 @@ test("create quizzes test", async ({ page }) => {
     messageAfterSubmissionWhenSelected: `no`,
   })
   await frame7.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
   await fillQuizItemOptionModal(page, frame7, {
     type: "multiple-choice",
     correct: true,
@@ -354,10 +350,7 @@ test("create quizzes test", async ({ page }) => {
     messageAfterSubmissionWhenSelected: `no`,
   })
   await frame8.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
+
   await fillQuizItemOptionModal(page, frame8, {
     type: "multiple-choice",
     correct: true,

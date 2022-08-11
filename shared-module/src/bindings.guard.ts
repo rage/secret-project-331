@@ -1902,13 +1902,27 @@ export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbe
   )
 }
 
-export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
+export function isMaterialReference(obj: any, _argumentName?: string): obj is MaterialReference {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => typeof e === "string")
+    typeof obj.id === "string" &&
+    typeof obj.course_id === "string" &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+  )
+}
+
+export function isNewMaterialReference(
+  obj: any,
+  _argumentName?: string,
+): obj is NewMaterialReference {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.citation_key === "string" &&
+    typeof obj.reference === "string"
   )
 }
 
@@ -1937,26 +1951,12 @@ export function isModuleUpdates(obj: any, _argumentName?: string): obj is Module
   )
 }
 
-export function isMaterialReference(obj: any, _argumentName?: string): obj is MaterialReference {
+export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.citation_key === "string" &&
-    typeof obj.reference === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
-  )
-}
-
-export function isNewMaterialReference(
-  obj: any,
-  _argumentName?: string,
-): obj is NewMaterialReference {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.citation_key === "string" &&
-    typeof obj.reference === "string"
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number" &&
+    Array.isArray(obj.chapters) &&
+    obj.chapters.every((e: any) => typeof e === "string")
   )
 }

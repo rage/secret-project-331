@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import { ExerciseFeedback } from "../pages/api/grade"
 import { State } from "../pages/iframe"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import Editor from "./Editor"
@@ -47,4 +48,4 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
   }
 }
 
-export default withNoSsr(Renderer)
+export default withErrorBoundary(withNoSsr(Renderer))

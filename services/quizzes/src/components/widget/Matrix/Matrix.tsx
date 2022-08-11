@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
 import { QuizItemAnswer } from "../../../../types/types"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import MatrixCell from "./MatrixCell"
 
@@ -34,7 +35,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const Matrix: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
@@ -151,4 +152,4 @@ const Matrix: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentP
   )
 }
 
-export default Matrix
+export default withErrorBoundary(Matrix)

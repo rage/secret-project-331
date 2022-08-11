@@ -1107,10 +1107,19 @@ export interface OEmbedResponse {
   version: string
 }
 
-export interface NewModule {
-  name: string
-  order_number: number
-  chapters: Array<string>
+export interface MaterialReference {
+  id: string
+  course_id: string
+  citation_key: string
+  reference: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface NewMaterialReference {
+  citation_key: string
+  reference: string
 }
 
 export interface ModifiedModule {
@@ -1126,17 +1135,8 @@ export interface ModuleUpdates {
   moved_chapters: Array<[string, string]>
 }
 
-export interface MaterialReference {
-  id: string
-  course_id: string
-  citation_key: string
-  reference: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-}
-
-export interface NewMaterialReference {
-  citation_key: string
-  reference: string
+export interface NewModule {
+  name: string
+  order_number: number
+  chapters: Array<string>
 }

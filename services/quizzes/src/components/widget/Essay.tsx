@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next"
 import { QuizItemAnswer } from "../../../types/types"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import { wordCount } from "../../shared-module/utils/strings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 
-const Essay: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,
@@ -115,4 +116,4 @@ const Essay: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentPr
   )
 }
 
-export default Essay
+export default withErrorBoundary(Essay)

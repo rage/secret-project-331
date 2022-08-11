@@ -8,8 +8,8 @@ import Checkbox from "./Checkbox"
 import Essay from "./Essay"
 import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
-import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
-import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
+import MultipleChoiceClickable from "./MultipleChoiceClickable"
+import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
 import Open from "./Open"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
@@ -32,7 +32,7 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: {
-    [key: string]: React.FC<React.PropsWithChildren<QuizItemComponentProps>>
+    [key: string]: React.ComponentClass<QuizItemComponentProps>
   } = {
     essay: Essay,
     "multiple-choice": MultipleChoice,

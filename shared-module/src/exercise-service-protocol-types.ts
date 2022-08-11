@@ -31,6 +31,17 @@ export interface ReadyMessage {
 }
 
 /**
+ * from: Parent
+ *
+ * to: IFrame
+ */
+export interface SetLanguageMessage {
+  message: "set-language"
+  // e.g. "en" or "fi"
+  data: string
+}
+
+/**
  * from: parent
  *
  * to: IFrame

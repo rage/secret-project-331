@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme, headingFont } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -261,4 +262,4 @@ const Timeline: React.FunctionComponent<
   )
 }
 
-export default Timeline
+export default withErrorBoundary(Timeline)

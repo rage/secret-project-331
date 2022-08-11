@@ -104,5 +104,6 @@
   "quiz-timeline-description": "Match years to events on a timeline",
   "quiz-title-invalid-format": "Invalid format: check the tags",
   "quiz-edit-title": "Edit",
-  "quiz-preview-title": "Preview"
+  "quiz-preview-title": "Preview",
+  "error-quiz-item-added-after-answering": "A question has been added here after answering the exercise."
 }

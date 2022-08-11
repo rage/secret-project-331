@@ -3,6 +3,7 @@ import React from "react"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -102,4 +103,4 @@ const MultipleChoiceDropdownFeedback: React.FC<
   )
 }
 
-export default MultipleChoiceDropdownFeedback
+export default withErrorBoundary(MultipleChoiceDropdownFeedback)

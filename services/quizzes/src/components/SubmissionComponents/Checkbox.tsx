@@ -4,6 +4,7 @@ import React from "react"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { baseTheme } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -22,7 +23,7 @@ const Option = styled.div<StyledProps>`
   padding: 5px;
 `
 
-const CheckBoxFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>> = ({
+const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   public_quiz_item,
   user_quiz_item_answer,
   quiz_item_feedback,
@@ -85,4 +86,4 @@ const CheckBoxFeedback: React.FC<React.PropsWithChildren<QuizItemSubmissionCompo
   )
 }
 
-export default CheckBoxFeedback
+export default withErrorBoundary(CheckBoxFeedback)

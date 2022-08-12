@@ -2,5 +2,13 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-run_command npx concurrently -n "cms,course-material,main-frontend,example-exercise,quizzes" -c "green.bold,red.bold,blue.bold,yellow.bold,cyan.bold" "npx tsc -p services/cms/ --noEmit" "npx tsc -p services/course-material/ --noEmit" "npx tsc -p services/main-frontend/ --noEmit" "npx tsc -p services/example-exercise/ --noEmit" "npx tsc -p services/quizzes/ --noEmit"
+run_command npx concurrently \
+  -n "cms,course-material,main-frontend,example-exercise,quizzes" \
+  -c "green.bold,red.bold,blue.bold,yellow.bold,cyan.bold" \
+  "npx tsc -p services/cms/ --noEmit" \
+  "npx tsc -p services/course-material/ --noEmit" \
+  "npx tsc -p services/main-frontend/ --noEmit" \
+  "npx tsc -p services/example-exercise/ --noEmit" \
+  "npx tsc -p services/quizzes/ --noEmit"
+
 echo "finished"

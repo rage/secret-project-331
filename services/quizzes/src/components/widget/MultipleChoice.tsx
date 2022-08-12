@@ -6,8 +6,9 @@ import { useTranslation } from "react-i18next"
 import { QuizItemAnswer } from "../../../types/types"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
-import MarkdownText from "../MarkdownText"
+import ParsedText from "../ParsedText"
 
 import { QuizItemComponentProps } from "."
 
@@ -44,7 +45,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   quizItem,
   setQuizItemAnswerState,
@@ -94,7 +95,7 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
           font-size: clamp(18px, 2vw, 20px) !important;
         `}
       >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
+        <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
       <p
         className={css`
@@ -103,7 +104,7 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
           margin: 0.5rem 0;
         `}
       >
-        {quizItem.body && <MarkdownText text={quizItem.body} />}
+        <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
       </p>
       <div
         className={css`
@@ -133,7 +134,7 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
                 direction === DIRECTION_COLUMN && optionButtonColumn,
               )}
             >
-              <MarkdownText text={qo.title || qo.body || ""} />
+              <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />
             </button>
           )
         })}
@@ -154,4 +155,4 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
   )
 }
 
-export default MultipleChoice
+export default withErrorBoundary(MultipleChoice)

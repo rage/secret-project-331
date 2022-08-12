@@ -341,7 +341,7 @@ async fn check_course_permission(
         }
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;
-    return check_organization_permission(roles, action, organization_id).await;
+    check_organization_permission(roles, action, organization_id).await
 }
 
 /// Also checks organization and course roles which are valid for course instances.
@@ -366,7 +366,7 @@ async fn check_course_instance_permission(
         }
     }
     let course_id = models::course_instances::get_course_id(conn, course_instance_id).await?;
-    return check_course_permission(conn, roles, action, course_id).await;
+    check_course_permission(conn, roles, action, course_id).await
 }
 
 /// Also checks organization role which is valid for exams.
@@ -383,7 +383,7 @@ async fn check_exam_permission(
         }
     }
     let organization_id = models::exams::get_organization_id(conn, exam_id).await?;
-    return check_organization_permission(roles, action, organization_id).await;
+    check_organization_permission(roles, action, organization_id).await
 }
 
 async fn check_course_or_exam_permission(

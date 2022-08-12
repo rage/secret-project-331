@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-export const MultipleChoiceDropdown: React.FunctionComponent<
+const MultipleChoiceDropdown: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
@@ -132,3 +133,5 @@ export const MultipleChoiceDropdown: React.FunctionComponent<
     </div>
   )
 }
+
+export default withErrorBoundary(MultipleChoiceDropdown)

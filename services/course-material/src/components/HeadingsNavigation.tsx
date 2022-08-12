@@ -40,7 +40,7 @@ const StTopic = styled.div`
   padding: 0.4rem 0.5rem 0.4rem 0.75rem;
   width: 100%;
   margin: 0;
-  font-size: 20px;
+  font-size: 15px;
   cursor: pointer;
 
   div {

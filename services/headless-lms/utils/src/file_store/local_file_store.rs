@@ -43,6 +43,9 @@ impl FileStore for LocalFileStore {
         _mime_type: &str,
     ) -> Result<(), UtilError> {
         let full_path = self.base_path.join(path);
+        if let Some(parent) = full_path.parent() {
+            fs::create_dir_all(parent).await?;
+        }
         fs::write(full_path, contents).await?;
         Ok(())
     }

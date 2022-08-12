@@ -41,6 +41,7 @@ const StTopic = styled.div`
   width: 100%;
   margin: 0;
   font-size: 15px;
+  line-height: 1.4;
   cursor: pointer;
 
   div {

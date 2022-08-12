@@ -107,10 +107,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const courseCount = getOrgCourseCount.data.count
-  if (courseCount <= 0) {
-    return <div>{t("no-courses-in-org")}</div>
-  }
-  const pageCount = Math.ceil(courseCount / perPage)
+
+  const pageCount = Math.ceil(Math.max(courseCount, 1) / perPage)
   if (page > pageCount) {
     setPage(pageCount)
   }
@@ -135,7 +133,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
 
   return (
     <div>
-      <CourseGrid>{courses}</CourseGrid>
+      {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
+      {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <Box my={2} display="flex" justifyContent="center">
         <Pagination
@@ -184,7 +183,6 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
           </div>
         </Dialog>
       </div>
-
       <br />
       {loginStateContext.signedIn && (
         <OnlyRenderIfPermissions

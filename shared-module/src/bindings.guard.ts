@@ -88,11 +88,14 @@ import {
   Login,
   MarkAsRead,
   MaterialReference,
+  ModifiedModule,
+  ModuleUpdates,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
   NewMaterialReference,
+  NewModule,
   NewPage,
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
@@ -489,7 +492,9 @@ export function isCourseStructure(obj: any, _argumentName?: string): obj is Cour
     Array.isArray(obj.pages) &&
     obj.pages.every((e: any) => isPage(e) as boolean) &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapter(e) as boolean)
+    obj.chapters.every((e: any) => isChapter(e) as boolean) &&
+    Array.isArray(obj.modules) &&
+    obj.modules.every((e: any) => isCourseModule(e) as boolean)
   )
 }
 
@@ -1927,5 +1932,40 @@ export function isNewMaterialReference(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.citation_key === "string" &&
     typeof obj.reference === "string"
+  )
+}
+
+export function isModifiedModule(obj: any, _argumentName?: string): obj is ModifiedModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.order_number === "number"
+  )
+}
+
+export function isModuleUpdates(obj: any, _argumentName?: string): obj is ModuleUpdates {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.new_modules) &&
+    obj.new_modules.every((e: any) => isNewModule(e) as boolean) &&
+    Array.isArray(obj.deleted_modules) &&
+    obj.deleted_modules.every((e: any) => typeof e === "string") &&
+    Array.isArray(obj.modified_modules) &&
+    obj.modified_modules.every((e: any) => isModifiedModule(e) as boolean) &&
+    Array.isArray(obj.moved_chapters) &&
+    obj.moved_chapters.every(
+      (e: any) => Array.isArray(e) && typeof e[0] === "string" && typeof e[1] === "string",
+    )
+  )
+}
+
+export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number" &&
+    Array.isArray(obj.chapters) &&
+    obj.chapters.every((e: any) => typeof e === "string")
   )
 }

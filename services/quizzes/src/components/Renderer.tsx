@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
 import { State } from "../pages/iframe"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import DynamicallyLoadingComponentPlaceholder from "./ComponentPlaceholder"
@@ -57,4 +58,4 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
   }
 }
 
-export default withNoSsr(Renderer)
+export default withErrorBoundary(withNoSsr(Renderer))

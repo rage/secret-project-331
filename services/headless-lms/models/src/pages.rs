@@ -162,7 +162,7 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageSearchRequest {
     query: String,

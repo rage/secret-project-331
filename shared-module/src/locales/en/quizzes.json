@@ -105,5 +105,6 @@
   "quiz-title-invalid-format": "Invalid format: check the tags",
   "quiz-edit-title": "Edit",
   "quiz-preview-title": "Preview",
-  "randomized-checkbox-message": "Randomize options"
+  "randomized-checkbox-message": "Randomize options",
+  "error-quiz-item-added-after-answering": "A question has been added here after answering the exercise."
 }

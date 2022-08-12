@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next"
 
-const Unsupported: React.FC<React.PropsWithChildren<unknown>> = () => {
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+
+import { QuizItemComponentProps } from "."
+
+const Unsupported: React.FC<QuizItemComponentProps> = () => {
   const { t } = useTranslation()
   return (
     <div>
@@ -20,4 +24,4 @@ const Unsupported: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default Unsupported
+export default withErrorBoundary(Unsupported)

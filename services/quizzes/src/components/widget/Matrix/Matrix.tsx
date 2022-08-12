@@ -3,11 +3,13 @@ import React, { useCallback, useEffect, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
 import { QuizItemAnswer } from "../../../../types/types"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import MatrixCell from "./MatrixCell"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
+  margin-top: 1rem;
   background-color: grey;
   border-collapse: collapse;
   td {
@@ -33,7 +35,7 @@ export interface LeftBorderedDivProps {
   message?: string
 }
 
-const Matrix: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   setQuizItemAnswerState,
 }) => {
@@ -150,4 +152,4 @@ const Matrix: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentP
   )
 }
 
-export default Matrix
+export default withErrorBoundary(Matrix)

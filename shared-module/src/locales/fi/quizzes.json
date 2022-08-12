@@ -103,5 +103,6 @@
   "quiz-title-invalid-format": "Virheellinen muotoilu: tarkista tunnisteet",
   "quiz-edit-title": "Muokkaa",
   "quiz-preview-title": "Esikatsele",
-  "randomized-checkbox-message": "Satunnaisjärjestys"
+  "randomized-checkbox-message": "Satunnaisjärjestys",
+  "error-quiz-item-added-after-answering": "Tähän kohtaan on lisätty kysymys sen jälkeen kun vastaus oli lähetetty."
 }

@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
@@ -165,8 +166,6 @@ const MultipleChoiceSubmission: React.FC<
   )
 }
 
-export default MultipleChoiceSubmission
-
 interface RowSubmissionFeedbackProps {
   feedback: string | null | undefined
   correct: boolean
@@ -193,3 +192,5 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
     </div>
   ) : null
 }
+
+export default withErrorBoundary(MultipleChoiceSubmission)

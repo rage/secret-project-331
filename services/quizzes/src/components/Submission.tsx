@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
 import { UserInformation } from "../shared-module/exercise-service-protocol-types"
+import { baseTheme } from "../shared-module/styles"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
 import CheckBoxFeedback from "./SubmissionComponents/Checkbox"
@@ -36,7 +37,7 @@ type QuizItemType =
   | "timeline"
 
 interface QuizItemSubmissionComponentDescriptor {
-  component: React.FC<React.PropsWithChildren<QuizItemSubmissionComponentProps>>
+  component: React.ComponentClass<QuizItemSubmissionComponentProps>
   shouldDisplayCorrectnessMessageAfterAnswer: boolean
 }
 
@@ -56,7 +57,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
   },
   open: { component: OpenFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },
   "custom-frontend-accept-data": {
-    component: UnsupportedSubmissionViewComponent,
+    component: OpenFeedback,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   "multiple-choice-dropdown": {
@@ -107,32 +108,56 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
             (ia) => ia.quizItemId === item.id,
           )[0]
           return (
-            <div key={item.id}>
-              <Component
-                key={item.id}
-                public_quiz_item={item}
-                quiz_item_feedback={itemFeedback}
-                quiz_item_model_solution={itemModelSolution}
-                user_quiz_item_answer={quizItemAnswer}
-                user_information={user_information}
-              />
-              {itemFeedback && componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
+            <div
+              className={css`
+                margin-bottom: 1.5rem;
+                :last-of-type {
+                  margin-bottom: 0;
+                }
+              `}
+              key={item.id}
+            >
+              {quizItemAnswer && (
+                <>
+                  <Component
+                    key={item.id}
+                    public_quiz_item={item}
+                    quiz_item_feedback={itemFeedback}
+                    quiz_item_model_solution={itemModelSolution}
+                    user_quiz_item_answer={quizItemAnswer}
+                    user_information={user_information}
+                  />
+                  {itemFeedback &&
+                    componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (
+                      <div
+                        className={css`
+                          background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
+                          border: 1px solid
+                            ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
+                          box-sizing: border-box;
+                          border-radius: 4px;
+                          color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
+                          margin: 1.5rem auto;
+                          margin-bottom: 0;
+                          padding: 0.25rem 1.5rem;
+                          width: fit-content;
+                        `}
+                      >
+                        {itemFeedback.quiz_item_correct
+                          ? t("your-answer-was-correct")
+                          : t("your-answer-was-not-correct")}
+                      </div>
+                    )}{" "}
+                </>
+              )}
+              {!quizItemAnswer && (
                 <div
                   className={css`
-                    background: ${itemFeedback.quiz_item_correct ? "#f1fff2" : "#fff4f5"};
-                    border: 1px solid ${itemFeedback.quiz_item_correct ? "#cbf3cd" : "#f3cbcf"};
-                    box-sizing: border-box;
-                    border-radius: 4px;
-                    color: ${itemFeedback.quiz_item_correct ? "#1c850d" : "#d52a3c"};
-                    margin: 1.5rem auto;
-                    margin-bottom: 0;
-                    padding: 0.25rem 1.5rem;
-                    width: fit-content;
+                    padding: 1rem;
+                    background-color: ${baseTheme.colors.grey[100]};
                   `}
                 >
-                  {itemFeedback.quiz_item_correct
-                    ? t("your-answer-was-correct")
-                    : t("your-answer-was-not-correct")}
+                  {t("error-quiz-item-added-after-answering")}
                 </div>
               )}
             </div>

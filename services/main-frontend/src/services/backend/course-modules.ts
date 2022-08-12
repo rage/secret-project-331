@@ -1,4 +1,8 @@
-import { CompletionRegistrationLink, UserCompletionInformation } from "../../shared-module/bindings"
+import {
+  CompletionRegistrationLink,
+  ModuleUpdates,
+  UserCompletionInformation,
+} from "../../shared-module/bindings"
 import {
   isCompletionRegistrationLink,
   isUserCompletionInformation,
@@ -30,4 +34,22 @@ export const fetchCompletionRegistrationLink = async (
     },
   )
   return validateResponse(res, isCompletionRegistrationLink)
+}
+
+export const submitChanges = async (
+  courseId: string,
+  newModules: Array<{ name: string; order_number: number; chapters: Array<string> }>,
+  deletedModules: Array<string>,
+  modifiedModules: Array<{ id: string; name: string | null; order_number: number }>,
+  movedChapters: Array<[string, string]>,
+): Promise<void> => {
+  const data: ModuleUpdates = {
+    new_modules: newModules,
+    deleted_modules: deletedModules,
+    modified_modules: modifiedModules,
+    moved_chapters: movedChapters,
+  }
+  await mainFrontendClient.post(`/courses/${courseId}/course-modules`, data, {
+    responseType: "json",
+  })
 }

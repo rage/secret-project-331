@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import {
   CurrentStateMessage,
   IframeState,
+  SetLanguageMessage,
   SetStateMessage,
 } from "../exercise-service-protocol-types"
 import {
@@ -39,7 +40,8 @@ const MessageChannelIFrame: React.FC<
   showBorders = false,
   disableSandbox = false,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
@@ -132,6 +134,23 @@ const MessageChannelIFrame: React.FC<
       removeEventListener("message", temporaryEventHandler)
     }
   }, [disableSandbox, messageChannel])
+
+  // Keep the iframe informed of the current user interface language
+  useEffect(() => {
+    if (!messageChannel) {
+      return
+    }
+    const message: SetLanguageMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
+      message: "set-language",
+      data: language,
+    }
+    // eslint-disable-next-line i18next/no-literal-string
+    console.groupCollapsed(`Parent posting set-language message to iframe (${language})`)
+    console.info(JSON.stringify(message, undefined, 2))
+    console.groupEnd()
+    messageChannel.port1.postMessage(message)
+  }, [language, messageChannel])
 
   useEffect(() => {
     if (

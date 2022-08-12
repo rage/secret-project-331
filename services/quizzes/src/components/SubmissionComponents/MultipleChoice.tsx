@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
+import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
 import ParsedText from "../ParsedText"
 
@@ -44,13 +45,24 @@ const gradingOptionCorrectAndSelected = css`
 
 const MultipleChoiceSubmission: React.FC<
   React.PropsWithChildren<QuizItemSubmissionComponentProps>
-> = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
+> = ({
+  public_quiz_item,
+  quiz_item_model_solution,
+  user_quiz_item_answer,
+  quiz_item_feedback,
+  user_information,
+}) => {
   const { t } = useTranslation()
 
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
+
+  let quiz_options = public_quiz_item.options
+  if (public_quiz_item.randomizedOptions) {
+    quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
+  }
 
   return (
     <div
@@ -86,7 +98,7 @@ const MultipleChoiceSubmission: React.FC<
           }
         `}
       >
-        {public_quiz_item.options.map((qo) => {
+        {quiz_options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null

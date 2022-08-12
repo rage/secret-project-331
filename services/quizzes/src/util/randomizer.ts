@@ -48,16 +48,36 @@ const generateRandomOrder = (n: number, seed: number) => {
 }
 
 /**
- * Returns a randomized array with the seed.
+ * Returns a randomized array
  *
  * @see generateRandomOrder
  * @param array Array of items
  * @param seed Seed for randomizer
  * @returns Array sorted with the randomizer
  */
-const orderArrayBySeed = (array: [any], seed: number) => {
+const orderArrayBySeed = (array: any[], seed: number) => {
   const randomOrder = generateRandomOrder(array.length, seed)
   return randomOrder.map((index) => array[index])
 }
 
-export { orderArrayBySeed }
+/**
+ * Returns a randomized array
+ *
+ * @param array Array of items
+ * @param pseudonymId Pseudonymous ID
+ * @returns Array sorted with the randomizer
+ */
+const orderArrayWithId = (array: any[], pseudonymId: string) => {
+  const seed = pseudonymId
+    .split("")
+    .map((chr, idx) => {
+      let val = Math.pow(chr.charCodeAt(0) * 31, pseudonymId.length - idx)
+      val &= val
+      return val
+    })
+    .reduce((a, b) => a + b)
+
+  return orderArrayBySeed(array, seed)
+}
+
+export { orderArrayWithId }

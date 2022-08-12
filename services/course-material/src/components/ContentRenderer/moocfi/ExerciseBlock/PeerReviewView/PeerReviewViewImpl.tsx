@@ -4,7 +4,6 @@ import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
-import getGuestPseudonymousUserId from "../../../../../../../../shared-module/src/utils/getGuestPseudonymousUserId"
 import {
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
@@ -19,6 +18,7 @@ import Spinner from "../../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 

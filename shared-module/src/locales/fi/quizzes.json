@@ -102,5 +102,6 @@
   "quiz-timeline-description": "Yhdistä vuodet tapahtumiin aikajanalla",
   "quiz-title-invalid-format": "Virheellinen muotoilu: tarkista tunnisteet",
   "quiz-edit-title": "Muokkaa",
-  "quiz-preview-title": "Esikatsele"
+  "quiz-preview-title": "Esikatsele",
+  "randomized-checkbox-message": "Satunnaisjärjestys"
 }

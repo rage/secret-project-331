@@ -93,6 +93,7 @@ export interface ModelSolutionQuiz {
 }
 
 export interface QuizItem {
+  randomizedOptions: boolean
   id: string
   quizId: string
   type: string
@@ -140,6 +141,7 @@ export interface OptionsFeedback {
  * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
  */
 export interface NormalizedQuizItem {
+  randomizedOptions: boolean
   id: string
   quizId: string
   type: string
@@ -191,6 +193,7 @@ export interface PublicQuizItem {
   order: number
   formatRegex: string | null
   multi: boolean
+  randomizedOptions: boolean
   minWords: number | null
   maxWords: number | null
   maxValue: number | null

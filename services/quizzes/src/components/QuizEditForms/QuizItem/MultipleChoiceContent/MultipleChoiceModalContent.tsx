@@ -27,6 +27,7 @@ import {
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
   toggledMultiOptions,
+  toggledRandomizedOptions,
   toggledSharedOptionFeedbackMessage,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
@@ -98,6 +99,19 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
                 checked={storeItem.usesSharedOptionFeedbackMessage}
                 onChange={(event) =>
                   dispatch(toggledSharedOptionFeedbackMessage(storeItem.id, event.target.checked))
+                }
+              />
+            }
+          />
+          <FormControlLabel
+            label={t("randomized-checkbox-message")}
+            labelPlacement="start"
+            control={
+              <Checkbox
+                color="primary"
+                checked={storeItem.randomizedOptions}
+                onChange={(event) =>
+                  dispatch(toggledRandomizedOptions(storeItem.id, event.target.checked))
                 }
               />
             }

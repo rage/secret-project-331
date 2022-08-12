@@ -1,10 +1,10 @@
 /* eslint-disable i18next/no-literal-string */
-import getGuestPseudonymousUserId from "../../../../shared-module/src/utils/getGuestPseudonymousUserId"
 import {
   CourseMaterialExerciseTask,
   StudentExerciseSlideSubmissionResult,
 } from "../shared-module/bindings"
 import { IframeState } from "../shared-module/exercise-service-protocol-types"
+import getGuestPseudonymousUserId from "../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../shared-module/utils/typeMappter"
 
 export interface ExerciseDownloadedAction {

@@ -7,6 +7,7 @@ import { QuizItemAnswer } from "../../../types/types"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { quizTheme } from "../../styles/QuizStyles"
+import { orderArrayWithId } from "../../util/randomizer"
 import ParsedText from "../ParsedText"
 
 import { QuizItemComponentProps } from "."
@@ -47,6 +48,7 @@ export interface LeftBorderedDivProps {
 const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemComponentProps>> = ({
   quizItemAnswerState,
   quizItem,
+  user_information,
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
@@ -78,6 +80,11 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
       }
     }
     setQuizItemAnswerState(newItemAnswer)
+  }
+
+  let quiz_options = quizItem.options
+  if (quizItem.randomizedOptions) {
+    quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
   }
 
   return (
@@ -116,7 +123,7 @@ const MultipleChoice: React.FunctionComponent<React.PropsWithChildren<QuizItemCo
         `}
         role={quizItem.multi ? "group" : "radiogroup"}
       >
-        {quizItem.options.map((qo, i) => {
+        {quiz_options.map((qo, i) => {
           const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
 
           return (

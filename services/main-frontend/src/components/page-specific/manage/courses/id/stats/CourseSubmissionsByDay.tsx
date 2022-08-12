@@ -8,6 +8,7 @@ import { fetchCourseDailySubmissionCounts } from "../../../../../../services/bac
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/styles"
 import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
@@ -52,7 +53,10 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
   return (
     <div
       className={css`
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
+        border: 3px solid ${baseTheme.colors.clear[200]};
+        border-radius: 6px;
+        padding: 1rem;
       `}
     >
       <Echarts

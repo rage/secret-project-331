@@ -33,15 +33,19 @@ const Likert = styled.div`
   width: 150px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: 25px 0;
+  padding: 15px 0;
   background-color: ${({ active }: StyledProps) => (active ? "#313947" : "#f9f9f9")};
   cursor: pointer;
   transition: all 0.2s;
 
   svg .bg {
     fill: ${({ active }) => active && "#ffd93b"};
+  }
+
+  svg {
+    margin-top: 10px;
+    margin-bottom: 5px;
   }
 
   &:hover {
@@ -56,7 +60,8 @@ const Likert = styled.div`
     font-size: 15px;
     font-weight: 500;
     color: ${({ active }) => (active ? "#ffffff" : "#313947")};
-    text-transform: capitalize;
+    text-align: center;
+    line-height: 1.2;
   }
 `
 
@@ -82,40 +87,25 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
   const arr = [
     {
       text: t("likert-scale-strongly-disagree"),
+      image: <StronglyDisagree />,
     },
     {
       text: t("likert-scale-disagree"),
+      image: <Disagree />,
     },
     {
       text: t("likert-scale-neither-agree-nor-disagree"),
+      image: <Neutral />,
     },
     {
       text: t("likert-scale-agree"),
+      image: <Agree />,
     },
     {
       text: t("likert-scale-strongly-agree"),
+      image: <StronglyAgree />,
     },
   ]
-
-  const SVGmatcher = (identifier: string) => {
-    switch (identifier) {
-      case "likert-scale-agree":
-        return <Agree />
-        break
-      case "strongly agree":
-        return <StronglyAgree />
-        break
-      case "likert-scale-neither-agree-nor-disagree":
-        return <Neutral />
-        break
-      case "likert-scale-disagree":
-        return <Disagree />
-        break
-      case "strongly disagree":
-        return <StronglyDisagree />
-      default:
-    }
-  }
 
   return (
     <Wrapper>
@@ -133,7 +123,7 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
             }}
             active={selectedOption === n}
           >
-            {SVGmatcher(option.text)}
+            {option.image}
             <p className="likert-scale-text">{option.text}</p>
           </Likert>
         ))}

@@ -4,8 +4,6 @@ import { RichText } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
-import "katex/dist/katex.min.css"
-
 import { baseTheme, monospaceFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 

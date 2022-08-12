@@ -12,7 +12,7 @@ export interface HighlightAttributes {
 
 const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
   title: "HighlightBox",
-  description: "Block for adding HighlightBox",
+  description: "Useful block for a table of definitions",
   category: "text",
   attributes: {
     title: {

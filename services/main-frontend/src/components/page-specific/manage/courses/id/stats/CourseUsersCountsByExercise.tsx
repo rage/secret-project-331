@@ -34,14 +34,19 @@ const CourseUsersCountsByExercise: React.FC<
     return <Spinner variant="medium" />
   }
 
-  const queryData = sortBy(query.data, [
+  const queryData = sortBy(
+    query.data,
+    [
+      // eslint-disable-next-line i18next/no-literal-string
+      "chapter_number",
+      // eslint-disable-next-line i18next/no-literal-string
+      "page_order_number",
+      // eslint-disable-next-line i18next/no-literal-string
+      "exercise_order_number",
+    ],
     // eslint-disable-next-line i18next/no-literal-string
-    "chapter_number",
-    // eslint-disable-next-line i18next/no-literal-string
-    "page_order_number",
-    // eslint-disable-next-line i18next/no-literal-string
-    "exercise_order_number",
-  ])
+    ["asc", "asc", "asc"],
+  )
 
   const chapters = Array.from(new Set(queryData.map((obj) => obj.chapter_number)))
 
@@ -56,7 +61,6 @@ const CourseUsersCountsByExercise: React.FC<
       `}
     >
       {result.map((data) => (
-        // eslint-disable-next-line react/jsx-key
         <div
           className={css`
             margin-bottom: 1.5rem;
@@ -64,6 +68,7 @@ const CourseUsersCountsByExercise: React.FC<
             border-radius: 6px;
             padding: 1rem;
           `}
+          key={JSON.stringify(data[0])}
         >
           <div>
             <h3

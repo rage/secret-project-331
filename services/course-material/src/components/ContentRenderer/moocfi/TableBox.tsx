@@ -109,6 +109,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
                     align-items: center;
                     margin-bottom: 5px;
                     font-size: 18px;
+                    font-weight: bold;
                     color: #1a2333;
                     padding: 10px;
                   `}

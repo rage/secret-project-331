@@ -110,7 +110,7 @@ const TabLinkNavigation: React.FC<
         flex-wrap: wrap;
         background: ${theme.secondary.bg};
         padding: 0.5rem;
-        border-radius: 10px;
+        border-radius: 4px;
         gap: 10px;
         flex-direction: ${orientation === "horizontal" ? "row" : "column"};
         margin: 2rem 0;

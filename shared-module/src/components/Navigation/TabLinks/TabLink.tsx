@@ -54,13 +54,17 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
           text-align: center;
           text-decoration: none;
           background: ${isActive ? theme.secondary.activeBg : "inherit"};
-          border-radius: 0.7rem;
+          box-shadow: ${isActive
+            ? "rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px"
+            : "none"};
+          border-radius: 0.3rem;
           padding: 0.75rem 0.35rem;
           ${respondToOrLarger.sm} {
             padding: 0.75rem 0;
           }
           :focus {
             background: ${theme.secondary.focusBg};
+            box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
           }
           :hover {
             background: ${theme.secondary.hoverBg};
@@ -72,13 +76,16 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         {count?.isSuccess && count.data !== 0 && (
           <span
             className={css`
-              background: ${baseTheme.colors.red[500]};
-              border-radius: 50%;
+              background: ${baseTheme.colors.red[400]};
+              border-radius: 20px;
+              line-height: 10px;
               padding: 1px 5px;
               text-align: center;
-              font-size: ${baseTheme.fontSizes[0]}px;
+              font-size: 14px;
               color: ${baseTheme.colors.primary[100]};
               margin-left: 3px;
+              width: 20px;
+              height: 20px;
             `}
           >
             {count?.data}

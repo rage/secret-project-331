@@ -96,7 +96,8 @@ const HEADING_TEXT = "Configure review answers option"
 export interface PeerReviewEditorExtraProps {
   attributes: any
   setAttributes: (attr: any) => void
-  exerciseId: string
+  exerciseId?: string
+  courseId: string
 }
 
 export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
@@ -105,11 +106,10 @@ export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
 const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   id,
   exerciseId,
+  courseId,
   attributes,
   setAttributes,
 }) => {
-  const courseId = useContext(PageContext)?.page.course_id
-
   const { t } = useTranslation()
 
   const parsedPeerReviews = JSON.parse(attributes.peer_review_config) as CmsPeerReview[]

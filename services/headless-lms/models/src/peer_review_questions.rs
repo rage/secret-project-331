@@ -206,3 +206,27 @@ RETURNING id;
     .collect();
     Ok(res)
 }
+
+pub async fn get_course_default_cms_peer_review_questions(
+    conn: &mut PgConnection,
+    peer_review_id: Uuid,
+) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
+    let res = sqlx::query_as!(
+        CmsPeerReviewQuestion,
+        r#"
+SELECT id,
+  peer_review_id,
+  order_number,
+  question_type AS "question_type: _",
+  question,
+  answer_required
+FROM peer_review_questions
+where peer_review_id = $1;
+    "#,
+        peer_review_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}

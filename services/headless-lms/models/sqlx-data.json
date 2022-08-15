@@ -2966,6 +2966,54 @@
     },
     "query": "\nUPDATE course_instances\nSET name = $1,\n  description = $2,\n  teacher_in_charge_name = $3,\n  teacher_in_charge_email = $4,\n  support_email = $5,\n  starts_at = $6,\n  ends_at = $7\nWHERE id = $8\n"
   },
+  "2c38f83c596a1bac333c011214a3d40b3a32dac8bfdc4b2ff04a51f0fe857e2e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question_type: _",
+          "ordinal": 3,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "question",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "answer_required",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  peer_review_id,\n  order_number,\n  question_type AS \"question_type: _\",\n  question,\n  answer_required\nFROM peer_review_questions\nwhere peer_review_id = $1;\n    "
+  },
   "2dc3330b399fb3d204887cd2ef29a72cc7df6b66b8ff9ba7872044c8da00bba1": {
     "describe": {
       "columns": [
@@ -5379,6 +5427,63 @@
       }
     },
     "query": "\nSELECT organization_id\nFROM exams\nWHERE id = $1\n"
+  },
+  "56378788d15b4fc7731445edd7e7b9b2d334673ece13492c1d41162ceb6d4251": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_reviews_to_give",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_reviews_to_receive",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "accepting_threshold",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "accepting_strategy: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, true, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_reviews\nwhere course_id = $1;\n"
   },
   "56769774cc71f5cdd7d676f792ec6b2ad296ed3c220fcd65cae452983e2bf326": {
     "describe": {

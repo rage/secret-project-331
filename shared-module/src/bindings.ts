@@ -759,6 +759,11 @@ export interface CmsPeerReview {
   accepting_strategy: PeerReviewAcceptingStrategy
 }
 
+export interface CmsPeerReviewConfiguration {
+  peer_review: CmsPeerReview
+  peer_review_questions: Array<CmsPeerReviewQuestion>
+}
+
 export interface CmsPeerReviewQuestion {
   id: string
   peer_review_id: string

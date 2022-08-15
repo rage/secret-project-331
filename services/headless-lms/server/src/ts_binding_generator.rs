@@ -157,6 +157,7 @@ fn ts_binding_generator() {
         peer_reviews::PeerReview,
         peer_reviews::PeerReviewAcceptingStrategy,
         peer_reviews::CmsPeerReview,
+        peer_reviews::CmsPeerReviewConfiguration,
 
         peer_review_questions::CmsPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,

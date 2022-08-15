@@ -56,7 +56,9 @@ use headless_lms_models::{
         PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
     peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews::{CmsPeerReview, PeerReview, PeerReviewAcceptingStrategy},
+    peer_reviews::{
+        CmsPeerReview, CmsPeerReviewConfiguration, PeerReview, PeerReviewAcceptingStrategy,
+    },
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -1088,6 +1090,29 @@ pub async fn main() -> anyhow::Result<()> {
                     Uuid::parse_str("f8726e97-5ebe-4698-9163-7d6e2568ec7e").unwrap()
                 ),
             }),
+        }
+    );
+    write_docs!(
+        CmsPeerReviewConfiguration,
+        CmsPeerReviewConfiguration {
+            peer_review: CmsPeerReview {
+                id,
+                exercise_id: None,
+                course_id: id,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+                accepting_threshold: 0.5,
+                peer_reviews_to_give: 2,
+                peer_reviews_to_receive: 1
+            },
+            peer_review_questions: vec![CmsPeerReviewQuestion {
+                id,
+                answer_required: true,
+                order_number: 0,
+                peer_review_id: id,
+                question: "test".to_string(),
+                question_type: PeerReviewQuestionType::Essay
+            }]
         }
     );
     Ok(())

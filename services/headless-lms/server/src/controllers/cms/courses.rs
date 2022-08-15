@@ -1,5 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
+use models::peer_reviews::CmsPeerReviewConfiguration;
+
 use crate::controllers::prelude::*;
 
 /**
@@ -45,6 +47,30 @@ async fn add_media(
     token.authorized_ok(web::Json(UploadResult { url: download_url }))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_course_default_peer_review_configuration(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+
+    let peer_review =
+        models::peer_reviews::get_course_default_cms_peer_review(&mut conn, *course_id).await?;
+    let peer_review_questions =
+        models::peer_review_questions::get_course_default_cms_peer_review_questions(
+            &mut conn,
+            peer_review.id,
+        )
+        .await?;
+    token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
+        peer_review,
+        peer_review_questions,
+    }))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -53,5 +79,9 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{course_id}/upload", web::post().to(add_media));
+    cfg.route("/{course_id}/upload", web::post().to(add_media))
+        .route(
+            "/{course_id}/default-peer-review",
+            web::get().to(get_course_default_peer_review_configuration),
+        );
 }

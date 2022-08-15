@@ -13,6 +13,8 @@ use models::{
     glossary::{Term, TermUpdate},
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
+    peer_review_questions::PeerReviewQuestion,
+    peer_reviews::PeerReview,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -733,6 +735,21 @@ async fn delete_material_reference_by_id(
     token.authorized_ok(web::Json(()))
 }
 
+async fn get_course_default_peer_review(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<(PeerReview, Vec<PeerReviewQuestion>)>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+
+    let peer_review =
+        models::peer_reviews::get_default_for_course_by_course_id(&mut conn, *course_id).await?;
+    let peer_review_questions =
+        models::peer_review_questions::get_all_by_peer_review_id(&mut conn, peer_review.id).await?;
+    token.authorized_ok(web::Json((peer_review, peer_review_questions)))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -813,5 +830,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references/{reference_id}",
             web::delete().to(delete_material_reference_by_id),
+        )
+        .route(
+            "/{course_id}/default-peer-review",
+            web::get().to(get_course_default_peer_review),
         );
 }

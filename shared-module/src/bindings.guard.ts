@@ -23,6 +23,7 @@ import {
   CmsPageExerciseTask,
   CmsPageUpdate,
   CmsPeerReview,
+  CmsPeerReviewConfiguration,
   CmsPeerReviewQuestion,
   CompletionRegistrationLink,
   ContentManagementPage,
@@ -1318,6 +1319,18 @@ export function isCmsPeerReview(obj: any, _argumentName?: string): obj is CmsPee
     typeof obj.peer_reviews_to_receive === "number" &&
     typeof obj.accepting_threshold === "number" &&
     (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+  )
+}
+
+export function isCmsPeerReviewConfiguration(
+  obj: any,
+  _argumentName?: string,
+): obj is CmsPeerReviewConfiguration {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    (isCmsPeerReview(obj.peer_review) as boolean) &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean)
   )
 }
 

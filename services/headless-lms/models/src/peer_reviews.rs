@@ -1,6 +1,7 @@
 use crate::{
     exercises,
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
+    peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
 };
@@ -30,6 +31,13 @@ pub struct CmsPeerReview {
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
     pub accepting_strategy: PeerReviewAcceptingStrategy,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CmsPeerReviewConfiguration {
+    pub peer_review: CmsPeerReview,
+    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
 }
 
 /**
@@ -313,6 +321,30 @@ RETURNING id;
     .into_iter()
     .map(|x| x.id)
     .collect();
+    Ok(res)
+}
+
+pub async fn get_course_default_cms_peer_review(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CmsPeerReview> {
+    let res = sqlx::query_as!(
+        CmsPeerReview,
+        r#"
+SELECT id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy: _"
+FROM peer_reviews
+where course_id = $1;
+"#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }
 

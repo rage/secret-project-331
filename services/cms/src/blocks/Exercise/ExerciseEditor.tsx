@@ -6,6 +6,7 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PeerReviewEditor from "../../components/PeerReviewEditor"
+import CourseContext from "../../contexts/CourseContext"
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
@@ -41,6 +42,8 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
   }
+
+  const courseId = useContext(CourseContext)?.courseId
 
   return (
     <BreakFromCentered {...breakFromCenteredProps}>
@@ -154,11 +157,14 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 margin-top: 1rem;
               `}
             >
-              <PeerReviewEditor
-                attributes={attributes}
-                setAttributes={setAttributes}
-                exerciseId={attributes.id}
-              />
+              {courseId && (
+                <PeerReviewEditor
+                  attributes={attributes}
+                  setAttributes={setAttributes}
+                  exerciseId={attributes.id}
+                  courseId={courseId}
+                />
+              )}
             </div>
           </ExerciseEditorCard>
         </Centered>

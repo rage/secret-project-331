@@ -220,7 +220,11 @@ fn ts_binding_generator() {
         OEmbedResponse,
 
         material_references::MaterialReference,
-        material_references::NewMaterialReference
+        material_references::NewMaterialReference,
+
+        course_modules::ModifiedModule,
+        course_modules::ModuleUpdates,
+        course_modules::NewModule
     };
     res.unwrap();
 }

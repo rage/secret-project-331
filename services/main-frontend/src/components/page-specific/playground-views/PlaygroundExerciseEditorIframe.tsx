@@ -10,6 +10,7 @@ interface PlaygroundExerciseEditorIframeProps {
     React.SetStateAction<CurrentStateMessage | null>
   >
   showIframeBorders: boolean
+  disableSandbox: boolean
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -17,9 +18,15 @@ const TITLE = "PLAYGROUND"
 
 const PlaygroundExerciseEditorIframe: React.FC<
   React.PropsWithChildren<PlaygroundExerciseEditorIframeProps>
-> = ({ url, privateSpec, setCurrentStateReceivedFromIframe, showIframeBorders }) => {
+> = ({
+  url,
+  privateSpec,
+  setCurrentStateReceivedFromIframe,
+  showIframeBorders,
+  disableSandbox,
+}) => {
   // Makes sure the iframe renders again when the data changes
-  const iframeKey = url + JSON.stringify(privateSpec)
+  const iframeKey = url + JSON.stringify(privateSpec) + disableSandbox
   return (
     <div
       className={css`
@@ -42,6 +49,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
         }}
         title={TITLE}
         showBorders={showIframeBorders}
+        disableSandbox={disableSandbox}
       />
     </div>
   )

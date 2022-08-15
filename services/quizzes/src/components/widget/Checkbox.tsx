@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
-const Checkbox: React.FC<React.PropsWithChildren<QuizItemComponentProps>> = ({
+const Checkbox: React.FC<QuizItemComponentProps> = ({
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,
@@ -56,4 +57,4 @@ const Checkbox: React.FC<React.PropsWithChildren<QuizItemComponentProps>> = ({
   )
 }
 
-export default Checkbox
+export default withErrorBoundary(Checkbox)

@@ -11,6 +11,7 @@ import {
   IframeState,
   IframeViewType,
   ReadyMessage,
+  SetLanguageMessage,
   SetStateMessage,
 } from "./exercise-service-protocol-types"
 
@@ -40,6 +41,14 @@ export function isReadyMessage(obj: any, _argumentName?: string): obj is ReadyMe
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     obj.message === "ready"
+  )
+}
+
+export function isSetLanguageMessage(obj: any, _argumentName?: string): obj is SetLanguageMessage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    obj.message === "set-language" &&
+    typeof obj.data === "string"
   )
 }
 

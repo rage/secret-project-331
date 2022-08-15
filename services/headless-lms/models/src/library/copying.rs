@@ -686,7 +686,7 @@ mod tests {
 
         #[tokio::test]
         async fn copies_course_modules() {
-            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            insert_data!(:tx, :user, :org, :course);
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -694,14 +694,17 @@ mod tests {
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
+
+            let original_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course.id)
+                .await
+                .unwrap();
             let copied_modules =
                 crate::course_modules::get_by_course_id(tx.as_mut(), copied_course.id)
                     .await
                     .unwrap();
-            assert_eq!(copied_modules.len(), 1);
             assert_eq!(
-                copied_modules.first().unwrap().copied_from,
-                Some(course_module)
+                original_modules.first().unwrap().id,
+                copied_modules.first().unwrap().copied_from.unwrap(),
             )
         }
 

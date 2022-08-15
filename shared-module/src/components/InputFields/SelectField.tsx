@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
+import { UseFormRegisterReturn } from "react-hook-form"
 
 interface SelectOption<T extends string> {
   value: T
@@ -10,6 +11,7 @@ interface SelectOption<T extends string> {
 interface SelectMenuExtraProps<T extends string> {
   id: string
   label?: string
+  labelStyle?: string
   name?: string
   placeholder?: string
   error?: string
@@ -17,14 +19,15 @@ interface SelectMenuExtraProps<T extends string> {
   defaultValue?: T
   options: SelectOption<T>[]
   onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void
-  onChange: (value: T, name?: string) => void
+  onChange?: (value: T, name?: string) => void
   className?: string
+  register?: UseFormRegisterReturn
 }
 
 export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &
   SelectMenuExtraProps<T>
 
-const SelectMenu = <T extends string>({
+const SelectField = <T extends string>({
   id,
   label,
   onChange,
@@ -32,6 +35,7 @@ const SelectMenu = <T extends string>({
   defaultValue,
   options,
   className,
+  register,
   ...rest
 }: SelectMenuExtraProps<T>) => {
   return (
@@ -91,6 +95,7 @@ const SelectMenu = <T extends string>({
             color: #333;
             font-size: 14px;
             font-weight: 500;
+            ${rest.labelStyle}
           }
 
           .select + label {
@@ -104,10 +109,12 @@ const SelectMenu = <T extends string>({
       <div className="select">
         <select
           id={id}
-          onChange={({ target: { value } }) => onChange(value as T)}
+          onChange={({ target: { value } }) => onChange && onChange(value as T)}
           onBlur={onBlur}
           defaultValue={defaultValue}
           {...rest}
+          // Register overrides onChange if specified
+          {...register}
         >
           {options.map(({ value, label, disabled }) => (
             <option value={value} key={label} disabled={disabled} selected={disabled && true}>
@@ -120,4 +127,4 @@ const SelectMenu = <T extends string>({
   )
 }
 
-export default SelectMenu
+export default SelectField

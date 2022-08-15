@@ -665,7 +665,8 @@ pub async fn main() -> anyhow::Result<()> {
         CourseStructure {
             chapters: vec![chapter.clone()],
             course: course.clone(),
-            pages: vec![page.clone()]
+            pages: vec![page.clone()],
+            modules: vec![],
         }
     );
     write_docs!(Vec<Exercise>, vec![exercise.clone()]);

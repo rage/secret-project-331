@@ -99,5 +99,9 @@
   "quiz-clickable-multiple-choice-name": "Valitse n",
   "quiz-clickable-multiple-choice-description": "Valitse n annetuista napeista",
   "quiz-timeline-name": "Aikajana",
-  "quiz-timeline-description": "Yhdistä vuodet tapahtumiin aikajanalla"
+  "quiz-timeline-description": "Yhdistä vuodet tapahtumiin aikajanalla",
+  "quiz-title-invalid-format": "Virheellinen muotoilu: tarkista tunnisteet",
+  "quiz-edit-title": "Muokkaa",
+  "quiz-preview-title": "Esikatsele",
+  "error-quiz-item-added-after-answering": "Tähän kohtaan on lisätty kysymys sen jälkeen kun vastaus oli lähetetty."
 }

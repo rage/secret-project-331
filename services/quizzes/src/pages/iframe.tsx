@@ -63,7 +63,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           } else {
             setState({
               viewType: messageData.view_type,
-              privateSpec: migrateQuiz(JSON.parse(messageData.data.private_spec as string)),
+              privateSpec: migrateQuiz(messageData.data.private_spec),
             })
           }
         } else if (messageData.view_type === "view-submission") {

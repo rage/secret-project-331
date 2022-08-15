@@ -516,7 +516,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {currentView === "exercise-editor" && (
                 <PlaygroundExerciseEditorIframe
                   url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                  privateSpec={privateSpec}
+                  privateSpec={privateSpecParsed}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
                   disableSandbox={disableSandbox}

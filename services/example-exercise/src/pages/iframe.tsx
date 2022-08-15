@@ -62,8 +62,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         } else if (messageData.view_type === "exercise-editor") {
           setState({
             view_type: messageData.view_type,
-            private_spec:
-              (JSON.parse(messageData.data.private_spec as string) as Alternative[]) || [],
+            private_spec: (messageData.data.private_spec as Alternative[]) || [],
           })
         } else if (messageData.view_type === "view-submission") {
           const userAnswer = messageData.data.user_answer as Answer

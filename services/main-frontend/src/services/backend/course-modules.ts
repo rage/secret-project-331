@@ -1,5 +1,6 @@
 import {
   CompletionRegistrationLink,
+  CourseCompletionRequirement,
   ModuleUpdates,
   UserCompletionInformation,
 } from "../../shared-module/bindings"
@@ -22,6 +23,18 @@ export const fetchUserCompletionInformation = async (
     )
     return validateResponse(response, isUserCompletionInformation)
   }
+}
+
+export const postCourseCompletionRequirement = async (
+  data: CourseCompletionRequirement,
+): Promise<void> => {
+  await mainFrontendClient.post(
+    `/courses/${data.uh_course_code}/course-completion-requirements`,
+    data,
+    {
+      headers: { "Content-Type": "application/json" },
+    },
+  )
 }
 
 export const fetchCompletionRegistrationLink = async (

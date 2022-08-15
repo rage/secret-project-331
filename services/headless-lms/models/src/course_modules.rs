@@ -20,6 +20,14 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
+pub struct CompletionRequirementUpdate {
+    uh_course_code: String,
+    ects_credits: Option<i32>,
+    automatic_completion: bool,
+    automatic_completion_points_treshold: Option<i32>,
+    automatic_completion_exercises_attempted_treshold: Option<i32>,
+}
+
 impl CourseModule {
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
@@ -265,6 +273,33 @@ RETURNING *
         exercises_treshold,
         points_treshold,
         id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_completion_requirement(
+    conn: &mut PgConnection,
+    uh_course_code: Uuid,
+    payload: CompletionRequirementUpdate,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModule,
+        r#"
+    UPDATE course_modules
+    SET ects_credits = $2,
+        automatic_completion = $3,
+        automatic_completion_number_of_exercises_attempted_treshold = $4,
+        automatic_completion_number_of_points_treshold = $5
+    WHERE uh_course_code = $1
+    AND deleted_at IS NULL
+    "#,
+        payload.uh_course_code,
+        payload.ects_credits,
+        payload.automatic_completion,
+        payload.automatic_completion_points_treshold,
+        payload.automatic_completion_exercises_attempted_treshold
     )
     .fetch_one(conn)
     .await?;

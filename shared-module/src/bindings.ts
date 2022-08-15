@@ -531,6 +531,14 @@ export interface UserCompletionInformation {
   ects_credits: number | null
 }
 
+export interface CourseCompletionRequirement {
+  uh_course_code: string
+  automatic_completion: boolean
+  ects_credits: number | null
+  automatic_completion_points_treshold: number | null
+  automatic_completion_exercises_attempted_treshold: number | null
+}
+
 export interface UserModuleCompletionStatus {
   completed: boolean
   default: boolean

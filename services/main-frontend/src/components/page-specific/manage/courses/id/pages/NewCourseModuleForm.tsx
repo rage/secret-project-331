@@ -3,7 +3,9 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { postCourseCompletionRequirement } from "../../../../../../services/backend/course-modules"
 import Button from "../../../../../../shared-module/components/Button"
+import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
@@ -16,6 +18,11 @@ interface Fields {
   name: string
   starts: number
   ends: number
+  ects_credits: number | null
+  uh_course_code: string
+  automatic_completion: boolean
+  automatic_completion_points_treshold: number | null
+  automatic_completion_exercises_attempted_treshold: number | null
 }
 
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
@@ -35,7 +42,17 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     },
   })
 
-  const onSubmitFormWrapper = (fields: Fields) => {
+  const onSubmitFormWrapper = async (fields: Fields) => {
+    if (fields.ects_credits) {
+      await postCourseCompletionRequirement({
+        uh_course_code: fields.uh_course_code,
+        ects_credits: fields.ects_credits,
+        automatic_completion: fields.automatic_completion,
+        automatic_completion_points_treshold: fields.automatic_completion_points_treshold,
+        automatic_completion_exercises_attempted_treshold:
+          fields.automatic_completion_exercises_attempted_treshold,
+      })
+    }
     onSubmitForm(fields)
     reset()
   }
@@ -50,52 +67,91 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       `}
       onSubmit={handleSubmit(onSubmitFormWrapper)}
     >
-      <TextField
-        label={t("create-module")}
-        placeholder={t("name-of-module")}
-        register={register("name", { required: t("required-field") })}
-        error={errors["name"]?.message}
-      />
-      <div>{t("select-module-start-end-chapters")}</div>
-      <div
-        className={css`
-          display: flex;
-          flex-wrap: wrap;
-          flex-direction: row;
-          justify-content: space-between;
-        `}
-      >
+      <div>
+        <TextField
+          label={t("create-module")}
+          placeholder={t("name-of-module")}
+          register={register("name", { required: t("required-field") })}
+          error={errors["name"]?.message}
+        />
+        <div>{t("select-module-start-end-chapters")}</div>
         <div
           className={css`
             display: flex;
+            flex-wrap: wrap;
             flex-direction: row;
-            align-items: center;
+            justify-content: space-between;
           `}
         >
-          <SelectField
+          <div
             className={css`
-              min-width: 5rem;
-              margin-right: 1rem;
+              display: flex;
+              flex-direction: row;
+              align-items: center;
             `}
-            id="new-module-start"
-            label={t("starts")}
-            options={chapters.map((c) => {
-              return { value: c.toString(), label: c.toString() }
-            })}
-            register={register("starts", { required: t("required-field"), valueAsNumber: true })}
-            error={errors["starts"]?.message}
+          >
+            <SelectField
+              className={css`
+                min-width: 5rem;
+                margin-right: 1rem;
+              `}
+              id="new-module-start"
+              label={t("starts")}
+              options={chapters.map((c) => {
+                return { value: c.toString(), label: c.toString() }
+              })}
+              register={register("starts", { required: t("required-field"), valueAsNumber: true })}
+              error={errors["starts"]?.message}
+            />
+            <SelectField
+              className={css`
+                min-width: 5rem;
+              `}
+              id="new-module-ends"
+              label={t("ends")}
+              options={chapters.map((c) => {
+                return { value: c.toString(), label: c.toString() }
+              })}
+              register={register("ends", { required: t("required-field"), valueAsNumber: true })}
+              error={errors["ends"]?.message}
+            />
+          </div>
+        </div>
+        <div
+          className={css`
+            background: #f5f6f7;
+            padding: 1rem;
+          `}
+        >
+          <h5
+            className={css`
+              margin-bottom: 0.5rem;
+            `}
+          >
+            {t("configure-completion-requirement")}
+          </h5>
+          <TextField
+            label={t("course-code")}
+            placeholder={t("course-code")}
+            register={register("name", { required: t("required-field") })}
+            error={errors["name"]?.message}
           />
-          <SelectField
-            className={css`
-              min-width: 5rem;
-            `}
-            id="new-module-ends"
-            label={t("ends")}
-            options={chapters.map((c) => {
-              return { value: c.toString(), label: c.toString() }
-            })}
-            register={register("ends", { required: t("required-field"), valueAsNumber: true })}
-            error={errors["ends"]?.message}
+          <TextField label={t("ect-credits")} placeholder={t("ect-credits")} />
+          <Checkbox
+            label={t("automatic-completion")}
+            register={register("name", { required: t("required-field") })}
+          />
+          <TextField
+            label={t("automatic-completion-points-treshold")}
+            placeholder={t("automatic-completion-points-treshold")}
+            register={register("name", { required: t("required-field") })}
+            error={errors["name"]?.message}
+          />
+          <TextField
+            label={t("automatic-completion-exercise-treshold")}
+            placeholder={t("automatic-completion-exercise-treshold")}
+            register={register("name", { required: t("required-field") })}
+            error={errors["name"]?.message}
           />
         </div>
         <div

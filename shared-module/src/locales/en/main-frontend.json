@@ -373,5 +373,12 @@
   "title-dialog-module-save": "Do you want to save the changes to the course modules?",
   "button-text-reload": "Reload",
   "button-text-reset-url": "Reset URL",
-  "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)"
+  "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",
+  "configure-completion-requirement": "Configure completion requirement",
+  "course-code": "Course code",
+  "ect-credits": "ECT credits",
+  "automatic-completion": "Automatic completion",
+  "automatic-completion-points-treshold": "Automatic completion number of points treshold",
+  "automatic-completion-exercise-treshold": "Automatic completion number of exercises attempted treshold"
+
 }

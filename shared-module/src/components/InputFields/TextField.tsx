@@ -41,13 +41,13 @@ const Input = styled.input<InputExtraProps>`
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  padding: 10px 12px;
+  padding: 8px 10px;
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 20px;
   width: 100%;
   display: block;
-  font-size: 18px;
+  font-size: 17px;
 
   ${({ disabled }) => disabled && `cursor: not-allowed;`}
 

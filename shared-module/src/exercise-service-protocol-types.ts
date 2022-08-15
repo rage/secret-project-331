@@ -1,4 +1,4 @@
-import { ExerciseTaskGradingResult, ExerciseTaskSubmission } from "./bindings"
+import { ExerciseTaskGradingResult } from "./bindings"
 
 /**
  * from: IFrame
@@ -50,11 +50,11 @@ export type SetStateMessage = { message: "set-state" } & IframeState
 
 export type IframeState =
   | {
-      view_type: "exercise"
+      view_type: "answer-exercise"
       exercise_task_id: string
       data: {
         public_spec: unknown
-        previous_submission: ExerciseTaskSubmission | null
+        previous_submission: unknown | null
       }
     }
   | {

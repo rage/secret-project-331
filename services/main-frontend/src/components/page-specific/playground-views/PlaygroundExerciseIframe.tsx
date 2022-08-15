@@ -8,6 +8,7 @@ import { CurrentStateMessage } from "../../../shared-module/exercise-service-pro
 interface PlaygroundExerciseIframeProps {
   url: string
   publicSpecQuery: UseQueryResult<unknown>
+  userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>
   >
@@ -26,6 +27,7 @@ const PlaygroundExerciseIframe: React.FC<
   setCurrentStateReceivedFromIframe,
   showIframeBorders,
   disableSandbox,
+  userAnswer,
 }) => {
   const { t } = useTranslation()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
@@ -44,12 +46,11 @@ const PlaygroundExerciseIframe: React.FC<
         url={url}
         postThisStateToIFrame={{
           // eslint-disable-next-line i18next/no-literal-string
-          view_type: "exercise",
+          view_type: "answer-exercise",
           exercise_task_id: EXAMPLE_UUID,
           data: {
             public_spec: publicSpecQuery.data,
-            // Not supported in the playground yet. Would prefill the exercise with the user's previous answer.
-            previous_submission: null,
+            previous_submission: userAnswer,
           },
         }}
         onMessageFromIframe={(msg) => {

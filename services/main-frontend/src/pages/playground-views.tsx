@@ -489,14 +489,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               exercise-editor
             </button>
             <button
-              data-active={currentView === "exercise" && "1"}
+              data-active={currentView === "answer-exercise" && "1"}
               onClick={() => {
                 setCurrentStateReceivedFromIframe(null)
-                setCurrentView("exercise")
+                setCurrentView("answer-exercise")
               }}
               // eslint-disable-next-line i18next/no-literal-string
             >
-              exercise
+              answer-exercise
             </button>
             <button
               data-active={currentView === "view-submission" && "1"}
@@ -522,7 +522,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   disableSandbox={disableSandbox}
                 />
               )}
-              {currentView === "exercise" && (
+              {currentView === "answer-exercise" && (
                 <>
                   <PlaygroundExerciseIframe
                     url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
@@ -530,6 +530,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
                     disableSandbox={disableSandbox}
+                    userAnswer={userAnswer}
                   />
                   <Button
                     variant={"primary"}

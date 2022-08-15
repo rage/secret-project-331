@@ -27,7 +27,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
     return <>{t("waiting-for-content")}</>
   }
 
-  if (state.view_type === "exercise") {
+  if (state.view_type === "answer-exercise") {
     return <Exercise port={port} state={state.public_spec} />
   } else if (state.view_type === "view-submission") {
     const feedbackJson: unknown | null = state.grading?.feedback_json

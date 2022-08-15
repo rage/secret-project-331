@@ -293,7 +293,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
             url={combinedUrl}
             postThisStateToIFrame={{
               // eslint-disable-next-line i18next/no-literal-string
-              view_type: "exercise",
+              view_type: "answer-exercise",
               exercise_task_id: EXAMPLE_UUID,
               data: {
                 public_spec: JSON.parse(exampleData),

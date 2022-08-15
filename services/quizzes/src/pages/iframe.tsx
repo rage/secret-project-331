@@ -26,7 +26,7 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "exercise"; publicSpec: PublicQuiz }
+  | { viewType: "answer-exercise"; publicSpec: PublicQuiz }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
@@ -49,7 +49,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const port = useExerciseServiceParentConnection((messageData) => {
     if (isSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
-        if (messageData.view_type === "exercise") {
+        if (messageData.view_type === "answer-exercise") {
           setState({
             viewType: messageData.view_type,
             publicSpec: messageData.data.public_spec as PublicQuiz,

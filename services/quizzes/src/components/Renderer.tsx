@@ -39,7 +39,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
     return <>{t("waiting-for-content")}</>
   }
 
-  if (state.viewType === "exercise") {
+  if (state.viewType === "answer-exercise") {
     return <Exercise port={port} quiz={state.publicSpec} />
   } else if (state.viewType === "view-submission") {
     return (

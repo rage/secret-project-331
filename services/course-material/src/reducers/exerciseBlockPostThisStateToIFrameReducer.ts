@@ -53,7 +53,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             }
           }
           return {
-            view_type: "exercise",
+            view_type: "answer-exercise",
             exercise_task_id: exerciseTask.id,
             data: {
               public_spec: exerciseTask.public_spec,
@@ -82,7 +82,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
     }
     case "tryAgain": {
       return action.payload.map((x) => ({
-        view_type: "exercise",
+        view_type: "answer-exercise",
         exercise_task_id: x.id,
         data: {
           public_spec: x.public_spec,

@@ -27,8 +27,8 @@ import {
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
   toggledMultiOptions,
-  toggledRandomizedOptions,
   toggledSharedOptionFeedbackMessage,
+  toggledShuffleOptions,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
@@ -104,14 +104,14 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
             }
           />
           <FormControlLabel
-            label={t("randomized-checkbox-message")}
+            label={t("shuffled-checkbox-message")}
             labelPlacement="start"
             control={
               <Checkbox
                 color="primary"
-                checked={storeItem.randomizedOptions}
+                checked={storeItem.shuffleOptions}
                 onChange={(event) =>
-                  dispatch(toggledRandomizedOptions(storeItem.id, event.target.checked))
+                  dispatch(toggledShuffleOptions(storeItem.id, event.target.checked))
                 }
               />
             }

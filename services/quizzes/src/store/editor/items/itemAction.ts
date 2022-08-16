@@ -114,13 +114,13 @@ export const toggledSharedOptionFeedbackMessage = createAction(
   }),
 )<{ itemId: string; sharedFeedback: boolean }>()
 
-export const toggledRandomizedOptions = createAction(
+export const toggledShuffleOptions = createAction(
   "TOGGLED_RANDOMIZED_OPTIONS",
-  (itemId: string, randomizedOptions: boolean) => ({
+  (itemId: string, shuffleOptions: boolean) => ({
     itemId: itemId,
-    randomizedOptions: randomizedOptions,
+    shuffleOptions: shuffleOptions,
   }),
-)<{ itemId: string; randomizedOptions: boolean }>()
+)<{ itemId: string; shuffleOptions: boolean }>()
 
 export const decreasedItemOrder = createAction("DECREASED_ITEM_ORDER", (itemId: string) => ({
   itemId: itemId,
@@ -167,7 +167,7 @@ export const itemActions = [
   decreasedItemOrder,
   increasedItemOrder,
   toggledAllAnswersCorrect,
-  toggledRandomizedOptions,
+  toggledShuffleOptions,
   editedItemDirection,
   editedQuizItemOptionCells,
 ]

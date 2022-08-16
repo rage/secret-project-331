@@ -84,7 +84,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   }
 
   let quiz_options = quizItem.options
-  if (quizItem.randomizedOptions) {
+  if (quizItem.shuffleOptions) {
     quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
   }
 

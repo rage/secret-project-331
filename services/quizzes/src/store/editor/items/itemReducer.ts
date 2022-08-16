@@ -36,8 +36,8 @@ import {
   increasedItemOrder,
   toggledAllAnswersCorrect,
   toggledMultiOptions,
-  toggledRandomizedOptions,
   toggledSharedOptionFeedbackMessage,
+  toggledShuffleOptions,
 } from "./itemAction"
 
 export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem }, action>({})
@@ -122,9 +122,9 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
     })
   })
 
-  .handleAction(toggledRandomizedOptions, (state, action) => {
+  .handleAction(toggledShuffleOptions, (state, action) => {
     return produce(state, (draftState) => {
-      draftState[action.payload.itemId].randomizedOptions = action.payload.randomizedOptions
+      draftState[action.payload.itemId].shuffleOptions = action.payload.shuffleOptions
     })
   })
 
@@ -155,7 +155,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         allAnswersCorrect: false,
         direction: "column",
         timelineItems: [],
-        randomizedOptions: false,
+        shuffleOptions: false,
       }
       draftState[action.payload.itemId] = newItem
     })
@@ -189,7 +189,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         allAnswersCorrect: oldItem.allAnswersCorrect,
         direction: oldItem.direction,
         timelineItems: oldItem.timelineItems,
-        randomizedOptions: oldItem.randomizedOptions ?? false,
+        shuffleOptions: oldItem.shuffleOptions ?? false,
       }
       draftState[action.payload.itemId] = newItem
     })

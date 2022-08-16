@@ -61,7 +61,7 @@ const MultipleChoiceSubmission: React.FC<
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
   let quiz_options = public_quiz_item.options
-  if (public_quiz_item.randomizedOptions) {
+  if (public_quiz_item.shuffleOptions) {
     quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
   }
 

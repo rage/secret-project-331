@@ -26,7 +26,7 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "answer-exercise"; publicSpec: PublicQuiz }
+  | { viewType: "answer-exercise"; publicSpec: PublicQuiz; previousSubmission: QuizAnswer | null }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
@@ -53,6 +53,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           setState({
             viewType: messageData.view_type,
             publicSpec: messageData.data.public_spec as PublicQuiz,
+            previousSubmission: messageData.data.previous_submission as QuizAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
           if (messageData.data.private_spec === null) {

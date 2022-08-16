@@ -9,15 +9,15 @@ import withNoSsr from "../shared-module/utils/withNoSsr"
 import DynamicallyLoadingComponentPlaceholder from "./ComponentPlaceholder"
 
 // Dynamic imports for different view types to keep the bundle size down
-const Editor = dynamic(() => import("./Editor"), {
+const ExerciseEditor = dynamic(() => import("./ExerciseEditor"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const Exercise = dynamic(() => import("./Exercise"), {
+const AnswerExercise = dynamic(() => import("./AnswerExercise"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
-const Submission = dynamic(() => import("./Submission"), {
+const ViewSubmission = dynamic(() => import("./ViewSubmission"), {
   ssr: false,
   loading: () => <DynamicallyLoadingComponentPlaceholder />,
 })
@@ -40,10 +40,16 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
   }
 
   if (state.viewType === "answer-exercise") {
-    return <Exercise port={port} quiz={state.publicSpec} />
+    return (
+      <AnswerExercise
+        port={port}
+        publicSpec={state.publicSpec}
+        previousSubmission={state.previousSubmission}
+      />
+    )
   } else if (state.viewType === "view-submission") {
     return (
-      <Submission
+      <ViewSubmission
         publicAlternatives={state.publicSpec}
         modelSolutions={state.modelSolutions}
         user_answer={state.userAnswer}
@@ -51,7 +57,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
       />
     )
   } else if (state.viewType === "exercise-editor") {
-    return <Editor port={port} privateSpec={state.privateSpec} />
+    return <ExerciseEditor port={port} privateSpec={state.privateSpec} />
   } else {
     return <>{t("waiting-for-content")}</>
   }

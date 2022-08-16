@@ -35,6 +35,7 @@ test("It renders", async () => {
         onMessageFromIframe={(message, responsePort) => {
           console.log(message, responsePort)
         }}
+        title="test"
       />
     </I18nextProvider>,
   )

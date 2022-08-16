@@ -17,7 +17,8 @@ import Unsupported from "./Unsupported"
 
 interface WidgetProps {
   port: MessagePort
-  quiz: PublicQuiz
+  publicSpec: PublicQuiz
+  previousSubmission: QuizAnswer | null
 }
 
 type QuizItemType =
@@ -91,18 +92,22 @@ function reducer(state: WidgetReducerState, action: Action): WidgetReducerState 
   }
 }
 
-const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) => {
+const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
+  port,
+  publicSpec,
+  previousSubmission,
+}) => {
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
-    quiz: quiz,
-    quiz_answer: {
+    quiz: publicSpec,
+    quiz_answer: previousSubmission || {
       id: quiz_answer_id,
-      quizId: quiz.id,
+      quizId: publicSpec.id,
       createdAt: Date.now().toString(),
       updatedAt: Date.now().toString(),
       // eslint-disable-next-line i18next/no-literal-string
       status: "open",
-      itemAnswers: quiz.items.map((qi) => {
+      itemAnswers: publicSpec.items.map((qi) => {
         return {
           id: v4(),
           createdAt: Date.now().toString(),

@@ -750,19 +750,13 @@ pub async fn update_modules(
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_course_completion_requirements(
-    uh_course_id: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
     payload: web::Json<CompletionRequirementUpdate>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Course(*uh_course_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let completion_requirement_updates = payload.0;
 

@@ -13082,6 +13082,27 @@
     },
     "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    "
   },
+  "d48d9b81b38a4343e78f69da6a5d6ab468c847703eeb822c0dee49da773c6885": {
+    "describe": {
+      "columns": [
+        {
+          "name": "date",
+          "ordinal": 0,
+          "type_info": "Date"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [null, null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DATE(created_at) date, count(DISTINCT user_id)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          "
+  },
   "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {
     "describe": {
       "columns": [

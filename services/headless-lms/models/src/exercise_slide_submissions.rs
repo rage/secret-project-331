@@ -394,6 +394,26 @@ ORDER BY date;
     Ok(res)
 }
 
+pub async fn get_course_daily_user_counts_with_submissions(
+    conn: &mut PgConnection,
+    course: &Course,
+) -> ModelResult<Vec<ExerciseSlideSubmissionCount>> {
+    let res = sqlx::query_as!(
+        ExerciseSlideSubmissionCount,
+        r#"
+SELECT DATE(created_at) date, count(DISTINCT user_id)::integer
+FROM exercise_slide_submissions
+WHERE course_id = $1
+GROUP BY date
+ORDER BY date;
+          "#,
+        course.id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,

@@ -8,6 +8,7 @@ import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"
 import CourseUsersCountsByExercise from "./CourseUsersCountsByExercise"
+import CourseUsersWithSubmissionsByDay from "./CourseUsersWithSubmissionsByDay"
 
 const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -36,6 +37,17 @@ const CourseStatsPage: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {t("title-course-users-counts-by-exercise")}
       </h2>
       <CourseUsersCountsByExercise courseId={courseId} />
+      <h2
+        className={css`
+          font-size: 1.8rem;
+          color: ${baseTheme.colors.grey[600]};
+          font-family: ${headingFont};
+          margin-bottom: 1rem;
+        `}
+      >
+        {t("title-number-of-users-with-submissions-per-day")}
+      </h2>
+      <CourseUsersWithSubmissionsByDay courseId={courseId} />
       <h2
         className={css`
           font-size: 1.8rem;

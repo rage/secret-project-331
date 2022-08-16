@@ -3,7 +3,7 @@
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
-    course_modules::ModuleUpdates,
+    course_modules::{CompletionRequirementUpdate, ModuleUpdates},
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -753,7 +753,7 @@ pub async fn update_course_completion_requirements(
     uh_course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    payload: web::Json<ModuleCompletion>,
+    payload: web::Json<CompletionRequirementUpdate>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(

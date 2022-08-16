@@ -20,8 +20,11 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CompletionRequirementUpdate {
-    uh_course_code: String,
+    course_id: Uuid,
     ects_credits: Option<i32>,
     automatic_completion: bool,
     automatic_completion_points_treshold: Option<i32>,
@@ -281,7 +284,7 @@ RETURNING *
 
 pub async fn update_completion_requirement(
     conn: &mut PgConnection,
-    uh_course_code: Uuid,
+    course_id: Uuid,
     payload: CompletionRequirementUpdate,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
@@ -292,14 +295,14 @@ pub async fn update_completion_requirement(
         automatic_completion = $3,
         automatic_completion_number_of_exercises_attempted_treshold = $4,
         automatic_completion_number_of_points_treshold = $5
-    WHERE uh_course_code = $1
+    WHERE course_id = $1
     AND deleted_at IS NULL
     "#,
-        payload.uh_course_code,
+        course_id,
         payload.ects_credits,
         payload.automatic_completion,
         payload.automatic_completion_points_treshold,
-        payload.automatic_completion_exercises_attempted_treshold
+        payload.automatic_completion_exercises_attempted_treshold,
     )
     .fetch_one(conn)
     .await?;

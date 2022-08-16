@@ -378,7 +378,7 @@
   "course-code": "Course code",
   "ects-credits": "ECTS credits",
   "automatic-completion": "Automatic completion",
+  "enable-automatic-completion": "Enable automatic completion",
   "automatic-completion-points-treshold": "Automatic completion number of points treshold",
   "automatic-completion-exercise-treshold": "Automatic completion number of exercises attempted treshold"
-
 }

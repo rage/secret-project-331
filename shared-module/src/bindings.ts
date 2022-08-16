@@ -526,13 +526,13 @@ export interface CompletionRegistrationLink {
 export interface UserCompletionInformation {
   course_module_completion_id: string
   course_name: string
-  uh_course_code: string
+  course_code: string
   email: string
   ects_credits: number | null
 }
 
 export interface CourseCompletionRequirement {
-  uh_course_code: string
+  course_code: string
   automatic_completion: boolean
   ects_credits: number | null
   automatic_completion_points_treshold: number | null

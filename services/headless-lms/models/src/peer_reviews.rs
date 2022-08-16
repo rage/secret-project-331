@@ -1,7 +1,10 @@
 use crate::{
     exercises,
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_review_questions::{
+        delete_peer_review_questions_by_peer_review_ids, upsert_multiple_peer_review_questions,
+        CmsPeerReviewQuestion,
+    },
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
 };
@@ -117,6 +120,50 @@ RETURNING id
     .fetch_one(conn)
     .await?;
     Ok(res.id)
+}
+
+pub async fn upsert_with_id(
+    conn: &mut PgConnection,
+    cms_peer_review: &CmsPeerReview,
+) -> ModelResult<CmsPeerReview> {
+    let res = sqlx::query_as!(
+        CmsPeerReview,
+        r#"
+    INSERT INTO peer_reviews (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_threshold,
+    accepting_strategy
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO
+UPDATE
+SET course_id = excluded.course_id,
+  exercise_id = excluded.exercise_id,
+  peer_reviews_to_give = excluded.peer_reviews_to_give,
+  peer_reviews_to_receive = excluded.peer_reviews_to_receive,
+  accepting_threshold = excluded.accepting_threshold,
+  accepting_strategy = excluded.accepting_strategy
+RETURNING id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy:_";"#,
+        cms_peer_review.id,
+        cms_peer_review.course_id,
+        cms_peer_review.exercise_id,
+        cms_peer_review.peer_reviews_to_give,
+        cms_peer_review.peer_reviews_to_receive,
+        cms_peer_review.accepting_threshold,
+        cms_peer_review.accepting_strategy as _
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReview> {
@@ -346,6 +393,52 @@ where course_id = $1;
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_cms_peer_review_by_id(
+    conn: &mut PgConnection,
+    peer_review_id: Uuid,
+) -> ModelResult<CmsPeerReview> {
+    let res = sqlx::query_as!(
+        CmsPeerReview,
+        r#"
+SELECT id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  accepting_strategy AS "accepting_strategy:_"
+FROM peer_reviews
+WHERE id = $1;
+    "#,
+        peer_review_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn upsert_course_default_cms_peer_review_and_questions(
+    conn: &mut PgConnection,
+    peer_review_configuration: &CmsPeerReviewConfiguration,
+) -> ModelResult<CmsPeerReviewConfiguration> {
+    // Upsert peer review
+    let peer_review = upsert_with_id(conn, &peer_review_configuration.peer_review).await?;
+
+    // Upsert peer review questions
+    let _peer_review_question_ids =
+        delete_peer_review_questions_by_peer_review_ids(conn, &[peer_review.id]).await?;
+    let peer_review_questions = upsert_multiple_peer_review_questions(
+        conn,
+        &peer_review_configuration.peer_review_questions,
+    )
+    .await?;
+
+    Ok(CmsPeerReviewConfiguration {
+        peer_review,
+        peer_review_questions,
+    })
 }
 
 #[cfg(test)]

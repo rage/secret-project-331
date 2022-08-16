@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use sqlx::{Postgres, QueryBuilder, Row};
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
@@ -228,5 +230,59 @@ where peer_review_id = $1;
     .fetch_all(conn)
     .await?;
 
+    Ok(res)
+}
+
+pub async fn upsert_multiple_peer_review_questions(
+    conn: &mut PgConnection,
+    peer_review_questions: &[CmsPeerReviewQuestion],
+) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
+    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (peer_review_id, order_number, question_type, question, answer_required) ");
+
+    sql.push_values(peer_review_questions, |mut x, prq| {
+        x.push_bind(prq.peer_review_id)
+            .push_bind(prq.order_number)
+            .push_bind(prq.question.as_str())
+            .push_bind(prq.question_type)
+            .push_bind(prq.answer_required);
+    });
+    sql.push(
+        " ON CONFLICT (id) DO
+    UPDATE
+    SET peer_review_id = excluded.peer_review_id,
+      order_number = excluded.order_number,
+      question_type = excluded.question_type,
+      question = excluded.question,
+      answer_required = excluded.answer_required,
+      deleted_at = NULL RETURNING id;",
+    );
+
+    let ids = sql
+        .build()
+        .fetch_all(&mut *conn)
+        .await?
+        .iter()
+        .map(|x| x.get(0))
+        .collect::<Vec<_>>();
+
+    let res = sqlx::query_as!(
+        CmsPeerReviewQuestion,
+        r#"
+SELECT id,
+  peer_review_id,
+  order_number,
+  question,
+  question_type AS "question_type: _",
+  answer_required
+from peer_review_questions
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL;
+    "#,
+        &ids
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(res)
 }

@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_reviews::CmsPeerReviewConfiguration;
+use models::peer_reviews::{self, CmsPeerReviewConfiguration};
 
 use crate::controllers::prelude::*;
 
@@ -71,6 +71,23 @@ async fn get_course_default_peer_review_configuration(
     }))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn put_course_default_peer_review_configuration(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<CmsPeerReviewConfiguration>,
+) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+
+    let cms_peer_review_configuration =
+        peer_reviews::upsert_course_default_cms_peer_review_and_questions(&mut conn, &payload.0)
+            .await?;
+    token.authorized_ok(web::Json(cms_peer_review_configuration))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -83,5 +100,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/default-peer-review",
             web::get().to(get_course_default_peer_review_configuration),
+        )
+        .route(
+            "/{course_id}/default-peer-review",
+            web::put().to(put_course_default_peer_review_configuration),
         );
 }

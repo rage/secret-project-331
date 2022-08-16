@@ -4010,6 +4010,82 @@
     },
     "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\n"
   },
+  "3e60bf2bb12b2168d4c816ad143cc27a4410c6dcd69f489db8443a67eb149021": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_reviews_to_give",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_reviews_to_receive",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "accepting_threshold",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "accepting_strategy:_",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, true, false, false, false, false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Int4",
+          "Int4",
+          "Float4",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        ]
+      }
+    },
+    "query": "\n    INSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    accepting_threshold,\n    accepting_strategy\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO\nUPDATE\nSET course_id = excluded.course_id,\n  exercise_id = excluded.exercise_id,\n  peer_reviews_to_give = excluded.peer_reviews_to_give,\n  peer_reviews_to_receive = excluded.peer_reviews_to_receive,\n  accepting_threshold = excluded.accepting_threshold,\n  accepting_strategy = excluded.accepting_strategy\nRETURNING id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy:_\";"
+  },
   "3efd7e76fe0499f93390283a55c2a211bdd97707302b31e146b85a95361a93aa": {
     "describe": {
       "columns": [
@@ -13712,6 +13788,54 @@
     },
     "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    "
   },
+  "d911e965d3ef1793a916577311e0aa8f0bd279ae6f70fb7de2daa29963902fb1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type: _",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "answer_required",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["UuidArray"]
+      }
+    },
+    "query": "\nSELECT id,\n  peer_review_id,\n  order_number,\n  question,\n  question_type AS \"question_type: _\",\n  answer_required\nfrom peer_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    "
+  },
   "d972ea4bdedc2b6d93055c4c244a579960ff3a65213ed3e78f21d641c8d800c7": {
     "describe": {
       "columns": [],
@@ -15968,6 +16092,63 @@
       }
     },
     "query": "\nINSERT INTO email_templates (name, course_instance_id, subject)\nVALUES ($1, $2, $3)\nRETURNING *\n"
+  },
+  "f7855b7efabaebfcda55cb9bd3726165d84e01d2423c2c9aaf92a4b90858bd41": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_reviews_to_give",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_reviews_to_receive",
+          "ordinal": 4,
+          "type_info": "Int4"
+        },
+        {
+          "name": "accepting_threshold",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "accepting_strategy:_",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, true, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy:_\"\nFROM peer_reviews\nWHERE id = $1;\n    "
   },
   "f801f26dc4e64a8b5d153887f13f858752e27b44b003ccbb2e539e7958d39875": {
     "describe": {

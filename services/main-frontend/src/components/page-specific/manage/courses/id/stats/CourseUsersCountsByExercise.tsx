@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { sortBy } from "lodash"
+import { reverse, sortBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -34,24 +34,20 @@ const CourseUsersCountsByExercise: React.FC<
     return <Spinner variant="medium" />
   }
 
-  const queryData = sortBy(
-    query.data,
-    [
-      // eslint-disable-next-line i18next/no-literal-string
-      "chapter_number",
-      // eslint-disable-next-line i18next/no-literal-string
-      "page_order_number",
-      // eslint-disable-next-line i18next/no-literal-string
-      "exercise_order_number",
-    ],
+  const queryData = sortBy(query.data, [
     // eslint-disable-next-line i18next/no-literal-string
-    ["asc", "asc", "asc"],
-  )
+    "chapter_number",
+    // eslint-disable-next-line i18next/no-literal-string
+    "page_order_number",
+    // eslint-disable-next-line i18next/no-literal-string
+    "exercise_order_number",
+  ])
 
   const chapters = Array.from(new Set(queryData.map((obj) => obj.chapter_number)))
 
   const result = chapters.map((chapter) =>
-    queryData.filter((item) => item.chapter_number === chapter),
+    // echarts takes the data in reverse order
+    reverse(queryData.filter((item) => item.chapter_number === chapter)),
   )
 
   return (

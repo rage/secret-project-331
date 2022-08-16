@@ -128,7 +128,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               margin-bottom: 0.5rem;
             `}
           >
-            {t("configure-completion-requirement")}
+            {t("configure-completion-requirements")}
           </h5>
           <TextField
             label={t("course-code")}
@@ -136,7 +136,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
             register={register("name", { required: t("required-field") })}
             error={errors["name"]?.message}
           />
-          <TextField label={t("ect-credits")} placeholder={t("ect-credits")} />
+          <TextField label={t("ects-credits")} placeholder={t("ects-credits")} />
           <Checkbox
             label={t("automatic-completion")}
             register={register("name", { required: t("required-field") })}

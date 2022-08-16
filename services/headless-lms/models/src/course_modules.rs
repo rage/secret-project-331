@@ -20,7 +20,7 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 
 pub struct CompletionRequirementUpdate {
@@ -293,10 +293,11 @@ pub async fn update_completion_requirement(
     UPDATE course_modules
     SET ects_credits = $2,
         automatic_completion = $3,
-        automatic_completion_number_of_exercises_attempted_treshold = $4,
-        automatic_completion_number_of_points_treshold = $5
+        automatic_completion_number_of_points_treshold = $4,
+        automatic_completion_number_of_exercises_attempted_treshold = $5
     WHERE course_id = $1
     AND deleted_at IS NULL
+    RETURNING *
     "#,
         course_id,
         payload.ects_credits,

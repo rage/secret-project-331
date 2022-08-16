@@ -762,7 +762,7 @@ pub async fn update_course_completion_requirements(
 
     models::course_modules::update_completion_requirement(
         &mut conn,
-        *uh_course_id,
+        *course_id,
         completion_requirement_updates,
     )
     .await?;

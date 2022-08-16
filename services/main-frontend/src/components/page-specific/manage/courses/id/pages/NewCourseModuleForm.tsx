@@ -19,7 +19,7 @@ export interface Fields {
   starts: number
   ends: number
   ects_credits: number | null
-  uh_course_code: string
+  course_code: string
   automatic_completion: boolean
   automatic_completion_points_treshold: number | null
   automatic_completion_exercises_attempted_treshold: number | null
@@ -32,6 +32,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     reset,
+    watch,
   } = useForm<Fields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -42,10 +43,12 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     },
   })
 
-  const onSubmitFormWrapper = async (fields: Fields) => {
+  const onSubmitFormWrapper = (fields: Fields) => {
     onSubmitForm(fields)
     reset()
   }
+
+  const isChecked = watch("automatic_completion")
 
   return (
     <form
@@ -110,7 +113,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         <div
           className={css`
             background: #f5f6f7;
-            padding: 1rem;
+            padding: 1rem 1.4rem;
           `}
         >
           <h5
@@ -120,29 +123,68 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
           >
             {t("configure-completion-requirements")}
           </h5>
-          <TextField
-            label={t("course-code")}
-            placeholder={t("course-code")}
-            register={register("name", { required: t("required-field") })}
-            error={errors["name"]?.message}
-          />
-          <TextField label={t("ects-credits")} placeholder={t("ects-credits")} />
-          <Checkbox
-            label={t("automatic-completion")}
-            register={register("name", { required: t("required-field") })}
-          />
-          <TextField
-            label={t("automatic-completion-points-treshold")}
-            placeholder={t("automatic-completion-points-treshold")}
-            register={register("name", { required: t("required-field") })}
-            error={errors["name"]?.message}
-          />
-          <TextField
-            label={t("automatic-completion-exercise-treshold")}
-            placeholder={t("automatic-completion-exercise-treshold")}
-            register={register("name", { required: t("required-field") })}
-            error={errors["name"]?.message}
-          />
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              grid-template-areas:
+                "a b"
+                "c c"
+                "d e";
+              gap: 10px;
+            `}
+          >
+            <TextField
+              className={css`
+                grid-area: a;
+              `}
+              label={t("course-code")}
+              placeholder={t("course-code")}
+              register={register("course_code")}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              className={css`
+                grid-area: b;
+              `}
+              label={t("ects-credits")}
+              placeholder={t("ects-credits")}
+              register={register("ects_credits")}
+            />
+            <Checkbox
+              label={t("enable-automatic-completion")}
+              register={register("automatic_completion")}
+              className={css`
+                grid-area: c;
+              `}
+            />
+            <TextField
+              className={css`
+                grid-area: d;
+              `}
+              label={t("automatic-completion-points-treshold")}
+              placeholder={t("automatic-completion-points-treshold")}
+              type="number"
+              register={register("automatic_completion_points_treshold", {
+                valueAsNumber: true,
+                disabled: !isChecked,
+              })}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              className={css`
+                grid-area: e;
+              `}
+              label={t("automatic-completion-exercise-treshold")}
+              placeholder={t("automatic-completion-exercise-treshold")}
+              type="number"
+              register={register("automatic_completion_exercises_attempted_treshold", {
+                valueAsNumber: true,
+                disabled: !isChecked,
+              })}
+              error={errors["name"]?.message}
+            />
+          </div>
         </div>
         <div
           className={css`

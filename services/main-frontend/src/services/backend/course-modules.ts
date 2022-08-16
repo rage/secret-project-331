@@ -29,7 +29,7 @@ export const postCourseCompletionRequirement = async (
   data: CourseCompletionRequirement,
 ): Promise<void> => {
   await mainFrontendClient.post(
-    `/courses/${data.uh_course_code}/course-completion-requirements`,
+    `/courses/${data.course_code}/course-completion-requirements`,
     data,
     {
       headers: { "Content-Type": "application/json" },

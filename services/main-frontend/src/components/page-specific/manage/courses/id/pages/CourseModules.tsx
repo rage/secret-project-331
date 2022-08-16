@@ -365,7 +365,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     starts,
     ends,
     ects_credits,
-    uh_course_code,
+    course_code,
     automatic_completion,
     automatic_completion_points_treshold,
     automatic_completion_exercises_attempted_treshold,
@@ -376,7 +376,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     if (ects_credits) {
       const postData = async () => {
         await postCourseCompletionRequirement({
-          uh_course_code,
+          course_code,
           ects_credits,
           automatic_completion,
           automatic_completion_points_treshold,

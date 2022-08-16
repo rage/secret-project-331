@@ -747,6 +747,10 @@ pub async fn update_modules(
     token.authorized_ok(web::Json(()))
 }
 
+/**
+POST `/api/v0/main-frontend/courses/:id/course-completion-requirements` - Update course completion requirement by course-id.
+*/
+
 #[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_course_completion_requirements(

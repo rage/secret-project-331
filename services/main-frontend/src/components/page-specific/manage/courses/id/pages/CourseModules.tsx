@@ -4,7 +4,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
+import {
+  postCourseCompletionRequirement,
+  submitChanges as submitModuleChanges,
+} from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
@@ -14,7 +17,7 @@ import { respondToOrLarger } from "../../../../../../shared-module/styles/respon
 import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm from "./EditCourseModuleForm"
-import NewCourseModuleForm from "./NewCourseModuleForm"
+import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
 
 interface Props {
   courseId: string
@@ -361,13 +364,28 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     name,
     starts,
     ends,
-  }: {
-    name: string
-    starts: number
-    ends: number
-  }) => {
+    ects_credits,
+    uh_course_code,
+    automatic_completion,
+    automatic_completion_points_treshold,
+    automatic_completion_exercises_attempted_treshold,
+  }: Fields) => {
     setEdited(true)
     const newModuleId = v4()
+
+    if (ects_credits) {
+      const postData = async () => {
+        await postCourseCompletionRequirement({
+          uh_course_code,
+          ects_credits,
+          automatic_completion,
+          automatic_completion_points_treshold,
+          automatic_completion_exercises_attempted_treshold,
+        })
+      }
+      postData()
+    }
+
     setModuleList((old) => {
       // update chapters
       const chapters = [...old.chapters]

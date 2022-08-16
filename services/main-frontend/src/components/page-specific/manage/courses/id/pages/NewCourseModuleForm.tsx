@@ -14,7 +14,7 @@ interface Props {
   onSubmitForm: (fields: Fields) => void
 }
 
-interface Fields {
+export interface Fields {
   name: string
   starts: number
   ends: number
@@ -43,16 +43,6 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
   })
 
   const onSubmitFormWrapper = async (fields: Fields) => {
-    if (fields.ects_credits) {
-      await postCourseCompletionRequirement({
-        uh_course_code: fields.uh_course_code,
-        ects_credits: fields.ects_credits,
-        automatic_completion: fields.automatic_completion,
-        automatic_completion_points_treshold: fields.automatic_completion_points_treshold,
-        automatic_completion_exercises_attempted_treshold:
-          fields.automatic_completion_exercises_attempted_treshold,
-      })
-    }
     onSubmitForm(fields)
     reset()
   }

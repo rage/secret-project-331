@@ -1,9 +1,16 @@
+import { faN } from "@fortawesome/free-solid-svg-icons"
 import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 
 import PeerReviewEditor from "../../components/PeerReviewEditor"
 import CourseContext from "../../contexts/CourseContext"
-import { getCoursesDefaultCmsPeerReviewConfiguration } from "../../services/backend/courses"
+import {
+  getCoursesDefaultCmsPeerReviewConfiguration,
+  putCoursesDefaultCmsPeerReviewConfiguration,
+} from "../../services/backend/courses"
+import { CmsPeerReview, CmsPeerReviewQuestion } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
 import { SimplifiedUrlQuery } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 interface PeerReviewManagerProps {
@@ -29,9 +36,35 @@ const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
         }),
     },
   )
+  const mutateCourseDefaultPeerReview = useToastMutation(
+    () =>
+      putCoursesDefaultCmsPeerReviewConfiguration(id, {
+        peer_review: JSON.parse(attributes.peer_review_config) as CmsPeerReview,
+        peer_review_questions: JSON.parse(
+          attributes.peer_review_questions_config,
+        ) as CmsPeerReviewQuestion[],
+      }),
+    {
+      notify: true,
+      method: "PUT",
+      successMessage: "",
+    },
+    { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
+  )
   if (getCmsPeerReviewConfiguration.data && courseId) {
     return (
-      <PeerReviewEditor attributes={attributes} setAttributes={setAttributes} courseId={courseId} />
+      <div>
+        <PeerReviewEditor
+          attributes={attributes}
+          setAttributes={setAttributes}
+          courseId={courseId}
+        />
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => mutateCourseDefaultPeerReview.mutate}
+        ></Button>
+      </div>
     )
   }
 }

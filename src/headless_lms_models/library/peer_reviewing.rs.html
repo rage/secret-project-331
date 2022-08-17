@@ -512,6 +512,7 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
+<span id="509">509</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
@@ -920,6 +921,7 @@
             <span class="kw">let</span> <span class="ident">course_material_exercise_tasks</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(
                 <span class="ident">conn</span>,
                 <span class="ident">exercise_slide_submission_id</span>,
+                <span class="ident">reviewer_user_id</span>,
             ).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span> {
                 <span class="ident">exercise_slide_submission_id</span>,

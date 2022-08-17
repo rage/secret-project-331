@@ -465,6 +465,29 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/auth`.
 */</span>
@@ -778,6 +801,28 @@ GET `/api/v0/auth/logged-in` Returns the current user&#39;s login status.
     <span class="ident">web::Json</span>(<span class="ident">logged_in</span>)
 }
 
+<span class="doccomment">/// Generic information about the logged in user.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///  Could include the user name etc in the future.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserInfo</span> {
+    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+}
+
+<span class="doccomment">/**
+GET `/api/v0/auth/user-info` Returns the current user&#39;s info.
+**/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">user</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">user_info</span>(<span class="ident">user</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>) -&gt; <span class="ident">web::Json</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user</span>) <span class="op">=</span> <span class="ident">user</span> {
+        <span class="ident">web::Json</span>(<span class="prelude-val">Some</span>(<span class="ident">UserInfo</span> { <span class="ident">user_id</span>: <span class="ident">user</span>.<span class="ident">id</span> }))
+    } <span class="kw">else</span> {
+        <span class="ident">web::Json</span>(<span class="prelude-val">None</span>)
+    }
+}
+
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">LoginToken</span> <span class="op">=</span> <span class="ident">StandardTokenResponse</span><span class="op">&lt;</span><span class="ident">EmptyExtraTokenFields</span>, <span class="ident">BasicTokenType</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Posts new user account to tmc.mooc.fi.</span>
@@ -924,7 +969,8 @@ GET `/api/v0/auth/logged-in` Returns the current user&#39;s login status.
     .<span class="ident">route</span>(
         <span class="string">&quot;/authorize-multiple&quot;</span>,
         <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">authorize_multiple_actions_on_resources</span>),
-    );
+    )
+    .<span class="ident">route</span>(<span class="string">&quot;/user-info&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">user_info</span>));
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

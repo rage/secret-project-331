@@ -1094,11 +1094,22 @@
 <span id="1088">1088</span>
 <span id="1089">1089</span>
 <span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers</span>::{
+    <span class="ident">auth::UserInfo</span>,
     <span class="ident">course_material</span>::{
         <span class="ident">courses</span>::{<span class="ident">ChaptersWithStatus</span>, <span class="ident">CourseMaterialCourseModule</span>},
         <span class="ident">exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
@@ -1678,7 +1689,8 @@
                     <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
                     <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
                     <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
-                    <span class="ident">order_number</span>: <span class="number">1</span>
+                    <span class="ident">order_number</span>: <span class="number">1</span>,
+                    <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>)
                 }],
             },
             <span class="ident">exercise_status</span>: <span class="prelude-val">Some</span>(<span class="ident">ExerciseStatus</span> {
@@ -2025,7 +2037,8 @@
                 <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
                 <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
                 <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
-                <span class="ident">order_number</span>: <span class="number">1</span>
+                <span class="ident">order_number</span>: <span class="number">1</span>,
+                <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>)
             }],
             <span class="ident">exercise</span>,
             <span class="ident">exercise_slide_submission</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">clone</span>(),
@@ -2059,6 +2072,7 @@
                     <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
                     <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
                     <span class="ident">order_number</span>: <span class="number">0</span>,
+                    <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>)
                 }],
                 <span class="ident">exercise_slide_submission_id</span>: <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
             }),
@@ -2168,6 +2182,12 @@
                 ),
             }),
         }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UserInfo</span><span class="op">&gt;</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">UserInfo</span> {
+            <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).<span class="ident">unwrap</span>()
+        })
     );
     <span class="prelude-val">Ok</span>(())
 }

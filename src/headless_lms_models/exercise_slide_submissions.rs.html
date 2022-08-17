@@ -515,6 +515,7 @@
 <span id="509">509</span>
 <span id="510">510</span>
 <span id="511">511</span>
+<span id="512">512</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
@@ -1015,11 +1016,12 @@ GROUP BY exercise_slide_id;
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_exercise_slide_submission_info</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmissionInfo</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">exercise_slide_submission</span> <span class="op">=</span> <span class="ident">get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">exercise_slide_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span>
         <span class="ident"><span class="kw">crate</span>::exercises::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">exercise_slide_submission</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">tasks</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">exercise_slide_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">tasks</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="ident">exercise_slide_submission_id</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">ExerciseSlideSubmissionInfo</span> {
         <span class="ident">exercise</span>,
         <span class="ident">tasks</span>,

@@ -38,6 +38,7 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo</span>;
 
@@ -63,6 +64,7 @@ GET `/api/v0/main-frontend/submissions/{submission_id}/info&quot;` - Returns dat
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::get_exercise_slide_submission_info</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">submission_id</span>.<span class="ident">into_inner</span>(),
+        <span class="ident">user</span>.<span class="ident">id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

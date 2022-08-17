@@ -311,6 +311,28 @@ pub async fn logged_in(session: Session) -> web::Json<bool> {
     web::Json(logged_in)
 }
 
+/// Generic information about the logged in user.
+///
+///  Could include the user name etc in the future.
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserInfo {
+    pub user_id: Uuid,
+}
+
+/**
+GET `/api/v0/auth/user-info` Returns the current user's info.
+**/
+#[generated_doc]
+#[instrument(skip(user))]
+pub async fn user_info(user: Option<AuthUser>) -> web::Json<Option<UserInfo>> {
+    if let Some(user) = user {
+        web::Json(Some(UserInfo { user_id: user.id }))
+    } else {
+        web::Json(None)
+    }
+}
+
 pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
 /// Posts new user account to tmc.mooc.fi.
@@ -457,5 +479,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/authorize-multiple",
         web::post().to(authorize_multiple_actions_on_resources),
-    );
+    )
+    .route("/user-info", web::get().to(user_info));
 }

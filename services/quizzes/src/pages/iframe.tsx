@@ -9,6 +9,7 @@ import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/typ
 import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
+import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import {
   isSetLanguageMessage,
   isSetStateMessage,
@@ -26,15 +27,16 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "exercise"; publicSpec: PublicQuiz }
+  | { viewType: "exercise"; publicSpec: PublicQuiz; userInformation: UserInformation }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
       modelSolutions: ModelSolutionQuiz | null
       userAnswer: QuizAnswer
       gradingFeedbackJson: ItemAnswerFeedback[] | null
+      userInformation: UserInformation
     }
-  | { viewType: "exercise-editor"; privateSpec: Quiz }
+  | { viewType: "exercise-editor"; privateSpec: Quiz; userInformation: UserInformation }
 
 const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { i18n } = useTranslation()
@@ -53,17 +55,20 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           setState({
             viewType: messageData.view_type,
             publicSpec: messageData.data.public_spec as PublicQuiz,
+            userInformation: messageData.user_information,
           })
         } else if (messageData.view_type === "exercise-editor") {
           if (messageData.data.private_spec === null) {
             setState({
               viewType: messageData.view_type,
               privateSpec: emptyQuiz,
+              userInformation: messageData.user_information,
             })
           } else {
             setState({
               viewType: messageData.view_type,
               privateSpec: migrateQuiz(JSON.parse(messageData.data.private_spec as string)),
+              userInformation: messageData.user_information,
             })
           }
         } else if (messageData.view_type === "view-submission") {
@@ -72,6 +77,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             publicSpec: messageData.data.public_spec as PublicQuiz,
             modelSolutions: messageData.data.model_solution_spec as ModelSolutionQuiz | null,
             userAnswer: messageData.data.user_answer as QuizAnswer,
+            userInformation: messageData.user_information,
             gradingFeedbackJson: messageData.data.grading?.feedback_json as
               | ItemAnswerFeedback[]
               | null,

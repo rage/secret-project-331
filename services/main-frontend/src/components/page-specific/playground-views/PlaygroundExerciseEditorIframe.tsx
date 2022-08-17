@@ -1,7 +1,10 @@
 import { css } from "@emotion/css"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
-import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
+import {
+  CurrentStateMessage,
+  UserInformation,
+} from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -11,6 +14,7 @@ interface PlaygroundExerciseEditorIframeProps {
   >
   showIframeBorders: boolean
   disableSandbox: boolean
+  userInformation: UserInformation
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -24,6 +28,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
   setCurrentStateReceivedFromIframe,
   showIframeBorders,
   disableSandbox,
+  userInformation,
 }) => {
   // Makes sure the iframe renders again when the data changes
   const iframeKey = url + JSON.stringify(privateSpec) + disableSandbox
@@ -43,6 +48,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
           data: {
             private_spec: privateSpec,
           },
+          user_information: userInformation,
         }}
         onMessageFromIframe={(msg) => {
           setCurrentStateReceivedFromIframe(msg)

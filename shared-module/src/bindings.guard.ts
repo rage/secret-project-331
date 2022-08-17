@@ -143,6 +143,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
@@ -722,6 +723,7 @@ export function isCourseMaterialExerciseTask(
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
+    (obj.pseudonumous_user_id === null || typeof obj.pseudonumous_user_id === "string") &&
     (obj.previous_submission === null ||
       (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.previous_submission_grading === null ||
@@ -1750,6 +1752,13 @@ export function isCreateAccountDetails(
     typeof obj.language === "string" &&
     typeof obj.password === "string" &&
     typeof obj.password_confirmation === "string"
+  )
+}
+
+export function isUserInfo(obj: any, _argumentName?: string): obj is UserInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string"
   )
 }
 

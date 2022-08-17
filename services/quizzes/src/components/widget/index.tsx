@@ -3,6 +3,7 @@ import { v4 } from "uuid"
 
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
+import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -18,6 +19,7 @@ import Unsupported from "./Unsupported"
 interface WidgetProps {
   port: MessagePort
   quiz: PublicQuiz
+  user_information: UserInformation
 }
 
 type QuizItemType =
@@ -65,6 +67,7 @@ type Action = {
 export interface QuizItemComponentProps {
   quizItem: PublicQuizItem
   quizItemAnswerState: QuizItemAnswer | null
+  user_information: UserInformation
   setQuizItemAnswerState: (newQuizItemAnswer: QuizItemAnswerWithoutId) => void
 }
 
@@ -91,7 +94,11 @@ function reducer(state: WidgetReducerState, action: Action): WidgetReducerState 
   }
 }
 
-const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) => {
+const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
+  port,
+  quiz,
+  user_information,
+}) => {
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
     quiz: quiz,
@@ -138,6 +145,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) 
               key={quizItem.id}
               quizItem={quizItem}
               quizItemAnswerState={quizItemAnswerState}
+              user_information={user_information}
               setQuizItemAnswerState={(newQuizItemAnswer: QuizItemAnswerWithoutId) => {
                 dispatch({
                   type: "set-answer-state",

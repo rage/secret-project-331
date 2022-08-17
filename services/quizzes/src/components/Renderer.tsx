@@ -40,7 +40,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
   }
 
   if (state.viewType === "exercise") {
-    return <Exercise port={port} quiz={state.publicSpec} />
+    return <Exercise user_information={state.userInformation} port={port} quiz={state.publicSpec} />
   } else if (state.viewType === "view-submission") {
     return (
       <Submission
@@ -48,6 +48,7 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
         modelSolutions={state.modelSolutions}
         user_answer={state.userAnswer}
         gradingFeedbackJson={state.gradingFeedbackJson}
+        user_information={state.userInformation}
       />
     )
   } else if (state.viewType === "exercise-editor") {

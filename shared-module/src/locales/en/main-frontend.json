@@ -375,5 +375,7 @@
   "title-dialog-module-save": "Do you want to save the changes to the course modules?",
   "button-text-reload": "Reload",
   "button-text-reset-url": "Reset URL",
-  "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)"
+  "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",
+  "button-text-signed-in": "Signed in",
+  "label-pseudonymous-user-id": "Pseudonymous user ID"
 }

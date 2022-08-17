@@ -25,6 +25,11 @@ pub struct CourseMaterialExerciseTask {
     be configured to the system.
     */
     pub exercise_iframe_url: Option<String>,
+    /**
+    Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub pseudonumous_user_id: Option<Uuid>,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
@@ -175,12 +180,12 @@ pub async fn get_course_material_exercise_tasks(
     let mut material_tasks = Vec::with_capacity(exercise_tasks.len());
     for exercise_task in exercise_tasks.into_iter() {
         // This can be improved in the future so that the same info isn't fetched multiple times.
-        let exercise_iframe_url = exercise_service_info::get_service_info_by_exercise_type(
+        let service_info = exercise_service_info::get_service_info_by_exercise_type(
             conn,
             &exercise_task.exercise_type,
         )
-        .await?
-        .user_interface_iframe_path;
+        .await?;
+        let exercise_iframe_url = service_info.user_interface_iframe_path;
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
@@ -192,6 +197,8 @@ pub async fn get_course_material_exercise_tasks(
             id: exercise_task.id,
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url),
+            pseudonumous_user_id: user_id
+                .map(|uid| Uuid::new_v5(&service_info.exercise_service_id, uid.as_bytes())),
             assignment: exercise_task.assignment,
             public_spec: exercise_task.public_spec,
             model_solution_spec,

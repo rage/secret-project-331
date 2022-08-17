@@ -377,5 +377,6 @@
   "button-text-reset-url": "Reset URL",
   "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",
   "button-text-signed-in": "Signed in",
-  "label-pseudonymous-user-id": "Pseudonymous user ID"
+  "label-pseudonymous-user-id": "Pseudonymous user ID",
+  "label-send-previous-submission": "Send previous submission (happens when one has answered the exercise previously and tries to answer it again)"
 }

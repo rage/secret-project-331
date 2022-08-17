@@ -14,6 +14,8 @@ import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
+import Tooltip from "./GlossaryTooltip"
+
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
 
@@ -21,7 +23,7 @@ const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
-
+const IGNORE_CASE = "i"
 /**
  *
  * @param data HTML-content from the server
@@ -42,88 +44,20 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
-interface TooltipProps {
-  term: Term
-}
-
-const Tooltip: React.FC<TooltipProps> = ({ term }) => {
-  return (
-    <span
-      className={css`
-        position: relative;
-        border-bottom: 1px dotted black;
-        > span {
-          display: none;
-        }
-
-        &:hover {
-          > span {
-            display: inline;
-          }
-        }
-      `}
-    >
-      {term.term}
-
-      <span
-        className={css`
-          position: absolute;
-          top: 28px;
-          left: 0px;
-          /* UI */
-          background: white;
-          padding: 4px;
-          font-size: 12px;
-          border: 1px solid black;
-          width: 220px;
-          border-radius: 4px;
-        `}
-      >
-        {term.definition}
-      </span>
-      <span
-        className={css`
-          position: absolute;
-          width: 0px;
-          height: 0px;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid black;
-          top: 23px;
-          left: 5px;
-        `}
-      />
-      <span
-        className={css`
-          position: absolute;
-          width: 0px;
-          height: 0px;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid white;
-          top: 24px;
-          left: 5px;
-        `}
-      />
-    </span>
-  )
-}
-
 const generateToolTip = (term: Term) => {
   return ReactDOMServer.renderToString(<Tooltip term={term} />)
 }
 
 const parseGlossary = (data: string, glossary: Term[]): string => {
-  const terms: { [term: string]: Term } = {}
+  let parsed = data
 
   glossary.forEach((item) => {
-    terms[item.term] = item
+    parsed = parsed.replace(new RegExp(item.term, IGNORE_CASE), (content, _) =>
+      generateToolTip({ ...item, term: content }),
+    )
   })
 
-  return data
-    .split(" ")
-    .map((val, _) => (terms[val] !== undefined ? generateToolTip(terms[val]) : val))
-    .join(" ")
+  return parsed
 }
 
 const parseCitation = (data: string) => {

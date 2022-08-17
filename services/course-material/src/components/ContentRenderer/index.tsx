@@ -6,7 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Block } from "../../services/backend"
-import { NewProposedBlockEdit } from "../../shared-module/bindings"
+import { NewProposedBlockEdit, Term } from "../../shared-module/bindings"
 import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { baseTheme } from "../../shared-module/styles"
 import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
@@ -54,6 +54,7 @@ import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
 export interface ContentRendererProps {
+  glossary?: Term[] | undefined
   data: Block<unknown>[]
   editing: boolean
   selectedBlockId: string | null
@@ -69,6 +70,7 @@ export interface ContentRendererProps {
 export type BlockRendererProps<T> = {
   data: Block<T>
   id: string
+  terms?: Term[] | undefined
 } & Omit<ContentRendererProps, "data">
 
 const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
@@ -211,6 +213,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               selectedBlockId={props.selectedBlockId}
               setEdits={props.setEdits}
               isExam={props.isExam}
+              terms={props.glossary}
             />
           </div>
         )

@@ -1,9 +1,12 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 
 import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
-import { Block } from "../services/backend"
+import { Block, fetchGlossary } from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
+import Spinner from "../shared-module/components/Spinner"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -30,6 +33,19 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const pageId = pageContext?.pageData?.id
 
   const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
+
+  // Fetch glossary for each page seperately
+  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId ?? ""))
+
+  if (glossary.isLoading) {
+    return <Spinner variant={"small"} />
+  }
+
+  if (glossary.isError) {
+    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
+  }
+
+  console.log("REFRESH")
 
   return (
     <>
@@ -63,6 +79,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
       {/* TODO: Better type for Page.content in bindings. */}
       <div id="content" className={inlineColorStyles}>
         <ContentRenderer
+          glossary={glossary.data}
           data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
           editing={editingMaterial}
           selectedBlockId={selectedBlockId}

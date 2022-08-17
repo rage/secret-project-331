@@ -3,10 +3,12 @@ import { diffChars } from "diff"
 import KaTex from "katex"
 import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
+import * as ReactDOMServer from "react-dom/server"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import { Term } from "../../../../../shared-module/bindings"
 import DiffFormatter from "../../../../../shared-module/components/DiffFormatter"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
@@ -40,6 +42,90 @@ const convertToLatex = (data: string) => {
   return { count, converted }
 }
 
+interface TooltipProps {
+  term: Term
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ term }) => {
+  return (
+    <span
+      className={css`
+        position: relative;
+        border-bottom: 1px dotted black;
+        > span {
+          display: none;
+        }
+
+        &:hover {
+          > span {
+            display: inline;
+          }
+        }
+      `}
+    >
+      {term.term}
+
+      <span
+        className={css`
+          position: absolute;
+          top: 28px;
+          left: 0px;
+          /* UI */
+          background: white;
+          padding: 4px;
+          font-size: 12px;
+          border: 1px solid black;
+          width: 220px;
+          border-radius: 4px;
+        `}
+      >
+        {term.definition}
+      </span>
+      <span
+        className={css`
+          position: absolute;
+          width: 0px;
+          height: 0px;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-bottom: 5px solid black;
+          top: 23px;
+          left: 5px;
+        `}
+      />
+      <span
+        className={css`
+          position: absolute;
+          width: 0px;
+          height: 0px;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-bottom: 5px solid white;
+          top: 24px;
+          left: 5px;
+        `}
+      />
+    </span>
+  )
+}
+
+const generateToolTip = (term: Term) => {
+  return ReactDOMServer.renderToString(<Tooltip term={term} />)
+}
+
+const parseGlossary = (data: string, glossary: Term[]): string => {
+  const terms: { [term: string]: Term } = {}
+
+  glossary.forEach((item) => {
+    terms[item.term] = item
+  })
+
+  return data
+    .split(" ")
+    .map((val, _) => (terms[val] !== undefined ? generateToolTip(terms[val]) : val))
+    .join(" ")
+}
+
 const parseCitation = (data: string) => {
   const converted = data.replace(
     LATEX_CITE_REGEX,
@@ -63,7 +149,7 @@ const hasDropCap = css`
 
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes>>
-> = ({ data, id, editing, selectedBlockId, setEdits }) => {
+> = ({ data, id, editing, selectedBlockId, setEdits, terms }) => {
   const {
     textColor,
     backgroundColor,
@@ -159,6 +245,7 @@ const ParagraphBlock: React.FC<
   const sanitizedHTML = sanitizeCourseMaterialHtml(content)
   const { count, converted } = convertToLatex(sanitizedHTML)
   const convertedParsed = parseCitation(converted)
+  const parsedYetAgain = parseGlossary(convertedParsed, terms ?? [])
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
@@ -175,7 +262,7 @@ const ParagraphBlock: React.FC<
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}
       dangerouslySetInnerHTML={{
-        __html: convertedParsed,
+        __html: parsedYetAgain,
       }}
       {...(anchor ? { id: anchor } : {})}
     />

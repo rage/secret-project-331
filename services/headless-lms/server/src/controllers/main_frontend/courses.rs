@@ -415,6 +415,33 @@ async fn get_daily_submission_counts(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_daily_user_counts_with_submissions(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCount>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    let res = exercise_slide_submissions::get_course_daily_user_counts_with_submissions(
+        &mut conn, &course,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
 #[generated_doc]
@@ -788,6 +815,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/daily-submission-counts",
             web::get().to(get_daily_submission_counts),
+        )
+        .route(
+            "/{course_id}/daily-users-who-have-submitted-something",
+            web::get().to(get_daily_user_counts_with_submissions),
         )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
         .route(

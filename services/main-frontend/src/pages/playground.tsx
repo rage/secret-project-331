@@ -19,6 +19,7 @@ import Spinner from "../shared-module/components/Spinner"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { monospaceFont } from "../shared-module/styles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../shared-module/utils/getGuestPseudonymousUserId"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
@@ -295,6 +296,10 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
               // eslint-disable-next-line i18next/no-literal-string
               view_type: "exercise",
               exercise_task_id: EXAMPLE_UUID,
+              user_information: {
+                pseudonymous_id: getGuestPseudonymousUserId(),
+                signed_in: true,
+              },
               data: {
                 public_spec: JSON.parse(exampleData),
                 previous_submission: null,

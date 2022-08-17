@@ -59,8 +59,8 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/dompurify": "^2.3.3",
     "@svgr/webpack": "^6.3.1",
+    "@types/dompurify": "^2.3.3",
     "@types/jest": "^28.1.6",
     "@types/katex": "^0.14.0",
     "@types/lodash": "^4.14.182",

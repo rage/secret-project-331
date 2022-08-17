@@ -3,6 +3,7 @@
 use std::{collections::HashMap, fs};
 
 use crate::controllers::{
+    auth::UserInfo,
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -582,7 +583,8 @@ pub async fn main() -> anyhow::Result<()> {
                     model_solution_spec: None,
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
-                    order_number: 1
+                    order_number: 1,
+                    pseudonumous_user_id: Some(id)
                 }],
             },
             exercise_status: Some(ExerciseStatus {
@@ -929,7 +931,8 @@ pub async fn main() -> anyhow::Result<()> {
                 model_solution_spec: None,
                 previous_submission: Some(exercise_task_submission.clone()),
                 previous_submission_grading: Some(grading.clone()),
-                order_number: 1
+                order_number: 1,
+                pseudonumous_user_id: Some(id)
             }],
             exercise,
             exercise_slide_submission: exercise_slide_submission.clone(),
@@ -963,6 +966,7 @@ pub async fn main() -> anyhow::Result<()> {
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
                     order_number: 0,
+                    pseudonumous_user_id: Some(id)
                 }],
                 exercise_slide_submission_id: exercise_slide_submission.id,
             }),
@@ -1072,6 +1076,12 @@ pub async fn main() -> anyhow::Result<()> {
                 ),
             }),
         }
+    );
+    write_docs!(
+        Option<UserInfo>,
+        Some(UserInfo {
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+        })
     );
     Ok(())
 }

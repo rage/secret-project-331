@@ -147,6 +147,15 @@ const hasDropCap = css`
   }
 `
 
+const parseText = (content: string, terms: Term[]) => {
+  const sanitizedHTML = sanitizeCourseMaterialHtml(content)
+  const { count, converted: parsedLatex } = convertToLatex(sanitizedHTML)
+  const parsedCitation = parseCitation(parsedLatex)
+  const parsedGlossary = parseGlossary(parsedCitation, terms ?? [])
+
+  return { count, parsedText: parsedGlossary }
+}
+
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes>>
 > = ({ data, id, editing, selectedBlockId, setEdits, terms }) => {
@@ -242,10 +251,7 @@ const ParagraphBlock: React.FC<
     }
   }
 
-  const sanitizedHTML = sanitizeCourseMaterialHtml(content)
-  const { count, converted } = convertToLatex(sanitizedHTML)
-  const convertedParsed = parseCitation(converted)
-  const parsedYetAgain = parseGlossary(convertedParsed, terms ?? [])
+  const { count, parsedText } = parseText(content, terms ?? [])
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
@@ -262,7 +268,7 @@ const ParagraphBlock: React.FC<
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}
       dangerouslySetInnerHTML={{
-        __html: parsedYetAgain,
+        __html: parsedText,
       }}
       {...(anchor ? { id: anchor } : {})}
     />

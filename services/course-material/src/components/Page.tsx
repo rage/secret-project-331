@@ -45,8 +45,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
 
-  console.log("REFRESH")
-
   return (
     <>
       {pageContext.settings &&

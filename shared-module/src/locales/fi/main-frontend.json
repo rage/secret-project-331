@@ -67,6 +67,7 @@
   "credit-will-be-registered-within-six-weeks": "Opintopisteet kirjataan kuuden viikon kuluessa.",
   "credits-n-ects": "Opintopisteiteet: {{n}} op",
   "daily-submissions-visualization-tooltip": "Päivä: {{day}}<br />Palautuksia: {{submissions}}",
+  "daily-users-with-submissions-visualization-tooltip": "Day: {{day}}<br />Käyttäjiä, jotka ovat palauttaneet: {{users}}",
   "data-to-post-to-iframe": "Data, joka lähtee IFrameen",
   "default-course-instance-name": "Oletus",
   "delete": "Poista",
@@ -326,7 +327,8 @@
   "title-list-of-examples": "Lista esimerkeistä",
   "title-manage-exercise-services": "Hallinnoi tehtäväpalveluita",
   "title-model-solution-spec": "Model solution spec",
-  "title-number-of-submissions-per-day": "Palautusten määrä päivittäin",
+  "title-number-of-submissions-per-day": "Päivittäinen palautusten määrä",
+  "title-number-of-users-with-submissions-per-day": "Päivittäinen käyttäjien lukumäärä, jotka ovat palauttaneet jotakin",
   "title-number-of-submissions-per-weekday-and-hour": "Palautusten määrä viikonpäivän ja tunnin mukaan",
   "title-page-edit-history": "Sivun muokkaushistoria",
   "title-page-id": "Sivu: {{ id }}",
@@ -373,5 +375,7 @@
   "button-text-reload": "Lataa uudestaan",
   "button-text-reset-url": "Nollaa URL",
   "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydeet pisteet tehtävästä)",
-  "label-send-previous-submission": "Lähetä edellinen palautus (tapahtuu kun käyttäjä on aikaisemmin vastannut tehtävään ja oppilas koittaa vastata tehtävään uudelleen)"
+  "label-send-previous-submission": "Lähetä edellinen palautus (tapahtuu kun käyttäjä on aikaisemmin vastannut tehtävään ja oppilas koittaa vastata tehtävään uudelleen)",
+  "button-text-signed-in": "Kirjautunut sisään",
+  "label-pseudonymous-user-id": "Pseudonyyminen käyttäjän id"
 }

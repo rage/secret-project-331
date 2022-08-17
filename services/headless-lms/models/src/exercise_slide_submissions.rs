@@ -394,6 +394,26 @@ ORDER BY date;
     Ok(res)
 }
 
+pub async fn get_course_daily_user_counts_with_submissions(
+    conn: &mut PgConnection,
+    course: &Course,
+) -> ModelResult<Vec<ExerciseSlideSubmissionCount>> {
+    let res = sqlx::query_as!(
+        ExerciseSlideSubmissionCount,
+        r#"
+SELECT DATE(created_at) date, count(DISTINCT user_id)::integer
+FROM exercise_slide_submissions
+WHERE course_id = $1
+GROUP BY date
+ORDER BY date;
+          "#,
+        course.id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
@@ -478,11 +498,12 @@ GROUP BY exercise_slide_id;
 pub async fn get_exercise_slide_submission_info(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    user_id: Uuid,
 ) -> ModelResult<ExerciseSlideSubmissionInfo> {
     let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
-    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id).await?;
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,

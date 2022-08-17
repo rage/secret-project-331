@@ -105,5 +105,6 @@
   "quiz-title-invalid-format": "Invalid format: check the tags",
   "quiz-edit-title": "Edit",
   "quiz-preview-title": "Preview",
+  "shuffled-checkbox-message": "Shuffle options",
   "error-quiz-item-added-after-answering": "A question has been added here after answering the exercise."
 }

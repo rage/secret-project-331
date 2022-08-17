@@ -87,6 +87,7 @@ const ExerciseBlock: React.FC<
       dispatch({
         type: "exerciseDownloaded",
         payload: data.current_exercise_slide.exercise_tasks,
+        signedIn: Boolean(loginState.signedIn),
       })
     },
   })
@@ -105,6 +106,7 @@ const ExerciseBlock: React.FC<
         dispatch({
           type: "submissionGraded",
           payload: data,
+          signedIn: Boolean(loginState.signedIn),
         })
       },
     },
@@ -120,6 +122,7 @@ const ExerciseBlock: React.FC<
       dispatch({
         type: "tryAgain",
         payload: data.current_exercise_slide.exercise_tasks,
+        signedIn: Boolean(loginState.signedIn),
       })
       postSubmissionMutation.reset()
       setAnswers(new Map())

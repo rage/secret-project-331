@@ -7,6 +7,7 @@ import MessageChannelIFrame from "../../../shared-module/components/MessageChann
 import {
   CurrentStateMessage,
   IframeState,
+  UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundViewSubmissionIframeProps {
@@ -21,6 +22,7 @@ interface PlaygroundViewSubmissionIframeProps {
   showIframeBorders: boolean
   sendModelsolutionSpec: boolean
   disableSandbox: boolean
+  userInformation: UserInformation
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -38,6 +40,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
   userAnswer,
   sendModelsolutionSpec,
   disableSandbox,
+  userInformation,
 }) => {
   const { t } = useTranslation()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
@@ -53,6 +56,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
+    user_information: userInformation,
     data: {
       grading: gradingQuery.data ?? null,
       user_answer: userAnswer,

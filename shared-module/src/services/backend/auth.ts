@@ -1,7 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 import axios from "axios"
 
-import { ActionOnResource, CreateAccountDetails } from "../../bindings"
+import { ActionOnResource, CreateAccountDetails, UserInfo } from "../../bindings"
+import { isUserInfo } from "../../bindings.guard"
+import { isNull, isUnion, validateResponse } from "../../utils/fetching"
 
 export const loggedIn = async (): Promise<boolean> => {
   const url = `/api/v0/auth/logged-in`
@@ -33,4 +35,10 @@ export const authorize = async (action: ActionOnResource): Promise<boolean> => {
 
 export const authorizeMultiple = async (action: ActionOnResource[]): Promise<boolean[]> => {
   return (await axios.post("/api/v0/auth/authorize-multiple", action)).data
+}
+
+export const userInfo = async (): Promise<UserInfo | null> => {
+  const url = `/api/v0/auth/user-info`
+  const response = await axios.get(url, { responseType: "json" })
+  return validateResponse(response, isUnion(isUserInfo, isNull))
 }

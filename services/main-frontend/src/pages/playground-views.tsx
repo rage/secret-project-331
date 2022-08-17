@@ -25,6 +25,7 @@ import Spinner from "../shared-module/components/Spinner"
 import {
   CurrentStateMessage,
   IframeViewType,
+  UserInformation,
 } from "../shared-module/exercise-service-protocol-types"
 import { GradingRequest } from "../shared-module/exercise-service-protocol-types-2"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
@@ -39,6 +40,8 @@ interface PlaygroundFields {
   private_spec: string
   showIframeBorders: boolean
   disableSandbox: boolean
+  pseudonymousUserId: string
+  signedIn: boolean
 }
 
 const Area = styled.div`
@@ -149,6 +152,9 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       private_spec: "null",
       showIframeBorders: true,
       disableSandbox: false,
+      // eslint-disable-next-line i18next/no-literal-string
+      pseudonymousUserId: "78b62532-b836-4387-8f99-673cb023b903",
+      signedIn: true,
     },
   })
 
@@ -157,6 +163,8 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
   const disableSandbox = watch("disableSandbox")
+  const pseudonymousUserId = watch("pseudonymousUserId")
+  const signedIn = watch("signedIn")
 
   let exerciseServiceHost = ""
   try {
@@ -270,6 +278,11 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   )
 
+  const userInformation: UserInformation = {
+    pseudonymous_id: pseudonymousUserId,
+    signed_in: signedIn,
+  }
+
   return (
     <Layout>
       <h1>{t("title-playground-exercise-iframe")}</h1>
@@ -329,6 +342,12 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             />
             <CheckBox label={t("show-iframe-borders")} register={register("showIframeBorders")} />
             <CheckBox label={t("disable-sandbox")} register={register("disableSandbox")} />
+            <TextField
+              placeholder={t("label-pseudonymous-user-id")}
+              label={t("label-pseudonymous-user-id")}
+              register={register("pseudonymousUserId")}
+            />
+            <CheckBox label={t("button-text-signed-in")} register={register("signedIn")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
@@ -523,6 +542,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
                   disableSandbox={disableSandbox}
+                  userInformation={userInformation}
                 />
               )}
               {currentView === "answer-exercise" && (
@@ -543,6 +563,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
                     disableSandbox={disableSandbox}
+                    userInformation={userInformation}
                     userAnswer={answerExerciseViewSendPreviousSubmission ? userAnswer : null}
                   />
                   <Button
@@ -577,6 +598,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     userAnswer={userAnswer}
                     sendModelsolutionSpec={submissionViewSendModelsolutionSpec}
                     disableSandbox={disableSandbox}
+                    userInformation={userInformation}
                   />
                 </>
               )}

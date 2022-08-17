@@ -3,7 +3,10 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
-import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
+import {
+  CurrentStateMessage,
+  UserInformation,
+} from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -14,6 +17,7 @@ interface PlaygroundExerciseIframeProps {
   >
   showIframeBorders: boolean
   disableSandbox: boolean
+  userInformation: UserInformation
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -27,6 +31,7 @@ const PlaygroundExerciseIframe: React.FC<
   setCurrentStateReceivedFromIframe,
   showIframeBorders,
   disableSandbox,
+  userInformation,
   userAnswer,
 }) => {
   const { t } = useTranslation()
@@ -35,7 +40,11 @@ const PlaygroundExerciseIframe: React.FC<
   }
   // Makes sure the iframe renders again when the data changes
   const iframeKey =
-    url + JSON.stringify(publicSpecQuery.data) + disableSandbox + JSON.stringify(userAnswer)
+    url +
+    JSON.stringify(publicSpecQuery.data) +
+    disableSandbox +
+    JSON.stringify(userAnswer) +
+    JSON.stringify(userInformation)
   return (
     <div
       className={css`
@@ -49,6 +58,7 @@ const PlaygroundExerciseIframe: React.FC<
           // eslint-disable-next-line i18next/no-literal-string
           view_type: "answer-exercise",
           exercise_task_id: EXAMPLE_UUID,
+          user_information: userInformation,
           data: {
             public_spec: publicSpecQuery.data,
             previous_submission: userAnswer,

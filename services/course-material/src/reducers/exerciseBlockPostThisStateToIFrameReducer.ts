@@ -4,21 +4,25 @@ import {
   StudentExerciseSlideSubmissionResult,
 } from "../shared-module/bindings"
 import { IframeState } from "../shared-module/exercise-service-protocol-types"
+import getGuestPseudonymousUserId from "../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../shared-module/utils/typeMappter"
 
 export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"
   payload: Array<CourseMaterialExerciseTask>
+  signedIn: boolean
 }
 
 export interface SubmissionGradedAction {
   type: "submissionGraded"
   payload: StudentExerciseSlideSubmissionResult
+  signedIn: boolean
 }
 
 export interface TryAgain {
   type: "tryAgain"
   payload: Array<CourseMaterialExerciseTask>
+  signedIn: boolean
 }
 
 export type PostThisStateToIFrameAction =
@@ -42,6 +46,10 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             return {
               view_type: "view-submission",
               exercise_task_id: exerciseTask.id,
+              user_information: {
+                pseudonymous_id: exerciseTask.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
+                signed_in: action.signedIn,
+              },
               data: {
                 public_spec: exerciseTask.public_spec,
                 model_solution_spec: exerciseTask.model_solution_spec,
@@ -55,6 +63,10 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           return {
             view_type: "answer-exercise",
             exercise_task_id: exerciseTask.id,
+            user_information: {
+              pseudonymous_id: exerciseTask.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
+              signed_in: action.signedIn,
+            },
             data: {
               public_spec: exerciseTask.public_spec,
               // Checked that this does not exist in the else if above.
@@ -72,6 +84,11 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
         return {
           view_type: "view-submission",
           exercise_task_id: submissionResult.submission.exercise_task_id,
+          user_information: {
+            pseudonymous_id:
+              prevTask?.user_information.pseudonymous_id ?? getGuestPseudonymousUserId(), // Should we use the getGuestPseudonymousUserId() function here? I think the case where we would not find the previous task does not happen in practice.
+            signed_in: action.signedIn,
+          },
           data: {
             grading: exerciseTaskGradingToExerciseTaskGradingResult(submissionResult.grading),
             model_solution_spec: submissionResult.model_solution_spec,
@@ -85,6 +102,10 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
       return action.payload.map((x) => ({
         view_type: "answer-exercise",
         exercise_task_id: x.id,
+        user_information: {
+          pseudonymous_id: x.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
+          signed_in: action.signedIn,
+        },
         data: {
           public_spec: x.public_spec,
           previous_submission: x.previous_submission?.data_json ?? null,

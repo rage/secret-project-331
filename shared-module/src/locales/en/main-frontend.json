@@ -67,6 +67,7 @@
   "credit-will-be-registered-within-six-weeks": "Credit will be registered within 6 weeks.",
   "credits-n-ects": "Credits: {{n}} ECTS",
   "daily-submissions-visualization-tooltip": "Day: {{day}}<br />Submissions: {{submissions}}",
+  "daily-users-with-submissions-visualization-tooltip": "Day: {{day}}<br />Users who have submitted: {{users}}",
   "data-to-post-to-iframe": "Data to post to the IFrame",
   "default-course-instance-name": "Default",
   "delete": "Delete",
@@ -327,6 +328,7 @@
   "title-manage-exercise-services": "Manage exercise services",
   "title-model-solution-spec": "Model solution spec",
   "title-number-of-submissions-per-day": "Number of submissions per day",
+  "title-number-of-users-with-submissions-per-day": "Number of users who have submitted something per day",
   "title-number-of-submissions-per-weekday-and-hour": "Number of submissions per weekday and hour",
   "title-page-edit-history": "Page edit history",
   "title-page-id": "Page: {{ id }}",
@@ -374,5 +376,7 @@
   "button-text-reload": "Reload",
   "button-text-reset-url": "Reset URL",
   "label-send-model-solution-spec": "Send model solution spec (happens when one has ran out of tries or gotten full points from the exercise)",
+  "button-text-signed-in": "Signed in",
+  "label-pseudonymous-user-id": "Pseudonymous user ID",
   "label-send-previous-submission": "Send previous submission (happens when one has answered the exercise previously and tries to answer it again)"
 }

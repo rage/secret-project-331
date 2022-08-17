@@ -53,7 +53,15 @@ export const submitChanges = async (
   courseId: string,
   newModules: Array<{ name: string; order_number: number; chapters: Array<string> }>,
   deletedModules: Array<string>,
-  modifiedModules: Array<{ id: string; name: string | null; order_number: number }>,
+  modifiedModules: Array<{
+    id: string
+    name: string | null
+    order_number: number
+    ects_credits: number | null
+    automatic_completion: boolean
+    automatic_completion_points_treshold: number | null
+    automatic_completion_exercises_attempted_treshold: number | null
+  }>,
   movedChapters: Array<[string, string]>,
 ): Promise<void> => {
   const data: ModuleUpdates = {

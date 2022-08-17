@@ -8,6 +8,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import { baseTheme, theme } from "../../../../../../shared-module/styles"
@@ -26,6 +27,11 @@ interface Fields {
   name: string | null
   starts: number
   ends: number
+  ects_credits: number | null
+  course_code: string
+  automatic_completion: boolean
+  automatic_completion_points_treshold: number | null
+  automatic_completion_exercises_attempted_treshold: number | null
 }
 
 const EditCourseModuleForm: React.FC<Props> = ({
@@ -42,6 +48,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     reset,
+    watch,
   } = useForm<Fields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -49,6 +56,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
       name: module.name,
       starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
       ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
+      ects_credits: module.ects_credits,
+      course_code: module.course_code,
+      automatic_completion: module.automatic_completion,
+      automatic_completion_points_treshold: module.automatic_completion_points_treshold,
+      automatic_completion_exercises_attempted_treshold:
+        module.automatic_completion_exercises_attempted_treshold,
     },
   })
 
@@ -56,6 +69,8 @@ const EditCourseModuleForm: React.FC<Props> = ({
     setActive(false)
     onSubmitForm(module.id, fields)
   }
+
+  const isChecked = watch("automatic_completion")
 
   return (
     <form
@@ -111,7 +126,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
         {active ? (
           <div
             className={css`
-              display: flex;
+              display: grid;
+              grid-template-columns: repeat(4, minmax(5rem, 1fr));
+              gap: 10px;
               margin-left: 1rem;
               margin-right: 1rem;
               margin-bottom: 1rem;
@@ -120,7 +137,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <SelectField
               className={css`
                 min-width: 5rem;
-                margin-right: 1rem;
               `}
               id="editing-module-start"
               label={t("starts")}
@@ -148,6 +164,57 @@ const EditCourseModuleForm: React.FC<Props> = ({
               })}
               register={register("ends", { required: true, valueAsNumber: true })}
               error={errors["ends"]?.message}
+            />
+            <TextField
+              label={t("course-code")}
+              placeholder={t("course-code")}
+              labelStyle={css`
+                color: ${baseTheme.colors.clear[100]};
+              `}
+              register={register("course_code")}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              label={t("ects-credits")}
+              labelStyle={css`
+                color: ${baseTheme.colors.clear[100]};
+              `}
+              placeholder={t("ects-credits")}
+              register={register("ects_credits")}
+            />
+            <Checkbox
+              label={t("enable-automatic-completion")}
+              register={register("automatic_completion")}
+              className={css`
+                margin-top: 24px;
+                color: ${baseTheme.colors.clear[100]} !important;
+              `}
+            />
+            <TextField
+              label={t("automatic-completion-points-treshold")}
+              labelStyle={css`
+                color: ${baseTheme.colors.clear[100]};
+              `}
+              placeholder={t("automatic-completion-points-treshold")}
+              type="number"
+              register={register("automatic_completion_points_treshold", {
+                valueAsNumber: true,
+                disabled: !isChecked,
+              })}
+              error={errors["name"]?.message}
+            />
+            <TextField
+              label={t("automatic-completion-exercise-treshold")}
+              labelStyle={css`
+                color: ${baseTheme.colors.clear[100]};
+              `}
+              placeholder={t("automatic-completion-exercise-treshold")}
+              type="number"
+              register={register("automatic_completion_exercises_attempted_treshold", {
+                valueAsNumber: true,
+                disabled: !isChecked,
+              })}
+              error={errors["name"]?.message}
             />
           </div>
         ) : (

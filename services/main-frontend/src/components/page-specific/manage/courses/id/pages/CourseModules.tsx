@@ -30,6 +30,11 @@ export type ModuleView = {
   firstChapter: number | null
   lastChapter: number | null
   isNew: boolean
+  ects_credits?: number | null
+  course_code?: string
+  automatic_completion?: boolean
+  automatic_completion_points_treshold?: number | null
+  automatic_completion_exercises_attempted_treshold?: number | null
 }
 
 type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
@@ -215,6 +220,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         id: string
         name: string | null
         order_number: number
+        ects_credits?: number | null
+        automatic_completion?: boolean
+        automatic_completion_points_treshold?: number | null
+        automatic_completion_exercises_attempted_treshold?: number | null
       }>()
       const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
@@ -235,12 +244,23 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             // old module, check for modifications
             if (
               module.name !== initialModule.name ||
-              module.order_number !== initialModule.order_number
+              module.ects_credits !== initialModule.ects_credits ||
+              module.automatic_completion !== initialModule.automatic_completion ||
+              module.automatic_completion_points_treshold !==
+                initialModule.automatic_completion_points_treshold ||
+              module.ects_credits !== initialModule.ects_credits ||
+              module.automatic_completion_exercises_attempted_treshold !==
+                initialModule.automatic_completion_exercises_attempted_treshold
             ) {
               modifiedModules.push({
                 id: module.id,
                 name: module.name !== initialModule.name ? module.name : null,
                 order_number: module.order_number,
+                ects_credits: module.ects_credits,
+                automatic_completion: module.automatic_completion,
+                automatic_completion_points_treshold: module.automatic_completion_points_treshold,
+                automatic_completion_exercises_attempted_treshold:
+                  module.automatic_completion_exercises_attempted_treshold,
               })
             }
           }
@@ -305,10 +325,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       name,
       starts,
       ends,
+      ects_credits,
+      course_code,
+      automatic_completion,
+      automatic_completion_points_treshold,
+      automatic_completion_exercises_attempted_treshold,
     }: {
       name: string | null
       starts: number
       ends: number
+      ects_credits?: number | null
+      course_code?: string
+      automatic_completion?: boolean
+      automatic_completion_points_treshold?: number | null
+      automatic_completion_exercises_attempted_treshold?: number | null
     },
   ) => {
     setModuleList((old) => {
@@ -323,7 +353,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       const modules = [...old.modules]
       modules.forEach((m) => {
         if (m.id === id) {
-          m.name = name
+          ;(m.name = name), (m.ects_credits = ects_credits)
+          ;(m.course_code = course_code),
+            (m.automatic_completion = automatic_completion),
+            (m.automatic_completion_points_treshold = automatic_completion_points_treshold),
+            (m.automatic_completion_exercises_attempted_treshold =
+              automatic_completion_exercises_attempted_treshold)
         }
         const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
         m.firstChapter = first

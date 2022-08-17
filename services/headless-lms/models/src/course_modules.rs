@@ -42,17 +42,25 @@ pub async fn insert(
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
+    ects_credits: Option<i32>,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    automatic_completion_number_of_points_treshold: Option<i32>,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModule,
         "
-INSERT INTO course_modules (course_id, name, order_number)
-VALUES ($1, $2, $3)
+INSERT INTO course_modules (course_id, name, order_number, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
 ",
         course_id,
         name,
-        order_number
+        order_number,
+        ects_credits,
+        automatic_completion,
+        automatic_completion_number_of_exercises_attempted_treshold,
+        automatic_completion_number_of_points_treshold,
     )
     .fetch_one(conn)
     .await?;
@@ -63,7 +71,7 @@ pub async fn insert_default_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
-    insert(conn, course_id, None, 0).await
+    insert(conn, course_id, None, 0, None, false, None, None).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -338,6 +346,10 @@ pub struct NewModule {
     name: String,
     order_number: i32,
     chapters: Vec<Uuid>,
+    ects_credits: Option<i32>,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    automatic_completion_number_of_points_treshold: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -346,6 +358,10 @@ pub struct ModifiedModule {
     id: Uuid,
     name: Option<String>,
     order_number: i32,
+    ects_credits: Option<i32>,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    automatic_completion_number_of_points_treshold: Option<i32>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -362,17 +378,29 @@ pub async fn update(
     id: Uuid,
     name: Option<&str>,
     order_number: i32,
+    ects_credits: Option<i32>,
+    automatic_completion: bool,
+    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    automatic_completion_number_of_points_treshold: Option<i32>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE course_modules
 SET name = COALESCE($1, name),
-  order_number = $2
+  order_number = $2,
+  ects_credits = $4,
+  automatic_completion = $5,
+  automatic_completion_number_of_exercises_attempted_treshold = $6,
+  automatic_completion_number_of_points_treshold = $7
 WHERE id = $3
 ",
         name,
         order_number,
-        id
+        id,
+        ects_credits,
+        automatic_completion,
+        automatic_completion_number_of_exercises_attempted_treshold,
+        automatic_completion_number_of_points_treshold
     )
     .execute(conn)
     .await?;
@@ -393,12 +421,32 @@ pub async fn update_modules(
         .map(|m| m.id)
         .chain(updates.deleted_modules.iter().copied())
     {
-        update(&mut tx, module_id, None, rand::random()).await?;
+        update(
+            &mut tx,
+            module_id,
+            None,
+            rand::random(),
+            None,
+            false,
+            None,
+            None,
+        )
+        .await?;
     }
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
         // insert with a random order number to avoid conflicts
-        let module = insert(&mut tx, course_id, Some(&new.name), rand::random()).await?;
+        let module = insert(
+            &mut tx,
+            course_id,
+            Some(&new.name),
+            rand::random(),
+            new.ects_credits,
+            new.automatic_completion,
+            new.automatic_completion_number_of_exercises_attempted_treshold,
+            new.automatic_completion_number_of_points_treshold,
+        )
+        .await?;
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
@@ -407,6 +455,12 @@ pub async fn update_modules(
             id: module.id,
             name: None,
             order_number: new.order_number,
+            ects_credits: new.ects_credits,
+            automatic_completion: new.automatic_completion,
+            automatic_completion_number_of_exercises_attempted_treshold: new
+                .automatic_completion_number_of_exercises_attempted_treshold,
+            automatic_completion_number_of_points_treshold: new
+                .automatic_completion_number_of_points_treshold,
         })
     }
     // update modified and new modules
@@ -416,6 +470,10 @@ pub async fn update_modules(
             module.id,
             module.name.as_deref(),
             module.order_number,
+            module.ects_credits,
+            module.automatic_completion,
+            module.automatic_completion_number_of_exercises_attempted_treshold,
+            module.automatic_completion_number_of_points_treshold,
         )
         .await?;
     }

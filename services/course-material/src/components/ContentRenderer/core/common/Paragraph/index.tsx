@@ -52,7 +52,9 @@ const parseGlossary = (data: string, glossary: Term[]): string => {
   let parsed = data
 
   glossary.forEach((item) => {
-    parsed = parsed.replace(new RegExp(item.term, IGNORE_CASE), (content, _) =>
+    // eslint-disable-next-line i18next/no-literal-string
+    const regexString = `[^a-zA-Z0-9](${item.term})[^a-zA-Z0-9]`
+    parsed = parsed.replace(new RegExp(regexString, IGNORE_CASE), (content, _) =>
       generateToolTip({ ...item, term: content }),
     )
   })

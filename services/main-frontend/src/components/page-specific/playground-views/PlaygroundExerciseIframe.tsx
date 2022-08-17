@@ -3,7 +3,10 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
-import { CurrentStateMessage } from "../../../shared-module/exercise-service-protocol-types"
+import {
+  CurrentStateMessage,
+  UserInformation,
+} from "../../../shared-module/exercise-service-protocol-types"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -13,6 +16,7 @@ interface PlaygroundExerciseIframeProps {
   >
   showIframeBorders: boolean
   disableSandbox: boolean
+  userInformation: UserInformation
 }
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -26,6 +30,7 @@ const PlaygroundExerciseIframe: React.FC<
   setCurrentStateReceivedFromIframe,
   showIframeBorders,
   disableSandbox,
+  userInformation,
 }) => {
   const { t } = useTranslation()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
@@ -46,6 +51,7 @@ const PlaygroundExerciseIframe: React.FC<
           // eslint-disable-next-line i18next/no-literal-string
           view_type: "exercise",
           exercise_task_id: EXAMPLE_UUID,
+          user_information: userInformation,
           data: {
             public_spec: publicSpecQuery.data,
             // Not supported in the playground yet. Would prefill the exercise with the user's previous answer.

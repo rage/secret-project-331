@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useMemo, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
@@ -15,8 +15,10 @@ import Centered from "../../../../../shared-module/components/Centering/Centered
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
@@ -30,6 +32,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
   parentExerciseQuery,
 }) => {
   const { t } = useTranslation()
+  const loginStateContext = useContext(LoginStateContext)
   const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerReviewQuestionAnswer>>(
     new Map(),
   )
@@ -199,6 +202,12 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                       // eslint-disable-next-line i18next/no-literal-string
                       view_type: "view-submission",
                       exercise_task_id: course_material_exercise_task.id,
+                      user_information: {
+                        pseudonymous_id:
+                          course_material_exercise_task.pseudonumous_user_id ??
+                          getGuestPseudonymousUserId(),
+                        signed_in: Boolean(loginStateContext.signedIn),
+                      },
                       data: {
                         grading: exerciseTaskGradingToExerciseTaskGradingResult(
                           course_material_exercise_task.previous_submission_grading,

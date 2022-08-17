@@ -23,6 +23,7 @@ async fn get_submission_info(
     let res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
         &mut conn,
         submission_id.into_inner(),
+        user.id,
     )
     .await?;
 

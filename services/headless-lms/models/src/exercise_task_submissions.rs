@@ -261,6 +261,7 @@ WHERE exercise_slide_submissions.exam_id = $1
 pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    viewer_user_id: Uuid,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let task_submisssions = crate::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut *conn,
@@ -288,16 +289,20 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             .iter()
             .find(|t| t.id == ts.exercise_task_id)
             .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
-        let exercise_iframe_url = crate::exercise_service_info::get_service_info_by_exercise_type(
+        let service_info = crate::exercise_service_info::get_service_info_by_exercise_type(
             &mut *conn,
             &task.exercise_type,
         )
-        .await?
-        .user_interface_iframe_path;
+        .await?;
+        let exercise_iframe_url = service_info.user_interface_iframe_path;
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url),
+            pseudonumous_user_id: Some(Uuid::new_v5(
+                &service_info.exercise_service_id,
+                viewer_user_id.as_bytes(),
+            )),
             assignment: task.assignment.clone(),
             public_spec: task.public_spec.clone(),
             model_solution_spec: task.model_solution_spec.clone(),

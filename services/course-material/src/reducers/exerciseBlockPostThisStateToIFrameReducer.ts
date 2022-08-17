@@ -57,7 +57,8 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             exercise_task_id: exerciseTask.id,
             data: {
               public_spec: exerciseTask.public_spec,
-              previous_submission: exerciseTask.previous_submission,
+              // Checked that this does not exist in the else if above.
+              previous_submission: null,
             },
           }
         })
@@ -86,7 +87,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
         exercise_task_id: x.id,
         data: {
           public_spec: x.public_spec,
-          previous_submission: x.previous_submission,
+          previous_submission: x.previous_submission?.data_json ?? null,
         },
       }))
     }

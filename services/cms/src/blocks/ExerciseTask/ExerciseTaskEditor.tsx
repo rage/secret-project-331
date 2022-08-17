@@ -70,7 +70,7 @@ const StyledIconLight = styled(FontAwesomeIcon)`
 export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
-  private_spec: unknown
+  private_spec: string | null
   show_editor: boolean
   order_number: number
 }

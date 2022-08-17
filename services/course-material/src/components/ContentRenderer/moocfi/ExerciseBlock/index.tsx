@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import produce from "immer"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -76,8 +77,8 @@ const ExerciseBlock: React.FC<
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
-  const queryUniqueKey = `exercise-${id}`
-  const getCourseMaterialExercise = useQuery([queryUniqueKey], () => fetchExerciseById(id), {
+  const queryUniqueKey = [`exercise`, id]
+  const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
       if (data.exercise_status?.score_given) {
@@ -106,6 +107,25 @@ const ExerciseBlock: React.FC<
           payload: data,
         })
       },
+    },
+  )
+
+  const tryAgainMutation = useToastMutation(
+    async () => {
+      const data = getCourseMaterialExercise.data
+      if (!data) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("No data for the try again view")
+      }
+      dispatch({
+        type: "tryAgain",
+        payload: data.current_exercise_slide.exercise_tasks,
+      })
+      postSubmissionMutation.reset()
+      setAnswers(new Map())
+    },
+    {
+      notify: false,
     },
   )
 
@@ -336,23 +356,47 @@ const ExerciseBlock: React.FC<
                         ),
                     },
                     {
-                      onSuccess: () => {
-                        queryClient.setQueryData([queryUniqueKey], (old) => {
-                          // Update slide submission counts without refetching
-                          const oldData = old as CourseMaterialExercise
-                          const oldSubmissionCounts =
-                            oldData?.exercise_slide_submission_counts ?? {}
-                          const slideId =
-                            getCourseMaterialExercise?.data?.current_exercise_slide?.id
-                          const newSubmissionCounts = { ...oldSubmissionCounts }
-                          if (slideId) {
-                            newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
-                          }
-                          return {
-                            ...oldData,
-                            exercise_slide_submission_counts: newSubmissionCounts,
-                          }
-                        })
+                      onSuccess: (res) => {
+                        queryClient.setQueryData(
+                          queryUniqueKey,
+                          (old: CourseMaterialExercise | undefined) => {
+                            if (!old) {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              throw new Error("No CourseMaterialExercise found")
+                            }
+                            return produce(old, (draft: CourseMaterialExercise) => {
+                              // Update slide submission counts without refetching
+                              const slideId = draft?.current_exercise_slide?.id
+                              if (slideId) {
+                                draft.exercise_slide_submission_counts[slideId] =
+                                  (draft.exercise_slide_submission_counts[slideId] ?? 0) + 1
+                              }
+
+                              res.exercise_task_submission_results.forEach(
+                                (et_submission_result) => {
+                                  // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                  const receivedExerciseTaskSubmission =
+                                    et_submission_result.submission
+                                  const draftExerciseTask =
+                                    draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                      return (
+                                        et.id === et_submission_result.submission.exercise_task_id
+                                      )
+                                    })
+                                  if (draftExerciseTask) {
+                                    draftExerciseTask.previous_submission =
+                                      receivedExerciseTaskSubmission
+                                  }
+                                  // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                  if (isExam && et_submission_result.grading !== null) {
+                                    // eslint-disable-next-line i18next/no-literal-string
+                                    throw new Error("Exams should have hidden gradings")
+                                  }
+                                },
+                              )
+                            })
+                          },
+                        )
                       },
                     },
                   )
@@ -368,17 +412,12 @@ const ExerciseBlock: React.FC<
                     variant="primary"
                     size="medium"
                     onClick={() => {
-                      dispatch({
-                        type: "tryAgain",
-                        payload:
-                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                      })
-                      postSubmissionMutation.reset()
-                      setAnswers(new Map())
+                      tryAgainMutation.mutate()
                     }}
                     disabled={
                       getCourseMaterialExercise.isRefetching ||
-                      !getCourseMaterialExercise.data.can_post_submission
+                      !getCourseMaterialExercise.data.can_post_submission ||
+                      tryAgainMutation.isLoading
                     }
                   >
                     {t("try-again")}

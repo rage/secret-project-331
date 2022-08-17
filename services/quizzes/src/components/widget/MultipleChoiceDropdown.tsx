@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
@@ -26,6 +27,13 @@ const MultipleChoiceDropdown: React.FunctionComponent<
     }
     setQuizItemAnswerState(newItemAnswer)
   }
+  const selectedOptionId = useMemo(() => {
+    const optionAnswers = quizItemAnswerState?.optionAnswers
+    if (!optionAnswers || !Array.isArray(optionAnswers) || optionAnswers.length === 0) {
+      return null
+    }
+    return optionAnswers[0] ?? null
+  }, [quizItemAnswerState?.optionAnswers])
   return (
     <div
       className={css`
@@ -109,7 +117,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         >
           <option
             disabled
-            selected
+            selected={selectedOptionId === null}
             value=""
             className={css`
               display: flex;
@@ -121,6 +129,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             <option
               key={o.id}
               value={o.id}
+              selected={selectedOptionId === o.id}
               className={css`
                 display: flex;
               `}

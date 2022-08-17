@@ -34,7 +34,8 @@ const PlaygroundExerciseIframe: React.FC<
     return <>{t("error-no-public-spec")}</>
   }
   // Makes sure the iframe renders again when the data changes
-  const iframeKey = url + JSON.stringify(publicSpecQuery.data) + disableSandbox
+  const iframeKey =
+    url + JSON.stringify(publicSpecQuery.data) + disableSandbox + JSON.stringify(userAnswer)
   return (
     <div
       className={css`

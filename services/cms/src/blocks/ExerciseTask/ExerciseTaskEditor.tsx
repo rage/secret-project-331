@@ -80,14 +80,20 @@ const ExerciseTaskEditor: React.FC<
 > = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
 
-  const [privateSpecOnFirstRender] = useState(attributes.private_spec)
+  // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
+  const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
+    attributes.private_spec,
+  )
   const { t } = useTranslation()
 
   const handleDeleteTask = () => {
     dispatch({ type: "deleteExerciseTask", payload: { clientId } })
   }
 
-  const toggleEditor = () => setAttributes({ show_editor: !attributes.show_editor })
+  const toggleEditor = () => {
+    setAttributes({ show_editor: !attributes.show_editor })
+    setPrivateSpecToPostToIframe(attributes.private_spec)
+  }
 
   const exerciseType = attributes.exercise_type
   const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
@@ -166,7 +172,7 @@ const ExerciseTaskEditor: React.FC<
                   <ExerciseTaskIFrameEditor
                     exerciseTaskId={attributes.id}
                     onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
-                    privateSpec={privateSpecOnFirstRender}
+                    privateSpec={privateSpecToPostToIframe}
                     url={`${url}?width=${narrowContainerWidthPx}`}
                   />
                 )}

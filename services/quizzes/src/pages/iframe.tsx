@@ -27,7 +27,12 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "exercise"; publicSpec: PublicQuiz; userInformation: UserInformation }
+  | {
+      viewType: "answer-exercise"
+      publicSpec: PublicQuiz
+      userInformation: UserInformation
+      previousSubmission: QuizAnswer | null
+    }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
@@ -51,11 +56,12 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const port = useExerciseServiceParentConnection((messageData) => {
     if (isSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
-        if (messageData.view_type === "exercise") {
+        if (messageData.view_type === "answer-exercise") {
           setState({
             viewType: messageData.view_type,
             publicSpec: messageData.data.public_spec as PublicQuiz,
             userInformation: messageData.user_information,
+            previousSubmission: messageData.data.previous_submission as QuizAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
           if (messageData.data.private_spec === null) {
@@ -67,7 +73,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           } else {
             setState({
               viewType: messageData.view_type,
-              privateSpec: migrateQuiz(JSON.parse(messageData.data.private_spec as string)),
+              privateSpec: migrateQuiz(messageData.data.private_spec),
               userInformation: messageData.user_information,
             })
           }

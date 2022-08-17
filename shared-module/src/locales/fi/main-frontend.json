@@ -375,6 +375,7 @@
   "button-text-reload": "Lataa uudestaan",
   "button-text-reset-url": "Nollaa URL",
   "label-send-model-solution-spec": "Lähetä model solution spec (tapahtuu kun yritykset on loppu tai käyttäjä on saanut täydeet pisteet tehtävästä)",
+  "label-send-previous-submission": "Lähetä edellinen palautus (tapahtuu kun käyttäjä on aikaisemmin vastannut tehtävään ja oppilas koittaa vastata tehtävään uudelleen)",
   "button-text-signed-in": "Kirjautunut sisään",
   "label-pseudonymous-user-id": "Pseudonyyminen käyttäjän id"
 }

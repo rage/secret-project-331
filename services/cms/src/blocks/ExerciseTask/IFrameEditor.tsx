@@ -23,8 +23,8 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseTaskId: string
-  onPrivateSpecChange(newSpec: unknown): void
-  privateSpec: unknown
+  onPrivateSpecChange(newSpec: string): void
+  privateSpec: string | null
   url: string | null | undefined
 }
 
@@ -47,7 +47,10 @@ const ExerciseTaskIFrameEditor: React.FC<
         pseudonymous_id: v5(courseContext?.courseId ?? "", userId) ?? getGuestPseudonymousUserId(),
         signed_in: Boolean(loginStateContext.signedIn),
       },
-      data: { private_spec: privateSpec },
+      data: {
+        private_spec:
+          privateSpec === null || privateSpec === undefined ? null : JSON.parse(privateSpec),
+      },
     }
   }, [privateSpec])
 

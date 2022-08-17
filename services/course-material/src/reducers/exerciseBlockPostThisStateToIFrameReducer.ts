@@ -61,7 +61,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             }
           }
           return {
-            view_type: "exercise",
+            view_type: "answer-exercise",
             exercise_task_id: exerciseTask.id,
             user_information: {
               pseudonymous_id: exerciseTask.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
@@ -69,7 +69,8 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             },
             data: {
               public_spec: exerciseTask.public_spec,
-              previous_submission: exerciseTask.previous_submission,
+              // Checked that this does not exist in the else if above.
+              previous_submission: null,
             },
           }
         })
@@ -99,7 +100,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
     }
     case "tryAgain": {
       return action.payload.map((x) => ({
-        view_type: "exercise",
+        view_type: "answer-exercise",
         exercise_task_id: x.id,
         user_information: {
           pseudonymous_id: x.pseudonumous_user_id ?? getGuestPseudonymousUserId(),
@@ -107,7 +108,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
         },
         data: {
           public_spec: x.public_spec,
-          previous_submission: x.previous_submission,
+          previous_submission: x.previous_submission?.data_json ?? null,
         },
       }))
     }

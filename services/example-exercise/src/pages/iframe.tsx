@@ -25,7 +25,7 @@ export interface SubmissionData {
 
 export type State =
   | {
-      view_type: "exercise"
+      view_type: "answer-exercise"
       public_spec: PublicAlternative[]
     }
   | {
@@ -54,7 +54,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const port = useExerciseServiceParentConnection((messageData) => {
     if (isSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
-        if (messageData.view_type === "exercise") {
+        if (messageData.view_type === "answer-exercise") {
           setState({
             view_type: messageData.view_type,
             public_spec: messageData.data.public_spec as PublicAlternative[],
@@ -62,8 +62,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
         } else if (messageData.view_type === "exercise-editor") {
           setState({
             view_type: messageData.view_type,
-            private_spec:
-              (JSON.parse(messageData.data.private_spec as string) as Alternative[]) || [],
+            private_spec: (messageData.data.private_spec as Alternative[]) || [],
           })
         } else if (messageData.view_type === "view-submission") {
           const userAnswer = messageData.data.user_answer as Answer

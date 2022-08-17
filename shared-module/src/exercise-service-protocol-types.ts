@@ -1,4 +1,4 @@
-import { ExerciseTaskGradingResult, ExerciseTaskSubmission } from "./bindings"
+import { ExerciseTaskGradingResult } from "./bindings"
 
 /**
  * from: IFrame
@@ -55,12 +55,12 @@ export type UserInformation = {
 
 export type IframeState =
   | {
-      view_type: "exercise"
+      view_type: "answer-exercise"
       exercise_task_id: string
       user_information: UserInformation
       data: {
         public_spec: unknown
-        previous_submission: ExerciseTaskSubmission | null
+        previous_submission: unknown | null
       }
     }
   | {

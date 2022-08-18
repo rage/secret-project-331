@@ -126,10 +126,6 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
@@ -211,11 +207,7 @@ The file.
     <span class="comment">// TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">base_folder</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;uploads&quot;</span>);
-    <span class="kw">let</span> <span class="ident">relative_path</span>: <span class="ident">PathBuf</span> <span class="op">=</span> <span class="ident">req</span>
-        .<span class="ident">match_info</span>()
-        .<span class="ident">query</span>(<span class="string">&quot;tail&quot;</span>)
-        .<span class="ident">parse</span>()
-        .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid file path&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">relative_path</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="ident">req</span>.<span class="ident">match_info</span>().<span class="ident">query</span>(<span class="string">&quot;tail&quot;</span>));
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">base_folder</span>.<span class="ident">join</span>(<span class="ident">relative_path</span>);
 
     <span class="kw">let</span> <span class="ident">named_file</span> <span class="op">=</span> <span class="ident">NamedFile::open</span>(<span class="ident">path</span>)

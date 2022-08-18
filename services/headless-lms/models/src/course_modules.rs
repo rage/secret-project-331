@@ -373,6 +373,28 @@ pub struct ModuleUpdates {
     moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
+pub async fn update_with_random_number(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: Option<&str>,
+    order_number: i32,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET name = COALESCE($1, name),
+  order_number = $2
+WHERE id = $3
+",
+        name,
+        order_number,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,
@@ -421,17 +443,7 @@ pub async fn update_modules(
         .map(|m| m.id)
         .chain(updates.deleted_modules.iter().copied())
     {
-        update(
-            &mut tx,
-            module_id,
-            None,
-            rand::random(),
-            None,
-            false,
-            None,
-            None,
-        )
-        .await?;
+        update_with_random_number(&mut tx, module_id, None, rand::random()).await?;
     }
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {

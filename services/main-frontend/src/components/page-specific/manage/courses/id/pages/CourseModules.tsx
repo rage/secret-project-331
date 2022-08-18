@@ -191,6 +191,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               firstChapter,
               lastChapter,
               isNew: false,
+              ects_credits: m.ects_credits,
+              automatic_completion: m.automatic_completion,
+              automatic_completion_points_treshold:
+                m.automatic_completion_number_of_points_treshold,
+              automatic_completion_exercises_attempted_treshold:
+                m.automatic_completion_number_of_exercises_attempted_treshold,
             }
           })
           const error = validateModuleList(modules, chapters)
@@ -220,10 +226,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         id: string
         name: string | null
         order_number: number
-        ects_credits?: number | null
-        automatic_completion?: boolean
-        automatic_completion_points_treshold?: number | null
-        automatic_completion_exercises_attempted_treshold?: number | null
+        ects_credits: number | null
+        automatic_completion: boolean
+        automatic_completion_points_treshold: number | null
+        automatic_completion_exercises_attempted_treshold: number | null
       }>()
       const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
@@ -256,11 +262,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 id: module.id,
                 name: module.name !== initialModule.name ? module.name : null,
                 order_number: module.order_number,
-                ects_credits: module.ects_credits,
-                automatic_completion: module.automatic_completion,
-                automatic_completion_points_treshold: module.automatic_completion_points_treshold,
+                ects_credits: module.ects_credits ?? null,
+                automatic_completion: module.automatic_completion ?? false,
+                automatic_completion_points_treshold:
+                  module.automatic_completion_points_treshold ?? null,
                 automatic_completion_exercises_attempted_treshold:
-                  module.automatic_completion_exercises_attempted_treshold,
+                  module.automatic_completion_exercises_attempted_treshold ?? null,
               })
             }
           }

@@ -173,3 +173,23 @@ pub async fn authenticate_test_user(
     };
     Ok(user)
 }
+
+/// Includes all users who have returned an exercise on a course course instance
+pub async fn get_all_user_ids_with_user_exercise_states_on_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT user_id
+FROM user_exercise_states
+WHERE course_instance_id = $1
+  AND deleted_at IS NULL
+        ",
+        course_instance_id
+    )
+    .map(|x| x.user_id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

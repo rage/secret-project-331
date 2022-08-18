@@ -70,7 +70,7 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-comp
 Reprocesses all module completions for the given course instance. Only available to admins.
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, user))]
 async fn post_reprocess_module_completions(
     pool: web::Data<PgPool>,
     user: AuthUser,

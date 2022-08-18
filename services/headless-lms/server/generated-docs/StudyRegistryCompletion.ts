@@ -5,6 +5,6 @@ type StudyRegistryCompletion = {
   email: string
   grade: StudyRegistryGrade
   id: string
-  user_upstream_id: string
+  user_id: string
   tier: number | null
 }

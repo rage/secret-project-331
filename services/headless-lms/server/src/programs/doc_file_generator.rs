@@ -981,7 +981,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }
     );
@@ -994,7 +994,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }]
     );

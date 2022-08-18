@@ -432,7 +432,9 @@ RETURNING id,
     .await?;
 
     // Create default course module
-    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+    let default_module =
+        crate::course_modules::insert(&mut tx, course.id, None, 0, None, None, None, None, None)
+            .await?;
 
     tx.commit().await?;
     Ok((course, page, default_course_instance, default_module))

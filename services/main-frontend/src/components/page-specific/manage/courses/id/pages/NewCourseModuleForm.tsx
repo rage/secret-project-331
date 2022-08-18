@@ -3,7 +3,6 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postCourseCompletionRequirement } from "../../../../../../services/backend/course-modules"
 import Button from "../../../../../../shared-module/components/Button"
 import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
@@ -19,7 +18,7 @@ export interface Fields {
   starts: number
   ends: number
   ects_credits: number | null
-  course_code: string
+  uh_course_code: string | null
   automatic_completion: boolean
   automatic_completion_points_treshold: number | null
   automatic_completion_exercises_attempted_treshold: number | null
@@ -40,6 +39,11 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       name: "",
       starts: chapters.length > 0 ? chapters[0] : 1,
       ends: chapters.length > 0 ? chapters[chapters.length - 1] : 1,
+      ects_credits: null,
+      automatic_completion: false,
+      uh_course_code: t("enter-course-code"),
+      automatic_completion_points_treshold: null,
+      automatic_completion_exercises_attempted_treshold: null,
     },
   })
 
@@ -140,7 +144,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               `}
               label={t("course-code")}
               placeholder={t("course-code")}
-              register={register("course_code")}
+              register={register("uh_course_code")}
               error={errors["name"]?.message}
             />
             <TextField

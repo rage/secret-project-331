@@ -20,17 +20,6 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-
-pub struct CompletionRequirementUpdate {
-    course_id: Uuid,
-    ects_credits: Option<i32>,
-    automatic_completion: bool,
-    automatic_completion_points_treshold: Option<i32>,
-    automatic_completion_exercises_attempted_treshold: Option<i32>,
-}
-
 impl CourseModule {
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
@@ -42,21 +31,23 @@ pub async fn insert(
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
+    uh_course_code: Option<String>,
     ects_credits: Option<i32>,
-    automatic_completion: bool,
+    automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModule,
         "
-INSERT INTO course_modules (course_id, name, order_number, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO course_modules (course_id, name, order_number, uh_course_code, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *
 ",
         course_id,
         name,
         order_number,
+        uh_course_code,
         ects_credits,
         automatic_completion,
         automatic_completion_number_of_exercises_attempted_treshold,
@@ -71,7 +62,7 @@ pub async fn insert_default_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
-    insert(conn, course_id, None, 0, None, false, None, None).await
+    insert(conn, course_id, None, 0, None, None, None, None, None).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -290,34 +281,6 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn update_completion_requirement(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    payload: CompletionRequirementUpdate,
-) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModule,
-        r#"
-    UPDATE course_modules
-    SET ects_credits = $2,
-        automatic_completion = $3,
-        automatic_completion_number_of_points_treshold = $4,
-        automatic_completion_number_of_exercises_attempted_treshold = $5
-    WHERE course_id = $1
-    AND deleted_at IS NULL
-    RETURNING *
-    "#,
-        course_id,
-        payload.ects_credits,
-        payload.automatic_completion,
-        payload.automatic_completion_points_treshold,
-        payload.automatic_completion_exercises_attempted_treshold,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 pub async fn update_uh_course_code(
     conn: &mut PgConnection,
     id: Uuid,
@@ -346,8 +309,9 @@ pub struct NewModule {
     name: String,
     order_number: i32,
     chapters: Vec<Uuid>,
+    uh_course_code: Option<String>,
     ects_credits: Option<i32>,
-    automatic_completion: bool,
+    automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
 }
@@ -358,8 +322,9 @@ pub struct ModifiedModule {
     id: Uuid,
     name: Option<String>,
     order_number: i32,
+    uh_course_code: Option<String>,
     ects_credits: Option<i32>,
-    automatic_completion: bool,
+    automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
 }
@@ -373,7 +338,7 @@ pub struct ModuleUpdates {
     moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
-pub async fn update_with_random_number(
+pub async fn update_with_order_number(
     conn: &mut PgConnection,
     id: Uuid,
     name: Option<&str>,
@@ -400,8 +365,9 @@ pub async fn update(
     id: Uuid,
     name: Option<&str>,
     order_number: i32,
+    uh_course_code: Option<String>,
     ects_credits: Option<i32>,
-    automatic_completion: bool,
+    automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
 ) -> ModelResult<()> {
@@ -410,15 +376,17 @@ pub async fn update(
 UPDATE course_modules
 SET name = COALESCE($1, name),
   order_number = $2,
-  ects_credits = $4,
-  automatic_completion = $5,
-  automatic_completion_number_of_exercises_attempted_treshold = $6,
-  automatic_completion_number_of_points_treshold = $7
+  uh_course_code = $4,
+  ects_credits = $5,
+  automatic_completion = $6,
+  automatic_completion_number_of_exercises_attempted_treshold = $7,
+  automatic_completion_number_of_points_treshold = $8
 WHERE id = $3
 ",
         name,
         order_number,
         id,
+        uh_course_code,
         ects_credits,
         automatic_completion,
         automatic_completion_number_of_exercises_attempted_treshold,
@@ -443,7 +411,7 @@ pub async fn update_modules(
         .map(|m| m.id)
         .chain(updates.deleted_modules.iter().copied())
     {
-        update_with_random_number(&mut tx, module_id, None, rand::random()).await?;
+        update_with_order_number(&mut tx, module_id, None, rand::random()).await?;
     }
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
@@ -453,6 +421,7 @@ pub async fn update_modules(
             course_id,
             Some(&new.name),
             rand::random(),
+            new.uh_course_code,
             new.ects_credits,
             new.automatic_completion,
             new.automatic_completion_number_of_exercises_attempted_treshold,
@@ -467,6 +436,7 @@ pub async fn update_modules(
             id: module.id,
             name: None,
             order_number: new.order_number,
+            uh_course_code: module.uh_course_code,
             ects_credits: new.ects_credits,
             automatic_completion: new.automatic_completion,
             automatic_completion_number_of_exercises_attempted_treshold: new
@@ -482,6 +452,7 @@ pub async fn update_modules(
             module.id,
             module.name.as_deref(),
             module.order_number,
+            module.uh_course_code,
             module.ects_credits,
             module.automatic_completion,
             module.automatic_completion_number_of_exercises_attempted_treshold,

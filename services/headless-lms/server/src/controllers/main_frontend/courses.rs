@@ -778,28 +778,6 @@ pub async fn update_modules(
 POST `/api/v0/main-frontend/courses/:id/course-completion-requirements` - Update course completion requirement by course-id.
 */
 
-#[generated_doc]
-#[instrument(skip(pool))]
-pub async fn update_course_completion_requirements(
-    course_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-    payload: web::Json<CompletionRequirementUpdate>,
-) -> ControllerResult<web::Json<()>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
-
-    let completion_requirement_updates = payload.0;
-
-    models::course_modules::update_completion_requirement(
-        &mut conn,
-        *course_id,
-        completion_requirement_updates,
-    )
-    .await?;
-    token.authorized_ok(web::Json(()))
-}
-
 /**
 Add a route for each controller in this module.
 
@@ -888,9 +866,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-modules",
             web::post().to(update_modules),
-        )
-        .route(
-            "/{course_id}/course-completion-requirements",
-            web::post().to(update_course_completion_requirements),
         );
 }

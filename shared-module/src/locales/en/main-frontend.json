@@ -384,5 +384,6 @@
   "automatic-completion-points-treshold": "Automatic completion number of points treshold",
   "automatic-completion-exercise-treshold": "Automatic completion number of exercises attempted treshold",
   "button-text-signed-in": "Signed in",
-  "label-pseudonymous-user-id": "Pseudonymous user ID"
+  "label-pseudonymous-user-id": "Pseudonymous user ID",
+  "enter-course-code": "Enter a course code"
 }

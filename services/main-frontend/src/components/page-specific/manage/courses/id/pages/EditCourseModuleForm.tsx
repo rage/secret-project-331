@@ -28,7 +28,7 @@ interface Fields {
   starts: number
   ends: number
   ects_credits: number | null
-  course_code: string
+  uh_course_code: string | null
   automatic_completion: boolean
   automatic_completion_points_treshold: number | null
   automatic_completion_exercises_attempted_treshold: number | null
@@ -58,7 +58,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
       ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
       ects_credits: module.ects_credits ?? 0,
       // eslint-disable-next-line i18next/no-literal-string
-      course_code: module.course_code ?? "Enter course code",
+      uh_course_code: module.uh_course_code ?? t("enter-course-code"),
       automatic_completion: module.automatic_completion ?? false,
       automatic_completion_points_treshold: module.automatic_completion_points_treshold ?? null,
       automatic_completion_exercises_attempted_treshold:
@@ -172,7 +172,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               labelStyle={css`
                 color: ${baseTheme.colors.clear[100]};
               `}
-              register={register("course_code")}
+              register={register("uh_course_code")}
               error={errors["name"]?.message}
             />
             <TextField

@@ -1,6 +1,5 @@
 import {
   CompletionRegistrationLink,
-  CourseCompletionRequirement,
   ModuleUpdates,
   UserCompletionInformation,
 } from "../../shared-module/bindings"
@@ -25,18 +24,6 @@ export const fetchUserCompletionInformation = async (
   }
 }
 
-export const postCourseCompletionRequirement = async (
-  data: CourseCompletionRequirement,
-): Promise<void> => {
-  await mainFrontendClient.post(
-    `/courses/${data.course_code}/course-completion-requirements`,
-    data,
-    {
-      headers: { "Content-Type": "application/json" },
-    },
-  )
-}
-
 export const fetchCompletionRegistrationLink = async (
   courseModuleId: string,
 ): Promise<CompletionRegistrationLink> => {
@@ -51,12 +38,22 @@ export const fetchCompletionRegistrationLink = async (
 
 export const submitChanges = async (
   courseId: string,
-  newModules: Array<{ name: string; order_number: number; chapters: Array<string> }>,
+  newModules: Array<{
+    name: string
+    order_number: number
+    chapters: Array<string>
+    uh_course_code: string | null
+    ects_credits: number | null
+    automatic_completion: boolean
+    automatic_completion_points_treshold: number | null
+    automatic_completion_exercises_attempted_treshold: number | null
+  }>,
   deletedModules: Array<string>,
   modifiedModules: Array<{
     id: string
     name: string | null
     order_number: number
+    uh_course_code: string | null
     ects_credits: number | null
     automatic_completion: boolean
     automatic_completion_points_treshold: number | null

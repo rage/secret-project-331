@@ -31,6 +31,28 @@ pub async fn insert(
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModule,
+        "
+INSERT INTO course_modules (course_id, name, order_number)
+VALUES ($1, $2, $3)
+RETURNING *
+",
+        course_id,
+        name,
+        order_number,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn insert_with_automatic_completion(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    name: Option<&str>,
+    order_number: i32,
     uh_course_code: Option<String>,
     ects_credits: Option<i32>,
     automatic_completion: Option<bool>,
@@ -62,7 +84,7 @@ pub async fn insert_default_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
-    insert(conn, course_id, None, 0, None, None, None, None, None).await
+    insert(conn, course_id, None, 0).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -416,7 +438,7 @@ pub async fn update_modules(
     let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
         // insert with a random order number to avoid conflicts
-        let module = insert(
+        let module = insert_with_automatic_completion(
             &mut tx,
             course_id,
             Some(&new.name),

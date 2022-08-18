@@ -17,6 +17,7 @@ export interface ExerciseAttributes {
   needs_peer_review: boolean
   peer_review_config: string
   peer_review_questions_config: string
+  uses_course_global_peer_review: boolean
 }
 
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
@@ -57,6 +58,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     peer_review_questions_config: {
       type: "string",
       default: "[]",
+    },
+    uses_course_global_peer_review: {
+      type: "boolean",
+      default: false,
     },
   },
   edit: enforceExerciseIdDefined(ExerciseEditor),

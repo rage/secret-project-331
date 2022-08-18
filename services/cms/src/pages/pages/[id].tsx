@@ -3,6 +3,7 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
 import Layout from "../../components/Layout"
+import CourseContext from "../../contexts/CourseContext"
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"

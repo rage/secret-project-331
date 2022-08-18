@@ -154,10 +154,10 @@ fn ts_binding_generator() {
         pages::PageRoutingData,
         pages::PageNavigationInformation,
 
-        peer_reviews::PeerReview,
-        peer_reviews::PeerReviewAcceptingStrategy,
-        peer_reviews::CmsPeerReview,
-        peer_reviews::CmsPeerReviewConfiguration,
+        peer_review_configs::PeerReviewConfig,
+        peer_review_configs::PeerReviewAcceptingStrategy,
+        peer_review_configs::CmsPeerReviewConfig,
+        peer_review_configs::CmsPeerReviewConfiguration,
 
         peer_review_questions::CmsPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,

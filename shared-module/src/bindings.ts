@@ -410,7 +410,7 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review: PeerReview | null
+  peer_review_config: PeerReviewConfig | null
 }
 
 export interface Exercise {
@@ -430,6 +430,7 @@ export interface Exercise {
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
   needs_peer_review: boolean
+  use_course_default_peer_review_config: boolean
 }
 
 export interface ExerciseStatus {
@@ -496,7 +497,7 @@ export interface StudentExerciseTaskSubmissionResult {
 
 export interface CourseMaterialPeerReviewData {
   answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
-  peer_review: PeerReview
+  peer_review_config: PeerReviewConfig
   peer_review_questions: Array<PeerReviewQuestion>
   num_peer_reviews_given: number
 }
@@ -514,7 +515,7 @@ export interface CourseMaterialPeerReviewQuestionAnswer {
 
 export interface CourseMaterialPeerReviewSubmission {
   exercise_slide_submission_id: string
-  peer_review_id: string
+  peer_review_config_id: string
   peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
 }
 
@@ -571,6 +572,9 @@ export interface CmsPageExercise {
   limit_number_of_tries: boolean
   deadline: Date | null
   needs_peer_review: boolean
+  peer_review_config: CmsPeerReviewConfig | null
+  peer_review_questions: Array<CmsPeerReviewQuestion> | null
+  use_course_default_peer_review_config: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -593,8 +597,6 @@ export interface CmsPageUpdate {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
-  peer_reviews: Array<CmsPeerReview>
-  peer_review_questions: Array<CmsPeerReviewQuestion>
   url_path: string
   title: string
   chapter_id: string | null
@@ -605,7 +607,7 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
-  peer_reviews: Array<CmsPeerReview>
+  peer_reviews: Array<CmsPeerReviewConfig>
   peer_review_questions: Array<CmsPeerReviewQuestion>
   organization_id: string
 }
@@ -731,7 +733,7 @@ export interface PageNavigationInformation {
   previous_page: PageRoutingData | null
 }
 
-export interface PeerReview {
+export interface PeerReviewConfig {
   id: string
   created_at: Date
   updated_at: Date
@@ -749,7 +751,7 @@ export type PeerReviewAcceptingStrategy =
   | "AutomaticallyAcceptOrManualReviewByAverage"
   | "ManualReviewEverything"
 
-export interface CmsPeerReview {
+export interface CmsPeerReviewConfig {
   id: string
   course_id: string
   exercise_id: string | null
@@ -760,13 +762,13 @@ export interface CmsPeerReview {
 }
 
 export interface CmsPeerReviewConfiguration {
-  peer_review: CmsPeerReview
+  peer_review_config: CmsPeerReviewConfig
   peer_review_questions: Array<CmsPeerReviewQuestion>
 }
 
 export interface CmsPeerReviewQuestion {
   id: string
-  peer_review_id: string
+  peer_review_config_id: string
   order_number: number
   question: string
   question_type: PeerReviewQuestionType
@@ -778,7 +780,7 @@ export interface PeerReviewQuestion {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
-  peer_review_id: string
+  peer_review_config_id: string
   order_number: number
   question: string
   question_type: PeerReviewQuestionType

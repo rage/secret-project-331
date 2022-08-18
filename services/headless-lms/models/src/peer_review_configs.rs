@@ -2,8 +2,8 @@ use crate::{
     exercises,
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
     peer_review_questions::{
-        delete_peer_review_questions_by_peer_review_ids, upsert_multiple_peer_review_questions,
-        CmsPeerReviewQuestion,
+        delete_peer_review_questions_by_peer_review_config_ids,
+        upsert_multiple_peer_review_questions, CmsPeerReviewQuestion,
     },
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
@@ -11,7 +11,7 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReview {
+pub struct PeerReviewConfig {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -24,9 +24,9 @@ pub struct PeerReview {
     pub accepting_strategy: PeerReviewAcceptingStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CmsPeerReview {
+pub struct CmsPeerReviewConfig {
     pub id: Uuid,
     pub course_id: Uuid,
     pub exercise_id: Option<Uuid>,
@@ -39,7 +39,7 @@ pub struct CmsPeerReview {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewConfiguration {
-    pub peer_review: CmsPeerReview,
+    pub peer_review_config: CmsPeerReviewConfig,
     pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
 }
 
@@ -72,7 +72,7 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (
+INSERT INTO peer_review_configs (
     course_id,
     exercise_id,
     peer_reviews_to_give,
@@ -101,7 +101,7 @@ pub async fn insert_with_id(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_reviews (
+INSERT INTO peer_review_configs (
     id,
     course_id,
     exercise_id,
@@ -124,12 +124,12 @@ RETURNING id
 
 pub async fn upsert_with_id(
     conn: &mut PgConnection,
-    cms_peer_review: &CmsPeerReview,
-) -> ModelResult<CmsPeerReview> {
+    cms_peer_review: &CmsPeerReviewConfig,
+) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
-        CmsPeerReview,
+        CmsPeerReviewConfig,
         r#"
-    INSERT INTO peer_reviews (
+    INSERT INTO peer_review_configs (
     id,
     course_id,
     exercise_id,
@@ -166,9 +166,9 @@ RETURNING id,
     Ok(res)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReview> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerReviewConfig> {
     let res = sqlx::query_as!(
-        PeerReview,
+        PeerReviewConfig,
         r#"
 SELECT id,
   created_at,
@@ -180,7 +180,7 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
-FROM peer_reviews
+FROM peer_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -195,7 +195,7 @@ pub async fn get_by_exercise_or_course_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     course_id: Uuid,
-) -> ModelResult<PeerReview> {
+) -> ModelResult<PeerReviewConfig> {
     match try_to_get_by_exercise_id(conn, exercise_id).await? {
         Some(peer_review) => Ok(peer_review),
         None => get_default_for_course_by_course_id(conn, course_id).await,
@@ -205,9 +205,9 @@ pub async fn get_by_exercise_or_course_id(
 pub async fn try_to_get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-) -> ModelResult<Option<PeerReview>> {
+) -> ModelResult<Option<PeerReviewConfig>> {
     let res = sqlx::query_as!(
-        PeerReview,
+        PeerReviewConfig,
         r#"
 SELECT id,
   created_at,
@@ -219,7 +219,7 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
-FROM peer_reviews
+FROM peer_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
         "#,
@@ -233,9 +233,9 @@ WHERE exercise_id = $1
 pub async fn get_default_for_course_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<PeerReview> {
+) -> ModelResult<PeerReviewConfig> {
     let res = sqlx::query_as!(
-        PeerReview,
+        PeerReviewConfig,
         r#"
 SELECT id,
   created_at,
@@ -247,7 +247,7 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
-FROM peer_reviews
+FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
   AND deleted_at IS NULL
@@ -262,7 +262,7 @@ WHERE course_id = $1
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-UPDATE peer_reviews
+UPDATE peer_review_configs
 SET deleted_at = now()
 WHERE id = $1
 RETURNING id
@@ -323,9 +323,9 @@ pub async fn get_course_material_peer_review_data(
 pub async fn get_peer_reviews_by_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,
-) -> ModelResult<Vec<CmsPeerReview>> {
+) -> ModelResult<Vec<CmsPeerReviewConfig>> {
     let res = sqlx::query_as!(
-        CmsPeerReview,
+        CmsPeerReviewConfig,
         r#"
 SELECT pr.id as id,
   pr.course_id as course_id,
@@ -336,7 +336,7 @@ SELECT pr.id as id,
   pr.accepting_strategy AS "accepting_strategy: _"
 from pages p
   join exercises e on p.id = e.page_id
-  join peer_reviews pr on e.id = pr.exercise_id
+  join peer_review_configs pr on e.id = pr.exercise_id
 where p.id = $1
   AND p.deleted_at IS NULL
   AND e.deleted_at IS NULL
@@ -356,7 +356,7 @@ pub async fn delete_peer_reviews_by_exrcise_ids(
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
-UPDATE peer_reviews
+UPDATE peer_review_configs
 SET deleted_at = now()
 WHERE exercise_id = ANY ($1)
 RETURNING id;
@@ -374,9 +374,9 @@ RETURNING id;
 pub async fn get_course_default_cms_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<CmsPeerReview> {
+) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
-        CmsPeerReview,
+        CmsPeerReviewConfig,
         r#"
 SELECT id,
   course_id,
@@ -385,7 +385,7 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy: _"
-FROM peer_reviews
+FROM peer_review_configs
 where course_id = $1;
 "#,
         course_id
@@ -397,10 +397,10 @@ where course_id = $1;
 
 pub async fn get_cms_peer_review_by_id(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
-) -> ModelResult<CmsPeerReview> {
+    peer_review_config_id: Uuid,
+) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
-        CmsPeerReview,
+        CmsPeerReviewConfig,
         r#"
 SELECT id,
   course_id,
@@ -409,10 +409,10 @@ SELECT id,
   peer_reviews_to_receive,
   accepting_threshold,
   accepting_strategy AS "accepting_strategy:_"
-FROM peer_reviews
+FROM peer_review_configs
 WHERE id = $1;
     "#,
-        peer_review_id
+        peer_review_config_id
     )
     .fetch_one(conn)
     .await?;
@@ -424,11 +424,13 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     peer_review_configuration: &CmsPeerReviewConfiguration,
 ) -> ModelResult<CmsPeerReviewConfiguration> {
     // Upsert peer review
-    let peer_review = upsert_with_id(conn, &peer_review_configuration.peer_review).await?;
+    let peer_review_config =
+        upsert_with_id(conn, &peer_review_configuration.peer_review_config).await?;
 
     // Upsert peer review questions
     let _peer_review_question_ids =
-        delete_peer_review_questions_by_peer_review_ids(conn, &[peer_review.id]).await?;
+        delete_peer_review_questions_by_peer_review_config_ids(conn, &[peer_review_config.id])
+            .await?;
     let peer_review_questions = upsert_multiple_peer_review_questions(
         conn,
         &peer_review_configuration.peer_review_questions,
@@ -436,7 +438,7 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     .await?;
 
     Ok(CmsPeerReviewConfiguration {
-        peer_review,
+        peer_review_config,
         peer_review_questions,
     })
 }

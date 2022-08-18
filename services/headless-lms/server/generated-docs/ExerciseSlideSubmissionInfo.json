@@ -82,7 +82,8 @@
     "copied_from": null,
     "max_tries_per_slide": 17,
     "limit_number_of_tries": true,
-    "needs_peer_review": false
+    "needs_peer_review": false,
+    "use_course_default_peer_review_config": true
   },
   "exercise_slide_submission": {
     "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",

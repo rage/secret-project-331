@@ -47,8 +47,6 @@ pub async fn create_page(
             exercises: page_data.exercises,
             exercise_slides: page_data.exercise_slides,
             exercise_tasks: page_data.exercise_tasks,
-            peer_reviews: page_data.peer_reviews,
-            peer_review_questions: page_data.peer_review_questions,
             url_path: page_data.url_path,
             title: page_data.title,
             chapter_id,
@@ -209,6 +207,9 @@ pub fn example_exercise_flexible(
         limit_number_of_tries: false,
         deadline: None,
         needs_peer_review: false,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
     };
     (block, exercise, slides, tasks)
 }
@@ -250,6 +251,9 @@ pub fn quizzes_exercise(
         limit_number_of_tries: false,
         deadline,
         needs_peer_review,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

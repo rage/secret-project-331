@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_reviews::{self, CmsPeerReviewConfiguration};
+use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
 
 use crate::controllers::prelude::*;
 
@@ -57,16 +57,17 @@ async fn get_course_default_peer_review_configuration(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
-    let peer_review =
-        models::peer_reviews::get_course_default_cms_peer_review(&mut conn, *course_id).await?;
+    let peer_review_config =
+        models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
+            .await?;
     let peer_review_questions =
         models::peer_review_questions::get_course_default_cms_peer_review_questions(
             &mut conn,
-            peer_review.id,
+            peer_review_config.id,
         )
         .await?;
     token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-        peer_review,
+        peer_review_config,
         peer_review_questions,
     }))
 }
@@ -83,8 +84,10 @@ async fn put_course_default_peer_review_configuration(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
     let cms_peer_review_configuration =
-        peer_reviews::upsert_course_default_cms_peer_review_and_questions(&mut conn, &payload.0)
-            .await?;
+        peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
+            &mut conn, &payload.0,
+        )
+        .await?;
     token.authorized_ok(web::Json(cms_peer_review_configuration))
 }
 

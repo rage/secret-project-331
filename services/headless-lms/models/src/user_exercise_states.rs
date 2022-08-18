@@ -93,7 +93,7 @@ pub struct UserExerciseStateUpdate {
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum CourseInstanceOrExamId {
     Instance(Uuid),
     Exam(Uuid),
@@ -175,14 +175,14 @@ pub struct UserCourseInstanceMetrics {
     pub attempted_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
     exercise_name: String,

@@ -5,7 +5,8 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Switch } from "@mui/material"
 import { Spinner } from "@wordpress/components"
-import React, { useContext } from "react"
+import { check } from "prettier"
+import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -18,6 +19,7 @@ import {
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
@@ -112,6 +114,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 }) => {
   const { t } = useTranslation()
 
+  const [globalPeerReview, setGlobalPeerReview] = useState(false)
+
   const parsedPeerReviews = JSON.parse(attributes.peer_review_config) as CmsPeerReview[]
 
   const parsedPeerReviewQuestion = JSON.parse(
@@ -185,10 +189,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     setAttributes({ peer_review_questions_config: JSON.stringify(peerReviewQuestions) })
   }
 
-  const togglePeerReview = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const togglePeerReview = (checked: boolean) => {
     setAttributes({
       peer_review_config: JSON.stringify(
-        e.target.checked
+        checked
           ? [
               {
                 id: v4(),
@@ -202,9 +206,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             ]
           : [],
       ),
-      peer_review_questions_config: JSON.stringify(
-        e.target.checked ? parsedPeerReviewQuestion : [],
-      ),
+      peer_review_questions_config: JSON.stringify(checked ? parsedPeerReviewQuestion : []),
+    })
+  }
+
+  const toggleGlobalPeerReviewConfig = (checked: boolean) => {
+    setAttributes({
+      peer_review_config: JSON.stringify(checked ?? []),
+      peer_review_questions_config: JSON.stringify(checked ?? []),
     })
   }
 
@@ -216,7 +225,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           id: v4(),
           question: "",
           question_type: "Essay",
-          peer_review_id: peerReviewId,
+          peer_review_config_id: peerReviewId,
           answer_required: true,
           order_number: parsedPeerReviewQuestion.length,
         },
@@ -246,115 +255,122 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           display: block;
         `}
       >
-        <label htmlFor="switch">{t("add-peer-review")}</label>
-        <Switch
-          id="switch"
-          aria-label="switch"
-          onChange={togglePeerReview}
+        <CheckBox
+          label={t("add-peer-review")}
+          onChange={(checked, _name) => togglePeerReview(checked)}
           checked={parsedPeerReviews.length > 0}
         />
-        {parsedPeerReviews.map((pr) => {
-          return (
-            <div key={pr.id} id={pr.id}>
-              <Wrapper>
-                <div
-                  className={css`
-                    display: flex;
-                  `}
-                >
-                  <TextField
+        {parsedPeerReviews.length > 0 && (
+          <CheckBox
+            label={"use-course-global-peer-review"}
+            onChange={(checked) => toggleGlobalPeerReviewConfig(checked)}
+          />
+        )}
+        {!globalPeerReview &&
+          parsedPeerReviews.map((pr) => {
+            return (
+              <div key={pr.id} id={pr.id}>
+                <Wrapper>
+                  <div
                     className={css`
-                      width: 100%;
-                      margin-right: 0.5rem;
+                      display: flex;
                     `}
-                    type={"number"}
-                    min={0}
-                    label={t("peer-reviews-to-receive")}
-                    required
-                    value={pr.peer_reviews_to_receive}
+                  >
+                    <TextField
+                      className={css`
+                        width: 100%;
+                        margin-right: 0.5rem;
+                      `}
+                      type={"number"}
+                      min={0}
+                      label={t("peer-reviews-to-receive")}
+                      required
+                      value={pr.peer_reviews_to_receive}
+                      onChange={(e) => {
+                        handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_receive")
+                      }}
+                    />
+                    <TextField
+                      className={css`
+                        width: 100%;
+                        margin-left: 0.5rem;
+                      `}
+                      type={"number"}
+                      min={0}
+                      required
+                      value={pr.peer_reviews_to_give}
+                      label={t("peer-reviews-to-give")}
+                      onChange={(e) =>
+                        handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_give")
+                      }
+                    />
+                  </div>
+                  <SelectField
+                    id={`peer-review-accepting-strategy-${id}`}
+                    label={t("peer-review-accepting-strategy")}
+                    onBlur={() => null}
                     onChange={(e) => {
-                      handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_receive")
+                      handlePeerReviewValueChange(pr.id, e, "accepting_strategy")
+                    }}
+                    options={peerReviewAcceptingStrategyOptions}
+                  />
+                  <TextField
+                    label={t("peer-review-accepting-threshold")}
+                    type={"number"}
+                    step="0.01"
+                    min={0}
+                    required
+                    value={pr.accepting_threshold}
+                    onChange={(e) => {
+                      handlePeerReviewValueChange(pr.id, e, "accepting_threshold")
                     }}
                   />
-                  <TextField
-                    className={css`
-                      width: 100%;
-                      margin-left: 0.5rem;
-                    `}
-                    type={"number"}
-                    min={0}
-                    required
-                    value={pr.peer_reviews_to_give}
-                    label={t("peer-reviews-to-give")}
-                    onChange={(e) => handlePeerReviewValueChange(pr.id, e, "peer_reviews_to_give")}
-                  />
-                </div>
-                <SelectField
-                  id={`peer-review-accepting-strategy-${id}`}
-                  label={t("peer-review-accepting-strategy")}
-                  onBlur={() => null}
-                  onChange={(e) => {
-                    handlePeerReviewValueChange(pr.id, e, "accepting_strategy")
-                  }}
-                  options={peerReviewAcceptingStrategyOptions}
-                />
-                <TextField
-                  label={t("peer-review-accepting-threshold")}
-                  type={"number"}
-                  step="0.01"
-                  min={0}
-                  required
-                  value={pr.accepting_threshold}
-                  onChange={(e) => {
-                    handlePeerReviewValueChange(pr.id, e, "accepting_threshold")
-                  }}
-                />
 
-                <h2>{HEADING_TEXT}</h2>
-                {parsedPeerReviewQuestion &&
-                  parsedPeerReviewQuestion.map(({ id, question, question_type }) => (
-                    <List key={id} id={id}>
-                      <StyledQuestion>
-                        <StyledSelectField
-                          label="Peer review question type"
-                          onChange={(e) => {
-                            handlePeerReviewQuestionValueChange(id, e, "question_type")
-                          }}
-                          defaultValue={question_type}
-                          options={peerReviewQuestionTypeoptions}
-                          id={`peer-review-question-${id}`}
-                          onBlur={() => null}
-                        />
-                      </StyledQuestion>
-                      <StyledQuestionType>
-                        <TextAreaField
-                          label="Peer review question"
-                          onChange={(e) => {
-                            handlePeerReviewQuestionValueChange(id, e, "question")
-                          }}
-                          defaultValue={question}
-                          autoResize={true}
-                        />
-                      </StyledQuestionType>
-                      <DeleteBtn
-                        aria-label={t("delete")}
-                        onClick={() => deletePeerReviewQuestion(id)}
-                      >
-                        <FontAwesomeIcon icon={faXmark} />
-                      </DeleteBtn>
-                    </List>
-                  ))}
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => addPeerReviewQuestion(pr.id)}
-                >
-                  {t("add-peer-review-question")}
-                </Button>
-              </Wrapper>
-            </div>
-          )
-        })}
+                  <h2>{HEADING_TEXT}</h2>
+                  {parsedPeerReviewQuestion &&
+                    parsedPeerReviewQuestion.map(({ id, question, question_type }) => (
+                      <List key={id} id={id}>
+                        <StyledQuestion>
+                          <StyledSelectField
+                            label="Peer review question type"
+                            onChange={(e) => {
+                              handlePeerReviewQuestionValueChange(id, e, "question_type")
+                            }}
+                            defaultValue={question_type}
+                            options={peerReviewQuestionTypeoptions}
+                            id={`peer-review-question-${id}`}
+                            onBlur={() => null}
+                          />
+                        </StyledQuestion>
+                        <StyledQuestionType>
+                          <TextAreaField
+                            label="Peer review question"
+                            onChange={(e) => {
+                              handlePeerReviewQuestionValueChange(id, e, "question")
+                            }}
+                            defaultValue={question}
+                            autoResize={true}
+                          />
+                        </StyledQuestionType>
+                        <DeleteBtn
+                          aria-label={t("delete")}
+                          onClick={() => deletePeerReviewQuestion(id)}
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </DeleteBtn>
+                      </List>
+                    ))}
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    onClick={() => addPeerReviewQuestion(pr.id)}
+                  >
+                    {t("add-peer-review-question")}
+                  </Button>
+                </Wrapper>
+              </div>
+            )
+          })}
       </div>
     </>
   )

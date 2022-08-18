@@ -72,7 +72,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       }
       return await postPeerReviewSubmission(exerciseId, {
         exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
-        peer_review_id: peerReviewData.peer_review.id,
+        peer_review_config_id: peerReviewData.peer_review.id,
         peer_review_question_answers: Array.from(answers.values()),
       })
     },

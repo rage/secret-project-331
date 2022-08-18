@@ -7,11 +7,11 @@ use crate::{
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::Exercise,
+    peer_review_configs::{self, PeerReviewConfig},
     peer_review_question_submissions,
     peer_review_questions::{self, PeerReviewQuestion},
     peer_review_queue_entries::{self, PeerReviewQueueEntry},
     peer_review_submissions,
-    peer_reviews::{self, PeerReview},
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
 };
@@ -43,7 +43,7 @@ pub async fn start_peer_review_for_user(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
-    pub peer_review_id: Uuid,
+    pub peer_review_config_id: Uuid,
     pub peer_review_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
 }
 
@@ -61,14 +61,15 @@ pub async fn create_peer_review_submission_for_user(
     user_exercise_state: UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let peer_review = peer_reviews::get_by_exercise_or_course_id(
+    let peer_review = peer_review_configs::get_by_exercise_or_course_id(
         conn,
         user_exercise_state.exercise_id,
         exercise.get_course_id()?,
     )
     .await?;
     let sanitized_answers = validate_and_sanitize_peer_review_submission_answers(
-        peer_review_questions::get_all_by_peer_review_id_as_map(conn, peer_review.id).await?,
+        peer_review_questions::get_all_by_peer_review_config_id_as_map(conn, peer_review.id)
+            .await?,
         peer_review_submission.peer_review_question_answers,
     )?;
 
@@ -160,7 +161,7 @@ async fn update_peer_review_giver_exercise_progress(
     exercise: &Exercise,
     user_exercise_state: UserExerciseState,
     peer_reviews_given: i32,
-    peer_review: PeerReview,
+    peer_review: PeerReviewConfig,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -206,7 +207,7 @@ async fn update_peer_review_giver_exercise_progress(
 async fn update_peer_review_receiver_exercise_status(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    peer_review: &PeerReview,
+    peer_review: &PeerReviewConfig,
     peer_review_queue_entry: PeerReviewQueueEntry,
 ) -> ModelResult<()> {
     let peer_reviews_received =
@@ -266,7 +267,7 @@ async fn update_peer_review_receiver_exercise_status(
 pub struct CourseMaterialPeerReviewData {
     /// If none, no answer was available for review.
     pub answer_to_review: Option<CourseMaterialPeerReviewDataAnswerToReview>,
-    pub peer_review: PeerReview,
+    pub peer_review_config: PeerReviewConfig,
     pub peer_review_questions: Vec<PeerReviewQuestion>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     pub num_peer_reviews_given: i64,
@@ -291,7 +292,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
-    let peer_review = peer_reviews::get_by_exercise_or_course_id(
+    let peer_review = peer_review_configs::get_by_exercise_or_course_id(
         conn,
         reviewer_user_exercise_state.exercise_id,
         exercise.get_course_id()?,
@@ -383,14 +384,15 @@ async fn try_to_select_peer_review_candidate_from_queue(
 
 async fn get_course_material_peer_review_data(
     conn: &mut PgConnection,
-    peer_review: &PeerReview,
+    peer_review_config: &PeerReviewConfig,
     exercise_slide_submission: &Option<ExerciseSlideSubmission>,
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
 ) -> ModelResult<CourseMaterialPeerReviewData> {
     let peer_review_questions =
-        peer_review_questions::get_all_by_peer_review_id(conn, peer_review.id).await?;
+        peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
+            .await?;
     let num_peer_reviews_given =
         peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
             conn,
@@ -417,7 +419,7 @@ async fn get_course_material_peer_review_data(
 
     Ok(CourseMaterialPeerReviewData {
         answer_to_review,
-        peer_review: peer_review.clone(),
+        peer_review_config: peer_review_config.clone(),
         peer_review_questions,
         num_peer_reviews_given,
     })
@@ -436,11 +438,12 @@ mod tests {
 
         #[test]
         fn accepts_valid_answers() {
-            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let peer_review_config_id =
+                Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
             let questions = HashMap::from([(
                 question_id,
-                create_peer_review_question(question_id, peer_review_id, true).unwrap(),
+                create_peer_review_question(question_id, peer_review_config_id, true).unwrap(),
             )]);
             let answers = vec![create_peer_review_answer(question_id)];
             assert_eq!(
@@ -453,9 +456,10 @@ mod tests {
 
         #[test]
         fn filters_illegal_answers() {
-            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let peer_review_config_id =
+                Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let questions = HashMap::new();
-            let answers = vec![create_peer_review_answer(peer_review_id)];
+            let answers = vec![create_peer_review_answer(peer_review_config_id)];
             assert_eq!(
                 validate_and_sanitize_peer_review_submission_answers(questions, answers)
                     .unwrap()
@@ -466,11 +470,12 @@ mod tests {
 
         #[test]
         fn errors_on_missing_required_answers() {
-            let peer_review_id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+            let peer_review_config_id =
+                Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
             let questions = HashMap::from([(
                 question_id,
-                create_peer_review_question(question_id, peer_review_id, true).unwrap(),
+                create_peer_review_question(question_id, peer_review_config_id, true).unwrap(),
             )]);
             assert!(
                 validate_and_sanitize_peer_review_submission_answers(questions, vec![]).is_err()
@@ -479,7 +484,7 @@ mod tests {
 
         fn create_peer_review_question(
             id: Uuid,
-            peer_review_id: Uuid,
+            peer_review_config_id: Uuid,
             answer_required: bool,
         ) -> ModelResult<PeerReviewQuestion> {
             Ok(PeerReviewQuestion {
@@ -487,7 +492,7 @@ mod tests {
                 created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
                 updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
                 deleted_at: None,
-                peer_review_id,
+                peer_review_config_id,
                 order_number: 0,
                 question: "".to_string(),
                 question_type: PeerReviewQuestionType::Essay,

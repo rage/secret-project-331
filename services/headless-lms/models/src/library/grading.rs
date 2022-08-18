@@ -10,8 +10,8 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
     exercises::{ActivityProgress, Exercise, ExerciseStatus, GradingProgress},
+    peer_review_configs::PeerReviewAcceptingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_reviews::PeerReviewAcceptingStrategy,
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
@@ -869,6 +869,7 @@ mod tests {
                 max_tries_per_slide: None,
                 limit_number_of_tries: false,
                 needs_peer_review,
+                use_course_default_peer_review_config: true,
             }
         }
 

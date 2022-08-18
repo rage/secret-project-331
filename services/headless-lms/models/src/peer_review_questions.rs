@@ -16,11 +16,24 @@ pub enum PeerReviewQuestionType {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewQuestion {
     pub id: Uuid,
-    pub peer_review_id: Uuid,
+    pub peer_review_config_id: Uuid,
     pub order_number: i32,
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+}
+
+impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
+    fn from(prq: PeerReviewQuestion) -> Self {
+        Self {
+            id: prq.id,
+            peer_review_config_id: prq.peer_review_config_id,
+            order_number: prq.order_number,
+            question: prq.question,
+            question_type: prq.question_type,
+            answer_required: prq.answer_required,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
@@ -30,7 +43,7 @@ pub struct PeerReviewQuestion {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub peer_review_id: Uuid,
+    pub peer_review_config_id: Uuid,
     pub order_number: i32,
     pub question: String,
     pub question_type: PeerReviewQuestionType,
@@ -44,7 +57,7 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO peer_review_questions (
-    peer_review_id,
+    peer_review_config_id,
     order_number,
     question,
     question_type,
@@ -53,7 +66,7 @@ INSERT INTO peer_review_questions (
 VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
         ",
-        new_peer_review_question.peer_review_id,
+        new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
@@ -73,7 +86,7 @@ pub async fn insert_with_id(
         "
 INSERT INTO peer_review_questions (
     id,
-    peer_review_id,
+    peer_review_config_id,
     order_number,
     question,
     question_type,
@@ -83,7 +96,7 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id;
         ",
         id,
-        new_peer_review_question.peer_review_id,
+        new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
@@ -102,7 +115,7 @@ SELECT id,
   created_at,
   updated_at,
   deleted_at,
-  peer_review_id,
+  peer_review_config_id,
   order_number,
   question,
   question_type AS "question_type: _",
@@ -118,9 +131,9 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_all_by_peer_review_id(
+pub async fn get_all_by_peer_review_config_id(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    peer_review_config_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewQuestion>> {
     let res = sqlx::query_as!(
         PeerReviewQuestion,
@@ -129,27 +142,27 @@ SELECT id,
     created_at,
     updated_at,
     deleted_at,
-    peer_review_id,
+    peer_review_config_id,
     order_number,
     question,
     question_type AS "question_type: _",
     answer_required
 FROM peer_review_questions
-WHERE peer_review_id = $1
+WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
         "#,
-        peer_review_id
+        peer_review_config_id
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn get_all_by_peer_review_id_as_map(
+pub async fn get_all_by_peer_review_config_id_as_map(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    peer_review_config_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, PeerReviewQuestion>> {
-    let res = get_all_by_peer_review_id(conn, peer_review_id)
+    let res = get_all_by_peer_review_config_id(conn, peer_review_config_id)
         .await?
         .into_iter()
         .map(|x| (x.id, x))
@@ -165,15 +178,15 @@ pub async fn get_by_page_id(
         CmsPeerReviewQuestion,
         r#"
 SELECT prq.id as id,
-  prq.peer_review_id as peer_review_id,
+  prq.peer_review_config_id as peer_review_config_id,
   prq.order_number as order_number,
   prq.question as question,
   prq.question_type AS "question_type: _",
   prq.answer_required as answer_required
 from pages p
   join exercises e on p.id = e.page_id
-  join peer_reviews pr on e.id = pr.exercise_id
-  join peer_review_questions prq on pr.id = prq.peer_review_id
+  join peer_review_configs pr on e.id = pr.exercise_id
+  join peer_review_questions prq on pr.id = prq.peer_review_config_id
 where p.id = $1
   AND p.deleted_at IS NULL
   AND e.deleted_at IS NULL
@@ -188,18 +201,18 @@ where p.id = $1
     Ok(res)
 }
 
-pub async fn delete_peer_review_questions_by_peer_review_ids(
+pub async fn delete_peer_review_questions_by_peer_review_config_ids(
     conn: &mut PgConnection,
-    peer_review_ids: &[Uuid],
+    peer_review_config_ids: &[Uuid],
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
 UPDATE peer_review_questions
 SET deleted_at = now()
-WHERE peer_review_id = ANY ($1)
+WHERE peer_review_config_id = ANY ($1)
 RETURNING id;
     ",
-        peer_review_ids
+        peer_review_config_ids
     )
     .fetch_all(conn)
     .await?
@@ -211,21 +224,21 @@ RETURNING id;
 
 pub async fn get_course_default_cms_peer_review_questions(
     conn: &mut PgConnection,
-    peer_review_id: Uuid,
+    peer_review_config_id: Uuid,
 ) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
     let res = sqlx::query_as!(
         CmsPeerReviewQuestion,
         r#"
 SELECT id,
-  peer_review_id,
+  peer_review_config_id,
   order_number,
   question_type AS "question_type: _",
   question,
   answer_required
 FROM peer_review_questions
-where peer_review_id = $1;
+where peer_review_config_id = $1;
     "#,
-        peer_review_id
+        peer_review_config_id
     )
     .fetch_all(conn)
     .await?;
@@ -237,10 +250,10 @@ pub async fn upsert_multiple_peer_review_questions(
     conn: &mut PgConnection,
     peer_review_questions: &[CmsPeerReviewQuestion],
 ) -> ModelResult<Vec<CmsPeerReviewQuestion>> {
-    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (peer_review_id, order_number, question_type, question, answer_required) ");
+    let mut sql:QueryBuilder<Postgres> = sqlx::QueryBuilder::new("INSERT INTO peer_review_questions (peer_review_config_id, order_number, question_type, question, answer_required) ");
 
     sql.push_values(peer_review_questions, |mut x, prq| {
-        x.push_bind(prq.peer_review_id)
+        x.push_bind(prq.peer_review_config_id)
             .push_bind(prq.order_number)
             .push_bind(prq.question.as_str())
             .push_bind(prq.question_type)
@@ -249,7 +262,7 @@ pub async fn upsert_multiple_peer_review_questions(
     sql.push(
         " ON CONFLICT (id) DO
     UPDATE
-    SET peer_review_id = excluded.peer_review_id,
+    SET peer_review_config_id = excluded.peer_review_config_id,
       order_number = excluded.order_number,
       question_type = excluded.question_type,
       question = excluded.question,
@@ -269,7 +282,7 @@ pub async fn upsert_multiple_peer_review_questions(
         CmsPeerReviewQuestion,
         r#"
 SELECT id,
-  peer_review_id,
+  peer_review_config_id,
   order_number,
   question,
   question_type AS "question_type: _",

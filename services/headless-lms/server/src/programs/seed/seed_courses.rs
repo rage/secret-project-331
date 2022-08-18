@@ -19,8 +19,8 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages,
     pages::CmsPageUpdate,
+    peer_review_configs,
     peer_review_questions::{self, CmsPeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews,
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
@@ -250,8 +250,6 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_1],
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
-            peer_reviews: Vec::new(),
-            peer_review_questions:Vec::new(),
             content: serde_json::json!([
                 paragraph("Everything is a big topic.", block_id_1),
                 exercise_block_1,
@@ -336,8 +334,6 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_2, exercise_3, exercise_4],
             exercise_slides: vec![slide_2, slide_3, slide_4],
             exercise_tasks: vec![task_2, task_3, task_4_1],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "First chapters second page.",
@@ -767,8 +763,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_1],
             exercise_slides: vec![quizzes_exercise_slide_1],
             exercise_tasks: vec![quizzes_exercise_task_1],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "First chapters essay page.",
@@ -792,8 +786,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_2],
             exercise_slides: vec![quizzes_exercise_slide_2],
             exercise_tasks: vec![quizzes_exercise_task_2],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "First chapters open page.",
@@ -817,8 +809,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_3],
             exercise_slides: vec![quizzes_exercise_slide_3],
             exercise_tasks: vec![quizzes_exercise_task_3],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "First chapters multiple-choice-dropdown page",
@@ -842,8 +832,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_4],
             exercise_slides: vec![quizzes_exercise_slide_4],
             exercise_tasks: vec![quizzes_exercise_task_4],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "First chapters multiple-choice clickable page.",
@@ -867,8 +855,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "Best page",
@@ -892,8 +878,6 @@ pub async fn seed_sample_course(
             exercises: vec![quizzes_exercise_6],
             exercise_slides: vec![quizzes_exercise_slide_6],
             exercise_tasks: vec![quizzes_exercise_task_6],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "Something about rust and feedback.",
@@ -997,8 +981,6 @@ pub async fn seed_sample_course(
             exercises: vec![multi_exercise_1],
             exercise_slides: multi_exercise_1_slides,
             exercise_tasks: multi_exercise_1_tasks,
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "This page has a complicated exercise.",
@@ -1042,8 +1024,6 @@ pub async fn seed_sample_course(
             exercises: vec![exercise_5],
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([exercise_block_5]),
         },
     )
@@ -1060,8 +1040,6 @@ pub async fn seed_sample_course(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([GutenbergBlock {
                 name: "moocfi/glossary".to_string(),
                 is_valid: true,
@@ -1181,7 +1159,7 @@ pub async fn seed_sample_course(
     }
 
     // peer reviews
-    let peer_review_id = peer_reviews::insert_with_id(
+    let peer_review_config_id = peer_review_configs::insert_with_id(
         &mut conn,
         Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
         course_id,
@@ -1193,7 +1171,7 @@ pub async fn seed_sample_course(
     .unwrap();
     let new_peer_review_question = CmsPeerReviewQuestion {
         id: Uuid::new_v5(&course_id, b"f07fdda6-6e6a-4e99-826e-580e318ef8b0"),
-        peer_review_id,
+        peer_review_config_id,
         order_number: 0,
         question: "General comments".to_string(),
         question_type: PeerReviewQuestionType::Essay,
@@ -1209,7 +1187,7 @@ pub async fn seed_sample_course(
 
     let new_peer_review_question2 = CmsPeerReviewQuestion {
         id: Uuid::new_v5(&course_id, b"975dc689-2ef9-45d6-84a8-4f1ba0ef6da1"),
-        peer_review_id,
+        peer_review_config_id,
         order_number: 1,
         question: "The answer was correct".to_string(),
         question_type: PeerReviewQuestionType::Scale,
@@ -1225,7 +1203,7 @@ pub async fn seed_sample_course(
 
     let new_peer_review_question3 = CmsPeerReviewQuestion {
         id: Uuid::new_v5(&course_id, b"ca7d88d9-1e1b-4ec2-9036-216e6eb5b12e"),
-        peer_review_id,
+        peer_review_config_id,
         order_number: 2,
         question: "The answer was easy to read".to_string(),
         question_type: PeerReviewQuestionType::Scale,
@@ -1644,8 +1622,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
-            peer_review_questions:Vec::new(),
         },
         admin,
         true,
@@ -1693,8 +1669,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
-            peer_review_questions:Vec::new(),
         },
         admin,
         true,
@@ -1711,8 +1685,6 @@ pub async fn seed_cs_course_material(
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
-        peer_reviews: Vec::new(),
-        peer_review_questions:Vec::new(),
         content: serde_json::json!([
             GutenbergBlock::hero_section("Design", "A design is a plan or specification for the construction of an object or system or for the implementation of an activity or process, or the result of that plan or specification in the form of a prototype, product or process.")
                 .with_id(Uuid::parse_str("98729704-9dd8-4309-aa08-402f9b2a6071")?),
@@ -1778,8 +1750,6 @@ pub async fn seed_cs_course_material(
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
-        peer_reviews: Vec::new(),
-        peer_review_questions:Vec::new(),
         content: serde_json::json!([
             GutenbergBlock::hero_section("Human-machine interface", "In the industrial design field of human–computer interaction, a user interface is the space where interactions between humans and machines occur.")
                 .with_id(Uuid::parse_str("ae22ae64-c0e5-42e1-895a-4a49411a72e8")?),
@@ -1846,8 +1816,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
-            peer_review_questions:Vec::new(),
         },
         admin,
         true,
@@ -1889,8 +1857,6 @@ pub async fn seed_cs_course_material(
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
-        peer_reviews: Vec::new(),
-        peer_review_questions:Vec::new(),
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
     };
@@ -1915,8 +1881,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             url_path: "/chapter-2/content-rendering".to_string(),
             title: "Content rendering".to_string(),
             chapter_id: Some(chapter_2.id),
@@ -1938,8 +1902,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_5],
             exercise_slides: vec![quizzes_exercise_slide_5],
             exercise_tasks: vec![quizzes_exercise_task_5],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "Second chapters third page",
@@ -1963,8 +1925,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_6],
             exercise_slides: vec![quizzes_exercise_slide_6],
             exercise_tasks: vec![quizzes_exercise_task_6],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "Second chapters fourth page",
@@ -1988,8 +1948,7 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_7],
             exercise_slides: vec![quizzes_exercise_slide_7],
             exercise_tasks: vec![quizzes_exercise_task_7],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
+
             content: serde_json::json!([
                 paragraph(
                     "Second chapters fifth page",
@@ -2013,8 +1972,6 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_8],
             exercise_slides: vec![quizzes_exercise_slide_8],
             exercise_tasks: vec![quizzes_exercise_task_8],
-            peer_reviews: Vec::new(),
-            peer_review_questions: Vec::new(),
             content: serde_json::json!([
                 paragraph(
                     "Second chapters sixth page",

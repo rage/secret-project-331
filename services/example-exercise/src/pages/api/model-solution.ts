@@ -12,10 +12,10 @@ export default (req: NextApiRequest, res: NextApiResponse): void => {
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handleRequest(req, res)
+  return handlePost(req, res)
 }
 
-const handleRequest = (
+const handlePost = (
   req: NextApiRequest,
   res: NextApiResponse<ModelSolutionApi | ClientErrorResponse>,
 ) => {

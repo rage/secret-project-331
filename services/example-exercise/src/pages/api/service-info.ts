@@ -13,10 +13,10 @@ export default (
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handlePost(req, res)
+  return handleGet(req, res)
 }
 
-const handlePost = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
+const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
   const prefix = basePath()
   res.json({
     service_name: "Example exercise",

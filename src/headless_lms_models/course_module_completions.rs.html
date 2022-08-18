@@ -378,25 +378,6 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -629,25 +610,6 @@ WHERE id = $2 AND deleted_at IS NULL
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">rows_affected</span>() <span class="op">&gt;</span> <span class="number">0</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_users_with_completions_on_course_instance</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-SELECT DISTINCT user_id
-FROM course_module_completions
-WHERE course_instance_id = $1
-  AND deleted_at IS NULL
-        &quot;</span>,
-        <span class="ident">course_instance_id</span>
-    )
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">user_id</span>)
-    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
-}
-
 <span class="doccomment">/// Completion in the form that is recognized by authorized third party study registry registrars.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -666,12 +628,12 @@ WHERE course_instance_id = $1
     <span class="doccomment">/// fill to the open university and it will remain unchanged in the event of email change because</span>
     <span class="doccomment">/// changing this would break the matching.</span>
     <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// TODO: Not used at the moment.</span>
+    <span class="doccomment">/// The grade to be passed to the study registry. Uses the sisu format. See the struct documentation for details.</span>
     <span class="kw">pub</span> <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade</span>,
     <span class="doccomment">/// ID of the completion.</span>
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="doccomment">/// User id in courses.mooc.fi for received registered completions.</span>
-    <span class="kw">pub</span> <span class="ident">user_upstream_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="doccomment">/// Tier of the completion. Currently always null. Historically used for example to distinguish between</span>
     <span class="doccomment">/// intermediate and advanced versions of the Building AI course.</span>
     <span class="kw">pub</span> <span class="ident">tier</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
@@ -686,7 +648,7 @@ WHERE course_instance_id = $1
             <span class="ident">email</span>: <span class="ident">completion</span>.<span class="ident">email</span>,
             <span class="ident">grade</span>: <span class="ident">StudyRegistryGrade::new</span>(<span class="ident">completion</span>.<span class="ident">passed</span>, <span class="ident">completion</span>.<span class="ident">grade</span>),
             <span class="ident">id</span>: <span class="ident">completion</span>.<span class="ident">id</span>,
-            <span class="ident">user_upstream_id</span>: <span class="ident">completion</span>.<span class="ident">user_id</span>,
+            <span class="ident">user_id</span>: <span class="ident">completion</span>.<span class="ident">user_id</span>,
             <span class="ident">tier</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -696,7 +658,7 @@ WHERE course_instance_id = $1
 <span class="doccomment">///</span>
 <span class="doccomment">/// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// All grading scales can be found from https://sis-helsinki-test.funidata.fi/api/graphql using</span>
+<span class="doccomment">/// All grading scales can be found from &lt;https://sis-helsinki-test.funidata.fi/api/graphql&gt; using</span>
 <span class="doccomment">/// the following query:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```graphql</span>
@@ -747,9 +709,9 @@ WHERE course_instance_id = $1
             <span class="prelude-val">None</span> =&gt; <span class="self">Self</span> {
                 <span class="ident">scale</span>: <span class="string">&quot;sis-hyv-hyl&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">grade</span>: <span class="kw">if</span> <span class="ident">passed</span> {
-                    <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()
-                } <span class="kw">else</span> {
                     <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>()
+                } <span class="kw">else</span> {
+                    <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()
                 },
             },
         }

@@ -139,6 +139,10 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">course_module_completions</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
@@ -206,9 +210,13 @@ RETURNING id
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="doccomment">/// An object representing that a completion has been registered to a study registry.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RegisteredCompletion</span> {
+    <span class="doccomment">/// Id of the completion that was registered to the study registry.</span>
     <span class="kw">pub</span> <span class="ident">completion_id</span>: <span class="ident">Uuid</span>,
+    <span class="doccomment">/// The student number the completion was registed to.</span>
     <span class="kw">pub</span> <span class="ident">student_number</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// The registration date that is visible in the study registry for the user.</span>
     <span class="kw">pub</span> <span class="ident">registration_date</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
 }
 

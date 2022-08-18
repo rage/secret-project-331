@@ -81,6 +81,7 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
+<span id="78">78</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/study-registry/completion-registered-to-study-registry`</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The study registry provides an access to student completion records. It is generally only available</span>
@@ -99,11 +100,12 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
-POST `/api/v0/completion-registered-to-study-registry` - Posts an array of registered completions to be
-marked as registered.
+POST `/api/v0/completion-registered-to-study-registry` - Post an array of registered completions to be marked as registered to the study registry.
 
 This endpoint is only available to authorized study registries, and requires a valid authorization token
 to access.
+
+The endpoint takes an array of  [RegisteredCompletion](models::course_module_completion_registered_to_study_registries::RegisteredCompletion) structs.
 
 # Example request:
 

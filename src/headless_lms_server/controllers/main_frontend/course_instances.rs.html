@@ -333,7 +333,7 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-comp
 Reprocesses all module completions for the given course instance. Only available to admins.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
-<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>, <span class="ident">user</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_reprocess_module_completions</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,

@@ -379,6 +379,22 @@
     },
     "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n"
   },
+  "06dafe01a08e4b37c02ea33c13cd49fad72a2c436a52983cadf9821f0c742445": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DISTINCT user_id\nFROM user_exercise_states\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "0705be213ba5a5e5616450968d87cbd34bdf68f5b63811e4c5b5d9836cff52e6": {
     "describe": {
       "columns": [
@@ -7992,22 +8008,6 @@
       }
     },
     "query": "\nSELECT glossary.id,\n  glossary.term,\n  glossary.definition\nFROM glossary\nWHERE glossary.course_id = $1\n"
-  },
-  "7db2a05016faa29733d7352eb55816b65e74fce9777e8bd9633af8317d150bd5": {
-    "describe": {
-      "columns": [
-        {
-          "name": "user_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT DISTINCT user_id\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "7e8a1529d1b3f6ab629888c8382b9d78c79a31e3c71271a44e43698ad3335791": {
     "describe": {

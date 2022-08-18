@@ -16,8 +16,7 @@ use models::course_module_completion_registered_to_study_registries::RegisteredC
 use crate::controllers::prelude::*;
 
 /**
-POST `/api/v0/completion-registered-to-study-registry` - Posts an array of registered completions to be
-marked as registered.
+POST `/api/v0/completion-registered-to-study-registry` - Post an array of registered completions to be marked as registered to the study registry.
 
 This endpoint is only available to authorized study registries, and requires a valid authorization token
 to access.

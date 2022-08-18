@@ -278,7 +278,7 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
 ///
 /// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.
 ///
-/// All grading scales can be found from https://sis-helsinki-test.funidata.fi/api/graphql using
+/// All grading scales can be found from <https://sis-helsinki-test.funidata.fi/api/graphql> using
 /// the following query:
 ///
 /// ```graphql

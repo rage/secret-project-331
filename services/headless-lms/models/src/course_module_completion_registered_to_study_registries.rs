@@ -65,9 +65,13 @@ RETURNING id
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize, Debug)]
+/// An object representing that a completion has been registered to a study registry.
 pub struct RegisteredCompletion {
+    /// Id of the completion that was registered to the study registry.
     pub completion_id: Uuid,
+    /// The student number the completion was registed to.
     pub student_number: String,
+    /// The registration date that is visible in the study registry for the user.
     pub registration_date: DateTime<Utc>,
 }
 

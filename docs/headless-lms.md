@@ -308,6 +308,12 @@ To log a variable with its display formatting:
 error!(%response_body, "Grading request returned an unsuccesful status code");
 ```
 
+To use a different variable name in the log message:
+
+```rust
+error!(body = ?response_body, "Grading request returned an unsuccesful status code");
+```
+
 ## Async
 
 ### Want to call an async function but one of the variables you want to pass to it is an Option

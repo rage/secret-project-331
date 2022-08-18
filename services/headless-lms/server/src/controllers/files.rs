@@ -79,11 +79,7 @@ async fn serve_upload(
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let mut conn = pool.acquire().await?;
     let base_folder = Path::new("uploads");
-    let relative_path: PathBuf = req
-        .match_info()
-        .query("tail")
-        .parse()
-        .map_err(|_e| ControllerError::BadRequest("Invalid file path".to_string()))?;
+    let relative_path = PathBuf::from(req.match_info().query("tail"));
     let path = base_folder.join(relative_path);
 
     let named_file = NamedFile::open(path)

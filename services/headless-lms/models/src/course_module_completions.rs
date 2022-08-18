@@ -230,25 +230,6 @@ WHERE id = $2 AND deleted_at IS NULL
     Ok(res.rows_affected() > 0)
 }
 
-pub async fn get_all_users_with_completions_on_course_instance(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query!(
-        "
-SELECT DISTINCT user_id
-FROM course_module_completions
-WHERE course_instance_id = $1
-  AND deleted_at IS NULL
-        ",
-        course_instance_id
-    )
-    .map(|x| x.user_id)
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -267,12 +248,12 @@ pub struct StudyRegistryCompletion {
     /// fill to the open university and it will remain unchanged in the event of email change because
     /// changing this would break the matching.
     pub email: String,
-    /// TODO: Not used at the moment.
+    /// The grade to be passed to the study registry. Uses the sisu format. See the struct documentation for details.
     pub grade: StudyRegistryGrade,
     /// ID of the completion.
     pub id: Uuid,
     /// User id in courses.mooc.fi for received registered completions.
-    pub user_upstream_id: Uuid,
+    pub user_id: Uuid,
     /// Tier of the completion. Currently always null. Historically used for example to distinguish between
     /// intermediate and advanced versions of the Building AI course.
     pub tier: Option<i32>,
@@ -287,7 +268,7 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
             email: completion.email,
             grade: StudyRegistryGrade::new(completion.passed, completion.grade),
             id: completion.id,
-            user_upstream_id: completion.user_id,
+            user_id: completion.user_id,
             tier: None,
         }
     }
@@ -297,7 +278,7 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
 ///
 /// Currently only `sis-0-5` and `sis-hyv-hyl` scales are supported in the system.
 ///
-/// All grading scales can be found from https://sis-helsinki-test.funidata.fi/api/graphql using
+/// All grading scales can be found from <https://sis-helsinki-test.funidata.fi/api/graphql> using
 /// the following query:
 ///
 /// ```graphql
@@ -348,9 +329,9 @@ impl StudyRegistryGrade {
             None => Self {
                 scale: "sis-hyv-hyl".to_string(),
                 grade: if passed {
-                    "0".to_string()
-                } else {
                     "1".to_string()
+                } else {
+                    "0".to_string()
                 },
             },
         }

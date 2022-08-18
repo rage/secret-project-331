@@ -53,4 +53,25 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
     // Only should happen in seeded data
     axeSkip: ["frame-title-unique"],
   })
+
+  await page.locator("button:text('Try again')").first().click()
+
+  // Make sure the exercise remembered the previous choice
+  await page
+    .frameLocator("iframe")
+    .first()
+    .locator("role=radio[checked]")
+    .locator("text=cargo")
+    .waitFor({ state: "visible" })
+
+  // Make sure this works even after reloading the page
+  await page.reload()
+  await page.locator("text=Answer this question.").first().scrollIntoViewIfNeeded()
+  await page.locator("button:text('Try again')").first().click()
+  await page
+    .frameLocator("iframe")
+    .first()
+    .locator("role=radio[checked]")
+    .locator("text=cargo")
+    .waitFor({ state: "visible" })
 })

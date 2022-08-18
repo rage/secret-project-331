@@ -58,6 +58,8 @@
   "skip-to-content": "Skip to content",
   "slide-title": "Slide {{ number }}",
   "start": "Start",
+  "table-box": "Tablebox",
+  "table-box-description": "This is a custom table block with coloured background",
   "task": "Task",
   "title-assignment": "Assignment",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
@@ -67,7 +69,5 @@
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
-  "welcome-message-for-course": "Welcome message for course...",
-  "table-box": "Tablebox",
-  "table-box-description": "This is a custom table block with coloured background"
+  "welcome-message-for-course": "Welcome message for course..."
 }

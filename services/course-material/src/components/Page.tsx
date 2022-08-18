@@ -36,7 +36,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
 
   // Fetch glossary for each page seperately
-  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId ?? ""))
+  const glossary = useQuery([`glossary-${courseId}`], () =>
+    courseId && pageContext.exam === null ? fetchGlossary(courseId) : [],
+  )
 
   if (glossary.isLoading) {
     return <Spinner variant={"small"} />
@@ -45,7 +47,6 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   if (glossary.isError) {
     return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
-
   const glossaryState: GlossaryState = { terms: glossary.data }
 
   return (

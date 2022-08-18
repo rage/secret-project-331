@@ -22,6 +22,8 @@ marked as registered.
 This endpoint is only available to authorized study registries, and requires a valid authorization token
 to access.
 
+The endpoint takes an array of  [RegisteredCompletion](models::course_module_completion_registered_to_study_registries::RegisteredCompletion) structs.
+
 # Example request:
 
 ```http

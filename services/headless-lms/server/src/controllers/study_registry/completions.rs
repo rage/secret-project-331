@@ -39,7 +39,7 @@ This endpoint is only available to authorized study registries, and requires a v
 to access. Results are also streamed rather than included in the response body. In case of an error
 during transmission, an error message will be appended to the end of the broken stream output.
 
-This endpoints returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
+This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
 # Example requests
 
@@ -141,7 +141,7 @@ This endpoint is only available to authorized study registries, and requires a v
 to access. Results are also streamed rather than included in the response body. In case of an error
 during transmission, an error message will be appended to the end of the broken stream output.
 
-This endpoints returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
+This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
 
 # Example requests
 

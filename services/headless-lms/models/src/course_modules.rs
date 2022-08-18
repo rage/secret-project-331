@@ -20,6 +20,14 @@ pub struct CourseModule {
     pub ects_credits: Option<i32>,
 }
 
+pub struct AutomaticCompletionRequirements {
+    pub uh_course_code: Option<String>,
+    pub automatic_completion: Option<bool>,
+    pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    pub automatic_completion_number_of_points_treshold: Option<i32>,
+    pub ects_credits: Option<i32>,
+}
+
 impl CourseModule {
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
@@ -53,11 +61,7 @@ pub async fn insert_with_automatic_completion(
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
-    uh_course_code: Option<String>,
-    ects_credits: Option<i32>,
-    automatic_completion: Option<bool>,
-    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
-    automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_requirements: AutomaticCompletionRequirements,
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModule,
@@ -69,11 +73,11 @@ RETURNING *
         course_id,
         name,
         order_number,
-        uh_course_code,
-        ects_credits,
-        automatic_completion,
-        automatic_completion_number_of_exercises_attempted_treshold,
-        automatic_completion_number_of_points_treshold,
+        completion_requirements.uh_course_code,
+        completion_requirements.ects_credits,
+        completion_requirements.automatic_completion,
+        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
+        completion_requirements.automatic_completion_number_of_points_treshold,
     )
     .fetch_one(conn)
     .await?;
@@ -387,11 +391,7 @@ pub async fn update(
     id: Uuid,
     name: Option<&str>,
     order_number: i32,
-    uh_course_code: Option<String>,
-    ects_credits: Option<i32>,
-    automatic_completion: Option<bool>,
-    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
-    automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_requirements: AutomaticCompletionRequirements,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -408,11 +408,11 @@ WHERE id = $3
         name,
         order_number,
         id,
-        uh_course_code,
-        ects_credits,
-        automatic_completion,
-        automatic_completion_number_of_exercises_attempted_treshold,
-        automatic_completion_number_of_points_treshold
+        completion_requirements.uh_course_code,
+        completion_requirements.ects_credits,
+        completion_requirements.automatic_completion,
+        completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
+        completion_requirements.automatic_completion_number_of_points_treshold
     )
     .execute(conn)
     .await?;
@@ -443,11 +443,15 @@ pub async fn update_modules(
             course_id,
             Some(&new.name),
             rand::random(),
-            new.uh_course_code,
-            new.ects_credits,
-            new.automatic_completion,
-            new.automatic_completion_number_of_exercises_attempted_treshold,
-            new.automatic_completion_number_of_points_treshold,
+            AutomaticCompletionRequirements {
+                uh_course_code: new.uh_course_code,
+                ects_credits: new.ects_credits,
+                automatic_completion: new.automatic_completion,
+                automatic_completion_number_of_exercises_attempted_treshold: new
+                    .automatic_completion_number_of_exercises_attempted_treshold,
+                automatic_completion_number_of_points_treshold: new
+                    .automatic_completion_number_of_points_treshold,
+            },
         )
         .await?;
         for chapter in new.chapters {
@@ -474,11 +478,15 @@ pub async fn update_modules(
             module.id,
             module.name.as_deref(),
             module.order_number,
-            module.uh_course_code,
-            module.ects_credits,
-            module.automatic_completion,
-            module.automatic_completion_number_of_exercises_attempted_treshold,
-            module.automatic_completion_number_of_points_treshold,
+            AutomaticCompletionRequirements {
+                uh_course_code: module.uh_course_code,
+                ects_credits: module.ects_credits,
+                automatic_completion: module.automatic_completion,
+                automatic_completion_number_of_exercises_attempted_treshold: module
+                    .automatic_completion_number_of_exercises_attempted_treshold,
+                automatic_completion_number_of_points_treshold: module
+                    .automatic_completion_number_of_points_treshold,
+            },
         )
         .await?;
     }

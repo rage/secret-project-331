@@ -3,7 +3,7 @@
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
-    course_modules::{CompletionRequirementUpdate, ModuleUpdates},
+    course_modules::ModuleUpdates,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
         self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,

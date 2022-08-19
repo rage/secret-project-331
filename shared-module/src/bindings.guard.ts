@@ -143,6 +143,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserExerciseState,
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
@@ -1699,6 +1700,25 @@ export function isReviewingStage(obj: any, _argumentName?: string): obj is Revie
     obj === "WaitingForPeerReviews" ||
     obj === "WaitingForManualGrading" ||
     obj === "ReviewedAndLocked"
+  )
+}
+
+export function isUserExerciseState(obj: any, _argumentName?: string): obj is UserExerciseState {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isActivityProgress(obj.activity_progress) as boolean) &&
+    (isReviewingStage(obj.reviewing_stage) as boolean) &&
+    (obj.selected_exercise_slide_id === null || typeof obj.selected_exercise_slide_id === "string")
   )
 }
 

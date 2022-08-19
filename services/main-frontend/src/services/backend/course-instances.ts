@@ -6,8 +6,14 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   Points,
+  UserExerciseState,
 } from "../../shared-module/bindings"
-import { isCourseInstance, isEmailTemplate, isPoints } from "../../shared-module/bindings.guard"
+import {
+  isCourseInstance,
+  isEmailTemplate,
+  isPoints,
+  isUserExerciseState,
+} from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -71,4 +77,14 @@ export const editCourseInstance = async (
 
 export const deleteCourseInstance = async (courseInstanceId: string): Promise<void> => {
   await mainFrontendClient.post(`/course-instances/${courseInstanceId}/delete`)
+}
+
+export const getCourseInstanceUserExerciseStatesForUser = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<UserExerciseState[]> => {
+  const response = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/users/${userId}/user-exercise-states`,
+  )
+  return validateResponse(response, isArray(isUserExerciseState))
 }

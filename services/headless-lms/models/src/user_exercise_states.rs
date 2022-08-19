@@ -51,6 +51,7 @@ pub enum ReviewingStage {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -549,6 +550,42 @@ pub async fn get_users_current_by_exercise(
                 ModelError::PreconditionFailed("Missing user exercise state.".to_string())
             })?;
     Ok(user_exercise_state)
+}
+
+pub async fn get_users_all_user_exercise_states_for_course_instance_or_exam(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
+  AND deleted_at IS NULL
+      "#,
+        user_id,
+        course_instance_id,
+        exam_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_user_exercise_state_if_exists(

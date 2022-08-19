@@ -65,10 +65,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   ): string | null => {
     const seenModules = new Map<string, number>()
 
+    chapters.sort((l, r) => l.chapter_number - r.chapter_number)
+
+    // check that the first chapter is in the default module
+    if (chapters.length > 0) {
+      const firstChapter = chapters[0]
+      const firstModule = modules.find((m) => m.id === firstChapter.module)
+      if (firstModule !== undefined && firstModule.name !== null) {
+        return t("error-modules-first-chapter-not-in-default-module")
+      }
+    }
+
     // check that the chapters are continuous to disallow configurations such as:
     // module 1: [chapter 1, chapter 3], module 2: [chapter 2]
     // also checks that all chapters belong to some module
-    chapters.sort((l, r) => l.chapter_number - r.chapter_number)
     let currentModule: string | null = null
     for (const chapter of chapters) {
       if (chapter.module !== null) {
@@ -308,6 +318,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       ends: number
     },
   ) => {
+    setEdited(true)
     setModuleList((old) => {
       const chapters = [...old.chapters]
       chapters.forEach((c) => {

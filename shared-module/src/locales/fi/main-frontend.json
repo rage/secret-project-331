@@ -107,6 +107,7 @@
   "error-modules-chapter-not-in-module": "Luku {{ chapterNumber }}: {{ chapterName }} ei ole missään moduulissa",
   "error-modules-default-noncontinuous-chapters": "Oletusmoduulista puuttuu kappaleita kappaleiden {{ prevChapter }} ja {{ currChapter }} välistä",
   "error-modules-empty-module": "Moduuli {{ moduleName }} on tyhjä",
+  "error-modules-first-chapter-not-in-default-module": "Ensimmäisen luvun täytyy olla oletusmoduulissa",
   "error-modules-noncontinuous-chapters": "Moduulista {{ moduleName }} puuttuu kappaleita kappaleiden {{ prevChapter }} ja {{ currChapter }} välistä",
   "error-no-grading": "Ei arvostelua",
   "error-no-grading-long": "Arvostelua ei vastaanotettu. Tee palautus exercise näkymässä.",

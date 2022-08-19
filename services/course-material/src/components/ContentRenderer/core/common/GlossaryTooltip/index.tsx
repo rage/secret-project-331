@@ -39,6 +39,8 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
           border: 1px solid black;
           width: 220px;
           border-radius: 4px;
+          -webkit-box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.2);
+          box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.2);
         `}
       >
         {term.definition}

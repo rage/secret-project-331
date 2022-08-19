@@ -6,6 +6,7 @@ use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -227,6 +228,34 @@ async fn delete(
 }
 
 /**
+GET /course-instances/:id/users/:user_id/user-exercise-states
+*/
+#[instrument(skip(pool))]
+#[generated_doc]
+async fn get_user_exercise_states_for_user(
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<UserExerciseState>>> {
+    let (course_instance_id, target_user_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+    let res = models::user_exercise_states::get_users_all_user_exercise_states_for_course_instance_or_exam(
+        &mut conn,
+        target_user_id,
+        CourseInstanceOrExamId::Instance(course_instance_id),
+    )
+    .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -253,5 +282,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/reprocess-completions",
             web::post().to(post_reprocess_module_completions),
+        )
+        .route(
+            "/{course_instance_id}/users/{user_id}/user-exercise-states",
+            web::get().to(get_user_exercise_states_for_user),
         );
 }

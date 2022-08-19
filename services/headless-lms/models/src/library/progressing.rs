@@ -45,6 +45,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
 
 /// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
 /// whether a completion exists after calling this function.
+#[instrument(skip(conn))]
 async fn create_course_module_completion_if_eligible(
     conn: &mut PgConnection,
     course_module: &CourseModule,
@@ -84,6 +85,7 @@ async fn create_course_module_completion_if_eligible(
                 None,
             )
             .await?;
+            info!("Created a completion");
             Ok(true)
         } else {
             // Can't grant automatic completion; no-op.
@@ -141,6 +143,7 @@ fn user_is_eligible_for_automatic_completion(
     flags > 0
 }
 
+#[instrument(skip(conn))]
 async fn update_module_completion_prerequisite_statuses(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -158,6 +161,7 @@ async fn update_module_completion_prerequisite_statuses(
                 &statuses,
             )?;
         if need_to_update {
+            info!(module_id = ?status.module_id, "Updating module completion prerequisite status");
             let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
                 conn,
                 status.module_id,
@@ -203,37 +207,44 @@ fn prerequisite_modules_are_completed(
     }
 }
 
+#[instrument(skip(conn))]
 pub async fn process_all_course_instance_completions(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
 ) -> ModelResult<()> {
+    info!("Reprocessing course module completions");
     let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
     let course = courses::get_course(conn, course_instance.course_id).await?;
     let submodule_completions_required = course
         .base_module_completion_requires_n_submodule_completions
         .try_into()?;
     let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
-    let users = course_module_completions::get_all_users_with_completions_on_course_instance(
+    // If user has an user exercise state, they might have returned an exercise so we need to check whether they have completed modules.
+    let users = crate::users::get_all_user_ids_with_user_exercise_states_on_course_instance(
         conn,
         course_instance_id,
     )
     .await?;
+    info!(users = ?users.len(), course_modules = ?course_modules.len(), ?submodule_completions_required, "Completion reprocessing info");
+    for course_module in course_modules.iter() {
+        info!(?course_module, "Course module information");
+    }
     let mut tx = conn.begin().await?;
     for user_id in users {
-        let mut updates = 0;
+        let mut num_completions = 0;
         for course_module in course_modules.iter() {
-            let updated = create_course_module_completion_if_eligible(
+            let completion_exists = create_course_module_completion_if_eligible(
                 &mut tx,
                 course_module,
                 course_instance_id,
                 user_id,
             )
             .await?;
-            if updated {
-                updates += 1;
+            if completion_exists {
+                num_completions += 1;
             }
         }
-        if updates > 0 {
+        if num_completions > 0 {
             update_module_completion_prerequisite_statuses(
                 &mut tx,
                 user_id,
@@ -244,6 +255,7 @@ pub async fn process_all_course_instance_completions(
         }
     }
     tx.commit().await?;
+    info!("Reprocessing course module completions complete");
     Ok(())
 }
 

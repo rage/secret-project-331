@@ -190,9 +190,12 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                 `}
                 id="point column"
               >
-                {/* eslint-disable-next-line i18next/no-literal-string*/}
-                <p>
-                  POINT: {answerRequiringAttention.score_given}/{exercise_max_points}
+                <p
+                  className={css`
+                    text-transform: uppercase;
+                  `}
+                >
+                  {t("points")}: {answerRequiringAttention.score_given}/{exercise_max_points}
                 </p>
                 {}
               </div>
@@ -214,14 +217,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
             {answerRequiringAttention.tasks
               .sort((a, b) => a.order_number - b.order_number)
               .map((task) => (
-                <SubmissionIFrame
-                  key={task.id}
-                  url={`${task.exercise_iframe_url}?width=700`} // todo: move constants to shared module?
-                  public_spec={task.public_spec}
-                  submission={task.previous_submission}
-                  model_solution_spec={task.model_solution_spec}
-                  grading={task.previous_submission_grading}
-                />
+                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
               ))}
 
             <div>

@@ -58,6 +58,8 @@
   "skip-to-content": "Skip to content",
   "slide-title": "Slide {{ number }}",
   "start": "Start",
+  "table-box": "Tablebox",
+  "table-box-description": "This is a custom table block with coloured background",
   "task": "Task",
   "title-assignment": "Assignment",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",

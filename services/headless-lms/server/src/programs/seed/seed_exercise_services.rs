@@ -8,14 +8,17 @@ pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<(
     let _example_exercise_exercise_service = exercise_services::insert_exercise_service(
     &mut conn,
     &exercise_services::ExerciseServiceNewOrUpdate {
-        name: "Example Exercise".to_string(),
-        slug: "example-exercise".to_string(),
-        public_url: "http://project-331.local/example-exercise/api/service-info".to_string(),
-        internal_url: Some("http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info".to_string()),
-        max_reprocessing_submissions_at_once: 5,
-    }
-)
-.await?;
+            name: "Example Exercise".to_string(),
+            slug: "example-exercise".to_string(),
+            public_url: "http://project-331.local/example-exercise/api/service-info".to_string(),
+            internal_url: Some(
+                "http://example-exercise.default.svc.cluster.local:3002/example-exercise/api/service-info"
+                .to_string()
+            ),
+            max_reprocessing_submissions_at_once: 5,
+        }
+    )
+    .await?;
 
     exercise_services::insert_exercise_service(
         &mut conn,

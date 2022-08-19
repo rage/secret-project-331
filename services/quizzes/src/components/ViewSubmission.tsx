@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { ModelSolutionQuiz, PublicQuiz, QuizAnswer } from "../../types/types"
 import { ItemAnswerFeedback } from "../pages/api/grade"
+import { UserInformation } from "../shared-module/exercise-service-protocol-types"
 import { baseTheme } from "../shared-module/styles"
 
 import { QuizItemSubmissionComponentProps } from "./SubmissionComponents"
@@ -22,6 +23,7 @@ interface SubmissionProps {
   publicAlternatives: PublicQuiz
   modelSolutions: ModelSolutionQuiz | null
   gradingFeedbackJson: ItemAnswerFeedback[] | null
+  user_information: UserInformation
 }
 
 type QuizItemType =
@@ -81,6 +83,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   modelSolutions,
   gradingFeedbackJson: feedback_json,
   user_answer,
+  user_information,
 }) => {
   const { t } = useTranslation()
   return (
@@ -122,6 +125,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                     quiz_item_feedback={itemFeedback}
                     quiz_item_model_solution={itemModelSolution}
                     user_quiz_item_answer={quizItemAnswer}
+                    user_information={user_information}
                   />
                   {itemFeedback &&
                     componentDescriptor.shouldDisplayCorrectnessMessageAfterAnswer && (

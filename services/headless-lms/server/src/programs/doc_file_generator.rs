@@ -3,6 +3,7 @@
 use std::{collections::HashMap, fs};
 
 use crate::controllers::{
+    auth::UserInfo,
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -371,6 +372,9 @@ pub async fn main() -> anyhow::Result<()> {
         previous_submission: Some(exercise_task_submission.clone()),
         previous_submission_grading: Some(grading.clone()),
         order_number: 1,
+        pseudonumous_user_id: Some(
+            Uuid::parse_str("934ac548-f7de-479a-b4f8-af9c0c6c22dc").unwrap(),
+        ),
     };
 
     let answer_requiring_attention_with_tasks = AnswerRequiringAttentionWithTasks {
@@ -615,7 +619,8 @@ pub async fn main() -> anyhow::Result<()> {
                     model_solution_spec: None,
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
-                    order_number: 1
+                    order_number: 1,
+                    pseudonumous_user_id: Some(id)
                 }],
             },
             exercise_status: Some(ExerciseStatus {
@@ -962,7 +967,8 @@ pub async fn main() -> anyhow::Result<()> {
                 model_solution_spec: None,
                 previous_submission: Some(exercise_task_submission.clone()),
                 previous_submission_grading: Some(grading.clone()),
-                order_number: 1
+                order_number: 1,
+                pseudonumous_user_id: Some(id)
             }],
             exercise,
             exercise_slide_submission: exercise_slide_submission.clone(),
@@ -996,6 +1002,7 @@ pub async fn main() -> anyhow::Result<()> {
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
                     order_number: 0,
+                    pseudonumous_user_id: Some(id)
                 }],
                 exercise_slide_submission_id: exercise_slide_submission.id,
             }),
@@ -1010,7 +1017,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }
     );
@@ -1023,7 +1030,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }]
     );
@@ -1105,6 +1112,12 @@ pub async fn main() -> anyhow::Result<()> {
                 ),
             }),
         }
+    );
+    write_docs!(
+        Option<UserInfo>,
+        Some(UserInfo {
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+        })
     );
     write_docs!(
         UserExerciseState,

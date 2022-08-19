@@ -406,6 +406,7 @@ async fn get_course_material_peer_review_data(
             let course_material_exercise_tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
                 conn,
                 exercise_slide_submission_id,
+                reviewer_user_id,
             ).await?;
             Some(CourseMaterialPeerReviewDataAnswerToReview {
                 exercise_slide_submission_id,

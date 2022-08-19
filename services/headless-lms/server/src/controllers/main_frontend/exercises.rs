@@ -122,6 +122,7 @@ async fn get_exercise_answers_requiring_attention(
         let tasks = get_exercise_task_submission_info_by_exercise_slide_submission_id(
             &mut conn,
             answer.submission_id,
+            user.id,
         )
         .await?;
         let new_answer = AnswerRequiringAttentionWithTasks {

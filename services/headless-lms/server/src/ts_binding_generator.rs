@@ -1,6 +1,6 @@
 #[cfg(feature = "ts_rs")]
 use crate::controllers::{
-    auth::{CreateAccountDetails, Login},
+    auth::{CreateAccountDetails, Login, UserInfo},
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -210,6 +210,7 @@ fn ts_binding_generator() {
         ChaptersWithStatus,
         CourseMaterialCourseModule,
         CreateAccountDetails,
+        UserInfo,
         RoleQuery,
         RoleInfo,
         ExamData,

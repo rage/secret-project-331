@@ -25,10 +25,12 @@ import Spinner from "../shared-module/components/Spinner"
 import {
   CurrentStateMessage,
   IframeViewType,
+  UserInformation,
 } from "../shared-module/exercise-service-protocol-types"
 import { GradingRequest } from "../shared-module/exercise-service-protocol-types-2"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
+import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
@@ -38,6 +40,8 @@ interface PlaygroundFields {
   private_spec: string
   showIframeBorders: boolean
   disableSandbox: boolean
+  pseudonymousUserId: string
+  signedIn: boolean
 }
 
 const Area = styled.div`
@@ -133,6 +137,8 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
     useState(true)
+  const [answerExerciseViewSendPreviousSubmission, setAnswerExerciseViewSendPreviousSubmission] =
+    useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
@@ -141,11 +147,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     defaultValues: {
       // eslint-disable-next-line i18next/no-literal-string
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      width: "700",
+      width: narrowContainerWidthPx.toString(),
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
       disableSandbox: false,
+      // eslint-disable-next-line i18next/no-literal-string
+      pseudonymousUserId: "78b62532-b836-4387-8f99-673cb023b903",
+      signedIn: true,
     },
   })
 
@@ -154,6 +163,8 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
   const disableSandbox = watch("disableSandbox")
+  const pseudonymousUserId = watch("pseudonymousUserId")
+  const signedIn = watch("signedIn")
 
   let exerciseServiceHost = ""
   try {
@@ -267,6 +278,11 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   )
 
+  const userInformation: UserInformation = {
+    pseudonymous_id: pseudonymousUserId,
+    signed_in: signedIn,
+  }
+
   return (
     <Layout>
       <h1>{t("title-playground-exercise-iframe")}</h1>
@@ -326,6 +342,12 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             />
             <CheckBox label={t("show-iframe-borders")} register={register("showIframeBorders")} />
             <CheckBox label={t("disable-sandbox")} register={register("disableSandbox")} />
+            <TextField
+              placeholder={t("label-pseudonymous-user-id")}
+              label={t("label-pseudonymous-user-id")}
+              register={register("pseudonymousUserId")}
+            />
+            <CheckBox label={t("button-text-signed-in")} register={register("signedIn")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
@@ -489,14 +511,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               exercise-editor
             </button>
             <button
-              data-active={currentView === "exercise" && "1"}
+              data-active={currentView === "answer-exercise" && "1"}
               onClick={() => {
                 setCurrentStateReceivedFromIframe(null)
-                setCurrentView("exercise")
+                setCurrentView("answer-exercise")
               }}
               // eslint-disable-next-line i18next/no-literal-string
             >
-              exercise
+              answer-exercise
             </button>
             <button
               data-active={currentView === "view-submission" && "1"}
@@ -516,20 +538,33 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {currentView === "exercise-editor" && (
                 <PlaygroundExerciseEditorIframe
                   url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
-                  privateSpec={privateSpec}
+                  privateSpec={privateSpecParsed}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
                   disableSandbox={disableSandbox}
+                  userInformation={userInformation}
                 />
               )}
-              {currentView === "exercise" && (
+              {currentView === "answer-exercise" && (
                 <>
+                  <CheckBox
+                    // eslint-disable-next-line i18next/no-literal-string
+                    label={t("label-send-previous-submission")}
+                    checked={answerExerciseViewSendPreviousSubmission}
+                    onChange={() => {
+                      setAnswerExerciseViewSendPreviousSubmission(
+                        !answerExerciseViewSendPreviousSubmission,
+                      )
+                    }}
+                  />
                   <PlaygroundExerciseIframe
                     url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
                     disableSandbox={disableSandbox}
+                    userInformation={userInformation}
+                    userAnswer={answerExerciseViewSendPreviousSubmission ? userAnswer : null}
                   />
                   <Button
                     variant={"primary"}
@@ -563,6 +598,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     userAnswer={userAnswer}
                     sendModelsolutionSpec={submissionViewSendModelsolutionSpec}
                     disableSandbox={disableSandbox}
+                    userInformation={userInformation}
                   />
                 </>
               )}
@@ -579,13 +615,46 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
         <div
           className={css`
             display: flex;
+            align-items: center;
             h3 {
               margin-right: 0.5rem;
             }
           `}
         >
-          <h3>{t("title-current-state-received-from-the-iframe")}</h3>{" "}
+          <h3>{t("title-current-state-received-from-the-iframe")}</h3>
           <DebugModal data={currentStateReceivedFromIframe} buttonSize="small" />
+          {currentStateReceivedFromIframe && (
+            <div
+              className={css`
+                margin: 0 1rem;
+                flex-grow: 1;
+              `}
+            >
+              {t("label-valid")}: {JSON.stringify(currentStateReceivedFromIframe.valid)}
+            </div>
+          )}
+
+          {currentView === "exercise-editor" && (
+            <Button
+              size="medium"
+              variant="primary"
+              onClick={() => {
+                setValue(
+                  "private_spec",
+                  JSON.stringify(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (currentStateReceivedFromIframe?.data as any)?.private_spec,
+                    undefined,
+                    2,
+                  ),
+                )
+                // Must also reset the user answer because if the spec has changed, the user answer format is likely to be much different and not resetting it now would lead to hard-to-debug errors.
+                setUserAnswer(null)
+              }}
+            >
+              {t("button-set-as-private-spec-input")}
+            </Button>
+          )}
         </div>
         {currentStateReceivedFromIframe === null ? (
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
@@ -594,32 +663,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <StyledPre>
               {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
             </StyledPre>
-            <div
-              className={css`
-                margin-bottom: 1rem;
-              `}
-            >
-              {t("label-valid")}: {JSON.stringify(currentStateReceivedFromIframe.valid)}
-            </div>
-            {currentView === "exercise-editor" && (
-              <Button
-                size="medium"
-                variant="primary"
-                onClick={() => {
-                  setValue(
-                    "private_spec",
-                    JSON.stringify(
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      (currentStateReceivedFromIframe?.data as any)?.private_spec,
-                      undefined,
-                      2,
-                    ),
-                  )
-                }}
-              >
-                {t("button-set-as-private-spec-input")}
-              </Button>
-            )}
           </>
         )}
       </Area>

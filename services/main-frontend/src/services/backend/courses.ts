@@ -91,6 +91,20 @@ export const fetchCourseDailySubmissionCounts = async (
   return response.data
 }
 
+export const fetchCourseDailyUserCountsWithSubmissions = async (
+  courseId: string,
+): Promise<Array<ExerciseSlideSubmissionCount>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/daily-users-who-have-submitted-something`,
+    {
+      responseType: "json",
+    },
+  )
+  // return validateResponse(response, isArray(isSubmissionCount))
+  // TODO: validating does not work because the date does not contain a time
+  return response.data
+}
+
 export const fetchCourseUsersCountByExercise = async (
   courseId: string,
 ): Promise<Array<ExerciseUserCounts>> => {

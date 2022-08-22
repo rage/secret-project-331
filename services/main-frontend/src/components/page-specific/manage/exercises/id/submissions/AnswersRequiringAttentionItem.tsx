@@ -220,6 +220,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             font-weight: 500;
             font-size: 20px;
             line-height: 20px;
+            text-transform: uppercase;
           `}
         >
           {t("student-answer")}

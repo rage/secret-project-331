@@ -66,7 +66,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       needs_peer_review: exerciseAttributes.needs_peer_review,
       peer_review_config: JSON.parse(exerciseAttributes.peer_review_config),
       peer_review_questions: JSON.parse(exerciseAttributes.peer_review_questions_config),
-      use_course_default_peer_review_config: exerciseAttributes.uses_course_global_peer_review,
+      use_course_default_peer_review_config: exerciseAttributes.use_course_default_peer_review,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -183,7 +183,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         needs_peer_review: exercise.needs_peer_review,
         peer_review_config: JSON.stringify(exercise.peer_review_config),
         peer_review_questions_config: JSON.stringify(exercise.peer_review_questions),
-        uses_course_global_peer_review: exercise.use_course_default_peer_review_config,
+        use_course_default_peer_review: exercise.use_course_default_peer_review_config,
       },
     }
 

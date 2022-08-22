@@ -58,7 +58,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
       ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
       ects_credits: module.ects_credits ?? 0,
       // eslint-disable-next-line i18next/no-literal-string
-      uh_course_code: module.uh_course_code ?? t("enter-course-code"),
+      uh_course_code: module.uh_course_code ?? "",
       automatic_completion: module.automatic_completion ?? false,
       automatic_completion_points_treshold: module.automatic_completion_points_treshold ?? null,
       automatic_completion_exercises_attempted_treshold:

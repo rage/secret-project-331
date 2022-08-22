@@ -329,7 +329,7 @@ RETURNING *
     Ok(res)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewModule {
     name: String,
@@ -435,7 +435,6 @@ pub async fn update_modules(
     {
         update_with_order_number(&mut tx, module_id, None, rand::random()).await?;
     }
-    let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
         // insert with a random order number to avoid conflicts
         let module = insert_with_automatic_completion(
@@ -457,22 +456,9 @@ pub async fn update_modules(
         for chapter in new.chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
         }
-        // modify the order number with the rest
-        modified_and_new_modules.push(ModifiedModule {
-            id: module.id,
-            name: None,
-            order_number: new.order_number,
-            uh_course_code: module.uh_course_code,
-            ects_credits: new.ects_credits,
-            automatic_completion: new.automatic_completion,
-            automatic_completion_number_of_exercises_attempted_treshold: new
-                .automatic_completion_number_of_exercises_attempted_treshold,
-            automatic_completion_number_of_points_treshold: new
-                .automatic_completion_number_of_points_treshold,
-        })
     }
     // update modified and new modules
-    for module in modified_and_new_modules {
+    for module in updates.modified_modules {
         update(
             &mut tx,
             module.id,

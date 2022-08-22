@@ -41,7 +41,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       ends: chapters.length > 0 ? chapters[chapters.length - 1] : 1,
       ects_credits: null,
       automatic_completion: false,
-      uh_course_code: t("enter-course-code"),
+      uh_course_code: "",
       automatic_completion_points_treshold: null,
       automatic_completion_exercises_attempted_treshold: null,
     },
@@ -120,13 +120,13 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
             padding: 1rem 1.4rem;
           `}
         >
-          <h5
+          <span
             className={css`
               margin-bottom: 0.5rem;
             `}
           >
             {t("configure-completion-requirements")}
-          </h5>
+          </span>
           <div
             className={css`
               display: grid;

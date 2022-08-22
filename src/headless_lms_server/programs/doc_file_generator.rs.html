@@ -1104,6 +1104,93 @@
 <span id="1098">1098</span>
 <span id="1099">1099</span>
 <span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
+<span id="1154">1154</span>
+<span id="1155">1155</span>
+<span id="1156">1156</span>
+<span id="1157">1157</span>
+<span id="1158">1158</span>
+<span id="1159">1159</span>
+<span id="1160">1160</span>
+<span id="1161">1161</span>
+<span id="1162">1162</span>
+<span id="1163">1163</span>
+<span id="1164">1164</span>
+<span id="1165">1165</span>
+<span id="1166">1166</span>
+<span id="1167">1167</span>
+<span id="1168">1168</span>
+<span id="1169">1169</span>
+<span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
+<span id="1173">1173</span>
+<span id="1174">1174</span>
+<span id="1175">1175</span>
+<span id="1176">1176</span>
+<span id="1177">1177</span>
+<span id="1178">1178</span>
+<span id="1179">1179</span>
+<span id="1180">1180</span>
+<span id="1181">1181</span>
+<span id="1182">1182</span>
+<span id="1183">1183</span>
+<span id="1184">1184</span>
+<span id="1185">1185</span>
+<span id="1186">1186</span>
+<span id="1187">1187</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1114,7 +1201,9 @@
         <span class="ident">courses</span>::{<span class="ident">ChaptersWithStatus</span>, <span class="ident">CourseMaterialCourseModule</span>},
         <span class="ident">exams</span>::{<span class="ident">ExamData</span>, <span class="ident">ExamEnrollmentData</span>},
     },
-    <span class="ident">main_frontend::exercises::ExerciseSubmissions</span>,
+    <span class="ident">main_frontend::exercises</span>::{
+        <span class="ident">AnswerRequiringAttentionWithTasks</span>, <span class="ident">AnswersRequiringAttention</span>, <span class="ident">ExerciseSubmissions</span>,
+    },
     <span class="ident">UploadResult</span>,
 };
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">NaiveDate</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
@@ -1131,9 +1220,9 @@
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
     <span class="ident">exercise_services::ExerciseService</span>,
     <span class="ident">exercise_slide_submissions</span>::{
-        <span class="ident">ExerciseSlideSubmission</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
-        <span class="ident">ExerciseSlideSubmissionCountByExercise</span>, <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>,
-        <span class="ident">ExerciseSlideSubmissionInfo</span>,
+        <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span>, <span class="ident">ExerciseSlideSubmission</span>,
+        <span class="ident">ExerciseSlideSubmissionCount</span>, <span class="ident">ExerciseSlideSubmissionCountByExercise</span>,
+        <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>, <span class="ident">ExerciseSlideSubmissionInfo</span>,
     },
     <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
@@ -1168,7 +1257,10 @@
     <span class="ident">proposed_block_edits</span>::{<span class="ident">BlockProposal</span>, <span class="ident">ProposalStatus</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>},
     <span class="ident">user_course_settings::UserCourseSettings</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
+    <span class="ident">user_exercise_states</span>::{
+        <span class="ident">ReviewingStage</span>, <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
+        <span class="ident">UserExerciseState</span>,
+    },
     <span class="ident">users::User</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse</span>;
@@ -1459,6 +1551,37 @@
         <span class="ident">name</span>: <span class="string">&quot;University of Helsinki&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">description</span>: <span class="prelude-val">None</span>,
         <span class="ident">organization_image_url</span>: <span class="prelude-val">None</span>,
+    };
+
+    <span class="kw">let</span> <span class="ident">course_material_exercise_task</span> <span class="op">=</span> <span class="ident">CourseMaterialExerciseTask</span> {
+        <span class="ident">id</span>,
+        <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
+        <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{<span class="string">&quot;name&quot;</span>:<span class="string">&quot;core/paragraph&quot;</span>,<span class="string">&quot;isValid&quot;</span>:<span class="bool-val">true</span>,<span class="string">&quot;clientId&quot;</span>:<span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,<span class="string">&quot;attributes&quot;</span>:{<span class="string">&quot;content&quot;</span>:<span class="string">&quot;Answer this question.&quot;</span>,<span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false</span>},<span class="string">&quot;innerBlocks&quot;</span>:[]}},
+        <span class="ident">public_spec</span>: <span class="prelude-val">Some</span>(
+            <span class="macro">serde_json::json!</span> {[{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;7ab2591c-b0f3-4543-9548-a113849b0f94&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;a833d1df-f27b-4fbf-b516-883a62c09d88&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;b&quot;</span>},{<span class="string">&quot;id&quot;</span>:<span class="string">&quot;03d4b3d4-88af-4125-88b7-4ee052fd876f&quot;</span>,<span class="string">&quot;name&quot;</span>:<span class="string">&quot;c&quot;</span>}]},
+        ),
+        <span class="ident">model_solution_spec</span>: <span class="prelude-val">None</span>,
+        <span class="ident">previous_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>()),
+        <span class="ident">previous_submission_grading</span>: <span class="prelude-val">Some</span>(<span class="ident">grading</span>.<span class="ident">clone</span>()),
+        <span class="ident">order_number</span>: <span class="number">1</span>,
+        <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;934ac548-f7de-479a-b4f8-af9c0c6c22dc&quot;</span>).<span class="ident">unwrap</span>(),
+        ),
+    };
+
+    <span class="kw">let</span> <span class="ident">answer_requiring_attention_with_tasks</span> <span class="op">=</span> <span class="ident">AnswerRequiringAttentionWithTasks</span> {
+        <span class="ident">id</span>,
+        <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7115806b-07c4-4079-8444-6dd248d3b9e7&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">data_json</span>: <span class="prelude-val">Some</span>(<span class="macro">serde_json::json!</span> {{<span class="string">&quot;choice&quot;</span>: <span class="string">&quot;a&quot;</span>}}),
+        <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::PendingManual</span>,
+        <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">0.0</span>),
+        <span class="ident">submission_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e2560477-0680-4573-abec-646440e294da&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="ident">exercise_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7f57619a-ad00-4116-958d-5d597437e6fb&quot;</span>).<span class="ident">unwrap</span>(),
+        <span class="ident">tasks</span>: <span class="macro">vec!</span>[<span class="ident">course_material_exercise_task</span>],
     };
 
     <span class="comment">// clear previous results</span>
@@ -2188,6 +2311,57 @@
         <span class="prelude-val">Some</span>(<span class="ident">UserInfo</span> {
             <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a&quot;</span>).<span class="ident">unwrap</span>()
         })
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">UserExerciseState</span>,
+        <span class="ident">UserExerciseState</span> {
+            <span class="ident">id</span>,
+            <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;e9386872-d5f4-4120-a8df-6024c0f9714a&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">exercise_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;2d798a55-8786-411b-8061-8352c4be2143&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(
+                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;7490d7a3-86df-4bfa-8991-751dd1d5128c&quot;</span>).<span class="ident">unwrap</span>()
+            ),
+            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">created_at</span>,
+            <span class="ident">updated_at</span>,
+            <span class="ident">deleted_at</span>,
+            <span class="ident">score_given</span>: <span class="prelude-val">Some</span>(<span class="number">1.0</span>),
+            <span class="ident">grading_progress</span>: <span class="ident">GradingProgress::FullyGraded</span>,
+            <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress::Completed</span>,
+            <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::ReviewedAndLocked</span>,
+            <span class="ident">selected_exercise_slide_id</span>: <span class="prelude-val">Some</span>(
+                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b1355811-b233-45f1-87cc-038c9dea927d&quot;</span>).<span class="ident">unwrap</span>()
+            ),
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">AnswersRequiringAttention</span>,
+        <span class="ident">AnswersRequiringAttention</span> {
+            <span class="ident">exercise_max_points</span>: <span class="number">1</span>,
+            <span class="ident">data</span>: <span class="macro">vec!</span>[<span class="ident">answer_requiring_attention_with_tasks</span>],
+            <span class="ident">total_pages</span>: <span class="number">10</span>,
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[
+            <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span> {
+                <span class="ident">id</span>,
+                <span class="ident">name</span>: <span class="string">&quot;Exercise 1&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;cdffbf4f-00dc-4538-b382-5c9acdf7f7af&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;05d2518b-aa07-44ee-a6c4-bab0b0ecf4c8&quot;</span>).<span class="ident">unwrap</span>()),
+                <span class="ident">order_number</span>: <span class="number">1</span>,
+                <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>)
+            },
+            <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span> {
+                <span class="ident">id</span>,
+                <span class="ident">name</span>: <span class="string">&quot;Exercise 2&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">page_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;b4d13b83-6366-4daf-b9b1-eb6b8792df0c&quot;</span>).<span class="ident">unwrap</span>()),
+                <span class="ident">order_number</span>: <span class="number">2</span>,
+                <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>)
+            }
+        ]
     );
     <span class="prelude-val">Ok</span>(())
 }

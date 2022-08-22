@@ -1094,6 +1094,17 @@
 <span id="1088">1088</span>
 <span id="1089">1089</span>
 <span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1104,6 +1115,7 @@
     <span class="ident">course_instances</span>,
     <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">CourseModule</span>},
     <span class="ident">courses</span>,
+    <span class="ident">exercise_slide_submissions::TeacherDecisionType</span>,
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_course_settings</span>,
@@ -1146,6 +1158,16 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
     <span class="ident">ReviewedAndLocked</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseStateTeacherUpdate</span> {
+    <span class="kw">pub</span> <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">action</span>: <span class="ident">TeacherDecisionType</span>,
+    <span class="kw">pub</span> <span class="ident">manual_points</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+}
+
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseState</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,

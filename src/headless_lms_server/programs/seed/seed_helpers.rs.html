@@ -435,6 +435,16 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
@@ -737,6 +747,16 @@
         <span class="ident">exercise_id</span>,
         <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
         <span class="prelude-val">None</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// Set selected exercise slide</span>
+    <span class="ident">user_exercise_states::upsert_selected_exercise_slide_id</span>(
+        <span class="ident">conn</span>,
+        <span class="ident">user_id</span>,
+        <span class="ident">exercise_id</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">course_instance_id</span>),
+        <span class="prelude-val">None</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">user_exercise_slide_state</span> <span class="op">=</span> <span class="ident">user_exercise_slide_states::get_or_insert_by_unique_index</span>(

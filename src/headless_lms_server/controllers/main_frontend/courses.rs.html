@@ -870,6 +870,27 @@
 <span id="864">864</span>
 <span id="865">865</span>
 <span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -878,8 +899,8 @@
     <span class="ident">course_modules::ModuleUpdates</span>,
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
     <span class="ident">exercise_slide_submissions</span>::{
-        <span class="self">self</span>, <span class="ident">ExerciseSlideSubmissionCount</span>, <span class="ident">ExerciseSlideSubmissionCountByExercise</span>,
-        <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>,
+        <span class="self">self</span>, <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span>, <span class="ident">ExerciseSlideSubmissionCount</span>,
+        <span class="ident">ExerciseSlideSubmissionCountByExercise</span>, <span class="ident">ExerciseSlideSubmissionCountByWeekAndHour</span>,
     },
     <span class="ident">exercises::Exercise</span>,
     <span class="ident">feedback</span>::{<span class="self">self</span>, <span class="ident">Feedback</span>, <span class="ident">FeedbackCount</span>},
@@ -1150,6 +1171,23 @@ GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for th
     <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="ident">models::exercises::get_exercises_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">exercises</span>))
+}
+
+<span class="doccomment">/**
+GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
+*/</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_exercises_and_count_of_answers_requiring_attention</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">_exercises</span> <span class="op">=</span> <span class="ident">models::exercises::get_exercises_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">count_of_answers_requiring_attention</span> <span class="op">=</span> <span class="ident">models::exercise_slide_submissions::get_count_of_answers_requiring_attention_in_exercise_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">count_of_answers_requiring_attention</span>))
 }
 
 <span class="doccomment">/**
@@ -1667,6 +1705,10 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_daily_user_counts_with_submissions</span>),
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/exercises&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_exercises</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/exercises-and-count-of-answers-requiring-attention&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_all_exercises_and_count_of_answers_requiring_attention</span>),
+        )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/structure&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_structure</span>),

@@ -775,10 +775,6 @@ pub async fn update_modules(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:id/course-completion-requirements` - Update course completion requirement by course-id.
-*/
-
-/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.

@@ -372,12 +372,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       const modules = [...old.modules]
       modules.forEach((m) => {
         if (m.id === id) {
-          ;(m.name = name), (m.ects_credits = ects_credits)
-          ;(m.uh_course_code = uh_course_code),
+          return (
+            (m.name = name),
+            (m.ects_credits = ects_credits),
+            (m.uh_course_code = uh_course_code),
             (m.automatic_completion = automatic_completion),
             (m.automatic_completion_points_treshold = automatic_completion_points_treshold),
             (m.automatic_completion_exercises_attempted_treshold =
               automatic_completion_exercises_attempted_treshold)
+          )
         }
         const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
         m.firstChapter = first

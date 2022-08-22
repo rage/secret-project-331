@@ -877,6 +877,34 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
+export interface ExerciseAnswersInCourseRequiringAttentionCount {
+  id: string
+  name: string
+  page_id: string
+  chapter_id: string | null
+  order_number: number
+  count: number | null
+}
+
+export type TeacherDecisionType =
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+
+export interface AnswerRequiringAttention {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -986,6 +1014,29 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
 
+export interface UserExerciseState {
+  id: string
+  user_id: string
+  exercise_id: string
+  course_instance_id: string | null
+  exam_id: string | null
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  score_given: number | null
+  grading_progress: GradingProgress
+  activity_progress: ActivityProgress
+  reviewing_stage: ReviewingStage
+  selected_exercise_slide_id: string | null
+}
+
+export interface UserExerciseStateTeacherUpdate {
+  user_exercise_state_id: string
+  exercise_id: string
+  action: TeacherDecisionType
+  manual_points: number | null
+}
+
 export interface User {
   id: string
   first_name: string | null
@@ -1070,6 +1121,26 @@ export interface UploadResult {
 export interface ExerciseSubmissions {
   data: Array<ExerciseSlideSubmission>
   total_pages: number
+}
+
+export interface AnswersRequiringAttention {
+  exercise_max_points: number
+  data: Array<AnswerRequiringAttentionWithTasks>
+  total_pages: number
+}
+
+export interface AnswerRequiringAttentionWithTasks {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+  tasks: Array<CourseMaterialExerciseTask>
 }
 
 export interface MarkAsRead {

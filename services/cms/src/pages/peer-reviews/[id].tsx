@@ -1,6 +1,5 @@
-import { faN } from "@fortawesome/free-solid-svg-icons"
 import { useQuery } from "@tanstack/react-query"
-import { useContext, useState } from "react"
+import React, { useContext, useState } from "react"
 
 import PeerReviewEditor from "../../components/PeerReviewEditor"
 import CourseContext from "../../contexts/CourseContext"
@@ -8,16 +7,21 @@ import {
   getCoursesDefaultCmsPeerReviewConfiguration,
   putCoursesDefaultCmsPeerReviewConfiguration,
 } from "../../services/backend/courses"
-import { CmsPeerReview, CmsPeerReviewQuestion } from "../../shared-module/bindings"
+import { CmsPeerReviewConfig, CmsPeerReviewQuestion } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import Spinner from "../../shared-module/components/Spinner"
 import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import { SimplifiedUrlQuery } from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady, {
+  SimplifiedUrlQuery,
+} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 interface PeerReviewManagerProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
+const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps>> = ({
+  query,
+}) => {
   const [attributes, setAttributes] = useState({
     peer_review_config: "",
     peer_review_questions_config: "",
@@ -31,7 +35,7 @@ const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
     {
       onSuccess: (data) =>
         setAttributes({
-          peer_review_config: JSON.stringify(data.peer_review),
+          peer_review_config: JSON.stringify(data.peer_review_config),
           peer_review_questions_config: JSON.stringify(data.peer_review_questions),
         }),
     },
@@ -39,7 +43,7 @@ const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
   const mutateCourseDefaultPeerReview = useToastMutation(
     () =>
       putCoursesDefaultCmsPeerReviewConfiguration(id, {
-        peer_review: JSON.parse(attributes.peer_review_config) as CmsPeerReview,
+        peer_review_config: JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig,
         peer_review_questions: JSON.parse(
           attributes.peer_review_questions_config,
         ) as CmsPeerReviewQuestion[],
@@ -47,10 +51,10 @@ const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
     {
       notify: true,
       method: "PUT",
-      successMessage: "",
     },
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
+
   if (getCmsPeerReviewConfiguration.data && courseId) {
     return (
       <div>
@@ -67,6 +71,7 @@ const PeerReviewManager = ({ query }: PeerReviewManagerProps) => {
       </div>
     )
   }
+  return <Spinner variant="medium" />
 }
 
-export default PeerReviewManager
+export default dontRenderUntilQueryParametersReady(PeerReviewManager)

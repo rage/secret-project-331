@@ -3,7 +3,6 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
 import Layout from "../../components/Layout"
-import CourseContext from "../../contexts/CourseContext"
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"
@@ -41,8 +40,6 @@ const Pages = ({ query }: PagesProps) => {
           exercises: data.exercises,
           exercise_slides: data.exercise_slides,
           exercise_tasks: data.exercise_tasks,
-          peer_reviews: data.peer_reviews,
-          peer_review_questions: data.peer_review_questions,
           url_path: data.page.url_path,
           title: data.page.title,
           chapter_id: data.page.chapter_id,

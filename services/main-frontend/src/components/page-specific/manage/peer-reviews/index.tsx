@@ -1,13 +1,14 @@
-import { t } from "i18next"
+import { useTranslation } from "react-i18next"
 
 import Button from "../../../../shared-module/components/Button"
 
 const PeerReviews = () => {
+  const { t } = useTranslation()
   return (
     <div>
-      <a href={`/cms/peer-reviews/${peerReview.id}`}>
-        <Button>{t("edit-default-peer-review")}</Button>
-      </a>
+      <Button size="medium" variant="primary">
+        {t("peer-reviews")}
+      </Button>
     </div>
   )
 }

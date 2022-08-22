@@ -72,7 +72,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       }
       return await postPeerReviewSubmission(exerciseId, {
         exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
-        peer_review_config_id: peerReviewData.peer_review.id,
+        peer_review_config_id: peerReviewData.peer_review_config.id,
         peer_review_question_answers: Array.from(answers.values()),
       })
     },
@@ -81,7 +81,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       onSuccess: async () => {
         // still old data because we have't refetched yet
         const givenEnoughReviews =
-          (peerReviewData?.peer_review.peer_reviews_to_give ?? Number.MAX_VALUE) <=
+          (peerReviewData?.peer_review_config.peer_reviews_to_give ?? Number.MAX_VALUE) <=
           (peerReviewData?.num_peer_reviews_given ?? 0) + 1
 
         if (givenEnoughReviews) {
@@ -150,7 +150,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
       `}
     >
       <PeerReviewProgress
-        total={peerReviewData.peer_review.peer_reviews_to_give}
+        total={peerReviewData.peer_review_config.peer_reviews_to_give}
         attempt={peerReviewData.num_peer_reviews_given}
       />
 

@@ -3,16 +3,13 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Switch } from "@mui/material"
 import { Spinner } from "@wordpress/components"
-import { check } from "prettier"
-import React, { useContext, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import PageContext from "../contexts/PageContext"
 import {
-  CmsPeerReview,
+  CmsPeerReviewConfig,
   CmsPeerReviewQuestion,
   PeerReviewAcceptingStrategy,
   PeerReviewQuestion,
@@ -116,7 +113,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const [globalPeerReview, setGlobalPeerReview] = useState(false)
 
-  const parsedPeerReviews = JSON.parse(attributes.peer_review_config) as CmsPeerReview[]
+  const parsedPeerReviews = JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig[]
 
   const parsedPeerReviewQuestion = JSON.parse(
     attributes.peer_review_questions_config,
@@ -145,7 +142,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     },
   ]
 
-  const handlePeerReviewValueChange = (id: string, value: any, field: keyof CmsPeerReview) => {
+  const handlePeerReviewValueChange = (
+    id: string,
+    value: any,
+    field: keyof CmsPeerReviewConfig,
+  ) => {
     const peerReviews = parsedPeerReviews.map((pr) => {
       if (pr.id === id) {
         switch (field) {
@@ -163,7 +164,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       } else {
         return pr
       }
-    }) as CmsPeerReview[]
+    }) as CmsPeerReviewConfig[]
     setAttributes({ peer_review_config: JSON.stringify(peerReviews) })
   }
 

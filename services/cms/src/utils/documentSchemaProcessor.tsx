@@ -11,7 +11,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
-  CmsPeerReview,
+  CmsPeerReviewConfig,
   CmsPeerReviewQuestion,
 } from "../shared-module/bindings"
 
@@ -45,8 +45,6 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
   const exercises: CmsPageExercise[] = []
   const exerciseSlides: CmsPageExerciseSlide[] = []
   const exerciseTasks: CmsPageExerciseTask[] = []
-  let peerReviews: CmsPeerReview[] = []
-  let peerReviewQuestions: CmsPeerReviewQuestion[] = []
 
   let exerciseCount = 0
 
@@ -56,10 +54,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     }
     const originalExerciseBlock = block as BlockInstance<ExerciseAttributes>
     const exerciseAttributes = block.attributes as ExerciseAttributes
-    peerReviews = JSON.parse(exerciseAttributes.peer_review_config.replaceAll(`'`, `"`))
-    peerReviewQuestions = JSON.parse(
-      exerciseAttributes.peer_review_questions_config.replaceAll(`'`, `"`),
-    )
+
     exercises.push({
       id: exerciseAttributes.id,
       name: exerciseAttributes.name,
@@ -69,6 +64,9 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
       deadline: null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
+      peer_review_config: JSON.parse(exerciseAttributes.peer_review_config),
+      peer_review_questions: JSON.parse(exerciseAttributes.peer_review_questions_config),
+      use_course_default_peer_review_config: exerciseAttributes.uses_course_global_peer_review,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -115,8 +113,6 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercises,
     exercise_slides: exerciseSlides,
     exercise_tasks: exerciseTasks,
-    peer_reviews: peerReviews,
-    peer_review_questions: peerReviewQuestions,
     title: args.title,
     url_path: args.urlPath,
   }
@@ -185,8 +181,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
-        peer_review_config: JSON.stringify(input.peer_reviews),
-        peer_review_questions_config: JSON.stringify(input.peer_review_questions),
+        peer_review_config: JSON.stringify(exercise.peer_review_config),
+        peer_review_questions_config: JSON.stringify(exercise.peer_review_questions),
+        uses_course_global_peer_review: exercise.use_course_default_peer_review_config,
       },
     }
 

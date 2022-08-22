@@ -1,12 +1,12 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { forwardRef, Ref } from "react"
 
 import { baseTheme, fontWeights, headingFont, theme } from "../styles"
 import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "tertiary" | "outlined" | "blue"
+  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
@@ -79,6 +79,19 @@ export const PrimaryButtonStyles = (props: ButtonProps) => {
   return PRIMARY_BUTTON_STYLES
 }
 
+export const WhiteButtonStyles = (props: ButtonProps) => {
+  const WHITE_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+
+    color: ${theme.white.text};
+    background: #FCFCFC;
+    border: 1.5px solid #DEDEDE;
+
+  `
+  return WHITE_BUTTON_STYLES
+}
+
 export const SecondaryButtonStyles = (props: ButtonProps) => {
   const SECONDARY_BUTTON_STYLES = `
     text-transform: ${props.transform};
@@ -107,6 +120,36 @@ export const SecondaryButtonStyles = (props: ButtonProps) => {
     }
   `
   return SECONDARY_BUTTON_STYLES
+}
+
+export const RejectButtonStyles = (props: ButtonProps) => {
+  const REJECT_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+
+    color: ${theme.reject.text};
+    background: ${theme.reject.bg};
+    border: 1.5px solid ${theme.reject.border};
+
+    &:hover,
+    &:focus {
+      color: ${theme.reject.hoverText};
+      box-shadow: 0 0 0 1px ${theme.reject.text};
+      border: 1.5px solid ${theme.reject.text};
+    }
+
+    &:active {
+      color: ${theme.reject.hoverText};
+      background-color: ${theme.reject.activeBg};
+    }
+
+    &:disabled {
+      color: ${theme.reject.disabledText};
+      background-color: ${theme.reject.disabledBg};
+      border-color: ${theme.reject.disabledBorder};
+    }
+  `
+  return REJECT_BUTTON_STYLES
 }
 
 export const TertiaryButtonStyles = (props: ButtonProps) => {
@@ -175,6 +218,11 @@ const SecondaryButton = styled.button`
   ${SecondaryButtonStyles}
 `
 
+const RejectButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${RejectButtonStyles}
+`
+
 const TertiaryButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${TertiaryButtonStyles}
@@ -183,6 +231,11 @@ const TertiaryButton = styled.button`
 const BlueButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${BlueButtonStyles}
+`
+
+const WhiteButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${WhiteButtonStyles}
 `
 
 export const LabelButton = styled.label`
@@ -197,23 +250,28 @@ TertiaryButton
 IconButton
 Link */
 
-const Button: React.FC<React.PropsWithChildren<React.PropsWithChildren<ButtonProps>>> = (
-  props: ButtonProps,
-) => {
+const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => {
   switch (props.variant) {
     case "primary":
-      return <PrimaryButton {...props} />
+      return <PrimaryButton ref={ref} {...props} />
     case "secondary":
-      return <SecondaryButton {...props} />
+      return <SecondaryButton ref={ref} {...props} />
+    case "reject":
+      return <RejectButton ref={ref} {...props} />
     case "tertiary":
-      return <TertiaryButton {...props} />
+      return <TertiaryButton ref={ref} {...props} />
     case "outlined":
-      return <SecondaryButton {...props} />
+      return <SecondaryButton ref={ref} {...props} />
     case "blue":
-      return <BlueButton {...props} />
+      return <BlueButton ref={ref} {...props} />
+    case "white":
+      return <WhiteButton ref={ref} {...props} />
     default:
-      return <PrimaryButton {...props} />
+      return <PrimaryButton ref={ref} {...props} />
   }
-}
+})
+
+// eslint-disable-next-line i18next/no-literal-string
+Button.displayName = "Button"
 
 export default Button

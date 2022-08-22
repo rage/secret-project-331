@@ -2,14 +2,14 @@
 import { Meta, Story } from "@storybook/react"
 import React from "react"
 
-import LinkertScale from "../src/components/PeerReview/LinkertScale"
+import LikertScale from "../src/components/PeerReview/LikertScale"
 
 export default {
-  title: "Components/PeerReview/LinkertScale",
-  component: LinkertScale,
+  title: "Components/PeerReview/LikertScale",
+  component: LikertScale,
 } as Meta
 
-const Component = LinkertScale
+const Component = LikertScale
 
 type ComponentProps = React.ComponentProps<typeof Component>
 
@@ -17,5 +17,5 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => <Component {..
 
 export const Primary: Story<ComponentProps> = Template.bind({})
 Primary.args = {
-  children: "LinkertScale",
+  children: "LikertScale",
 }

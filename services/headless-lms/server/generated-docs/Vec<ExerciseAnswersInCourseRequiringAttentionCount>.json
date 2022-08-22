@@ -1,0 +1,18 @@
+[
+  {
+    "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+    "name": "Exercise 1",
+    "page_id": "cdffbf4f-00dc-4538-b382-5c9acdf7f7af",
+    "chapter_id": "05d2518b-aa07-44ee-a6c4-bab0b0ecf4c8",
+    "order_number": 1,
+    "count": 5
+  },
+  {
+    "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+    "name": "Exercise 2",
+    "page_id": "edf6dbcf-d6c2-43ce-9724-adc81e24e8df",
+    "chapter_id": "b4d13b83-6366-4daf-b9b1-eb6b8792df0c",
+    "order_number": 2,
+    "count": 10
+  }
+]

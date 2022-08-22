@@ -5,6 +5,7 @@ import {
   CourseStructure,
   CourseUpdate,
   Exercise,
+  ExerciseAnswersInCourseRequiringAttentionCount,
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByWeekAndHour,
   ExerciseUserCounts,
@@ -20,6 +21,7 @@ import {
   isCourseInstance,
   isCourseStructure,
   isExercise,
+  isExerciseAnswersInCourseRequiringAttentionCount,
   isExerciseSlideSubmissionCountByWeekAndHour,
   isExerciseUserCounts,
   isTerm,
@@ -120,6 +122,18 @@ export const fetchCourseExercises = async (courseId: string): Promise<Array<Exer
     responseType: "json",
   })
   return validateResponse(response, isArray(isExercise))
+}
+
+export const fetchCourseExercisesAndCountOfAnswersRequiringAttention = async (
+  courseId: string,
+): Promise<Array<ExerciseAnswersInCourseRequiringAttentionCount>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/exercises-and-count-of-answers-requiring-attention`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isExerciseAnswersInCourseRequiringAttentionCount))
 }
 
 export const fetchCourseStructure = async (courseId: string): Promise<CourseStructure> => {

@@ -1990,6 +1990,96 @@
 <span id="1984">1984</span>
 <span id="1985">1985</span>
 <span id="1986">1986</span>
+<span id="1987">1987</span>
+<span id="1988">1988</span>
+<span id="1989">1989</span>
+<span id="1990">1990</span>
+<span id="1991">1991</span>
+<span id="1992">1992</span>
+<span id="1993">1993</span>
+<span id="1994">1994</span>
+<span id="1995">1995</span>
+<span id="1996">1996</span>
+<span id="1997">1997</span>
+<span id="1998">1998</span>
+<span id="1999">1999</span>
+<span id="2000">2000</span>
+<span id="2001">2001</span>
+<span id="2002">2002</span>
+<span id="2003">2003</span>
+<span id="2004">2004</span>
+<span id="2005">2005</span>
+<span id="2006">2006</span>
+<span id="2007">2007</span>
+<span id="2008">2008</span>
+<span id="2009">2009</span>
+<span id="2010">2010</span>
+<span id="2011">2011</span>
+<span id="2012">2012</span>
+<span id="2013">2013</span>
+<span id="2014">2014</span>
+<span id="2015">2015</span>
+<span id="2016">2016</span>
+<span id="2017">2017</span>
+<span id="2018">2018</span>
+<span id="2019">2019</span>
+<span id="2020">2020</span>
+<span id="2021">2021</span>
+<span id="2022">2022</span>
+<span id="2023">2023</span>
+<span id="2024">2024</span>
+<span id="2025">2025</span>
+<span id="2026">2026</span>
+<span id="2027">2027</span>
+<span id="2028">2028</span>
+<span id="2029">2029</span>
+<span id="2030">2030</span>
+<span id="2031">2031</span>
+<span id="2032">2032</span>
+<span id="2033">2033</span>
+<span id="2034">2034</span>
+<span id="2035">2035</span>
+<span id="2036">2036</span>
+<span id="2037">2037</span>
+<span id="2038">2038</span>
+<span id="2039">2039</span>
+<span id="2040">2040</span>
+<span id="2041">2041</span>
+<span id="2042">2042</span>
+<span id="2043">2043</span>
+<span id="2044">2044</span>
+<span id="2045">2045</span>
+<span id="2046">2046</span>
+<span id="2047">2047</span>
+<span id="2048">2048</span>
+<span id="2049">2049</span>
+<span id="2050">2050</span>
+<span id="2051">2051</span>
+<span id="2052">2052</span>
+<span id="2053">2053</span>
+<span id="2054">2054</span>
+<span id="2055">2055</span>
+<span id="2056">2056</span>
+<span id="2057">2057</span>
+<span id="2058">2058</span>
+<span id="2059">2059</span>
+<span id="2060">2060</span>
+<span id="2061">2061</span>
+<span id="2062">2062</span>
+<span id="2063">2063</span>
+<span id="2064">2064</span>
+<span id="2065">2065</span>
+<span id="2066">2066</span>
+<span id="2067">2067</span>
+<span id="2068">2068</span>
+<span id="2069">2069</span>
+<span id="2070">2070</span>
+<span id="2071">2071</span>
+<span id="2072">2072</span>
+<span id="2073">2073</span>
+<span id="2074">2074</span>
+<span id="2075">2075</span>
+<span id="2076">2076</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_helpers</span>::{
     <span class="ident">create_best_exercise</span>, <span class="ident">create_page</span>, <span class="ident">example_exercise_flexible</span>, <span class="ident">paragraph</span>, <span class="ident">quizzes_exercise</span>,
     <span class="ident">submit_and_grade</span>,
@@ -3308,6 +3398,96 @@
     <span class="ident">proposed_page_edits::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="prelude-val">Some</span>(<span class="ident">student</span>), <span class="kw-2">&amp;</span><span class="ident">edits</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// acronyms</span>
+    <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;CS&quot;</span>, <span class="string">&quot;Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;HDD&quot;</span>, <span class="string">&quot;Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user&#39;s disk is holding one of the keys required of running Windows.&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;SSD&quot;</span>, <span class="string">&quot;Solid-state drive. A solid-state drive is a hard drive that&#39;s a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \&quot;super drives,\&quot; and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren&#39;t built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;KB&quot;</span>, <span class="string">&quot;Keyboard.&quot;</span>, <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">course</span>.<span class="ident">id</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_glossary_course</span>(
+    <span class="ident">db_pool</span>: <span class="kw-2">&amp;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span>,
+    <span class="ident">org_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">admin</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Create new course</span>
+    <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">NewCourse</span> {
+        <span class="ident">name</span>: <span class="string">&quot;Glossary Tooltip&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">organization_id</span>: <span class="ident">org_id</span>,
+        <span class="ident">slug</span>: <span class="string">&quot;glossary-tooltip&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">language_code</span>: <span class="string">&quot;en-US&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">description</span>: <span class="string">&quot;Sample course.&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">is_draft</span>: <span class="bool-val">false</span>,
+        <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
+    };
+
+    <span class="kw">let</span> (<span class="ident">course</span>, <span class="ident">_front_page</span>, <span class="ident">_default_instance</span>, <span class="ident">default_module</span>) <span class="op">=</span> <span class="ident">courses::insert_course</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">course_id</span>,
+        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;7344f1c8-b7ce-4c7d-ade2-5f39997bd454&quot;</span>),
+        <span class="ident">new_course</span>,
+        <span class="ident">admin</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Create course instance</span>
+    <span class="ident">course_instances::insert</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">NewCourseInstance</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;67f077b4-0562-47ae-a2b9-db2f08f168a9&quot;</span>),
+            <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
+            <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;this is a non-default instance&quot;</span>),
+            <span class="ident">support_email</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;contact@example.com&quot;</span>),
+            <span class="ident">teacher_in_charge_name</span>: <span class="string">&quot;admin&quot;</span>,
+            <span class="ident">teacher_in_charge_email</span>: <span class="string">&quot;admin@example.com&quot;</span>,
+            <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
+            <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Chapter &amp; Main page</span>
+    <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {
+        <span class="ident">chapter_number</span>: <span class="number">1</span>,
+        <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
+        <span class="ident">name</span>: <span class="string">&quot;Glossary&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
+        <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
+        <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
+    };
+    <span class="kw">let</span> (<span class="ident">chapter</span>, <span class="ident">_front_page</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">new_chapter</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">chapters::set_opens_at</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">chapter</span>.<span class="ident">id</span>, <span class="ident">Utc::now</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Create page</span>
+    <span class="ident">create_page</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="ident">admin</span>,
+        <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
+        <span class="ident">CmsPageUpdate</span> {
+            <span class="ident">url_path</span>: <span class="string">&quot;/tooltip&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">title</span>: <span class="string">&quot;Tooltip&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">chapter_id</span>: <span class="prelude-val">Some</span>(<span class="ident">chapter</span>.<span class="ident">id</span>),
+            <span class="ident">exercises</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[],
+            <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[],
+            <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([<span class="ident">paragraph</span>(
+                <span class="string">&quot;Use the KB to write sentences for your CS-courses.&quot;</span>,
+                <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;6903cf16-4f79-4985-a354-4257be1193a2&quot;</span>)
+            ),]),
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Setup glossary</span>
     <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;CS&quot;</span>, <span class="string">&quot;Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;HDD&quot;</span>, <span class="string">&quot;Hard disk drive. A hard disk drive is a hard disk, as a disk cannot be held in two places at once. The reason for this is that the user&#39;s disk is holding one of the keys required of running Windows.&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">glossary::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="string">&quot;SSD&quot;</span>, <span class="string">&quot;Solid-state drive. A solid-state drive is a hard drive that&#39;s a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \&quot;super drives,\&quot; and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren&#39;t built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if&quot;</span>,  <span class="ident">course</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;

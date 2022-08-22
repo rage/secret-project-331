@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["seed_cs_course_material",""],["seed_sample_course",""]]};
+window.SIDEBAR_ITEMS = {"fn":[["create_glossary_course",""],["seed_cs_course_material",""],["seed_sample_course",""]]};

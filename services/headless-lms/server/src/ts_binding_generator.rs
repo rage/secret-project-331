@@ -8,6 +8,8 @@ use crate::controllers::{
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
+        exercises::AnswerRequiringAttentionWithTasks,
+        exercises::AnswersRequiringAttention,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
         proposed_edits::GetEditProposalsQuery,
@@ -180,6 +182,9 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
+        exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
+        exercise_slide_submissions::TeacherDecisionType,
+        exercise_slide_submissions::AnswerRequiringAttention,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
@@ -197,6 +202,8 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
+        user_exercise_states::UserExerciseState,
+        user_exercise_states::UserExerciseStateTeacherUpdate,
 
         users::User,
 
@@ -212,6 +219,8 @@ fn ts_binding_generator() {
         Login,
         UploadResult,
         ExerciseSubmissions,
+        AnswersRequiringAttention,
+        AnswerRequiringAttentionWithTasks,
         MarkAsRead,
         GetFeedbackQuery,
         GetEditProposalsQuery,
@@ -219,6 +228,7 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
+
 
         material_references::MaterialReference,
         material_references::NewMaterialReference,

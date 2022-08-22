@@ -11,7 +11,7 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::programs::seed::{
-    seed_courses::{seed_cs_course_material, seed_sample_course},
+    seed_courses::{create_glossary_course, seed_cs_course_material, seed_sample_course},
     seed_helpers::create_exam,
 };
 
@@ -431,5 +431,13 @@ async fn courses_group_4(
         &example_normal_user_ids,
     )
     .await?;
+    create_glossary_course(
+        &db_pool,
+        uh_cs_organization_id,
+        admin_user_id,
+        Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,
+    )
+    .await?;
+
     Ok(())
 }

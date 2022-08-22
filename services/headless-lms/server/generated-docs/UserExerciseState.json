@@ -1,0 +1,15 @@
+{
+  "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+  "user_id": "e9386872-d5f4-4120-a8df-6024c0f9714a",
+  "exercise_id": "2d798a55-8786-411b-8061-8352c4be2143",
+  "course_instance_id": "7490d7a3-86df-4bfa-8991-751dd1d5128c",
+  "exam_id": null,
+  "created_at": "2021-12-31T22:00:00Z",
+  "updated_at": "2021-12-31T22:00:00Z",
+  "deleted_at": null,
+  "score_given": 1.0,
+  "grading_progress": "FullyGraded",
+  "activity_progress": "Completed",
+  "reviewing_stage": "ReviewedAndLocked",
+  "selected_exercise_slide_id": "b1355811-b233-45f1-87cc-038c9dea927d"
+}

@@ -1,7 +1,9 @@
-import ExerciseServiceList, { ExerciseTaskTypes } from "./ExerciseServiceList"
+import { ExerciseService } from "../../../shared-module/bindings"
+
+import ExerciseServiceList from "./ExerciseServiceList"
 
 interface Props {
-  onChooseItem: (task: ExerciseTaskTypes) => void
+  onChooseItem: (task: ExerciseService) => void
 }
 
 const ChooseExerciseTaskType: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {

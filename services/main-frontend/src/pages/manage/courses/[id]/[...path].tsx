@@ -13,7 +13,6 @@ import CoursePages from "../../../../components/page-specific/manage/courses/id/
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
 import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
-import PeerReviews from "../../../../components/page-specific/manage/peer-reviews"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
 import TabLink from "../../../../shared-module/components/Navigation/TabLinks/TabLink"
@@ -49,7 +48,6 @@ const CourseManagementPageTabs: {
   permissions: CoursePermissions,
   glossary: CourseGlossary,
   stats: CourseStatsPage,
-  "peer-reviews": PeerReviews,
 }
 
 const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
@@ -106,9 +104,6 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         </TabLink>
         <TabLink url={"stats"} isActive={path === "stats"}>
           {t("link-stats")}
-        </TabLink>
-        <TabLink url={"peer-reviews"} isActive={path === "peer-reviews"}>
-          {t("peer-reviews")}
         </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>

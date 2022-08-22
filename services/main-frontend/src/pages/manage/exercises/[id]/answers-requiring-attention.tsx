@@ -52,6 +52,7 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
           <AnswersRequiringAttentionList
             answersRequiringAttention={getAnswersRequiringAttention.data.data}
             exercise_max_points={getAnswersRequiringAttention.data.exercise_max_points}
+            refetch={getAnswersRequiringAttention.refetch}
           />
         )}
       </div>

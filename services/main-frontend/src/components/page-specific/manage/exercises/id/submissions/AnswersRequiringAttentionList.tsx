@@ -11,9 +11,11 @@ import { updateAnswerRequiringAttention } from "../../../../../../services/backe
 import {
   AnswerRequiringAttentionWithTasks,
   TeacherDecisionType,
+  UserExerciseStateTeacherUpdate,
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { primaryFont } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
@@ -21,6 +23,7 @@ import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 interface Props {
   answersRequiringAttention: AnswerRequiringAttentionWithTasks[]
   exercise_max_points: number
+  refetch: () => void
 }
 
 const Layout = styled.div`
@@ -70,9 +73,13 @@ const ControlPanel = styled.div`
   justify-content: center;
 `
 
+const PLACEMENT = "bottom"
+const ARROW = "arrow"
+
 const AnswersRequiringAttentionList: React.FC<Props> = ({
   answersRequiringAttention,
   exercise_max_points,
+  refetch,
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -80,9 +87,20 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
-  const PLACEMENT = "bottom"
-
-  const ARROW = "arrow"
+  const submitMutation = useToastMutation(
+    (update: UserExerciseStateTeacherUpdate) => {
+      return updateAnswerRequiringAttention(update)
+    },
+    {
+      notify: true,
+      method: "PUT",
+    },
+    {
+      onSuccess: () => {
+        refetch()
+      },
+    },
+  )
 
   const { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: PLACEMENT,
@@ -111,24 +129,23 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
     setSliderValue(Number(event.target.value))
   }
 
-  const handleControlPanel = async (
+  const doSubmitChange = async (
     user_exercise_state_id: string,
     exercise_id: string,
     action: TeacherDecisionType,
     value?: number | undefined,
   ) => {
     const manual_points = value !== undefined ? value : null
-    updateAnswerRequiringAttention({
+    submitMutation.mutate({
       user_exercise_state_id,
       exercise_id,
-      // eslint-disable-next-line i18next/no-literal-string
       action: action,
       manual_points: manual_points,
     })
   }
 
   const handleSubmitAndClose = (user_exercise_state_id: string, exercise_id: string) => {
-    handleControlPanel(
+    doSubmitChange(
       user_exercise_state_id,
       exercise_id,
       // eslint-disable-next-line i18next/no-literal-string
@@ -303,7 +320,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                     size="medium"
                     variant="reject"
                     onClick={() =>
-                      handleControlPanel(
+                      doSubmitChange(
                         answerRequiringAttention.id,
                         answerRequiringAttention.exercise_id,
                         // eslint-disable-next-line i18next/no-literal-string
@@ -320,7 +337,7 @@ const AnswersRequiringAttentionList: React.FC<Props> = ({
                       margin-right: 0.5em;
                     `}
                     onClick={() =>
-                      handleControlPanel(
+                      doSubmitChange(
                         answerRequiringAttention.id,
                         answerRequiringAttention.exercise_id,
                         // eslint-disable-next-line i18next/no-literal-string

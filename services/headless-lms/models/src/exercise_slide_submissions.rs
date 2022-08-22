@@ -3,11 +3,39 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 
 use crate::{
-    courses::Course, exercise_task_gradings::UserPointsUpdateStrategy,
-    exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*,
-    user_exercise_states::CourseInstanceOrExamId, CourseOrExamId,
+    courses::Course,
+    exercise_task_gradings::UserPointsUpdateStrategy,
+    exercise_tasks::CourseMaterialExerciseTask,
+    exercises::{Exercise, GradingProgress},
+    prelude::*,
+    user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
+    CourseOrExamId,
 };
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
+pub enum TeacherDecisionType {
+    FullPoints,
+    ZeroPoints,
+    CustomPoints,
+    SuspectedPlagiarism,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct AnswerRequiringAttention {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub data_json: Option<serde_json::Value>,
+    pub grading_progress: GradingProgress,
+    pub score_given: Option<f32>,
+    pub submission_id: Uuid,
+    pub exercise_id: Uuid,
+}
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExerciseSlideSubmission {
@@ -18,6 +46,18 @@ pub struct NewExerciseSlideSubmission {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherGradingDecision {
+    pub id: Uuid,
+    pub user_exercise_state_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub score_given: f32,
+    pub teacher_decision: TeacherDecisionType,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -42,6 +82,17 @@ impl ExerciseSlideSubmission {
             ModelError::Generic("Submission is not related to a course instance.".to_string())
         })
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseAnswersInCourseRequiringAttentionCount {
+    pub id: Uuid,
+    pub name: String,
+    pub page_id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub order_number: i32,
+    pub count: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -414,6 +465,144 @@ ORDER BY date;
     Ok(res)
 }
 
+pub async fn answer_requiring_attention_count(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        r#"
+        SELECT
+        COUNT(*) as count
+    FROM user_exercise_states AS us_state
+    JOIN exercise_task_submissions AS t_submission
+        ON us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    JOIN exercise_slide_submissions AS s_submission
+            ON t_submission.exercise_slide_submission_id =
+                s_submission.id
+    WHERE us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    AND us_state.user_id = s_submission.user_id
+    AND us_state.exercise_id = $1
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+    AND us_state.deleted_at IS NULL;"#,
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseAnswersInCourseRequiringAttentionCount>> {
+    let count_list = sqlx::query_as!(
+        ExerciseAnswersInCourseRequiringAttentionCount,
+        r#"
+        SELECT
+        exercises.id,         (SELECT COUNT(us_state.id)::integer as count
+                FROM exercises AS exercises2
+                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
+                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
+                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
+                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+                AND us_state.user_id = s_submission.user_id
+                AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+                AND us_state.deleted_at IS NULL
+                AND exercises2.course_id = $1
+                AND exercises.id = exercises2.id
+                GROUP BY exercises2.id),
+                exercises.order_number,
+                exercises.name,
+                exercises.page_id,
+                exercises.chapter_id
+            FROM exercises
+            WHERE exercises.course_id = $1
+            GROUP BY exercises.id;"#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(count_list)
+}
+
+pub async fn exercise_slide_submissions_for_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+LIMIT $2 OFFSET $3
+        "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+pub async fn get_all_answers_requiring_attention(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<AnswerRequiringAttention>> {
+    let submissions = sqlx::query_as!(
+        AnswerRequiringAttention,
+        r#"
+        SELECT
+        us_state.id,
+        us_state.user_id,
+        us_state.exercise_id,
+        us_state.score_given,
+        us_state.grading_progress as "grading_progress: _",
+        t_submission.data_json,
+        s_submission.created_at,
+        s_submission.updated_at,
+        s_submission.deleted_at,
+        s_submission.id AS submission_id
+    FROM user_exercise_states AS us_state
+    JOIN exercise_task_submissions AS t_submission
+        ON us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    JOIN exercise_slide_submissions AS s_submission
+            ON t_submission.exercise_slide_submission_id =
+                s_submission.id
+    WHERE us_state.selected_exercise_slide_id =
+            t_submission.exercise_slide_id
+    AND us_state.user_id = s_submission.user_id
+    AND us_state.exercise_id = $1
+    AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+    AND us_state.deleted_at IS NULL
+    ORDER BY t_submission.updated_at
+    LIMIT $2 OFFSET $3;"#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 pub async fn get_course_exercise_slide_submission_counts_by_weekday_and_hour(
     conn: &mut PgConnection,
     course: &Course,
@@ -504,6 +693,80 @@ pub async fn get_exercise_slide_submission_info(
     let exercise =
         crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
     let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, user_id).await?;
+    Ok(ExerciseSlideSubmissionInfo {
+        exercise,
+        tasks,
+        exercise_slide_submission,
+    })
+}
+
+pub async fn update_user_exercise_state(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    points_given: f32,
+) -> ModelResult<UserExerciseState> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+        UPDATE user_exercise_states SET reviewing_stage='reviewed_and_locked', score_given=$2 WHERE id=$1 RETURNING
+        id,
+        user_id,
+        exercise_id,
+        course_instance_id,
+        exam_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given,
+        grading_progress AS "grading_progress: _",
+        activity_progress AS "activity_progress: _",
+        reviewing_stage AS "reviewing_stage: _",
+        selected_exercise_slide_id;
+        "#,
+        user_exercise_state_id,
+        points_given,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn add_teacher_grading_decision(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    action: TeacherDecisionType,
+    score_given: f32,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)
+        RETURNING id,
+        user_exercise_state_id,
+        created_at,
+        updated_at,
+        deleted_at,
+        score_given,
+        teacher_decision AS "teacher_decision: _";
+        "#,
+        user_exercise_state_id,
+        action as TeacherDecisionType,
+        score_given
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_exercise_slide_submission_info(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+    viewer_user_id: Uuid,
+) -> ModelResult<ExerciseSlideSubmissionInfo> {
+    let exercise_slide_submission = get_by_id(&mut *conn, exercise_slide_submission_id).await?;
+    let exercise =
+        crate::exercises::get_by_id(&mut *conn, exercise_slide_submission.exercise_id).await?;
+    let tasks = crate::exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(&mut *conn, exercise_slide_submission_id, viewer_user_id).await?;
     Ok(ExerciseSlideSubmissionInfo {
         exercise,
         tasks,

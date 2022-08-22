@@ -11,6 +11,7 @@ import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../shared-module/components/Centering/Centered"
+import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
@@ -108,6 +109,18 @@ const ExerciseTaskEditor: React.FC<
 
   const exerciseType = attributes.exercise_type
   const url = exerciseServicesQuery.data.find((o) => o.slug === exerciseType)?.public_url
+
+  if (!url) {
+    return (
+      <>
+        <ErrorBanner
+          variant="readOnly"
+          error={t("error-cannot-render-editor-for-exercise-service-x", { slug: exerciseType })}
+        />
+        <DebugModal data={exerciseServicesQuery.data} />
+      </>
+    )
+  }
 
   return (
     <div id={attributes.id}>

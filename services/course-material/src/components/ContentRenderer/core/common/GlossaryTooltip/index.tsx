@@ -30,7 +30,7 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
         className={css`
           position: absolute;
           top: 28px;
-          left: calc(100% - 140px);
+          left: calc(100% - 100px);
           /* UI */
           z-index: 2;
           background: white;

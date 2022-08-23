@@ -30,7 +30,7 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
         className={css`
           position: absolute;
           top: 28px;
-          left: 0px;
+          left: calc(100% - 140px);
           /* UI */
           z-index: 2;
           background: white;
@@ -55,7 +55,7 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
           border-right: 5px solid transparent;
           border-bottom: 5px solid black;
           top: 23px;
-          left: 5px;
+          left: 40%;
         `}
       />
       <span
@@ -68,7 +68,7 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
           border-right: 5px solid transparent;
           border-bottom: 5px solid white;
           top: 24px;
-          left: 5px;
+          left: 40%;
         `}
       />
     </span>

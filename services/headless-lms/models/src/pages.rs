@@ -592,25 +592,24 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 
 pub async fn get_page_with_exercises(
     conn: &mut PgConnection,
-    id: Uuid,
+    page_id: Uuid,
 ) -> ModelResult<ContentManagementPage> {
-    let page = get_page(&mut *conn, id).await?;
+    let page = get_page(&mut *conn, page_id).await?;
+
     let default_peer_review_config = OptionFuture::from(page.course_id.map(|course_id| {
         crate::peer_review_configs::get_course_default_cms_peer_review(conn, course_id)
     }))
     .await
-    .transpose()?;
+    .transpose()?
+    .flatten();
+
     let default_peer_review_config_questions =
         OptionFuture::from(default_peer_review_config.map(|prc| {
             crate::peer_review_questions::get_all_by_peer_review_config_id(conn, prc.id)
         }))
         .await
         .transpose()?
-        .map(|prq| {
-            prq.into_iter()
-                .map(CmsPeerReviewQuestion::from)
-                .collect()
-        });
+        .map(|prq| prq.into_iter().map(CmsPeerReviewQuestion::from).collect());
 
     let peer_review_configs =
         crate::peer_review_configs::get_peer_reviews_by_page_id(conn, page.id)
@@ -618,39 +617,51 @@ pub async fn get_page_with_exercises(
             .into_iter()
             .flat_map(|pr| (pr.exercise_id.map(|id| (id, pr))))
             .collect::<HashMap<_, _>>();
+
     let peer_review_questions = crate::peer_review_questions::get_by_page_id(conn, page.id)
         .await?
         .into_iter()
         .into_group_map_by(|prq| prq.peer_review_config_id)
         .into_iter()
         .collect::<HashMap<_, _>>();
+
     let exercises = crate::exercises::get_exercises_by_page_id(&mut *conn, page.id)
         .await?
         .into_iter()
         .map(|exercise| {
             let (a, b) = if exercise.use_course_default_peer_review_config {
+                if default_peer_review_config.is_none() {
+                    return Err(ModelError::Generic(
+                        "No default peer review config found for exercise".to_string(),
+                    ));
+                }
                 (
                     default_peer_review_config,
                     default_peer_review_config_questions.clone(),
                 )
             } else {
                 let peer_review_config = peer_review_configs.get(&exercise.id).copied();
-                let peer_review_questions = peer_review_config
-                    .and_then(|prc| peer_review_questions.get(&prc.id).cloned());
+                let peer_review_questions =
+                    peer_review_config.and_then(|prc| peer_review_questions.get(&prc.id).cloned());
                 (peer_review_config, peer_review_questions)
             };
-            CmsPageExercise::from_exercise_and_peer_review_data(exercise, a, b)
+
+            Ok(CmsPageExercise::from_exercise_and_peer_review_data(
+                exercise, a, b,
+            ))
         })
-        .collect::<Vec<_>>();
+        .collect::<ModelResult<Vec<_>>>()?;
+
     let exercise_slides: Vec<CmsPageExerciseSlide> =
         crate::exercise_slides::get_exercise_slides_by_exercise_ids(
             &mut *conn,
-            &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+            &exercises.iter().map(|x| x.id).collect::<Vec<_>>(),
         )
         .await?
         .into_iter()
         .map(|x| x.into())
         .collect();
+
     let exercise_tasks: Vec<CmsPageExerciseTask> =
         crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
             &mut *conn,
@@ -661,7 +672,7 @@ pub async fn get_page_with_exercises(
         .map(|x| x.into())
         .collect();
 
-    let organization_id = get_organization_id(&mut *conn, id).await?;
+    let organization_id = get_organization_id(&mut *conn, page_id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
@@ -1033,7 +1044,8 @@ RETURNING id,
             if let Some(prc) = peer_review_config {
                 let peer_review_questions = remapped_peer_review_questions
                     .values()
-                    .filter(|prq| prq.peer_review_config_id == prc.id).cloned()
+                    .filter(|prq| prq.peer_review_config_id == prc.id)
+                    .cloned()
                     .collect::<Vec<_>>();
                 return CmsPageExercise::from_exercise_and_peer_review_data(
                     e.clone(),
@@ -1358,7 +1370,7 @@ pub async fn upsert_peer_review_configs(
         let mut new_peer_review_config_id_to_old_id = HashMap::new();
 
         let mut sql: QueryBuilder<Postgres> = QueryBuilder::new(
-            "INSERT INTO peer_reviews (
+            "INSERT INTO peer_review_configs (
         id,
         course_id,
         exercise_id,

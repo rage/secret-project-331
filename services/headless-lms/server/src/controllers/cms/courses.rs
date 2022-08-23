@@ -60,16 +60,23 @@ async fn get_course_default_peer_review_configuration(
     let peer_review_config =
         models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
             .await?;
-    let peer_review_questions =
-        models::peer_review_questions::get_course_default_cms_peer_review_questions(
-            &mut conn,
-            peer_review_config.id,
-        )
-        .await?;
-    token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-        peer_review_config,
-        peer_review_questions,
-    }))
+    if let Some(peer_review_config) = peer_review_config {
+        let peer_review_questions =
+            models::peer_review_questions::get_course_default_cms_peer_review_questions(
+                &mut conn,
+                peer_review_config.id,
+            )
+            .await?;
+
+        token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
+            peer_review_config,
+            peer_review_questions,
+        }))
+    } else {
+        Err(ControllerError::BadRequest(
+            "No course default peer review config found".to_string(),
+        ))
+    }
 }
 
 #[generated_doc]

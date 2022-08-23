@@ -3,11 +3,12 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Spinner } from "@wordpress/components"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { getCoursesDefaultCmsPeerReviewConfiguration } from "../services/backend/courses"
 import {
   CmsPeerReviewConfig,
   CmsPeerReviewQuestion,
@@ -17,10 +18,12 @@ import {
 } from "../shared-module/bindings"
 import { isCmsPeerReviewConfig } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
+import Spinner from "../shared-module/components/Spinner"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -114,6 +117,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
     attributes.use_course_default_peer_review,
+  )
+
+  const defaultCmsPeerReviewConfig = useQuery(
+    [`course-default-peer-review-config-${courseId}`],
+    () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
   )
 
   const parsedPeerReview = JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig
@@ -235,8 +243,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     })
   }
 
-  if (!courseId) {
-    return <Spinner />
+  if (defaultCmsPeerReviewConfig.isLoading) {
+    return <Spinner variant="medium" />
+  }
+  if (defaultCmsPeerReviewConfig.isError) {
+    return <ErrorBanner variant="text" error={defaultCmsPeerReviewConfig.error} />
   }
 
   return (
@@ -258,6 +269,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
               onChange={(checked) => toggleDefaultPeerReviewConfig(checked)}
               checked={useDefaultPeerReview}
             />
+            {useDefaultPeerReview && (
+              <div>
+                <a
+                  href={`/cms/default-peer-review/${defaultCmsPeerReviewConfig.data.peer_review_config.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Course default peer review config
+                </a>
+              </div>
+            )}
             {!useDefaultPeerReview && (
               <Wrapper>
                 <div

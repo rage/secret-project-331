@@ -7,18 +7,14 @@ import { cmsClient } from "./cmsClient"
 export const getCoursesDefaultCmsPeerReviewConfiguration = async (
   courseId: string,
 ): Promise<CmsPeerReviewConfiguration> => {
-  return validateResponse(
-    (await cmsClient.get(`/courses/${courseId}/default-peer-review`)).data,
-    isCmsPeerReviewConfiguration,
-  )
+  const response = await cmsClient.get(`/courses/${courseId}/default-peer-review`)
+  return validateResponse(response, isCmsPeerReviewConfiguration)
 }
 
 export const putCoursesDefaultCmsPeerReviewConfiguration = async (
   courseId: string,
   data: CmsPeerReviewConfiguration,
 ): Promise<CmsPeerReviewConfiguration> => {
-  return validateResponse(
-    (await cmsClient.put(`/courses/${courseId}/default-peer-review`, data)).data,
-    isCmsPeerReviewConfiguration,
-  )
+  const response = await cmsClient.put(`/courses/${courseId}/default-peer-review`, data)
+  return validateResponse(response, isCmsPeerReviewConfiguration)
 }

@@ -58,7 +58,7 @@ const TextBox = styled.div`
 `
 const Objective = styled.div`
   width: 100%;
-  height: auto;
+  min-height: 100%;
   background: #f5f6f7;
   position: relative;
   overflow: hidden;
@@ -93,35 +93,37 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
   title,
   children,
 }) => {
-  const data = children && children[0].props.data.innerBlocks
+  const data = children && Object.values(children)[0].props.data.innerBlocks
   return (
     <Wrapper>
       <h2>{title}</h2>
       <TextBox>
-        {data?.map((item, index) => {
-          const BackgroundSVG = SVG[index]
-          const obj = item.innerBlocks
-          return (
-            <Objective key={item.clientId}>
-              <BackgroundSVG />
-              {obj && obj[0].name === "core/heading" && (
-                <h2
-                  className={css`
-                    font-size: 20px !important;
-                    margin: 2rem 2rem 0 2rem;
-                  `}
-                >
-                  {obj[0].attributes.content}
-                </h2>
-              )}
-              <span>
-                {obj && obj[0].name === "core/paragraph"
-                  ? obj[0].attributes.content
-                  : obj[1].attributes.content}
-              </span>
-            </Objective>
-          )
-        })}
+        {data &&
+          data.map((item: { innerBlocks: any; clientId: string | null }, index: number) => {
+            const BackgroundSVG = SVG[index]
+            const innerBlocks = item.innerBlocks
+
+            return (
+              <Objective key={item.clientId}>
+                <BackgroundSVG />
+                {innerBlocks && innerBlocks[0].name === "core/heading" && (
+                  <h2
+                    className={css`
+                      font-size: 20px !important;
+                      margin: 2rem 2rem 0 2rem;
+                    `}
+                  >
+                    {innerBlocks[0].attributes.content}
+                  </h2>
+                )}
+                <span>
+                  {innerBlocks && innerBlocks.length > 1
+                    ? innerBlocks[1].attributes.content
+                    : innerBlocks[0].attributes.content}
+                </span>
+              </Objective>
+            )
+          })}
       </TextBox>
     </Wrapper>
   )

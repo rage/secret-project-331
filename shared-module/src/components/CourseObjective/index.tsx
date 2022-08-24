@@ -1,9 +1,11 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
 import Circle from "../../img/card-bg-circle.svg"
 import Star from "../../img/card-bg-star.svg"
 import Zigzag from "../../img/card-bg-zigzag.svg"
+import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -25,38 +27,25 @@ const Wrapper = styled.div`
   }
 `
 
-const arr = [
-  // eslint-disable-next-line i18next/no-literal-string
-  "...a basic understanding of various ethical and social aspects of AI at the levels of social interaction and the society as a whole.",
-  // eslint-disable-next-line i18next/no-literal-string
-  "...a necessary conceptual framework and cognitive tools to situate AI applications in their social contexts and to assess their societal impact",
-  // eslint-disable-next-line i18next/no-literal-string
-  "...the ability to think about and to prevent potentially unwanted consequences and make deliberate choices in value-laden contexts while developing, deploying or using AI applications",
-]
-
-const SVG = [Star, Circle, Zigzag]
+const SVG = [Star, Circle, Zigzag, Zigzag, Star, Circle]
 
 const TextBox = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   margin-bottom: 1rem;
   align-items: center;
   text-align: center;
   gap: 1rem;
   justify-content: center;
 
-  ${respondToOrLarger.xs} {
-    padding: 0rem 0rem;
-  }
-
-  ${respondToOrLarger.sm} {
-    padding: 0rem 0rem;
-  }
-
   ${respondToOrLarger.md} {
     padding: 0rem 0rem;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   ${respondToOrLarger.lg} {
     padding: 0rem 0rem;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   h3 {
@@ -70,7 +59,7 @@ const TextBox = styled.div`
 `
 const Objective = styled.div`
   width: 100%;
-  height: 280px;
+  height: auto;
   background: #f5f6f7;
   position: relative;
   overflow: hidden;
@@ -89,8 +78,8 @@ const Objective = styled.div`
 
   svg {
     position: absolute;
-    top: -80px;
-    left: -80px;
+    top: -45px;
+    left: -100px;
     transform: rotate(180deg);
   }
 `
@@ -105,19 +94,33 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
   title,
   children,
 }) => {
+  const data = children && children[0].props.data.innerBlocks
   return (
     <Wrapper>
       <h2>{title}</h2>
       <TextBox>
-        {arr.map((item, index) => {
+        {data?.map((item, index) => {
           const BackgroundSVG = SVG[index]
+          const obj = item.innerBlocks
           return (
-            <>
-              <Objective key={index}>
-                <BackgroundSVG />
-                <span>{item}</span>
-              </Objective>
-            </>
+            <Objective key={item.clientId}>
+              <BackgroundSVG />
+              {obj && obj[0].name === "core/heading" && (
+                <h2
+                  className={css`
+                    font-size: 20px !important;
+                    margin: 2rem 2rem 0 2rem;
+                  `}
+                >
+                  {obj[0].attributes.content}
+                </h2>
+              )}
+              <span>
+                {obj && obj[0].name === "core/paragraph"
+                  ? obj[0].attributes.content
+                  : obj[1].attributes.content}
+              </span>
+            </Objective>
           )
         })}
       </TextBox>

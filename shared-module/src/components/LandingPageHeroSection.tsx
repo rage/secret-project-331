@@ -105,6 +105,9 @@ const LandingPageHeroSection: React.FC<
         <Button
           variant="primary"
           size="large"
+          className={css`
+            z-index: 99 !important;
+          `}
           onClick={(e) => {
             e.preventDefault()
             const firstChapterGrid = document.getElementsByClassName(

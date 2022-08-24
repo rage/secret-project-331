@@ -5,7 +5,6 @@ import React from "react"
 import Circle from "../../img/card-bg-circle.svg"
 import Star from "../../img/card-bg-star.svg"
 import Zigzag from "../../img/card-bg-zigzag.svg"
-import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 
 // eslint-disable-next-line i18next/no-literal-string

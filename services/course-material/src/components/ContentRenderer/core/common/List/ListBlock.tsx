@@ -6,7 +6,6 @@ import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 import { parseText } from "../../../util/textParsing"
 
 const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = ({
@@ -48,7 +47,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
         {...(start && { start: start })}
         reversed={reversed}
         dangerouslySetInnerHTML={{
-          __html: sanitizeCourseMaterialHtml(parseText(values, terms).parsedText),
+          __html: parseText(values, terms).parsedText,
         }}
       />
     )
@@ -58,7 +57,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
         className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
         dangerouslySetInnerHTML={{
-          __html: sanitizeCourseMaterialHtml(parseText(values, terms).parsedText),
+          __html: parseText(values, terms).parsedText,
         }}
       />
     )

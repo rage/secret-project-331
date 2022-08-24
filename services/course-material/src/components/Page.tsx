@@ -32,12 +32,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const courseId = pageContext?.pageData?.course_id
   const pageId = pageContext?.pageData?.id
-
+  const isMaterialPage = pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id)
   const [selectedBlockId, clearSelectedBlockId] = useSelectedBlockId()
 
   // Fetch glossary for each page seperately
   const glossary = useQuery([`glossary-${courseId}`], () =>
-    courseId && pageContext.exam === null ? fetchGlossary(courseId) : [],
+    courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
   )
 
   if (glossary.isLoading) {
@@ -76,9 +76,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             edits={edits}
           />
         )}
-        {pageContext.pageData?.content && Boolean(pageContext.pageData?.chapter_id) && (
-          <HeadingsNavigation />
-        )}
+        {isMaterialPage && <HeadingsNavigation />}
         {/* TODO: Better type for Page.content in bindings. */}
         <div id="content" className={inlineColorStyles}>
           <ContentRenderer

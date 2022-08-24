@@ -9,7 +9,7 @@ const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
 const HTML_ESCAPED_AMPERSAND = "&amp;"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
-const IGNORE_CASE = "i"
+const REGEX_MODE = "gm"
 
 /**
  *
@@ -40,8 +40,8 @@ const parseGlossary = (data: string, glossary: Term[]): string => {
 
   glossary.forEach((item) => {
     // eslint-disable-next-line i18next/no-literal-string
-    const regexString = `[^a-zA-Z0-9](${item.term})[^a-zA-Z0-9]?`
-    parsed = parsed.replace(new RegExp(regexString, IGNORE_CASE), (content, _) =>
+    const regexString = `[^a-zA-Z0-9](${item.term})[^a-zA-Z0-9]`
+    parsed = parsed.replace(new RegExp(regexString, REGEX_MODE), (content, _) =>
       generateToolTip({ ...item, term: content }),
     )
   })

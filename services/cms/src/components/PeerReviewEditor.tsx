@@ -166,7 +166,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       default:
         break
     }
-    setAttributes({ peer_review_config: JSON.stringify(parsedPeerReview) })
+    setAttributes({
+      peer_review_config: JSON.stringify(parsedPeerReview),
+      peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestion),
+    })
   }
 
   const handlePeerReviewQuestionValueChange = (
@@ -188,7 +191,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         return prq
       }
     })
-    setAttributes({ peer_review_questions_config: JSON.stringify(peerReviewQuestions) })
+    setAttributes({
+      peer_review_config: JSON.stringify(parsedPeerReview),
+      peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestion),
+    })
   }
 
   const togglePeerReview = (checked: boolean) => {
@@ -228,6 +234,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           order_number: parsedPeerReviewQuestion.length,
         },
       ]),
+      peer_review_config: JSON.stringify(parsedPeerReview),
     })
   }
 
@@ -240,6 +247,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             return { ...prq, order_number: idx } as PeerReviewQuestion
           }),
       ),
+      peer_review_config: JSON.stringify(parsedPeerReview),
     })
   }
 
@@ -272,7 +280,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             {useDefaultPeerReview && (
               <div>
                 <a
-                  href={`/cms/default-peer-review/${defaultCmsPeerReviewConfig.data.peer_review_config.id}`}
+                  href={`/cms/courses/${defaultCmsPeerReviewConfig.data.peer_review_config.course_id}/default-peer-review`}
                   target="_blank"
                   rel="noreferrer"
                 >

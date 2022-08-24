@@ -1,23 +1,23 @@
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../components/Layout"
-import PeerReviewEditor from "../../components/PeerReviewEditor"
-import CourseContext from "../../contexts/CourseContext"
+import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import {
   getCoursesDefaultCmsPeerReviewConfiguration,
   putCoursesDefaultCmsPeerReviewConfiguration,
-} from "../../services/backend/courses"
-import { CmsPeerReviewConfig, CmsPeerReviewQuestion } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import Spinner from "../../shared-module/components/Spinner"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
+} from "../../../services/backend/courses"
+import { CmsPeerReviewConfig, CmsPeerReviewQuestion } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 
 interface PeerReviewManagerProps {
+  // courseId
   query: SimplifiedUrlQuery<"id">
 }
 
@@ -26,11 +26,11 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 }) => {
   const { t } = useTranslation()
   const [attributes, setAttributes] = useState({
-    peer_review_config: "",
-    peer_review_questions_config: "",
+    peer_review_config: "{}",
+    peer_review_questions_config: "[]",
   })
+
   const { id } = query
-  const courseId = useContext(CourseContext)?.courseId
 
   const getCmsPeerReviewConfiguration = useQuery(
     [`course-${id}-cms-peer-review-configuration`],
@@ -54,31 +54,36 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     {
       notify: true,
       method: "PUT",
+      errorMessage: "",
+      successMessage: "",
     },
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
 
-  if (courseId) {
-    return (
-      <Layout>
-        <div>
-          <PeerReviewEditor
-            attributes={attributes}
-            setAttributes={setAttributes}
-            courseId={courseId}
-          />
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={() => mutateCourseDefaultPeerReview.mutate}
-          >
-            {t("save")}
-          </Button>
-        </div>
-      </Layout>
-    )
+  if (getCmsPeerReviewConfiguration.isError) {
+    return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
   }
-  return <Spinner variant="medium" />
+
+  if (getCmsPeerReviewConfiguration.isLoading) {
+    return <Spinner variant="medium" />
+  }
+
+  return (
+    <div>
+      <PeerReviewEditor
+        attributes={attributes}
+        setAttributes={setAttributes}
+        courseId={getCmsPeerReviewConfiguration.data.peer_review_config.course_id}
+      />
+      <Button
+        variant="primary"
+        size="medium"
+        onClick={() => mutateCourseDefaultPeerReview.mutate()}
+      >
+        {t("save")}
+      </Button>
+    </div>
+  )
 }
 
 export default dontRenderUntilQueryParametersReady(PeerReviewManager)

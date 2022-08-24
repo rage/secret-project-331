@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
+import { useTranslation } from "react-i18next"
 
+import Layout from "../../components/Layout"
 import PeerReviewEditor from "../../components/PeerReviewEditor"
 import CourseContext from "../../contexts/CourseContext"
 import {
@@ -22,6 +24,7 @@ interface PeerReviewManagerProps {
 const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps>> = ({
   query,
 }) => {
+  const { t } = useTranslation()
   const [attributes, setAttributes] = useState({
     peer_review_config: "",
     peer_review_questions_config: "",
@@ -55,20 +58,24 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     { onSuccess: () => getCmsPeerReviewConfiguration.refetch() },
   )
 
-  if (getCmsPeerReviewConfiguration.data && courseId) {
+  if (courseId) {
     return (
-      <div>
-        <PeerReviewEditor
-          attributes={attributes}
-          setAttributes={setAttributes}
-          courseId={courseId}
-        />
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={() => mutateCourseDefaultPeerReview.mutate}
-        ></Button>
-      </div>
+      <Layout>
+        <div>
+          <PeerReviewEditor
+            attributes={attributes}
+            setAttributes={setAttributes}
+            courseId={courseId}
+          />
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => mutateCourseDefaultPeerReview.mutate}
+          >
+            {t("save")}
+          </Button>
+        </div>
+      </Layout>
     )
   }
   return <Spinner variant="medium" />

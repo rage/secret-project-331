@@ -345,6 +345,20 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exercises::GradingProgress</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
@@ -356,6 +370,11 @@
     <span class="kw">pub</span> <span class="ident">deleted_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
+}
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
     <span class="kw">pub</span> <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
 }
@@ -507,7 +526,7 @@ WHERE user_exercise_state_id = $1
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>, <span class="ident">GradingProgress</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseSlideStateGradingSummary</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">r#&quot;
 SELECT score_given,
@@ -529,7 +548,10 @@ WHERE user_exercise_state_id = $1
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">grading_progress</span>)
         .<span class="ident">min</span>()
         .<span class="ident">unwrap_or</span>(<span class="ident">GradingProgress::NotReady</span>);
-    <span class="prelude-val">Ok</span>((<span class="ident">total_score_given</span>, <span class="ident">least_significant_grading_progress</span>))
+    <span class="prelude-val">Ok</span>(<span class="ident">UserExerciseSlideStateGradingSummary</span> {
+        <span class="ident">score_given</span>: <span class="ident">total_score_given</span>,
+        <span class="ident">grading_progress</span>: <span class="ident">least_significant_grading_progress</span>,
+    })
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
@@ -597,10 +619,12 @@ RETURNING id
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
+                <span class="ident">score_given</span>,
+                <span class="ident">grading_progress</span>,
+            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">score_given</span>, <span class="prelude-val">None</span>);
             <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
         }
@@ -623,10 +647,12 @@ RETURNING id
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
+                <span class="ident">score_given</span>,
+                <span class="ident">grading_progress</span>,
+            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">unwrap</span>();
             <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">1.0</span>));
             <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::NotReady</span>);
         }
@@ -655,10 +681,12 @@ RETURNING id
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
 
-            <span class="kw">let</span> (<span class="ident">score_given</span>, <span class="ident">grading_progress</span>) <span class="op">=</span>
-                <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">UserExerciseSlideStateGradingSummary</span> {
+                <span class="ident">score_given</span>,
+                <span class="ident">grading_progress</span>,
+            } <span class="op">=</span> <span class="ident">get_grading_summary_by_user_exercise_state_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">user_exercise_state_id</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">unwrap</span>();
             <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="ident">score_given</span>.<span class="ident">unwrap</span>(), <span class="number">3.0</span>));
             <span class="macro">assert_eq!</span>(<span class="ident">grading_progress</span>, <span class="ident">GradingProgress::FullyGraded</span>);
         }

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["TeacherDecisionType",""]],"fn":[["add_teacher_grading_decision",""],["try_to_get_latest_grading_decision_by_user_exercise_state_id",""]],"struct":[["NewTeacherGradingDecision",""],["TeacherGradingDecision",""]]};

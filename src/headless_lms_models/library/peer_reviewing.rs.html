@@ -513,6 +513,9 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
@@ -531,7 +534,10 @@
     <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::grading</span>::{<span class="self">self</span>, <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::user_exercise_state_updater</span>::{
+    <span class="self">self</span>, <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span>,
+    <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span>,
+};
 
 <span class="kw">const</span> <span class="ident">MAX_PEER_REVIEW_CANDIDATES</span>: <span class="ident">i64</span> <span class="op">=</span> <span class="number">10</span>;
 
@@ -702,20 +708,26 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">received_peer_review_question_submissions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission</span>(<span class="ident">conn</span>, <span class="ident">users_latest_submission</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">grading::update_user_exercise_state_peer_review_status</span>(
-        <span class="ident">conn</span>,
-        <span class="ident">exercise</span>,
-        <span class="ident">user_exercise_state</span>,
-        <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span> {
-            <span class="ident">given_enough_peer_reviews</span>: <span class="bool-val">true</span>,
-            <span class="ident">received_enough_peer_reviews</span>: <span class="ident">peer_review_queue_entry</span>.<span class="ident">received_enough_peer_reviews</span>,
-            <span class="ident">peer_review_accepting_strategy</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_strategy</span>,
-            <span class="ident">peer_review_accepting_threshold</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_threshold</span>,
-            <span class="ident">received_peer_review_question_submissions</span>,
-        },
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">user_exercise_state</span>)
+    <span class="kw">let</span> <span class="ident">updated_user_exercise_state</span> <span class="op">=</span>
+        <span class="ident">user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data</span>(
+            <span class="ident">conn</span>,
+            <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
+            <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span> {
+                <span class="ident">current_user_exercise_state</span>: <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>),
+                <span class="ident">exercise</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise</span>.<span class="ident">clone</span>()),
+                <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(<span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span> {
+                    <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">peer_review_queue_entry</span>)),
+                    <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
+                        <span class="prelude-val">Some</span>(<span class="ident">received_peer_review_question_submissions</span>),
+                    <span class="ident">latest_exercise_slide_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">users_latest_submission</span>),
+                    ..<span class="ident">Default::default</span>()
+                }),
+                ..<span class="ident">Default::default</span>()
+            },
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="ident">updated_user_exercise_state</span>)
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_peer_review_receiver_exercise_status</span>(
@@ -747,27 +759,21 @@
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>) <span class="op">=</span> <span class="ident">user_exercise_state</span> {
-            <span class="kw">let</span> <span class="ident">peer_reviews_given</span>: <span class="ident">i32</span> <span class="op">=</span>
-            <span class="ident">peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance</span>(
-                <span class="ident">conn</span>,
-                <span class="ident">peer_review_queue_entry</span>.<span class="ident">user_id</span>,
-                <span class="ident">peer_review_queue_entry</span>.<span class="ident">exercise_id</span>,
-                <span class="ident">peer_review_queue_entry</span>.<span class="ident">course_instance_id</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">try_into</span>()<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">received_peer_review_question_submissions</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission</span>(<span class="ident">conn</span>, <span class="ident">peer_review_queue_entry</span>.<span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">grading::update_user_exercise_state_peer_review_status</span>(
+            <span class="kw">let</span> <span class="ident">_updated_user_exercise_state</span> <span class="op">=</span>
+            <span class="ident">user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data</span>(
                 <span class="ident">conn</span>,
-                <span class="ident">exercise</span>,
-                <span class="ident">user_exercise_state</span>,
-                <span class="ident">ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis</span> {
-                    <span class="ident">given_enough_peer_reviews</span>: <span class="ident">peer_reviews_given</span>
-                        <span class="op">&gt;</span><span class="op">=</span> <span class="ident">peer_review</span>.<span class="ident">peer_reviews_to_give</span>,
-                    <span class="ident">received_enough_peer_reviews</span>: <span class="bool-val">true</span>,
-                    <span class="ident">peer_review_accepting_strategy</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_strategy</span>,
-                    <span class="ident">peer_review_accepting_threshold</span>: <span class="ident">peer_review</span>.<span class="ident">accepting_threshold</span>,
-                    <span class="ident">received_peer_review_question_submissions</span>,
+                <span class="ident">user_exercise_state</span>.<span class="ident">id</span>,
+                <span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredData</span> {
+                    <span class="ident">current_user_exercise_state</span>: <span class="prelude-val">Some</span>(<span class="ident">user_exercise_state</span>),
+                    <span class="ident">exercise</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise</span>.<span class="ident">clone</span>()),
+                    <span class="ident">peer_review_information</span>: <span class="prelude-val">Some</span>(<span class="ident">UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation</span> {
+                        <span class="ident">peer_review_queue_entry</span>: <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">peer_review_queue_entry</span>)),
+                        <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
+                            <span class="prelude-val">Some</span>(<span class="ident">received_peer_review_question_submissions</span>),
+                        ..<span class="ident">Default::default</span>()
+                    }),
+                    ..<span class="ident">Default::default</span>()
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;

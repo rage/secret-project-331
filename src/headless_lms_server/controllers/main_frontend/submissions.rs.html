@@ -100,16 +100,13 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions</span>::{
-    <span class="ident">ExerciseSlideSubmissionInfo</span>, <span class="ident">TeacherDecisionType</span>,
-};
+<span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">exercises::get_exercise_by_id</span>,
-    <span class="ident">user_exercise_states</span>::{<span class="ident">UserExerciseState</span>, <span class="ident">UserExerciseStateTeacherUpdate</span>},
+    <span class="ident">library::user_exercise_state_updater</span>,
+    <span class="ident">teacher_grading_decisions</span>::{<span class="ident">NewTeacherGradingDecision</span>, <span class="ident">TeacherDecisionType</span>},
+    <span class="ident">user_exercise_states::UserExerciseState</span>,
 };
 
 <span class="doccomment">/**
@@ -147,7 +144,7 @@ GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention&quot;` 
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_submission</span>(
-    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">UserExerciseStateTeacherUpdate</span><span class="op">&gt;</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewTeacherGradingDecision</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -176,15 +173,8 @@ GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention&quot;` 
     } <span class="kw">else</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid query&quot;</span>.<span class="ident">to_string</span>()));
     }
-    <span class="kw">let</span> <span class="ident">updated_user_exercise_state</span> <span class="op">=</span>
-        <span class="ident">models::exercise_slide_submissions::update_user_exercise_state</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">user_exercise_state_id</span>,
-            <span class="ident">points_given</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">models::exercise_slide_submissions::add_teacher_grading_decision</span>(
+    <span class="ident">models::teacher_grading_decisions::add_teacher_grading_decision</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
         <span class="ident">user_exercise_state_id</span>,
         <span class="kw-2">*</span><span class="ident">action</span>,
@@ -192,7 +182,11 @@ GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention&quot;` 
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">updated_user_exercise_state</span>))
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span>
+        <span class="ident">user_exercise_state_updater::update_user_exercise_state</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user_exercise_state_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">res</span>))
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {

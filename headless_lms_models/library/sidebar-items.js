@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["copying",""],["grading",""],["peer_reviewing",""],["progressing",""],["regrading",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["copying",""],["grading",""],["peer_reviewing",""],["progressing",""],["regrading",""],["user_exercise_state_updater","Always update the user_exercise_state table though this module"]]};

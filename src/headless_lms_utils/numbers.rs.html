@@ -40,6 +40,15 @@
 <span id="34">34</span>
 <span id="35">35</span>
 <span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f32_approx_eq</span>(<span class="ident">first</span>: <span class="ident">f32</span>, <span class="ident">second</span>: <span class="ident">f32</span>) -&gt; <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">first</span> <span class="op">-</span> <span class="ident">second</span>;
     <span class="ident">diff</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.000001</span>
@@ -53,19 +62,19 @@
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(<span class="ident">value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) -&gt; <span class="ident">f32</span> {
     <span class="kw">match</span> <span class="ident">value</span> {
         <span class="prelude-val">Some</span>(<span class="ident">float</span>) =&gt; <span class="ident">f32_to_two_decimals</span>(<span class="ident">float</span>),
         <span class="prelude-val">None</span> =&gt; <span class="number">0.0</span>,
     }
 }
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">f32_to_two_decimals</span>(<span class="ident">value</span>: <span class="ident">f32</span>) -&gt; <span class="ident">f32</span> {
-    (<span class="ident">value</span> <span class="op">*</span> (<span class="number">100_f32</span>)).<span class="ident">trunc</span>() <span class="op">/</span> (<span class="number">100_f32</span>)
+    (<span class="ident">value</span> <span class="op">*</span> (<span class="number">100_f32</span>)).<span class="ident">round</span>() <span class="op">/</span> (<span class="number">100_f32</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::numbers::f32_approx_eq</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">f32_approx_eq_works</span>() {
@@ -74,6 +83,15 @@
         <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="op">-</span><span class="number">1.1</span>));
         <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">1.1</span>, <span class="number">1.1</span>));
         <span class="macro">assert!</span>(<span class="ident">f32_approx_eq</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">f32_to_two_decimals_works</span>() {
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.0</span>), <span class="number">1.0</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.1</span>), <span class="number">1.1</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.1111111</span>), <span class="number">1.11</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.355555</span>), <span class="number">1.36</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.000000001</span>), <span class="number">1.0</span>);
     }
 }
 </code></pre></div>

@@ -676,6 +676,8 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -686,7 +688,7 @@
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{
     <span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">file_store::FileStore</span>,
-    <span class="ident">numbers::option_f32_to_f32_two_decimals</span>, <span class="ident">ApplicationConfiguration</span>,
+    <span class="ident">numbers::option_f32_to_f32_two_decimals_with_none_as_zero</span>, <span class="ident">ApplicationConfiguration</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -1199,7 +1201,9 @@ RETURNING *;
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">UserCourseInstanceChapterProgress</span> {
-        <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">user_chapter_metrics</span>.<span class="ident">score_given</span>),
+        <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(
+            <span class="ident">user_chapter_metrics</span>.<span class="ident">score_given</span>,
+        ),
         <span class="ident">score_maximum</span>,
         <span class="ident">total_exercises</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_ids</span>.<span class="ident">len</span>())
             .<span class="ident">map</span>(<span class="ident">TryInto::try_into</span>)

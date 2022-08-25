@@ -177,7 +177,7 @@
 <span id="171">171</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.</span>
 
-<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">chapters::UserCourseInstanceChapterProgress</span>,
     <span class="ident">course_instance_enrollments</span>::{<span class="ident">CourseInstanceEnrollment</span>, <span class="ident">NewCourseInstanceEnrollment</span>},
@@ -261,7 +261,7 @@ GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapte
         <span class="ident">user_course_instance_exercise_progress</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">UserCourseInstanceChapterExerciseProgress</span> {
-                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(<span class="ident">i</span>.<span class="ident">score_given</span>),
+                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(<span class="ident">i</span>.<span class="ident">score_given</span>),
                 <span class="ident">exercise_id</span>: <span class="ident">i</span>.<span class="ident">exercise_id</span>,
             })
             .<span class="ident">collect</span>();

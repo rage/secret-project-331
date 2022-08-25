@@ -1057,65 +1057,16 @@
 <span id="1051">1051</span>
 <span id="1052">1052</span>
 <span id="1053">1053</span>
-<span id="1054">1054</span>
-<span id="1055">1055</span>
-<span id="1056">1056</span>
-<span id="1057">1057</span>
-<span id="1058">1058</span>
-<span id="1059">1059</span>
-<span id="1060">1060</span>
-<span id="1061">1061</span>
-<span id="1062">1062</span>
-<span id="1063">1063</span>
-<span id="1064">1064</span>
-<span id="1065">1065</span>
-<span id="1066">1066</span>
-<span id="1067">1067</span>
-<span id="1068">1068</span>
-<span id="1069">1069</span>
-<span id="1070">1070</span>
-<span id="1071">1071</span>
-<span id="1072">1072</span>
-<span id="1073">1073</span>
-<span id="1074">1074</span>
-<span id="1075">1075</span>
-<span id="1076">1076</span>
-<span id="1077">1077</span>
-<span id="1078">1078</span>
-<span id="1079">1079</span>
-<span id="1080">1080</span>
-<span id="1081">1081</span>
-<span id="1082">1082</span>
-<span id="1083">1083</span>
-<span id="1084">1084</span>
-<span id="1085">1085</span>
-<span id="1086">1086</span>
-<span id="1087">1087</span>
-<span id="1088">1088</span>
-<span id="1089">1089</span>
-<span id="1090">1090</span>
-<span id="1091">1091</span>
-<span id="1092">1092</span>
-<span id="1093">1093</span>
-<span id="1094">1094</span>
-<span id="1095">1095</span>
-<span id="1096">1096</span>
-<span id="1097">1097</span>
-<span id="1098">1098</span>
-<span id="1099">1099</span>
-<span id="1100">1100</span>
-<span id="1101">1101</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
-<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals</span>;
+<span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>,
     <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">CourseModule</span>},
     <span class="ident">courses</span>,
-    <span class="ident">exercise_slide_submissions::TeacherDecisionType</span>,
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_course_settings</span>,
@@ -1156,15 +1107,6 @@ Tells what stage of reviewing the user is currently in. Used for for peer review
     If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
     */</span>
     <span class="ident">ReviewedAndLocked</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserExerciseStateTeacherUpdate</span> {
-    <span class="kw">pub</span> <span class="ident">user_exercise_state_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">action</span>: <span class="ident">TeacherDecisionType</span>,
-    <span class="kw">pub</span> <span class="ident">manual_points</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -1492,7 +1434,7 @@ WHERE ues.exercise_id IN (
                     .<span class="ident">name</span>
                     .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_course_module_name_placeholder</span>.<span class="ident">to_string</span>()),
                 <span class="ident">course_module_order_number</span>: <span class="ident">course_module</span>.<span class="ident">order_number</span>,
-                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals</span>(
+                <span class="ident">score_given</span>: <span class="ident">option_f32_to_f32_two_decimals_with_none_as_zero</span>(
                     <span class="ident">user_metrics</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">score_given</span>),
                 ),
                 <span class="ident">score_required</span>: <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_points_treshold</span>,
@@ -1771,6 +1713,7 @@ WHERE user_id = $1
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="doccomment">/// TODO: should be moved to the user_exercise_state_updater as a private module so that this cannot be called outside of that module</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">user_exercise_state_update</span>: <span class="ident">UserExerciseStateUpdate</span>,
@@ -1810,6 +1753,7 @@ RETURNING id,
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
+<span class="doccomment">/// TODO: should be removed</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_exercise_progress</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">id</span>: <span class="ident">Uuid</span>,
@@ -1838,46 +1782,6 @@ RETURNING id,
         &quot;#</span>,
         <span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
         <span class="ident">id</span>
-    )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_grading_state</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">score_given</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
-    <span class="ident">grading_progress</span>: <span class="ident">GradingProgress</span>,
-    <span class="ident">activity_progress</span>: <span class="ident">ActivityProgress</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">UserExerciseState</span>,
-        <span class="string">r#&quot;
-UPDATE user_exercise_states
-SET score_given = $1,
-  grading_progress = $2,
-  activity_progress = $3
-WHERE id = $4
-  AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_instance_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS &quot;grading_progress: _&quot;,
-  activity_progress AS &quot;activity_progress: _&quot;,
-  reviewing_stage AS &quot;reviewing_stage: _&quot;,
-  selected_exercise_slide_id
-        &quot;#</span>,
-        <span class="ident">score_given</span>,
-        <span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
-        <span class="ident">activity_progress</span> <span class="kw">as</span> <span class="ident">ActivityProgress</span>,
-        <span class="ident">id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

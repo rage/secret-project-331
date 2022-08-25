@@ -12,7 +12,9 @@ const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   const router = useRouter()
 
   const pageId = router.asPath.split("/")[2]
-  const data = usePageInfo(pageId)
+  const prefix = router.asPath.split("/")[1]
+
+  const data = usePageInfo(pageId, prefix)
 
   if (!data) {
     return (

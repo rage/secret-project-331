@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import Layout from "../../../components/Layout"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import {
   getCoursesDefaultCmsPeerReviewConfiguration,
@@ -69,7 +70,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }
 
   return (
-    <div>
+    <Layout>
       <PeerReviewEditor
         attributes={attributes}
         setAttributes={setAttributes}
@@ -82,7 +83,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       >
         {t("save")}
       </Button>
-    </div>
+    </Layout>
   )
 }
 

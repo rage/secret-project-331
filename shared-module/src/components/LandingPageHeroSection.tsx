@@ -98,7 +98,7 @@ const LandingPageHeroSection: React.FC<
         background-position: center center;`}
       `}
     >
-      {!backgroundImage && <StyledSVG />}
+      {backgroundImage === undefined && <StyledSVG />}
       <TextBox>
         <h1>{title}</h1>
         <div className="hero-subtitle">{children}</div>

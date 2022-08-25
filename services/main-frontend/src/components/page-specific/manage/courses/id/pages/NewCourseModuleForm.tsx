@@ -7,6 +7,7 @@ import Button from "../../../../../../shared-module/components/Button"
 import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import { baseTheme } from "../../../../../../shared-module/styles"
 
 interface Props {
   chapters: Array<number>

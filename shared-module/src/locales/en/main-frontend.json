@@ -354,5 +354,6 @@
   "weekday-tuesday": "Tuesday",
   "weekday-wednesday": "Wednesday",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>.",
-  "reference-parsing-error": "Error: This format is not supported or recognized"
+  "reference-parsing-error": "Error: This format is not supported or recognized",
+  "peer-reviews": "peer reviews"
 }

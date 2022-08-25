@@ -249,6 +249,7 @@
   "password": "Salasana",
   "password-must-have-at-least-8-characters": "Salasanassa täytyy olla vähintään 8 kirjainta!",
   "passwords-dont-match": "Salasanat ei täsmää!",
+  "peer-reviews": "vertaisarviot",
   "pending": "Ratkaisematon",
   "playground-examples": "Hiekkalaatikko esimerkit",
   "point-summary": "Pisteet",
@@ -259,6 +260,7 @@
   "read": "Luetut",
   "reference-added-succesfully": "Lähdeviite lisätty",
   "reference-deleted-succesfully": "Lähdeviite poistettu",
+  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta",
   "reference-updated-succesfully": "Lähdeviite päivitetty",
   "references": "Lähteet",
   "register-completion": "Suorituksen kirjaaminen",
@@ -353,6 +355,5 @@
   "weekday-thursday": "Torstai",
   "weekday-tuesday": "Tiistai",
   "weekday-wednesday": "Keskiviikko",
-  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>.",
-  "reference-parsing-error": "Virhe: Tätä muotoa ei tueta tai tunnisteta"
+  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "Sinua ohjataan Avoimen yliopiston suoritustsen kirjaamissivulle automaattisesti. Jos mitään ei tapahdu, <2>paina tästä</2>."
 }

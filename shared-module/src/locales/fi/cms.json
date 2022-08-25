@@ -73,5 +73,6 @@
   "unsupported-block-placeholder": "Lohko, joka ei ole tuettu",
   "unsupported-block-placeholder-explanation": "Tätä lohkoa käytetään paikkamerkkinä lohkoille, joita ei tueta.",
   "upload-or-drag-and-drop-onto-this-block": "Valitse tiedosto tai raahaa tiedosto tähän lohkoon",
+  "use-course-global-peer-review": "Käytä kurssin oletus vertaisarviointi asetusta",
   "welcome-message-for-course": "Tervetuloa kurssille viesti"
 }

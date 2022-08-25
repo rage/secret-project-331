@@ -139,7 +139,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
                 "a b"
                 "c c"
                 "d e";
-              gap: 10px;
+              column-gap: 10px;
             `}
           >
             <TextField

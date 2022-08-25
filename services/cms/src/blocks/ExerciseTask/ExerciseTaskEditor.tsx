@@ -110,7 +110,7 @@ const ExerciseTaskEditor: React.FC<
   const exerciseType = attributes.exercise_type
   const url = exerciseServicesQuery.data.find((o) => o.slug === exerciseType)?.public_url
 
-  if (!url) {
+  if (exerciseType && !url) {
     return (
       <>
         <ErrorBanner

@@ -18,7 +18,7 @@ test("glossary-tooltip", async ({ page, headless }) => {
     headless,
     snapshotName: "glossary-tooltips",
     beforeScreenshot: async () => {
-      await page.locator("text=KB Keyboard.").hover()
+      await page.locator("text=KBKeyboard.").hover()
     },
     toMatchSnapshotOptions: { threshold: 0.4 },
   })

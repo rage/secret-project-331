@@ -104,6 +104,7 @@ import {
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
+  NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
   OrgExam,
@@ -139,6 +140,7 @@ import {
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
   TeacherDecisionType,
+  TeacherGradingDecision,
   Term,
   TermUpdate,
   UploadResult,
@@ -149,7 +151,6 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserExerciseState,
-  UserExerciseStateTeacherUpdate,
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
@@ -1553,18 +1554,6 @@ export function isExerciseAnswersInCourseRequiringAttentionCount(
   )
 }
 
-export function isTeacherDecisionType(
-  obj: any,
-  _argumentName?: string,
-): obj is TeacherDecisionType {
-  return (
-    obj === "FullPoints" ||
-    obj === "ZeroPoints" ||
-    obj === "CustomPoints" ||
-    obj === "SuspectedPlagiarism"
-  )
-}
-
 export function isAnswerRequiringAttention(
   obj: any,
   _argumentName?: string,
@@ -1580,6 +1569,47 @@ export function isAnswerRequiringAttention(
     (obj.score_given === null || typeof obj.score_given === "number") &&
     typeof obj.submission_id === "string" &&
     typeof obj.exercise_id === "string"
+  )
+}
+
+export function isTeacherGradingDecision(
+  obj: any,
+  _argumentName?: string,
+): obj is TeacherGradingDecision {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_exercise_state_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.score_given === "number" &&
+    (isTeacherDecisionType(obj.teacher_decision) as boolean)
+  )
+}
+
+export function isTeacherDecisionType(
+  obj: any,
+  _argumentName?: string,
+): obj is TeacherDecisionType {
+  return (
+    obj === "FullPoints" ||
+    obj === "ZeroPoints" ||
+    obj === "CustomPoints" ||
+    obj === "SuspectedPlagiarism"
+  )
+}
+
+export function isNewTeacherGradingDecision(
+  obj: any,
+  _argumentName?: string,
+): obj is NewTeacherGradingDecision {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_exercise_state_id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    (isTeacherDecisionType(obj.action) as boolean) &&
+    (obj.manual_points === null || typeof obj.manual_points === "number")
   )
 }
 
@@ -1770,19 +1800,6 @@ export function isUserExerciseState(obj: any, _argumentName?: string): obj is Us
     (isActivityProgress(obj.activity_progress) as boolean) &&
     (isReviewingStage(obj.reviewing_stage) as boolean) &&
     (obj.selected_exercise_slide_id === null || typeof obj.selected_exercise_slide_id === "string")
-  )
-}
-
-export function isUserExerciseStateTeacherUpdate(
-  obj: any,
-  _argumentName?: string,
-): obj is UserExerciseStateTeacherUpdate {
-  return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_exercise_state_id === "string" &&
-    typeof obj.exercise_id === "string" &&
-    (isTeacherDecisionType(obj.action) as boolean) &&
-    (obj.manual_points === null || typeof obj.manual_points === "number")
   )
 }
 

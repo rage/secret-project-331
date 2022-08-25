@@ -89,15 +89,26 @@ Allows you to pass some data that `update_user_exercise_state` fetches to avoid 
 
 Usage:
 
-```no-run
+```no_run
+# use headless_lms_models::library::user_exercise_state_updater::{update_user_exercise_state_with_some_already_loaded_data, UserExerciseStateUpdateAlreadyLoadedRequiredData};
+# use headless_lms_models::ModelResult;
+#
+# async fn example_function() -> ModelResult<()> {
+# let conn = panic!("Placeholder");
+# let user_exercise_state_id = panic!("Placeholder");
+# let previously_loaded_exercise = panic!("Placeholder");
 update_user_exercise_state_with_some_already_loaded_data(
+    conn,
+    user_exercise_state_id,
     UserExerciseStateUpdateAlreadyLoadedRequiredData {
-        exercise: previouslyLoadedExercise,
-        // This allows us to omit the data we have not manually loaded.
+        exercise: previously_loaded_exercise,
+        // Allows us to omit the data we have not manually loaded by setting `None` to all the other fields.
         ..Default::default()
     },
 )
 .await?;
+# Ok(())
+# }
 ```
 */
 #[instrument(skip(conn, already_loaded_internal_dependencies))]

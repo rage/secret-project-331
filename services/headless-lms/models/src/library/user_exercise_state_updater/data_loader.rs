@@ -111,7 +111,7 @@ async fn load_exercise(
     if let Some(exercise) = already_loaded_exercise {
         Ok(exercise)
     } else {
-        Ok(crate::exercises::get_by_id(conn, current_user_exercise_state.id).await?)
+        Ok(crate::exercises::get_by_id(conn, current_user_exercise_state.exercise_id).await?)
     }
 }
 

@@ -117,7 +117,6 @@ pub async fn update_user_exercise_state_with_some_already_loaded_data(
     user_exercise_state_id: Uuid,
     already_loaded_internal_dependencies: UserExerciseStateUpdateAlreadyLoadedRequiredData,
 ) -> ModelResult<UserExerciseState> {
-    info!("Loading required data for user_exercise_state update");
     let required_data = data_loader::load_required_data(
         conn,
         user_exercise_state_id,
@@ -128,7 +127,6 @@ pub async fn update_user_exercise_state_with_some_already_loaded_data(
 
     let prev_user_exercise_state = required_data.current_user_exercise_state.clone();
 
-    info!("Deriving new user_exercise_state");
     let derived_user_exercise_state = state_deriver::derive_new_user_exercise_state(required_data)?;
 
     // Try to avoid updating if nothing changed

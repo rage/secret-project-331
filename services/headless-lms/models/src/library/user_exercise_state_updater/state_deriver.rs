@@ -19,6 +19,7 @@ struct PeerReviewOpinion {
 pub(super) fn derive_new_user_exercise_state(
     input_data: UserExerciseStateUpdateRequiredData,
 ) -> ModelResult<UserExerciseStateUpdate> {
+    info!("Deriving new user_exercise_state");
     let peer_review_opinion = get_peer_review_opinion(&input_data);
     let new_reviewing_stage = derive_new_reviewing_stage(&input_data, &peer_review_opinion);
     let reviewing_stage_changed =

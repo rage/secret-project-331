@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import { parseText } from "../../../util/textParsing"
 
 const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
   data,
@@ -28,6 +30,8 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
     url,
     width,
   } = data.attributes
+
+  const { terms } = useContext(GlossaryContext)
 
   const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
     linkTarget && linkTarget.includes("_blank")
@@ -106,7 +110,9 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
           margin-top: 0.5rem;
           margin-bottom: 0.8125rem;
         `}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+        dangerouslySetInnerHTML={{
+          __html: parseText(caption ?? "", terms).parsedText,
+        }}
       />
     </div>
   )

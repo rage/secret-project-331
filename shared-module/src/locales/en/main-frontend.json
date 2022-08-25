@@ -392,5 +392,13 @@
   "weekday-thursday": "Thursday",
   "weekday-tuesday": "Tuesday",
   "weekday-wednesday": "Wednesday",
+  "configure-completion-requirements": "Configure completion requirements",
+  "course-code": "Course code",
+  "ects-credits": "ECTS credits",
+  "automatic-completion": "Automatic completion",
+  "enable-automatic-completion": "Enable automatic completion",
+  "automatic-completion-points-treshold": "Points treshold",
+  "automatic-completion-exercise-treshold": "Exercises attempted treshold",
+  "enter-course-code": "Enter a course code",
   "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>."
 }

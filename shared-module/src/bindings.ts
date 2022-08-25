@@ -886,12 +886,6 @@ export interface ExerciseAnswersInCourseRequiringAttentionCount {
   count: number | null
 }
 
-export type TeacherDecisionType =
-  | "FullPoints"
-  | "ZeroPoints"
-  | "CustomPoints"
-  | "SuspectedPlagiarism"
-
 export interface AnswerRequiringAttention {
   id: string
   user_id: string
@@ -903,6 +897,29 @@ export interface AnswerRequiringAttention {
   score_given: number | null
   submission_id: string
   exercise_id: string
+}
+
+export interface TeacherGradingDecision {
+  id: string
+  user_exercise_state_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  score_given: number
+  teacher_decision: TeacherDecisionType
+}
+
+export type TeacherDecisionType =
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+
+export interface NewTeacherGradingDecision {
+  user_exercise_state_id: string
+  exercise_id: string
+  action: TeacherDecisionType
+  manual_points: number | null
 }
 
 export interface ExerciseTaskGrading {
@@ -1028,13 +1045,6 @@ export interface UserExerciseState {
   activity_progress: ActivityProgress
   reviewing_stage: ReviewingStage
   selected_exercise_slide_id: string | null
-}
-
-export interface NewTeacherGradingDecision {
-  user_exercise_state_id: string
-  exercise_id: string
-  action: TeacherDecisionType
-  manual_points: number | null
 }
 
 export interface User {

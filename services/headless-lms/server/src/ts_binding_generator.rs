@@ -186,6 +186,8 @@ fn ts_binding_generator() {
         exercise_slide_submissions::AnswerRequiringAttention,
 
         teacher_grading_decisions::TeacherGradingDecision,
+        teacher_grading_decisions::TeacherDecisionType,
+        teacher_grading_decisions::NewTeacherGradingDecision,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,

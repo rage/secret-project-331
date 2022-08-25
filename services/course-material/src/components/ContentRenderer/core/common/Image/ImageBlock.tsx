@@ -6,7 +6,6 @@ import Zoom from "react-medium-image-zoom"
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 import { parseText } from "../../../util/textParsing"
 
 const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
@@ -112,7 +111,7 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
           margin-bottom: 0.8125rem;
         `}
         dangerouslySetInnerHTML={{
-          __html: sanitizeCourseMaterialHtml(parseText(caption ?? "", terms).parsedText),
+          __html: parseText(caption ?? "", terms).parsedText,
         }}
       />
     </div>

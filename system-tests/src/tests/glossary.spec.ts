@@ -88,7 +88,7 @@ test("test", async ({ page, headless }) => {
     headless,
     snapshotName: "added-new-term",
     waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
-    scrollToYCoordinate: 539,
+    scrollToYCoordinate: 538,
   })
 
   // Click text=Edit

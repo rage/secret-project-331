@@ -169,7 +169,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               label={t("course-code")}
               placeholder={t("course-code")}
               labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
+                color: #fff;
               `}
               register={register("uh_course_code")}
               error={errors["name"]?.message}
@@ -177,7 +177,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <TextField
               label={t("ects-credits")}
               labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
+                color: #fff;
               `}
               placeholder={t("ects-credits")}
               register={register("ects_credits")}
@@ -187,13 +187,15 @@ const EditCourseModuleForm: React.FC<Props> = ({
               register={register("automatic_completion")}
               className={css`
                 margin-top: 24px;
-                color: ${baseTheme.colors.clear[100]} !important;
+                label {
+                  color: #fff !important;
+                }
               `}
             />
             <TextField
               label={t("automatic-completion-points-treshold")}
               labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
+                color: #fff;
               `}
               placeholder={t("automatic-completion-points-treshold")}
               type="number"
@@ -206,7 +208,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <TextField
               label={t("automatic-completion-exercise-treshold")}
               labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
+                color: #fff;
               `}
               placeholder={t("automatic-completion-exercise-treshold")}
               type="number"

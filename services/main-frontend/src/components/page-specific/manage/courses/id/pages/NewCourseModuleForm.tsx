@@ -123,7 +123,10 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         >
           <span
             className={css`
-              margin-bottom: 0.5rem;
+              margin-bottom: 0.6rem;
+              display: inline-block;
+              font-size: 18px;
+              color: ${baseTheme.colors.grey[700]};
             `}
           >
             {t("configure-completion-requirements")}

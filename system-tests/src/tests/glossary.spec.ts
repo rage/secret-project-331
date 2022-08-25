@@ -119,6 +119,7 @@ test("test", async ({ page, headless }) => {
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
+  await page.locator("text=Give feedback").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,

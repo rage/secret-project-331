@@ -14,7 +14,7 @@ import { respondToOrLarger } from "../../../../../../shared-module/styles/respon
 import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm from "./EditCourseModuleForm"
-import NewCourseModuleForm from "./NewCourseModuleForm"
+import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
 
 interface Props {
   courseId: string
@@ -27,6 +27,11 @@ export type ModuleView = {
   firstChapter: number | null
   lastChapter: number | null
   isNew: boolean
+  ects_credits: number | null
+  uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_points_treshold: number | null
+  automatic_completion_exercises_attempted_treshold: number | null
 }
 
 type ChapterView = { id: string; name: string; module: string | null; chapter_number: number }
@@ -183,6 +188,13 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               firstChapter,
               lastChapter,
               isNew: false,
+              uh_course_code: m.uh_course_code,
+              ects_credits: m.ects_credits,
+              automatic_completion: m.automatic_completion,
+              automatic_completion_points_treshold:
+                m.automatic_completion_number_of_points_treshold,
+              automatic_completion_exercises_attempted_treshold:
+                m.automatic_completion_number_of_exercises_attempted_treshold,
             }
           })
           const error = validateModuleList(modules, chapters)
@@ -206,12 +218,22 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           name: string
           order_number: number
           chapters: Array<string>
+          uh_course_code: string | null
+          ects_credits: number | null
+          automatic_completion: boolean
+          automatic_completion_points_treshold: number | null
+          automatic_completion_exercises_attempted_treshold: number | null
         }
       >()
       const modifiedModules = new Array<{
         id: string
         name: string | null
         order_number: number
+        uh_course_code: string | null
+        ects_credits: number | null
+        automatic_completion: boolean
+        automatic_completion_points_treshold: number | null
+        automatic_completion_exercises_attempted_treshold: number | null
       }>()
       const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
@@ -227,17 +249,37 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               name: module.name,
               order_number: module.order_number,
               chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
+              uh_course_code: module.uh_course_code,
+              ects_credits: module.ects_credits,
+              automatic_completion: module.automatic_completion,
+              automatic_completion_points_treshold: module.automatic_completion_points_treshold,
+              automatic_completion_exercises_attempted_treshold:
+                module.automatic_completion_exercises_attempted_treshold,
             })
           } else {
             // old module, check for modifications
             if (
               module.name !== initialModule.name ||
-              module.order_number !== initialModule.order_number
+              module.uh_course_code !== initialModule.uh_course_code ||
+              module.ects_credits !== initialModule.ects_credits ||
+              module.automatic_completion !== initialModule.automatic_completion ||
+              module.automatic_completion_points_treshold !==
+                initialModule.automatic_completion_points_treshold ||
+              module.ects_credits !== initialModule.ects_credits ||
+              module.automatic_completion_exercises_attempted_treshold !==
+                initialModule.automatic_completion_exercises_attempted_treshold
             ) {
               modifiedModules.push({
                 id: module.id,
                 name: module.name !== initialModule.name ? module.name : null,
                 order_number: module.order_number,
+                uh_course_code: module.uh_course_code,
+                ects_credits: module.ects_credits ?? null,
+                automatic_completion: module.automatic_completion ?? false,
+                automatic_completion_points_treshold:
+                  module.automatic_completion_points_treshold ?? null,
+                automatic_completion_exercises_attempted_treshold:
+                  module.automatic_completion_exercises_attempted_treshold ?? null,
               })
             }
           }
@@ -302,10 +344,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       name,
       starts,
       ends,
+      ects_credits,
+      uh_course_code,
+      automatic_completion,
+      automatic_completion_points_treshold,
+      automatic_completion_exercises_attempted_treshold,
     }: {
       name: string | null
       starts: number
       ends: number
+      ects_credits: number | null
+      uh_course_code: string | null
+      automatic_completion: boolean
+      automatic_completion_points_treshold: number | null
+      automatic_completion_exercises_attempted_treshold: number | null
     },
   ) => {
     setModuleList((old) => {
@@ -320,7 +372,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       const modules = [...old.modules]
       modules.forEach((m) => {
         if (m.id === id) {
-          m.name = name
+          return (
+            (m.name = name),
+            (m.ects_credits = ects_credits),
+            (m.uh_course_code = uh_course_code),
+            (m.automatic_completion = automatic_completion),
+            (m.automatic_completion_points_treshold = automatic_completion_points_treshold),
+            (m.automatic_completion_exercises_attempted_treshold =
+              automatic_completion_exercises_attempted_treshold)
+          )
         }
         const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
         m.firstChapter = first
@@ -361,13 +421,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     name,
     starts,
     ends,
-  }: {
-    name: string
-    starts: number
-    ends: number
-  }) => {
+    ects_credits,
+    uh_course_code,
+    automatic_completion,
+    automatic_completion_points_treshold,
+    automatic_completion_exercises_attempted_treshold,
+  }: Fields) => {
     setEdited(true)
     const newModuleId = v4()
+
     setModuleList((old) => {
       // update chapters
       const chapters = [...old.chapters]
@@ -387,6 +449,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           firstChapter: 1,
           lastChapter: 1,
           isNew: true,
+          uh_course_code,
+          ects_credits,
+          automatic_completion,
+          automatic_completion_points_treshold,
+          automatic_completion_exercises_attempted_treshold,
         },
       ]
       modules.forEach((m) => {

@@ -8,19 +8,9 @@ use crate::{
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
+    user_exercise_states::CourseInstanceOrExamId,
     CourseOrExamId,
 };
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
-pub enum TeacherDecisionType {
-    FullPoints,
-    ZeroPoints,
-    CustomPoints,
-    SuspectedPlagiarism,
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -46,18 +36,6 @@ pub struct NewExerciseSlideSubmission {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct TeacherGradingDecision {
-    pub id: Uuid,
-    pub user_exercise_state_id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    pub score_given: f32,
-    pub teacher_decision: TeacherDecisionType,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -698,64 +676,6 @@ pub async fn get_exercise_slide_submission_info(
         tasks,
         exercise_slide_submission,
     })
-}
-
-pub async fn update_user_exercise_state(
-    conn: &mut PgConnection,
-    user_exercise_state_id: Uuid,
-    points_given: f32,
-) -> ModelResult<UserExerciseState> {
-    let res = sqlx::query_as!(
-        UserExerciseState,
-        r#"
-        UPDATE user_exercise_states SET reviewing_stage='reviewed_and_locked', score_given=$2 WHERE id=$1 RETURNING
-        id,
-        user_id,
-        exercise_id,
-        course_instance_id,
-        exam_id,
-        created_at,
-        updated_at,
-        deleted_at,
-        score_given,
-        grading_progress AS "grading_progress: _",
-        activity_progress AS "activity_progress: _",
-        reviewing_stage AS "reviewing_stage: _",
-        selected_exercise_slide_id;
-        "#,
-        user_exercise_state_id,
-        points_given,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn add_teacher_grading_decision(
-    conn: &mut PgConnection,
-    user_exercise_state_id: Uuid,
-    action: TeacherDecisionType,
-    score_given: f32,
-) -> ModelResult<TeacherGradingDecision> {
-    let res = sqlx::query_as!(
-        TeacherGradingDecision,
-        r#"
-        INSERT INTO teacher_grading_decisions (user_exercise_state_id, teacher_decision, score_given) VALUES ($1, $2, $3)
-        RETURNING id,
-        user_exercise_state_id,
-        created_at,
-        updated_at,
-        deleted_at,
-        score_given,
-        teacher_decision AS "teacher_decision: _";
-        "#,
-        user_exercise_state_id,
-        action as TeacherDecisionType,
-        score_given
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
 }
 
 pub async fn get_all_exercise_slide_submission_info(

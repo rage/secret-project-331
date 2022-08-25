@@ -1,7 +1,7 @@
 import {
   AnswersRequiringAttention,
+  NewTeacherGradingDecision,
   UserExerciseState,
-  UserExerciseStateTeacherUpdate,
 } from "../../shared-module/bindings"
 import {
   isAnswersRequiringAttention,
@@ -29,7 +29,7 @@ export const updateAnswerRequiringAttention = async ({
   exercise_id,
   action,
   manual_points,
-}: UserExerciseStateTeacherUpdate): Promise<UserExerciseState> => {
+}: NewTeacherGradingDecision): Promise<UserExerciseState> => {
   const response = await mainFrontendClient.put(
     `/submissions/update-answer-requiring-attention`,
     { user_exercise_state_id, exercise_id, action, manual_points },

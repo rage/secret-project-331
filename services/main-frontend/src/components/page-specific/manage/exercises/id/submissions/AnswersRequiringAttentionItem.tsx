@@ -10,8 +10,8 @@ import { usePopper } from "react-popper"
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
 import {
   AnswerRequiringAttentionWithTasks,
+  NewTeacherGradingDecision,
   TeacherDecisionType,
-  UserExerciseStateTeacherUpdate,
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
@@ -77,7 +77,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
   const [arrowElement, setArrowElement] = useState<HTMLElement | null>(null)
   const submitMutation = useToastMutation(
-    (update: UserExerciseStateTeacherUpdate) => {
+    (update: NewTeacherGradingDecision) => {
       return updateAnswerRequiringAttention(update)
     },
     {

@@ -1,10 +1,10 @@
 use crate::controllers::prelude::*;
-use headless_lms_models::exercise_slide_submissions::{
-    ExerciseSlideSubmissionInfo, TeacherDecisionType,
-};
+use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     exercises::get_exercise_by_id,
-    user_exercise_states::{UserExerciseState, UserExerciseStateTeacherUpdate},
+    library::user_exercise_state_updater,
+    teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
+    user_exercise_states::UserExerciseState,
 };
 
 /**
@@ -42,7 +42,7 @@ GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention"` - Upd
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn update_submission(
-    payload: web::Json<UserExerciseStateTeacherUpdate>,
+    payload: web::Json<NewTeacherGradingDecision>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserExerciseState>> {
@@ -71,15 +71,8 @@ async fn update_submission(
     } else {
         return Err(ControllerError::BadRequest("Invalid query".to_string()));
     }
-    let updated_user_exercise_state =
-        models::exercise_slide_submissions::update_user_exercise_state(
-            &mut conn,
-            user_exercise_state_id,
-            points_given,
-        )
-        .await?;
 
-    models::exercise_slide_submissions::add_teacher_grading_decision(
+    models::teacher_grading_decisions::add_teacher_grading_decision(
         &mut conn,
         user_exercise_state_id,
         *action,
@@ -87,7 +80,11 @@ async fn update_submission(
     )
     .await?;
 
-    token.authorized_ok(web::Json(updated_user_exercise_state))
+    let res =
+        user_exercise_state_updater::update_user_exercise_state(&mut conn, user_exercise_state_id)
+            .await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

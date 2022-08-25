@@ -81,7 +81,7 @@ As close as possible to LTI's activity progress for compatibility: <https://www.
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-#[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
+#[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
     Initialized,

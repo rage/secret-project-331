@@ -111,6 +111,32 @@ WHERE user_id = $1
     .await?;
     Ok(res.count.unwrap_or(0))
 }
+
+pub async fn get_peer_reviews_given_by_user_and_course_instance_and_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT *
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND exercise_id = $3
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+    ",
+        user_id,
+        course_instance_id,
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_users_submission_count_for_exercise_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,

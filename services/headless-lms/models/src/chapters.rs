@@ -8,7 +8,7 @@ use crate::{
 };
 use headless_lms_utils::{
     document_schema_processor::GutenbergBlock, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
+    numbers::option_f32_to_f32_two_decimals_with_none_as_zero, ApplicationConfiguration,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -521,7 +521,9 @@ pub async fn get_user_course_instance_chapter_progress(
             .await?;
 
     let result = UserCourseInstanceChapterProgress {
-        score_given: option_f32_to_f32_two_decimals(user_chapter_metrics.score_given),
+        score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+            user_chapter_metrics.score_given,
+        ),
         score_maximum,
         total_exercises: Some(exercise_ids.len())
             .map(TryInto::try_into)

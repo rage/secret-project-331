@@ -104,6 +104,7 @@ import {
   NewPeerReviewQuestion,
   NewProposedBlockEdit,
   NewProposedPageEdits,
+  NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
   OrgExam,
@@ -149,7 +150,6 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserExerciseState,
-  UserExerciseStateTeacherUpdate,
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
@@ -1773,10 +1773,10 @@ export function isUserExerciseState(obj: any, _argumentName?: string): obj is Us
   )
 }
 
-export function isUserExerciseStateTeacherUpdate(
+export function isNewTeacherGradingDecision(
   obj: any,
   _argumentName?: string,
-): obj is UserExerciseStateTeacherUpdate {
+): obj is NewTeacherGradingDecision {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.user_exercise_state_id === "string" &&

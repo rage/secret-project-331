@@ -1030,7 +1030,7 @@ export interface UserExerciseState {
   selected_exercise_slide_id: string | null
 }
 
-export interface UserExerciseStateTeacherUpdate {
+export interface NewTeacherGradingDecision {
   user_exercise_state_id: string
   exercise_id: string
   action: TeacherDecisionType

@@ -16,7 +16,6 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
-import { isCmsPeerReviewConfig } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
@@ -101,6 +100,7 @@ export interface PeerReviewEditorExtraProps {
   setAttributes: (attr: any) => void
   exerciseId?: string
   courseId: string
+  courseGlobalEditor: boolean
 }
 
 export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
@@ -112,11 +112,12 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   courseId,
   attributes,
   setAttributes,
+  courseGlobalEditor,
 }) => {
   const { t } = useTranslation()
 
   const [usePeerReview, setUsePeerReview] = useState(
-    isCmsPeerReviewConfig(JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig),
+    JSON.parse(attributes.needs_peer_review) as boolean,
   )
   const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
     attributes.use_course_default_peer_review,
@@ -178,6 +179,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         break
     }
     setAttributes({
+      ...attributes,
       peer_review_config: JSON.stringify(peerReviewConfig),
       peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestion),
     })
@@ -203,6 +205,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       }
     })
     setAttributes({
+      ...attributes,
       peer_review_config: JSON.stringify(parsedPeerReview),
       peer_review_questions_config: JSON.stringify(peerReviewQuestions),
     })
@@ -211,6 +214,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const toggleUsePeerReviewConfig = (checked: boolean) => {
     setUsePeerReview(checked)
     setAttributes({
+      ...attributes,
       peer_review_config: checked
         ? JSON.stringify({
             id: v4(),
@@ -221,8 +225,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             peer_reviews_to_give: 2,
             peer_reviews_to_receive: 1,
           } as CmsPeerReviewConfig)
-        : "{}",
-      peer_review_questions_config: "[]",
+        : null,
+      peer_review_questions_config: null,
       use_course_default_peer_review: false,
       needs_peer_review: checked,
     })
@@ -236,14 +240,19 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     } as CmsPeerReviewConfig)
 
     setAttributes({
+      ...attributes,
       use_course_default_peer_review: checked,
-      peer_review_config: checked ? "{}" : prc,
-      peer_review_questions_config: "[]",
+      peer_review_config: checked ? null : prc,
+      peer_review_questions_config: checked ? null : "[]",
     })
   }
 
   const addPeerReviewQuestion = (peerReviewId: string) => {
+    if (JSON.parse(attributes.peer_review_questions_config) === null) {
+      setAttributes({ ...attributes, peer_review_questions_config: "[]" })
+    }
     setAttributes({
+      ...attributes,
       peer_review_questions_config: JSON.stringify([
         ...parsedPeerReviewQuestion,
         {
@@ -261,6 +270,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const deletePeerReviewQuestion = (peerReviewQuestionId: string) => {
     setAttributes({
+      ...attributes,
       peer_review_questions_config: JSON.stringify(
         parsedPeerReviewQuestion
           .filter((x) => x.id !== peerReviewQuestionId)
@@ -287,18 +297,22 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           display: block;
         `}
       >
-        <CheckBox
-          label={t("add-peer-review")}
-          onChange={(checked, _name) => toggleUsePeerReviewConfig(checked)}
-          checked={usePeerReview}
-        />
+        {!courseGlobalEditor && (
+          <CheckBox
+            label={t("add-peer-review")}
+            onChange={(checked, _name) => toggleUsePeerReviewConfig(checked)}
+            checked={usePeerReview}
+          />
+        )}
         {usePeerReview && (
           <div>
-            <CheckBox
-              label={t("use-course-global-peer-review")}
-              onChange={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
-              checked={useDefaultPeerReview}
-            />
+            {!courseGlobalEditor && (
+              <CheckBox
+                label={t("use-course-global-peer-review")}
+                onChange={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
+                checked={useDefaultPeerReview}
+              />
+            )}
             {useDefaultPeerReview && (
               <div>
                 <a

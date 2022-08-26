@@ -149,6 +149,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                   setAttributes={setAttributes}
                   exerciseId={attributes.id}
                   courseId={courseId}
+                  courseGlobalEditor={false}
                 />
               )}
             </div>

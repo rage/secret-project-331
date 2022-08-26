@@ -8,7 +8,11 @@ import {
   getCoursesDefaultCmsPeerReviewConfiguration,
   putCoursesDefaultCmsPeerReviewConfiguration,
 } from "../../../services/backend/courses"
-import { CmsPeerReviewConfig, CmsPeerReviewQuestion } from "../../../shared-module/bindings"
+import {
+  CmsPeerReviewConfig,
+  CmsPeerReviewConfiguration,
+  CmsPeerReviewQuestion,
+} from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
@@ -29,6 +33,8 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   const [attributes, setAttributes] = useState({
     peer_review_config: "{}",
     peer_review_questions_config: "[]",
+    needs_peer_review: true,
+    use_course_default_peer_review: false,
   })
 
   const { id } = query
@@ -41,6 +47,8 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
         setAttributes({
           peer_review_config: JSON.stringify(data.peer_review_config),
           peer_review_questions_config: JSON.stringify(data.peer_review_questions),
+          needs_peer_review: true,
+          use_course_default_peer_review: false,
         }),
     },
   )
@@ -51,7 +59,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
         peer_review_questions: JSON.parse(
           attributes.peer_review_questions_config,
         ) as CmsPeerReviewQuestion[],
-      }),
+      } as CmsPeerReviewConfiguration),
     {
       notify: true,
       method: "PUT",
@@ -75,6 +83,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
         attributes={attributes}
         setAttributes={setAttributes}
         courseId={getCmsPeerReviewConfiguration.data.peer_review_config.course_id}
+        courseGlobalEditor={true}
       />
       <Button
         variant="primary"

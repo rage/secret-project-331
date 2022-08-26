@@ -178,7 +178,7 @@ pub async fn main() -> anyhow::Result<()> {
         max_tries_per_slide: Some(17),
         limit_number_of_tries: true,
         needs_peer_review: false,
-        use_course_default_peer_review_config: true,
+        use_course_default_peer_review_config: false,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -389,7 +389,7 @@ pub async fn main() -> anyhow::Result<()> {
                 max_tries_per_slide: Some(17),
                 limit_number_of_tries: true,
                 deadline: None,
-                needs_peer_review: false,
+                needs_peer_review: true,
                 use_course_default_peer_review_config: true,
                 peer_review_config: None,
                 peer_review_questions: None

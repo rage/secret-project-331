@@ -30,8 +30,8 @@ interface Fields {
   ects_credits: number | null
   uh_course_code: string | null
   automatic_completion: boolean
-  automatic_completion_points_treshold: number | null
-  automatic_completion_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
 }
 
 const EditCourseModuleForm: React.FC<Props> = ({
@@ -59,9 +59,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
       ects_credits: module.ects_credits ?? 0,
       uh_course_code: module.uh_course_code ?? "",
       automatic_completion: module.automatic_completion ?? false,
-      automatic_completion_points_treshold: module.automatic_completion_points_treshold ?? null,
-      automatic_completion_exercises_attempted_treshold:
-        module.automatic_completion_exercises_attempted_treshold ?? null,
+      automatic_completion_number_of_points_treshold:
+        module.automatic_completion_number_of_points_treshold ?? null,
+      automatic_completion_number_of_exercises_attempted_treshold:
+        module.automatic_completion_number_of_exercises_attempted_treshold ?? null,
     },
   })
 
@@ -199,7 +200,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
               placeholder={t("automatic-completion-points-treshold")}
               type="number"
-              register={register("automatic_completion_points_treshold", {
+              register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
@@ -212,7 +213,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
               placeholder={t("automatic-completion-exercise-treshold")}
               type="number"
-              register={register("automatic_completion_exercises_attempted_treshold", {
+              register={register("automatic_completion_number_of_exercises_attempted_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}

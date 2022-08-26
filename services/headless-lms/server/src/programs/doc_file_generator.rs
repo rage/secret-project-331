@@ -25,7 +25,7 @@ use headless_lms_models::{
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
-    exercise_services::ExerciseService,
+    exercise_services::{ExerciseService, ExerciseServiceIframeRenderingInfo},
     exercise_slide_submissions::{
         ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission,
         ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
@@ -1169,6 +1169,15 @@ pub async fn main() -> anyhow::Result<()> {
                 count: Some(10)
             }
         ]
+    );
+    write_docs!(
+        Vec<ExerciseServiceIframeRenderingInfo>,
+        vec![ExerciseServiceIframeRenderingInfo {
+            id,
+            name: "Example exercise".to_string(),
+            slug: "example-exercise".to_string(),
+            public_iframe_url: "https://example.com/iframe".to_string()
+        }]
     );
     Ok(())
 }

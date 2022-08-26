@@ -22,6 +22,7 @@
   "edit": "Edit",
   "editor-select-sidebar-view": "Toggle view",
   "error": "Error",
+  "error-cannot-render-editor-for-exercise-service-x": "Cannot render editor for exercise service {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",
   "error-spec-not-parseable": "Spec not parseable.",
   "exercise-max-points": "Max points",

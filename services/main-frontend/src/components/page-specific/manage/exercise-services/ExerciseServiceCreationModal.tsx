@@ -73,7 +73,6 @@ const ExerciseServiceCreationModal: React.FC<
             editing={true}
             onChange={onChange(SERVICE_INTERNAL_URL)}
             type={"text"}
-            error={!validURL(exercise_service.internal_url ?? "") ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}

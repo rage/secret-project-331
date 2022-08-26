@@ -361,6 +361,13 @@ export interface ExerciseServiceNewOrUpdate {
   max_reprocessing_submissions_at_once: number
 }
 
+export interface ExerciseServiceIframeRenderingInfo {
+  id: string
+  name: string
+  slug: string
+  public_iframe_url: string
+}
+
 export interface CourseMaterialExerciseSlide {
   id: string
   exercise_tasks: Array<CourseMaterialExerciseTask>
@@ -527,7 +534,7 @@ export interface CompletionRegistrationLink {
 export interface UserCompletionInformation {
   course_module_completion_id: string
   course_name: string
-  course_code: string
+  uh_course_code: string
   email: string
   ects_credits: number | null
 }
@@ -1212,6 +1219,11 @@ export interface ModifiedModule {
   id: string
   name: string | null
   order_number: number
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }
 
 export interface ModuleUpdates {
@@ -1225,4 +1237,9 @@ export interface NewModule {
   name: string
   order_number: number
   chapters: Array<string>
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }

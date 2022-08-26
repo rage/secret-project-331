@@ -64,6 +64,7 @@ import {
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
   ExerciseService,
+  ExerciseServiceIframeRenderingInfo,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
@@ -695,6 +696,19 @@ export function isExerciseServiceNewOrUpdate(
     typeof obj.public_url === "string" &&
     (obj.internal_url === null || typeof obj.internal_url === "string") &&
     typeof obj.max_reprocessing_submissions_at_once === "number"
+  )
+}
+
+export function isExerciseServiceIframeRenderingInfo(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseServiceIframeRenderingInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_iframe_url === "string"
   )
 }
 
@@ -2074,7 +2088,16 @@ export function isModifiedModule(obj: any, _argumentName?: string): obj is Modif
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }
 
@@ -2100,6 +2123,15 @@ export function isNewModule(obj: any, _argumentName?: string): obj is NewModule 
     typeof obj.name === "string" &&
     typeof obj.order_number === "number" &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => typeof e === "string")
+    obj.chapters.every((e: any) => typeof e === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }

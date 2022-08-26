@@ -224,7 +224,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         : "{}",
       peer_review_questions_config: "[]",
       use_course_default_peer_review: false,
-      need_peer_review: checked,
+      needs_peer_review: checked,
     })
   }
 

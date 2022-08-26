@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["_add_routes",""],["get_all_exercise_services","GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system."]]};

@@ -89,7 +89,7 @@
     <span class="kw">fn</span> <span class="ident">f32_to_two_decimals_works</span>() {
         <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.0</span>), <span class="number">1.0</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.1</span>), <span class="number">1.1</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.1111111</span>), <span class="number">1.11</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.111_111</span>), <span class="number">1.11</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.355555</span>), <span class="number">1.36</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">f32_to_two_decimals</span>(<span class="number">1.000000001</span>), <span class="number">1.0</span>);
     }

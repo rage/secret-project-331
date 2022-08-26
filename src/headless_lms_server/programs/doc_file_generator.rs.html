@@ -1191,6 +1191,15 @@
 <span id="1185">1185</span>
 <span id="1186">1186</span>
 <span id="1187">1187</span>
+<span id="1188">1188</span>
+<span id="1189">1189</span>
+<span id="1190">1190</span>
+<span id="1191">1191</span>
+<span id="1192">1192</span>
+<span id="1193">1193</span>
+<span id="1194">1194</span>
+<span id="1195">1195</span>
+<span id="1196">1196</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1218,7 +1227,7 @@
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
-    <span class="ident">exercise_services::ExerciseService</span>,
+    <span class="ident">exercise_services</span>::{<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceIframeRenderingInfo</span>},
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span>, <span class="ident">ExerciseSlideSubmission</span>,
         <span class="ident">ExerciseSlideSubmissionCount</span>, <span class="ident">ExerciseSlideSubmissionCountByExercise</span>,
@@ -2362,6 +2371,15 @@
                 <span class="ident">count</span>: <span class="prelude-val">Some</span>(<span class="number">10</span>)
             }
         ]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseServiceIframeRenderingInfo</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">ExerciseServiceIframeRenderingInfo</span> {
+            <span class="ident">id</span>,
+            <span class="ident">name</span>: <span class="string">&quot;Example exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">public_iframe_url</span>: <span class="string">&quot;https://example.com/iframe&quot;</span>.<span class="ident">to_string</span>()
+        }]
     );
     <span class="prelude-val">Ok</span>(())
 }

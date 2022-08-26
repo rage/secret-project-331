@@ -64,15 +64,18 @@ const Objective = styled.div`
   overflow: hidden;
   display: grid;
 
-  span {
+  .paragraph {
     margin: auto 2rem 2rem 2rem;
     text-align: left;
     padding-right: 0;
     z-index: 99;
+  }
 
-    /*     ${respondToOrLarger.md} {
-      padding-right: 40px;
-    } */
+  .list {
+    margin: 0.5rem 2rem;
+    text-align: left;
+    padding-right: 0;
+    z-index: 99;
   }
 
   svg {
@@ -82,7 +85,6 @@ const Objective = styled.div`
     transform: rotate(180deg);
   }
 `
-
 export interface CourseObjectiveSectionProps {
   title: string
 }
@@ -102,8 +104,27 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
           data.map((item: { innerBlocks: any; clientId: string | null }, index: number) => {
             const BackgroundSVG = SVG[index]
             const innerBlocks = item.innerBlocks
+            const isList = innerBlocks[0].name === "core/list"
+            let list
 
-            return (
+            if (isList && innerBlocks[0]) {
+              const values = innerBlocks[0].attributes.values
+              const parser = new DOMParser()
+              // eslint-disable-next-line i18next/no-literal-string
+              const listItem = parser.parseFromString(values, "text/html")
+              list = [].slice.call(listItem.body.childNodes).map(({ innerHTML }) => innerHTML)
+            }
+
+            return isList ? (
+              <Objective key={item.clientId}>
+                <BackgroundSVG />
+                {list?.map((childHtml) => (
+                  <span className="list" key={childHtml}>
+                    {childHtml}
+                  </span>
+                ))}
+              </Objective>
+            ) : (
               <Objective key={item.clientId}>
                 <BackgroundSVG />
                 {innerBlocks && innerBlocks[0].name === "core/heading" && (
@@ -116,7 +137,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                     {innerBlocks[0].attributes.content}
                   </h2>
                 )}
-                <span>
+                <span className="paragraph">
                   {innerBlocks && innerBlocks.length > 1
                     ? innerBlocks[1].attributes.content
                     : innerBlocks[0].attributes.content}

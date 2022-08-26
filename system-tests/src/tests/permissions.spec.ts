@@ -113,6 +113,7 @@ test("test", async ({ headless, page }) => {
     headless,
     snapshotName: "edited-permission",
     waitForThisToBeVisibleAndStable: 'text="Success"',
+    clearNotifications: true,
   })
 
   // Click [aria-label="Remove role"]

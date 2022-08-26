@@ -1,14 +1,13 @@
 use std::collections::HashMap;
 
 use futures::Stream;
-use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
 
 use crate::{
     course_instances,
     course_modules::{self, CourseModule},
     courses,
-    exercise_slide_submissions::TeacherDecisionType,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
     user_course_settings,
@@ -49,15 +48,6 @@ pub enum ReviewingStage {
     If the teacher for some reasoon feels bad for the student and wants to give them a new chance, the answers for this exercise should be reset, the reason should be recorded somewhere in the database, and the value of this column should be set to `NotStarted`. Deleting the whole user_exercise_state may also be wise. However, if we end up doing this for a teacher, we should make sure that the teacher realizes that they should not give an unfair advantage to anyone.
     */
     ReviewedAndLocked,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct UserExerciseStateTeacherUpdate {
-    pub user_exercise_state_id: Uuid,
-    pub exercise_id: Uuid,
-    pub action: TeacherDecisionType,
-    pub manual_points: Option<f32>,
 }
 
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -385,7 +375,7 @@ fn merge_modules_with_metrics(
                     .name
                     .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
                 course_module_order_number: course_module.order_number,
-                score_given: option_f32_to_f32_two_decimals(
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     user_metrics.and_then(|x| x.score_given),
                 ),
                 score_required: course_module.automatic_completion_number_of_points_treshold,
@@ -664,6 +654,7 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// TODO: should be moved to the user_exercise_state_updater as a private module so that this cannot be called outside of that module
 pub async fn update(
     conn: &mut PgConnection,
     user_exercise_state_update: UserExerciseStateUpdate,
@@ -703,6 +694,7 @@ RETURNING id,
     Ok(res)
 }
 
+/// TODO: should be removed
 pub async fn update_exercise_progress(
     conn: &mut PgConnection,
     id: Uuid,
@@ -731,46 +723,6 @@ RETURNING id,
         "#,
         reviewing_stage as ReviewingStage,
         id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn update_grading_state(
-    conn: &mut PgConnection,
-    id: Uuid,
-    score_given: Option<f32>,
-    grading_progress: GradingProgress,
-    activity_progress: ActivityProgress,
-) -> ModelResult<UserExerciseState> {
-    let res = sqlx::query_as!(
-        UserExerciseState,
-        r#"
-UPDATE user_exercise_states
-SET score_given = $1,
-  grading_progress = $2,
-  activity_progress = $3
-WHERE id = $4
-  AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_instance_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
-        score_given,
-        grading_progress as GradingProgress,
-        activity_progress as ActivityProgress,
-        id,
     )
     .fetch_one(conn)
     .await?;

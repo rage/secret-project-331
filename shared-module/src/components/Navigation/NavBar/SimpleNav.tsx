@@ -23,7 +23,7 @@ const Navbar = css`
   font-size: 1rem;
   padding: 0 4rem;
   margin-bottom: ${MARGIN_BETWEEN_NAVBAR_AND_CONTENT};
-  border-bottom: 2px solid ${baseTheme.colors.grey[700]};
+  border-bottom: 2px solid ${baseTheme.colors.grey[100]};
 
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};

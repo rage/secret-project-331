@@ -4,7 +4,7 @@ import { BlockRendererProps, blockToRendererMap } from ".."
 import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import CourseObjectiveSection, {
   CourseObjectiveSectionProps,
-} from "../../../shared-module/components/CourseObjectiveSection"
+} from "../../../shared-module/components/CourseObjective/index"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import DefaultBlock from "../DefaultBlock"
 

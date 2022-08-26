@@ -114,6 +114,7 @@
   "error-modules-chapter-not-in-module": "Chapter {{ chapterNumber }}: {{ chapterName }} does not belong to any module",
   "error-modules-default-noncontinuous-chapters": "Default module has missing chapters between {{ prevChapter }} and {{ currChapter }}",
   "error-modules-empty-module": "Module {{ moduleName }} is empty",
+  "error-modules-first-chapter-not-in-default-module": "The first chapter must be in the default module",
   "error-modules-noncontinuous-chapters": "Module {{ moduleName }} has missing chapters between {{ prevChapter }} and {{ currChapter }}",
   "error-no-grading": "No grading",
   "error-no-grading-long": "No grading received yet. Please make a submission in the exercise view.",

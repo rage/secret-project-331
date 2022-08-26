@@ -10339,6 +10339,54 @@
     },
     "query": "\nUPDATE course_module_completion_registered_to_study_registries\nSET deleted_at = now()\nWHERE id = $1\n        "
   },
+  "9e0a5d551ad41a6e755261ec8fabc267c3b5c57de4c3e6fe9968e6b3cdb4db38": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_config_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "question_type: _",
+          "ordinal": 3,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["essay", "scale"]
+              },
+              "name": "peer_review_question_type"
+            }
+          }
+        },
+        {
+          "name": "question",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "answer_required",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question_type AS \"question_type: _\",\n  question,\n  answer_required\nFROM peer_review_questions\nwhere peer_review_config_id = $1\n  AND deleted_at IS NULL;\n    "
+  },
   "9e77b192694c3af4cf6ab696e5b43a1e1f28dab7af08beb2e38eccbe0282b01a": {
     "describe": {
       "columns": [
@@ -16043,54 +16091,6 @@
       }
     },
     "query": "\nUPDATE courses\nSET base_module_completion_requires_n_submodule_completions = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        "
-  },
-  "f54bd39683797184a6bd4d200e07baf0ffdcd4aa9c0c11bf57351351faab9456": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_review_config_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 2,
-          "type_info": "Int4"
-        },
-        {
-          "name": "question_type: _",
-          "ordinal": 3,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["essay", "scale"]
-              },
-              "name": "peer_review_question_type"
-            }
-          }
-        },
-        {
-          "name": "question",
-          "ordinal": 4,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "answer_required",
-          "ordinal": 5,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [false, false, false, false, false, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT id,\n  peer_review_config_id,\n  order_number,\n  question_type AS \"question_type: _\",\n  question,\n  answer_required\nFROM peer_review_questions\nwhere peer_review_config_id = $1;\n    "
   },
   "f5eee3722c97003bd8de1b9e8aa5e0d72916aa364eed13a63efecde48ae9f4a8": {
     "describe": {

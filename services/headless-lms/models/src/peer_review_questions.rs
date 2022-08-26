@@ -236,7 +236,8 @@ SELECT id,
   question,
   answer_required
 FROM peer_review_questions
-where peer_review_config_id = $1;
+where peer_review_config_id = $1
+  AND deleted_at IS NULL;
     "#,
         peer_review_config_id
     )
@@ -255,19 +256,20 @@ pub async fn upsert_multiple_peer_review_questions(
     sql.push_values(peer_review_questions, |mut x, prq| {
         x.push_bind(prq.peer_review_config_id)
             .push_bind(prq.order_number)
-            .push_bind(prq.question.as_str())
             .push_bind(prq.question_type)
+            .push_bind(prq.question.as_str())
             .push_bind(prq.answer_required);
     });
     sql.push(
-        " ON CONFLICT (id) DO
-    UPDATE
-    SET peer_review_config_id = excluded.peer_review_config_id,
-      order_number = excluded.order_number,
-      question_type = excluded.question_type,
-      question = excluded.question,
-      answer_required = excluded.answer_required,
-      deleted_at = NULL RETURNING id;",
+        r#" ON CONFLICT (id) DO
+UPDATE
+SET peer_review_config_id = excluded.peer_review_config_id,
+  order_number = excluded.order_number,
+  question_type = excluded.question_type,
+  question = excluded.question,
+  answer_required = excluded.answer_required
+RETURNING id;
+"#,
     );
 
     let ids = sql

@@ -38,7 +38,7 @@ mod tests {
     fn f32_to_two_decimals_works() {
         assert_eq!(f32_to_two_decimals(1.0), 1.0);
         assert_eq!(f32_to_two_decimals(1.1), 1.1);
-        assert_eq!(f32_to_two_decimals(1.1111111), 1.11);
+        assert_eq!(f32_to_two_decimals(1.111_111), 1.11);
         assert_eq!(f32_to_two_decimals(1.355555), 1.36);
         assert_eq!(f32_to_two_decimals(1.000000001), 1.0);
     }

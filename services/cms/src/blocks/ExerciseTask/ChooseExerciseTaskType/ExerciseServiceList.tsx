@@ -2,12 +2,12 @@ import { List, ListItem } from "@mui/material"
 import { useTranslation } from "react-i18next"
 
 import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
-import { ExerciseService } from "../../../shared-module/bindings"
+import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/bindings"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 
 interface Props {
-  onChooseItem: (task: ExerciseService) => void
+  onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void
 }
 
 const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {
@@ -29,7 +29,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
           <ListItem
             key={exercise_service.name}
             onClick={() => {
-              if (!exercise_service.public_url) {
+              if (!exercise_service.public_iframe_url) {
                 return
               }
               onChooseItem(exercise_service)

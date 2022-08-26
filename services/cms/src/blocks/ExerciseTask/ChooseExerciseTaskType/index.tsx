@@ -1,9 +1,9 @@
-import { ExerciseService } from "../../../shared-module/bindings"
+import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/bindings"
 
 import ExerciseServiceList from "./ExerciseServiceList"
 
 interface Props {
-  onChooseItem: (task: ExerciseService) => void
+  onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void
 }
 
 const ChooseExerciseTaskType: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {

@@ -100,6 +100,7 @@ fn ts_binding_generator() {
 
         exercise_services::ExerciseService,
         exercise_services::ExerciseServiceNewOrUpdate,
+        exercise_services::ExerciseServiceIframeRenderingInfo,
 
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,

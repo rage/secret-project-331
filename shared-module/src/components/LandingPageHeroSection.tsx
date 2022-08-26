@@ -3,6 +3,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import DefaultSVG from "../img/hero-default-bg-image.svg"
+import { baseTheme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 import Button from "./Button"
@@ -61,10 +63,18 @@ const TextBox = styled.div`
     text-align: center;
   }
 `
+
+const StyledSVG = styled(DefaultSVG)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 9;
+`
 export interface LandingPageHeroSectionProps {
   title: string
   backgroundImage?: string
   backgroundColor?: string
+  variant?: string
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
@@ -80,6 +90,7 @@ const LandingPageHeroSection: React.FC<
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
+        background: ${baseTheme.colors.clear[100]};
         ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
@@ -87,12 +98,16 @@ const LandingPageHeroSection: React.FC<
         background-position: center center;`}
       `}
     >
+      {backgroundImage === undefined && <StyledSVG />}
       <TextBox>
         <h1>{title}</h1>
         <div className="hero-subtitle">{children}</div>
         <Button
           variant="primary"
           size="large"
+          className={css`
+            z-index: 99 !important;
+          `}
           onClick={(e) => {
             e.preventDefault()
             const firstChapterGrid = document.getElementsByClassName(

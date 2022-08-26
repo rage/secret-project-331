@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ExerciseAttributes } from "../../../blocks/Exercise"
 import Layout from "../../../components/Layout"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import {
@@ -30,7 +31,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   query,
 }) => {
   const { t } = useTranslation()
-  const [attributes, setAttributes] = useState({
+  const [attributes, setAttributes] = useState<Partial<Readonly<ExerciseAttributes>>>({
     peer_review_config: "{}",
     peer_review_questions_config: "[]",
     needs_peer_review: true,
@@ -53,13 +54,19 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     },
   )
   const mutateCourseDefaultPeerReview = useToastMutation(
-    () =>
-      putCoursesDefaultCmsPeerReviewConfiguration(id, {
-        peer_review_config: JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig,
-        peer_review_questions: JSON.parse(
-          attributes.peer_review_questions_config,
-        ) as CmsPeerReviewQuestion[],
-      } as CmsPeerReviewConfiguration),
+    () => {
+      {
+        const prc: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
+        const prq: CmsPeerReviewQuestion[] = JSON.parse(
+          attributes.peer_review_questions_config ?? "[]",
+        )
+        const configuration: CmsPeerReviewConfiguration = {
+          peer_review_config: prc,
+          peer_review_questions: prq,
+        }
+        return putCoursesDefaultCmsPeerReviewConfiguration(id, configuration)
+      }
+    },
     {
       notify: true,
       method: "PUT",

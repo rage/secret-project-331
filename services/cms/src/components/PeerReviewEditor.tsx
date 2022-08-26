@@ -8,6 +8,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import { ExerciseAttributes } from "../blocks/Exercise"
 import { getCoursesDefaultCmsPeerReviewConfiguration } from "../services/backend/courses"
 import {
   CmsPeerReviewConfig,
@@ -96,8 +97,8 @@ const StyledQuestionType = styled.div`
 const HEADING_TEXT = "Configure review answers option"
 
 export interface PeerReviewEditorExtraProps {
-  attributes: any
-  setAttributes: (attr: any) => void
+  attributes: Readonly<Partial<ExerciseAttributes>>
+  setAttributes: (attr: Partial<ExerciseAttributes>) => void
   exerciseId?: string
   courseId: string
   courseGlobalEditor: boolean
@@ -116,9 +117,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  const [usePeerReview, setUsePeerReview] = useState(
-    JSON.parse(attributes.needs_peer_review) as boolean,
-  )
+  const [usePeerReview, setUsePeerReview] = useState(attributes.needs_peer_review)
   const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
     attributes.use_course_default_peer_review,
   )
@@ -128,11 +127,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
   )
 
-  const parsedPeerReview = JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig
+  const parsedPeerReview: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
 
-  const parsedPeerReviewQuestion = JSON.parse(
-    attributes.peer_review_questions_config,
-  ) as CmsPeerReviewQuestion[]
+  const parsedPeerReviewQuestion: CmsPeerReviewQuestion[] = JSON.parse(
+    attributes.peer_review_questions_config ?? "[]",
+  )
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
     { label: t("essay"), value: "Essay" },
@@ -213,20 +212,19 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const toggleUsePeerReviewConfig = (checked: boolean) => {
     setUsePeerReview(checked)
+    const prc: CmsPeerReviewConfig = {
+      id: v4(),
+      course_id: courseId,
+      exercise_id: exerciseId ?? null,
+      accepting_strategy: "ManualReviewEverything",
+      accepting_threshold: 1,
+      peer_reviews_to_give: 2,
+      peer_reviews_to_receive: 1,
+    }
     setAttributes({
       ...attributes,
-      peer_review_config: checked
-        ? JSON.stringify({
-            id: v4(),
-            course_id: courseId,
-            exercise_id: exerciseId,
-            accepting_strategy: "ManualReviewEverything",
-            accepting_threshold: 1,
-            peer_reviews_to_give: 2,
-            peer_reviews_to_receive: 1,
-          } as CmsPeerReviewConfig)
-        : null,
-      peer_review_questions_config: null,
+      peer_review_config: checked ? JSON.stringify(prc) : "{}",
+      peer_review_questions_config: "[]",
       use_course_default_peer_review: false,
       needs_peer_review: checked,
     })
@@ -234,21 +232,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const toggleUseDefaultPeerReviewConfig = (checked: boolean) => {
     setUseDefaultPeerReview(checked)
-    const prc = JSON.stringify({
-      ...(JSON.parse(attributes.peer_review_config) as CmsPeerReviewConfig),
+    const prc: string = JSON.stringify({
+      ...JSON.parse(attributes.peer_review_config ?? "{}"),
       exercise_id: checked ? null : exerciseId,
     } as CmsPeerReviewConfig)
 
     setAttributes({
       ...attributes,
       use_course_default_peer_review: checked,
-      peer_review_config: checked ? null : prc,
-      peer_review_questions_config: checked ? null : "[]",
+      peer_review_config: checked ? "null" : prc,
+      peer_review_questions_config: checked ? "null" : "[]",
     })
   }
 
   const addPeerReviewQuestion = (peerReviewId: string) => {
-    if (JSON.parse(attributes.peer_review_questions_config) === null) {
+    if (attributes.peer_review_questions_config === undefined) {
       setAttributes({ ...attributes, peer_review_questions_config: "[]" })
     }
     setAttributes({

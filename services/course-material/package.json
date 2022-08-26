@@ -31,6 +31,7 @@
     "diff": "^5.1.0",
     "dompurify": "^2.3.10",
     "express": "^4.18.1",
+    "highlight.js": "^11.6.0",
     "http-proxy-middleware": "^2.0.6",
     "i18next": "^21.8.14",
     "immer": "^9.0.15",

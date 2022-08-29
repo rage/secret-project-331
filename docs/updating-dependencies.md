@@ -20,6 +20,8 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 3. Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
 4. Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
 
+Run `bin/minikube-pull-baseimages` on your host and instruct others to run this command as well once your update PR is merged.
+
 ## Updating node dependencies
 
 When updating dependencies, you need to pay special attention to the cms service. It includes the gutenberg dependency, you **must"** always read the changelog for it so that you can determine if it breaks backwards compatibility in some way. Tests won't catch all backwards incompatible changes.

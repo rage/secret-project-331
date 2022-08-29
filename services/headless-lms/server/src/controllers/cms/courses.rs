@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
+use models::peer_review_configs::{self, CmsPeerReviewConfig, CmsPeerReviewConfiguration};
 
 use crate::controllers::prelude::*;
 
@@ -73,9 +73,19 @@ async fn get_course_default_peer_review_configuration(
             peer_review_questions,
         }))
     } else {
-        Err(ControllerError::BadRequest(
-            "No course default peer review config found".to_string(),
-        ))
+        token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
+            peer_review_config: CmsPeerReviewConfig {
+                id: Uuid::new_v4(),
+                course_id: *course_id,
+                exercise_id: None,
+                accepting_strategy:
+                    peer_review_configs::PeerReviewAcceptingStrategy::ManualReviewEverything,
+                accepting_threshold: 1.0,
+                peer_reviews_to_receive: 1,
+                peer_reviews_to_give: 2,
+            },
+            peer_review_questions: Vec::new(),
+        }))
     }
 }
 

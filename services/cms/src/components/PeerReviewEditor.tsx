@@ -17,6 +17,7 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
+import { isPeerReviewAcceptingStrategy } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
@@ -162,7 +163,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       case "accepting_strategy":
         peerReviewConfig = {
           ...parsedPeerReview,
-          accepting_strategy: value as PeerReviewAcceptingStrategy,
+          accepting_strategy: isPeerReviewAcceptingStrategy(value),
         }
         break
       case "accepting_threshold":
@@ -232,15 +233,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
 
   const toggleUseDefaultPeerReviewConfig = (checked: boolean) => {
     setUseDefaultPeerReview(checked)
-    const prc: string = JSON.stringify({
-      ...JSON.parse(attributes.peer_review_config ?? "{}"),
-      exercise_id: checked ? null : exerciseId,
-    } as CmsPeerReviewConfig)
+    const prc: CmsPeerReviewConfig = {
+      id: v4(),
+      exercise_id: exerciseId ? exerciseId : null,
+      course_id: courseId,
+      accepting_strategy: "ManualReviewEverything",
+      accepting_threshold: 1,
+      peer_reviews_to_give: 2,
+      peer_reviews_to_receive: 1,
+    }
 
     setAttributes({
       ...attributes,
       use_course_default_peer_review: checked,
-      peer_review_config: checked ? "null" : prc,
+      peer_review_config: checked ? "null" : JSON.stringify(prc),
       peer_review_questions_config: checked ? "null" : "[]",
     })
   }
@@ -359,11 +365,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   label={t("peer-review-accepting-strategy")}
-                  onBlur={() => null}
                   onChange={(e) => {
                     handlePeerReviewValueChange(e, "accepting_strategy")
                   }}
                   options={peerReviewAcceptingStrategyOptions}
+                  defaultValue={parsedPeerReview.accepting_strategy}
                 />
                 <TextField
                   label={t("peer-review-accepting-threshold")}

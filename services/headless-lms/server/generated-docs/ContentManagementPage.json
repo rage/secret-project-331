@@ -41,7 +41,7 @@
       "max_tries_per_slide": 17,
       "limit_number_of_tries": true,
       "deadline": null,
-      "needs_peer_review": false,
+      "needs_peer_review": true,
       "peer_review_config": null,
       "peer_review_questions": null,
       "use_course_default_peer_review_config": true

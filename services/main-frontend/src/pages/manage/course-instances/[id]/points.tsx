@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,6 +17,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { roundDown } from "../../../../shared-module/utils/numbers"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { addCourseInstanceCompletionsPageRoute } from "../../../../utils/routing"
 
 export interface CourseInstancePointsListProps {
   query: SimplifiedUrlQuery<"id">
@@ -174,6 +176,13 @@ const CourseInstancePointsList: React.FC<
                 ))}
               </div>
             </div>
+            <Link href={addCourseInstanceCompletionsPageRoute(courseInstanceId)} passHref>
+              {/* Just temporary location for development */}
+              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <a href="replace" aria-label="Manually add completions">
+                Manually add completions
+              </a>
+            </Link>{" "}
             <BreakFromCentered sidebar={false}>
               <div
                 className={css`

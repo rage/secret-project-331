@@ -1,5 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
 
+export function addCourseInstanceCompletionsPageRoute(courseInstanceId: string) {
+  return `/manage/course-instances/${courseInstanceId}/add-completions`
+}
+
 export function manageCourseInstancePageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}`
 }

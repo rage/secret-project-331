@@ -92,6 +92,10 @@ export interface ModelSolutionQuiz {
   submitMessage: string | null
 }
 
+type MultipleChoiceGradingPolicy =
+  | "default"
+  | "points-off-incorrect-options"
+  | "points-off-invalid-options"
 export interface QuizItem {
   shuffleOptions: boolean
   id: string
@@ -120,6 +124,7 @@ export interface QuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   timelineItems: QuizItemTimelineItem[] | null
+  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
 }
 
 export interface QuizItemModelSolution {

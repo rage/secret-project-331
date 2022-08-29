@@ -190,6 +190,47 @@ function assessTimelineQuiz(
   }
 }
 
+function getMultipleChoicePointsByGrading(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): number {
+  let countOfCorrectAnswers = 0
+  let countOfIncorrectAnswers = 0
+
+  if (!quizItemAnswer.optionAnswers) {
+    return 0
+  }
+
+  const totalCorrectAnswers = quizItem.options.filter((o) => o.correct).length
+
+  quizItemAnswer.optionAnswers?.forEach((oa) => {
+    const option = quizItem.options.find((o) => o.id === oa)
+    if (option && option.correct) {
+      countOfCorrectAnswers++
+    } else {
+      countOfIncorrectAnswers++
+    }
+  })
+
+  let totalScore = 0
+  switch (quizItem.multipleChoiceGradingPolicy) {
+    case "default":
+      totalScore = countOfCorrectAnswers
+      break
+    case "points-off-incorrect-options":
+      totalScore = Math.max(0, countOfCorrectAnswers - countOfIncorrectAnswers)
+      break
+    case "points-off-invalid-options":
+      totalScore = Math.max(
+        0,
+        countOfCorrectAnswers * 2 - totalCorrectAnswers - countOfIncorrectAnswers,
+      )
+      break
+  }
+
+  return totalScore
+}
+
 function assessMultipleChoiceQuizzes(
   quizItemAnswer: QuizItemAnswer,
   quizItem: QuizItem,
@@ -213,6 +254,11 @@ function assessMultipleChoiceQuizzes(
     }
     return false
   })
+
+  const score = getMultipleChoicePointsByGrading(quizItemAnswer, quizItem)
+  if (score == score) {
+    // TODO
+  }
 
   // Check if user selected correct amount of options
   const selectedAllCorrectOptions =

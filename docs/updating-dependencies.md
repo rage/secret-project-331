@@ -50,6 +50,7 @@ First, start `bin/dev-only-db` in one terminal. Once the database if fully up, r
 
 ```bash
 bin/sqlx-database-reset
+bin/sqlx-prepare
 bin/cargo-check
 bin/cargo-clippy
 bin/cargo-test

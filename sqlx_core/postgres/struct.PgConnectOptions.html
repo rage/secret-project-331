@@ -6,9 +6,9 @@
                                 <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
     <h1 class="fqn"><span class="in-band">Struct <a href="../index.html">sqlx_core</a>::<wbr><a href="index.html">postgres</a>::<wbr><a class="struct" href="#">PgConnectOptions</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../src/sqlx_core/postgres/options/mod.rs.html#79-93">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><div class="docblock item-decl"><pre class="rust struct"><code>pub struct PgConnectOptions { /* private fields */ }</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Options and flags which can be used to configure a PostgreSQL connection.</p>
-<p>A value of <code>PgConnectOptions</code> can be parsed from a connection URI,
+<p>A value of <code>PgConnectOptions</code> can be parsed from a connection URL,
 as described by <a href="https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING">libpq</a>.</p>
-<p>The general form for a connection URI is:</p>
+<p>The general form for a connection URL is:</p>
 <div class="example-wrap"><pre class="language-text"><code>postgresql://[user[:password]@][host][:port][/dbname][?param1=value1&amp;...]</code></pre></div><h3 id="parameters"><a href="#parameters">Parameters</a></h3><div><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>sslmode</code></td><td><code>prefer</code></td><td>Determines whether or with what priority a secure SSL TCP/IP connection will be negotiated. See <a href="enum.PgSslMode.html" title="PgSslMode"><code>PgSslMode</code></a>.</td></tr>
 <tr><td><code>sslrootcert</code></td><td><code>None</code></td><td>Sets the name of a file containing a list of trusted SSL Certificate Authorities.</td></tr>
@@ -23,8 +23,8 @@ as described by <a href="https://www.postgresql.org/docs/current/libpq-connect.h
 <tr><td><code>options</code></td><td><code>None</code></td><td>The runtime parameters to send to the server at connection start.</td></tr>
 </tbody></table>
 </div>
-<p>The URI scheme designator can be either <code>postgresql://</code> or <code>postgres://</code>.
-Each of the URI parts is optional.</p>
+<p>The URL scheme designator can be either <code>postgresql://</code> or <code>postgres://</code>.
+Each of the URL parts is optional.</p>
 <div class="example-wrap"><pre class="language-text"><code>postgresql://
 postgresql://localhost
 postgresql://localhost:5433
@@ -32,7 +32,7 @@ postgresql://localhost/mydb
 postgresql://user@localhost
 postgresql://user:secret@localhost
 postgresql://localhost?dbname=mydb&amp;user=postgres&amp;password=postgres</code></pre></div><h2 id="example"><a href="#example">Example</a></h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// URI connection string</span>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// URL connection string</span>
 <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">PgConnection::connect</span>(<span class="string">&quot;postgres://localhost/mydb&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
 <span class="comment">// Manually-constructed options</span>

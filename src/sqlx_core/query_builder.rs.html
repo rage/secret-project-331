@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/query_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>query_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/query_builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>query_builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
@@ -467,6 +467,180 @@
 <span id="461">461</span>
 <span id="462">462</span>
 <span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Runtime query-builder API.</span>
 
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
@@ -476,7 +650,9 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::arguments::Arguments</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database</span>::{<span class="ident">Database</span>, <span class="ident">HasArguments</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::encode::Encode</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_row::FromRow</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query::Query</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::query_as::QueryAs</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::types::Type</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Either</span>;
 
@@ -606,8 +782,30 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The returned type exposes identical [`.push()`][Separated::push] and</span>
     <span class="doccomment">/// [`.push_bind()`][Separated::push_bind] methods which push `separator` to the query</span>
-    <span class="doccomment">/// before their normal behavior. [`.push_unseparated()`][Separated::push_unseparated] is also</span>
+    <span class="doccomment">/// before their normal behavior. [`.push_unseparated()`][Separated::push_unseparated] and [`.push_bind_unseparated()`][Separated::push_bind_unseparated] are also</span>
     <span class="doccomment">/// provided to push a SQL fragment without the separator.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # #[cfg(feature = &quot;mysql&quot;)] {</span>
+    <span class="doccomment">/// use sqlx::{Execute, MySql, QueryBuilder};</span>
+    <span class="doccomment">/// let foods = vec![&quot;pizza&quot;.to_string(), &quot;chips&quot;.to_string()];</span>
+    <span class="doccomment">/// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(</span>
+    <span class="doccomment">///     &quot;SELECT * from food where name in (&quot;</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// // One element vector is handled correctly but an empty vector</span>
+    <span class="doccomment">/// // would cause a sql syntax error</span>
+    <span class="doccomment">/// let mut separated = query_builder.separated(&quot;, &quot;);</span>
+    <span class="doccomment">/// for value_type in foods.iter() {</span>
+    <span class="doccomment">///   separated.push_bind(value_type);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// separated.push_unseparated(&quot;) &quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut query = query_builder.build();</span>
+    <span class="doccomment">/// let sql = query.sql();</span>
+    <span class="doccomment">/// assert!(sql.ends_with(&quot;in (?, ?) &quot;));</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="ident">Sep</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;qb</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">separator</span>: <span class="ident">Sep</span>) -&gt; <span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;qb</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="ident">Sep</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="lifetime">&#39;args</span>: <span class="lifetime">&#39;qb</span>,
@@ -718,6 +916,7 @@
     <span class="doccomment">/// // 16383 * 4 = 65532</span>
     <span class="doccomment">/// assert_eq!(arguments.len(), 65532);</span>
     <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_values</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tuples</span>: <span class="ident">I</span>, <span class="kw-2">mut</span> <span class="ident">push_tuple</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
@@ -737,6 +936,112 @@
 
             <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;)&quot;</span>);
         }
+
+        <span class="ident">separated</span>.<span class="ident">query_builder</span>
+    }
+
+    <span class="doccomment">/// Creates `((a, b), (..)` statements, from `tuples`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This can be used to construct a bulk `SELECT` statement like this:</span>
+    <span class="doccomment">/// ```sql</span>
+    <span class="doccomment">/// SELECT * FROM users WHERE (id, username) IN ((1, &quot;test_user_1&quot;), (2, &quot;test_user_2&quot;))</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Although keep in mind that all</span>
+    <span class="doccomment">/// databases have some practical limit on the number of bind arguments in a single query.</span>
+    <span class="doccomment">/// See [`.push_bind()`][Self::push_bind] for details.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To be safe, you can do `tuples.into_iter().take(N)` where `N` is the limit for your database</span>
+    <span class="doccomment">/// divided by the number of fields in each tuple; since integer division always rounds down,</span>
+    <span class="doccomment">/// this will ensure that you don&#39;t exceed the limit.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Notes</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If `tuples` is empty, this will likely produce a syntactically invalid query</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Example (MySQL)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # #[cfg(feature = &quot;mysql&quot;)]</span>
+    <span class="doccomment">/// # {</span>
+    <span class="doccomment">/// use sqlx::{Execute, MySql, QueryBuilder};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct User {</span>
+    <span class="doccomment">///     id: i32,</span>
+    <span class="doccomment">///     username: String,</span>
+    <span class="doccomment">///     email: String,</span>
+    <span class="doccomment">///     password: String,</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // The number of parameters in MySQL must fit in a `u16`.</span>
+    <span class="doccomment">/// const BIND_LIMIT: usize = 65535;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // This would normally produce values forever!</span>
+    <span class="doccomment">/// let users = (0..).map(|i| User {</span>
+    <span class="doccomment">///     id: i,</span>
+    <span class="doccomment">///     username: format!(&quot;test_user_{}&quot;, i),</span>
+    <span class="doccomment">///     email: format!(&quot;test-user-{}@example.com&quot;, i),</span>
+    <span class="doccomment">///     password: format!(&quot;Test!User@Password#{}&quot;, i),</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut query_builder: QueryBuilder&lt;MySql&gt; = QueryBuilder::new(</span>
+    <span class="doccomment">///     // Note the trailing space; most calls to `QueryBuilder` don&#39;t automatically insert</span>
+    <span class="doccomment">///     // spaces as that might interfere with identifiers or quoted strings where exact</span>
+    <span class="doccomment">///     // values may matter.</span>
+    <span class="doccomment">///     &quot;SELECT * FROM users WHERE (id, username, email, password) in&quot;</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Note that `.into_iter()` wasn&#39;t needed here since `users` is already an iterator.</span>
+    <span class="doccomment">/// query_builder.push_tuples(users.take(BIND_LIMIT / 4), |mut b, user| {</span>
+    <span class="doccomment">///     // If you wanted to bind these by-reference instead of by-value,</span>
+    <span class="doccomment">///     // you&#39;d need an iterator that yields references that live as long as `query_builder`,</span>
+    <span class="doccomment">///     // e.g. collect it to a `Vec` first.</span>
+    <span class="doccomment">///     b.push_bind(user.id)</span>
+    <span class="doccomment">///         .push_bind(user.username)</span>
+    <span class="doccomment">///         .push_bind(user.email)</span>
+    <span class="doccomment">///         .push_bind(user.password);</span>
+    <span class="doccomment">/// });</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut query = query_builder.build();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // You can then call `query.execute()`, `.fetch_one()`, `.fetch_all()`, etc.</span>
+    <span class="doccomment">/// // For the sake of demonstration though, we&#39;re just going to assert the contents</span>
+    <span class="doccomment">/// // of the query.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // These are methods of the `Execute` trait, not normally meant to be called in user code.</span>
+    <span class="doccomment">/// let sql = query.sql();</span>
+    <span class="doccomment">/// let arguments = query.take_arguments().unwrap();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert!(sql.starts_with(</span>
+    <span class="doccomment">///     &quot;SELECT * FROM users WHERE (id, username, email, password) in ((?, ?, ?, ?), (?, ?, ?, ?), &quot;</span>
+    <span class="doccomment">/// ));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert!(sql.ends_with(&quot;(?, ?, ?, ?)) &quot;));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Not a normally exposed function, only used for this doctest.</span>
+    <span class="doccomment">/// // 65535 / 4 = 16383 (rounded down)</span>
+    <span class="doccomment">/// // 16383 * 4 = 65532</span>
+    <span class="doccomment">/// assert_eq!(arguments.len(), 65532);</span>
+    <span class="doccomment">///  }</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_tuples</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tuples</span>: <span class="ident">I</span>, <span class="kw-2">mut</span> <span class="ident">push_tuple</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">I</span>: <span class="ident">IntoIterator</span>,
+        <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">Separated</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;args</span>, <span class="ident">DB</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">I::Item</span>),
+    {
+        <span class="self">self</span>.<span class="ident">sanity_check</span>();
+
+        <span class="self">self</span>.<span class="ident">push</span>(<span class="string">&quot; (&quot;</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">separated</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>);
+
+        <span class="kw">for</span> <span class="ident">tuple</span> <span class="kw">in</span> <span class="ident">tuples</span> {
+            <span class="ident">separated</span>.<span class="ident">push</span>(<span class="string">&quot;(&quot;</span>);
+
+            <span class="ident">push_tuple</span>(<span class="ident">separated</span>.<span class="ident">query_builder</span>.<span class="ident">separated</span>(<span class="string">&quot;, &quot;</span>), <span class="ident">tuple</span>);
+
+            <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;)&quot;</span>);
+        }
+        <span class="ident">separated</span>.<span class="ident">push_unseparated</span>(<span class="string">&quot;) &quot;</span>);
 
         <span class="ident">separated</span>.<span class="ident">query_builder</span>
     }
@@ -764,6 +1069,27 @@
         }
     }
 
+    <span class="doccomment">/// Produce an executable query from this builder.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Note: Query is not Checked</span>
+    <span class="doccomment">/// It is your responsibility to ensure that you produce a syntactically correct query here,</span>
+    <span class="doccomment">/// this API has no way to check it for you.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Note: Reuse</span>
+    <span class="doccomment">/// You can reuse this builder afterwards to amortize the allocation overhead of the query</span>
+    <span class="doccomment">/// string, however you must call [`.reset()`][Self::reset] first, which returns `Self`</span>
+    <span class="doccomment">/// to the state it was in immediately after [`new()`][Self::new].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Calling any other method but `.reset()` after `.build()` will panic for sanity reasons.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_query_as</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">T</span>: <span class="ident">FromRow</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB::Row</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;q</span> <span class="kw-2">mut</span> <span class="self">self</span>,
+    ) -&gt; <span class="ident">QueryAs</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident">DB</span>, <span class="ident">T</span>, <span class="op">&lt;</span><span class="ident">DB</span> <span class="kw">as</span> <span class="ident">HasArguments</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::Arguments</span><span class="op">&gt;</span> {
+        <span class="ident">QueryAs</span> {
+            <span class="ident">inner</span>: <span class="self">self</span>.<span class="ident">build</span>(),
+            <span class="ident">output</span>: <span class="ident">PhantomData</span>,
+        }
+    }
+
     <span class="doccomment">/// Reset this `QueryBuilder` back to its initial state.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The query is truncated to the initial fragment provided to [`new()`][Self::new] and</span>
@@ -773,6 +1099,16 @@
         <span class="self">self</span>.<span class="ident">arguments</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Default::default</span>());
 
         <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Get the current build SQL; **note**: may not be syntactically correct.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">query</span>
+    }
+
+    <span class="doccomment">/// Deconstruct this `QueryBuilder`, returning the built SQL. May not be syntactically correct.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_sql</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">query</span>
     }
 }
 
@@ -831,6 +1167,18 @@
         <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push_bind</span>(<span class="ident">value</span>);
         <span class="self">self</span>.<span class="ident">push_separator</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Push a bind argument placeholder (`?` or `$N` for Postgres) and bind a value to it</span>
+    <span class="doccomment">/// without a separator.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Simply calls [`QueryBuilder::push_bind()`] directly.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_bind_unseparated</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="lifetime">&#39;args</span> <span class="op">+</span> <span class="ident">Encode</span><span class="op">&lt;</span><span class="lifetime">&#39;args</span>, <span class="ident">DB</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Type</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">query_builder</span>.<span class="ident">push_bind</span>(<span class="ident">value</span>);
         <span class="self">self</span>
     }
 }

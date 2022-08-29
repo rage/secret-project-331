@@ -7,7 +7,7 @@
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
                                 <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
                         </div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a href="../../index.html">actix_web</a>::<wbr><a href="../index.html">cookie</a>::<wbr><a class="mod" href="#">time</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/time/lib.rs.html#1-326">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="feature-flags"><a href="#feature-flags">Feature flags</a></h2>
+    <h1 class="fqn"><span class="in-band">Crate <a href="../../index.html">actix_web</a>::<wbr><a href="../index.html">cookie</a>::<wbr><a class="mod" href="#">time</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../../../src/time/lib.rs.html#1-332">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="feature-flags"><a href="#feature-flags">Feature flags</a></h2>
 <p>This crate exposes a number of features. These can be enabled or disabled as shown
 <a href="https://doc.rust-lang.org/cargo/reference/features.html">in Cargo’s documentation</a>. Features
 are <em>disabled</em> by default unless otherwise noted.</p>
@@ -69,6 +69,12 @@ to the user.</p>
 <li>
 <p><code>quickcheck</code> (<em>implicitly enables <code>alloc</code></em>)</p>
 <p>Enables <a href="https://docs.rs/quickcheck">quickcheck</a> support for all types except <a href="struct.Instant.html" title="Instant"><code>Instant</code></a>.</p>
+</li>
+<li>
+<p><code>wasm-bindgen</code></p>
+<p>Enables <a href="https://github.com/rustwasm/wasm-bindgen">wasm-bindgen</a> support for converting
+<a href="https://rustwasm.github.io/wasm-bindgen/api/js_sys/struct.Date.html">JavaScript dates</a>, as
+well as obtaining the UTC offset from JavaScript.</p>
 </li>
 </ul>
 <p>One pseudo-feature flag that is only available to end users is the <code>unsound_local_offset</code> cfg.

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/postgres/listener.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>listener.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/postgres/listener.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>listener.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
@@ -448,6 +448,25 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>};
 <span class="kw">use</span> <span class="ident">std::io</span>;
 <span class="kw">use</span> <span class="ident">std::str::from_utf8</span>;
@@ -456,6 +475,7 @@
 <span class="kw">use</span> <span class="ident">futures_channel::mpsc</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
 <span class="kw">use</span> <span class="ident">futures_core::stream</span>::{<span class="ident">BoxStream</span>, <span class="ident">Stream</span>};
+<span class="kw">use</span> <span class="ident">futures_util</span>::{<span class="ident">FutureExt</span>, <span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::describe::Describe</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
@@ -484,14 +504,14 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PgNotification</span>(<span class="ident">Notification</span>);
 
 <span class="kw">impl</span> <span class="ident">PgListener</span> {
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">uri</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="comment">// Create a pool of 1 without timeouts (as they don&#39;t apply here)</span>
         <span class="comment">// We only use the pool to handle re-connections</span>
         <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">PoolOptions</span>::<span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="ident">::new</span>()
             .<span class="ident">max_connections</span>(<span class="number">1</span>)
             .<span class="ident">max_lifetime</span>(<span class="prelude-val">None</span>)
             .<span class="ident">idle_timeout</span>(<span class="prelude-val">None</span>)
-            .<span class="ident">connect</span>(<span class="ident">uri</span>)
+            .<span class="ident">connect</span>(<span class="ident">url</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::connect_with</span>(<span class="kw-2">&amp;</span><span class="ident">pool</span>).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -546,6 +566,7 @@
     <span class="doccomment">/// The channel name is quoted here to ensure case sensitivity.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">listen</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">connection</span>()
+            .<span class="kw">await</span><span class="question-mark">?</span>
             .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="macro">format!</span>(<span class="string">r#&quot;LISTEN &quot;{}&quot;&quot;#</span>, <span class="ident">ident</span>(<span class="ident">channel</span>)))
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -562,11 +583,8 @@
         <span class="kw">let</span> <span class="ident">beg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">channels</span>.<span class="ident">len</span>();
         <span class="self">self</span>.<span class="ident">channels</span>.<span class="ident">extend</span>(<span class="ident">channels</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">into</span>()));
 
-        <span class="self">self</span>.<span class="ident">connection</span>
-            .<span class="ident">as_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">build_listen_all_query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">channels</span>[<span class="ident">beg</span>..]))
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">build_listen_all_query</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">channels</span>[<span class="ident">beg</span>..]);
+        <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">query</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -574,9 +592,13 @@
     <span class="doccomment">/// Stops listening for notifications on a channel.</span>
     <span class="doccomment">/// The channel name is quoted here to ensure case sensitivity.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unlisten</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">channel</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">connection</span>()
-            .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="macro">format!</span>(<span class="string">r#&quot;UNLISTEN &quot;{}&quot;&quot;#</span>, <span class="ident">ident</span>(<span class="ident">channel</span>)))
-            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// use RAW connection and do NOT re-connect automatically, since this is not required for</span>
+        <span class="comment">// UNLISTEN (we&#39;ve disconnected anyways)</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">connection</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>.<span class="ident">as_mut</span>() {
+            <span class="ident">connection</span>
+                .<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="macro">format!</span>(<span class="string">r#&quot;UNLISTEN &quot;{}&quot;&quot;#</span>, <span class="ident">ident</span>(<span class="ident">channel</span>)))
+                .<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pos</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">channels</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">channel</span>) {
             <span class="self">self</span>.<span class="ident">channels</span>.<span class="ident">remove</span>(<span class="ident">pos</span>);
@@ -587,7 +609,11 @@
 
     <span class="doccomment">/// Stops listening for notifications on all channels.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unlisten_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">execute</span>(<span class="string">&quot;UNLISTEN *&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// use RAW connection and do NOT re-connect automatically, since this is not required for</span>
+        <span class="comment">// UNLISTEN (we&#39;ve disconnected anyways)</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">connection</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>.<span class="ident">as_mut</span>() {
+            <span class="ident">connection</span>.<span class="ident">execute</span>(<span class="string">&quot;UNLISTEN *&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="self">self</span>.<span class="ident">channels</span>.<span class="ident">clear</span>();
 
@@ -611,8 +637,11 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span> {
-        <span class="self">self</span>.<span class="ident">connection</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>()
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="comment">// Ensure we have an active connection to work with.</span>
+        <span class="self">self</span>.<span class="ident">connect_if_needed</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">connection</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>())
     }
 
     <span class="doccomment">/// Receives the next notification available from any of the subscribed channels.</span>
@@ -687,10 +716,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">close_event</span> <span class="op">=</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">ignore_close_event</span>).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">close_event</span>());
 
         <span class="kw">loop</span> {
-            <span class="comment">// Ensure we have an active connection to work with.</span>
-            <span class="self">self</span>.<span class="ident">connect_if_needed</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="kw">let</span> <span class="ident">next_message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">stream</span>.<span class="ident">recv_unchecked</span>();
+            <span class="kw">let</span> <span class="ident">next_message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">stream</span>.<span class="ident">recv_unchecked</span>();
 
             <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">close_event</span>) <span class="op">=</span> <span class="ident">close_event</span> {
                 <span class="comment">// cancels the wait and returns `Err(PoolClosed)` if the pool is closed</span>
@@ -706,7 +732,7 @@
                 <span class="comment">// The connection is dead, ensure that it is dropped,</span>
                 <span class="comment">// update self state, and loop to try again.</span>
                 <span class="prelude-val">Err</span>(<span class="ident">Error::Io</span>(<span class="ident">err</span>)) <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">kind</span>() <span class="op">==</span> <span class="ident">io::ErrorKind::ConnectionAborted</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">buffer_tx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">stream</span>.<span class="ident">notifications</span>.<span class="ident">take</span>();
+                    <span class="self">self</span>.<span class="ident">buffer_tx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">stream</span>.<span class="ident">notifications</span>.<span class="ident">take</span>();
                     <span class="self">self</span>.<span class="ident">connection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
                     <span class="comment">// lost connection</span>
@@ -727,7 +753,7 @@
 
                 <span class="comment">// Mark the connection as ready for another query</span>
                 <span class="ident">MessageFormat::ReadyForQuery</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">pending_ready_for_query_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">pending_ready_for_query_count</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
                 }
 
                 <span class="comment">// Ignore unexpected messages</span>
@@ -786,7 +812,13 @@
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
         <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">fetch_many</span>(<span class="ident">query</span>)
+        <span class="ident">futures_util::stream::once</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="comment">// need some basic type annotation to help the compiler a bit</span>
+            <span class="kw">let</span> <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">Error</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">fetch_many</span>(<span class="ident">query</span>));
+            <span class="ident">res</span>
+        })
+        .<span class="ident">try_flatten</span>()
+        .<span class="ident">boxed</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">fetch_optional</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span>, <span class="ident">E</span>: <span class="lifetime">&#39;q</span><span class="op">&gt;</span>(
@@ -797,7 +829,7 @@
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
         <span class="ident">E</span>: <span class="ident">Execute</span><span class="op">&lt;</span><span class="lifetime">&#39;q</span>, <span class="ident"><span class="self">Self</span>::Database</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">fetch_optional</span>(<span class="ident">query</span>)
+        <span class="kw">async</span> <span class="kw">move</span> { <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">fetch_optional</span>(<span class="ident">query</span>).<span class="kw">await</span> }.<span class="ident">boxed</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">prepare_with</span><span class="op">&lt;</span><span class="lifetime">&#39;e</span>, <span class="lifetime">&#39;q</span>: <span class="lifetime">&#39;e</span><span class="op">&gt;</span>(
@@ -808,7 +840,13 @@
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
-        <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">prepare_with</span>(<span class="ident">query</span>, <span class="ident">parameters</span>)
+        <span class="kw">async</span> <span class="kw">move</span> {
+            <span class="self">self</span>.<span class="ident">connection</span>()
+                .<span class="kw">await</span><span class="question-mark">?</span>
+                .<span class="ident">prepare_with</span>(<span class="ident">query</span>, <span class="ident">parameters</span>)
+                .<span class="kw">await</span>
+        }
+        .<span class="ident">boxed</span>()
     }
 
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
@@ -819,7 +857,7 @@
     <span class="kw">where</span>
         <span class="lifetime">&#39;c</span>: <span class="lifetime">&#39;e</span>,
     {
-        <span class="self">self</span>.<span class="ident">connection</span>().<span class="ident">describe</span>(<span class="ident">query</span>)
+        <span class="kw">async</span> <span class="kw">move</span> { <span class="self">self</span>.<span class="ident">connection</span>().<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">describe</span>(<span class="ident">query</span>).<span class="kw">await</span> }.<span class="ident">boxed</span>()
     }
 }
 

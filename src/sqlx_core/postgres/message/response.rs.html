@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/postgres/message/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/postgres/message/response.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>response.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div>
@@ -241,6 +241,19 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::str::from_utf8</span>;
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
@@ -376,19 +389,21 @@
 
             <span class="kw">match</span> <span class="ident">field</span> {
                 <span class="string">b&#39;S&#39;</span> =&gt; {
-                    <span class="comment">// Discard potential errors, because the message might be localized</span>
                     <span class="ident">severity_s</span> <span class="op">=</span> <span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">v</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">v</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>])
-                        .<span class="ident">unwrap</span>()
+                        <span class="comment">// If the error string is not UTF-8, we have no hope of interpreting it,</span>
+                        <span class="comment">// localized or not. The `V` field would likely fail to parse as well.</span>
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">notice_protocol_err</span>())<span class="question-mark">?</span>
                         .<span class="ident">try_into</span>()
+                        <span class="comment">// If we couldn&#39;t parse the severity here, it might just be localized.</span>
                         .<span class="ident">ok</span>();
                 }
 
                 <span class="string">b&#39;V&#39;</span> =&gt; {
-                    <span class="comment">// Propagate errors here, because V is not localized and thus we are missing a possible</span>
-                    <span class="comment">// variant.</span>
+                    <span class="comment">// Propagate errors here, because V is not localized and</span>
+                    <span class="comment">// thus we are missing a possible variant.</span>
                     <span class="ident">severity_v</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
                         <span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>[<span class="ident">v</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>..<span class="ident">v</span>.<span class="number">1</span> <span class="kw">as</span> <span class="ident">usize</span>])
-                            .<span class="ident">unwrap</span>()
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">notice_protocol_err</span>())<span class="question-mark">?</span>
                             .<span class="ident">try_into</span>()<span class="question-mark">?</span>,
                     );
                 }
@@ -440,6 +455,17 @@
 
         <span class="prelude-val">Some</span>((<span class="ident">ty</span>, (<span class="ident">offset</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">offset</span> <span class="op">+</span> <span class="ident">nul</span> <span class="op">+</span> <span class="number">1</span>)))
     }
+}
+
+<span class="kw">fn</span> <span class="ident">notice_protocol_err</span>() -&gt; <span class="ident">Error</span> {
+    <span class="comment">// https://github.com/launchbadge/sqlx/issues/1144</span>
+    <span class="ident">Error::Protocol</span>(
+        <span class="string">&quot;Postgres returned a non-UTF-8 string for its error message. \
+         This is most likely due to an error that occurred during authentication and \
+         the default lc_messages locale is not binary-compatible with UTF-8. \
+         See the server logs for the error details.&quot;</span>
+            .<span class="ident">into</span>(),
+    )
 }
 
 <span class="attribute">#[<span class="ident">test</span>]</span>

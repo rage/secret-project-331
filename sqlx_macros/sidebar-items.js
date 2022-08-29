@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"derive":[["Decode",""],["Encode",""],["FromRow",""],["Type",""]],"macro":[["expand_query",""],["migrate",""]]};
+window.SIDEBAR_ITEMS = {"attr":[["test",""]],"derive":[["Decode",""],["Encode",""],["FromRow",""],["Type",""]],"macro":[["expand_query",""],["migrate",""]]};

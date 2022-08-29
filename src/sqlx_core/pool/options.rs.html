@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.0/src/pool/options.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/pool/options.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
@@ -485,6 +485,24 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connection::Connection</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::database::Database</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
@@ -492,6 +510,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pool::Pool</span>;
 <span class="kw">use</span> <span class="ident">futures_core::future::BoxFuture</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Debug</span>, <span class="ident">Formatter</span>};
+<span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 <span class="kw">use</span> <span class="ident">std::time</span>::{<span class="ident">Duration</span>, <span class="ident">Instant</span>};
 
 <span class="doccomment">/// Configuration options for [`Pool`][super::Pool].</span>
@@ -527,10 +546,11 @@
 <span class="doccomment">/// parameter everywhere, and `Box` is in the prelude so it doesn&#39;t need to be manually imported,</span>
 <span class="doccomment">/// so having the closure return `Pin&lt;Box&lt;dyn Future&gt;` directly is the path of least resistance from</span>
 <span class="doccomment">/// the perspectives of both API designer and consumer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PoolOptions</span><span class="op">&lt;</span><span class="ident">DB</span>: <span class="ident">Database</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">test_before_acquire</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">after_connect</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">Box</span><span class="op">&lt;</span>
+        <span class="ident">Arc</span><span class="op">&lt;</span>
             <span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>, <span class="ident">PoolConnectionMetadata</span>) -&gt; <span class="ident">BoxFuture</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>
                 <span class="op">+</span> <span class="lifetime">&#39;static</span>
                 <span class="op">+</span> <span class="ident">Send</span>
@@ -538,7 +558,7 @@
         <span class="op">&gt;</span>,
     <span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">before_acquire</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">Box</span><span class="op">&lt;</span>
+        <span class="ident">Arc</span><span class="op">&lt;</span>
             <span class="kw">dyn</span> <span class="ident">Fn</span>(
                     <span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>,
                     <span class="ident">PoolConnectionMetadata</span>,
@@ -549,7 +569,7 @@
         <span class="op">&gt;</span>,
     <span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">after_release</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>
-        <span class="ident">Box</span><span class="op">&lt;</span>
+        <span class="ident">Arc</span><span class="op">&lt;</span>
             <span class="kw">dyn</span> <span class="ident">Fn</span>(
                     <span class="kw-2">&amp;mut</span> <span class="ident">DB::Connection</span>,
                     <span class="ident">PoolConnectionMetadata</span>,
@@ -565,6 +585,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">max_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">idle_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">fair</span>: <span class="ident">bool</span>,
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">parent_pool</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Metadata for the connection being processed by a [`PoolOptions`] callback.</span>
@@ -610,6 +632,7 @@
             <span class="ident">idle_timeout</span>: <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span> <span class="op">*</span> <span class="number">60</span>)),
             <span class="ident">max_lifetime</span>: <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">30</span> <span class="op">*</span> <span class="number">60</span>)),
             <span class="ident">fair</span>: <span class="bool-val">true</span>,
+            <span class="ident">parent_pool</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -755,7 +778,7 @@
     <span class="doccomment">///             .await?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">///         Ok(())</span>
-    <span class="doccomment">///     }))    </span>
+    <span class="doccomment">///     }))</span>
     <span class="doccomment">///     .connect(&quot;postgres:// …&quot;).await?;</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
@@ -771,7 +794,7 @@
             <span class="op">+</span> <span class="ident">Send</span>
             <span class="op">+</span> <span class="ident">Sync</span>,
     {
-        <span class="self">self</span>.<span class="ident">after_connect</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">callback</span>));
+        <span class="self">self</span>.<span class="ident">after_connect</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Arc::new</span>(<span class="ident">callback</span>));
         <span class="self">self</span>
     }
 
@@ -824,7 +847,7 @@
             <span class="op">+</span> <span class="ident">Send</span>
             <span class="op">+</span> <span class="ident">Sync</span>,
     {
-        <span class="self">self</span>.<span class="ident">before_acquire</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">callback</span>));
+        <span class="self">self</span>.<span class="ident">before_acquire</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Arc::new</span>(<span class="ident">callback</span>));
         <span class="self">self</span>
     }
 
@@ -881,7 +904,20 @@
             <span class="op">+</span> <span class="ident">Send</span>
             <span class="op">+</span> <span class="ident">Sync</span>,
     {
-        <span class="self">self</span>.<span class="ident">after_release</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">callback</span>));
+        <span class="self">self</span>.<span class="ident">after_release</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Arc::new</span>(<span class="ident">callback</span>));
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Set the parent `Pool` from which the new pool will inherit its semaphore.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is currently an internal-only API.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Panics</span>
+    <span class="doccomment">/// If `self.max_connections` is greater than the setting the given pool was created with,</span>
+    <span class="doccomment">/// or `self.fair` differs from the setting the given pool was created with.</span>
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool</span>: <span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">DB</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">parent_pool</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pool</span>);
         <span class="self">self</span>
     }
 

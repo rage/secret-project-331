@@ -28,7 +28,7 @@ Before you start: Run this: `npm ci && bin/npm-ci-all`
 
 One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `npm audit fix`.
 
-You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.
+You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules\|.next'`.
 
 Start by upgrading the dependencies in the root of the repo and run `npm run eslint` to catch new changes to ESLint rules / prettier formatting. You can also use `npm run eslint:open:vscode` if you want to open all the files with ESLint problems.
 

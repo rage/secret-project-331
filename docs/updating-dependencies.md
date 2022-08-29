@@ -17,8 +17,10 @@ Check if we are using the current node LTS version from by comparing a `.nvmcrc`
 
 1. Run `bin/update-rust`
 2. Run command: `bin/build-dockerfile-development-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base`
-   3: Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
-   4: Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
+3. Run command: `bin/build-dockerfile-production-base && docker push eu.gcr.io/moocfi-public/project-331-headless-lms-production-base`
+4. Run command: `bin/build-dockerfile-node-base && docker push eu.gcr.io/moocfi-public/project-331-node-base`
+
+Run `bin/minikube-pull-baseimages` on your host and instruct others to run this command as well once your update PR is merged.
 
 ## Updating node dependencies
 
@@ -28,7 +30,7 @@ Before you start: Run this: `npm ci && bin/npm-ci-all`
 
 One by one cd to a service and run `npx npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `npx tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `npm audit fix`.
 
-You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules'`.
+You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules\|.next'`.
 
 Start by upgrading the dependencies in the root of the repo and run `npm run eslint` to catch new changes to ESLint rules / prettier formatting. You can also use `npm run eslint:open:vscode` if you want to open all the files with ESLint problems.
 
@@ -48,8 +50,9 @@ First, start `bin/dev-only-db` in one terminal. Once the database if fully up, r
 
 ```bash
 bin/sqlx-database-reset
+bin/sqlx-prepare
 bin/cargo-check
-bin/cargo-clippy
+bin/cargo-clippy --fix
 bin/cargo-test
 ```
 

@@ -38,6 +38,7 @@ const ParagraphBlock: React.FC<
     dropCap,
     align,
     anchor,
+    fontFamily,
     // className, Additional classNames added in Advanced menu
     // direction, If read from right to left or left to right
     // style,
@@ -72,6 +73,7 @@ const ParagraphBlock: React.FC<
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
+            ${fontFamily && `font-family: ${fontFamily};`}
             font-size: ${fontSize};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;

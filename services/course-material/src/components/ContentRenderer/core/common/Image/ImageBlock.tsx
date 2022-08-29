@@ -56,8 +56,7 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
         margin-right: 1em;`}
       `}
     >
-      {/* eslint-disable-next-line i18next/no-literal-string*/}
-      <Zoom wrapStyle={{ display: "block" }}>
+      <Zoom>
         <figure
           className={css`
             ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}

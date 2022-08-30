@@ -95,7 +95,7 @@ export interface ModelSolutionQuiz {
 type MultipleChoiceGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
-  | "points-off-invalid-options"
+  | "points-off-unselected-options"
 export interface QuizItem {
   shuffleOptions: boolean
   id: string

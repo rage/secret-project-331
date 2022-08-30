@@ -209,7 +209,6 @@ function getMultipleChoicePointsByGrading(
   }
 
   const totalCorrectAnswers = quizItem.options.filter((o) => o.correct).length
-  const totalOptions = quizItem.options.length
   quizItemAnswer.optionAnswers?.forEach((oa) => {
     const option = quizItem.options.find((o) => o.id === oa)
     if (option && option.correct) {
@@ -222,12 +221,15 @@ function getMultipleChoicePointsByGrading(
   let totalScore = 0
   switch (quizItem.multipleChoiceGradingPolicy) {
     case "default":
-      totalScore = countOfCorrectAnswers
+      totalScore =
+        countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
+          ? totalCorrectAnswers
+          : 0
       break
     case "points-off-incorrect-options":
       totalScore = Math.max(0, countOfCorrectAnswers - countOfIncorrectAnswers)
       break
-    case "points-off-invalid-options":
+    case "points-off-unselected-options":
       totalScore = Math.max(
         0,
         countOfCorrectAnswers * 2 - totalCorrectAnswers - countOfIncorrectAnswers,
@@ -235,7 +237,7 @@ function getMultipleChoicePointsByGrading(
       break
   }
 
-  return totalScore / totalOptions
+  return totalScore / totalCorrectAnswers
 }
 
 function assessMultipleChoiceQuizzes(

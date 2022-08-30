@@ -45,6 +45,8 @@
     "react-dom": "^18.2.0",
     "storybook-a11y-report": "^0.0.15",
     "storybook-react-i18next": "^1.1.2",
+    "stylelint": "^14.9.1",
+    "stylelint-config-recommended": "^8.0.0",
     "ts-jest": "^28.0.8",
     "typescript": "^4.8.2",
     "webpack-merge": "^5.8.0"

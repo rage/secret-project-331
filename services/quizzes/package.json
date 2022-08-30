@@ -73,7 +73,8 @@
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
     "redux-devtools-extension": "^2.13.9",
-    "stylelint": "^14.11.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-recommended": "^8.0.0",
     "ts-jest": "^28.0.8",
     "typescript": "^4.8.2"
   }

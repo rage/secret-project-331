@@ -1,8 +1,10 @@
+use std::collections::HashSet;
+
 use futures::Stream;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions,
+    exercise_service_info, exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     prelude::*,
     CourseOrExamId,
@@ -280,6 +282,21 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     >(&mut *conn, &task_submisssions[0].exercise_slide_id)
     .await?;
     let mut res = Vec::with_capacity(task_submisssions.len());
+
+    let unique_exercise_service_slugs = exercise_tasks
+        .iter()
+        .cloned()
+        .map(|et| et.exercise_type)
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let exercise_service_slug_to_service_and_info =
+        exercise_service_info::get_selected_exercise_services_by_type(
+            &mut *conn,
+            &unique_exercise_service_slugs,
+        )
+        .await?;
+
     for ts in task_submisssions {
         let grading = exercise_task_gradings
             .iter()
@@ -289,16 +306,16 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
             .iter()
             .find(|t| t.id == ts.exercise_task_id)
             .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
-        let service_info = crate::exercise_service_info::get_service_info_by_exercise_type(
-            &mut *conn,
-            &task.exercise_type,
-        )
-        .await?;
-        let exercise_iframe_url = service_info.user_interface_iframe_path;
+        let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
+            .get(&task.exercise_type)
+            .ok_or_else(|| ModelError::InvalidRequest("Exercise service not found".to_string()))?;
+        let mut exercise_iframe_url =
+            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
+        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,
-            exercise_iframe_url: Some(exercise_iframe_url),
+            exercise_iframe_url: Some(exercise_iframe_url.to_string()),
             pseudonumous_user_id: Some(Uuid::new_v5(
                 &service_info.exercise_service_id,
                 viewer_user_id.as_bytes(),

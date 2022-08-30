@@ -7,7 +7,7 @@ import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
 import Progress from "../../../../shared-module/components/CourseProgress"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
-import ExerciseCountDisplay from "./ExerciseCountDisplay"
+import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
 
 export interface CourseProgressProps {
@@ -16,7 +16,7 @@ export interface CourseProgressProps {
 
 const Wrapper = styled.div`
   background-color: #f5f6f7;
-  margin: 3px 0 3px 0;
+  margin: 3px 0 6px 0;
   padding: 0;
 
   ${respondToOrLarger.md} {
@@ -25,7 +25,7 @@ const Wrapper = styled.div`
 `
 const TotalWrapper = styled.div`
   background-color: #f5f6f7;
-  margin: 3px 0 6px 0;
+  margin: 3px 0 3px 0;
   padding: 0.8rem 3rem 1.5rem 3rem;
 `
 
@@ -60,17 +60,6 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
             title={courseModuleProgress.course_module_name}
             key={courseModuleProgress.course_module_id}
           >
-            <Wrapper>
-              <ExerciseCountDisplay
-                exercisesAnswered={courseModuleProgress.attempted_exercises ?? 0}
-                exercisesNeededToAnswer={
-                  courseModuleProgress.attempted_exercises_required ??
-                  courseModuleProgress.total_exercises ??
-                  0
-                }
-                totalExercises={courseModuleProgress.total_exercises ?? 0}
-              />
-            </Wrapper>
             <TotalWrapper>
               <div
                 className={css`
@@ -86,17 +75,25 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   max={courseModuleProgress.score_maximum}
                   required={courseModuleProgress.score_required ?? undefined}
                   given={courseModuleProgress.score_given}
-                  point={50}
                   label={t("total-points")}
                 />
                 <Progress
                   variant={"bar"}
-                  showAsPercentage={true}
+                  showAsPercentage={false}
                   exercisesAttempted={courseModuleProgress.attempted_exercises}
                   exercisesTotal={courseModuleProgress.total_exercises}
+                  required={courseModuleProgress.attempted_exercises_required ?? undefined}
                 />
               </div>
             </TotalWrapper>
+            <Wrapper>
+              <CompletionRequirementsTabulation
+                attemptedExercisesRequiredForCompletion={
+                  courseModuleProgress.attempted_exercises_required
+                }
+                pointsRequiredForCompletion={courseModuleProgress.score_required}
+              />
+            </Wrapper>
           </TempAccordionItem>
         ))}
     </>

@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { animated, useSpring } from "react-spring"
 
 import { baseTheme, headingFont } from "../../../../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
@@ -10,6 +11,12 @@ import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/acces
 const TempAccordion: React.FC<
   React.PropsWithChildren<{ title: string; open: boolean; onClick: () => void }>
 > = ({ title, open, onClick, children }) => {
+  const openAnimation = useSpring({
+    to: { opacity: open ? 1 : 0 },
+    from: { opacity: open ? 0 : 1 },
+    duration: 2000,
+  })
+
   const faIcon = open ? faAngleUp : faAngleDown
   return (
     <div>
@@ -48,7 +55,7 @@ const TempAccordion: React.FC<
           <FontAwesomeIcon icon={faIcon} />
         </div>
       </div>
-      {open ? <div>{children}</div> : null}
+      {open ? <animated.div style={openAnimation}>{children}</animated.div> : null}
     </div>
   )
 }

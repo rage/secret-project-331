@@ -7,7 +7,6 @@ export interface CircularProgressExtraProps {
   size?: "medium" | "large"
   max: number | null
   given: number | null
-  point: number
   label: string
   required?: number
 }
@@ -18,6 +17,7 @@ export interface ProgressBarExtraProps {
   exercisesTotal: number | null
   height?: string
   label?: boolean
+  required?: number
 }
 
 type ProgressExtraProps = CircularProgressExtraProps | ProgressBarExtraProps

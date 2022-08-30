@@ -8,8 +8,12 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../shared-module/components/Centering/Centered"
+import DebugModal from "../../shared-module/components/DebugModal"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
 import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
@@ -17,7 +21,6 @@ import { gutenbergControlsVisible } from "../../styles/EditorStyles"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
-import { exerciseTaskTypes } from "./ChooseExerciseTaskType/ExerciseServiceList"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
@@ -79,6 +82,7 @@ const ExerciseTaskEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
+  const exerciseServicesQuery = useAllExerciseServices()
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -95,8 +99,28 @@ const ExerciseTaskEditor: React.FC<
     setPrivateSpecToPostToIframe(attributes.private_spec)
   }
 
+  if (exerciseServicesQuery.isError) {
+    return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
+  }
+
+  if (exerciseServicesQuery.isLoading) {
+    return <Spinner variant="medium" />
+  }
+
   const exerciseType = attributes.exercise_type
-  const url = exerciseTaskTypes.find((o) => o.identifier === exerciseType)?.url
+  const url = exerciseServicesQuery.data.find((o) => o.slug === exerciseType)?.public_iframe_url
+
+  if (exerciseType && !url) {
+    return (
+      <>
+        <ErrorBanner
+          variant="readOnly"
+          error={t("error-cannot-render-editor-for-exercise-service-x", { slug: exerciseType })}
+        />
+        <DebugModal data={exerciseServicesQuery.data} />
+      </>
+    )
+  }
 
   return (
     <div id={attributes.id}>
@@ -166,7 +190,7 @@ const ExerciseTaskEditor: React.FC<
                 </div>
                 {!exerciseType ? (
                   <ChooseExerciseTaskType
-                    onChooseItem={(x) => setAttributes({ exercise_type: x.identifier })}
+                    onChooseItem={(x) => setAttributes({ exercise_type: x.slug })}
                   />
                 ) : (
                   <ExerciseTaskIFrameEditor

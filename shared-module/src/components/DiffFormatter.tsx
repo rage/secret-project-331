@@ -34,6 +34,7 @@ const DiffFormatter: React.FC<
           }
           return (
             <mark
+              key={JSON.stringify(change)}
               role="note"
               aria-label={t("added-text")}
               className={css`
@@ -50,6 +51,7 @@ const DiffFormatter: React.FC<
           }
           return (
             <mark
+              key={JSON.stringify(change)}
               role="note"
               aria-label={t("removed-text")}
               className={css`
@@ -61,7 +63,7 @@ const DiffFormatter: React.FC<
             </mark>
           )
         } else {
-          return <span>{change.value}</span>
+          return <span key={JSON.stringify(change)}>{change.value}</span>
         }
       })}
     </>

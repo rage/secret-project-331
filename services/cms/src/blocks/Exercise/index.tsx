@@ -53,11 +53,11 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     },
     peer_review_config: {
       type: "string",
-      default: "{}",
+      default: "null",
     },
     peer_review_questions_config: {
       type: "string",
-      default: "[]",
+      default: "null",
     },
     use_course_default_peer_review: {
       type: "boolean",

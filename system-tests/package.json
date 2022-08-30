@@ -35,13 +35,13 @@
   },
   "keywords": [],
   "devDependencies": {
-    "@playwright/test": "^1.24.2",
-    "@types/node": "^18.6.2",
-    "playwright": "^1.24.0",
-    "typescript": "^4.7.4"
+    "@playwright/test": "^1.25.1",
+    "@types/node": "^18.7.13",
+    "playwright": "^1.25.1",
+    "typescript": "^4.8.2"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.4.3",
+    "@axe-core/playwright": "^4.4.4",
     "axe-core": "^4.4.3"
   }
 }

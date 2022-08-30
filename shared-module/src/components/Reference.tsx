@@ -138,13 +138,18 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
     const references = document.querySelectorAll(".reference")
 
     const eventHandler = (evt: Event) => {
-      const target = evt.target
+      // eslint-disable-next-line i18next/no-literal-string
+      let citation = null
+      if (evt.target instanceof Element) {
+        citation = evt.target
+      } else {
+        return
+      }
+
       // @ts-expect-error: Type not aware of the field
-      const citationId = target?.parentNode?.dataset.citationId || ""
+      const citationId = citation?.parentNode?.dataset.citationId || ""
       const el = data.find((item) => item.id === citationId)
 
-      // eslint-disable-next-line i18next/no-literal-string
-      const citation = document.querySelector(`[data-citation-id="${citationId}"]`)
       if (el) {
         // eslint-disable-next-line i18next/no-literal-string
         const wrapper = document.createElement("div")
@@ -153,21 +158,18 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
 
         const wrapperEl = document.getElementById("wrapper")
 
-        if (!target) {
-          return
-        }
         if (evt.type === "mouseover") {
           // @ts-expect-error: Type not aware of the field
-          target.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
+          citation.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
           wrapper.style.cssText =
-            "opacity: 1; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
+            "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
           // eslint-disable-next-line i18next/no-literal-string
           wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
           // @ts-expect-error: Type not aware of the field
-          target.style.cssText = "text-decoration: none; color: #46749B;"
+          citation.style.cssText = "text-decoration: none; color: #46749B;"
           wrapperEl && wrapperEl.remove()
         }
       }

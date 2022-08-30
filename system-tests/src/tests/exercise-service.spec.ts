@@ -1,6 +1,6 @@
 import { expect, Page, test } from "@playwright/test"
 
-import expectPath from "../utils/expect"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -27,22 +27,7 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.locator("text=Manage exercise services").click()
   await expect(page).toHaveURL("http://project-331.local/manage/exercise-services")
 
-  expectPath(page, "/manage/exercise-services")
-
-  // Click text=Example ExerciseSlug: example-exercisePublic URL: http://project-331.local/examp >> button
-  await page.click(
-    "text=Example ExerciseSlug: example-exercisePublic URL: http://project-331.local/examp >> button",
-  )
-  // Click button:has-text("Delete")
-  await page.click('button:has-text("Delete")')
-
-  // Click text=QuizzesSlug: quizzesPublic URL: http://project-331.local/quizzes/api/service-inf >> button
-  await page.click(
-    "text=QuizzesSlug: quizzesPublic URL: http://project-331.local/quizzes/api/service-inf >> button",
-  )
-
-  // Click button:has-text("Delete")
-  await page.click('button:has-text("Delete")')
+  await expectUrlPathWithRandomUuid(page, "/manage/exercise-services")
 
   // Click text=Add new service
   await page.click(`button:text("New")`)
@@ -57,13 +42,10 @@ test("can add and delete exercise service", async ({ page, headless }) => {
   await page.click('[placeholder="Public URL..."]')
 
   // Fill [placeholder="Public URL..."]
-  await page.fill('[placeholder="Public URL..."]', "http://public_url")
+  await page.fill('[placeholder="Public URL..."]', "http://example.com")
 
   // Click [placeholder="Internal URL..."]
   await page.click('[placeholder="Internal URL..."]')
-
-  // Fill [placeholder="Internal URL..."]
-  await page.fill('[placeholder="Internal URL..."]', "http://internal_url")
 
   // Click button:has-text("Create")
   await page.click('button:text("Create")')

@@ -132,7 +132,7 @@ function assessAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       item.type === "clickable-multiple-choice" ||
       item.type === "multiple-choice-dropdown"
     ) {
-      return assesMultipleChoiceQuizzes(ia, item)
+      return assessMultipleChoiceQuizzes(ia, item)
     } else if (item.type === "open") {
       return assessOpenQuiz(ia, item)
     } else if (item.type === "matrix") {
@@ -190,7 +190,7 @@ function assessTimelineQuiz(
   }
 }
 
-function assesMultipleChoiceQuizzes(
+function assessMultipleChoiceQuizzes(
   quizItemAnswer: QuizItemAnswer,
   quizItem: QuizItem,
 ): QuizItemAnswerGrading {

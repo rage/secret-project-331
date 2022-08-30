@@ -26,7 +26,6 @@ chrono = { version = "0.4.19", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.81"
 # A crate for uploading files to Google cloud storage, and for generating download urls.
-# Using a fork until this gets merged: https://github.com/ThouCheese/cloud-storage-rs/pull/101
 cloud-storage = { version = "0.11.1", default-features = false, features = ["rustls-tls"] }
 # A library for managing a temporary directory and deleting all contents when it's dropped.
 tempdir = "0.3.7"

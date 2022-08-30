@@ -162,7 +162,7 @@ pub struct ContentManagementPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
-    pub peer_reviews: Vec<CmsPeerReviewConfig>,
+    pub peer_review_configs: Vec<CmsPeerReviewConfig>,
     pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
     pub organization_id: Uuid,
 }
@@ -245,7 +245,7 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
+            peer_review_configs: Vec::new(),
             peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
@@ -294,7 +294,7 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            peer_reviews: Vec::new(),
+            peer_review_configs: Vec::new(),
             peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
@@ -678,7 +678,7 @@ pub async fn get_page_with_exercises(
         exercises,
         exercise_slides,
         exercise_tasks,
-        peer_reviews: peer_review_configs.into_values().collect(),
+        peer_review_configs: peer_review_configs.into_values().collect(),
         peer_review_questions: peer_review_questions.into_values().flatten().collect(),
         organization_id,
     })
@@ -1066,7 +1066,7 @@ RETURNING id,
         exercises: final_exercises,
         exercise_slides: final_slides,
         exercise_tasks: final_tasks,
-        peer_reviews: final_peer_reviews,
+        peer_review_configs: final_peer_reviews,
         peer_review_questions: final_peer_review_questions,
     };
     crate::page_history::insert(
@@ -1088,7 +1088,7 @@ RETURNING id,
         exercises: history_content.exercises,
         exercise_slides: history_content.exercise_slides,
         exercise_tasks: history_content.exercise_tasks,
-        peer_reviews: history_content.peer_reviews,
+        peer_review_configs: history_content.peer_review_configs,
         peer_review_questions: history_content.peer_review_questions,
         organization_id,
     })
@@ -2785,12 +2785,13 @@ mod test {
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise);
         let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
         let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+
         let pr1 = CmsPeerReviewConfig {
             id:pr_id,
-            exercise_id: None,
+            exercise_id: Some(exercise),
             course_id: course,
             accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
             accepting_threshold:0.5,
@@ -2813,20 +2814,18 @@ mod test {
             .unwrap();
 
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
-        assert!(pr_res.get(&pr_id).unwrap().id != pr_id);
 
-        assert!(prq_res.get(&prq_id).unwrap().id != prq_id);
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
     }
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work_retain_ids() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page:_page, exercise:exercise);
         let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
         let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
         let pr1 = CmsPeerReviewConfig {
             id:pr_id,
-            exercise_id: None,
+            exercise_id: Some(exercise),
             course_id: course,
             accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
             accepting_threshold:0.5,

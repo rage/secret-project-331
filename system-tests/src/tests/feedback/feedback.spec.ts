@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectPath from "../../utils/expect"
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -95,20 +95,20 @@ test("feedback test", async ({ headless, page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Introduction to feedback Manage >> :nth-match(a, 2)
   await Promise.all([
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to feedback'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage feedback
 
   await Promise.all([page.waitForNavigation(), page.click("text=Feedback")])
   // await page.waitForURL((url) => url.searchParams.has("read"))
-  expectPath(page, "/manage/courses/[id]/feedback")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback")
 
   // Makes sure the components have rendered so that the next waitForThisToBeVisibleAndStable always works with the placeholder
   await page.waitForSelector(`text="Page: Page One"`)
@@ -148,7 +148,7 @@ test("feedback test", async ({ headless, page }) => {
 
   // Click :nth-match(:text("Read"), 2)
   await page.click(':nth-match(:text("Read"), 2)')
-  expectPath(page, "/manage/courses/[id]/feedback?read=true")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/feedback?read=true")
 
   // Click text=Mark as unread
   await page.click("text=Mark as unread")

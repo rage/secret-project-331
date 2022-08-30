@@ -1,6 +1,4 @@
 import { css } from "@emotion/css"
-import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { max } from "lodash"
@@ -19,7 +17,8 @@ import Centered from "../../../../../../shared-module/components/Centering/Cente
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import DropdownMenu from "../../../../../../shared-module/components/DropdownMenu"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, typography } from "../../../../../../shared-module/styles"
+import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
+import BottomPanel from "../../../../../BottomPanel"
 
 import ChapterImageWidget from "./ChapterImageWidget"
 import NewChapterForm from "./NewChapterForm"
@@ -81,9 +80,19 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   }
 
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
+
   return (
     <>
-      <h1>{t("course-pages-for", { "course-name": courseStructure.course.name })}</h1>
+      <h1
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
+        {t("course-pages-for", { "course-name": courseStructure.course.name })}
+      </h1>
       <h2>{t("pages")}</h2>
       <FrontPage
         refetch={refetch}
@@ -249,70 +258,20 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         </Dialog>
       </div>
       <DebugModal data={courseStructure} />
-      {pageOrderState.unsavedChanges && (
-        <div
-          className={css`
-            padding: 1rem 2rem;
-            position: fixed;
-            bottom: 0px;
-            margin: 5% auto;
-            left: 0;
-            right: 0;
-            width: 90%;
-            max-width: fit-content;
-            z-index: 20;
-            background-color: ${baseTheme.colors.clear[100]};
-            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.26);
-            border-radius: 2px;
-          `}
-        >
-          <div
-            className={css`
-              margin-top: 0.4rem;
-              margin-bottom: 0.6rem;
-              display: flex;
-              align-items: center;
-              font-weight: 600;
-              color: ${baseTheme.colors.grey[500]};
-            `}
-          >
-            <FontAwesomeIcon
-              icon={faExclamationCircle}
-              className={css`
-                font-size: 40px;
-                margin-right: 1rem;
-                color: ${baseTheme.colors.grey[600]};
-              `}
-            />
-            {t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}
-          </div>
-          <div>
-            <Button
-              variant="blue"
-              size="medium"
-              className={css`
-                margin-left: 55px;
-                margin-right: 0.5rem;
-              `}
-              onClick={() => {
-                postNewPageOrderingMutation.mutate()
-              }}
-            >
-              {t("button-text-save")}
-            </Button>
-            <Button
-              variant="secondary"
-              size="medium"
-              onClick={() => {
-                // eslint-disable-next-line i18next/no-literal-string
-                pageOrderDispatch({ type: "setData", payload: courseStructure })
-              }}
-            >
-              {t("button-reset")}
-            </Button>
-          </div>
-        </div>
-      )}
+
+      <BottomPanel
+        title={t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}
+        show={pageOrderState.unsavedChanges}
+        leftButtonText={t("button-text-save")}
+        onClickLeft={() => {
+          postNewPageOrderingMutation.mutate()
+        }}
+        rightButtonText={t("button-reset")}
+        onClickRight={() => {
+          // eslint-disable-next-line i18next/no-literal-string
+          pageOrderDispatch({ type: "setData", payload: courseStructure })
+        }}
+      />
     </>
   )
 }

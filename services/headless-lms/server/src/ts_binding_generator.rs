@@ -1,6 +1,6 @@
 #[cfg(feature = "ts_rs")]
 use crate::controllers::{
-    auth::{CreateAccountDetails, Login},
+    auth::{CreateAccountDetails, Login, UserInfo},
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
@@ -8,6 +8,8 @@ use crate::controllers::{
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
+        exercises::AnswerRequiringAttentionWithTasks,
+        exercises::AnswersRequiringAttention,
         exercises::ExerciseSubmissions,
         feedback::MarkAsRead,
         proposed_edits::GetEditProposalsQuery,
@@ -98,6 +100,7 @@ fn ts_binding_generator() {
 
         exercise_services::ExerciseService,
         exercise_services::ExerciseServiceNewOrUpdate,
+        exercise_services::ExerciseServiceIframeRenderingInfo,
 
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
@@ -182,6 +185,12 @@ fn ts_binding_generator() {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
+        exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
+        exercise_slide_submissions::AnswerRequiringAttention,
+
+        teacher_grading_decisions::TeacherGradingDecision,
+        teacher_grading_decisions::TeacherDecisionType,
+        teacher_grading_decisions::NewTeacherGradingDecision,
 
         exercise_task_gradings::ExerciseTaskGrading,
         exercise_task_gradings::ExerciseTaskGradingResult,
@@ -199,12 +208,13 @@ fn ts_binding_generator() {
         user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
-
+        user_exercise_states::UserExerciseState,
         users::User,
 
         ChaptersWithStatus,
         CourseMaterialCourseModule,
         CreateAccountDetails,
+        UserInfo,
         RoleQuery,
         RoleInfo,
         ExamData,
@@ -213,6 +223,8 @@ fn ts_binding_generator() {
         Login,
         UploadResult,
         ExerciseSubmissions,
+        AnswersRequiringAttention,
+        AnswerRequiringAttentionWithTasks,
         MarkAsRead,
         GetFeedbackQuery,
         GetEditProposalsQuery,
@@ -221,8 +233,13 @@ fn ts_binding_generator() {
         Pagination,
         OEmbedResponse,
 
+
         material_references::MaterialReference,
-        material_references::NewMaterialReference
+        material_references::NewMaterialReference,
+
+        course_modules::ModifiedModule,
+        course_modules::ModuleUpdates,
+        course_modules::NewModule
     };
     res.unwrap();
 }

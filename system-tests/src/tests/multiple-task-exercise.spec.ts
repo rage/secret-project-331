@@ -27,8 +27,8 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     page.click("text=Advanced exercise states"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
+  // Click text=default
+  await page.click("text=default")
   // Click button:has-text("Continue")
   await selectCourseInstanceIfPrompted(page)
 
@@ -98,6 +98,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
       `text=First question.`,
       `text=Second question.`,
       `text=Third question.`,
+      `text=Your answer was not correct`,
     ],
     toMatchSnapshotOptions: { threshold: 0.4 },
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",

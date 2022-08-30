@@ -385,6 +385,22 @@
     },
     "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n"
   },
+  "06dafe01a08e4b37c02ea33c13cd49fad72a2c436a52983cadf9821f0c742445": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DISTINCT user_id\nFROM user_exercise_states\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "072ecb29b589e56f6fc04bb0787efd82beab771ae9d87752f80b0734b16c56e4": {
     "describe": {
       "columns": [
@@ -688,6 +704,16 @@
       }
     },
     "query": "\nSELECT exercises.name as exercise_name,\n        exercises.order_number as exercise_order_number,\n        pages.order_number     as page_order_number,\n        chapters.chapter_number,\n        stat_data.*\n FROM (SELECT exercise_id,\n              COUNT(DISTINCT user_id) as n_users_attempted,\n              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given > 0 ) as n_users_with_some_points,\n              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given >= exercises.score_maximum ) as n_users_with_max_points\n       FROM exercises\n       JOIN user_exercise_states ues on exercises.id = ues.exercise_id\n       WHERE exercises.course_id = $1\n         AND exercises.deleted_at IS NULL\n         AND ues.deleted_at IS NULL\n       GROUP BY exercise_id) as stat_data\n        JOIN exercises ON stat_data.exercise_id = exercises.id\n        JOIN pages on exercises.page_id = pages.id\n        JOIN chapters on pages.chapter_id = chapters.id\n WHERE exercises.deleted_at IS NULL\n   AND pages.deleted_at IS NULL\n   AND chapters.deleted_at IS NULL\n          "
+  },
+  "0cdeea3ba0b6c8ddece5e2c1f839968e312f658ca0b0519bedc7e34c383367c0": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET deleted_at = now()\nWHERE id = $1\n"
   },
   "0cfed7b8d16e3ecf6a4fe2c4f7f7f62fe0b14a0e33062d4742bd3face374ad0c": {
     "describe": {
@@ -1150,6 +1176,96 @@
     },
     "query": "\nINSERT INTO chapters (\n    name,\n    course_id,\n    chapter_number,\n    course_module_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
   },
+  "134673cb7b1d32240f86b986fd92486db431366da97442f601a3e4817d2e5c78": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "uh_course_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "automatic_completion_number_of_points_treshold",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "ects_credits",
+          "ordinal": 12,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Int4", "Varchar", "Int4", "Bool", "Int4", "Int4"]
+      }
+    },
+    "query": "\nINSERT INTO course_modules (course_id, name, order_number, uh_course_code, ects_credits, automatic_completion, automatic_completion_number_of_exercises_attempted_treshold, automatic_completion_number_of_points_treshold)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n"
+  },
   "13b0e10930d6dfb86d0ca5bf493c6741ec5faa14fd199a7c407197568f40f3f3": {
     "describe": {
       "columns": [
@@ -1497,78 +1613,6 @@
     },
     "query": "\nSELECT id,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM regradings\nWHERE id = $1\n"
   },
-  "18c87419e912d0762493c5c4df5e9e9479389c42d4a60eedf4661e2474c842da": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exercise_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "peer_reviews_to_give",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "peer_reviews_to_receive",
-          "ordinal": 7,
-          "type_info": "Int4"
-        },
-        {
-          "name": "accepting_threshold",
-          "ordinal": 8,
-          "type_info": "Float4"
-        },
-        {
-          "name": "accepting_strategy: _",
-          "ordinal": 9,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "automatically_accept_or_reject_by_average",
-                  "automatically_accept_or_manual_review_by_average",
-                  "manual_review_everything"
-                ]
-              },
-              "name": "peer_review_accepting_strategy"
-            }
-          }
-        }
-      ],
-      "nullable": [false, false, false, true, false, true, false, false, false, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL\n        "
-  },
   "18cad5d0cf2a854a36655738b9a05c4fe5376c77174239b17cdf7e21bc739b1f": {
     "describe": {
       "columns": [
@@ -1890,22 +1934,6 @@
       }
     },
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        "
-  },
-  "1d2a3e5c866dc5658632b9dd9e1dd9599ce0ec2008a1ef0fee538f07865ed804": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO course_modules (course_id, name, order_number)\nVALUES ($1, $2, $3)\nRETURNING id\n"
   },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
     "describe": {
@@ -3211,6 +3239,62 @@
     },
     "query": "\nINSERT INTO exercise_task_gradings (\n    exercise_task_submission_id,\n    course_id,\n    exercise_id,\n    exercise_task_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
   },
+  "32df56efc957577fed1752ea0e95d6c7287f9eebb79fd11726c89901b3eb5982": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_review_config_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_slide_submission_id",
+          "ordinal": 8,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM peer_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $3\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    "
+  },
   "33f56f379b3a6a63426f90dfec33fe0938212dba397aafd2581193b93c05dcb2": {
     "describe": {
       "columns": [
@@ -4003,6 +4087,96 @@
       }
     },
     "query": "\nINSERT INTO peer_review_queue_entries (\n    user_id,\n    exercise_id,\n    course_instance_id,\n    peer_review_priority,\n    receiving_peer_reviews_exercise_slide_submission_id,\n    received_enough_peer_reviews\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO\nUPDATE\nSET peer_review_priority = $4,\n  deleted_at = NULL\nRETURNING *\n        "
+  },
+  "415630997608804ca8202e911e5d8b51cbfdfd965a3920aea7cdaa9a793cd7e8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "uh_course_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "automatic_completion_number_of_points_treshold",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "ects_credits",
+          "ordinal": 12,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n"
   },
   "42788ebc1b44924d1a2fec48d2d374c6761a01819238903738e3ed94597f6bca": {
     "describe": {
@@ -5234,6 +5408,78 @@
     },
     "query": "\nSELECT organization_id\nFROM exams\nWHERE id = $1\n"
   },
+  "55495b3872d09432230c60f846f69c5967fb9d3a41508aa2e4b8c823bd762fc3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "peer_reviews_to_give",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "peer_reviews_to_receive",
+          "ordinal": 7,
+          "type_info": "Int4"
+        },
+        {
+          "name": "accepting_threshold",
+          "ordinal": 8,
+          "type_info": "Float4"
+        },
+        {
+          "name": "accepting_strategy: _",
+          "ordinal": 9,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "automatically_accept_or_reject_by_average",
+                  "automatically_accept_or_manual_review_by_average",
+                  "manual_review_everything"
+                ]
+              },
+              "name": "peer_review_accepting_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n        "
+  },
   "56769774cc71f5cdd7d676f792ec6b2ad296ed3c220fcd65cae452983e2bf326": {
     "describe": {
       "columns": [
@@ -5320,96 +5566,6 @@
       }
     },
     "query": "UPDATE pages SET order_number = $2 WHERE pages.id = $1"
-  },
-  "58dcaa938e13a0eaefd5e9a5700d674919b1bbb2f41994fd90be63da27ac68c7": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 5,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "order_number",
-          "ordinal": 6,
-          "type_info": "Int4"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "uh_course_code",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "automatic_completion",
-          "ordinal": 9,
-          "type_info": "Bool"
-        },
-        {
-          "name": "automatic_completion_number_of_exercises_attempted_treshold",
-          "ordinal": 10,
-          "type_info": "Int4"
-        },
-        {
-          "name": "automatic_completion_number_of_points_treshold",
-          "ordinal": 11,
-          "type_info": "Int4"
-        },
-        {
-          "name": "ects_credits",
-          "ordinal": 12,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        false,
-        true,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true
-      ],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\n"
   },
   "5aa5b0629666c849e87f50b545a2f83f7bfadc42d475b3b2979f1c2507fdc551": {
     "describe": {
@@ -5799,6 +5955,108 @@
       }
     },
     "query": "\nINSERT INTO peer_review_configs (\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        "
+  },
+  "5fd89014ad25b81efa0488da0d6cb6cbe52793878ebb1d5a3a3d97432c858c4c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "organization_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "slug",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "content_search_language",
+          "ordinal": 7,
+          "type_info": "Text"
+        },
+        {
+          "name": "language_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_language_group_id",
+          "ordinal": 10,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "description",
+          "ordinal": 11,
+          "type_info": "Text"
+        },
+        {
+          "name": "is_draft",
+          "ordinal": 12,
+          "type_info": "Bool"
+        },
+        {
+          "name": "is_test_mode",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "base_module_completion_requires_n_submodule_completions",
+          "ordinal": 14,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        null,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO courses(id, name, description, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)\nVALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions;\n            "
   },
   "6115b4ea6be3824a74f2274a9e0f5dd876b87c83517915f895038bb5ed3e155d": {
     "describe": {
@@ -6218,143 +6476,6 @@
     },
     "query": "\nINSERT INTO exercise_task_gradings(\n    exercise_task_submission_id,\n    course_id,\n    exam_id,\n    exercise_id,\n    exercise_task_id,\n    grading_started_at\n  )\nVALUES($1, $2, $3, $4, $5, now())\nRETURNING id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\n"
   },
-  "6564a27105258d6d977c932e89f5982bded6756283e98f3bfcb028971f98f828": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 1,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exercise_id",
-          "ordinal": 2,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 3,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exam_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 6,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 7,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "score_given",
-          "ordinal": 8,
-          "type_info": "Float4"
-        },
-        {
-          "name": "grading_progress: _",
-          "ordinal": 9,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              },
-              "name": "grading_progress"
-            }
-          }
-        },
-        {
-          "name": "activity_progress: _",
-          "ordinal": 10,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              },
-              "name": "activity_progress"
-            }
-          }
-        },
-        {
-          "name": "reviewing_stage: _",
-          "ordinal": 11,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "not_started",
-                  "peer_review",
-                  "self_review",
-                  "waiting_for_peer_reviews",
-                  "waiting_for_manual_grading",
-                  "reviewed_and_locked"
-                ]
-              },
-              "name": "reviewing_stage"
-            }
-          }
-        },
-        {
-          "name": "selected_exercise_slide_id",
-          "ordinal": 12,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Float4",
-          {
-            "Custom": {
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              },
-              "name": "grading_progress"
-            }
-          },
-          {
-            "Custom": {
-              "kind": {
-                "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
-              },
-              "name": "activity_progress"
-            }
-          },
-          "Uuid"
-        ]
-      }
-    },
-    "query": "\nUPDATE user_exercise_states\nSET score_given = $1,\n  grading_progress = $2,\n  activity_progress = $3\nWHERE id = $4\n  AND deleted_at IS NULL\nRETURNING id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\n        "
-  },
   "65c2e4824bd1690a7ab8fcdb1125f546b9fe47ec2851ce6febc0c6aba3e9d3d0": {
     "describe": {
       "columns": [],
@@ -6380,16 +6501,6 @@
       }
     },
     "query": "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1"
-  },
-  "66937c58727136756cceb8266a07c70c7c43ff50168a495af197c5f61782cbe4": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Int4", "Uuid"]
-      }
-    },
-    "query": "\nUPDATE course_modules\nSET order_number = $1\nWHERE id = $2\n"
   },
   "680c5eed3c49d67d404af7d0a2df7dc8f9391db14848e8aff877a8a117335be2": {
     "describe": {
@@ -6729,6 +6840,59 @@
       }
     },
     "query": "\nSELECT score_given,\n  grading_progress AS \"grading_progress: GradingProgress\"\nFROM user_exercise_task_states\nWHERE user_exercise_slide_state_id = $1\n  AND deleted_at IS NULL\n        "
+  },
+  "69f09958c20649684f9da3a2308530802e8590348dd0959fea8a10263b830bd4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_exercise_state_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "teacher_decision: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              },
+              "name": "teacher_decision_type"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, false, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\"\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n      "
   },
   "6abae7185ea5e131996a7792bce21e0e1f30b0bce4bae05061259a63cfc92a01": {
     "describe": {
@@ -7670,6 +7834,16 @@
     },
     "query": "\nINSERT INTO exercise_task_submissions (\n    id,\n    exercise_slide_submission_id,\n    exercise_slide_id,\n    exercise_task_id,\n    data_json\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        "
   },
+  "73892fd71012ea8901dcd2d447faf4f20cc2c7c6e8d3bee7c02dd772563ed1f4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE chapters\nSET course_module_id = $2\nWHERE id = $1\n"
+  },
   "744d6db0137323cc6398d3dacc9a6a59866b6e23798c33e118a0683f6a58cd36": {
     "describe": {
       "columns": [
@@ -7878,6 +8052,74 @@
     },
     "query": "\nINSERT INTO users (email, first_name, last_name)\nVALUES ($1, $2, $3)\nRETURNING id\n"
   },
+  "7702ad6a77ae5593da050083a81b13dae936e3c184604d1032857a90149e0dfd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 3,
+          "type_info": "Float4"
+        },
+        {
+          "name": "grading_progress: _",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              },
+              "name": "grading_progress"
+            }
+          }
+        },
+        {
+          "name": "data_json",
+          "ordinal": 5,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "submission_id",
+          "ordinal": 9,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, false, false, true, false],
+      "parameters": {
+        "Left": ["Uuid", "Int8", "Int8"]
+      }
+    },
+    "query": "\n        SELECT\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress as \"grading_progress: _\",\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    ORDER BY t_submission.updated_at\n    LIMIT $2 OFFSET $3;"
+  },
   "79a997ae3e7010fc4411554484753bc5f48823c4142a410d09e4ba93310e2596": {
     "describe": {
       "columns": [],
@@ -8063,22 +8305,6 @@
       }
     },
     "query": "\nSELECT glossary.id,\n  glossary.term,\n  glossary.definition\nFROM glossary\nWHERE glossary.course_id = $1\n"
-  },
-  "7db2a05016faa29733d7352eb55816b65e74fce9777e8bd9633af8317d150bd5": {
-    "describe": {
-      "columns": [
-        {
-          "name": "user_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT DISTINCT user_id\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
   },
   "7e8a1529d1b3f6ab629888c8382b9d78c79a31e3c71271a44e43698ad3335791": {
     "describe": {
@@ -9595,6 +9821,70 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        "
   },
+  "9402c08bf8bb1eb9824787cbd5c4ef09479412448f1cbf9f359c9e45b1e3c557": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_exercise_state_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 5,
+          "type_info": "Float4"
+        },
+        {
+          "name": "teacher_decision: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              },
+              "name": "teacher_decision_type"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, false, true, false, false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+              },
+              "name": "teacher_decision_type"
+            }
+          },
+          "Float4"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO teacher_grading_decisions (\n    user_exercise_state_id,\n    teacher_decision,\n    score_given\n  )\nVALUES ($1, $2, $3)\nRETURNING id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\";\n      "
+  },
   "95507d06c93371645624282c196546afb39b428df76d978d7d87a8595f4bed05": {
     "describe": {
       "columns": [
@@ -10806,6 +11096,16 @@
     },
     "query": "\nINSERT INTO exercise_tasks (\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n"
   },
+  "a670b7eda0b82b828d1dfb15b504fc15365649b5e69aa07eaa96cd3c9de0d302": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Int4", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2\nWHERE id = $3\n"
+  },
   "a76579e426500a1f99f9e02cf2c523658f58d86dcb036aef2aa3bdf71d8a563e": {
     "describe": {
       "columns": [],
@@ -11149,6 +11449,22 @@
     },
     "query": "\nSELECT i.id,\n  i.created_at,\n  i.updated_at,\n  i.deleted_at,\n  i.course_id,\n  i.starts_at,\n  i.ends_at,\n  i.name,\n  i.description,\n  i.teacher_in_charge_name,\n  i.teacher_in_charge_email,\n  i.support_email\nFROM course_instances i\n  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)\nWHERE i.course_id = $1\n  AND i.deleted_at IS NULL\n  AND ie.user_id = $2\n  AND ie.deleted_at IS NULL\nORDER BY ie.created_at DESC;\n    "
   },
+  "aa9924d72b1c9e79c2f8c0bda30aa0648f61d89745649ae936f27df392250363": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\n        SELECT\n        COUNT(*) as count\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL;"
+  },
   "aabbcdc5984f0c7fc03acf0c2f53ebb8f0ff5f2b8993a81bd988be4bbf240a70": {
     "describe": {
       "columns": [
@@ -11314,6 +11630,47 @@
       }
     },
     "query": "\nINSERT INTO course_instances (\n    id,\n    course_id,\n    name,\n    description,\n    teacher_in_charge_name,\n    teacher_in_charge_email,\n    support_email\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\n"
+  },
+  "ae5e6d194efc6456c5e2a947cc5b06593591685838ff6bcf74204d13edcff4b3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "page_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "chapter_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, null, false, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\n        SELECT\n        exercises.id,         (SELECT COUNT(us_state.id)::integer as count\n                FROM exercises AS exercises2\n                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id\n                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id\n                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id\n                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id\n                AND us_state.user_id = s_submission.user_id\n                AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n                AND us_state.deleted_at IS NULL\n                AND exercises2.course_id = $1\n                AND exercises.id = exercises2.id\n                GROUP BY exercises2.id),\n                exercises.order_number,\n                exercises.name,\n                exercises.page_id,\n                exercises.chapter_id\n            FROM exercises\n            WHERE exercises.course_id = $1\n            GROUP BY exercises.id;"
   },
   "aee1ac79f9af758cf20f1b486a12b0f07ced3949ab6f2256bc792291ed7424b5": {
     "describe": {
@@ -12005,16 +12362,6 @@
       }
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n"
-  },
-  "b760c129bfee373c2b75a8e5c699dc0ec999dc53890162b111e1f106e52a1f1e": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nDELETE FROM course_modules\nWHERE id = $1\n"
   },
   "b762efb77876e893abf712da8e1568b7406c5efd2cbe92e54520b6c93558794b": {
     "describe": {
@@ -13232,6 +13579,96 @@
     },
     "query": "\nSELECT\nFROM user_exercise_states\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_instance_id = $3 OR exam_id = $4)\n"
   },
+  "d126a5e606a87f2a01cf49cf171540cd9bf604210c3eef10fa84644aa36d3120": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "name",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "uh_course_code",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "automatic_completion",
+          "ordinal": 9,
+          "type_info": "Bool"
+        },
+        {
+          "name": "automatic_completion_number_of_exercises_attempted_treshold",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "automatic_completion_number_of_points_treshold",
+          "ordinal": 11,
+          "type_info": "Int4"
+        },
+        {
+          "name": "ects_credits",
+          "ordinal": 12,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Int4"]
+      }
+    },
+    "query": "\nINSERT INTO course_modules (course_id, name, order_number)\nVALUES ($1, $2, $3)\nRETURNING *\n"
+  },
   "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8": {
     "describe": {
       "columns": [],
@@ -13343,6 +13780,27 @@
       }
     },
     "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    "
+  },
+  "d48d9b81b38a4343e78f69da6a5d6ab468c847703eeb822c0dee49da773c6885": {
+    "describe": {
+      "columns": [
+        {
+          "name": "date",
+          "ordinal": 0,
+          "type_info": "Date"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [null, null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DATE(created_at) date, count(DISTINCT user_id)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          "
   },
   "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {
     "describe": {
@@ -14792,6 +15250,16 @@
     },
     "query": "\nSELECT course_modules.*\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n        "
   },
+  "e6868d99cf844aba2f2ce20f7efcd9558a525b4c69023e6d365ed0a6d9e3f907": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Int4", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8\nWHERE id = $3\n"
+  },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
     "describe": {
       "columns": [
@@ -15191,108 +15659,6 @@
       }
     },
     "query": "\nUPDATE user_exercise_slide_states\nSET score_given = $1,\n  grading_progress = $2\nWHERE id = $3\n  AND deleted_at IS NULL\n        "
-  },
-  "ed7c776d9fcc896386fd70d3da41c7d99eaa2b483f536a6fbbf5a47414ef8562": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "organization_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "slug",
-          "ordinal": 6,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "content_search_language",
-          "ordinal": 7,
-          "type_info": "Text"
-        },
-        {
-          "name": "language_code",
-          "ordinal": 8,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 9,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_language_group_id",
-          "ordinal": 10,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "description",
-          "ordinal": 11,
-          "type_info": "Text"
-        },
-        {
-          "name": "is_draft",
-          "ordinal": 12,
-          "type_info": "Bool"
-        },
-        {
-          "name": "is_test_mode",
-          "ordinal": 13,
-          "type_info": "Bool"
-        },
-        {
-          "name": "base_module_completion_requires_n_submodule_completions",
-          "ordinal": 14,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        null,
-        false,
-        true,
-        false,
-        true,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
-      }
-    },
-    "query": "\nINSERT INTO courses(id, name, description, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)\nVALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n            "
   },
   "edb8b86eadb9983d736300c28314c5b8e3f5a4b0ba1c4756d088118871018aa7": {
     "describe": {
@@ -16653,6 +17019,22 @@
       }
     },
     "query": "\nselect max(p.order_number) as order_number\nfrom pages p\nwhere p.course_id = $1\n  and p.chapter_id is null\n  and p.deleted_at is null;\n"
+  },
+  "ff112be03d6a199c5c9fcab4b918b6950efcdb5e0a970c6cdf0faca52639465c": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id\nFROM chapters\nWHERE course_module_id = $1\n"
   },
   "ffceb3f0780f56e249bcc6983105d897534b65d8fc362fc56ea275d45661e617": {
     "describe": {

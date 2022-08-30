@@ -9,6 +9,9 @@ import {
   Action,
   ActionOnResource,
   ActivityProgress,
+  AnswerRequiringAttention,
+  AnswerRequiringAttentionWithTasks,
+  AnswersRequiringAttention,
   BlockProposal,
   BlockProposalAction,
   BlockProposalInfo,
@@ -62,7 +65,9 @@ import {
   ExamInstructions,
   ExamInstructionsUpdate,
   Exercise,
+  ExerciseAnswersInCourseRequiringAttentionCount,
   ExerciseService,
+  ExerciseServiceIframeRenderingInfo,
   ExerciseServiceInfoApi,
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
@@ -91,14 +96,18 @@ import {
   Login,
   MarkAsRead,
   MaterialReference,
+  ModifiedModule,
+  ModuleUpdates,
   NewChapter,
   NewCourse,
   NewExam,
   NewFeedback,
   NewMaterialReference,
+  NewModule,
   NewPage,
   NewProposedBlockEdit,
   NewProposedPageEdits,
+  NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
   OrgExam,
@@ -133,6 +142,8 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
+  TeacherDecisionType,
+  TeacherGradingDecision,
   Term,
   TermUpdate,
   UploadResult,
@@ -142,6 +153,8 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserExerciseState,
+  UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
@@ -490,7 +503,9 @@ export function isCourseStructure(obj: any, _argumentName?: string): obj is Cour
     Array.isArray(obj.pages) &&
     obj.pages.every((e: any) => isPage(e) as boolean) &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapter(e) as boolean)
+    obj.chapters.every((e: any) => isChapter(e) as boolean) &&
+    Array.isArray(obj.modules) &&
+    obj.modules.every((e: any) => isCourseModule(e) as boolean)
   )
 }
 
@@ -686,6 +701,19 @@ export function isExerciseServiceNewOrUpdate(
   )
 }
 
+export function isExerciseServiceIframeRenderingInfo(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseServiceIframeRenderingInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.public_iframe_url === "string"
+  )
+}
+
 export function isCourseMaterialExerciseSlide(
   obj: any,
   _argumentName?: string,
@@ -719,6 +747,7 @@ export function isCourseMaterialExerciseTask(
     typeof obj.id === "string" &&
     typeof obj.exercise_slide_id === "string" &&
     (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
+    (obj.pseudonumous_user_id === null || typeof obj.pseudonumous_user_id === "string") &&
     (obj.previous_submission === null ||
       (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
     (obj.previous_submission_grading === null ||
@@ -1102,8 +1131,8 @@ export function isContentManagementPage(
     obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
     Array.isArray(obj.exercise_tasks) &&
     obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
-    Array.isArray(obj.peer_reviews) &&
-    obj.peer_reviews.every((e: any) => isCmsPeerReviewConfig(e) as boolean) &&
+    Array.isArray(obj.peer_review_configs) &&
+    obj.peer_review_configs.every((e: any) => isCmsPeerReviewConfig(e) as boolean) &&
     Array.isArray(obj.peer_review_questions) &&
     obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean) &&
     typeof obj.organization_id === "string"
@@ -1566,6 +1595,80 @@ export function isExerciseSlideSubmissionInfo(
   )
 }
 
+export function isExerciseAnswersInCourseRequiringAttentionCount(
+  obj: any,
+  _argumentName?: string,
+): obj is ExerciseAnswersInCourseRequiringAttentionCount {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.page_id === "string" &&
+    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
+    typeof obj.order_number === "number" &&
+    (obj.count === null || typeof obj.count === "number")
+  )
+}
+
+export function isAnswerRequiringAttention(
+  obj: any,
+  _argumentName?: string,
+): obj is AnswerRequiringAttention {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.submission_id === "string" &&
+    typeof obj.exercise_id === "string"
+  )
+}
+
+export function isTeacherGradingDecision(
+  obj: any,
+  _argumentName?: string,
+): obj is TeacherGradingDecision {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_exercise_state_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    typeof obj.score_given === "number" &&
+    (isTeacherDecisionType(obj.teacher_decision) as boolean)
+  )
+}
+
+export function isTeacherDecisionType(
+  obj: any,
+  _argumentName?: string,
+): obj is TeacherDecisionType {
+  return (
+    obj === "FullPoints" ||
+    obj === "ZeroPoints" ||
+    obj === "CustomPoints" ||
+    obj === "SuspectedPlagiarism"
+  )
+}
+
+export function isNewTeacherGradingDecision(
+  obj: any,
+  _argumentName?: string,
+): obj is NewTeacherGradingDecision {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_exercise_state_id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    (isTeacherDecisionType(obj.action) as boolean) &&
+    (obj.manual_points === null || typeof obj.manual_points === "number")
+  )
+}
+
 export function isExerciseTaskGrading(
   obj: any,
   _argumentName?: string,
@@ -1737,6 +1840,25 @@ export function isReviewingStage(obj: any, _argumentName?: string): obj is Revie
   )
 }
 
+export function isUserExerciseState(obj: any, _argumentName?: string): obj is UserExerciseState {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
+    (obj.exam_id === null || typeof obj.exam_id === "string") &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (isActivityProgress(obj.activity_progress) as boolean) &&
+    (isReviewingStage(obj.reviewing_stage) as boolean) &&
+    (obj.selected_exercise_slide_id === null || typeof obj.selected_exercise_slide_id === "string")
+  )
+}
+
 export function isUser(obj: any, _argumentName?: string): obj is User {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -1787,6 +1909,13 @@ export function isCreateAccountDetails(
     typeof obj.language === "string" &&
     typeof obj.password === "string" &&
     typeof obj.password_confirmation === "string"
+  )
+}
+
+export function isUserInfo(obj: any, _argumentName?: string): obj is UserInfo {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string"
   )
 }
 
@@ -1870,6 +1999,39 @@ export function isExerciseSubmissions(
     Array.isArray(obj.data) &&
     obj.data.every((e: any) => isExerciseSlideSubmission(e) as boolean) &&
     typeof obj.total_pages === "number"
+  )
+}
+
+export function isAnswersRequiringAttention(
+  obj: any,
+  _argumentName?: string,
+): obj is AnswersRequiringAttention {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.exercise_max_points === "number" &&
+    Array.isArray(obj.data) &&
+    obj.data.every((e: any) => isAnswerRequiringAttentionWithTasks(e) as boolean) &&
+    typeof obj.total_pages === "number"
+  )
+}
+
+export function isAnswerRequiringAttentionWithTasks(
+  obj: any,
+  _argumentName?: string,
+): obj is AnswerRequiringAttentionWithTasks {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    typeof obj.user_id === "string" &&
+    obj.created_at instanceof Date &&
+    obj.updated_at instanceof Date &&
+    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+    (isGradingProgress(obj.grading_progress) as boolean) &&
+    (obj.score_given === null || typeof obj.score_given === "number") &&
+    typeof obj.submission_id === "string" &&
+    typeof obj.exercise_id === "string" &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 
@@ -1960,5 +2122,58 @@ export function isNewMaterialReference(
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.citation_key === "string" &&
     typeof obj.reference === "string"
+  )
+}
+
+export function isModifiedModule(obj: any, _argumentName?: string): obj is ModifiedModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.id === "string" &&
+    (obj.name === null || typeof obj.name === "string") &&
+    typeof obj.order_number === "number" &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
+  )
+}
+
+export function isModuleUpdates(obj: any, _argumentName?: string): obj is ModuleUpdates {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.new_modules) &&
+    obj.new_modules.every((e: any) => isNewModule(e) as boolean) &&
+    Array.isArray(obj.deleted_modules) &&
+    obj.deleted_modules.every((e: any) => typeof e === "string") &&
+    Array.isArray(obj.modified_modules) &&
+    obj.modified_modules.every((e: any) => isModifiedModule(e) as boolean) &&
+    Array.isArray(obj.moved_chapters) &&
+    obj.moved_chapters.every(
+      (e: any) => Array.isArray(e) && typeof e[0] === "string" && typeof e[1] === "string",
+    )
+  )
+}
+
+export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.name === "string" &&
+    typeof obj.order_number === "number" &&
+    Array.isArray(obj.chapters) &&
+    obj.chapters.every((e: any) => typeof e === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }

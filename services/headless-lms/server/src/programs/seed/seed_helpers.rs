@@ -308,6 +308,16 @@ pub async fn submit_and_grade(
         None,
     )
     .await?;
+    // Set selected exercise slide
+    user_exercise_states::upsert_selected_exercise_slide_id(
+        conn,
+        user_id,
+        exercise_id,
+        Some(course_instance_id),
+        None,
+        Some(exercise_slide_id),
+    )
+    .await?;
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         conn,
         user_exercise_state.id,

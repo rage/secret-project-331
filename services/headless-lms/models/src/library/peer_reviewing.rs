@@ -16,7 +16,10 @@ use crate::{
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
 };
 
-use super::grading::{self, ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis};
+use super::user_exercise_state_updater::{
+    self, UserExerciseStateUpdateAlreadyLoadedRequiredData,
+    UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation,
+};
 
 const MAX_PEER_REVIEW_CANDIDATES: i64 = 10;
 
@@ -188,20 +191,26 @@ async fn update_peer_review_giver_exercise_progress(
     )
     .await?;
     let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, users_latest_submission.id).await?;
-    let user_exercise_state = grading::update_user_exercise_state_peer_review_status(
-        conn,
-        exercise,
-        user_exercise_state,
-        ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
-            given_enough_peer_reviews: true,
-            received_enough_peer_reviews: peer_review_queue_entry.received_enough_peer_reviews,
-            peer_review_accepting_strategy: peer_review.accepting_strategy,
-            peer_review_accepting_threshold: peer_review.accepting_threshold,
-            received_peer_review_question_submissions,
-        },
-    )
-    .await?;
-    Ok(user_exercise_state)
+    let updated_user_exercise_state =
+        user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data(
+            conn,
+            user_exercise_state.id,
+            UserExerciseStateUpdateAlreadyLoadedRequiredData {
+                current_user_exercise_state: Some(user_exercise_state),
+                exercise: Some(exercise.clone()),
+                peer_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+                    peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
+                    latest_exercise_slide_submission_received_peer_review_question_submissions:
+                        Some(received_peer_review_question_submissions),
+                    latest_exercise_slide_submission: Some(users_latest_submission),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+        )
+        .await?;
+
+    Ok(updated_user_exercise_state)
 }
 
 async fn update_peer_review_receiver_exercise_status(
@@ -233,27 +242,21 @@ async fn update_peer_review_receiver_exercise_status(
         )
         .await?;
         if let Some(user_exercise_state) = user_exercise_state {
-            let peer_reviews_given: i32 =
-            peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
-                conn,
-                peer_review_queue_entry.user_id,
-                peer_review_queue_entry.exercise_id,
-                peer_review_queue_entry.course_instance_id,
-            )
-            .await?
-            .try_into()?;
             let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id).await?;
-            grading::update_user_exercise_state_peer_review_status(
+            let _updated_user_exercise_state =
+            user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data(
                 conn,
-                exercise,
-                user_exercise_state,
-                ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
-                    given_enough_peer_reviews: peer_reviews_given
-                        >= peer_review.peer_reviews_to_give,
-                    received_enough_peer_reviews: true,
-                    peer_review_accepting_strategy: peer_review.accepting_strategy,
-                    peer_review_accepting_threshold: peer_review.accepting_threshold,
-                    received_peer_review_question_submissions,
+                user_exercise_state.id,
+                UserExerciseStateUpdateAlreadyLoadedRequiredData {
+                    current_user_exercise_state: Some(user_exercise_state),
+                    exercise: Some(exercise.clone()),
+                    peer_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+                        peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
+                        latest_exercise_slide_submission_received_peer_review_question_submissions:
+                            Some(received_peer_review_question_submissions),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
                 },
             )
             .await?;
@@ -408,6 +411,7 @@ async fn get_course_material_peer_review_data(
             let course_material_exercise_tasks = exercise_task_submissions::get_exercise_task_submission_info_by_exercise_slide_submission_id(
                 conn,
                 exercise_slide_submission_id,
+                reviewer_user_id,
             ).await?;
             Some(CourseMaterialPeerReviewDataAnswerToReview {
                 exercise_slide_submission_id,

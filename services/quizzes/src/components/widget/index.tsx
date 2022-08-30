@@ -3,13 +3,14 @@ import { v4 } from "uuid"
 
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
+import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
 import Matrix from "./Matrix/Matrix"
 import MultipleChoice from "./MultipleChoice"
-import { MultipleChoiceClickable } from "./MultipleChoiceClickable"
-import { MultipleChoiceDropdown } from "./MultipleChoiceDropdown"
+import MultipleChoiceClickable from "./MultipleChoiceClickable"
+import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
 import Open from "./Open"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
@@ -17,7 +18,9 @@ import Unsupported from "./Unsupported"
 
 interface WidgetProps {
   port: MessagePort
-  quiz: PublicQuiz
+  publicSpec: PublicQuiz
+  user_information: UserInformation
+  previousSubmission: QuizAnswer | null
 }
 
 type QuizItemType =
@@ -32,7 +35,7 @@ type QuizItemType =
 
 const componentsByTypeNames = (typeName: QuizItemType) => {
   const mapTypeToComponent: {
-    [key: string]: React.FC<React.PropsWithChildren<QuizItemComponentProps>>
+    [key: string]: React.ComponentClass<QuizItemComponentProps>
   } = {
     essay: Essay,
     "multiple-choice": MultipleChoice,
@@ -65,6 +68,7 @@ type Action = {
 export interface QuizItemComponentProps {
   quizItem: PublicQuizItem
   quizItemAnswerState: QuizItemAnswer | null
+  user_information: UserInformation
   setQuizItemAnswerState: (newQuizItemAnswer: QuizItemAnswerWithoutId) => void
 }
 
@@ -91,18 +95,23 @@ function reducer(state: WidgetReducerState, action: Action): WidgetReducerState 
   }
 }
 
-const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) => {
+const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
+  port,
+  publicSpec,
+  previousSubmission,
+  user_information,
+}) => {
   const quiz_answer_id = v4()
   const widget_state: WidgetReducerState = {
-    quiz: quiz,
-    quiz_answer: {
+    quiz: publicSpec,
+    quiz_answer: previousSubmission || {
       id: quiz_answer_id,
-      quizId: quiz.id,
+      quizId: publicSpec.id,
       createdAt: Date.now().toString(),
       updatedAt: Date.now().toString(),
       // eslint-disable-next-line i18next/no-literal-string
       status: "open",
-      itemAnswers: quiz.items.map((qi) => {
+      itemAnswers: publicSpec.items.map((qi) => {
         return {
           id: v4(),
           createdAt: Date.now().toString(),
@@ -138,6 +147,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({ port, quiz }) 
               key={quizItem.id}
               quizItem={quizItem}
               quizItemAnswerState={quizItemAnswerState}
+              user_information={user_information}
               setQuizItemAnswerState={(newQuizItemAnswer: QuizItemAnswerWithoutId) => {
                 dispatch({
                   type: "set-answer-state",

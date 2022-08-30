@@ -227,6 +227,7 @@ export interface CourseStructure {
   course: Course
   pages: Array<Page>
   chapters: Array<Chapter>
+  modules: Array<CourseModule>
 }
 
 export interface CourseUpdate {
@@ -360,6 +361,13 @@ export interface ExerciseServiceNewOrUpdate {
   max_reprocessing_submissions_at_once: number
 }
 
+export interface ExerciseServiceIframeRenderingInfo {
+  id: string
+  name: string
+  slug: string
+  public_iframe_url: string
+}
+
 export interface CourseMaterialExerciseSlide {
   id: string
   exercise_tasks: Array<CourseMaterialExerciseTask>
@@ -378,6 +386,7 @@ export interface CourseMaterialExerciseTask {
   id: string
   exercise_slide_id: string
   exercise_iframe_url: string | null
+  pseudonumous_user_id: string | null
   assignment: unknown
   public_spec: unknown | null
   model_solution_spec: unknown | null
@@ -607,7 +616,7 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
-  peer_reviews: Array<CmsPeerReviewConfig>
+  peer_review_configs: Array<CmsPeerReviewConfig>
   peer_review_questions: Array<CmsPeerReviewQuestion>
   organization_id: string
 }
@@ -897,6 +906,51 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
+export interface ExerciseAnswersInCourseRequiringAttentionCount {
+  id: string
+  name: string
+  page_id: string
+  chapter_id: string | null
+  order_number: number
+  count: number | null
+}
+
+export interface AnswerRequiringAttention {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+}
+
+export interface TeacherGradingDecision {
+  id: string
+  user_exercise_state_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  score_given: number
+  teacher_decision: TeacherDecisionType
+}
+
+export type TeacherDecisionType =
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+
+export interface NewTeacherGradingDecision {
+  user_exercise_state_id: string
+  exercise_id: string
+  action: TeacherDecisionType
+  manual_points: number | null
+}
+
 export interface ExerciseTaskGrading {
   id: string
   created_at: Date
@@ -1006,6 +1060,22 @@ export type ReviewingStage =
   | "WaitingForManualGrading"
   | "ReviewedAndLocked"
 
+export interface UserExerciseState {
+  id: string
+  user_id: string
+  exercise_id: string
+  course_instance_id: string | null
+  exam_id: string | null
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  score_given: number | null
+  grading_progress: GradingProgress
+  activity_progress: ActivityProgress
+  reviewing_stage: ReviewingStage
+  selected_exercise_slide_id: string | null
+}
+
 export interface User {
   id: string
   first_name: string | null
@@ -1037,6 +1107,10 @@ export interface CreateAccountDetails {
   language: string
   password: string
   password_confirmation: string
+}
+
+export interface UserInfo {
+  user_id: string
 }
 
 export interface RoleQuery {
@@ -1086,6 +1160,26 @@ export interface UploadResult {
 export interface ExerciseSubmissions {
   data: Array<ExerciseSlideSubmission>
   total_pages: number
+}
+
+export interface AnswersRequiringAttention {
+  exercise_max_points: number
+  data: Array<AnswerRequiringAttentionWithTasks>
+  total_pages: number
+}
+
+export interface AnswerRequiringAttentionWithTasks {
+  id: string
+  user_id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  data_json: unknown | null
+  grading_progress: GradingProgress
+  score_given: number | null
+  submission_id: string
+  exercise_id: string
+  tasks: Array<CourseMaterialExerciseTask>
 }
 
 export interface MarkAsRead {
@@ -1141,4 +1235,33 @@ export interface MaterialReference {
 export interface NewMaterialReference {
   citation_key: string
   reference: string
+}
+
+export interface ModifiedModule {
+  id: string
+  name: string | null
+  order_number: number
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+}
+
+export interface ModuleUpdates {
+  new_modules: Array<NewModule>
+  deleted_modules: Array<string>
+  modified_modules: Array<ModifiedModule>
+  moved_chapters: Array<[string, string]>
+}
+
+export interface NewModule {
+  name: string
+  order_number: number
+  chapters: Array<string>
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }

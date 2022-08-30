@@ -1,13 +1,15 @@
 import { css } from "@emotion/css"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemComponentProps } from "."
 
-export const MultipleChoiceDropdown: React.FunctionComponent<
+const MultipleChoiceDropdown: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
@@ -25,6 +27,13 @@ export const MultipleChoiceDropdown: React.FunctionComponent<
     }
     setQuizItemAnswerState(newItemAnswer)
   }
+  const selectedOptionId = useMemo(() => {
+    const optionAnswers = quizItemAnswerState?.optionAnswers
+    if (!optionAnswers || !Array.isArray(optionAnswers) || optionAnswers.length === 0) {
+      return null
+    }
+    return optionAnswers[0] ?? null
+  }, [quizItemAnswerState?.optionAnswers])
   return (
     <div
       className={css`
@@ -108,7 +117,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<
         >
           <option
             disabled
-            selected
+            selected={selectedOptionId === null}
             value=""
             className={css`
               display: flex;
@@ -120,6 +129,7 @@ export const MultipleChoiceDropdown: React.FunctionComponent<
             <option
               key={o.id}
               value={o.id}
+              selected={selectedOptionId === o.id}
               className={css`
                 display: flex;
               `}
@@ -132,3 +142,5 @@ export const MultipleChoiceDropdown: React.FunctionComponent<
     </div>
   )
 }
+
+export default withErrorBoundary(MultipleChoiceDropdown)

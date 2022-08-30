@@ -34,7 +34,7 @@ pub struct PageHistoryContent {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
-    pub peer_reviews: Vec<CmsPeerReviewConfig>,
+    pub peer_review_configs: Vec<CmsPeerReviewConfig>,
     pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
 }
 

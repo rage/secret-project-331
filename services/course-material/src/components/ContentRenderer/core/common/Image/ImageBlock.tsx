@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import { parseText } from "../../../util/textParsing"
 
 const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
   data,
@@ -29,6 +31,8 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
     width,
   } = data.attributes
 
+  const { terms } = useContext(GlossaryContext)
+
   const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
     linkTarget && linkTarget.includes("_blank")
       ? rel && !rel.includes("noopener")
@@ -52,8 +56,7 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
         margin-right: 1em;`}
       `}
     >
-      {/* eslint-disable-next-line i18next/no-literal-string*/}
-      <Zoom wrapStyle={{ display: "block" }}>
+      <Zoom>
         <figure
           className={css`
             ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
@@ -106,7 +109,9 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
           margin-top: 0.5rem;
           margin-bottom: 0.8125rem;
         `}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
+        dangerouslySetInnerHTML={{
+          __html: parseText(caption ?? "", terms).parsedText,
+        }}
       />
     </div>
   )

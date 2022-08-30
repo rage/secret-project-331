@@ -2,14 +2,20 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
 import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
+import { UserInformation } from "../shared-module/exercise-service-protocol-types"
+import {
+  isSetLanguageMessage,
+  isSetStateMessage,
+} from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { migrateQuiz } from "../util/migrate"
 
 import { ItemAnswerFeedback } from "./api/grade"
@@ -21,17 +27,24 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "exercise"; publicSpec: PublicQuiz }
+  | {
+      viewType: "answer-exercise"
+      publicSpec: PublicQuiz
+      userInformation: UserInformation
+      previousSubmission: QuizAnswer | null
+    }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
       modelSolutions: ModelSolutionQuiz | null
       userAnswer: QuizAnswer
       gradingFeedbackJson: ItemAnswerFeedback[] | null
+      userInformation: UserInformation
     }
-  | { viewType: "exercise-editor"; privateSpec: Quiz }
+  | { viewType: "exercise-editor"; privateSpec: Quiz; userInformation: UserInformation }
 
 const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -43,21 +56,25 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
   const port = useExerciseServiceParentConnection((messageData) => {
     if (isSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
-        if (messageData.view_type === "exercise") {
+        if (messageData.view_type === "answer-exercise") {
           setState({
             viewType: messageData.view_type,
             publicSpec: messageData.data.public_spec as PublicQuiz,
+            userInformation: messageData.user_information,
+            previousSubmission: messageData.data.previous_submission as QuizAnswer | null,
           })
         } else if (messageData.view_type === "exercise-editor") {
           if (messageData.data.private_spec === null) {
             setState({
               viewType: messageData.view_type,
               privateSpec: emptyQuiz,
+              userInformation: messageData.user_information,
             })
           } else {
             setState({
               viewType: messageData.view_type,
-              privateSpec: migrateQuiz(JSON.parse(messageData.data.private_spec as string)),
+              privateSpec: migrateQuiz(messageData.data.private_spec),
+              userInformation: messageData.user_information,
             })
           }
         } else if (messageData.view_type === "view-submission") {
@@ -66,6 +83,7 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
             publicSpec: messageData.data.public_spec as PublicQuiz,
             modelSolutions: messageData.data.model_solution_spec as ModelSolutionQuiz | null,
             userAnswer: messageData.data.user_answer as QuizAnswer,
+            userInformation: messageData.user_information,
             gradingFeedbackJson: messageData.data.grading?.feedback_json as
               | ItemAnswerFeedback[]
               | null,
@@ -75,6 +93,8 @@ const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
           console.error("Unknown view type received from parent")
         }
       })
+    } else if (isSetLanguageMessage(messageData)) {
+      i18n.changeLanguage(messageData.data)
     } else {
       // eslint-disable-next-line i18next/no-literal-string
       console.error("Frame received an unknown message from message port")
@@ -122,4 +142,4 @@ const emptyQuiz: Quiz = {
   open: new Date(),
 }
 
-export default IFrame
+export default withErrorBoundary(IFrame)

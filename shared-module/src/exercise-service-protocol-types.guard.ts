@@ -11,7 +11,9 @@ import {
   IframeState,
   IframeViewType,
   ReadyMessage,
+  SetLanguageMessage,
   SetStateMessage,
+  UserInformation,
 } from "./exercise-service-protocol-types"
 
 export function isCurrentStateMessage(
@@ -43,33 +45,29 @@ export function isReadyMessage(obj: any, _argumentName?: string): obj is ReadyMe
   )
 }
 
+export function isSetLanguageMessage(obj: any, _argumentName?: string): obj is SetLanguageMessage {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    obj.message === "set-language" &&
+    typeof obj.data === "string"
+  )
+}
+
 export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetStateMessage {
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.message === "set-state" &&
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.view_type === "exercise" &&
+      obj.view_type === "answer-exercise" &&
       typeof obj.exercise_task_id === "string" &&
-      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
-      (obj.data.previous_submission === null ||
-        (((obj.data.previous_submission !== null &&
-          typeof obj.data.previous_submission === "object") ||
-          typeof obj.data.previous_submission === "function") &&
-          typeof obj.data.previous_submission.id === "string" &&
-          obj.data.previous_submission.created_at instanceof Date &&
-          obj.data.previous_submission.updated_at instanceof Date &&
-          (obj.data.previous_submission.deleted_at === null ||
-            obj.data.previous_submission.deleted_at instanceof Date) &&
-          typeof obj.data.previous_submission.exercise_slide_submission_id === "string" &&
-          typeof obj.data.previous_submission.exercise_task_id === "string" &&
-          typeof obj.data.previous_submission.exercise_slide_id === "string" &&
-          (obj.data.previous_submission.exercise_task_grading_id === null ||
-            typeof obj.data.previous_submission.exercise_task_grading_id === "string")))) ||
+      (isUserInformation(obj.user_information) as boolean) &&
+      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function")) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.message === "set-state" &&
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -88,33 +86,30 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
+  )
+}
+
+export function isUserInformation(obj: any, _argumentName?: string): obj is UserInformation {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.pseudonymous_id === "string" &&
+    typeof obj.signed_in === "boolean"
   )
 }
 
 export function isIframeState(obj: any, _argumentName?: string): obj is IframeState {
   return (
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.view_type === "exercise" &&
+      obj.view_type === "answer-exercise" &&
       typeof obj.exercise_task_id === "string" &&
-      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
-      (obj.data.previous_submission === null ||
-        (((obj.data.previous_submission !== null &&
-          typeof obj.data.previous_submission === "object") ||
-          typeof obj.data.previous_submission === "function") &&
-          typeof obj.data.previous_submission.id === "string" &&
-          obj.data.previous_submission.created_at instanceof Date &&
-          obj.data.previous_submission.updated_at instanceof Date &&
-          (obj.data.previous_submission.deleted_at === null ||
-            obj.data.previous_submission.deleted_at instanceof Date) &&
-          typeof obj.data.previous_submission.exercise_slide_submission_id === "string" &&
-          typeof obj.data.previous_submission.exercise_task_id === "string" &&
-          typeof obj.data.previous_submission.exercise_slide_id === "string" &&
-          (obj.data.previous_submission.exercise_task_grading_id === null ||
-            typeof obj.data.previous_submission.exercise_task_grading_id === "string")))) ||
+      (isUserInformation(obj.user_information) as boolean) &&
+      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function")) ||
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "view-submission" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
       (obj.data.grading === null ||
         (((obj.data.grading !== null && typeof obj.data.grading === "object") ||
@@ -131,10 +126,11 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
     (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
+      (isUserInformation(obj.user_information) as boolean) &&
       ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
   )
 }
 
 export function isIframeViewType(obj: any, _argumentName?: string): obj is IframeViewType {
-  return obj === "exercise" || obj === "view-submission" || obj === "exercise-editor"
+  return obj === "answer-exercise" || obj === "view-submission" || obj === "exercise-editor"
 }

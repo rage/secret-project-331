@@ -250,7 +250,7 @@ SELECT id,
 FROM peer_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
-  AND deleted_at IS NULL
+  AND deleted_at IS NULL;
         "#,
         course_id
     )
@@ -453,9 +453,6 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
 
         let peer_review_1 = insert(tx.as_mut(), course, None, 3, 2).await;
-        assert!(peer_review_1.is_ok());
-
-        let peer_review_2 = insert(tx.as_mut(), course, None, 3, 2).await;
-        assert!(peer_review_2.is_err());
+        assert!(peer_review_1.is_err());
     }
 }

@@ -7,7 +7,7 @@ import { Course, NewCourse } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import RadioButton from "../../shared-module/components/InputFields/RadioButton"
-import SelectMenu from "../../shared-module/components/InputFields/SelectField"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import useToastMutation from "../../shared-module/hooks/useToastMutation"
@@ -241,14 +241,14 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         )}
         {courses && createDuplicate && (
           <FieldContainer>
-            <SelectMenu
+            <SelectField
               id="duplicate-course-select-menu"
               defaultValue={courses[0].id}
               onChange={(e) => handleDuplicateMenu(e, courses)}
               options={courses.map((course) => {
                 return { label: course.name, value: course.id }
               })}
-            ></SelectMenu>
+            ></SelectField>
           </FieldContainer>
         )}
         <div>{t("course-language")}</div>

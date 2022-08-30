@@ -1,53 +1,19 @@
 import { css } from "@emotion/css"
 import { diffChars } from "diff"
-import KaTex from "katex"
 import dynamic from "next/dynamic"
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useMemo } from "use-memo-one"
 
 import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import DiffFormatter from "../../../../../shared-module/components/DiffFormatter"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import { parseText } from "../../../util/textParsing"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
 const LatexParagraph = dynamic(() => import("./LatexParagraph"))
-
-const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
-const LATEX_CITE_REGEX = /\\cite{(.*?)}/g
-const HTML_ESCAPED_AMPERSAND = "&amp;"
-const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
-
-/**
- *
- * @param data HTML-content from the server
- * @returns HTML as string in which "[latex] ... [/latex]" will be replaced with katex
- */
-const convertToLatex = (data: string) => {
-  let count = 0
-  const converted = data.replace(LATEX_REGEX, (_, latex) => {
-    // Convert ampersand back to special symbol. This is needed e.g. in matrices
-    const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, "&")
-    count++
-    return KaTex.renderToString(processed, {
-      throwOnError: false,
-      output: KATEX_OUTPUT_FORMAT,
-    })
-  })
-
-  return { count, converted }
-}
-
-const parseCitation = (data: string) => {
-  const converted = data.replace(
-    LATEX_CITE_REGEX,
-    // eslint-disable-next-line i18next/no-literal-string
-    (_, citationId) => `<sup class="reference" data-citation-id=${citationId}>[?]</sup>`,
-  )
-  return converted
-}
 
 const hasDropCap = css`
   :first-letter {
@@ -72,6 +38,7 @@ const ParagraphBlock: React.FC<
     dropCap,
     align,
     anchor,
+    fontFamily,
     // className, Additional classNames added in Advanced menu
     // direction, If read from right to left or left to right
     // style,
@@ -82,6 +49,7 @@ const ParagraphBlock: React.FC<
   // eslint-disable-next-line i18next/no-literal-string
   const bgColor = colorMapper(backgroundColor, "unset")
   const [editedContent, setEditedContent] = useState(data.attributes.content)
+  const { terms } = useContext(GlossaryContext)
 
   // edited content should not persist between edit proposals
   // reset edited content when no longer editing
@@ -105,6 +73,7 @@ const ParagraphBlock: React.FC<
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
+            ${fontFamily && `font-family: ${fontFamily};`}
             font-size: ${fontSize};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
@@ -155,10 +124,7 @@ const ParagraphBlock: React.FC<
       )
     }
   }
-
-  const sanitizedHTML = sanitizeCourseMaterialHtml(content)
-  const { count, converted } = convertToLatex(sanitizedHTML)
-  const convertedParsed = parseCitation(converted)
+  const { count, parsedText } = parseText(content, terms)
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
@@ -175,7 +141,7 @@ const ParagraphBlock: React.FC<
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
       `}
       dangerouslySetInnerHTML={{
-        __html: convertedParsed,
+        __html: parsedText,
       }}
       {...(anchor ? { id: anchor } : {})}
     />

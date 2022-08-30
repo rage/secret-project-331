@@ -3,11 +3,14 @@
 use std::{collections::HashMap, fs};
 
 use crate::controllers::{
+    auth::UserInfo,
     course_material::{
         courses::{ChaptersWithStatus, CourseMaterialCourseModule},
         exams::{ExamData, ExamEnrollmentData},
     },
-    main_frontend::exercises::ExerciseSubmissions,
+    main_frontend::exercises::{
+        AnswerRequiringAttentionWithTasks, AnswersRequiringAttention, ExerciseSubmissions,
+    },
     UploadResult,
 };
 use chrono::{NaiveDate, TimeZone, Utc};
@@ -22,11 +25,11 @@ use headless_lms_models::{
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
-    exercise_services::ExerciseService,
+    exercise_services::{ExerciseService, ExerciseServiceIframeRenderingInfo},
     exercise_slide_submissions::{
-        ExerciseSlideSubmission, ExerciseSlideSubmissionCount,
-        ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
-        ExerciseSlideSubmissionInfo,
+        ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission,
+        ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
+        ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo,
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
@@ -64,7 +67,10 @@ use headless_lms_models::{
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
     user_course_settings::UserCourseSettings,
-    user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
+    user_exercise_states::{
+        ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
+        UserExerciseState,
+    },
     users::User,
 };
 use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
@@ -358,6 +364,37 @@ pub async fn main() -> anyhow::Result<()> {
         organization_image_url: None,
     };
 
+    let course_material_exercise_task = CourseMaterialExerciseTask {
+        id,
+        exercise_slide_id: id,
+        exercise_iframe_url: Some("http://project-331.local/example-exercise/exercise".to_string()),
+        assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
+        public_spec: Some(
+            serde_json::json! {[{"id":"7ab2591c-b0f3-4543-9548-a113849b0f94","name":"a"},{"id":"a833d1df-f27b-4fbf-b516-883a62c09d88","name":"b"},{"id":"03d4b3d4-88af-4125-88b7-4ee052fd876f","name":"c"}]},
+        ),
+        model_solution_spec: None,
+        previous_submission: Some(exercise_task_submission.clone()),
+        previous_submission_grading: Some(grading.clone()),
+        order_number: 1,
+        pseudonumous_user_id: Some(
+            Uuid::parse_str("934ac548-f7de-479a-b4f8-af9c0c6c22dc").unwrap(),
+        ),
+    };
+
+    let answer_requiring_attention_with_tasks = AnswerRequiringAttentionWithTasks {
+        id,
+        user_id: Uuid::parse_str("7115806b-07c4-4079-8444-6dd248d3b9e7").unwrap(),
+        created_at,
+        updated_at,
+        deleted_at,
+        data_json: Some(serde_json::json! {{"choice": "a"}}),
+        grading_progress: GradingProgress::PendingManual,
+        score_given: Some(0.0),
+        submission_id: Uuid::parse_str("e2560477-0680-4573-abec-646440e294da").unwrap(),
+        exercise_id: Uuid::parse_str("7f57619a-ad00-4116-958d-5d597437e6fb").unwrap(),
+        tasks: vec![course_material_exercise_task],
+    };
+
     // clear previous results
     fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs/"))
         .unwrap()
@@ -407,7 +444,7 @@ pub async fn main() -> anyhow::Result<()> {
                 private_spec: None,
                 order_number: 1,
             }],
-            peer_reviews: vec![CmsPeerReviewConfig {
+            peer_review_configs: vec![CmsPeerReviewConfig {
                 id,
                 accepting_strategy:
                     PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
@@ -607,7 +644,8 @@ pub async fn main() -> anyhow::Result<()> {
                     model_solution_spec: None,
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
-                    order_number: 1
+                    order_number: 1,
+                    pseudonumous_user_id: Some(id)
                 }],
             },
             exercise_status: Some(ExerciseStatus {
@@ -690,7 +728,8 @@ pub async fn main() -> anyhow::Result<()> {
         CourseStructure {
             chapters: vec![chapter.clone()],
             course: course.clone(),
-            pages: vec![page.clone()]
+            pages: vec![page.clone()],
+            modules: vec![],
         }
     );
     write_docs!(Vec<Exercise>, vec![exercise.clone()]);
@@ -953,7 +992,8 @@ pub async fn main() -> anyhow::Result<()> {
                 model_solution_spec: None,
                 previous_submission: Some(exercise_task_submission.clone()),
                 previous_submission_grading: Some(grading.clone()),
-                order_number: 1
+                order_number: 1,
+                pseudonumous_user_id: Some(id)
             }],
             exercise,
             exercise_slide_submission: exercise_slide_submission.clone(),
@@ -987,6 +1027,7 @@ pub async fn main() -> anyhow::Result<()> {
                     previous_submission: Some(exercise_task_submission.clone()),
                     previous_submission_grading: Some(grading.clone()),
                     order_number: 0,
+                    pseudonumous_user_id: Some(id)
                 }],
                 exercise_slide_submission_id: exercise_slide_submission.id,
             }),
@@ -1001,7 +1042,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }
     );
@@ -1014,7 +1055,7 @@ pub async fn main() -> anyhow::Result<()> {
             email: "student@example.com".to_string(),
             grade: StudyRegistryGrade::new(true, Some(4)),
             id: Uuid::parse_str("633852ce-c82a-4d60-8ab5-28745163f6f9").unwrap(),
-            user_upstream_id: id,
+            user_id: id,
             tier: None
         }]
     );
@@ -1096,6 +1137,72 @@ pub async fn main() -> anyhow::Result<()> {
                 ),
             }),
         }
+    );
+    write_docs!(
+        Option<UserInfo>,
+        Some(UserInfo {
+            user_id: Uuid::parse_str("cebcb32b-aa7e-40ad-bc79-9d5c534a8a5a").unwrap()
+        })
+    );
+    write_docs!(
+        UserExerciseState,
+        UserExerciseState {
+            id,
+            user_id: Uuid::parse_str("e9386872-d5f4-4120-a8df-6024c0f9714a").unwrap(),
+            exercise_id: Uuid::parse_str("2d798a55-8786-411b-8061-8352c4be2143").unwrap(),
+            course_instance_id: Some(
+                Uuid::parse_str("7490d7a3-86df-4bfa-8991-751dd1d5128c").unwrap()
+            ),
+            exam_id: None,
+            created_at,
+            updated_at,
+            deleted_at,
+            score_given: Some(1.0),
+            grading_progress: GradingProgress::FullyGraded,
+            activity_progress: ActivityProgress::Completed,
+            reviewing_stage: ReviewingStage::ReviewedAndLocked,
+            selected_exercise_slide_id: Some(
+                Uuid::parse_str("b1355811-b233-45f1-87cc-038c9dea927d").unwrap()
+            ),
+        }
+    );
+    write_docs!(
+        AnswersRequiringAttention,
+        AnswersRequiringAttention {
+            exercise_max_points: 1,
+            data: vec![answer_requiring_attention_with_tasks],
+            total_pages: 10,
+        }
+    );
+    write_docs!(
+        Vec<ExerciseAnswersInCourseRequiringAttentionCount>,
+        vec![
+            ExerciseAnswersInCourseRequiringAttentionCount {
+                id,
+                name: "Exercise 1".to_string(),
+                page_id: Uuid::parse_str("cdffbf4f-00dc-4538-b382-5c9acdf7f7af").unwrap(),
+                chapter_id: Some(Uuid::parse_str("05d2518b-aa07-44ee-a6c4-bab0b0ecf4c8").unwrap()),
+                order_number: 1,
+                count: Some(5)
+            },
+            ExerciseAnswersInCourseRequiringAttentionCount {
+                id,
+                name: "Exercise 2".to_string(),
+                page_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+                chapter_id: Some(Uuid::parse_str("b4d13b83-6366-4daf-b9b1-eb6b8792df0c").unwrap()),
+                order_number: 2,
+                count: Some(10)
+            }
+        ]
+    );
+    write_docs!(
+        Vec<ExerciseServiceIframeRenderingInfo>,
+        vec![ExerciseServiceIframeRenderingInfo {
+            id,
+            name: "Example exercise".to_string(),
+            slug: "example-exercise".to_string(),
+            public_iframe_url: "https://example.com/iframe".to_string()
+        }]
     );
     write_docs!(
         CmsPeerReviewConfiguration,

@@ -1,6 +1,6 @@
 import { Frame, Page, test } from "@playwright/test"
 
-import expectPath from "../../utils/expect"
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { closeModal, fillQuizItemOptionModal } from "../../utils/quizzesActions"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -17,7 +17,7 @@ test("create quizzes test", async ({ page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Add course
   await page.click(`button:text("Create")`)
@@ -44,11 +44,11 @@ test("create quizzes test", async ({ page }) => {
   ])
   // Click :nth-match(:text("Manage"), 4)
 
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   // Click text=Add new chapter
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -314,10 +314,6 @@ test("create quizzes test", async ({ page }) => {
     messageAfterSubmissionWhenSelected: `no`,
   })
   await frame7.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
   await fillQuizItemOptionModal(page, frame7, {
     type: "multiple-choice",
     correct: true,
@@ -354,10 +350,7 @@ test("create quizzes test", async ({ page }) => {
     messageAfterSubmissionWhenSelected: `no`,
   })
   await frame8.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
+
   await fillQuizItemOptionModal(page, frame8, {
     type: "multiple-choice",
     correct: true,

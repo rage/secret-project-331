@@ -8,7 +8,7 @@ use crate::{
 };
 use headless_lms_utils::{
     document_schema_processor::GutenbergBlock, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
+    numbers::option_f32_to_f32_two_decimals_with_none_as_zero, ApplicationConfiguration,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -521,7 +521,9 @@ pub async fn get_user_course_instance_chapter_progress(
             .await?;
 
     let result = UserCourseInstanceChapterProgress {
-        score_given: option_f32_to_f32_two_decimals(user_chapter_metrics.score_given),
+        score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+            user_chapter_metrics.score_given,
+        ),
         score_maximum,
         total_exercises: Some(exercise_ids.len())
             .map(TryInto::try_into)
@@ -580,6 +582,40 @@ pub async fn get_chapter_info_by_page_metadata(
     Ok(chapter_page)
 }
 
+pub async fn set_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE chapters
+SET course_module_id = $2
+WHERE id = $1
+",
+        chapter_id,
+        module_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_for_module(conn: &mut PgConnection, module_id: Uuid) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM chapters
+WHERE course_module_id = $1
+",
+        module_id
+    )
+    .map(|c| c.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -624,7 +660,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: Some(course_module),
+                    course_module_id: Some(course_module.id),
                 },
                 user,
             )

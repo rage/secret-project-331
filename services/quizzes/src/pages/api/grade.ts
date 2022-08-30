@@ -190,6 +190,13 @@ function assessTimelineQuiz(
   }
 }
 
+/**
+ * Calculate correctness coefficient according to grading method
+ *
+ * @param quizItemAnswer Quiz Item Answer
+ * @param quizItem Quiz Item
+ * @returns Percentage of correct answers (correctness coefficient)
+ */
 function getMultipleChoicePointsByGrading(
   quizItemAnswer: QuizItemAnswer,
   quizItem: QuizItem,
@@ -202,7 +209,7 @@ function getMultipleChoicePointsByGrading(
   }
 
   const totalCorrectAnswers = quizItem.options.filter((o) => o.correct).length
-
+  const totalOptions = quizItem.options.length
   quizItemAnswer.optionAnswers?.forEach((oa) => {
     const option = quizItem.options.find((o) => o.id === oa)
     if (option && option.correct) {
@@ -228,7 +235,7 @@ function getMultipleChoicePointsByGrading(
       break
   }
 
-  return totalScore
+  return totalScore / totalOptions
 }
 
 function assessMultipleChoiceQuizzes(
@@ -255,10 +262,7 @@ function assessMultipleChoiceQuizzes(
     return false
   })
 
-  const score = getMultipleChoicePointsByGrading(quizItemAnswer, quizItem)
-  if (score == score) {
-    // TODO
-  }
+  const correctnessCoefficient = getMultipleChoicePointsByGrading(quizItemAnswer, quizItem)
 
   // Check if user selected correct amount of options
   const selectedAllCorrectOptions =
@@ -270,7 +274,7 @@ function assessMultipleChoiceQuizzes(
   return {
     quizItemId: quizItem.id,
     correct,
-    correctnessCoefficient: correct ? 1 : 0,
+    correctnessCoefficient,
   }
 }
 

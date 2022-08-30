@@ -320,11 +320,30 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Stream</span>;
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+
+<span class="kw">use</span> <span class="ident">futures::Stream</span>;
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercise_slide_submissions</span>,
+    <span class="ident">exercise_service_info</span>, <span class="ident">exercise_services</span>, <span class="ident">exercise_slide_submissions</span>,
     <span class="ident">exercise_tasks</span>::{<span class="ident">CourseMaterialExerciseTask</span>, <span class="ident">ExerciseTask</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">CourseOrExamId</span>,
@@ -602,6 +621,21 @@ WHERE exercise_slide_submissions.exam_id = $1
     <span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">task_submisssions</span>[<span class="number">0</span>].<span class="ident">exercise_slide_id</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">task_submisssions</span>.<span class="ident">len</span>());
+
+    <span class="kw">let</span> <span class="ident">unique_exercise_service_slugs</span> <span class="op">=</span> <span class="ident">exercise_tasks</span>
+        .<span class="ident">iter</span>()
+        .<span class="ident">cloned</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">et</span><span class="op">|</span> <span class="ident">et</span>.<span class="ident">exercise_type</span>)
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">let</span> <span class="ident">exercise_service_slug_to_service_and_info</span> <span class="op">=</span>
+        <span class="ident">exercise_service_info::get_selected_exercise_services_by_type</span>(
+            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
+            <span class="kw-2">&amp;</span><span class="ident">unique_exercise_service_slugs</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="ident">task_submisssions</span> {
         <span class="kw">let</span> <span class="ident">grading</span> <span class="op">=</span> <span class="ident">exercise_task_gradings</span>
             .<span class="ident">iter</span>()
@@ -611,16 +645,16 @@ WHERE exercise_slide_submissions.exam_id = $1
             .<span class="ident">iter</span>()
             .<span class="ident">find</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">ts</span>.<span class="ident">exercise_task_id</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::NotFound</span>(<span class="string">&quot;Exercise task not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">service_info</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercise_service_info::get_service_info_by_exercise_type</span>(
-            <span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>,
-            <span class="kw-2">&amp;</span><span class="ident">task</span>.<span class="ident">exercise_type</span>,
-        )
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">exercise_iframe_url</span> <span class="op">=</span> <span class="ident">service_info</span>.<span class="ident">user_interface_iframe_path</span>;
+        <span class="kw">let</span> (<span class="ident">exercise_service</span>, <span class="ident">service_info</span>) <span class="op">=</span> <span class="ident">exercise_service_slug_to_service_and_info</span>
+            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">task</span>.<span class="ident">exercise_type</span>)
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::InvalidRequest</span>(<span class="string">&quot;Exercise service not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_iframe_url</span> <span class="op">=</span>
+            <span class="ident">exercise_services::get_exercise_service_externally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
+        <span class="ident">exercise_iframe_url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">service_info</span>.<span class="ident">user_interface_iframe_path</span>);
         <span class="kw">let</span> <span class="ident">course_material_exercise_task</span> <span class="op">=</span> <span class="ident">CourseMaterialExerciseTask</span> {
             <span class="ident">id</span>: <span class="ident">task</span>.<span class="ident">id</span>,
             <span class="ident">exercise_slide_id</span>: <span class="ident">task</span>.<span class="ident">exercise_slide_id</span>,
-            <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_iframe_url</span>),
+            <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_iframe_url</span>.<span class="ident">to_string</span>()),
             <span class="ident">pseudonumous_user_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::new_v5</span>(
                 <span class="kw-2">&amp;</span><span class="ident">service_info</span>.<span class="ident">exercise_service_id</span>,
                 <span class="ident">viewer_user_id</span>.<span class="ident">as_bytes</span>(),

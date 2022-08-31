@@ -171,6 +171,11 @@ export interface CourseInstance {
   support_email: string | null
 }
 
+export interface CourseInstanceCompletionSummary {
+  course_modules: Array<CourseModule>
+  users_with_course_module_completions: Array<UserWithModuleCompletions>
+}
+
 export interface CourseInstanceForm {
   name: string | null
   description: string | null
@@ -187,6 +192,14 @@ export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
+}
+
+export interface UserWithModuleCompletions {
+  completed_modules: Array<string>
+  email: string
+  first_name: string | null
+  last_name: string | null
+  user_id: string
 }
 
 export interface CourseModule {
@@ -527,7 +540,7 @@ export interface CompletionRegistrationLink {
 export interface UserCompletionInformation {
   course_module_completion_id: string
   course_name: string
-  course_code: string
+  uh_course_code: string
   email: string
   ects_credits: number | null
 }
@@ -1212,6 +1225,11 @@ export interface ModifiedModule {
   id: string
   name: string | null
   order_number: number
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }
 
 export interface ModuleUpdates {
@@ -1225,4 +1243,9 @@ export interface NewModule {
   name: string
   order_number: number
   chapters: Array<string>
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
 }

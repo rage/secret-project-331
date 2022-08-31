@@ -6,6 +6,7 @@ import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
+import { ModifiedModule, NewModule } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
@@ -212,29 +213,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       setSubmitting(true)
 
       // check new and modified modules
-      const newModules = new Map<
-        string,
-        {
-          name: string
-          order_number: number
-          chapters: Array<string>
-          uh_course_code: string | null
-          ects_credits: number | null
-          automatic_completion: boolean
-          automatic_completion_points_treshold: number | null
-          automatic_completion_exercises_attempted_treshold: number | null
-        }
-      >()
-      const modifiedModules = new Array<{
-        id: string
-        name: string | null
-        order_number: number
-        uh_course_code: string | null
-        ects_credits: number | null
-        automatic_completion: boolean
-        automatic_completion_points_treshold: number | null
-        automatic_completion_exercises_attempted_treshold: number | null
-      }>()
+      const newModules = new Map<string, NewModule>()
+      const modifiedModules = new Array<ModifiedModule>()
       const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
         new Map(),
@@ -252,8 +232,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               uh_course_code: module.uh_course_code,
               ects_credits: module.ects_credits,
               automatic_completion: module.automatic_completion,
-              automatic_completion_points_treshold: module.automatic_completion_points_treshold,
-              automatic_completion_exercises_attempted_treshold:
+              automatic_completion_number_of_points_treshold:
+                module.automatic_completion_points_treshold,
+              automatic_completion_number_of_exercises_attempted_treshold:
                 module.automatic_completion_exercises_attempted_treshold,
             })
           } else {
@@ -276,9 +257,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 uh_course_code: module.uh_course_code,
                 ects_credits: module.ects_credits ?? null,
                 automatic_completion: module.automatic_completion ?? false,
-                automatic_completion_points_treshold:
+                automatic_completion_number_of_points_treshold:
                   module.automatic_completion_points_treshold ?? null,
-                automatic_completion_exercises_attempted_treshold:
+                automatic_completion_number_of_exercises_attempted_treshold:
                   module.automatic_completion_exercises_attempted_treshold ?? null,
               })
             }

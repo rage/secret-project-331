@@ -2,12 +2,18 @@ import { isBoolean } from "lodash"
 
 import {
   CourseInstance,
+  CourseInstanceCompletionSummary,
   CourseInstanceForm,
   EmailTemplate,
   EmailTemplateNew,
   Points,
 } from "../../shared-module/bindings"
-import { isCourseInstance, isEmailTemplate, isPoints } from "../../shared-module/bindings.guard"
+import {
+  isCourseInstance,
+  isCourseInstanceCompletionSummary,
+  isEmailTemplate,
+  isPoints,
+} from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -51,6 +57,18 @@ export const fetchCourseInstanceEmailTemplates = async (
     },
   )
   return validateResponse(response, isArray(isEmailTemplate))
+}
+
+export const getCompletions = async (
+  courseInstanceId: string,
+): Promise<CourseInstanceCompletionSummary> => {
+  const response = await mainFrontendClient.get(
+    `/course-instances/${courseInstanceId}/completions`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isCourseInstanceCompletionSummary)
 }
 
 export const getPoints = async (courseInstanceId: string): Promise<Points> => {

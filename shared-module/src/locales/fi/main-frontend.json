@@ -164,6 +164,7 @@
   "label-csv-completions": "Muotoilu: csv oheisella otsikkorivillä: <2>{{csvHeaderFormat}}</2> - vapaaehtoinen päivämäärä ISO-muodossa. Vähintään yksi pilkku tarvitaan, joten jos vain user_id annetaan, niin laita otsikkoriviksi user_id,",
   "label-current-text": "Nykyinen teksti:",
   "label-deadline": "Deadline",
+  "label-default": "Oletus",
   "label-email": "Sähköposti",
   "label-ends-at": "Loppuu",
   "label-exam": "Koe",

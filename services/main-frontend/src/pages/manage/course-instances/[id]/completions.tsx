@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next"
 import Layout from "../../../../components/Layout"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
-import { ChapterScore } from "../../../../shared-module/bindings"
+import { getCompletions } from "../../../../services/backend/course-instances"
+import { UserWithModuleCompletions } from "../../../../shared-module/bindings"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -27,14 +28,35 @@ export interface CompletionsPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
+interface Sorting {
+  type: string
+  data: string | null
+}
+
 const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCompletionsList = useQuery(
-    [`completions-list-${courseInstanceId}`],
-    async (): Promise<Array<ChapterScore>> => [],
+  const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], () =>
+    getCompletions(courseInstanceId),
   )
-  const [sorting, setSorting] = useState(NAME)
+  const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
+
+  function sortUsers(first: UserWithModuleCompletions, second: UserWithModuleCompletions): number {
+    if (sorting.type === NUMBER) {
+      return first.user_id.localeCompare(second.user_id)
+    } else if (sorting.type === NAME) {
+      return `${first.last_name} ${first.first_name}`.localeCompare(
+        `${second.last_name} ${second.first_name}`,
+      )
+    } else if (sorting.type === EMAIL) {
+      return first.email.localeCompare(second.email)
+    } else {
+      return (
+        (second.completed_modules.includes(sorting.data ?? "") ? 1 : 0) -
+        (first.completed_modules.includes(sorting.data ?? "") ? 1 : 0)
+      )
+    }
+  }
 
   return (
     <Layout navVariant="simple">
@@ -47,9 +69,17 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         <>
           <div>
             <ChapterPointsDashboard
-              chapterScores={getCompletionsList.data}
+              chapterScores={getCompletionsList.data.course_modules.map((x) => ({
+                id: x.id,
+                name: x.name ?? t("label-default"),
+                value: `${
+                  getCompletionsList.data.users_with_course_module_completions.filter((user) =>
+                    user.completed_modules.includes(x.id),
+                  ).length
+                }/${getCompletionsList.data.users_with_course_module_completions.length}`,
+              }))}
               title="Total completion dashboard"
-              userCount={getCompletionsList.data.length}
+              userCount={getCompletionsList.data.users_with_course_module_completions.length}
             />
           </div>
           <FullWidthTable>
@@ -62,39 +92,60 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               >
                 <th>
                   {t("serial-number")}{" "}
-                  <a href="#number" onClick={() => setSorting(NUMBER)}>
+                  <a href="#number" onClick={() => setSorting({ type: NUMBER, data: null })}>
                     {DOWN_ARROW}
                   </a>
                 </th>
                 <th>
                   {t("student-name")}{" "}
-                  <a href="#name" onClick={() => setSorting(NAME)}>
+                  <a href="#name" onClick={() => setSorting({ type: NAME, data: null })}>
                     {DOWN_ARROW}
                   </a>
                 </th>
 
                 <th>
                   {t("label-email")}{" "}
-                  <a href="#email" onClick={() => setSorting(EMAIL)}>
+                  <a href="#email" onClick={() => setSorting({ type: EMAIL, data: null })}>
                     {DOWN_ARROW}
                   </a>
                 </th>
-                <th>
-                  Module 1{" "}
-                  <a href="#mod0" onClick={() => setSorting("mod10")}>
-                    {DOWN_ARROW}
-                  </a>
-                </th>
+                {getCompletionsList.data.course_modules
+                  .sort((a, b) => a.order_number - b.order_number)
+                  .map((module) => {
+                    const moduleSorting = `#mod${module.order_number}`
+                    return (
+                      <th key={module.id}>
+                        {module.name ?? t("label-default")}{" "}
+                        <a
+                          href={moduleSorting}
+                          onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                        >
+                          {DOWN_ARROW}
+                        </a>
+                      </th>
+                    )
+                  })}
               </tr>
             </thead>
             <tbody>
-              <FullWidthTableRow>
-                <td>123456</td>
-                <td>John Doe</td>
-                <td>john.doe@example.com</td>
-                <td>yes</td>
-              </FullWidthTableRow>
-              {/* {getCompletionsList.data.map(x => )} */}
+              {getCompletionsList.data.users_with_course_module_completions
+                .sort(sortUsers)
+                .map((user) => (
+                  <FullWidthTableRow key={user.user_id}>
+                    <td>{user.user_id}</td>
+                    <td>
+                      {user.first_name} {user.last_name}
+                    </td>
+                    <td>{user.email}</td>
+                    {getCompletionsList.data.course_modules
+                      .sort((a, b) => a.order_number - b.order_number)
+                      .map((module) => (
+                        <td key={module.id}>
+                          {user.completed_modules.includes(module.id) ? "yes" : "no"}
+                        </td>
+                      ))}
+                  </FullWidthTableRow>
+                ))}
             </tbody>
           </FullWidthTable>
         </>

@@ -98,7 +98,13 @@ const CourseInstancePointsList: React.FC<
         {getPointsList.isSuccess && (
           <>
             <ChapterPointsDashboard
-              chapterScores={getPointsList.data.chapter_points}
+              chapterScores={getPointsList.data.chapter_points.map((p) => ({
+                id: p.id,
+                name: p.name,
+                value: `${roundDown(p.score_given, 2)}/${
+                  p.score_total * getPointsList.data.users.length
+                }`,
+              }))}
               title={t("total-point-dashboard")}
               userCount={getPointsList.data.users.length}
             />

@@ -2,11 +2,14 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChapterScore } from "../../../../../shared-module/bindings"
-import { roundDown } from "../../../../../shared-module/utils/numbers"
+export interface DashboardItem {
+  id: string
+  name: string
+  value: string
+}
 
 export interface ChapterPointDashboardProps {
-  chapterScores: ChapterScore[]
+  chapterScores: DashboardItem[]
   title: string
   userCount: number
 }
@@ -90,7 +93,7 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
                   padding-top: 8px;
                 `}
               >
-                {roundDown(c.score_given, 2)}/{c.score_total * userCount}
+                {c.value}
               </div>
             </div>
           </div>

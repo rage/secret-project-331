@@ -71,9 +71,11 @@ fn ts_binding_generator() {
 
         course_instances::ChapterScore,
         course_instances::CourseInstance,
+        course_instances::CourseInstanceCompletionSummary,
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
+        course_instances::UserWithModuleCompletions,
 
         course_modules::CourseModule,
 

@@ -11861,6 +11861,114 @@
     },
     "query": "\nSELECT users.id AS \"id!\",\n  users.first_name,\n  users.last_name,\n  email AS \"email!\",\n  role AS \"role!: UserRole\"\nFROM users\n  JOIN roles ON users.id = roles.user_id\nWHERE is_global = TRUE\n"
   },
+  "b616231aba67e6ed368e29f92d4426ec293a57bb98b200a65ac9fa3a03383e87": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "completion_date",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_language",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "eligible_for_ects",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "grade",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 14,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 15,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
+  },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
     "describe": {
       "columns": [

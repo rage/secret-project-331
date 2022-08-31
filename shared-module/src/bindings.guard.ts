@@ -31,6 +31,7 @@ import {
   CourseCount,
   CourseExam,
   CourseInstance,
+  CourseInstanceCompletionSummary,
   CourseInstanceEnrollment,
   CourseInstanceForm,
   CourseMaterialCourseModule,
@@ -155,6 +156,7 @@ import {
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
+  UserWithModuleCompletions,
 } from "./bindings"
 
 export function isActionOnResource(obj: any, _argumentName?: string): obj is ActionOnResource {
@@ -414,6 +416,21 @@ export function isCourseInstance(obj: any, _argumentName?: string): obj is Cours
   )
 }
 
+export function isCourseInstanceCompletionSummary(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseInstanceCompletionSummary {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.course_modules) &&
+    obj.course_modules.every((e: any) => isCourseModule(e) as boolean) &&
+    Array.isArray(obj.users_with_course_module_completions) &&
+    obj.users_with_course_module_completions.every(
+      (e: any) => isUserWithModuleCompletions(e) as boolean,
+    )
+  )
+}
+
 export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
   return (
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
@@ -448,6 +465,21 @@ export function isPoints(obj: any, _argumentName?: string): obj is Points {
     Object.entries<any>(obj.user_chapter_points).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
+  )
+}
+
+export function isUserWithModuleCompletions(
+  obj: any,
+  _argumentName?: string,
+): obj is UserWithModuleCompletions {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.completed_modules) &&
+    obj.completed_modules.every((e: any) => typeof e === "string") &&
+    typeof obj.email === "string" &&
+    (obj.first_name === null || typeof obj.first_name === "string") &&
+    (obj.last_name === null || typeof obj.last_name === "string") &&
+    typeof obj.user_id === "string"
   )
 }
 
@@ -2074,7 +2106,16 @@ export function isModifiedModule(obj: any, _argumentName?: string): obj is Modif
     ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
     typeof obj.id === "string" &&
     (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.order_number === "number"
+    typeof obj.order_number === "number" &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }
 
@@ -2100,6 +2141,15 @@ export function isNewModule(obj: any, _argumentName?: string): obj is NewModule 
     typeof obj.name === "string" &&
     typeof obj.order_number === "number" &&
     Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => typeof e === "string")
+    obj.chapters.every((e: any) => typeof e === "string") &&
+    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
+    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
+    (obj.automatic_completion === null ||
+      obj.automatic_completion === false ||
+      obj.automatic_completion === true) &&
+    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
+      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
+    (obj.automatic_completion_number_of_points_treshold === null ||
+      typeof obj.automatic_completion_number_of_points_treshold === "number")
   )
 }

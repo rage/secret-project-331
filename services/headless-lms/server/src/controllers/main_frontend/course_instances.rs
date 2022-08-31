@@ -3,7 +3,9 @@
 use bytes::Bytes;
 use chrono::Utc;
 use models::{
-    course_instances::{self, CourseInstance, CourseInstanceForm, Points},
+    course_instances::{
+        self, CourseInstance, CourseInstanceCompletionSummary, CourseInstanceForm, Points,
+    },
     courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
 };
@@ -184,6 +186,28 @@ async fn points(
 }
 
 /**
+GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn completions(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseInstanceCompletionSummary>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let completions = course_instances::get_completions(&mut conn, *course_instance_id).await?;
+    token.authorized_ok(web::Json(completions))
+}
+
+/**
 POST /course-instances/:id/edit
 */
 #[instrument(skip(pool))]
@@ -249,6 +273,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))
         .route("/{course_instance_id}/delete", web::post().to(delete))
+        .route(
+            "/{course_instance_id}/completions",
+            web::get().to(completions),
+        )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
             "/{course_instance_id}/reprocess-completions",

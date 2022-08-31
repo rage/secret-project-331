@@ -164,6 +164,7 @@
   "label-csv-completions": "Format: csv with headers with fields: <2>{{csvHeaderFormat}}</2> - optional date in ISO format. At least one comma in header required, so if only user_id is given, please give header as user_id,",
   "label-current-text": "Current text:",
   "label-deadline": "Deadline",
+  "label-default": "Default",
   "label-email": "Email",
   "label-ends-at": "Ends at",
   "label-exam": "Exam",

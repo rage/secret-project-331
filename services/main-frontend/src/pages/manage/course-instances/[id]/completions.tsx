@@ -3,6 +3,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,6 +19,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { addCourseInstanceCompletionsPageRoute } from "../../../../utils/routing"
 
 const DOWN_ARROW = "v"
 const EMAIL = "email"
@@ -82,6 +84,12 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               userCount={getCompletionsList.data.users_with_course_module_completions.length}
             />
           </div>
+          <Link href={addCourseInstanceCompletionsPageRoute(courseInstanceId)} passHref>
+            {/* Just temporary location for development */}
+            <a href="replace" aria-label="Manually add completions">
+              Manually add completions
+            </a>
+          </Link>{" "}
           <FullWidthTable>
             <thead>
               <tr

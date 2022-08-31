@@ -15,3 +15,11 @@ export function manageCourseInstanceEmailsPageRoute(courseInstanceId: string) {
 export function manageCourseInstancePermissionsPageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}/permissions`
 }
+
+export function viewCourseInstanceCompletionsPageRoute(courseInstanceId: string) {
+  return `/manage/course-instances/${courseInstanceId}/completions`
+}
+
+export function viewCourseInstancePointsPageRoute(courseInstanceId: string) {
+  return `/manage/course-instances/${courseInstanceId}/points`
+}

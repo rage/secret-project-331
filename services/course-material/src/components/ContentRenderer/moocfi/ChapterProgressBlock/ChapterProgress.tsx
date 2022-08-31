@@ -46,7 +46,6 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
             variant="circle"
             max={getUserChapterProgress.data.score_maximum}
             given={getUserChapterProgress.data.score_given}
-            point={50}
             label={t("chapter-progress")}
           />
           <div
@@ -59,7 +58,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
           >
             <Progress
               variant={"bar"}
-              showAsPercentage={true}
+              showAsPercentage={false}
               exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
               exercisesTotal={getUserChapterProgress.data.total_exercises}
             />

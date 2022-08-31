@@ -161,10 +161,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     let peerReviewConfig
     switch (field) {
       case "accepting_strategy":
-        peerReviewConfig = {
-          ...parsedPeerReview,
-          accepting_strategy: isPeerReviewAcceptingStrategy(value),
-        }
+        peerReviewConfig = { ...parsedPeerReview, accepting_strategy: value }
         break
       case "accepting_threshold":
         peerReviewConfig = { ...parsedPeerReview, accepting_threshold: Number(value) }

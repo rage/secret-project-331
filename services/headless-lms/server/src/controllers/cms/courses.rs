@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
-use models::peer_review_configs::{self, CmsPeerReviewConfig, CmsPeerReviewConfiguration};
+use models::peer_review_configs::{self, CmsPeerReviewConfiguration};
 
 use crate::controllers::prelude::*;
 
@@ -60,33 +60,18 @@ async fn get_course_default_peer_review_configuration(
     let peer_review_config =
         models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
             .await?;
-    if let Some(peer_review_config) = peer_review_config {
-        let peer_review_questions =
-            models::peer_review_questions::get_course_default_cms_peer_review_questions(
-                &mut conn,
-                peer_review_config.id,
-            )
-            .await?;
 
-        token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-            peer_review_config,
-            peer_review_questions,
-        }))
-    } else {
-        token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-            peer_review_config: CmsPeerReviewConfig {
-                id: Uuid::new_v4(),
-                course_id: *course_id,
-                exercise_id: None,
-                accepting_strategy:
-                    peer_review_configs::PeerReviewAcceptingStrategy::ManualReviewEverything,
-                accepting_threshold: 1.0,
-                peer_reviews_to_receive: 1,
-                peer_reviews_to_give: 2,
-            },
-            peer_review_questions: Vec::new(),
-        }))
-    }
+    let peer_review_questions =
+        models::peer_review_questions::get_course_default_cms_peer_review_questions(
+            &mut conn,
+            peer_review_config.id,
+        )
+        .await?;
+
+    token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
+        peer_review_config,
+        peer_review_questions,
+    }))
 }
 
 #[generated_doc]

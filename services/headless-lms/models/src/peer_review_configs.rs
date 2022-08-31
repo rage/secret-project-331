@@ -374,7 +374,7 @@ RETURNING id;
 pub async fn get_course_default_cms_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Option<CmsPeerReviewConfig>> {
+) -> ModelResult<CmsPeerReviewConfig> {
     let res = sqlx::query_as!(
         CmsPeerReviewConfig,
         r#"
@@ -391,7 +391,7 @@ where course_id = $1
 "#,
         course_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

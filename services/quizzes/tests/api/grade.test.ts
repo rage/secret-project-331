@@ -14,6 +14,33 @@ describe('grade', () => {
     expect(isExerciseTaskGradingResult(JSON.parse(response.text)))
   })
 
+  // Non multiple-choice
+  it('returns full points for correct answer for single choice multiple-option quiz', async () => {
+    const data = generateMultipleChoiceRequest(4, 1, ['option-1'], "default", false)
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+    
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(1)
+  })
+
+
+  it('returns zero points for wrong answer for single choice multiple-option quiz', async () => {
+    const data = generateMultipleChoiceRequest(4, 1, ['option-3'], "default", false)
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+    
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
+  it('does not allow multiple choice for single choice multiple-option quiz', async () => {
+    const data = generateMultipleChoiceRequest(4, 1, ['option-1', 'option-3'], "default", false)
+    await client.post('/api/grade').send(data).expect(500)
+  })
+
   // Default, no points if all options aren't correct or all correct options are selected
   it('returns full points for correct answer in default', async () => {
     const data = generateMultipleChoiceRequest(4, 2, ['option-1','option-2'], "default")

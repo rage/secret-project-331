@@ -122,13 +122,16 @@ export const generateQuizItemAnswer = <T extends Partial<QuizItemAnswer>>(initia
  * @param numberOfOptions Number of correct options
  * @param numberOfCorrectOptions Number of correct options
  * @param options List of options. E.g. ['option-1', 'option-3']
+ * @param multi If set to false, only a single option can be selected. true by default.
  * @returns Quiz with multiple-choice exercise
  */
 export const generateMultipleChoiceRequest = (
     numberOfOptions: number, 
     numberOfCorrectOptions: number,
     options: string[],
-    multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy) => {
+    multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy,
+    multi=true
+) => {
   // Create quiz with multiple choice
   const quizItemId = 'multiple-choice-test-id'
 
@@ -146,7 +149,7 @@ export const generateMultipleChoiceRequest = (
   const multipleChoice = generateQuizItem({
     id: quizItemId,
     type: 'multiple-choice',
-    multi: true,
+    multi,
     options: quizOptions,
     multipleChoiceGradingPolicy
   })

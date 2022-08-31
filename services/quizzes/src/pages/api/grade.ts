@@ -255,27 +255,11 @@ function assessMultipleChoiceQuizzes(
     throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
-  // Check if every selected option was a correct answer
-  const allSelectedOptionsAreCorrect = quizItemAnswer.optionAnswers.every((oa) => {
-    const option = quizItem.options.find((o) => o.id === oa)
-    if (option && option.correct) {
-      return true
-    }
-    return false
-  })
-
   const correctnessCoefficient = getMultipleChoicePointsByGrading(quizItemAnswer, quizItem)
-
-  // Check if user selected correct amount of options
-  const selectedAllCorrectOptions =
-    quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
-  const correct = quizItem.multi
-    ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
-    : allSelectedOptionsAreCorrect
 
   return {
     quizItemId: quizItem.id,
-    correct,
+    correct: correctnessCoefficient == 1,
     correctnessCoefficient,
   }
 }

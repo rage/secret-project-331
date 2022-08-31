@@ -57,6 +57,14 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
+    - image: tmc
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
 
   local:
     # Allow parallel builds

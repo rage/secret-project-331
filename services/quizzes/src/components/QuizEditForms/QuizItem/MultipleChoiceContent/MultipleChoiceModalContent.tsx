@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -9,11 +10,8 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
-  InputLabel,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   Switch,
 } from "@mui/material"
 import React from "react"
@@ -21,6 +19,7 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
 import { MultipleChoiceGradingPolicy, NormalizedQuizItem } from "../../../../../types/types"
+import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
@@ -80,12 +79,6 @@ interface EditorModalProps {
   item: NormalizedQuizItem
 }
 
-const MULTIPLE_CHOICE_GRADING_OPTIONS: MultipleChoiceGradingPolicy[] = [
-  "default",
-  "points-off-incorrect-options",
-  "points-off-unselected-options",
-]
-
 /* eslint-disable i18next/no-literal-string */
 const stringToMultipleChoiceGradingPolicy = (content: string): MultipleChoiceGradingPolicy => {
   switch (content) {
@@ -106,6 +99,22 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const dispatch = useDispatch()
+
+  const multipleChoiceOptions = [
+    {
+      value: "default",
+      label: t("multiple-choice-grading-default"),
+    },
+    {
+      value: "points-off-incorrect-options",
+      label: t("multiple-choice-grading-points-off-incorrect-options"),
+    },
+    {
+      value: "points-off-unselected-options",
+      label: t("multiple-choice-grading-points-off-unselected-options"),
+    },
+  ]
+
   return (
     <ModalWrapper>
       <ModalContentTitleWrapper>
@@ -155,36 +164,23 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
         </FormGroup>
       </ModalContent>
       <ModalContent>
-        <FormGroup>
-          <FormControl>
-            <InputLabel id="grading-policy-label">{t("multiple-choice-grading")}</InputLabel>
-            <Select
-              onChange={(e) =>
-                dispatch(
-                  editedMultipleChoiceGradingPolicy(
-                    storeItem.id,
-                    stringToMultipleChoiceGradingPolicy(e.target.value),
-                  ),
-                )
-              }
-              value={storeItem.multipleChoiceGradingPolicy}
-              labelId="grading-policy-label"
-              label={t("multiple-choice-grading")}
-              autoWidth
-              disabled={!storeItem.multi}
-            >
-              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[0]}>
-                {t("multiple-choice-grading-default")}
-              </MenuItem>
-              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[1]}>
-                {t("multiple-choice-grading-points-off-incorrect-options")}
-              </MenuItem>
-              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[2]}>
-                {t("multiple-choice-grading-points-off-unselected-options")}
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </FormGroup>
+        <SelectField
+          id={"multiple-choice-grading"}
+          className={css`
+            width: 100%;
+          `}
+          onChange={(value) =>
+            dispatch(
+              editedMultipleChoiceGradingPolicy(
+                storeItem.id,
+                stringToMultipleChoiceGradingPolicy(value),
+              ),
+            )
+          }
+          defaultValue={storeItem.multipleChoiceGradingPolicy}
+          label={t("multiple-choice-grading")}
+          options={multipleChoiceOptions}
+        />
       </ModalContent>
       <ModalContent>
         <MarkdownEditor

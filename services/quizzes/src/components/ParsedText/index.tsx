@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic"
 import React from "react"
+import "katex/dist/katex.min.css"
 
 export interface TextNodeProps {
   text: string

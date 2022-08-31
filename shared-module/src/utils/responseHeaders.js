@@ -78,6 +78,10 @@ const externallyEmbeddableIFrameResponseHeaders = [
     key: "Access-Control-Allow-Private-Network",
     value: "true",
   },
+  // This application is meant to be used with a sandboxed iframe.
+  // That causes that we need cors headers some for some resrouces like api routes, fonts, development files etc.
+  // It's best to enable all origins for all files since it should be fine to make requests to the services from anywhere.
+  { key: "Access-Control-Allow-Origin", value: "*" },
 ]
 
 module.exports = { generateNormalResponseHeaders, externallyEmbeddableIFrameResponseHeaders }

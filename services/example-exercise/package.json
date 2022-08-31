@@ -5,7 +5,8 @@
     "dev": "node server.js",
     "build": "NODE_ENV=production next build",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3002 node server.js"
+    "start": "NODE_ENV=production PORT=3002 node server.js",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@emotion/css": "^11.10.0",
@@ -32,6 +33,7 @@
     "lodash": "^4.17.21",
     "monaco-editor": "^0.34.0",
     "next": "^12.2.4",
+    "patch-package": "^6.4.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.34.2",

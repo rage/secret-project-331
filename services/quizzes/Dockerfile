@@ -8,6 +8,7 @@ WORKDIR /app
 
 COPY --chown=node package.json /app/
 COPY --chown=node package-lock.json /app/
+COPY --chown=node patches /app/patches
 
 RUN npm ci
 

@@ -104,5 +104,9 @@
   "waiting-for-port": "Odotetaan porttia...",
   "word-count": "Sanamäärä",
   "your-answer-was-correct": "Vastauksesi oli oikein.",
-  "your-answer-was-not-correct": "Vastauksesi ei ollut oikein."
+  "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
+  "multiple-choice-grading": "Arvostelu menetelmä",
+  "multiple-choice-grading-default": "Kaikki oikein",
+  "multiple-choice-grading-points-off-incorrect-options": "Väärät valinnat",
+  "multiple-choice-grading-points-off-unselected-options": "Valitsemattomat valinnat"
 }

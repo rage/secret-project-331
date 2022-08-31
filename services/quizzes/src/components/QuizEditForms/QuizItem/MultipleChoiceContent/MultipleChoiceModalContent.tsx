@@ -9,20 +9,24 @@ import {
   FormGroup,
   FormHelperText,
   FormLabel,
+  InputLabel,
+  MenuItem,
   Radio,
   RadioGroup,
+  Select,
   Switch,
 } from "@mui/material"
 import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
-import { NormalizedQuizItem } from "../../../../../types/types"
+import { MultipleChoiceGradingPolicy, NormalizedQuizItem } from "../../../../../types/types"
 import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
   editedItemFailureMessage,
   editedItemSuccessMessage,
+  editedMultipleChoiceGradingPolicy,
   editedQuizItemTitle,
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
@@ -74,6 +78,25 @@ const Spacer = styled.div`
 
 interface EditorModalProps {
   item: NormalizedQuizItem
+}
+
+const MULTIPLE_CHOICE_GRADING_OPTIONS: MultipleChoiceGradingPolicy[] = [
+  "default",
+  "points-off-incorrect-options",
+  "points-off-unselected-options",
+]
+
+/* eslint-disable i18next/no-literal-string */
+const stringToMultipleChoiceGradingPolicy = (content: string): MultipleChoiceGradingPolicy => {
+  switch (content) {
+    case "default":
+      return "default"
+    case "points-off-incorrect-options":
+      return "points-off-incorrect-options"
+    case "points-off-unselected-options":
+      return "points-off-unselected-options"
+  }
+  return "default"
 }
 
 export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<EditorModalProps>> = ({
@@ -129,6 +152,38 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
               />
             }
           />
+        </FormGroup>
+      </ModalContent>
+      <ModalContent>
+        <FormGroup>
+          <FormControl>
+            <InputLabel id="grading-policy-label">{t("multiple-choice-grading")}</InputLabel>
+            <Select
+              onChange={(e) =>
+                dispatch(
+                  editedMultipleChoiceGradingPolicy(
+                    storeItem.id,
+                    stringToMultipleChoiceGradingPolicy(e.target.value),
+                  ),
+                )
+              }
+              value={storeItem.multipleChoiceGradingPolicy}
+              labelId="grading-policy-label"
+              label={t("multiple-choice-grading")}
+              autoWidth
+              disabled={!storeItem.multi}
+            >
+              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[0]}>
+                {t("multiple-choice-grading-default")}
+              </MenuItem>
+              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[1]}>
+                {t("multiple-choice-grading-points-off-incorrect-options")}
+              </MenuItem>
+              <MenuItem value={MULTIPLE_CHOICE_GRADING_OPTIONS[2]}>
+                {t("multiple-choice-grading-points-off-unselected-options")}
+              </MenuItem>
+            </Select>
+          </FormControl>
         </FormGroup>
       </ModalContent>
       <ModalContent>

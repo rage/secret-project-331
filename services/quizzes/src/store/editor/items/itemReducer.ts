@@ -26,6 +26,7 @@ import {
   editedItemMaxWords,
   editedItemMinWords,
   editedItemSuccessMessage,
+  editedMultipleChoiceGradingPolicy,
   editedQuizItemBody,
   editedQuizItemOptionCells,
   editedQuizItemTitle,
@@ -128,6 +129,13 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
     })
   })
 
+  .handleAction(editedMultipleChoiceGradingPolicy, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId].multipleChoiceGradingPolicy =
+        action.payload.multipleChoiceGradingPolicy
+    })
+  })
+
   .handleAction(createdNewItem, (state, action) => {
     return produce(state, (draftState) => {
       const newItem: NormalizedQuizItem = {
@@ -156,6 +164,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         direction: "column",
         timelineItems: [],
         shuffleOptions: false,
+        multipleChoiceGradingPolicy: "default",
       }
       draftState[action.payload.itemId] = newItem
     })
@@ -190,6 +199,7 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         direction: oldItem.direction,
         timelineItems: oldItem.timelineItems,
         shuffleOptions: oldItem.shuffleOptions ?? false,
+        multipleChoiceGradingPolicy: "default",
       }
       draftState[action.payload.itemId] = newItem
     })

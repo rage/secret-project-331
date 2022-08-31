@@ -147,6 +147,7 @@ export interface OptionsFeedback {
  */
 export interface NormalizedQuizItem {
   shuffleOptions: boolean
+  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
   id: string
   quizId: string
   type: string
@@ -199,6 +200,7 @@ export interface PublicQuizItem {
   formatRegex: string | null
   multi: boolean
   shuffleOptions: boolean
+  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
   minWords: number | null
   maxWords: number | null
   maxValue: number | null

@@ -1,5 +1,7 @@
 import { createAction } from "typesafe-actions"
 
+import { MultipleChoiceGradingPolicy } from "../../../../types/types"
+
 export const editedQuizItemBody = createAction(
   "EDITED_QUIZ_ITEM_BODY",
   (newBody: string, itemId: string) => ({ body: newBody, id: itemId }),
@@ -114,6 +116,14 @@ export const toggledSharedOptionFeedbackMessage = createAction(
   }),
 )<{ itemId: string; sharedFeedback: boolean }>()
 
+export const editedMultipleChoiceGradingPolicy = createAction(
+  "SET_MULTIPLE_CHOICE_GRADING_POLICY",
+  (itemId: string, multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy) => ({
+    itemId,
+    multipleChoiceGradingPolicy,
+  }),
+)<{ itemId: string; multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy }>()
+
 export const toggledShuffleOptions = createAction(
   "TOGGLED_RANDOMIZED_OPTIONS",
   (itemId: string, shuffleOptions: boolean) => ({
@@ -168,6 +178,7 @@ export const itemActions = [
   increasedItemOrder,
   toggledAllAnswersCorrect,
   toggledShuffleOptions,
+  editedMultipleChoiceGradingPolicy,
   editedItemDirection,
   editedQuizItemOptionCells,
 ]

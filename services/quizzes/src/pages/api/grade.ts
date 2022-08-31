@@ -36,7 +36,7 @@ interface QuizItemAnswerGrading {
    * user would get `2*0.75=1.5` points for this quiz item.
    *
    * * 0 will be regarded as an incorrect answer
-   * * 0 > x < 1 will be regarded as a partially correct answer
+   * * 0 < x < 1 will be regarded as a partially correct answer
    * * 1 will be regarded as a correct answer
    *
    */
@@ -191,11 +191,23 @@ function assessTimelineQuiz(
 }
 
 /**
- * Calculate correctness coefficient according to grading method
+ * Calculate correctness coefficient according to grading method.
+ * Correctness coefficient is used to determine the percentage of correct answers in a quizz item.
+ * The score is set by the quiz and is the sum of the scores multiplied by their correctness coeffiecients
+ * from quiz items. E.g. if there are three quiz items with scores 10, 5, 2 and correctness coefficients are 0.5, 0.2
+ * and 1.0 then the total score is 10 * 0.5 + 5 * 0.2 + 2 * 1.0 = 8.0
  *
- * @param quizItemAnswer Quiz Item Answer
- * @param quizItem Quiz Item
- * @returns Percentage of correct answers (correctness coefficient)
+ * Multiple-choice has three grading methods:
+ *  - default, all answers has to be correct in order to get full points, none otherwise.
+ *  - points-off-incorrect-options, each correct answers increases points and each incorrect answer decreases it.
+ *  - points-off-unselected-options, similar to above with addition that unselected correct options will
+ *    also decrease points.
+ *
+ * @param quizItemAnswer Quiz item answer
+ * @param quizItem Quiz item
+ * @see QuizItem
+ * @see QuizItemAnswer
+ * @returns Correctness coefficient
  */
 function getMultipleChoicePointsByGrading(
   quizItemAnswer: QuizItemAnswer,

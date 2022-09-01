@@ -25,6 +25,7 @@ export interface ItemAnswerFeedback {
   quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
   timeline_item_feedbacks: TimelineItemFeedback[] | null
+  score: number
 }
 
 interface QuizItemAnswerGrading {
@@ -308,6 +309,7 @@ function submissionFeedback(
   quiz: Quiz,
   quizItemgradings: QuizItemAnswerGrading[],
 ): ItemAnswerFeedback[] {
+  console.log("submissionFeedback called")
   const feedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map((ia) => {
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)
@@ -318,6 +320,7 @@ function submissionFeedback(
         quiz_item_option_feedbacks: null,
         quiz_item_correct: null,
         timeline_item_feedbacks: null,
+        score: 0,
       }
     }
     if (
@@ -330,6 +333,7 @@ function submissionFeedback(
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
+        score: itemGrading.correctnessCoefficient,
         quiz_item_option_feedbacks: ia.optionAnswers
           ? ia.optionAnswers.map((oa): OptionAnswerFeedback => {
               const option = item.options.find((o) => o.id === oa) || null
@@ -357,6 +361,7 @@ function submissionFeedback(
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
+        score: itemGrading.correctnessCoefficient,
         timeline_item_feedbacks: ia.timelineChoices
           ? ia.timelineChoices.map<TimelineItemFeedback>((tc) => {
               const timelineItem = item.timelineItems?.find((ti) => ti.id === tc.timelineItemId)
@@ -380,6 +385,7 @@ function submissionFeedback(
       quiz_item_correct: itemGrading.correct,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
+      score: itemGrading.correctnessCoefficient,
     }
   })
   return feedbacks

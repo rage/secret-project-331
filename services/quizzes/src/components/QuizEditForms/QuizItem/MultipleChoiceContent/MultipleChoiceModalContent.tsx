@@ -163,11 +163,12 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
           />
         </FormGroup>
       </ModalContent>
-      <ModalContent>
+      <div>
         <SelectField
           id={"multiple-choice-grading"}
           className={css`
             width: 100%;
+            margin-bottom: 0.3rem;
           `}
           onChange={(value) =>
             dispatch(
@@ -181,7 +182,22 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
           label={t("multiple-choice-grading")}
           options={multipleChoiceOptions}
         />
-      </ModalContent>
+        <span
+          className={css`
+            color: #414246;
+            font-size: 17px;
+            font-family: Josefin Sans, sans-serif;
+          `}
+        >
+          {storeItem.multipleChoiceGradingPolicy == "default" &&
+            t("multiple-choice-grading-default-description")}
+          {storeItem.multipleChoiceGradingPolicy == "points-off-incorrect-options" &&
+            t("multiple-choice-grading-points-off-incorrect-options-description")}
+          {storeItem.multipleChoiceGradingPolicy == "points-off-unselected-options" &&
+            t("multiple-choice-grading-points-off-unselected-options-description")}
+        </span>
+      </div>
+
       <ModalContent>
         <MarkdownEditor
           label={t("title")}

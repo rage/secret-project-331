@@ -3,15 +3,15 @@ set -euo pipefail
 source "$(dirname "$0")/.common"
 
 run_command npx concurrently \
-  -n "cms,course-material,main-frontend,example-exercise,shared-module,quizzes,tmc,system-tests" \
+  -n "cms,course-material,main-frontend,example-exercise,shared-module,quizzes,system-tests" \
   -c "green.bold,red.bold,blue.bold,yellow.bold,purple.bold,magenta.bold,cyan.bold,gray.bold" \
-  "bash -c 'cd services/cms/ && npm ci'" \
-  "bash -c 'cd services/course-material/ && npm ci'" \
-  "bash -c 'cd services/main-frontend && npm ci'" \
-  "bash -c 'cd services/example-exercise && npm ci'" \
-  "bash -c 'cd shared-module && npm ci'" \
-  "bash -c 'cd services/quizzes/ && npm ci'" \
-  "bash -c 'cd services/tmc/ && npm ci'" \
-  "bash -c 'cd system-tests && npm ci'"
+  "bash -c 'cd services/cms/ && npm ci $*'" \
+  "bash -c 'cd services/course-material/ && npm ci $*'" \
+  "bash -c 'cd services/main-frontend && npm ci $*'" \
+  "bash -c 'cd services/example-exercise && npm ci $*'" \
+  "bash -c 'cd shared-module && npm ci $*'" \
+  "bash -c 'cd services/quizzes/ && npm ci $*'" \
+  "bash -c 'cd services/tmc/ && npm ci $*'" \
+  "bash -c 'cd system-tests && npm ci $*'"
 
 echo "finished"

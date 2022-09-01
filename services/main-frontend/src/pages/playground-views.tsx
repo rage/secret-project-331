@@ -4,6 +4,7 @@ import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -22,6 +23,7 @@ import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
 import Spinner from "../shared-module/components/Spinner"
+import HideChildrenInSystemTests from "../shared-module/components/system-tests/HideChildrenInSystemTests"
 import {
   CurrentStateMessage,
   IframeViewType,
@@ -48,12 +50,24 @@ const Area = styled.div`
   margin-bottom: 1rem;
 `
 
+const FULL_WIDTH = "100vw"
+const HALF_WIDTH = "50vw"
+
 // eslint-disable-next-line i18next/no-literal-string
-const StyledPre = styled.pre`
-  background-color: ${baseTheme.colors.clear[100]};
+const StyledPre = styled.pre<{ fullWidth: boolean }>`
+  background-color: rgba(218, 230, 229, 0.4);
   border-radius: 6px;
   padding: 1rem;
-  font-size: 14px;
+  font-size: 13px;
+  max-width: ${(props) => (props.fullWidth ? FULL_WIDTH : HALF_WIDTH)};
+  max-height: 700px;
+  overflow: scroll;
+  white-space: pre-wrap;
+  resize: vertical;
+
+  &[style*="height"] {
+    max-height: unset;
+  }
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -130,6 +144,13 @@ const DEFAULT_SERVICE_INFO_URL = "http://project-331.local/example-exercise/api/
 
 const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
+
+  const SCROLL_TARGETS = [
+    { name: t("title-playground-exercise-iframe"), id: "heading-playground-exercise-iframe" },
+    { name: t("private-spec"), id: "heading-private-spec" },
+    { name: t("title-iframe"), id: "heading-iframe" },
+    { name: t("title-communication-with-the-iframe"), id: "heading-communication-with-the-iframe" },
+  ]
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
@@ -232,21 +253,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     unknown,
     unknown
   >(
-    async () => {
-      if (
-        !serviceInfoQuery.data ||
-        !isValidServiceInfo ||
-        currentStateReceivedFromIframe === null ||
-        !privateSpecValidJson
-      ) {
+    async (data: unknown) => {
+      if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Requirements for the mutation not satisfied.")
       }
       const gradingRequest: GradingRequest = {
         exercise_spec: privateSpecParsed,
-        submission_data: currentStateReceivedFromIframe.data,
+        submission_data: data,
       }
-      setUserAnswer(currentStateReceivedFromIframe.data)
+      setUserAnswer(data)
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
         gradingRequest,
@@ -285,7 +301,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <Layout>
-      <h1>{t("title-playground-exercise-iframe")}</h1>
+      <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
@@ -352,6 +368,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
           <PrivateSpecGridArea>
             <TextAreaField
+              id="heading-private-spec"
               rows={20}
               spellCheck={false}
               label={t("private-spec")}
@@ -369,9 +386,11 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 margin-bottom: 1rem;
                 textarea {
                   width: 100%;
+                  max-width: 50vw;
+                  height: 700px;
                   font-family: ${monospaceFont} !important;
                   resize: vertical;
-                  font-size: 14px !important;
+                  font-size: 13px !important;
                 }
               `}
             />
@@ -379,10 +398,32 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
           <AnswerAndGradingGridArea>
             <Area>
-              <h3>{t("title-user-answer")}</h3>
-
+              <div
+                className={css`
+                  display: flex;
+                  h3 {
+                    margin-right: 1rem;
+                  }
+                `}
+              >
+                <h3>{t("title-user-answer")}</h3>{" "}
+                <DebugModal
+                  data={userAnswer}
+                  readOnly={false}
+                  updateDataOnClose={(newValue) => {
+                    submitAnswerMutation.mutate(newValue)
+                  }}
+                />
+              </div>
+              <p
+                className={css`
+                  margin-bottom: 0.5rem;
+                `}
+              >
+                {t("user-answer-explanation")}
+              </p>
               {userAnswer ? (
-                <StyledPre>{JSON.stringify(userAnswer, undefined, 2)}</StyledPre>
+                <StyledPre fullWidth={false}>{JSON.stringify(userAnswer, undefined, 2)}</StyledPre>
               ) : (
                 <div>{t("error-no-user-answer")}</div>
               )}
@@ -391,8 +432,18 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <Area>
               <h3>{t("title-grading")}</h3>
 
+              <p
+                className={css`
+                  margin-bottom: 0.5rem;
+                `}
+              >
+                {t("grading-explanation")}
+              </p>
+
               {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
-                <StyledPre>{JSON.stringify(submitAnswerMutation.data, undefined, 2)}</StyledPre>
+                <StyledPre fullWidth={false}>
+                  {JSON.stringify(submitAnswerMutation.data, undefined, 2)}
+                </StyledPre>
               ) : (
                 <div>{t("error-no-grading-long")}</div>
               )}
@@ -416,12 +467,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {publicSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
               )}
-              {publicSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {publicSpecQuery.fetchStatus === "idle" && (
+              {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
+                <Spinner variant={"medium"} />
+              )}
+              {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {publicSpecQuery.isSuccess && (
-                <StyledPre>{JSON.stringify(publicSpecQuery.data, undefined, 2)}</StyledPre>
+                <StyledPre fullWidth={false}>
+                  {JSON.stringify(publicSpecQuery.data, undefined, 2)}
+                </StyledPre>
               )}
             </Area>
           </PublicSpecArea>
@@ -435,12 +490,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {modelSolutionSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
               )}
-              {modelSolutionSpecQuery.isLoading && <Spinner variant={"medium"} />}
-              {modelSolutionSpecQuery.fetchStatus === "idle" && (
+              {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
+                <Spinner variant={"medium"} />
+              )}
+              {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {modelSolutionSpecQuery.isSuccess && (
-                <StyledPre>{JSON.stringify(modelSolutionSpecQuery.data, undefined, 2)}</StyledPre>
+                <StyledPre fullWidth={false}>
+                  {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2)}
+                </StyledPre>
               )}
             </Area>
           </ModelSolutionSpecArea>
@@ -460,7 +519,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             }
           `}
         >
-          <h2>{t("title-iframe")}</h2>{" "}
+          <h2 id="heading-iframe">{t("title-iframe")}</h2>{" "}
           <Button
             variant={"secondary"}
             size={"small"}
@@ -572,7 +631,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     disabled={
                       currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
                     }
-                    onClick={() => submitAnswerMutation.mutate(undefined)}
+                    onClick={() => {
+                      if (!currentStateReceivedFromIframe) {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        throw new Error("No current state received from the iframe")
+                      }
+                      submitAnswerMutation.mutate(currentStateReceivedFromIframe.data)
+                    }}
                   >
                     {t("button-text-submit")}
                   </Button>
@@ -608,7 +673,9 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       </Area>
 
       <Area>
-        <h2>{t("title-communication-with-the-iframe")}</h2>
+        <h2 id="heading-communication-with-the-iframe">
+          {t("title-communication-with-the-iframe")}
+        </h2>
       </Area>
 
       <Area>
@@ -660,12 +727,84 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           <>{t("message-no-current-state-message-received-from-the-iframe-yet")}</>
         ) : (
           <>
-            <StyledPre>
+            <StyledPre fullWidth>
               {JSON.stringify(currentStateReceivedFromIframe.data, undefined, 2)}
             </StyledPre>
           </>
         )}
       </Area>
+
+      <HideChildrenInSystemTests>
+        <div
+          className={css`
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            background-color: black;
+            border: 2px solid black;
+            z-index: 500;
+            border-radius: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+
+            svg {
+              color: white;
+            }
+
+            &:hover {
+              background-color: white;
+              cursor: pointer;
+              svg {
+                color: black;
+              }
+            }
+          `}
+        >
+          <div
+            className={css`
+              position: relative;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <ArrowsVertical />
+            <select
+              name="pets"
+              id="pet-select"
+              className={css`
+                height: 50px;
+                width: 50px;
+                opacity: 0;
+                cursor: pointer;
+                position: absolute;
+                top: -12px;
+                left: -12px;
+              `}
+              title={t("title-scroll-to-a-heading-in-this-page")}
+              onChange={(event) => {
+                const element = document.getElementById(event.target.value)
+                if (!element) {
+                  console.error("Element to scroll to not found", event.target.value)
+                  return
+                }
+                const y = element.getBoundingClientRect().top + window.scrollY - 30
+                window.scroll({ top: y, behavior: "smooth" })
+              }}
+            >
+              {SCROLL_TARGETS.map((target) => (
+                <option key={target.id} value={target.id}>
+                  {target.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </HideChildrenInSystemTests>
     </Layout>
   )
 }

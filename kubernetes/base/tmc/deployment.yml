@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tmc
+  labels:
+    app: tmc
+spec:
+  clusterIP: None
+  ports:
+    - port: 3005
+      name: tmc
+  selector:
+    app: tmc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tmc
+  labels:
+    app: tmc
+    deploymentType: without-init-container
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tmc
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: tmc
+    spec:
+      containers:
+        - name: tmc
+          image: tmc
+          ports:
+            - containerPort: 3005
+              name: http
+          env:
+            - name: NEXT_PUBLIC_BASE_PATH
+              value: "/tmc"
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+              cpu: 200m

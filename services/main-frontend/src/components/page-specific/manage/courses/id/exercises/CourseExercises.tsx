@@ -5,6 +5,7 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import ExerciseList from "./ExerciseList"
+import ExerciseRepositories from "./ExerciseRepositories"
 
 const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -12,6 +13,8 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const { t } = useTranslation()
   return (
     <>
+      <h2>{t("manage-exercise-repositories")}</h2>
+      <ExerciseRepositories courseId={courseId} examId={null} />
       <h2
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);

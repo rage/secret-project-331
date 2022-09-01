@@ -34,5 +34,19 @@ pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<(
         },
     )
     .await?;
+
+    exercise_services::insert_exercise_service(
+        &mut conn,
+        &exercise_services::ExerciseServiceNewOrUpdate {
+            name: "TMC".to_string(),
+            slug: "tmc".to_string(),
+            public_url: "http://project-331.local/tmc/api/service-info".to_string(),
+            internal_url: Some(
+                "http://tmc.default.svc.cluster.local:3005/tmc/api/service-info".to_string(),
+            ),
+            max_reprocessing_submissions_at_once: 5,
+        },
+    )
+    .await?;
     Ok(())
 }

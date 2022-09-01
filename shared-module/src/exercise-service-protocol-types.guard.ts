@@ -90,7 +90,21 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
-        typeof typedObj["data"] === "function"))
+        typeof typedObj["data"] === "function") &&
+      (typeof typedObj["data"]["repository_exercise"] === "undefined" ||
+        (((typedObj["data"]["repository_exercise"] !== null &&
+          typeof typedObj["data"]["repository_exercise"] === "object") ||
+          typeof typedObj["data"]["repository_exercise"] === "function") &&
+          typeof typedObj["data"]["repository_exercise"]["id"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["repository_id"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["part"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["name"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["repository_url"] === "string" &&
+          Array.isArray(typedObj["data"]["repository_exercise"]["checksum"]) &&
+          typedObj["data"]["repository_exercise"]["checksum"].every(
+            (e: any) => typeof e === "number",
+          ) &&
+          typeof typedObj["data"]["repository_exercise"]["download_url"] === "string")))
   )
 }
 
@@ -136,7 +150,21 @@ export function isIframeState(obj: unknown): obj is IframeState {
       typeof typedObj["exercise_task_id"] === "string" &&
       (isUserInformation(typedObj["user_information"]) as boolean) &&
       ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
-        typeof typedObj["data"] === "function"))
+        typeof typedObj["data"] === "function") &&
+      (typeof typedObj["data"]["repository_exercise"] === "undefined" ||
+        (((typedObj["data"]["repository_exercise"] !== null &&
+          typeof typedObj["data"]["repository_exercise"] === "object") ||
+          typeof typedObj["data"]["repository_exercise"] === "function") &&
+          typeof typedObj["data"]["repository_exercise"]["id"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["repository_id"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["part"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["name"] === "string" &&
+          typeof typedObj["data"]["repository_exercise"]["repository_url"] === "string" &&
+          Array.isArray(typedObj["data"]["repository_exercise"]["checksum"]) &&
+          typedObj["data"]["repository_exercise"]["checksum"].every(
+            (e: any) => typeof e === "number",
+          ) &&
+          typeof typedObj["data"]["repository_exercise"]["download_url"] === "string")))
   )
 }
 

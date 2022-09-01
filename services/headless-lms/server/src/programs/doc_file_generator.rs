@@ -25,6 +25,7 @@ use headless_lms_models::{
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
+    exercise_repositories::{ExerciseRepository, ExerciseRepositoryStatus},
     exercise_services::{ExerciseService, ExerciseServiceIframeRenderingInfo},
     exercise_slide_submissions::{
         ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmission,
@@ -63,6 +64,7 @@ use headless_lms_models::{
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
+    repository_exercises::RepositoryExercise,
     user_course_settings::UserCourseSettings,
     user_exercise_states::{
         ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -1177,6 +1179,29 @@ pub async fn main() -> anyhow::Result<()> {
             name: "Example exercise".to_string(),
             slug: "example-exercise".to_string(),
             public_iframe_url: "https://example.com/iframe".to_string()
+        }]
+    );
+    write_docs!(
+        Vec<ExerciseRepository>,
+        vec![ExerciseRepository {
+            id,
+            url: "https://github.com/testmycode/tmc-testcourse".to_string(),
+            course_id: Some(id),
+            exam_id: None,
+            status: ExerciseRepositoryStatus::Success,
+            error_message: None,
+        }]
+    );
+    write_docs!(
+        Vec<RepositoryExercise>,
+        vec![RepositoryExercise {
+            id,
+            repository_id: id,
+            part: "part01".to_string(),
+            name: "exercise01".to_string(),
+            repository_url: "https://github.com/testmycode/tmc-testcourse".to_string(),
+            checksum: vec![0, 1, 2, 3],
+            download_url: "direct-download-link".to_string(),
         }]
     );
     Ok(())

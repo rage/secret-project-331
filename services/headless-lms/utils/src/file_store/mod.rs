@@ -100,3 +100,9 @@ pub fn organization_file_path(
     ));
     Ok(path)
 }
+
+pub fn repository_exercise_path(repository_id: Uuid, repository_exercise_id: Uuid) -> PathBuf {
+    PathBuf::from(format!(
+        "repository_exercises/{repository_id}/{repository_exercise_id}",
+    ))
+}

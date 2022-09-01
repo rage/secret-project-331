@@ -177,6 +177,12 @@ impl From<sqlx::Error> for ControllerError {
     }
 }
 
+impl From<git2::Error> for ControllerError {
+    fn from(err: git2::Error) -> ControllerError {
+        Self::InternalServerError(err.to_string())
+    }
+}
+
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         match err {

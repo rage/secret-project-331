@@ -81,6 +81,9 @@ fn models(target: &mut File) {
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
 
+        exercise_repositories::ExerciseRepository,
+        exercise_repositories::ExerciseRepositoryStatus,
+
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_service_info::ExerciseServiceInfoApi,
 
@@ -167,6 +170,8 @@ fn models(target: &mut File) {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
+        repository_exercises::RepositoryExercise,
+
         exercise_slide_submissions::ExerciseSlideSubmission,
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
@@ -249,6 +254,7 @@ fn controllers(target: &mut File) {
             exercises::ExerciseSubmissions,
             exercises::AnswersRequiringAttention,
             exercises::AnswerRequiringAttentionWithTasks,
+            exercise_repositories::NewExerciseRepository,
             feedback::MarkAsRead,
             courses::GetFeedbackQuery,
             proposed_edits::GetEditProposalsQuery,

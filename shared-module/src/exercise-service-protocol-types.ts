@@ -1,4 +1,4 @@
-import { ExerciseTaskGradingResult } from "./bindings"
+import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
 
 /**
  * from: IFrame
@@ -78,7 +78,7 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
-      data: { private_spec: unknown }
+      data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
     }
 
 export type IframeViewType = IframeState["view_type"]

@@ -75,3 +75,10 @@ spec:
                 name: quizzes
                 port:
                   number: 3004
+          - path: /tmc
+            pathType: Prefix
+            backend:
+              service:
+                name: tmc
+                port:
+                  number: 3005

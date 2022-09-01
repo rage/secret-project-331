@@ -10,6 +10,8 @@ module.exports = {
     "npx tsc -p services/course-material/ --noEmit",
   "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () =>
     "npx tsc -p services/quizzes/ --noEmit",
+  "services/tmc/src/**/*.{js,jsx,ts,tsx}": () =>
+    "npx tsc -p services/tmc/ --noEmit",
   "*.{md,json,scss,css}": "prettier --write",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",

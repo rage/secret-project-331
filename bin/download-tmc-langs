@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/tmc/"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+run_command cd "$RELATIVE_PATH" || exit
+
+VERSION=$(cat tmc-langs-version)
+LANGS_FILENAME="tmc-langs-cli-x86_64-unknown-linux-gnu-${VERSION}"
+
+echo "TMC langs version: $VERSION"
+
+if [[ -f "$LANGS_FILENAME" ]]; then
+  echo "Already up to date!"
+  exit 0
+fi
+
+echo "Removing old CLI versions"
+run_command find . -maxdepth 1 -type f -name 'tmc-langs-cli-*' -delete
+
+echo "Downloading CLI"
+run_command curl "https://download.mooc.fi/tmc-langs-rust/${LANGS_FILENAME}" --output "$LANGS_FILENAME"
+run_command chmod +x "$LANGS_FILENAME"
+
+GENERATED_DOWNLOAD_URL="https://raw.githubusercontent.com/rage/tmc-langs-rust/${VERSION}/bindings/tmc-langs-node/ts/generated.d.ts"
+GENERATED_DOWNLOAD_TARGET="./src/tmc/generated.d.ts"
+GENERATED_GUARD="./src/tmc/generated.guard.ts"
+
+echo "Removing old generated type definitions"
+run_command rm -f "$GENERATED_DOWNLOAD_TARGET"
+run_command rm -f "$GENERATED_GUARD"
+echo "Downloading generated type definitions"
+GENERATED=$(curl "$GENERATED_DOWNLOAD_URL")
+# write URL to the file to make it easy to keep track of the version
+printf "// %s\n\n" "$GENERATED_DOWNLOAD_URL" > "$GENERATED_DOWNLOAD_TARGET"
+echo "$GENERATED" >> "$GENERATED_DOWNLOAD_TARGET"
+run_command npx eslint --fix "$GENERATED_DOWNLOAD_TARGET"
+
+# generate guard
+run_command npx ts-auto-guard --export-all --paths ./src/tmc/generated.d.ts --project ./tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' ./src/tmc/generated.guard.ts
+run_command npx eslint --fix ./src/tmc/generated.guard.ts

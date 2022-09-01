@@ -1,0 +1,8 @@
+{
+  "select-repository-exercise": "Please select a repository exercise.",
+  "selected-repository-exercise": "Selected repository exercise",
+  "solve-in-browser": "Solve in the browser",
+  "solve-in-editor": "Solve in an editor",
+  "waiting-for-content": "Waiting for content...",
+  "waiting-for-port": "Waiting for port..."
+}

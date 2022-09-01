@@ -498,6 +498,16 @@
     },
     "query": "\n    UPDATE exams\n    SET instructions = $1\n    WHERE id = $2\n    RETURNING id,\n        instructions\n    "
   },
+  "08ce64fd0dded18780f3307fb44b4421871c93d1f3310976430134893091d284": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  public_spec,\n  model_solution_spec,\n  order_number,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2 OR e.exam_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    "
+  },
   "0a3ec731af676e23b67bd6eb547415800aa436639f2dfde55ad17b3ed904a27b": {
     "describe": {
       "columns": [],
@@ -1330,51 +1340,32 @@
           "type_info": "Jsonb"
         },
         {
-          "name": "spec_file_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
           "name": "public_spec",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Jsonb"
         },
         {
           "name": "model_solution_spec",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Jsonb"
         },
         {
           "name": "copied_from",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Uuid"
         },
         {
           "name": "exercise_slide_id",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Uuid"
         },
         {
           "name": "order_number",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Int4"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false, true, true, true, true, true, false, false],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -2073,6 +2064,16 @@
     },
     "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec;\n        "
   },
+  "1d83ed68e73caf732fb229242e040adf81019899632218153511689914e90fab": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_repositories SET url = $1 WHERE id = $2\n"
+  },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
     "describe": {
       "columns": [
@@ -2724,51 +2725,32 @@
           "type_info": "Jsonb"
         },
         {
-          "name": "spec_file_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
           "name": "public_spec",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Jsonb"
         },
         {
           "name": "model_solution_spec",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Jsonb"
         },
         {
           "name": "copied_from",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Uuid"
         },
         {
           "name": "exercise_slide_id",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Uuid"
         },
         {
           "name": "order_number",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Int4"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false, true, true, true, true, true, false, false],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -3344,16 +3326,6 @@
       }
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
-  },
-  "3086750b6507141d9cde0b6fbb88c242f4e5605e18145ab8fe63b33501255dfb": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    spec_file_id,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, id::text),\n  uuid_generate_v5($1, exercise_slide_id::text),\n  exercise_type,\n  assignment,\n  private_spec,\n  spec_file_id,\n  public_spec,\n  model_solution_spec,\n  order_number,\n  id\nFROM exercise_tasks\nWHERE exercise_slide_id IN (\n    SELECT s.id\n    FROM exercise_slides s\n      JOIN exercises e ON (e.id = s.exercise_id)\n    WHERE e.course_id = $2 OR e.exam_id = $2\n    AND e.deleted_at IS NULL\n    AND s.deleted_at IS NULL\n  )\nAND deleted_at IS NULL;\n    "
   },
   "32b2e273cd76d67a815caa719ad77495b38155aac7e8fe2be06e6f15cbb63228": {
     "describe": {
@@ -4051,6 +4023,22 @@
     },
     "query": "\nSELECT user_id,\n  email,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_exercises\nFROM (\n    SELECT u.id AS user_id,\n      u.email,\n      exercise_id,\n      COALESCE(score_given, 0) as score_given\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN exercises e ON e.id = ues.exercise_id\n    WHERE ues.exam_id = $1\n      AND ues.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n  ) as uue\nGROUP BY user_id,\n  email\n"
   },
+  "3e189a978b88ac8a5b1dab804ce290499af03be8167d8e80e6f2490183abd05f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE repository_exercises\nSET deleted_at = now()\nWHERE repository_id = $1\nRETURNING id\n"
+  },
   "3e428bdd951fadaeac24cab7e991c4928f8c58df8dd45c61fbb8779b5ddcbe85": {
     "describe": {
       "columns": [],
@@ -4370,6 +4358,16 @@
       }
     },
     "query": "\nSELECT COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n"
+  },
+  "436363568885b8b7f969a542eea4f9796871c9f2a319023c5a0f12e7613a88d1": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_repositories\nSET deleted_at = now()\nWHERE id = $1\n"
   },
   "436a4b6e66a08b6449ee12211e083a2291b3665a8b580e585fb211f451bd3a15": {
     "describe": {
@@ -5020,6 +5018,52 @@
     },
     "query": "\nINSERT INTO chapters (\n    id,\n    name,\n    course_id,\n    chapter_number,\n    front_page_id,\n    opens_at,\n    chapter_image_path,\n    copied_from,\n    course_module_id\n  )\nSELECT uuid_generate_v5($1, id::text),\n  name,\n  $1,\n  chapter_number,\n  front_page_id,\n  opens_at,\n  chapter_image_path,\n  id,\n  uuid_generate_v5($1, course_module_id::text)\nFROM chapters\nWHERE (course_id = $2)\nAND deleted_at IS NULL;\n    "
   },
+  "491165ddcb5eda19402d6a439bbd5e5f167c181e58bc3d713718ec8357bd2dc2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "repository_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "part",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "repository_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "checksum",
+          "ordinal": 5,
+          "type_info": "Bytea"
+        },
+        {
+          "name": "download_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\n"
+  },
   "4bcf93034b7f1e2a30d12f895c2e8c394094dd5b057cbbd89a5715ad9518ef9d": {
     "describe": {
       "columns": [],
@@ -5589,6 +5633,16 @@
     },
     "query": "\nSELECT opens_at\nFROM chapters\nWHERE id = $1\n"
   },
+  "57a1a402a879159878ad90cdf19ec95c735d634b8b5296f02cef6ce34c0a4584": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE repository_exercises\nSET deleted_at = now()\nWHERE repository_id = $1\n"
+  },
   "5866622c871cf13ddcf8be4db233bc7b1773b3fc978f96b6ccee1386e6e3a48e": {
     "describe": {
       "columns": [],
@@ -5706,6 +5760,16 @@
       }
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE page_id = $1\n  AND deleted_at IS NULL\n"
+  },
+  "59c480d849f7798893ef7cc56f426216e4b7a6b33f554c7b301acae2262f7e97": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nUPDATE exercise_repositories\nSET status = 'success'\nWHERE id = $1\n"
   },
   "5aa5b0629666c849e87f50b545a2f83f7bfadc42d475b3b2979f1c2507fdc551": {
     "describe": {
@@ -8592,6 +8656,54 @@
     },
     "query": "\nSELECT user_id,\n  exercise_id,\n  score_given\nFROM user_exercise_states\nWHERE course_instance_id = $1\nORDER BY user_id ASC\n"
   },
+  "8359aee706ee7461e8bf4896f78a9bbde8cf436a8cd497797964868173c5df09": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "url",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "status: ExerciseRepositoryStatus",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["pending", "success", "failure"]
+              },
+              "name": "exercise_repository_status"
+            }
+          }
+        },
+        {
+          "name": "error_message",
+          "ordinal": 5,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, true, true, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  url,\n  course_id,\n  exam_id,\n  status AS \"status: ExerciseRepositoryStatus\",\n  error_message\nFROM exercise_repositories\nWHERE id = $1\n  AND deleted_at IS NULL\n"
+  },
   "8418000fb3d50f52e42766c3884416520d434ea9588248e26c3b4fbfb1abae90": {
     "describe": {
       "columns": [
@@ -9798,6 +9910,16 @@
     },
     "query": "\nINSERT INTO peer_reviews (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        "
   },
+  "9aeaf84e5391677bf292f14ac56f8de4bb0a8d9f69401e157fef552e613435a8": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Bytea", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO repository_exercises (id, repository_id, part, name, checksum, download_url)\nVALUES ($1, $2, $3, $4, $5, $6)\n"
+  },
   "9b22240e7ed6238509fccd2191dfed47215d59363003b204f7f666a587d34a48": {
     "describe": {
       "columns": [
@@ -10122,51 +10244,32 @@
           "type_info": "Jsonb"
         },
         {
-          "name": "spec_file_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
           "name": "public_spec",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Jsonb"
         },
         {
           "name": "model_solution_spec",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Jsonb"
         },
         {
           "name": "copied_from",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Uuid"
         },
         {
           "name": "exercise_slide_id",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Uuid"
         },
         {
           "name": "order_number",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Int4"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false, true, true, true, true, true, false, false],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -10727,6 +10830,16 @@
       }
     },
     "query": "\nUPDATE regradings\nSET regrading_completed_at = now(),\n  total_grading_progress = 'fully-graded'\nWHERE id = $1\n"
+  },
+  "a7ce881fdb0ab29c0bb212aab7a8ee4da3c99fef64c8c1e041af74edd888e1d5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Bytea", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE repository_exercises\nSET checksum = $1\nWHERE id = $2\n"
   },
   "a80adc88f16d5ce7df3ab0724d59ba485ee56323fef9d6e89cde588994a2ee63": {
     "describe": {
@@ -11402,6 +11515,16 @@
     },
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE pages.course_id = $1\n  AND url_path = $2\n  AND pages.deleted_at IS NULL;\n        "
   },
+  "b358b51e902904c15f43a08b5452d4bc5362737b8ac87f5abdeaf810c53dc12a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Text"]
+      }
+    },
+    "query": "\nUPDATE exercise_repositories\nSET status = 'failure',\n  error_message = $2\nWHERE id = $1\n"
+  },
   "b3594457d4aea521525b2348f2f95336c0bfa761cf13b7878ca3a9691ded8ce9": {
     "describe": {
       "columns": [
@@ -11559,51 +11682,32 @@
           "type_info": "Jsonb"
         },
         {
-          "name": "spec_file_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
           "name": "public_spec",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Jsonb"
         },
         {
           "name": "model_solution_spec",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Jsonb"
         },
         {
           "name": "copied_from",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Uuid"
         },
         {
           "name": "exercise_slide_id",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Uuid"
         },
         {
           "name": "order_number",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Int4"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false, true, true, true, true, true, false, false],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -12208,6 +12312,54 @@
       }
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  user_exercise_state_id,\n  score_given,\n  grading_progress AS \"grading_progress: _\"\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\n        "
+  },
+  "bcacf1d604f43d60c9edebe3db12a5a0c66402ae2f76268bd261aa102bba0cec": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "url",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 2,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "status: ExerciseRepositoryStatus",
+          "ordinal": 4,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["pending", "success", "failure"]
+              },
+              "name": "exercise_repository_status"
+            }
+          }
+        },
+        {
+          "name": "error_message",
+          "ordinal": 5,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [false, false, true, true, false, true],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  url,\n  course_id,\n  exam_id,\n  status AS \"status: ExerciseRepositoryStatus\",\n  error_message\nFROM exercise_repositories\nWHERE (\n    course_id = $1\n    OR exam_id = $2\n  )\n  AND deleted_at IS NULL\n"
   },
   "bd0d6dbc44d2430327d775796d4ab1ec8a2c6eb29d27592fe5cffbfd9dc98213": {
     "describe": {
@@ -15432,6 +15584,26 @@
     },
     "query": "SELECT *\nFROM email_templates\nWHERE id = $1\n  AND deleted_at IS NULL"
   },
+  "f36ea5144aa29804cc5347ec25157505a9caf51d01441a43b56e7d1ef20bc75b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Varchar", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE repository_exercises\nSET part = $1,\n  name = $2\nWHERE id = $3\n"
+  },
+  "f392496c5e42f99455c285c47a3e67145732fe51fae5db78928576a399a639e3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid", "Varchar", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO exercise_repositories (id, course_id, exam_id, url, deploy_key)\nVALUES ($1, $2, $3, $4, $5)\n"
+  },
   "f3ac0ff191c33364eb12bef118fed4c6afa634fab2a65a85b19752d5e995b516": {
     "describe": {
       "columns": [
@@ -16217,6 +16389,52 @@
     },
     "query": "\nSELECT i.id,\n  i.created_at,\n  i.updated_at,\n  i.deleted_at,\n  i.course_id,\n  i.starts_at,\n  i.ends_at,\n  i.name,\n  i.description,\n  i.teacher_in_charge_name,\n  i.teacher_in_charge_email,\n  i.support_email\nFROM user_course_settings ucs\n  JOIN course_instances i ON (ucs.current_course_instance_id = i.id)\nWHERE ucs.user_id = $1\n  AND ucs.current_course_id = $2\n  AND ucs.deleted_at IS NULL;\n    "
   },
+  "fb1c36eae2a48e8ef2f7717978ae00fe3f27a7f3b1bf0d967d52532755b795f2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "repository_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "part",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "repository_url",
+          "ordinal": 4,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "checksum",
+          "ordinal": 5,
+          "type_info": "Bytea"
+        },
+        {
+          "name": "download_url",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE repository_id = $1\n"
+  },
   "fc3411dc016ab2ff4cff7bc8032262ed4383920feacfab27b719c6747fce6056": {
     "describe": {
       "columns": [
@@ -16486,51 +16704,32 @@
           "type_info": "Jsonb"
         },
         {
-          "name": "spec_file_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
           "name": "public_spec",
-          "ordinal": 8,
+          "ordinal": 7,
           "type_info": "Jsonb"
         },
         {
           "name": "model_solution_spec",
-          "ordinal": 9,
+          "ordinal": 8,
           "type_info": "Jsonb"
         },
         {
           "name": "copied_from",
-          "ordinal": 10,
+          "ordinal": 9,
           "type_info": "Uuid"
         },
         {
           "name": "exercise_slide_id",
-          "ordinal": 11,
+          "ordinal": 10,
           "type_info": "Uuid"
         },
         {
           "name": "order_number",
-          "ordinal": 12,
+          "ordinal": 11,
           "type_info": "Int4"
         }
       ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ],
+      "nullable": [false, false, false, false, false, true, true, true, true, true, false, false],
       "parameters": {
         "Left": ["UuidArray"]
       }

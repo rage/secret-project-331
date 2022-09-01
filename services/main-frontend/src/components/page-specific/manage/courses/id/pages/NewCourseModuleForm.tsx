@@ -157,6 +157,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               `}
               label={t("ects-credits")}
               placeholder={t("ects-credits")}
+              type="number"
               register={register("ects_credits")}
             />
             <Checkbox

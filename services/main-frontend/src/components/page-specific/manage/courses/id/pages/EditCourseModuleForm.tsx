@@ -56,13 +56,13 @@ const EditCourseModuleForm: React.FC<Props> = ({
       name: module.name,
       starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
       ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
-      ects_credits: module.ects_credits ?? 0,
+      ects_credits: Number(module.ects_credits) || 0,
       uh_course_code: module.uh_course_code ?? "",
       automatic_completion: module.automatic_completion ?? false,
       automatic_completion_number_of_points_treshold:
-        module.automatic_completion_number_of_points_treshold ?? null,
+        Number(module.automatic_completion_number_of_points_treshold) ?? null,
       automatic_completion_number_of_exercises_attempted_treshold:
-        module.automatic_completion_number_of_exercises_attempted_treshold ?? null,
+        Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
     },
   })
 
@@ -181,6 +181,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 color: #fff;
               `}
               placeholder={t("ects-credits")}
+              type="number"
               register={register("ects_credits")}
             />
             <Checkbox
@@ -194,12 +195,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
             />
             <TextField
+              type="number"
               label={t("automatic-completion-points-treshold")}
               labelStyle={css`
                 color: #fff;
               `}
               placeholder={t("automatic-completion-points-treshold")}
-              type="number"
               register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,

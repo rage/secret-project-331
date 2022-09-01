@@ -37,10 +37,6 @@ const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<Debug
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
 
-  if (!data) {
-    return null
-  }
-
   const closeModal = () => {
     setOpen(false)
     if (updateDataOnClose) {

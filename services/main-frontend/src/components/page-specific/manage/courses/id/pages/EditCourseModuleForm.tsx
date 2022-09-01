@@ -55,7 +55,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
   onSubmitForm,
   onDeleteModule,
 }) => {
-  console.log(module)
   const { t } = useTranslation()
   const [active, setActive] = useState(false)
   const {

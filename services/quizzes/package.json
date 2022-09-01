@@ -6,7 +6,8 @@
     "build": "NODE_ENV=production next build",
     "export": "next export",
     "start": "NODE_ENV=production PORT=3004 node server.js",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@date-io/date-fns": "^2.15.0",
@@ -42,6 +43,7 @@
     "monaco-editor": "^0.34.0",
     "next": "^12.2.4",
     "normalizr": "^3.6.2",
+    "patch-package": "^6.4.7",
     "postcss": "^8.4.16",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -74,7 +76,8 @@
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
     "redux-devtools-extension": "^2.13.9",
-    "stylelint": "^14.11.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-recommended": "^8.0.0",
     "supertest": "^6.2.4",
     "ts-jest": "^28.0.8",
     "typescript": "^4.8.2"

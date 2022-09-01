@@ -4,7 +4,7 @@ import KaTex from "katex"
 const markdownParser = new MarkdownParser()
 const htmlWriter = new HtmlRenderer()
 
-const KATEX_OUTPUT_FORMAT = "mathml"
+const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const MARKDOWN_REGEX = /\[markdown\](.*?)\[\/markdown\]/g
 type PairArray<T, K> = [T, K][]

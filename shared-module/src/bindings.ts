@@ -205,6 +205,35 @@ export interface CourseModule {
   ects_credits: number | null
 }
 
+export interface ModifiedModule {
+  id: string
+  name: string | null
+  order_number: number
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+}
+
+export interface ModuleUpdates {
+  new_modules: Array<NewModule>
+  deleted_modules: Array<string>
+  modified_modules: Array<ModifiedModule>
+  moved_chapters: Array<[string, string]>
+}
+
+export interface NewModule {
+  name: string
+  order_number: number
+  chapters: Array<string>
+  uh_course_code: string | null
+  ects_credits: number | null
+  automatic_completion: boolean | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+}
+
 export interface Course {
   id: string
   slug: string
@@ -546,6 +575,21 @@ export interface UserModuleCompletionStatus {
   name: string
   order_number: number
   prerequisite_modules_completed: boolean
+}
+
+export interface MaterialReference {
+  id: string
+  course_id: string
+  citation_key: string
+  reference: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+}
+
+export interface NewMaterialReference {
+  citation_key: string
+  reference: string
 }
 
 export interface Organization {
@@ -1065,17 +1109,17 @@ export interface User {
   email: string
 }
 
-export interface ChaptersWithStatus {
-  is_previewable: boolean
-  modules: Array<CourseMaterialCourseModule>
+export type ErrorData = { block_id: string }
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+  data: ErrorData | null
 }
 
-export interface CourseMaterialCourseModule {
-  chapters: Array<ChapterWithStatus>
-  id: string
-  is_default: boolean
-  name: string | null
-  order_number: number
+export interface UploadResult {
+  url: string
 }
 
 export interface CreateAccountDetails {
@@ -1091,18 +1135,22 @@ export interface UserInfo {
   user_id: string
 }
 
-export interface RoleQuery {
-  global?: boolean
-  organization_id?: string
-  course_id?: string
-  course_instance_id?: string
-  exam_id?: string
+export interface Login {
+  email: string
+  password: string
 }
 
-export interface RoleInfo {
-  email: string
-  role: UserRole
-  domain: RoleDomain
+export interface ChaptersWithStatus {
+  is_previewable: boolean
+  modules: Array<CourseMaterialCourseModule>
+}
+
+export interface CourseMaterialCourseModule {
+  chapters: Array<ChapterWithStatus>
+  id: string
+  is_default: boolean
+  name: string | null
+  order_number: number
 }
 
 export interface ExamData {
@@ -1122,17 +1170,22 @@ export type ExamEnrollmentData =
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 
+export interface RoleQuery {
+  global?: boolean
+  organization_id?: string
+  course_id?: string
+  course_instance_id?: string
+  exam_id?: string
+}
+
+export interface RoleInfo {
+  email: string
+  role: UserRole
+  domain: RoleDomain
+}
+
 export interface ExamCourseInfo {
   course_id: string
-}
-
-export interface Login {
-  email: string
-  password: string
-}
-
-export interface UploadResult {
-  url: string
 }
 
 export interface ExerciseSubmissions {
@@ -1176,15 +1229,6 @@ export interface GetEditProposalsQuery {
   limit: number | undefined
 }
 
-export interface ErrorResponse {
-  title: string
-  message: string
-  source: string | null
-  data: ErrorData | null
-}
-
-export type ErrorData = { block_id: string }
-
 export interface Pagination {
   page: number | undefined
   limit: number | undefined
@@ -1198,48 +1242,4 @@ export interface OEmbedResponse {
   provider_url: string
   title: string
   version: string
-}
-
-export interface MaterialReference {
-  id: string
-  course_id: string
-  citation_key: string
-  reference: string
-  created_at: Date
-  updated_at: Date
-  deleted_at: Date | null
-}
-
-export interface NewMaterialReference {
-  citation_key: string
-  reference: string
-}
-
-export interface ModifiedModule {
-  id: string
-  name: string | null
-  order_number: number
-  uh_course_code: string | null
-  ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
-}
-
-export interface ModuleUpdates {
-  new_modules: Array<NewModule>
-  deleted_modules: Array<string>
-  modified_modules: Array<ModifiedModule>
-  moved_chapters: Array<[string, string]>
-}
-
-export interface NewModule {
-  name: string
-  order_number: number
-  chapters: Array<string>
-  uh_course_code: string | null
-  ects_credits: number | null
-  automatic_completion: boolean | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_number_of_points_treshold: number | null
 }

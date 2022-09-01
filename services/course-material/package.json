@@ -31,6 +31,7 @@
     "diff": "^5.1.0",
     "dompurify": "^2.4.0",
     "express": "^4.18.1",
+    "highlight.js": "^11.6.0",
     "http-proxy-middleware": "^2.0.6",
     "i18next": "^21.9.1",
     "immer": "^9.0.15",
@@ -60,6 +61,7 @@
     "@svgr/webpack": "^6.3.1",
     "@types/diff": "^5.0.2",
     "@types/dompurify": "^2.3.4",
+    "@types/highlightjs": "^9.12.2",
     "@types/lodash": "^4.14.184",
     "@types/node": "^18.7.13",
     "@types/react": "^18.0.17",
@@ -67,8 +69,8 @@
     "@types/react-outside-click-handler": "^1.3.1",
     "@types/sanitize-html": "^2.6.2",
     "@types/uuid": "^8.3.4",
-    "stylelint": "^14.11.0",
+    "stylelint": "^14.9.1",
+    "stylelint-config-recommended": "^8.0.0",
     "typescript": "^4.8.2"
-  },
-  "license": "MIT"
+  }
 }

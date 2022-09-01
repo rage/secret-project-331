@@ -225,6 +225,7 @@
   "logout": "Kirjaudu ulos",
   "manage": "Hallitse",
   "manage-course": "Hallinnoi kurssia '{{ title }}'",
+  "manage-exercise-repositories": "Hallitse tehtävärepositorioita",
   "manage-glossary": "Hallitse sanastoa",
   "manage-page": "Hallinnoi sivua",
   "message-are-you-sure-you-want-to-delete-this-chapter": "Oletko varma että haluat poistaa tämän luvun? Tämä tulee myös poistamaan kaikki luvun sivut ja tehtävät.",

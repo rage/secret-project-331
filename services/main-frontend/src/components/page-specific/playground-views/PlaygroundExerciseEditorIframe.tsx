@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 
+import { RepositoryExercise } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,

@@ -8,6 +8,7 @@ use crate::controllers::{
     main_frontend::{
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
+        exercise_repositories::NewExerciseRepository,
         exercises::AnswerRequiringAttentionWithTasks,
         exercises::AnswersRequiringAttention,
         exercises::ExerciseSubmissions,
@@ -19,7 +20,7 @@ use crate::controllers::{
 };
 
 #[cfg(feature = "ts_rs")]
-use crate::domain::*;
+use crate::domain;
 
 #[cfg(feature = "ts_rs")]
 use headless_lms_models::*;
@@ -52,9 +53,9 @@ fn ts_binding_generator() {
     let res = export! {
         &mut target,
 
-        authorization::ActionOnResource,
-        authorization::Action,
-        authorization::Resource,
+        domain::authorization::ActionOnResource,
+        domain::authorization::Action,
+        domain::authorization::Resource,
 
         glossary::Term,
         glossary::TermUpdate,
@@ -196,6 +197,11 @@ fn ts_binding_generator() {
 
         exercise_task_submissions::ExerciseTaskSubmission,
 
+        exercise_repositories::ExerciseRepositoryStatus,
+        exercise_repositories::ExerciseRepository,
+
+        repository_exercises::RepositoryExercise,
+
         roles::RoleUser,
         roles::RoleDomain,
         roles::UserRole,
@@ -230,6 +236,7 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
+        NewExerciseRepository,
 
 
         material_references::MaterialReference,

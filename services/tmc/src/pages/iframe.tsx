@@ -34,12 +34,12 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
           setState({
             viewType: messageData.view_type,
             exerciseTaskId: messageData.exercise_task_id,
-            publicSpec: messageData.data.public_spec_json as EditorExercisePublicSpec,
+            publicSpec: messageData.data.public_spec as EditorExercisePublicSpec,
             previousSubmission: null, // todo messageData.data.previous_submission,
           })
         } else if (messageData.view_type === "exercise-editor") {
           const selectedRepositoryExercise = messageData.data.repository_exercise ?? null
-          const incomingSpec = messageData.data.private_spec_json as PrivateSpec | null
+          const incomingSpec = messageData.data.private_spec as PrivateSpec | null
           const privateSpec =
             incomingSpec ??
             (selectedRepositoryExercise
@@ -57,8 +57,8 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
             exerciseTaskId: messageData.exercise_task_id,
             grading: messageData.data.grading,
             userAnswer: messageData.data.user_answer as UserAnswer,
-            publicSpec: messageData.data.public_spec_json as PublicSpec,
-            modelSolutionSpec: messageData.data.model_solution_spec_json as ModelSolutionSpec,
+            publicSpec: messageData.data.public_spec as PublicSpec,
+            modelSolutionSpec: messageData.data.model_solution_spec as ModelSolutionSpec,
           })
         } else {
           // eslint-disable-next-line i18next/no-literal-string

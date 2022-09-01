@@ -11,6 +11,7 @@ run_command npx concurrently \
   "bash -c 'cd services/example-exercise && npm ci $*'" \
   "bash -c 'cd shared-module && npm ci $*'" \
   "bash -c 'cd services/quizzes/ && npm ci $*'" \
+  "bash -c 'cd services/tmc/ && npm ci $*'" \
   "bash -c 'cd system-tests && npm ci $*'"
 
 echo "finished"

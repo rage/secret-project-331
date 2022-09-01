@@ -45,7 +45,6 @@ pub struct NewExerciseTask {
     pub assignment: Vec<GutenbergBlock>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub order_number: i32,
 }
@@ -62,7 +61,6 @@ pub struct ExerciseTask {
     pub deleted_at: Option<DateTime<Utc>>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
     pub order_number: i32,

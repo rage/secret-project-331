@@ -63,6 +63,8 @@ import {
   ExamInstructionsUpdate,
   Exercise,
   ExerciseAnswersInCourseRequiringAttentionCount,
+  ExerciseRepository,
+  ExerciseRepositoryStatus,
   ExerciseService,
   ExerciseServiceIframeRenderingInfo,
   ExerciseServiceInfoApi,
@@ -98,6 +100,7 @@ import {
   NewChapter,
   NewCourse,
   NewExam,
+  NewExerciseRepository,
   NewFeedback,
   NewMaterialReference,
   NewModule,
@@ -130,6 +133,7 @@ import {
   Points,
   ProposalCount,
   ProposalStatus,
+  RepositoryExercise,
   Resource,
   ReviewingStage,
   RoleDomain,
@@ -734,6 +738,24 @@ export function isExamInstructionsUpdate(obj: unknown): obj is ExamInstructionsU
   return (typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function"
 }
 
+export function isExerciseRepository(obj: unknown): obj is ExerciseRepository {
+  const typedObj = obj as ExerciseRepository
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (isExerciseRepositoryStatus(typedObj["status"]) as boolean) &&
+    (typedObj["error_message"] === null || typeof typedObj["error_message"] === "string")
+  )
+}
+
+export function isExerciseRepositoryStatus(obj: unknown): obj is ExerciseRepositoryStatus {
+  const typedObj = obj as ExerciseRepositoryStatus
+  return typedObj === "Pending" || typedObj === "Success" || typedObj === "Failure"
+}
+
 export function isCourseMaterialExerciseServiceInfo(
   obj: unknown,
 ): obj is CourseMaterialExerciseServiceInfo {
@@ -848,7 +870,6 @@ export function isExerciseTask(obj: unknown): obj is ExerciseTask {
     typeof typedObj["exercise_slide_id"] === "string" &&
     typeof typedObj["exercise_type"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
-    (typedObj["spec_file_id"] === null || typeof typedObj["spec_file_id"] === "string") &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
     typeof typedObj["order_number"] === "number"
   )
@@ -917,10 +938,10 @@ export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
 export function isGradingProgress(obj: unknown): obj is GradingProgress {
   const typedObj = obj as GradingProgress
   return (
+    typedObj === "Pending" ||
     typedObj === "Failed" ||
     typedObj === "NotReady" ||
     typedObj === "PendingManual" ||
-    typedObj === "Pending" ||
     typedObj === "FullyGraded"
   )
 }
@@ -1600,6 +1621,21 @@ export function isProposalCount(obj: unknown): obj is ProposalCount {
   )
 }
 
+export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
+  const typedObj = obj as RepositoryExercise
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["repository_id"] === "string" &&
+    typeof typedObj["part"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["repository_url"] === "string" &&
+    Array.isArray(typedObj["checksum"]) &&
+    typedObj["checksum"].every((e: any) => typeof e === "number") &&
+    typeof typedObj["download_url"] === "string"
+  )
+}
+
 export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSubmission {
   const typedObj = obj as ExerciseSlideSubmission
   return (
@@ -2124,6 +2160,17 @@ export function isAnswerRequiringAttentionWithTasks(
     typeof typedObj["exercise_id"] === "string" &&
     Array.isArray(typedObj["tasks"]) &&
     typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+  )
+}
+
+export function isNewExerciseRepository(obj: unknown): obj is NewExerciseRepository {
+  const typedObj = obj as NewExerciseRepository
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["git_url"] === "string" &&
+    (typedObj["deploy_key"] === null || typeof typedObj["deploy_key"] === "string")
   )
 }
 

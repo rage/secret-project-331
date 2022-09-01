@@ -105,6 +105,14 @@ actix-extensible-rate-limit = "0.2.1"
 isbot = "0.1.2"
 # user-agent strings parser
 woothee = "0.13.0"
+# Bindings to libgit2 for interoperating with git repositories.
+git2 = "0.14.1"
+# A library for managing temporary files and directories.
+tempfile = "3.3.0"
+#  Binding for the zstd compression library.
+zstd = "0.10.0"  # matches the version from actix-http
+# A Rust implementation of a TAR file reader and writer.
+tar = "0.4.38"
 # Utilities for random number generation
 rand = "0.8.5"
 

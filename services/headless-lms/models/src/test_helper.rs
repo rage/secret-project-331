@@ -259,7 +259,6 @@ macro_rules! insert_data {
                 assignment: vec![],
                 public_spec: Some(serde_json::Value::Null),
                 private_spec: Some(serde_json::Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(serde_json::Value::Null),
                 order_number: 0,
             }

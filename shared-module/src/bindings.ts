@@ -358,6 +358,17 @@ export interface ExamInstructionsUpdate {
   instructions: unknown
 }
 
+export interface ExerciseRepository {
+  id: string
+  url: string
+  course_id: string | null
+  exam_id: string | null
+  status: ExerciseRepositoryStatus
+  error_message: string | null
+}
+
+export type ExerciseRepositoryStatus = "Pending" | "Success" | "Failure"
+
 export interface CourseMaterialExerciseServiceInfo {
   exercise_iframe_url: string
 }
@@ -434,7 +445,6 @@ export interface ExerciseTask {
   deleted_at: Date | null
   public_spec: unknown | null
   private_spec: unknown | null
-  spec_file_id: string | null
   model_solution_spec: unknown | null
   copied_from: string | null
   order_number: number
@@ -891,6 +901,16 @@ export interface ProposalCount {
   handled: number
 }
 
+export interface RepositoryExercise {
+  id: string
+  repository_id: string
+  part: string
+  name: string
+  repository_url: string
+  checksum: Array<number>
+  download_url: string
+}
+
 export interface ExerciseSlideSubmission {
   id: string
   created_at: Date
@@ -1211,6 +1231,13 @@ export interface AnswerRequiringAttentionWithTasks {
   submission_id: string
   exercise_id: string
   tasks: Array<CourseMaterialExerciseTask>
+}
+
+export interface NewExerciseRepository {
+  course_id: string | null
+  exam_id: string | null
+  git_url: string
+  deploy_key: string | null
 }
 
 export interface MarkAsRead {

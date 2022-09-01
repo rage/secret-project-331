@@ -17,6 +17,7 @@ async function main() {
     "services/headless-lms/shared-module",
     "services/main-frontend/src/shared-module",
     "services/quizzes/src/shared-module",
+    "services/tmc/src/shared-module",
     "system-tests/src/shared-module",
   ]
 

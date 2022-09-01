@@ -8,4 +8,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command cargo check --all "$@"
+run_command cargo check --workspace --tests --all-features "$@"

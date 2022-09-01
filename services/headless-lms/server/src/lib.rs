@@ -4,7 +4,7 @@ pub mod domain;
 pub mod programs;
 #[cfg(test)]
 pub mod test_helper;
-#[cfg(test)]
+#[cfg(all(test, feature = "ts_rs"))]
 pub mod ts_binding_generator;
 
 #[macro_use]

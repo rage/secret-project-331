@@ -231,6 +231,14 @@ function getMultipleChoicePointsByGrading(
     }
   })
 
+  if (!quizItem.multi) {
+    if (countOfCorrectAnswers > 0) {
+      return 1
+    } else {
+      return 0
+    }
+  }
+
   let totalScore = 0
   switch (quizItem.multipleChoiceGradingPolicy) {
     case "default":
@@ -320,7 +328,7 @@ function submissionFeedback(
         quiz_item_option_feedbacks: null,
         quiz_item_correct: null,
         timeline_item_feedbacks: null,
-        score: 0,
+        score: 1,
       }
     }
     if (

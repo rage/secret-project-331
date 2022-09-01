@@ -25,6 +25,27 @@ describe('grade', () => {
     expect(gradingResult.score_given).toBe(1)
   })
 
+  it('returns full points from single choice version when one of the correct answers is selected', async () => {
+    const data = generateMultipleChoiceRequest(4, 2, ['option-1'], "default", false)
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+    
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(1)
+  })
+
+
+  it('returns zero points single choice version when there are no right answers', async () => {
+    const data = generateMultipleChoiceRequest(4, 0, ['option-1'], "default", false)
+    const response = await client.post('/api/grade').send(data)
+    const result = JSON.parse(response.text)
+    expect(isExerciseTaskGradingResult(result))
+    
+    const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
+    expect(gradingResult.score_given).toBe(0)
+  })
+
 
   it('returns zero points for wrong answer for single choice multiple-option quiz', async () => {
     const data = generateMultipleChoiceRequest(4, 1, ['option-3'], "default", false)

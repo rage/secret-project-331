@@ -229,6 +229,12 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0`.
 
@@ -404,6 +410,12 @@ Represents error messages that are sent in responses.
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">sqlx::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">sqlx::Error</span>) -&gt; <span class="ident">ControllerError</span> {
+        <span class="ident"><span class="self">Self</span>::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">git2::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">git2::Error</span>) -&gt; <span class="ident">ControllerError</span> {
         <span class="ident"><span class="self">Self</span>::InternalServerError</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())
     }
 }

@@ -1200,6 +1200,31 @@
 <span id="1194">1194</span>
 <span id="1195">1195</span>
 <span id="1196">1196</span>
+<span id="1197">1197</span>
+<span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
+<span id="1217">1217</span>
+<span id="1218">1218</span>
+<span id="1219">1219</span>
+<span id="1220">1220</span>
+<span id="1221">1221</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1227,6 +1252,7 @@
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
+    <span class="ident">exercise_repositories</span>::{<span class="ident">ExerciseRepository</span>, <span class="ident">ExerciseRepositoryStatus</span>},
     <span class="ident">exercise_services</span>::{<span class="ident">ExerciseService</span>, <span class="ident">ExerciseServiceIframeRenderingInfo</span>},
     <span class="ident">exercise_slide_submissions</span>::{
         <span class="ident">ExerciseAnswersInCourseRequiringAttentionCount</span>, <span class="ident">ExerciseSlideSubmission</span>,
@@ -1265,6 +1291,7 @@
     <span class="ident">playground_examples::PlaygroundExample</span>,
     <span class="ident">proposed_block_edits</span>::{<span class="ident">BlockProposal</span>, <span class="ident">ProposalStatus</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="ident">PageProposal</span>, <span class="ident">ProposalCount</span>},
+    <span class="ident">repository_exercises::RepositoryExercise</span>,
     <span class="ident">user_course_settings::UserCourseSettings</span>,
     <span class="ident">user_exercise_states</span>::{
         <span class="ident">ReviewingStage</span>, <span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>,
@@ -2379,6 +2406,29 @@
             <span class="ident">name</span>: <span class="string">&quot;Example exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">public_iframe_url</span>: <span class="string">&quot;https://example.com/iframe&quot;</span>.<span class="ident">to_string</span>()
+        }]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExerciseRepository</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">ExerciseRepository</span> {
+            <span class="ident">id</span>,
+            <span class="ident">url</span>: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">course_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
+            <span class="ident">exam_id</span>: <span class="prelude-val">None</span>,
+            <span class="ident">status</span>: <span class="ident">ExerciseRepositoryStatus::Success</span>,
+            <span class="ident">error_message</span>: <span class="prelude-val">None</span>,
+        }]
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RepositoryExercise</span><span class="op">&gt;</span>,
+        <span class="macro">vec!</span>[<span class="ident">RepositoryExercise</span> {
+            <span class="ident">id</span>,
+            <span class="ident">repository_id</span>: <span class="ident">id</span>,
+            <span class="ident">part</span>: <span class="string">&quot;part01&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">name</span>: <span class="string">&quot;exercise01&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">repository_url</span>: <span class="string">&quot;https://github.com/testmycode/tmc-testcourse&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">checksum</span>: <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>],
+            <span class="ident">download_url</span>: <span class="string">&quot;direct-download-link&quot;</span>.<span class="ident">to_string</span>(),
         }]
     );
     <span class="prelude-val">Ok</span>(())

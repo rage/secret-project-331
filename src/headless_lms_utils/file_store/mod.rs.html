@@ -106,6 +106,12 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Allows storing files to a file storage backend.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">file_utils</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">google_cloud_file_store</span>;
@@ -207,6 +213,12 @@ Allows storing files to a file storage backend.
         <span class="ident">organization_id</span>, <span class="ident">file_name</span>
     ));
     <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">repository_exercise_path</span>(<span class="ident">repository_id</span>: <span class="ident">Uuid</span>, <span class="ident">repository_exercise_id</span>: <span class="ident">Uuid</span>) -&gt; <span class="ident">PathBuf</span> {
+    <span class="ident">PathBuf::from</span>(<span class="macro">format!</span>(
+        <span class="string">&quot;repository_exercises/{repository_id}/{repository_exercise_id}&quot;</span>,
+    ))
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

@@ -53,6 +53,10 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -66,6 +70,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">courses</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">email_templates</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exams</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_repositories</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_services</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">feedback</span>;
@@ -100,7 +105,10 @@ This documents all endpoints. Select a module below for a category.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/users&quot;</span>).<span class="ident">configure</span>(<span class="ident">users::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exams&quot;</span>).<span class="ident">configure</span>(<span class="ident">exams::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/glossary&quot;</span>).<span class="ident">configure</span>(<span class="ident">glossary::_add_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/roles&quot;</span>).<span class="ident">configure</span>(<span class="ident">roles::_add_routes</span>));
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/roles&quot;</span>).<span class="ident">configure</span>(<span class="ident">roles::_add_routes</span>))
+        .<span class="ident">service</span>(
+            <span class="ident">web::scope</span>(<span class="string">&quot;/exercise-repositories&quot;</span>).<span class="ident">configure</span>(<span class="ident">exercise_repositories::_add_routes</span>),
+        );
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

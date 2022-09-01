@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["_add_routes","Add a route for each controller in this module."],["get_for_course","Response TypeScript definition"]]};

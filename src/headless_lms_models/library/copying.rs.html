@@ -876,8 +876,6 @@
 <span id="870">870</span>
 <span id="871">871</span>
 <span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -1463,7 +1461,6 @@ INSERT INTO exercise_tasks (
     exercise_type,
     assignment,
     private_spec,
-    spec_file_id,
     public_spec,
     model_solution_spec,
     order_number,
@@ -1474,7 +1471,6 @@ SELECT uuid_generate_v5($1, id::text),
   exercise_type,
   assignment,
   private_spec,
-  spec_file_id,
   public_spec,
   model_solution_spec,
   order_number,

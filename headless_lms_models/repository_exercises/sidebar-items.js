@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["delete_for_repository",""],["delete_from_repository",""],["get_for_course",""],["get_for_repository",""],["new",""],["update_checksum",""],["update_part_and_name",""]],"struct":[["RepositoryExercise",""]]};

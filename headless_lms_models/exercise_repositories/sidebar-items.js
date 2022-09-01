@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["ExerciseRepositoryStatus",""]],"fn":[["delete",""],["get",""],["get_for_course_or_exam",""],["mark_failure",""],["mark_success",""],["new",""],["update",""]],"struct":[["ExerciseRepository",""],["ExerciseRepositoryUpdate",""]]};

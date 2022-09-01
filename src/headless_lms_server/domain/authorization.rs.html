@@ -558,6 +558,15 @@
 <span id="552">552</span>
 <span id="553">553</span>
 <span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
 <span class="kw">use</span> <span class="ident">actix_session::Session</span>;
 <span class="kw">use</span> <span class="ident">actix_session::SessionExt</span>;
@@ -688,6 +697,15 @@
     <span class="ident">PlaygroundExample</span>,
     <span class="ident">ExerciseService</span>,
     <span class="ident">MaterialReference</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Resource</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_course_or_exam_id</span>(<span class="ident">course_or_exam_id</span>: <span class="ident">CourseOrExamId</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">course_or_exam_id</span> {
+            <span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>) =&gt; <span class="ident"><span class="self">Self</span>::Course</span>(<span class="ident">id</span>),
+            <span class="ident">CourseOrExamId::Exam</span>(<span class="ident">id</span>) =&gt; <span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">id</span>),
+        }
+    }
 }
 
 <span class="doccomment">/// Validates that user has right to function</span>

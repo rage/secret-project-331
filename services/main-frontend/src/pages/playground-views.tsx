@@ -244,21 +244,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     unknown,
     unknown
   >(
-    async () => {
-      if (
-        !serviceInfoQuery.data ||
-        !isValidServiceInfo ||
-        currentStateReceivedFromIframe === null ||
-        !privateSpecValidJson
-      ) {
+    async (data: unknown) => {
+      if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Requirements for the mutation not satisfied.")
       }
       const gradingRequest: GradingRequest = {
         exercise_spec: privateSpecParsed,
-        submission_data: currentStateReceivedFromIframe.data,
+        submission_data: data,
       }
-      setUserAnswer(currentStateReceivedFromIframe.data)
+      setUserAnswer(data)
       const res = await axios.post(
         `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
         gradingRequest,
@@ -393,8 +388,23 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
           <AnswerAndGradingGridArea>
             <Area>
-              <h3>{t("title-user-answer")}</h3>
-
+              <div
+                className={css`
+                  display: flex;
+                  h3 {
+                    margin-right: 1rem;
+                  }
+                `}
+              >
+                <h3>{t("title-user-answer")}</h3>{" "}
+                <DebugModal
+                  data={userAnswer}
+                  readOnly={false}
+                  updateDataOnClose={(newValue) => {
+                    submitAnswerMutation.mutate(newValue)
+                  }}
+                />
+              </div>
               <p
                 className={css`
                   margin-bottom: 0.5rem;
@@ -402,7 +412,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               >
                 {t("user-answer-explanation")}
               </p>
-
               {userAnswer ? (
                 <StyledPre fullWidth={false}>{JSON.stringify(userAnswer, undefined, 2)}</StyledPre>
               ) : (
@@ -612,7 +621,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     disabled={
                       currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
                     }
-                    onClick={() => submitAnswerMutation.mutate(undefined)}
+                    onClick={() => {
+                      if (!currentStateReceivedFromIframe) {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        throw new Error("No current state received from the iframe")
+                      }
+                      submitAnswerMutation.mutate(currentStateReceivedFromIframe.data)
+                    }}
                   >
                     {t("button-text-submit")}
                   </Button>

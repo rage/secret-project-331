@@ -230,15 +230,39 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         new Map(),
       )
       for (const module of modules) {
-        if (module.name !== null) {
-          // cannot add or modify default module
-          const initialModule = idToInitialModule.get(module.id)
-          if (initialModule === undefined) {
-            // new module
-            newModules.set(module.id, {
+        // cannot add or modify default module
+        const initialModule = idToInitialModule.get(module.id)
+        if (initialModule === undefined && module.name !== null) {
+          // new module
+          newModules.set(module.id, {
+            name: module.name,
+            order_number: module.order_number,
+            chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
+            uh_course_code: module.uh_course_code,
+            ects_credits: module.ects_credits,
+            automatic_completion: module.automatic_completion,
+            automatic_completion_number_of_points_treshold:
+              module.automatic_completion_number_of_points_treshold,
+            automatic_completion_number_of_exercises_attempted_treshold:
+              module.automatic_completion_number_of_exercises_attempted_treshold,
+          })
+        } else if (initialModule !== undefined) {
+          // old module, check for modifications
+          if (
+            module.name !== initialModule.name ||
+            module.uh_course_code !== initialModule.uh_course_code ||
+            module.ects_credits !== initialModule.ects_credits ||
+            module.automatic_completion !== initialModule.automatic_completion ||
+            module.automatic_completion_number_of_points_treshold !==
+              initialModule.automatic_completion_number_of_points_treshold ||
+            module.ects_credits !== initialModule.ects_credits ||
+            module.automatic_completion_number_of_exercises_attempted_treshold !==
+              initialModule.automatic_completion_number_of_exercises_attempted_treshold
+          ) {
+            modifiedModules.push({
+              id: module.id,
               name: module.name,
               order_number: module.order_number,
-              chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
               uh_course_code: module.uh_course_code,
               ects_credits: module.ects_credits,
               automatic_completion: module.automatic_completion,
@@ -247,32 +271,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               automatic_completion_number_of_exercises_attempted_treshold:
                 module.automatic_completion_number_of_exercises_attempted_treshold,
             })
-          } else {
-            // old module, check for modifications
-            if (
-              module.name !== initialModule.name ||
-              module.uh_course_code !== initialModule.uh_course_code ||
-              module.ects_credits !== initialModule.ects_credits ||
-              module.automatic_completion !== initialModule.automatic_completion ||
-              module.automatic_completion_number_of_points_treshold !==
-                initialModule.automatic_completion_number_of_points_treshold ||
-              module.ects_credits !== initialModule.ects_credits ||
-              module.automatic_completion_number_of_exercises_attempted_treshold !==
-                initialModule.automatic_completion_number_of_exercises_attempted_treshold
-            ) {
-              modifiedModules.push({
-                id: module.id,
-                name: module.name !== initialModule.name ? module.name : null,
-                order_number: module.order_number,
-                uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits,
-                automatic_completion: module.automatic_completion,
-                automatic_completion_number_of_points_treshold:
-                  module.automatic_completion_number_of_points_treshold,
-                automatic_completion_number_of_exercises_attempted_treshold:
-                  module.automatic_completion_number_of_exercises_attempted_treshold,
-              })
-            }
           }
         }
       }

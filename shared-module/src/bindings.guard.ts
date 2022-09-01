@@ -142,6 +142,7 @@ import {
   StudentExerciseTaskSubmissionResult,
   TeacherDecisionType,
   TeacherGradingDecision,
+  TeacherManualCompletion,
   Term,
   TermUpdate,
   UploadResult,
@@ -2074,6 +2075,18 @@ export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbe
     typeof obj.provider_url === "string" &&
     typeof obj.title === "string" &&
     typeof obj.version === "string"
+  )
+}
+
+export function isTeacherManualCompletion(
+  obj: any,
+  _argumentName?: string,
+): obj is TeacherManualCompletion {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    typeof obj.user_id === "string" &&
+    (obj.grade === null || typeof obj.grade === "number") &&
+    (obj.completion_date === null || obj.completion_date instanceof Date)
   )
 }
 

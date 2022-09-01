@@ -1206,6 +1206,12 @@ export interface OEmbedResponse {
   version: string
 }
 
+export interface TeacherManualCompletion {
+  user_id: string
+  grade: number | null
+  completion_date: Date | null
+}
+
 export interface MaterialReference {
   id: string
   course_id: string

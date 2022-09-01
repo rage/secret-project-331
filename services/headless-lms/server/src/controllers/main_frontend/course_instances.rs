@@ -1,13 +1,15 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
 use bytes::Bytes;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use models::{
     course_instances::{
         self, CourseInstance, CourseInstanceCompletionSummary, CourseInstanceForm, Points,
     },
-    courses,
+    course_module_completions::{self, NewCourseModuleCompletion},
+    course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    users,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
@@ -208,6 +210,62 @@ async fn completions(
 }
 
 /**
+POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
+*/
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletion {
+    pub user_id: Uuid,
+    pub grade: Option<i32>,
+    pub completion_date: Option<DateTime<Utc>>,
+}
+
+#[instrument(skip(pool, payload))]
+async fn post_completions(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<Vec<TeacherManualCompletion>>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let course = courses::get_course(&mut conn, instance.course_id).await?;
+    // Get default module for now TODO select module
+    let module = course_modules::get_default_by_course_id(&mut conn, instance.course_id).await?;
+    let mut tx = conn.begin().await?;
+    for completion in payload.0 {
+        let user = users::get_by_id(&mut tx, completion.user_id).await?;
+        course_module_completions::insert(
+            &mut tx,
+            &NewCourseModuleCompletion {
+                course_id: instance.course_id,
+                course_instance_id: instance.id,
+                course_module_id: module.id,
+                user_id: completion.user_id,
+                completion_date: completion.completion_date.unwrap_or_else(Utc::now),
+                completion_registration_attempt_date: None,
+                completion_language: course.language_code.clone(),
+                eligible_for_ects: true,
+                email: user.email,
+                grade: completion.grade,
+                passed: true,
+            },
+            None,
+        )
+        .await?;
+    }
+    tx.commit().await?;
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 POST /course-instances/:id/edit
 */
 #[instrument(skip(pool))]
@@ -276,6 +334,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/completions",
             web::get().to(completions),
+        )
+        .route(
+            "/{course_instance_id}/completions",
+            web::post().to(post_completions),
         )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(

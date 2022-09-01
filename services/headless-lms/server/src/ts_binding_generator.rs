@@ -6,6 +6,7 @@ use crate::controllers::{
         exams::{ExamData, ExamEnrollmentData},
     },
     main_frontend::{
+        course_instances::TeacherManualCompletion,
         courses::GetFeedbackQuery,
         exams::ExamCourseInfo,
         exercises::AnswerRequiringAttentionWithTasks,
@@ -231,6 +232,7 @@ fn ts_binding_generator() {
         ErrorData,
         Pagination,
         OEmbedResponse,
+        TeacherManualCompletion,
 
 
         material_references::MaterialReference,

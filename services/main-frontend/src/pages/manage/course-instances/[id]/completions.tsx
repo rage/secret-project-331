@@ -3,15 +3,16 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Layout from "../../../../components/Layout"
+import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
-import { getCompletions } from "../../../../services/backend/course-instances"
+import { getCompletions, postCompletions } from "../../../../services/backend/course-instances"
 import { UserWithModuleCompletions } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -19,7 +20,6 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { addCourseInstanceCompletionsPageRoute } from "../../../../utils/routing"
 
 const DOWN_ARROW = "v"
 const EMAIL = "email"
@@ -41,6 +41,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], () =>
     getCompletions(courseInstanceId),
   )
+  const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
 
   function sortUsers(first: UserWithModuleCompletions, second: UserWithModuleCompletions): number {
@@ -84,12 +85,24 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               userCount={getCompletionsList.data.users_with_course_module_completions.length}
             />
           </div>
-          <Link href={addCourseInstanceCompletionsPageRoute(courseInstanceId)} passHref>
-            {/* Just temporary location for development */}
-            <a href="replace" aria-label="Manually add completions">
+          <div
+            className={css`
+              margin: 2rem;
+            `}
+          >
+            <Button variant="primary" size="small" onClick={() => setShowForm(!showForm)}>
               Manually add completions
-            </a>
-          </Link>{" "}
+            </Button>
+            {showForm && (
+              <div
+                className={css`
+                  margin: 2rem;
+                `}
+              >
+                <AddCompletionsForm onSubmit={(data) => postCompletions(courseInstanceId, data)} />
+              </div>
+            )}
+          </div>
           <FullWidthTable>
             <thead>
               <tr

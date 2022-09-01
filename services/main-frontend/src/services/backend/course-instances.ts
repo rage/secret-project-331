@@ -7,6 +7,7 @@ import {
   EmailTemplate,
   EmailTemplateNew,
   Points,
+  TeacherManualCompletion,
 } from "../../shared-module/bindings"
 import {
   isCourseInstance,
@@ -69,6 +70,16 @@ export const getCompletions = async (
     },
   )
   return validateResponse(response, isCourseInstanceCompletionSummary)
+}
+
+export const postCompletions = async (
+  courseInstanceId: string,
+  data: TeacherManualCompletion[],
+): Promise<void> => {
+  const _response = await mainFrontendClient.post(
+    `/course-instances/${courseInstanceId}/completions`,
+    data,
+  )
 }
 
 export const getPoints = async (courseInstanceId: string): Promise<Points> => {

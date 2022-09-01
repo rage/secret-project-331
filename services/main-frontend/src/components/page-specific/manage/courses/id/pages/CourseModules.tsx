@@ -265,12 +265,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 name: module.name !== initialModule.name ? module.name : null,
                 order_number: module.order_number,
                 uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits ?? null,
-                automatic_completion: module.automatic_completion ?? false,
+                ects_credits: module.ects_credits,
+                automatic_completion: module.automatic_completion,
                 automatic_completion_number_of_points_treshold:
-                  module.automatic_completion_number_of_points_treshold ?? null,
+                  module.automatic_completion_number_of_points_treshold,
                 automatic_completion_number_of_exercises_attempted_treshold:
-                  module.automatic_completion_number_of_exercises_attempted_treshold ?? null,
+                  module.automatic_completion_number_of_exercises_attempted_treshold,
               })
             }
           }

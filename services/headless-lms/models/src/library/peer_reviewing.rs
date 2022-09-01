@@ -61,12 +61,12 @@ pub struct CourseMaterialPeerReviewQuestionAnswer {
 pub async fn create_peer_review_submission_for_user(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
+    giver_exercise_state: UserExerciseState,
     peer_review_submission: CourseMaterialPeerReviewSubmission,
 ) -> ModelResult<UserExerciseState> {
     let peer_review = peer_reviews::get_by_exercise_or_course_id(
         conn,
-        user_exercise_state.exercise_id,
+        giver_exercise_state.exercise_id,
         exercise.get_course_id()?,
     )
     .await?;
@@ -78,9 +78,9 @@ pub async fn create_peer_review_submission_for_user(
     let mut tx = conn.begin().await?;
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
-        user_exercise_state.user_id,
-        user_exercise_state.exercise_id,
-        user_exercise_state.get_course_instance_id()?,
+        giver_exercise_state.user_id,
+        giver_exercise_state.exercise_id,
+        giver_exercise_state.get_course_instance_id()?,
         peer_review.id,
         peer_review_submission.exercise_slide_submission_id,
     )
@@ -98,29 +98,40 @@ pub async fn create_peer_review_submission_for_user(
     let peer_reviews_given: i32 =
         peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
             &mut tx,
-            user_exercise_state.user_id,
-            user_exercise_state.exercise_id,
-            user_exercise_state.get_course_instance_id()?,
+            giver_exercise_state.user_id,
+            giver_exercise_state.exercise_id,
+            giver_exercise_state.get_course_instance_id()?,
         )
         .await?
         .try_into()?;
-    let user_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
+    let giver_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
         update_peer_review_giver_exercise_progress(
             &mut tx,
             exercise,
-            user_exercise_state,
+            giver_exercise_state,
             peer_reviews_given,
             peer_review.clone(),
         )
         .await?
     } else {
-        user_exercise_state
+        giver_exercise_state
     };
+    let exercise_slide_submission = exercise_slide_submissions::get_by_id(
+        &mut tx,
+        peer_review_submission.exercise_slide_submission_id,
+    )
+    .await?;
     let receiver_peer_review_queue_entry =
         peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(
             &mut tx,
-            peer_review_submission.exercise_slide_submission_id,
-            user_exercise_state.get_course_instance_id()?,
+            exercise_slide_submission.id,
+            exercise_slide_submission
+                .course_instance_id
+                .ok_or_else(|| {
+                    ModelError::PreconditionFailed(
+                        "Exercise slide not part of a course instance.".to_string(),
+                    )
+                })?,
         )
         .await?;
     if let Some(entry) = receiver_peer_review_queue_entry {
@@ -128,7 +139,7 @@ pub async fn create_peer_review_submission_for_user(
     }
     tx.commit().await?;
 
-    Ok(user_exercise_state)
+    Ok(giver_exercise_state)
 }
 
 /// Filters submitted peer review answers to those that are part of the peer review.

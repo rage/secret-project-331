@@ -4,6 +4,7 @@ import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
+import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -22,6 +23,7 @@ import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
 import Spinner from "../shared-module/components/Spinner"
+import HideChildrenInSystemTests from "../shared-module/components/system-tests/HideChildrenInSystemTests"
 import {
   CurrentStateMessage,
   IframeViewType,
@@ -142,6 +144,13 @@ const DEFAULT_SERVICE_INFO_URL = "http://project-331.local/example-exercise/api/
 
 const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
+
+  const SCROLL_TARGETS = [
+    { name: t("title-playground-exercise-iframe"), id: "heading-playground-exercise-iframe" },
+    { name: t("private-spec"), id: "heading-private-spec" },
+    { name: t("title-iframe"), id: "heading-iframe" },
+    { name: t("title-communication-with-the-iframe"), id: "heading-communication-with-the-iframe" },
+  ]
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
@@ -292,7 +301,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   return (
     <Layout>
-      <h1>{t("title-playground-exercise-iframe")}</h1>
+      <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
@@ -359,6 +368,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
 
           <PrivateSpecGridArea>
             <TextAreaField
+              id="heading-private-spec"
               rows={20}
               spellCheck={false}
               label={t("private-spec")}
@@ -509,7 +519,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             }
           `}
         >
-          <h2>{t("title-iframe")}</h2>{" "}
+          <h2 id="heading-iframe">{t("title-iframe")}</h2>{" "}
           <Button
             variant={"secondary"}
             size={"small"}
@@ -663,7 +673,9 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       </Area>
 
       <Area>
-        <h2>{t("title-communication-with-the-iframe")}</h2>
+        <h2 id="heading-communication-with-the-iframe">
+          {t("title-communication-with-the-iframe")}
+        </h2>
       </Area>
 
       <Area>
@@ -721,6 +733,78 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           </>
         )}
       </Area>
+
+      <HideChildrenInSystemTests>
+        <div
+          className={css`
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            background-color: black;
+            border: 2px solid black;
+            z-index: 500;
+            border-radius: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+
+            svg {
+              color: white;
+            }
+
+            &:hover {
+              background-color: white;
+              cursor: pointer;
+              svg {
+                color: black;
+              }
+            }
+          `}
+        >
+          <div
+            className={css`
+              position: relative;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <ArrowsVertical />
+            <select
+              name="pets"
+              id="pet-select"
+              className={css`
+                height: 50px;
+                width: 50px;
+                opacity: 0;
+                cursor: pointer;
+                position: absolute;
+                top: -12px;
+                left: -12px;
+              `}
+              title={t("title-scroll-to-a-heading-in-this-page")}
+              onChange={(event) => {
+                const element = document.getElementById(event.target.value)
+                if (!element) {
+                  console.error("Element to scroll to not found", event.target.value)
+                  return
+                }
+                const y = element.getBoundingClientRect().top + window.scrollY - 30
+                window.scroll({ top: y, behavior: "smooth" })
+              }}
+            >
+              {SCROLL_TARGETS.map((target) => (
+                <option key={target.id} value={target.id}>
+                  {target.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </HideChildrenInSystemTests>
     </Layout>
   )
 }

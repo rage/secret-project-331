@@ -161,7 +161,7 @@
   "label-completion-date": "Completion date (optional) - if provided, will be default for every completion with no date set.",
   "label-course-instance": "Course instance",
   "label-created": "Created:",
-  "label-csv-completions": "Format: csv with headers with fields: <2>{{csvHeaderFormat}}</2> - optional date in ISO format. At least one comma in header required, so if only user_id is given, please give header as user_id,",
+  "label-csv-completions": "Format: csv with headers with fields: <2>{{csvHeaderFormat}}</2> - optional date in ISO format.",
   "label-current-text": "Current text:",
   "label-deadline": "Deadline",
   "label-default": "Default",

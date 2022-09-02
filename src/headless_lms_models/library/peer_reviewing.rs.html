@@ -527,6 +527,47 @@
 <span id="521">521</span>
 <span id="522">522</span>
 <span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
@@ -965,6 +1006,47 @@
         <span class="ident">peer_review_questions</span>,
         <span class="ident">num_peer_reviews_given</span>,
     })
+}
+
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">conn</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_peer_review_queue_reviews_received</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="macro">info!</span>(<span class="string">&quot;Updating peer review queue reviews received&quot;</span>);
+    <span class="kw">let</span> <span class="ident">exercises</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exercises::get_exercises_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">course_id</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">needs_peer_review</span>)
+        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">for</span> <span class="ident">exercise</span> <span class="kw">in</span> <span class="ident">exercises</span> {
+        <span class="macro">info!</span>(<span class="string">&quot;Processing exercise {:?}&quot;</span>, <span class="ident">exercise</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">peer_review_config</span> <span class="op">=</span>
+            <span class="ident">peer_reviews::get_by_exercise_or_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">peer_review_queue_entries</span> <span class="op">=</span>
+            <span class="ident"><span class="kw">crate</span>::peer_review_queue_entries::get_all_that_need_peer_reviews_by_exercise_id</span>(
+                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+                <span class="ident">exercise</span>.<span class="ident">id</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="macro">info!</span>(
+            <span class="string">&quot;Processing {:?} peer review queue entries&quot;</span>,
+            <span class="ident">peer_review_queue_entries</span>.<span class="ident">len</span>()
+        );
+        <span class="kw">for</span> <span class="ident">peer_review_queue_entry</span> <span class="kw">in</span> <span class="ident">peer_review_queue_entries</span> {
+            <span class="ident">update_peer_review_receiver_exercise_status</span>(
+                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+                <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
+                <span class="kw-2">&amp;</span><span class="ident">peer_review_config</span>,
+                <span class="ident">peer_review_queue_entry</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+        }
+    }
+    <span class="macro">info!</span>(<span class="string">&quot;Done&quot;</span>);
+    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>

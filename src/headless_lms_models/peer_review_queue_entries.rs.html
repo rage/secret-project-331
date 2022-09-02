@@ -316,6 +316,30 @@
 <span id="310">310</span>
 <span id="311">311</span>
 <span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
@@ -602,6 +626,30 @@ LIMIT $4
         <span class="ident">excluded_user_id</span>,
         <span class="ident">excluded_submissions_ids</span>,
         <span class="ident">count</span>,
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="doccomment">/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by</span>
+<span class="doccomment">/// peer review priority.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Doesn&#39;t differentiate between different course instances.</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_all_that_need_peer_reviews_by_exercise_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PeerReviewQueueEntry</span>,
+        <span class="string">&quot;
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND received_enough_peer_reviews = &#39;false&#39;
+  AND deleted_at IS NULL
+        &quot;</span>,
+        <span class="ident">exercise_id</span>,
     )
     .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

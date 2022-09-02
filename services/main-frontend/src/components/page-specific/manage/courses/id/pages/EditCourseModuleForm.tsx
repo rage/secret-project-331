@@ -4,7 +4,7 @@ import CheckIcon from "@mui/icons-material/Check"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import { IconButton } from "@mui/material"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -34,13 +34,27 @@ interface Fields {
   automatic_completion_number_of_exercises_attempted_treshold: number | null
 }
 
+const makeDefaultValues = (module: ModuleView, chapters: number[]) => {
+  return {
+    name: module.name,
+    starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
+    ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
+    ects_credits: Number(module.ects_credits) || 0,
+    uh_course_code: module.uh_course_code ?? "",
+    automatic_completion: module.automatic_completion ?? false,
+    automatic_completion_number_of_points_treshold:
+      Number(module.automatic_completion_number_of_points_treshold) ?? null,
+    automatic_completion_number_of_exercises_attempted_treshold:
+      Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+  }
+}
+
 const EditCourseModuleForm: React.FC<Props> = ({
   module,
   chapters,
   onSubmitForm,
   onDeleteModule,
 }) => {
-  console.log(module)
   const { t } = useTranslation()
   const [active, setActive] = useState(false)
   const {
@@ -52,19 +66,11 @@ const EditCourseModuleForm: React.FC<Props> = ({
   } = useForm<Fields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
-    defaultValues: {
-      name: module.name,
-      starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
-      ends: module.lastChapter ?? (chapters.length > 0 ? chapters[chapters.length - 1] : 1),
-      ects_credits: module.ects_credits ?? 0,
-      uh_course_code: module.uh_course_code ?? "",
-      automatic_completion: module.automatic_completion ?? false,
-      automatic_completion_number_of_points_treshold:
-        module.automatic_completion_number_of_points_treshold ?? null,
-      automatic_completion_number_of_exercises_attempted_treshold:
-        module.automatic_completion_number_of_exercises_attempted_treshold ?? null,
-    },
+    defaultValues: makeDefaultValues(module, chapters),
   })
+  useEffect(() => {
+    reset(makeDefaultValues(module, chapters))
+  }, [reset, module, chapters])
 
   const onSubmitFormWrapper = (fields: Fields) => {
     setActive(false)
@@ -181,7 +187,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 color: #fff;
               `}
               placeholder={t("ects-credits")}
-              register={register("ects_credits")}
+              type="number"
+              register={register("ects_credits", {
+                valueAsNumber: true,
+              })}
             />
             <Checkbox
               label={t("enable-automatic-completion")}
@@ -194,12 +203,12 @@ const EditCourseModuleForm: React.FC<Props> = ({
               `}
             />
             <TextField
+              type="number"
               label={t("automatic-completion-points-treshold")}
               labelStyle={css`
                 color: #fff;
               `}
               placeholder={t("automatic-completion-points-treshold")}
-              type="number"
               register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,

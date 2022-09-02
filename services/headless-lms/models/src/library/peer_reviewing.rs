@@ -438,6 +438,47 @@ async fn get_course_material_peer_review_data(
     })
 }
 
+#[instrument(skip(conn))]
+pub async fn update_peer_review_queue_reviews_received(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    info!("Updating peer review queue reviews received");
+    let exercises = crate::exercises::get_exercises_by_course_id(&mut tx, course_id)
+        .await?
+        .into_iter()
+        .filter(|e| e.needs_peer_review)
+        .collect::<Vec<_>>();
+    for exercise in exercises {
+        info!("Processing exercise {:?}", exercise.id);
+        let peer_review_config =
+            peer_reviews::get_by_exercise_or_course_id(&mut tx, exercise.id, course_id).await?;
+        let peer_review_queue_entries =
+            crate::peer_review_queue_entries::get_all_that_need_peer_reviews_by_exercise_id(
+                &mut tx,
+                exercise.id,
+            )
+            .await?;
+        info!(
+            "Processing {:?} peer review queue entries",
+            peer_review_queue_entries.len()
+        );
+        for peer_review_queue_entry in peer_review_queue_entries {
+            update_peer_review_receiver_exercise_status(
+                &mut tx,
+                &exercise,
+                &peer_review_config,
+                peer_review_queue_entry,
+            )
+            .await?;
+        }
+    }
+    info!("Done");
+    tx.commit().await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -22,6 +22,7 @@ import CourseLanguageVersionsList, {
 } from "../language-versions/CourseLanguageVersionsList"
 
 import UpdateCourseForm from "./UpdateCourseForm"
+import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 interface Props {
   course: Course
@@ -148,6 +149,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         {t("button-text-new")}
       </Button>
       <CourseCourseInstances courseId={course.id} />
+
+      <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
     </>
   )
 }

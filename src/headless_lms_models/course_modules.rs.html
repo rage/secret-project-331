@@ -506,6 +506,8 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">chapters</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
@@ -938,6 +940,8 @@ WHERE id = $3
     <span class="kw">for</span> <span class="ident">module_id</span> <span class="kw">in</span> <span class="ident">updates</span>
         .<span class="ident">modified_modules</span>
         .<span class="ident">iter</span>()
+        <span class="comment">// do not scramble the default module, it should always be first</span>
+        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">order_number</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span>)
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">id</span>)
         .<span class="ident">chain</span>(<span class="ident">updates</span>.<span class="ident">deleted_modules</span>.<span class="ident">iter</span>().<span class="ident">copied</span>())
     {

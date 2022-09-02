@@ -40,9 +40,10 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ onSubmit }) => 
   const onWrapper = handleSubmit((data) => {
     clearErrors()
     const parsed = Papa.parse(data.completions.trim(), {
-      header: true,
       delimiter: ",",
+      header: true,
       skipEmptyLines: true,
+      transform: (value) => value.trim(),
       transformHeader: (header) => header.trim().toLocaleLowerCase(),
     })
     if (parsed.errors.length > 0) {
@@ -55,8 +56,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ onSubmit }) => 
         const grade = (entry as RawTeacherManualCompletion).grade
         const userId = (entry as RawTeacherManualCompletion).user_id
         if (!userId) {
-          // eslint-disable-next-line i18next/no-literal-string
-          throw new Error("User id is missing.")
+          throw new Error(t("user-id-is-missing"))
         }
         return {
           completion_date: completionDate ? new Date(completionDate) : defaultDate,

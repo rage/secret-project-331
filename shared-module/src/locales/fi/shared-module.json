@@ -54,6 +54,7 @@
   "modules": "Moduulit",
   "navigation-menu": "Navigaatiovalikko",
   "next-page": "Seuraava sivu",
+  "no": "Ei",
   "on-date-at-time": "{{date}} {{time}}",
   "open-heading-menu": "Avaa sisällysluettelo",
   "open-menu": "Avaa valikko",
@@ -90,5 +91,6 @@
   "translate": "Käännä",
   "university-of-helsinki": "Helsingin yliopisto",
   "what-you-will-learn": "Mitä opit tässä luvussa",
-  "write-a-review": "Kirjoita arvostelu"
+  "write-a-review": "Kirjoita arvostelu",
+  "yes": "Yes"
 }

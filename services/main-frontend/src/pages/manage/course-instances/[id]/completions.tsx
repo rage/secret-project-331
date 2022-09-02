@@ -1,6 +1,3 @@
-// Disabled for development
-/* eslint-disable i18next/no-literal-string */
-
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
@@ -63,7 +60,9 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
 
   return (
     <Layout navVariant="simple">
-      <h2>Completions</h2>
+      <h2>
+        {t("completions")}: {courseInstanceId}
+      </h2>
       {getCompletionsList.isError && (
         <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
       )}
@@ -81,7 +80,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   ).length
                 }/${getCompletionsList.data.users_with_course_module_completions.length}`,
               }))}
-              title="Total completion dashboard"
+              title={t("total-completions-dashboard")}
               userCount={getCompletionsList.data.users_with_course_module_completions.length}
             />
           </div>
@@ -91,7 +90,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
             `}
           >
             <Button variant="primary" size="small" onClick={() => setShowForm(!showForm)}>
-              Manually add completions
+              {t("manually-add-completions")}
             </Button>
             {showForm && (
               <div
@@ -133,6 +132,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                 {getCompletionsList.data.course_modules
                   .sort((a, b) => a.order_number - b.order_number)
                   .map((module) => {
+                    // eslint-disable-next-line i18next/no-literal-string
                     const moduleSorting = `#mod${module.order_number}`
                     return (
                       <th key={module.id}>
@@ -162,7 +162,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                       .sort((a, b) => a.order_number - b.order_number)
                       .map((module) => (
                         <td key={module.id}>
-                          {user.completed_modules.includes(module.id) ? "yes" : "no"}
+                          {user.completed_modules.includes(module.id) ? t("yes") : t("no")}
                         </td>
                       ))}
                   </FullWidthTableRow>

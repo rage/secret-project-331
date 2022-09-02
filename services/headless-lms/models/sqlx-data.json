@@ -52,9 +52,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid"]
       }
@@ -324,9 +329,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Int4", "Uuid"]
       }
@@ -2487,9 +2497,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid"]
       }
@@ -4228,9 +4243,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid", "Int4", "Uuid", "Bool"]
       }
@@ -5608,9 +5628,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
       }
@@ -6912,6 +6937,16 @@
     },
     "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = ANY($1)\n  AND prerequisite_modules_completed\n  AND eligible_for_ects\n  AND deleted_at IS NULL\n        "
   },
+  "695e8a6d471bab1f075c02369254c2a542b6a46a9d0a3bbca8d14c2af0499a5d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nUPDATE peer_review_queue_entries\nSET removed_from_queue_for_unusual_reason = TRUE\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n    "
+  },
   "69ce80ab82e60eebfbd382f16c0e5ea305457176ea0868b935835b4398e09106": {
     "describe": {
       "columns": [
@@ -8059,67 +8094,6 @@
     },
     "query": "\nUPDATE exercise_slides\nSET deleted_at = now()\nWHERE exercise_id = ANY($1)\nRETURNING id;\n        "
   },
-  "7ab863f21bcea5451f12a42acd2f2b3157bbbe893a02fff769ae496005c553e6": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 3,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 4,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "exercise_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "course_instance_id",
-          "ordinal": 6,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "receiving_peer_reviews_exercise_slide_submission_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "received_enough_peer_reviews",
-          "ordinal": 8,
-          "type_info": "Bool"
-        },
-        {
-          "name": "peer_review_priority",
-          "ordinal": 9,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
-      }
-    },
-    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)\n  AND received_enough_peer_reviews = 'false'\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n        "
-  },
   "7ac092aa73f25fe5f40a136af9ce3f9ff9b370f2b118be04b49c3f4a5fa8dafd": {
     "describe": {
       "columns": [
@@ -9252,9 +9226,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid", "Uuid"]
       }
@@ -9972,9 +9951,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Uuid", "Int4", "Uuid"]
       }
@@ -13651,9 +13635,14 @@
           "name": "peer_review_priority",
           "ordinal": 9,
           "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
         }
       ],
-      "nullable": [false, false, false, true, false, false, false, false, false, false],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
       "parameters": {
         "Left": ["Bool", "Uuid"]
       }
@@ -15813,6 +15802,72 @@
       }
     },
     "query": "\n    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)\n    VALUES ($1, $2, $3, $4)\n    RETURNING id,\n      user_id,\n      exercise_id,\n      course_instance_id,\n      exam_id,\n      created_at,\n      updated_at,\n      deleted_at,\n      score_given,\n      grading_progress as \"grading_progress: _\",\n      activity_progress as \"activity_progress: _\",\n      reviewing_stage AS \"reviewing_stage: _\",\n      selected_exercise_slide_id\n      "
+  },
+  "f3f3e8495dec5e25c2fd668203c389a0a92ee1a49cf6f6a48b5208743e1f2ccf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "receiving_peer_reviews_exercise_slide_submission_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "received_enough_peer_reviews",
+          "ordinal": 8,
+          "type_info": "Bool"
+        },
+        {
+          "name": "peer_review_priority",
+          "ordinal": 9,
+          "type_info": "Int4"
+        },
+        {
+          "name": "removed_from_queue_for_unusual_reason",
+          "ordinal": 10,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, false, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "UuidArray", "Int8"]
+      }
+    },
+    "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)\n  AND received_enough_peer_reviews = 'false'\n  AND removed_from_queue_for_unusual_reason = 'false'\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n        "
   },
   "f4027fdbb6bf446e8c75423168c3c97e5509c4e44d2246e9894494a96e8f752d": {
     "describe": {

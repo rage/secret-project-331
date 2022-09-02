@@ -13,6 +13,7 @@ pub struct PeerReviewQueueEntry {
     pub receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     pub received_enough_peer_reviews: bool,
     pub peer_review_priority: i32,
+    pub removed_from_queue_for_unusual_reason: bool,
 }
 
 pub async fn insert(
@@ -224,7 +225,7 @@ pub async fn try_to_get_by_user_and_exercise_and_course_instance_ids(
         .optional()
 }
 
-/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority.
+/// Gets multiple records of `PeerReviewQueueEntry` ordered by peer review priority. Also returns entries that don't need peer review.
 ///
 /// Doesn't differentiate between different course instances.
 pub async fn get_many_by_exercise_id_and_review_priority(
@@ -276,6 +277,7 @@ WHERE exercise_id = $1
   AND user_id <> $2
   AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)
   AND received_enough_peer_reviews = 'false'
+  AND removed_from_queue_for_unusual_reason = 'false'
   AND deleted_at IS NULL
 ORDER BY peer_review_priority DESC
 LIMIT $4
@@ -309,4 +311,28 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn remove_queue_entries_for_unusual_reason(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE peer_review_queue_entries
+SET removed_from_queue_for_unusual_reason = TRUE
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND course_instance_id = $3
+  AND deleted_at IS NULL
+    ",
+        user_id,
+        exercise_id,
+        course_instance_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

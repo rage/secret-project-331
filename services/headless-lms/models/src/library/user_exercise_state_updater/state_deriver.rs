@@ -201,6 +201,17 @@ fn get_peer_review_opinion(
             });
         } else if !received_enough_peer_reviews {
             // Has given enough but has not received enough: the student has to wait until others have reviewed their answer more
+
+            // Handle the case where the answer is waiting for manual review but is still receiving peer reviews
+            if input_data.current_user_exercise_state.reviewing_stage
+                == ReviewingStage::WaitingForManualGrading
+            {
+                return Some(PeerReviewOpinion {
+                    score_given: None,
+                    reviewing_stage: ReviewingStage::WaitingForManualGrading,
+                });
+            }
+
             return Some(PeerReviewOpinion {
                 score_given: None,
                 reviewing_stage: ReviewingStage::WaitingForPeerReviews,
@@ -717,6 +728,7 @@ mod tests {
                 receiving_peer_reviews_exercise_slide_submission_id: id,
                 received_enough_peer_reviews: true,
                 peer_review_priority: 100,
+                removed_from_queue_for_unusual_reason: false,
             }
         }
 

@@ -8,7 +8,7 @@ use models::{
 };
 
 /**
-GET `/api/v0/main-frontend/submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
+GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -37,7 +37,7 @@ async fn get_submission_info(
 }
 
 /**
-GET `/api/v0/main-frontend/submissions/update-answer-requiring-attention"` - Updates data for submission
+GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention"` - Updates data for submission
 */
 #[generated_doc]
 #[instrument(skip(pool))]
@@ -72,19 +72,34 @@ async fn update_submission(
         return Err(ControllerError::BadRequest("Invalid query".to_string()));
     }
 
-    models::teacher_grading_decisions::add_teacher_grading_decision(
-        &mut conn,
+    let mut tx = conn.begin().await?;
+
+    let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
+        &mut tx,
         user_exercise_state_id,
         *action,
         points_given,
     )
     .await?;
 
-    let res =
-        user_exercise_state_updater::update_user_exercise_state(&mut conn, user_exercise_state_id)
+    let new_user_exercise_state =
+        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state_id)
             .await?;
 
-    token.authorized_ok(web::Json(res))
+    if let Some(course_instance_id) = new_user_exercise_state.course_instance_id {
+        // Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won't be given to others to review. Receiving peer reviews for this answer now would not make much sense.
+        models::peer_review_queue_entries::remove_queue_entries_for_unusual_reason(
+            &mut tx,
+            new_user_exercise_state.user_id,
+            new_user_exercise_state.exercise_id,
+            course_instance_id,
+        )
+        .await?;
+    }
+
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(new_user_exercise_state))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

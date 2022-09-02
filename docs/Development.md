@@ -30,6 +30,12 @@ You don't need these if you don't intend to change the headless-lms.
 3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
 4. Install `pkg-config`
 
+### Set up the TMC CLI for the TMC exercise service
+
+```sh
+bin/download-tmc-langs
+```
+
 ### Setting up minikube
 
 Start minikube:

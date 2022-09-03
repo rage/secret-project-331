@@ -21,8 +21,8 @@ export interface Fields {
   ects_credits: number | null
   uh_course_code: string | null
   automatic_completion: boolean
-  automatic_completion_points_treshold: number | null
-  automatic_completion_exercises_attempted_treshold: number | null
+  automatic_completion_number_of_points_treshold: number | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
 }
 
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
@@ -43,8 +43,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       ects_credits: null,
       automatic_completion: false,
       uh_course_code: "",
-      automatic_completion_points_treshold: null,
-      automatic_completion_exercises_attempted_treshold: null,
+      automatic_completion_number_of_points_treshold: null,
+      automatic_completion_number_of_exercises_attempted_treshold: null,
     },
   })
 
@@ -157,7 +157,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               `}
               label={t("ects-credits")}
               placeholder={t("ects-credits")}
-              register={register("ects_credits")}
+              type="number"
+              register={register("ects_credits", { valueAsNumber: true })}
             />
             <Checkbox
               label={t("enable-automatic-completion")}
@@ -173,7 +174,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("automatic-completion-points-treshold")}
               placeholder={t("automatic-completion-points-treshold")}
               type="number"
-              register={register("automatic_completion_points_treshold", {
+              register={register("automatic_completion_number_of_points_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}
@@ -186,7 +187,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               label={t("automatic-completion-exercise-treshold")}
               placeholder={t("automatic-completion-exercise-treshold")}
               type="number"
-              register={register("automatic_completion_exercises_attempted_treshold", {
+              register={register("automatic_completion_number_of_exercises_attempted_treshold", {
                 valueAsNumber: true,
                 disabled: !isChecked,
               })}

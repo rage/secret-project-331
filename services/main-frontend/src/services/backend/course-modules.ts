@@ -40,9 +40,9 @@ export const fetchCompletionRegistrationLink = async (
 
 export const submitChanges = async (
   courseId: string,
-  newModules: Array<NewModule>,
-  deletedModules: Array<string>,
-  modifiedModules: Array<ModifiedModule>,
+  newModules: NewModule[],
+  deletedModules: string[],
+  modifiedModules: ModifiedModule[],
   movedChapters: Array<[string, string]>,
 ): Promise<void> => {
   const data: ModuleUpdates = {

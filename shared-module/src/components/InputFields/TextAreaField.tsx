@@ -30,7 +30,7 @@ function updateHeight(ref: React.RefObject<HTMLTextAreaElement>) {
   }
 }
 
-const TextArea = ({ onChange, className, autoResize, register, ...rest }: TextAreaProps) => {
+const TextAreaField = ({ onChange, className, autoResize, register, ...rest }: TextAreaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -89,4 +89,4 @@ const TextArea = ({ onChange, className, autoResize, register, ...rest }: TextAr
   )
 }
 
-export default TextArea
+export default TextAreaField

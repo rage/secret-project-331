@@ -130,6 +130,15 @@ pub enum Resource {
     MaterialReference,
 }
 
+impl Resource {
+    pub fn from_course_or_exam_id(course_or_exam_id: CourseOrExamId) -> Self {
+        match course_or_exam_id {
+            CourseOrExamId::Course(id) => Self::Course(id),
+            CourseOrExamId::Exam(id) => Self::Exam(id),
+        }
+    }
+}
+
 /// Validates that user has right to function
 #[derive(Copy, Clone, Debug)]
 pub struct AuthorizationToken(());

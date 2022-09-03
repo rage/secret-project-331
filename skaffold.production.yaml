@@ -106,6 +106,20 @@ build:
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
 
+    # tmc
+    - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile.production.cache.dockerfile
+        cacheFrom:
+          - eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache:latest
+    - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim
+      requires:
+        - image: eu.gcr.io/moocfi-public/secret-project-tmc-production-build-cache
+          alias: BUILD_CACHE
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile.production.slim.dockerfile
 
   local:
     # Allow parallel builds

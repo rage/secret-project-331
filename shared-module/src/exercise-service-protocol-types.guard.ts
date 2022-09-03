@@ -87,7 +87,19 @@ export function isSetStateMessage(obj: any, _argumentName?: string): obj is SetS
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
       (isUserInformation(obj.user_information) as boolean) &&
-      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
+      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
+      (typeof obj.data.repository_exercise === "undefined" ||
+        (((obj.data.repository_exercise !== null &&
+          typeof obj.data.repository_exercise === "object") ||
+          typeof obj.data.repository_exercise === "function") &&
+          typeof obj.data.repository_exercise.id === "string" &&
+          typeof obj.data.repository_exercise.repository_id === "string" &&
+          typeof obj.data.repository_exercise.part === "string" &&
+          typeof obj.data.repository_exercise.name === "string" &&
+          typeof obj.data.repository_exercise.repository_url === "string" &&
+          Array.isArray(obj.data.repository_exercise.checksum) &&
+          obj.data.repository_exercise.checksum.every((e: any) => typeof e === "number") &&
+          typeof obj.data.repository_exercise.download_url === "string")))
   )
 }
 
@@ -127,7 +139,19 @@ export function isIframeState(obj: any, _argumentName?: string): obj is IframeSt
       obj.view_type === "exercise-editor" &&
       typeof obj.exercise_task_id === "string" &&
       (isUserInformation(obj.user_information) as boolean) &&
-      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function"))
+      ((obj.data !== null && typeof obj.data === "object") || typeof obj.data === "function") &&
+      (typeof obj.data.repository_exercise === "undefined" ||
+        (((obj.data.repository_exercise !== null &&
+          typeof obj.data.repository_exercise === "object") ||
+          typeof obj.data.repository_exercise === "function") &&
+          typeof obj.data.repository_exercise.id === "string" &&
+          typeof obj.data.repository_exercise.repository_id === "string" &&
+          typeof obj.data.repository_exercise.part === "string" &&
+          typeof obj.data.repository_exercise.name === "string" &&
+          typeof obj.data.repository_exercise.repository_url === "string" &&
+          Array.isArray(obj.data.repository_exercise.checksum) &&
+          obj.data.repository_exercise.checksum.every((e: any) => typeof e === "number") &&
+          typeof obj.data.repository_exercise.download_url === "string")))
   )
 }
 

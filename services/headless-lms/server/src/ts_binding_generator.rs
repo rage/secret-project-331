@@ -1,61 +1,43 @@
-#[cfg(feature = "ts_rs")]
-use crate::controllers::{
-    auth::{CreateAccountDetails, Login, UserInfo},
-    course_material::{
-        courses::{ChaptersWithStatus, CourseMaterialCourseModule},
-        exams::{ExamData, ExamEnrollmentData},
-    },
-    main_frontend::{
-        course_instances::TeacherManualCompletion,
-        courses::GetFeedbackQuery,
-        exams::ExamCourseInfo,
-        exercises::AnswerRequiringAttentionWithTasks,
-        exercises::AnswersRequiringAttention,
-        exercises::ExerciseSubmissions,
-        feedback::MarkAsRead,
-        proposed_edits::GetEditProposalsQuery,
-        roles::{RoleInfo, RoleQuery},
-    },
-    ErrorData, ErrorResponse, UploadResult,
-};
+use std::fs::File;
+use std::io::Write;
 
-#[cfg(feature = "ts_rs")]
-use crate::domain::*;
-
-#[cfg(feature = "ts_rs")]
-use headless_lms_models::*;
-#[cfg(feature = "ts_rs")]
-use headless_lms_utils::pagination::Pagination;
-#[cfg(feature = "ts_rs")]
-use headless_lms_utils::url_to_oembed_endpoint::OEmbedResponse;
-
-#[cfg(feature = "ts_rs")]
 macro_rules! export {
-    ($target:expr, $($types:ty),*) => {
+    ($target:expr, $($types:ty),* $(,)?) => {
         {
-            let target = $target;
-            fn _export(target: &mut impl ::std::io::Write) -> ::std::result::Result<(), ::std::io::Error> {
-                $(
-                    #[cfg(feature = "ts_rs")]
-                    writeln!(target, "export {}\n", <$types as ::ts_rs::TS>::decl())?;
-                )*
-                Ok(())
-            }
-            _export(target)
+            $(
+
+                writeln!($target, "export {}\n", <$types as ::ts_rs::TS>::decl()).unwrap();
+            )*
         }
     };
 }
 
 #[test]
-#[cfg(feature = "ts_rs")]
 fn ts_binding_generator() {
-    let mut target = std::fs::File::create("../../../shared-module/src/bindings.ts").unwrap();
-    let res = export! {
-        &mut target,
+    let mut target = File::create("../../../shared-module/src/bindings.ts").unwrap();
+    domain(&mut target);
+    models(&mut target);
+    controllers(&mut target);
+    utils(&mut target);
+}
+
+fn domain(target: &mut File) {
+    use crate::domain::*;
+
+    export! {
+        target,
 
         authorization::ActionOnResource,
         authorization::Action,
         authorization::Resource,
+    };
+}
+
+fn models(target: &mut File) {
+    use headless_lms_models::*;
+
+    export! {
+        target,
 
         glossary::Term,
         glossary::TermUpdate,
@@ -79,6 +61,9 @@ fn ts_binding_generator() {
         course_instances::UserWithModuleCompletions,
 
         course_modules::CourseModule,
+        course_modules::ModifiedModule,
+        course_modules::ModuleUpdates,
+        course_modules::NewModule,
 
         courses::Course,
         courses::CourseStructure,
@@ -98,11 +83,15 @@ fn ts_binding_generator() {
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
 
+        exercise_repositories::ExerciseRepository,
+        exercise_repositories::ExerciseRepositoryStatus,
+
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_service_info::ExerciseServiceInfoApi,
 
         exercise_services::ExerciseService,
         exercise_services::ExerciseServiceNewOrUpdate,
+        exercise_services::ExerciseServiceIframeRenderingInfo,
 
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
@@ -134,6 +123,9 @@ fn ts_binding_generator() {
         library::progressing::CompletionRegistrationLink,
         library::progressing::UserCompletionInformation,
         library::progressing::UserModuleCompletionStatus,
+
+        material_references::MaterialReference,
+        material_references::NewMaterialReference,
 
         organizations::Organization,
 
@@ -180,6 +172,8 @@ fn ts_binding_generator() {
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
+        repository_exercises::RepositoryExercise,
+
         exercise_slide_submissions::ExerciseSlideSubmission,
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
@@ -210,37 +204,74 @@ fn ts_binding_generator() {
         user_exercise_states::ReviewingStage,
         user_exercise_states::UserExerciseState,
         users::User,
-
-        ChaptersWithStatus,
-        CourseMaterialCourseModule,
-        CreateAccountDetails,
-        UserInfo,
-        RoleQuery,
-        RoleInfo,
-        ExamData,
-        ExamEnrollmentData,
-        ExamCourseInfo,
-        Login,
-        UploadResult,
-        ExerciseSubmissions,
-        AnswersRequiringAttention,
-        AnswerRequiringAttentionWithTasks,
-        MarkAsRead,
-        GetFeedbackQuery,
-        GetEditProposalsQuery,
-        ErrorResponse,
-        ErrorData,
-        Pagination,
-        OEmbedResponse,
-        TeacherManualCompletion,
-
-
-        material_references::MaterialReference,
-        material_references::NewMaterialReference,
-
-        course_modules::ModifiedModule,
-        course_modules::ModuleUpdates,
-        course_modules::NewModule
     };
-    res.unwrap();
+}
+
+fn controllers(target: &mut File) {
+    use crate::controllers::*;
+
+    // root
+    export! {
+        target,
+
+        ErrorData,
+        ErrorResponse,
+        UploadResult,
+    };
+
+    // auth
+    {
+        use auth::*;
+        export! {
+            target,
+
+            CreateAccountDetails,
+            UserInfo,
+            Login,
+        };
+    }
+
+    // course_material
+    {
+        use course_material::*;
+        export! {
+            target,
+
+            courses::ChaptersWithStatus,
+            courses::CourseMaterialCourseModule,
+            exams::ExamData,
+            exams::ExamEnrollmentData,
+        };
+    }
+
+    // main_frontend
+    {
+        use main_frontend::*;
+        export! {
+            target,
+
+            roles::RoleQuery,
+            roles::RoleInfo,
+            course_instances::TeacherManualCompletion,
+            exams::ExamCourseInfo,
+            exercises::ExerciseSubmissions,
+            exercises::AnswersRequiringAttention,
+            exercises::AnswerRequiringAttentionWithTasks,
+            exercise_repositories::NewExerciseRepository,
+            feedback::MarkAsRead,
+            courses::GetFeedbackQuery,
+            proposed_edits::GetEditProposalsQuery,
+        };
+    }
+}
+
+fn utils(target: &mut File) {
+    use headless_lms_utils::*;
+
+    export! {
+        target,
+
+        pagination::Pagination,
+        url_to_oembed_endpoint::OEmbedResponse,
+    };
 }

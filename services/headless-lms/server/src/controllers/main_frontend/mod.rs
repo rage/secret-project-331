@@ -11,6 +11,7 @@ pub mod course_modules;
 pub mod courses;
 pub mod email_templates;
 pub mod exams;
+pub mod exercise_repositories;
 pub mod exercise_services;
 pub mod exercises;
 pub mod feedback;
@@ -45,5 +46,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/users").configure(users::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/glossary").configure(glossary::_add_routes))
-        .service(web::scope("/roles").configure(roles::_add_routes));
+        .service(web::scope("/roles").configure(roles::_add_routes))
+        .service(
+            web::scope("/exercise-repositories").configure(exercise_repositories::_add_routes),
+        );
 }

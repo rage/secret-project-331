@@ -106,11 +106,11 @@
   "your-answer-was-partially-correct": "Vastauksesi oli osittain oikein.",
   "your-answer-was-correct": "Vastauksesi oli oikein.",
   "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
-  "multiple-choice-grading": "Arvostelu menetelmä",
-  "multiple-choice-grading-default": "Kaikki oikein",
-  "multiple-choice-grading-points-off-incorrect-options": "Väärät valinnat",
-  "multiple-choice-grading-points-off-unselected-options": "Valitsemattomat valinnat",
-  "multiple-choice-grading-default-description": "Pisteen saa vain jos kaikki valinnat ovat oikein",
+  "multiple-choice-grading": "Arvostelukäytäntö",
+  "multiple-choice-grading-default": "Kaikki oikein, ei yhtään väärin",
+  "multiple-choice-grading-points-off-incorrect-options": "Pisteiden vähennys vääristä valinnoista",
+  "multiple-choice-grading-points-off-unselected-options": "Pisteiden vähennys vääristä- ja oikeista valitsemattomista valinnoista",
+  "multiple-choice-grading-default-description": "Pisteen saa vain jos kaikki valinnat ovat oikein ja yhtään väärää ei ole valittu",
   "multiple-choice-grading-points-off-incorrect-options-description": "Vääristä valinnoista vähennetään piste",
   "multiple-choice-grading-points-off-unselected-options-description": "Vääristä ja jätetyistä oikeista valinnoista vähennetään piste"
 }

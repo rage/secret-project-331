@@ -92,7 +92,7 @@ export interface ModelSolutionQuiz {
   submitMessage: string | null
 }
 
-type MultipleChoiceGradingPolicy =
+type multipleChoiceMultipleOptionsGradingPolicy =
   | "default"
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
@@ -124,7 +124,7 @@ export interface QuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   timelineItems: QuizItemTimelineItem[] | null
-  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 
 export interface QuizItemModelSolution {
@@ -147,7 +147,7 @@ export interface OptionsFeedback {
  */
 export interface NormalizedQuizItem {
   shuffleOptions: boolean
-  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
   id: string
   quizId: string
   type: string
@@ -200,7 +200,7 @@ export interface PublicQuizItem {
   formatRegex: string | null
   multi: boolean
   shuffleOptions: boolean
-  multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
   minWords: number | null
   maxWords: number | null
   maxValue: number | null

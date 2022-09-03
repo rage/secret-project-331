@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { MultipleChoiceGradingPolicy, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../types/types";
+import { multipleChoiceMultipleOptionsGradingPolicy, Quiz, QuizAnswer, QuizItem, QuizItemAnswer, QuizItemOption } from "../../../types/types";
 
 
 const emptyQuizAnswer = (): QuizAnswer => ({
@@ -57,7 +57,7 @@ const emptyQuizItem = (): QuizItem => ({
   maxValue: 0,
   minWords: 0,
   multi: false,
-  multipleChoiceGradingPolicy: "default",
+  multipleChoiceMultipleOptionsGradingPolicy: "default",
   optionCells: [],
   options: [],
   order: 0,
@@ -129,7 +129,7 @@ export const generateMultipleChoiceRequest = (
     numberOfOptions: number, 
     numberOfCorrectOptions: number,
     options: string[],
-    multipleChoiceGradingPolicy: MultipleChoiceGradingPolicy,
+    multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy,
     multi=true
 ) => {
   // Create quiz with multiple choice
@@ -151,7 +151,7 @@ export const generateMultipleChoiceRequest = (
     type: 'multiple-choice',
     multi,
     options: quizOptions,
-    multipleChoiceGradingPolicy
+    multipleChoiceMultipleOptionsGradingPolicy
   })
 
   const publicQuiz = generateQuiz({

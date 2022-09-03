@@ -11,7 +11,7 @@
       "multi": false,
       "order": 0,
       "title": "Which one is the Rust package manager?",
-      "multipleChoiceGradingPolicy": "default",
+      "multipleChoiceMultipleOptionsGradingPolicy": "default",
       "quizId": "7e9d3220-0e42-49ed-bae5-de0ea5f73b22",
       "options": [
         {

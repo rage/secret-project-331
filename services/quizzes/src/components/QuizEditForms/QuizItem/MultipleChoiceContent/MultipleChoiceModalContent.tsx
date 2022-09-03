@@ -18,14 +18,17 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
-import { MultipleChoiceGradingPolicy, NormalizedQuizItem } from "../../../../../types/types"
+import {
+  multipleChoiceMultipleOptionsGradingPolicy,
+  NormalizedQuizItem,
+} from "../../../../../types/types"
 import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
   editedItemFailureMessage,
   editedItemSuccessMessage,
-  editedMultipleChoiceGradingPolicy,
+  editedMultipleChoiceMultipleOptionsGradingPolicy,
   editedQuizItemTitle,
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
@@ -80,7 +83,9 @@ interface EditorModalProps {
 }
 
 /* eslint-disable i18next/no-literal-string */
-const stringToMultipleChoiceGradingPolicy = (content: string): MultipleChoiceGradingPolicy => {
+const stringToMultipleChoiceMultipleOptionsGradingPolicy = (
+  content: string,
+): multipleChoiceMultipleOptionsGradingPolicy => {
   switch (content) {
     case "default":
       return "default"
@@ -170,15 +175,16 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
             width: 100%;
             margin-bottom: 0.3rem;
           `}
+          disabled={!storeItem.multi}
           onChange={(value) =>
             dispatch(
-              editedMultipleChoiceGradingPolicy(
+              editedMultipleChoiceMultipleOptionsGradingPolicy(
                 storeItem.id,
-                stringToMultipleChoiceGradingPolicy(value),
+                stringToMultipleChoiceMultipleOptionsGradingPolicy(value),
               ),
             )
           }
-          defaultValue={storeItem.multipleChoiceGradingPolicy}
+          defaultValue={storeItem.multipleChoiceMultipleOptionsGradingPolicy}
           label={t("multiple-choice-grading")}
           options={multipleChoiceOptions}
         />
@@ -187,13 +193,15 @@ export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<Editor
             color: #414246;
             font-size: 17px;
             font-family: Josefin Sans, sans-serif;
+            ${!storeItem.multi && "opacity: 0.5;"}
           `}
         >
-          {storeItem.multipleChoiceGradingPolicy == "default" &&
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
             t("multiple-choice-grading-default-description")}
-          {storeItem.multipleChoiceGradingPolicy == "points-off-incorrect-options" &&
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy == "points-off-incorrect-options" &&
             t("multiple-choice-grading-points-off-incorrect-options-description")}
-          {storeItem.multipleChoiceGradingPolicy == "points-off-unselected-options" &&
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy ==
+            "points-off-unselected-options" &&
             t("multiple-choice-grading-points-off-unselected-options-description")}
         </span>
       </div>

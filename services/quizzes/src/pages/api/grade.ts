@@ -192,13 +192,13 @@ function assessTimelineQuiz(
 }
 
 /**
- * Calculate correctness coefficient according to grading method.
+ * Calculate correctness coefficient according to grading policy.
  * Correctness coefficient is used to determine the percentage of correct answers in a quizz item.
  * The score is set by the quiz and is the sum of the scores multiplied by their correctness coeffiecients
  * from quiz items. E.g. if there are three quiz items with scores 10, 5, 2 and correctness coefficients are 0.5, 0.2
  * and 1.0 then the total score is 10 * 0.5 + 5 * 0.2 + 2 * 1.0 = 8.0
  *
- * Multiple-choice has three grading methods:
+ * Multiple-choice has three grading policies:
  *  - default, all answers has to be correct in order to get full points, none otherwise.
  *  - points-off-incorrect-options, each correct answers increases points and each incorrect answer decreases it.
  *  - points-off-unselected-options, similar to above with addition that unselected correct options will
@@ -210,7 +210,7 @@ function assessTimelineQuiz(
  * @see QuizItemAnswer
  * @returns Correctness coefficient
  */
-function getMultipleChoicePointsByGrading(
+function getMultipleChoicePointsByGradingPolicy(
   quizItemAnswer: QuizItemAnswer,
   quizItem: QuizItem,
 ): number {
@@ -240,7 +240,7 @@ function getMultipleChoicePointsByGrading(
   }
 
   let totalScore = 0
-  switch (quizItem.multipleChoiceGradingPolicy) {
+  switch (quizItem.multipleChoiceMultipleOptionsGradingPolicy) {
     case "default":
       totalScore =
         countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
@@ -276,7 +276,7 @@ function assessMultipleChoiceQuizzes(
     throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
-  const correctnessCoefficient = getMultipleChoicePointsByGrading(quizItemAnswer, quizItem)
+  const correctnessCoefficient = getMultipleChoicePointsByGradingPolicy(quizItemAnswer, quizItem)
 
   return {
     quizItemId: quizItem.id,

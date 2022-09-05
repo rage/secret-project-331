@@ -24,38 +24,58 @@ pub async fn main() -> anyhow::Result<()> {
         all_course_instances.len()
     );
 
-    for course_instance in all_course_instances.iter() {
-        info!(
-            "Finding answers to move to manual review for course instance {:?} from course {:?}",
-            course_instance.id, course_instance.course_id
-        );
+    info!(
+        ?manual_review_cutoff,
+        "Finding answers to move to manual review"
+    );
 
+    let mut moved_to_manual_review = 0;
+
+    for course_instance in all_course_instances.iter() {
         let should_be_added_to_manual_review = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(&mut conn, course_instance.id, manual_review_cutoff).await?;
-        info!("Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers.", should_be_added_to_manual_review.len(), manual_review_cutoff);
+        if should_be_added_to_manual_review.is_empty() {
+            continue;
+        }
+        info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Adding them to be manually reviewed by the teachers.", should_be_added_to_manual_review.len(), manual_review_cutoff);
         for peer_review_queue_entry in should_be_added_to_manual_review {
             peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
                 &mut conn,
                 &peer_review_queue_entry,
             )
             .await?;
+            moved_to_manual_review += 1
         }
     }
 
+    info!(
+        "Total answers moved to manual review: {:?}",
+        moved_to_manual_review
+    );
+
+    info!(
+        ?pass_automatically_cutoff,
+        "Finding answers to give full points"
+    );
+
+    let mut given_full_points = 0;
+
     for course_instance in all_course_instances.iter() {
-        info!(
-            "Finding answers that have been in peer review for so long that we need to give them full points for course instance {:?} from course {:?}",
-            course_instance.id, course_instance.course_id
-        );
         let should_pass = headless_lms_models::peer_review_queue_entries::get_entries_that_need_reviews_and_are_older_than(&mut conn, course_instance.id, pass_automatically_cutoff).await?;
-        info!("Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
+        if should_pass.is_empty() {
+            continue;
+        }
+        info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?} and have not received enough peer reviews or have not been reviewed manually. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
         for peer_review_queue_entry in should_pass {
             let _res = peer_review_queue_entries::remove_from_queue_and_give_full_points(
                 &mut conn,
                 &peer_review_queue_entry,
             )
             .await?;
+            given_full_points += 1;
         }
     }
+
+    info!("Total answers given full points: {:?}", given_full_points);
     info!("All done!");
     Ok(())
 }

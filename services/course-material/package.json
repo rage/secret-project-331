@@ -33,6 +33,7 @@
     "express": "^4.18.1",
     "highlight.js": "^11.6.0",
     "http-proxy-middleware": "^2.0.6",
+    "humbleicons": "^1.8.0",
     "i18next": "^21.9.1",
     "immer": "^9.0.15",
     "katex": "^0.16.1",

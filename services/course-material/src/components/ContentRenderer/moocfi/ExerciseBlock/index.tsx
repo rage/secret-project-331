@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import CheckIcon from "humbleicons/icons/check.svg"
 import produce from "immer"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -254,9 +255,17 @@ const ExerciseBlock: React.FC<
                   font-family: ${secondaryFont} !important;
                 `}
               >
-                {t("points-label")}
-                <br />
-                {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+                {isExam && points === null ? (
+                  <>
+                    {t("max-points")}: {getCourseMaterialExercise.data.exercise.score_maximum}
+                  </>
+                ) : (
+                  <>
+                    {t("points-label")}:
+                    <br />
+                    {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+                  </>
+                )}
               </div>
             </div>
           </Centered>
@@ -410,6 +419,27 @@ const ExerciseBlock: React.FC<
             )}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
+                {isExam && (
+                  <div
+                    className={css`
+                      background-color: ${baseTheme.colors.green[100]};
+                      color: ${baseTheme.colors.green[700]};
+                      padding: 0.7rem 1rem;
+                      margin: 1rem 0;
+                      border: 1px solid ${baseTheme.colors.green[300]};
+
+                      display: flex;
+
+                      svg {
+                        width: 80px;
+                        margin-right: 1rem;
+                      }
+                    `}
+                  >
+                    <CheckIcon />
+                    <div>{t("exam-submission-has-been-saved-help-text")}</div>
+                  </div>
+                )}
                 {!ranOutOfTries && (
                   <Button
                     variant="primary"

@@ -19,6 +19,7 @@ import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import { baseTheme } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -237,6 +238,19 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             endsAt={endsAt}
             secondsLeft={secondsLeft}
           />
+          {secondsLeft < 10 * 60 && (
+            <div
+              className={css`
+                background-color: ${baseTheme.colors.yellow[100]};
+                color: black;
+                padding: 0.7rem 1rem;
+                margin: 1rem 0;
+                border: 1px solid ${baseTheme.colors.yellow[300]};
+              `}
+            >
+              <div>{t("exam-time-running-out-soon-help-text")}</div>
+            </div>
+          )}
           <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
         </Layout>
       </PageContext.Provider>

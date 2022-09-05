@@ -19,6 +19,11 @@ patches:
       version: v1
       kind: CronJob
       name: open-university-registration-link-fetcher
+  - path: headless-lms/patch-peer-review-updater.yml
+    target:
+      version: v1
+      kind: CronJob
+      name: peer-review-updater
   - path: headless-lms/patch-regrader.yml
     target:
       version: v1

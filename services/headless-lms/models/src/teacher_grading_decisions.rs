@@ -36,6 +36,7 @@ pub async fn add_teacher_grading_decision(
     user_exercise_state_id: Uuid,
     action: TeacherDecisionType,
     score_given: f32,
+    decision_maker_user_id: Option<Uuid>,
 ) -> ModelResult<TeacherGradingDecision> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,
@@ -43,9 +44,10 @@ pub async fn add_teacher_grading_decision(
 INSERT INTO teacher_grading_decisions (
     user_exercise_state_id,
     teacher_decision,
-    score_given
+    score_given,
+    user_id
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 RETURNING id,
   user_exercise_state_id,
   created_at,
@@ -56,7 +58,8 @@ RETURNING id,
       "#,
         user_exercise_state_id,
         action as TeacherDecisionType,
-        score_given
+        score_given,
+        decision_maker_user_id
     )
     .fetch_one(conn)
     .await?;

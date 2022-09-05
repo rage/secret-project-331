@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: open-university-registration-link-fetcher
+  name: peer-review-updater
   labels:
-    app: open-university-registration-link-fetcher
+    app: peer-review-updater
     deploymentType: with-init-container-cronjob
     needs-db: "job"
 spec:
-  schedule: "15 0 * * *"
+  schedule: "37 1 * * *"
   startingDeadlineSeconds: 900
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
@@ -19,14 +19,14 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: open-university-registration-link-fetcher
+            - name: peer-review-updater
               image: headless-lms
               command:
                 [
                   "cargo",
                   "run",
                   "--",
-                  "open-university-registration-link-fetcher",
+                  "peer-review-updater",
                 ]
               resources:
                 requests:

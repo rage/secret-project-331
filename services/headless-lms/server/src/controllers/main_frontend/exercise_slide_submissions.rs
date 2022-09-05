@@ -79,6 +79,7 @@ async fn update_submission(
         user_exercise_state_id,
         *action,
         points_given,
+        Some(user.id),
     )
     .await?;
 

@@ -1,4 +1,10 @@
-use crate::prelude::*;
+use crate::{
+    exercises,
+    library::user_exercise_state_updater,
+    prelude::*,
+    teacher_grading_decisions,
+    user_exercise_states::{self, ReviewingStage},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -335,4 +341,106 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn get_entries_that_need_reviews_and_are_older_than(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    timestamp: DateTime<Utc>,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE course_instance_id = $1
+  AND received_enough_peer_reviews = FALSE
+  AND removed_from_queue_for_unusual_reason = FALSE
+  AND created_at < $2;
+    ",
+        course_instance_id,
+        timestamp
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn remove_from_queue_and_add_to_manual_review(
+    conn: &mut PgConnection,
+    peer_review_queue_entry: &PeerReviewQueueEntry,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let mut tx = conn.begin().await?;
+    let res = remove_from_queue(&mut tx, peer_review_queue_entry).await?;
+
+    let _ues = user_exercise_states::update_reviewing_stage(
+        &mut tx,
+        peer_review_queue_entry.user_id,
+        user_exercise_states::CourseInstanceOrExamId::Instance(
+            peer_review_queue_entry.course_instance_id,
+        ),
+        peer_review_queue_entry.exercise_id,
+        ReviewingStage::WaitingForManualGrading,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(res)
+}
+
+pub async fn remove_from_queue_and_give_full_points(
+    conn: &mut PgConnection,
+    peer_review_queue_entry: &PeerReviewQueueEntry,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let mut tx = conn.begin().await?;
+    let res = remove_from_queue(&mut tx, peer_review_queue_entry).await?;
+    let exercise = exercises::get_by_id(&mut tx, peer_review_queue_entry.exercise_id).await?;
+    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+        &mut tx,
+        peer_review_queue_entry.user_id,
+        peer_review_queue_entry.exercise_id,
+        user_exercise_states::CourseInstanceOrExamId::Instance(
+            peer_review_queue_entry.course_instance_id,
+        ),
+    )
+    .await?;
+    if let Some(user_exercise_state) = user_exercise_state {
+        teacher_grading_decisions::add_teacher_grading_decision(
+            &mut tx,
+            user_exercise_state.id,
+            teacher_grading_decisions::TeacherDecisionType::FullPoints,
+            exercise.score_maximum as f32,
+            // Giver is none because the system made the decision
+            None,
+        )
+        .await?;
+        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)
+            .await?;
+    } else {
+        return Err(ModelError::InvalidRequest(
+            "User exercise state not found".to_string(),
+        ));
+    }
+
+    tx.commit().await?;
+    Ok(res)
+}
+
+async fn remove_from_queue(
+    conn: &mut PgConnection,
+    peer_review_queue_entry: &PeerReviewQueueEntry,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+UPDATE peer_review_queue_entries
+SET removed_from_queue_for_unusual_reason = TRUE
+WHERE id = $1
+RETURNING *
+    ",
+        peer_review_queue_entry.id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(res)
 }

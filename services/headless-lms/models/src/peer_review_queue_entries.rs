@@ -298,6 +298,30 @@ LIMIT $4
     Ok(res)
 }
 
+/// Gets multiple records of `PeerReviewQueueEntry` that still require more peer reviews, ordered by
+/// peer review priority.
+///
+/// Doesn't differentiate between different course instances.
+pub async fn get_all_that_need_peer_reviews_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND received_enough_peer_reviews = 'false'
+  AND deleted_at IS NULL
+        ",
+        exercise_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn increment_peer_review_priority(
     conn: &mut PgConnection,
     peer_review_queue_entry: PeerReviewQueueEntry,

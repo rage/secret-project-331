@@ -3,13 +3,14 @@ import produce from "immer"
 import { WritableDraft } from "immer/dist/types/types-external"
 import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
 
-import { CourseStructure, Page } from "../shared-module/bindings"
+import { Chapter, CourseStructure, Page } from "../shared-module/bindings"
 
 interface ManagePageOrderLoading {
   state: "loading"
   chapterIdToPages: null
   chapterIdToFrontPage: null
   unsavedChanges: false
+  chapters: null
 }
 
 interface ManagePageOrderReady {
@@ -17,6 +18,7 @@ interface ManagePageOrderReady {
   chapterIdToPages: Dictionary<Page[]>
   chapterIdToFrontPage: Dictionary<Page>
   unsavedChanges: boolean
+  chapters: Chapter[]
 }
 
 export type ManagePageOrderState = ManagePageOrderLoading | ManagePageOrderReady
@@ -36,6 +38,7 @@ export const managePageOrderInitialState: ManagePageOrderState = {
   chapterIdToPages: null,
   chapterIdToFrontPage: null,
   unsavedChanges: false,
+  chapters: null,
 }
 
 export type ManagePageOrderAction = SetDataAction | MoveAction
@@ -50,7 +53,10 @@ export default function managePageOrderReducer(
         const chaptersWithFrontpages = action.payload.chapters.filter(
           (c) => c.front_page_id !== null,
         )
+        const chapters = action.payload.chapters.filter((c) => c.id !== null)
+        console.log("chaptersWithFrontpages", action.payload.chapters)
         const ordered = orderBy(action.payload.pages, (page) => page.order_number)
+
         const withoutFrontpages = ordered.filter(
           (page) =>
             !(
@@ -71,10 +77,21 @@ export default function managePageOrderReducer(
         draftState.unsavedChanges = false
         draftState.chapterIdToPages = groupedWithoutFrontpages
         draftState.chapterIdToFrontPage = chapterIdToFrontpage
+        draftState.chapters = chapters
         break
       }
       case "move": {
         const { direction, chapterId, pageId } = action.payload
+
+        if (pageId === "" && chapterId) {
+          const chapters = draftState.chapters
+          if (!chapters) {
+            break
+          }
+          moveChapterWithinChapterList(chapters, chapterId, direction, draftState)
+        }
+
+        console.log("draftState.chapters", draftState.chapters)
 
         if (!draftState.chapterIdToPages) {
           break
@@ -175,8 +192,35 @@ function movePageWithinPageList(
   if (targetIndex < 0 || targetIndex >= pages.length) {
     return
   }
+
   const temp = pages[currentIndex]
   pages[currentIndex] = pages[targetIndex]
   pages[targetIndex] = temp
+  draftState.unsavedChanges = true
+}
+
+function moveChapterWithinChapterList(
+  chapters: Chapter[],
+  chapterToMoveId: string,
+  direction: "up" | "down",
+  draftState: WritableDraft<ManagePageOrderLoading> | WritableDraft<ManagePageOrderReady>,
+) {
+  console.log("chapters", chapters)
+  console.log("chapterToMoveId", chapterToMoveId)
+  console.log("direction", direction)
+  const currentIndex = chapters.findIndex((chapter) => chapter.id === chapterToMoveId)
+  console.log("currentIndex", currentIndex)
+  if (currentIndex === -1) {
+    return
+  }
+  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
+  if (targetIndex < 0 || targetIndex >= chapters.length) {
+    return
+  }
+  const temp = chapters[currentIndex]
+  console.log("temp-before", temp)
+  chapters[currentIndex] = chapters[targetIndex]
+  chapters[targetIndex] = temp
+  console.log("temp-after", temp)
   draftState.unsavedChanges = true
 }

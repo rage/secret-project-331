@@ -170,7 +170,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     type: "move",
                                     // eslint-disable-next-line i18next/no-literal-string
                                     payload: {
-                                      pageId: chapter.id,
+                                      pageId: "",
                                       chapterId: chapter.id,
                                       // eslint-disable-next-line i18next/no-literal-string
                                       direction: "up",
@@ -188,7 +188,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     type: "move",
                                     // eslint-disable-next-line i18next/no-literal-string
                                     payload: {
-                                      pageId: chapter.id,
+                                      pageId: "",
                                       chapterId: chapter.id,
                                       // eslint-disable-next-line i18next/no-literal-string
                                       direction: "down",

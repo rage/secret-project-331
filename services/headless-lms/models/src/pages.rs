@@ -11,7 +11,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{self, course_chapters, get_chapter_by_page_id, DatabaseChapter},
+    chapters::{self, course_chapters, get_chapter_by_page_id, Chapter, DatabaseChapter},
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -2181,7 +2181,7 @@ WHERE pages.id = $1
     Ok(res)
 }
 
-/// Makes the order numebers and chapter ids to match in the db what's in the page objects
+/// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
 pub async fn reorder_pages(
     conn: &mut PgConnection,
@@ -2279,6 +2279,50 @@ WHERE pages.order_number = $1
             )));
         }
     }
+    tx.commit().await?;
+    Ok(())
+}
+
+pub async fn reorder_chapters(
+    conn: &mut PgConnection,
+    chapters: &[Chapter],
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let db_chapters = course_chapters(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
+    // Look for the modified chapter in the existing database
+    for chapter in chapters {
+        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
+            if let Some(old_chapter_id) = matching_db_chapter.id {
+                if let Some(new_chapter_id) = chapter.id {
+                    if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id) {
+                        if let Some(new_chapter) = chapters.iter().find(|o| o.id == new_chapter_id)
+                        {
+                            let old_chapter_number = &chapter.chapter_number;
+                            let new_chapter_number = &new_chapter.chapter_number;
+
+                            sqlx::query!(
+                                "UPDATE chapters SET chapter_number = $2 WHERE chapter.id = $1"
+                                chapter.id,
+                                new_chapter_number
+                            )
+                            .execute(&mut tx)
+                            .await?;
+                        }
+                    } else {
+                        return Err(ModelError::InvalidRequest(
+                            "New chapter not found".to_string(),
+                        ));
+                    }
+                } else {
+                    return Err(ModelError::InvalidRequest(
+                        "Old chapter not found".to_string(),
+                    ));
+                }
+            }
+        }
+    }
+
     tx.commit().await?;
     Ok(())
 }

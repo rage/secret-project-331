@@ -22,17 +22,27 @@ const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ cou
     return null
   }
 
-  const refs: { id: string; text: string }[] = pageRefs.map((r) => {
-    const c = cite(r.reference.reference)
-    return {
-      id: r.reference.citation_key,
-      text: c.format(BIBLIOGRAPHY, {
-        type: TYPE,
-        style: STYLE,
-        lang: LANG,
-      }),
-    }
-  })
+  const refs: { id: string; text: string }[] = pageRefs
+    .map((r) => {
+      const c = cite(r.reference.reference)
+      return {
+        id: r.reference.citation_key,
+        text: c.format(BIBLIOGRAPHY, {
+          type: TYPE,
+          style: STYLE,
+          lang: LANG,
+        }),
+      }
+    })
+    .sort((a, b) => {
+      if (a.text > b.text) {
+        return 1
+      } else if (a.text < b.text) {
+        return -1
+      } else {
+        return 0
+      }
+    })
   return <Reference data={refs} />
 }
 

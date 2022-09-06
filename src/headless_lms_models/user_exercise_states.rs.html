@@ -1057,6 +1057,48 @@
 <span id="1051">1051</span>
 <span id="1052">1052</span>
 <span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1747,6 +1789,48 @@ RETURNING id,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">grading_progress</span> <span class="kw">as</span> <span class="ident">GradingProgress</span>,
         <span class="ident">user_exercise_state_update</span>.<span class="ident">id</span>,
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_reviewing_stage</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">course_instance_or_exam_id</span>: <span class="ident">CourseInstanceOrExamId</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">new_reviewing_stage</span>: <span class="ident">ReviewingStage</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> (<span class="ident">course_instance_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">course_instance_or_exam_id</span>.<span class="ident">to_instance_and_exam_ids</span>();
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">UserExerciseState</span>,
+        <span class="string">r#&quot;
+UPDATE user_exercise_states
+SET reviewing_stage = $5
+WHERE user_id = $1
+AND course_instance_id = $2
+AND exam_id = $3
+AND exercise_id = $4
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS &quot;grading_progress: _&quot;,
+  activity_progress AS &quot;activity_progress: _&quot;,
+  reviewing_stage AS &quot;reviewing_stage: _&quot;,
+  selected_exercise_slide_id
+        &quot;#</span>,
+        <span class="ident">user_id</span>,
+        <span class="ident">course_instance_id</span>,
+        <span class="ident">exam_id</span>,
+        <span class="ident">exercise_id</span>,
+        <span class="ident">new_reviewing_stage</span> <span class="kw">as</span> <span class="ident">ReviewingStage</span>
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

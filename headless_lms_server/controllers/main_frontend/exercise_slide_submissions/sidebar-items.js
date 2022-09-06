@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["_add_routes",""],["get_submission_info","GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info\"`- Returns data necessary for rendering a submission."],["update_submission","GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention\"` - Updates data for submission"]]};

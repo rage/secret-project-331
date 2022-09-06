@@ -920,7 +920,7 @@ WHERE id = $1
 
 <span class="doccomment">/// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This function is mostly provided for very specific peer review purposes.</span>
+<span class="doccomment">/// This function is mostly provided for very specific peer review purposes. Used only as a last resort if no other candidates are found to be peer reviewed.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_get_random_filtered_by_user_and_submissions</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,

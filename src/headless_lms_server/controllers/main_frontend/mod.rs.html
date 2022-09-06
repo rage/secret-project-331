@@ -57,6 +57,9 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -72,6 +75,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exams</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_repositories</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_services</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercise_slide_submissions</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exercises</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">feedback</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">glossary</span>;
@@ -81,7 +85,6 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">playground_examples</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proposed_edits</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">roles</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">submissions</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
 
 <span class="kw">use</span> <span class="ident">actix_web::web</span>::{<span class="self">self</span>, <span class="ident">ServiceConfig</span>};
@@ -98,7 +101,10 @@ This documents all endpoints. Select a module below for a category.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/org&quot;</span>).<span class="ident">configure</span>(<span class="ident">org::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/organizations&quot;</span>).<span class="ident">configure</span>(<span class="ident">organizations::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/pages&quot;</span>).<span class="ident">configure</span>(<span class="ident">pages::_add_routes</span>))
-        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/submissions&quot;</span>).<span class="ident">configure</span>(<span class="ident">submissions::_add_routes</span>))
+        .<span class="ident">service</span>(
+            <span class="ident">web::scope</span>(<span class="string">&quot;/exercise-slide-submissions&quot;</span>)
+                .<span class="ident">configure</span>(<span class="ident">exercise_slide_submissions::_add_routes</span>),
+        )
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/proposed-edits&quot;</span>).<span class="ident">configure</span>(<span class="ident">proposed_edits::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exercise-services&quot;</span>).<span class="ident">configure</span>(<span class="ident">exercise_services::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/playground_examples&quot;</span>).<span class="ident">configure</span>(<span class="ident">playground_examples::_add_routes</span>))

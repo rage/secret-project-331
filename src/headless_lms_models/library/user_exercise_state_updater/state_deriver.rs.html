@@ -751,6 +751,18 @@
 <span id="745">745</span>
 <span id="746">746</span>
 <span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -954,6 +966,17 @@
             });
         } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">received_enough_peer_reviews</span> {
             <span class="comment">// Has given enough but has not received enough: the student has to wait until others have reviewed their answer more</span>
+
+            <span class="comment">// Handle the case where the answer is waiting for manual review but is still receiving peer reviews</span>
+            <span class="kw">if</span> <span class="ident">input_data</span>.<span class="ident">current_user_exercise_state</span>.<span class="ident">reviewing_stage</span>
+                <span class="op">==</span> <span class="ident">ReviewingStage::WaitingForManualGrading</span>
+            {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
+                    <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
+                    <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForManualGrading</span>,
+                });
+            }
+
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PeerReviewOpinion</span> {
                 <span class="ident">score_given</span>: <span class="prelude-val">None</span>,
                 <span class="ident">reviewing_stage</span>: <span class="ident">ReviewingStage::WaitingForPeerReviews</span>,
@@ -1470,6 +1493,7 @@
                 <span class="ident">receiving_peer_reviews_exercise_slide_submission_id</span>: <span class="ident">id</span>,
                 <span class="ident">received_enough_peer_reviews</span>: <span class="bool-val">true</span>,
                 <span class="ident">peer_review_priority</span>: <span class="number">100</span>,
+                <span class="ident">removed_from_queue_for_unusual_reason</span>: <span class="bool-val">false</span>,
             }
         }
 

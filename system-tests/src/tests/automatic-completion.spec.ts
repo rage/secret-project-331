@@ -41,8 +41,7 @@ test("Registers automatic completion", async ({ headless, page }) => {
   // Click text=b
   await page.frameLocator("iframe").locator("text=b").click()
   // Click text=Submit
-  await page.locator("text=Submit").scrollIntoViewIfNeeded()
-  await page.locator("text=Submit").click()
+  await page.locator('button:has-text("Submit")').click()
   // Click text=Automatic Completions
   await page.locator("text=Automatic Completions").click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")

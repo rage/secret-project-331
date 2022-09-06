@@ -108,7 +108,7 @@
   "your-answer-was-partially-correct": "Your answer was partially correct.",
   "your-answer-was-correct": "Your answer was correct.",
   "your-answer-was-not-correct": "Your answer was not correct.",
-  "multiple-choice-grading": "Grading policy",
+  "multiple-choice-grading": "Multiple options grading policy",
   "multiple-choice-grading-default": "All correct, none incorrect",
   "multiple-choice-grading-points-off-incorrect-options": "Reduce points from incorrect options",
   "multiple-choice-grading-points-off-unselected-options": "Reduce points from incorrect and unselected options",

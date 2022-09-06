@@ -317,7 +317,6 @@ function submissionFeedback(
   quiz: Quiz,
   quizItemgradings: QuizItemAnswerGrading[],
 ): ItemAnswerFeedback[] {
-  console.log("submissionFeedback called")
   const feedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map((ia) => {
     const item = quiz.items.find((i) => i.id === ia.quizItemId)
     const itemGrading = quizItemgradings.find((ig) => ig.quizItemId === ia.quizItemId)

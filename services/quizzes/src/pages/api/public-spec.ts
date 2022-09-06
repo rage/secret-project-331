@@ -62,6 +62,7 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
           }) || []
         ).sort((a, b) => a.name.localeCompare(b.name)),
         shuffleOptions: i.shuffleOptions ?? false,
+        multipleChoiceMultipleOptionsGradingPolicy: "default",
       }
       return pi
     }),

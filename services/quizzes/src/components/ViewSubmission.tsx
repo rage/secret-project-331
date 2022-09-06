@@ -26,6 +26,8 @@ interface SubmissionProps {
   user_information: UserInformation
 }
 
+type QuizScoreState = "incorrect" | "partially-correct" | "correct"
+
 type QuizItemType =
   | "essay"
   | "multiple-choice"
@@ -78,6 +80,23 @@ const componentDescriptorByTypeName = (
   return mapTypeToComponent[typeName]
 }
 
+/* eslint-disable i18next/no-literal-string */
+const getQuizScoreState = (feedback_json: ItemAnswerFeedback[] | null): QuizScoreState => {
+  let quizScoreState: QuizScoreState = "incorrect"
+  if (feedback_json) {
+    const totalScore =
+      feedback_json.map((item) => item.score).reduce((a, b) => a + b) / feedback_json.length
+    if (totalScore == 1) {
+      quizScoreState = "correct"
+    } else if (totalScore > 0 && totalScore < 1) {
+      quizScoreState = "partially-correct"
+    } else {
+      quizScoreState = "incorrect"
+    }
+  }
+  return quizScoreState
+}
+
 const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   publicAlternatives,
   modelSolutions,
@@ -86,6 +105,8 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   user_information,
 }) => {
   const { t } = useTranslation()
+  const quizScoreState: QuizScoreState = getQuizScoreState(feedback_json)
+
   return (
     <>
       {publicAlternatives.items
@@ -143,9 +164,10 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
                           width: fit-content;
                         `}
                       >
-                        {itemFeedback.quiz_item_correct
-                          ? t("your-answer-was-correct")
-                          : t("your-answer-was-not-correct")}
+                        {quizScoreState === "correct" && t("your-answer-was-correct")}
+                        {quizScoreState === "partially-correct" &&
+                          t("your-answer-was-partially-correct")}
+                        {quizScoreState === "incorrect" && t("your-answer-was-not-correct")}
                       </div>
                     )}{" "}
                 </>

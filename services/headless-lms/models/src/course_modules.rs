@@ -430,6 +430,8 @@ pub async fn update_modules(
     for module_id in updates
         .modified_modules
         .iter()
+        // do not scramble the default module, it should always be first
+        .filter(|m| m.order_number != 0)
         .map(|m| m.id)
         .chain(updates.deleted_modules.iter().copied())
     {

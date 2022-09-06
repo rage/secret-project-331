@@ -1,0 +1,42 @@
+diff --git a/node_modules/next/dist/client/components/hot-reloader.client.js b/node_modules/next/dist/client/components/hot-reloader.client.js
+index abd8ec6..1fc7b84 100644
+--- a/node_modules/next/dist/client/components/hot-reloader.client.js
++++ b/node_modules/next/dist/client/components/hot-reloader.client.js
+@@ -43,7 +43,12 @@ function HotReload({ assetPrefix  }) {
+         if (normalizedAssetPrefix.startsWith('http')) {
+             url = `${protocol}://${normalizedAssetPrefix.split('://')[1]}`;
+         }
+-        webSocketRef.current = new window.WebSocket(`${url}/_next/webpack-hmr`);
++	try {
++            webSocketRef.current = new window.WebSocket(`${url}/_next/webpack-hmr`);
++	} catch (e) {
++	    console.warn("Could not create a WebSocket", e)
++	    websocketRef.current = null
++	}
+     }, [
+         assetPrefix
+     ]);
+diff --git a/node_modules/next/dist/client/dev/error-overlay/websocket.js b/node_modules/next/dist/client/dev/error-overlay/websocket.js
+index c147732..43c489b 100644
+--- a/node_modules/next/dist/client/dev/error-overlay/websocket.js
++++ b/node_modules/next/dist/client/dev/error-overlay/websocket.js
+@@ -42,10 +42,15 @@ function connectHMR(options) {
+         if (assetPrefix.startsWith('http')) {
+             url = `${protocol}://${assetPrefix.split('://')[1]}`;
+         }
+-        source = new window.WebSocket(`${url}${options.path}`);
+-        source.onopen = handleOnline;
+-        source.onerror = handleDisconnect;
+-        source.onmessage = handleMessage;
++	try {
++            source = new window.WebSocket(`${url}${options.path}`);
++            source.onopen = handleOnline;
++            source.onerror = handleDisconnect;
++            source.onmessage = handleMessage;
++	} catch (e) {
++	    console.warn("Cannot create a websocket", e);
++	    source = null;
++	}
+     }
+     function handleOnline() {
+         if (options.log) console.log('[HMR] connected');

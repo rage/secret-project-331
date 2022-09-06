@@ -14,6 +14,7 @@ pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;
 pub mod exams;
+pub mod exercise_repositories;
 pub mod exercise_service_info;
 pub mod exercise_services;
 pub mod exercise_slide_submissions;
@@ -42,6 +43,7 @@ pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;
+pub mod repository_exercises;
 pub mod roles;
 pub mod study_registry_registrars;
 pub mod teacher_grading_decisions;
@@ -65,6 +67,7 @@ pub use self::error::{ModelError, ModelResult};
 extern crate tracing;
 
 /// Many database tables are related to either a course or an exam
+#[derive(Clone, Copy)]
 pub enum CourseOrExamId {
     Course(Uuid),
     Exam(Uuid),
@@ -84,13 +87,13 @@ impl CourseOrExamId {
         }
     }
 
-    pub fn to_course_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+    pub fn to_course_and_exam_ids(self) -> (Option<Uuid>, Option<Uuid>) {
         match self {
-            Self::Course(instance_id) => (Some(*instance_id), None),
-            Self::Exam(exam_id) => (None, Some(*exam_id)),
+            Self::Course(instance_id) => (Some(instance_id), None),
+            Self::Exam(exam_id) => (None, Some(exam_id)),
         }
     }
-    pub fn exam_id(&self) -> Option<&Uuid> {
+    pub fn exam_id(self) -> Option<Uuid> {
         if let CourseOrExamId::Exam(id) = self {
             Some(id)
         } else {

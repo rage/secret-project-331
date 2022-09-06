@@ -602,7 +602,7 @@ mod test {
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
-                public_url: "".to_string(),
+                public_url: "https://example.com".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
             },
@@ -613,9 +613,9 @@ mod test {
             tx.as_mut(),
             &PathInfo {
                 exercise_service_id: exercise_service.id,
-                user_interface_iframe_path: "".to_string(),
-                grade_endpoint_path: "".to_string(),
-                public_spec_endpoint_path: "".to_string(),
+                user_interface_iframe_path: "/iframe".to_string(),
+                grade_endpoint_path: "/grade".to_string(),
+                public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
             },
         )

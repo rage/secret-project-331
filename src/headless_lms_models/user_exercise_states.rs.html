@@ -1098,7 +1098,6 @@
 <span id="1092">1092</span>
 <span id="1093">1093</span>
 <span id="1094">1094</span>
-<span id="1095">1095</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1809,8 +1808,7 @@ RETURNING id,
 UPDATE user_exercise_states
 SET reviewing_stage = $5
 WHERE user_id = $1
-AND course_instance_id = $2
-AND exam_id = $3
+AND (course_instance_id = $2 OR exam_id = $3)
 AND exercise_id = $4
 RETURNING id,
   user_id,

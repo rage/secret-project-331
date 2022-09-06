@@ -708,8 +708,7 @@ pub async fn update_reviewing_stage(
 UPDATE user_exercise_states
 SET reviewing_stage = $5
 WHERE user_id = $1
-AND course_instance_id = $2
-AND exam_id = $3
+AND (course_instance_id = $2 OR exam_id = $3)
 AND exercise_id = $4
 RETURNING id,
   user_id,

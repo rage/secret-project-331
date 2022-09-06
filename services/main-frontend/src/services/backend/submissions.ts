@@ -6,8 +6,11 @@ import { mainFrontendClient } from "../mainFrontendClient"
 export const fetchSubmissionInfo = async (
   submissionId: string,
 ): Promise<ExerciseSlideSubmissionInfo> => {
-  const response = await mainFrontendClient.get(`/submissions/${submissionId}/info`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(
+    `/exercise-slide-submissions/${submissionId}/info`,
+    {
+      responseType: "json",
+    },
+  )
   return validateResponse(response, isExerciseSlideSubmissionInfo)
 }

@@ -31,7 +31,7 @@ export const updateAnswerRequiringAttention = async ({
   manual_points,
 }: NewTeacherGradingDecision): Promise<UserExerciseState> => {
   const response = await mainFrontendClient.put(
-    `/submissions/update-answer-requiring-attention`,
+    `/execise-slide-submissions/update-answer-requiring-attention`,
     { user_exercise_state_id, exercise_id, action, manual_points },
     {
       headers: { "Content-Type": "application/json" },

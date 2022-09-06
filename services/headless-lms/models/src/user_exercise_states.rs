@@ -694,6 +694,48 @@ RETURNING id,
     Ok(res)
 }
 
+pub async fn update_reviewing_stage(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+    exercise_id: Uuid,
+    new_reviewing_stage: ReviewingStage,
+) -> ModelResult<UserExerciseState> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET reviewing_stage = $5
+WHERE user_id = $1
+AND course_instance_id = $2
+AND exam_id = $3
+AND exercise_id = $4
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+        "#,
+        user_id,
+        course_instance_id,
+        exam_id,
+        exercise_id,
+        new_reviewing_stage as ReviewingStage
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// TODO: should be removed
 pub async fn update_exercise_progress(
     conn: &mut PgConnection,

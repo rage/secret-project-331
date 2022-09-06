@@ -16,6 +16,7 @@ async fn main() -> anyhow::Result<()> {
         "regrader" => programs::regrader::main().await?,
         "seed" => programs::seed::main().await?,
         "service-info-fetcher" => programs::service_info_fetcher::main().await?,
+        "peer-review-updater" => programs::peer_review_updater::main().await?,
         "start-server" => programs::start_server::main().await?,
         _ => panic!("Unknown program name: {}", program_name),
     };

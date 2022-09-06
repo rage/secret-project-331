@@ -148,6 +148,7 @@ import {
   TeacherDecisionType,
   TeacherGradingDecision,
   TeacherManualCompletion,
+  TeacherManualCompletionRequest,
   Term,
   TermUpdate,
   UploadResult,
@@ -2152,6 +2153,18 @@ export function isTeacherManualCompletion(obj: unknown): obj is TeacherManualCom
     typeof typedObj["user_id"] === "string" &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
     (typedObj["completion_date"] === null || typedObj["completion_date"] instanceof Date)
+  )
+}
+
+export function isTeacherManualCompletionRequest(
+  obj: unknown,
+): obj is TeacherManualCompletionRequest {
+  const typedObj = obj as TeacherManualCompletionRequest
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    Array.isArray(typedObj["new_completions"]) &&
+    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean)
   )
 }
 

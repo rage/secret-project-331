@@ -163,6 +163,7 @@
   "label-add-user": "Lisää käyttäjä",
   "label-completion-date": "Suorituspäivä (vapaaehtoinen) - Käytetään oletuksena niille suorituksille, joilla ei ole erityistä päivämäärää.",
   "label-course-instance": "Kurssin versio",
+  "label-course-module": "Course module",
   "label-created": "Luotu:",
   "label-csv-completions": "Muotoilu: csv oheisella otsikkorivillä: <2>{{csvHeaderFormat}}</2> - vapaaehtoinen päivämäärä ISO-muodossa.",
   "label-current-text": "Nykyinen teksti:",

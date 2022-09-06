@@ -3,9 +3,10 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { TeacherManualCompletion } from "../../shared-module/bindings"
+import { CourseModule, TeacherManualCompletionRequest } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import DatePicker from "../../shared-module/components/InputFields/DatePickerField"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
 
 const COMPLETIONS = "completions"
@@ -13,11 +14,13 @@ const CSV_HEADER_FORMAT = "user_id[,grade][,completion_date]"
 const DATE = "date"
 
 interface AddCompletionsFormProps {
-  onSubmit: (data: TeacherManualCompletion[]) => void
+  courseModules: Array<CourseModule>
+  onSubmit: (data: TeacherManualCompletionRequest) => void
 }
 
 interface AddCompletionsFields {
   completions: string
+  course_module_id: string
 }
 
 interface RawTeacherManualCompletion {
@@ -26,7 +29,7 @@ interface RawTeacherManualCompletion {
   completion_date: string
 }
 
-const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ onSubmit }) => {
+const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ courseModules, onSubmit }) => {
   const {
     clearErrors,
     handleSubmit,
@@ -50,25 +53,33 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ onSubmit }) => 
       setError(COMPLETIONS, { message: parsed.errors[0].message })
     }
     const defaultDate = date ? new Date(date) : null
-    onSubmit(
-      parsed.data.map((entry) => {
-        const completionDate = (entry as RawTeacherManualCompletion).completion_date
-        const grade = (entry as RawTeacherManualCompletion).grade
-        const userId = (entry as RawTeacherManualCompletion).user_id
-        if (!userId) {
-          throw new Error(t("user-id-is-missing"))
-        }
-        return {
-          completion_date: completionDate ? new Date(completionDate) : defaultDate,
-          grade: grade ? parseInt(grade) : null,
-          user_id: userId,
-        }
-      }),
-    )
+    const newCompletions = parsed.data.map((entry) => {
+      const completionDate = (entry as RawTeacherManualCompletion).completion_date
+      const grade = (entry as RawTeacherManualCompletion).grade
+      const userId = (entry as RawTeacherManualCompletion).user_id
+      if (!userId) {
+        throw new Error(t("user-id-is-missing"))
+      }
+      return {
+        completion_date: completionDate ? new Date(completionDate) : defaultDate,
+        grade: grade ? parseInt(grade) : null,
+        user_id: userId,
+      }
+    })
+    onSubmit({ course_module_id: data.course_module_id, new_completions: newCompletions })
   })
 
   return (
     <form onSubmit={onWrapper}>
+      <p>{t("label-course-module")}</p>
+      <SelectField
+        id="select-course-module"
+        options={courseModules.map((x) => ({
+          value: x.id,
+          label: x.name ?? t("label-default"),
+        }))}
+        register={register("course_module_id", { required: t("required-field") })}
+      />
       <p>{t("label-completion-date")}</p>
       <DatePicker label={DATE} onChange={(value) => setDate(value)} />
       <p>

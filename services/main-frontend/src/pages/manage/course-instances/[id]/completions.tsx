@@ -98,7 +98,10 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   margin: 2rem;
                 `}
               >
-                <AddCompletionsForm onSubmit={(data) => postCompletions(courseInstanceId, data)} />
+                <AddCompletionsForm
+                  onSubmit={(data) => postCompletions(courseInstanceId, data)}
+                  courseModules={getCompletionsList.data.course_modules}
+                />
               </div>
             )}
           </div>

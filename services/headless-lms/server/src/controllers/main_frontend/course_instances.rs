@@ -209,9 +209,13 @@ async fn completions(
     token.authorized_ok(web::Json(completions))
 }
 
-/**
-POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
-*/
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletionRequest {
+    pub course_module_id: Uuid,
+    pub new_completions: Vec<TeacherManualCompletion>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherManualCompletion {
@@ -220,12 +224,15 @@ pub struct TeacherManualCompletion {
     pub completion_date: Option<DateTime<Utc>>,
 }
 
+/**
+POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
+*/
 #[instrument(skip(pool, payload))]
 async fn post_completions(
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-    payload: web::Json<Vec<TeacherManualCompletion>>,
+    payload: web::Json<TeacherManualCompletionRequest>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -235,19 +242,24 @@ async fn post_completions(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
+    let data = payload.0;
+    let course_module = course_modules::get_by_id(&mut conn, data.course_module_id).await?;
     let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    if course_module.course_id != instance.course_id {
+        return Err(ControllerError::BadRequest(
+            "Course module not part of the course.".to_string(),
+        ));
+    }
     let course = courses::get_course(&mut conn, instance.course_id).await?;
-    // Get default module for now TODO select module
-    let module = course_modules::get_default_by_course_id(&mut conn, instance.course_id).await?;
     let mut tx = conn.begin().await?;
-    for completion in payload.0 {
+    for completion in data.new_completions {
         let user = users::get_by_id(&mut tx, completion.user_id).await?;
         course_module_completions::insert(
             &mut tx,
             &NewCourseModuleCompletion {
                 course_id: instance.course_id,
                 course_instance_id: instance.id,
-                course_module_id: module.id,
+                course_module_id: data.course_module_id,
                 user_id: completion.user_id,
                 completion_date: completion.completion_date.unwrap_or_else(Utc::now),
                 completion_registration_attempt_date: None,

@@ -1223,6 +1223,11 @@ export interface TeacherManualCompletion {
   completion_date: Date | null
 }
 
+export interface TeacherManualCompletionRequest {
+  course_module_id: string
+  new_completions: Array<TeacherManualCompletion>
+}
+
 export interface ExamCourseInfo {
   course_id: string
 }

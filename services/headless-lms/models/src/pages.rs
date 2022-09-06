@@ -2302,7 +2302,7 @@ pub async fn reorder_chapters(
                             let new_chapter_number = &new_chapter.chapter_number;
 
                             sqlx::query!(
-                                "UPDATE chapters SET chapter_number = $2 WHERE chapter.id = $1"
+                                "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
                                 chapter.id,
                                 new_chapter_number
                             )

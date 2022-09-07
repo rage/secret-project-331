@@ -30,7 +30,7 @@ interface SetDataAction {
 
 interface MoveAction {
   type: "move"
-  payload: { chapterId: string | null; pageId: string; direction: "up" | "down" }
+  payload: { chapterId: string | null; pageId?: string | null; direction: "up" | "down" }
 }
 
 export const managePageOrderInitialState: ManagePageOrderState = {
@@ -54,7 +54,6 @@ export default function managePageOrderReducer(
           (c) => c.front_page_id !== null,
         )
         const chapters = action.payload.chapters.filter((c) => c.id !== null)
-        console.log("chaptersWithFrontpages", action.payload.chapters)
         const ordered = orderBy(action.payload.pages, (page) => page.order_number)
 
         const withoutFrontpages = ordered.filter(
@@ -81,9 +80,10 @@ export default function managePageOrderReducer(
         break
       }
       case "move": {
-        const { direction, chapterId, pageId } = action.payload
+        const { direction, chapterId } = action.payload
+        const pageId = action.payload.pageId
 
-        if (pageId === "" && chapterId) {
+        if (!pageId && chapterId) {
           const chapters = draftState.chapters
           if (!chapters) {
             break
@@ -91,54 +91,55 @@ export default function managePageOrderReducer(
           moveChapterWithinChapterList(chapters, chapterId, direction, draftState)
         }
 
-        console.log("draftState.chapters", draftState.chapters)
-
-        if (!draftState.chapterIdToPages) {
-          break
-        }
-
-        // how we actually move the page depends on whether the move is within a chapter or not
-        const currentPageChapterId = Object.values(draftState.chapterIdToPages)
-          .flat()
-          .find((page) => page.id === pageId)?.chapter_id
-
-        if (!currentPageChapterId) {
-          // page is currently a top level page
-          // For now we won't support moving a top level page to a chapter
-          const toplevelPages = draftState.chapterIdToPages["null"]
-          if (!toplevelPages) {
-            break
-          }
-          movePageWithinPageList(toplevelPages, pageId, direction, draftState)
-          break
-        }
-
-        if (currentPageChapterId === chapterId) {
-          // move within a chapter
-          const pages = draftState.chapterIdToPages?.[chapterId ?? "null"]
-          if (!pages) {
-            break
-          }
-          movePageWithinPageList(pages, pageId, direction, draftState)
-        } else {
-          // moving a page to a different chapter, the new location will be the last page of the new chapter
-          const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
-          const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
-          const page = oldChapterPageList?.find((page) => page.id === pageId)
-
-          if (!page) {
+        if (pageId) {
+          if (!draftState.chapterIdToPages) {
             break
           }
 
-          draftState.chapterIdToPages[currentPageChapterId ?? "null"] = oldChapterPageList?.filter(
-            (o) => o.id !== pageId,
-          )
-          const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
-          page.order_number = largestOrderNumber + 1
-          page.chapter_id = chapterId
-          draftState.chapterIdToPages[chapterId ?? "null"] = (newChapterPageList ?? []).concat(page)
+          // how we actually move the page depends on whether the move is within a chapter or not
+          const currentPageChapterId = Object.values(draftState.chapterIdToPages)
+            .flat()
+            .find((page) => page.id === pageId)?.chapter_id
 
-          draftState.unsavedChanges = true
+          if (!currentPageChapterId) {
+            // page is currently a top level page
+            // For now we won't support moving a top level page to a chapter
+            const toplevelPages = draftState.chapterIdToPages["null"]
+            if (!toplevelPages) {
+              break
+            }
+            movePageWithinPageList(toplevelPages, pageId, direction, draftState)
+            break
+          }
+
+          if (currentPageChapterId === chapterId) {
+            // move within a chapter
+            const pages = draftState.chapterIdToPages?.[chapterId ?? "null"]
+            if (!pages) {
+              break
+            }
+            movePageWithinPageList(pages, pageId, direction, draftState)
+          } else {
+            // moving a page to a different chapter, the new location will be the last page of the new chapter
+            const oldChapterPageList = draftState.chapterIdToPages?.[currentPageChapterId ?? "null"]
+            const newChapterPageList = draftState.chapterIdToPages?.[chapterId ?? "null"]
+            const page = oldChapterPageList?.find((page) => page.id === pageId)
+
+            if (!page) {
+              break
+            }
+
+            draftState.chapterIdToPages[currentPageChapterId ?? "null"] =
+              oldChapterPageList?.filter((o) => o.id !== pageId)
+            const largestOrderNumber = max(newChapterPageList?.map((p) => p.order_number)) ?? -1
+            page.order_number = largestOrderNumber + 1
+            page.chapter_id = chapterId
+            draftState.chapterIdToPages[chapterId ?? "null"] = (newChapterPageList ?? []).concat(
+              page,
+            )
+
+            draftState.unsavedChanges = true
+          }
         }
 
         break
@@ -218,9 +219,7 @@ function moveChapterWithinChapterList(
     return
   }
   const temp = chapters[currentIndex]
-  console.log("temp-before", temp)
   chapters[currentIndex] = chapters[targetIndex]
   chapters[targetIndex] = temp
-  console.log("temp-after", temp)
   draftState.unsavedChanges = true
 }

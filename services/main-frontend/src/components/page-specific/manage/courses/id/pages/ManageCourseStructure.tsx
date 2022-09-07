@@ -9,7 +9,10 @@ import managePageOrderReducer, {
   managePageOrderInitialState,
 } from "../../../../../../reducers/managePageOrderReducer"
 import { deleteChapter } from "../../../../../../services/backend/chapters"
-import { postNewPageOrdering } from "../../../../../../services/backend/courses"
+import {
+  postNewChapterOrdering,
+  postNewPageOrdering,
+} from "../../../../../../services/backend/courses"
 import { Chapter, CourseStructure } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import BreakFromCentered from "../../../../../../shared-module/components/Centering/BreakFromCentered"
@@ -66,6 +69,22 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       }
       const pages = Object.values(pageOrderState.chapterIdToPages).flat()
       return postNewPageOrdering(courseStructure.course.id, pages)
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    { onSuccess: () => refetch() },
+  )
+
+  const postNewChapterOrderingMutation = useToastMutation(
+    () => {
+      if (!pageOrderState.chapters) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("Page data not loaded")
+      }
+      const chapters = pageOrderState.chapters
+      return postNewChapterOrdering(courseStructure.course.id, chapters)
     },
     {
       notify: true,
@@ -170,7 +189,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     type: "move",
                                     // eslint-disable-next-line i18next/no-literal-string
                                     payload: {
-                                      pageId: "",
+                                      pageId: null,
                                       chapterId: chapter.id,
                                       // eslint-disable-next-line i18next/no-literal-string
                                       direction: "up",
@@ -188,7 +207,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                     type: "move",
                                     // eslint-disable-next-line i18next/no-literal-string
                                     payload: {
-                                      pageId: "",
+                                      pageId: null,
                                       chapterId: chapter.id,
                                       // eslint-disable-next-line i18next/no-literal-string
                                       direction: "down",
@@ -319,7 +338,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         show={pageOrderState.unsavedChanges}
         leftButtonText={t("button-text-save")}
         onClickLeft={() => {
-          postNewPageOrderingMutation.mutate()
+          postNewChapterOrderingMutation.mutate()
         }}
         rightButtonText={t("button-reset")}
         onClickRight={() => {

@@ -1,4 +1,5 @@
 import {
+  Chapter,
   Course,
   CourseInstance,
   CourseInstanceForm,
@@ -195,6 +196,13 @@ export const postNewTerm = async (
 
 export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {
   await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pages)
+}
+
+export const postNewChapterOrdering = async (
+  courseId: string,
+  chapters: Chapter[],
+): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/new-chapter-ordering`, chapters)
 }
 
 export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {

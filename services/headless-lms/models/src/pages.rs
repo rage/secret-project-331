@@ -1881,6 +1881,37 @@ where p.course_id = $1
     }
 }
 
+pub async fn get_chapter_pages(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL;
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
+}
+
 pub async fn get_chapters_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
@@ -2293,33 +2324,64 @@ pub async fn reorder_chapters(
     // Look for the modified chapter in the existing database
     for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            if let Some(old_chapter_id) = matching_db_chapter.id {
-                if let Some(new_chapter_id) = chapter.id {
-                    if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id) {
-                        if let Some(new_chapter) = chapters.iter().find(|o| o.id == new_chapter_id)
-                        {
-                            let old_chapter_number = &chapter.chapter_number;
-                            let new_chapter_number = &new_chapter.chapter_number;
+            if matching_db_chapter.id == chapter.id {
+                // to avoid conflicting chapter_number when chapter is modified
+                sqlx::query!(
+                    "UPDATE chapters
+                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
+                WHERE id = $1
+                  AND course_id = $2
+                  AND deleted_at IS NULL",
+                    chapter.id,
+                    course_id
+                )
+                .execute(&mut tx)
+                .await?;
+            }
+            let old_chapter_id = matching_db_chapter.id;
+            let new_chapter_id = chapter.id;
 
-                            sqlx::query!(
-                                "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
-                                chapter.id,
-                                new_chapter_number
-                            )
+            if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id) {
+                if let Some(new_chapter) = chapters.iter().find(|o| o.id == new_chapter_id) {
+                    let old_chapter_number = &old_chapter.chapter_number;
+                    let new_chapter_number = &new_chapter.chapter_number;
+
+                    // update chapter_number
+                    sqlx::query!(
+                        "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
+                        chapter.id,
+                        new_chapter_number
+                    )
+                    .execute(&mut tx)
+                    .await?;
+
+                    // update all pages url in the modified chapter
+                    let pages = get_chapter_pages(&mut tx, chapter.id).await?;
+
+                    for page in pages {
+                        let old_path = &page.url_path;
+                        let new_path = old_path.replacen(
+                            &old_chapter_number.to_string(),
+                            &new_chapter_number.to_string(),
+                            1,
+                        );
+                        sqlx::query!("UPDATE pages SET url_path = $2, id = $1", page.id, new_path)
                             .execute(&mut tx)
                             .await?;
-                        }
-                    } else {
-                        return Err(ModelError::InvalidRequest(
-                            "New chapter not found".to_string(),
-                        ));
+                        sqlx::query!("INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",page.id, old_path, course_id)
+                        .execute(&mut tx)
+                        .await?;
                     }
-                } else {
-                    return Err(ModelError::InvalidRequest(
-                        "Old chapter not found".to_string(),
-                    ));
                 }
+            } else {
+                return Err(ModelError::InvalidRequest(
+                    "New chapter not found".to_string(),
+                ));
             }
+        } else {
+            return Err(ModelError::InvalidRequest(
+                "Old chapter not found".to_string(),
+            ));
         }
     }
 

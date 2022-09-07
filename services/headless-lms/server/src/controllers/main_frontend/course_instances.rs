@@ -4,12 +4,11 @@ use bytes::Bytes;
 use chrono::{DateTime, Utc};
 use models::{
     course_instance_enrollments,
-    course_instances::{
-        self, CourseInstance, CourseInstanceCompletionSummary, CourseInstanceForm, Points,
-    },
+    course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    library::{self, progressing::CourseInstanceCompletionSummary},
     users,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -206,7 +205,11 @@ async fn completions(
         Res::CourseInstance(*course_instance_id),
     )
     .await?;
-    let completions = course_instances::get_completions(&mut conn, *course_instance_id).await?;
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let completions =
+        library::progressing::get_course_instance_completion_summary(&mut conn, &course_instance)
+            .await?;
     token.authorized_ok(web::Json(completions))
 }
 

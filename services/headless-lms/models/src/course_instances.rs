@@ -3,8 +3,6 @@ use std::collections::HashMap;
 use crate::{
     chapters,
     chapters::DatabaseChapter,
-    course_module_completions,
-    course_modules::{self, CourseModule},
     exercises,
     prelude::*,
     users::{self, User},
@@ -266,63 +264,6 @@ WHERE course_id = $1
     .fetch_all(conn)
     .await?;
     Ok(course_instances)
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseInstanceCompletionSummary {
-    pub course_modules: Vec<CourseModule>,
-    pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct UserWithModuleCompletions {
-    pub completed_modules: Vec<Uuid>,
-    pub email: String,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub user_id: Uuid,
-}
-
-impl From<User> for UserWithModuleCompletions {
-    fn from(user: User) -> Self {
-        Self {
-            user_id: user.id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
-            completed_modules: vec![],
-        }
-    }
-}
-
-pub async fn get_completions(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<CourseInstanceCompletionSummary> {
-    let instance = get_course_instance(conn, course_instance_id).await?;
-    let course_modules = course_modules::get_by_course_id(conn, instance.course_id).await?;
-    let mut users_with_course_module_completions: HashMap<Uuid, UserWithModuleCompletions> =
-        users::get_users_by_course_instance_enrollment(conn, course_instance_id)
-            .await?
-            .into_iter()
-            .map(|u| (u.id, u.into()))
-            .collect();
-    let completions =
-        course_module_completions::get_all_by_course_instance_id(conn, course_instance_id).await?;
-    completions.iter().for_each(|x| {
-        let user_with_completions = users_with_course_module_completions.get_mut(&x.user_id);
-        if let Some(completion) = user_with_completions {
-            completion.completed_modules.push(x.course_module_id);
-        }
-    });
-    Ok(CourseInstanceCompletionSummary {
-        course_modules,
-        users_with_course_module_completions: users_with_course_module_completions
-            .into_values()
-            .collect(),
-    })
 }
 
 #[derive(Debug, Serialize)]

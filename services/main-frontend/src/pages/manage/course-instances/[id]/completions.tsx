@@ -15,6 +15,7 @@ import {
 import {
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
+  UserCourseModuleCompletion,
   UserWithModuleCompletions,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
@@ -54,7 +55,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
     (data: TeacherManualCompletionRequest) => postCompletions(courseInstanceId, data),
-    { notify: true, method: "POST", successMessage: "TODO" },
+    { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
     {
       onSuccess: () => {
         setCompletionFormData(null)
@@ -76,9 +77,21 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
       return first.email.localeCompare(second.email)
     } else {
       return (
-        (second.completed_modules.includes(sorting.data ?? "") ? 1 : 0) -
-        (first.completed_modules.includes(sorting.data ?? "") ? 1 : 0)
+        (second.completed_modules.find((x) => x.course_module_id === sorting.data)?.grade ?? 0) -
+        (first.completed_modules.find((x) => x.course_module_id === sorting.data)?.grade ?? 0)
       )
+    }
+  }
+
+  function mapGradeToText(moduleCompletion: UserCourseModuleCompletion | undefined): string {
+    if (moduleCompletion) {
+      if (moduleCompletion.grade !== null) {
+        return moduleCompletion.grade.toString()
+      } else {
+        return moduleCompletion.passed ? t("column-passed") : t("column-failed")
+      }
+    } else {
+      return "-"
     }
   }
 
@@ -103,12 +116,12 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         <>
           <div>
             <ChapterPointsDashboard
-              chapterScores={getCompletionsList.data.course_modules.map((x) => ({
-                id: x.id,
-                name: x.name ?? t("label-default"),
+              chapterScores={getCompletionsList.data.course_modules.map((module) => ({
+                id: module.id,
+                name: module.name ?? t("label-default"),
                 value: `${
                   getCompletionsList.data.users_with_course_module_completions.filter((user) =>
-                    user.completed_modules.includes(x.id),
+                    user.completed_modules.some((x) => x.course_module_id === module.id),
                   ).length
                 }/${getCompletionsList.data.users_with_course_module_completions.length}`,
               }))}
@@ -228,7 +241,9 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                       .sort((a, b) => a.order_number - b.order_number)
                       .map((module) => (
                         <td key={module.id}>
-                          {user.completed_modules.includes(module.id) ? t("yes") : t("no")}
+                          {mapGradeToText(
+                            user.completed_modules.find((x) => x.course_module_id === module.id),
+                          )}
                         </td>
                       ))}
                   </FullWidthTableRow>

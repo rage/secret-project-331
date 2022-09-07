@@ -158,6 +158,7 @@ import {
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
+  UserCourseModuleCompletion,
   UserCourseSettings,
   UserExerciseState,
   UserInfo,
@@ -438,21 +439,6 @@ export function isCourseInstance(obj: unknown): obj is CourseInstance {
   )
 }
 
-export function isCourseInstanceCompletionSummary(
-  obj: unknown,
-): obj is CourseInstanceCompletionSummary {
-  const typedObj = obj as CourseInstanceCompletionSummary
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    Array.isArray(typedObj["course_modules"]) &&
-    typedObj["course_modules"].every((e: any) => isCourseModule(e) as boolean) &&
-    Array.isArray(typedObj["users_with_course_module_completions"]) &&
-    typedObj["users_with_course_module_completions"].every(
-      (e: any) => isUserWithModuleCompletions(e) as boolean,
-    )
-  )
-}
-
 export function isCourseInstanceForm(obj: unknown): obj is CourseInstanceForm {
   const typedObj = obj as CourseInstanceForm
   return (
@@ -491,19 +477,6 @@ export function isPoints(obj: unknown): obj is Points {
     Object.entries<any>(typedObj["user_chapter_points"]).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
-  )
-}
-
-export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModuleCompletions {
-  const typedObj = obj as UserWithModuleCompletions
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    Array.isArray(typedObj["completed_modules"]) &&
-    typedObj["completed_modules"].every((e: any) => typeof e === "string") &&
-    typeof typedObj["email"] === "string" &&
-    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
-    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
-    typeof typedObj["user_id"] === "string"
   )
 }
 
@@ -1141,6 +1114,21 @@ export function isCompletionRegistrationLink(obj: unknown): obj is CompletionReg
   )
 }
 
+export function isCourseInstanceCompletionSummary(
+  obj: unknown,
+): obj is CourseInstanceCompletionSummary {
+  const typedObj = obj as CourseInstanceCompletionSummary
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["course_modules"]) &&
+    typedObj["course_modules"].every((e: any) => isCourseModule(e) as boolean) &&
+    Array.isArray(typedObj["users_with_course_module_completions"]) &&
+    typedObj["users_with_course_module_completions"].every(
+      (e: any) => isUserWithModuleCompletions(e) as boolean,
+    )
+  )
+}
+
 export function isUserCompletionInformation(obj: unknown): obj is UserCompletionInformation {
   const typedObj = obj as UserCompletionInformation
   return (
@@ -1150,6 +1138,16 @@ export function isUserCompletionInformation(obj: unknown): obj is UserCompletion
     typeof typedObj["uh_course_code"] === "string" &&
     typeof typedObj["email"] === "string" &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+  )
+}
+
+export function isUserCourseModuleCompletion(obj: unknown): obj is UserCourseModuleCompletion {
+  const typedObj = obj as UserCourseModuleCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean"
   )
 }
 
@@ -1163,6 +1161,19 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["name"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean"
+  )
+}
+
+export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModuleCompletions {
+  const typedObj = obj as UserWithModuleCompletions
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["completed_modules"]) &&
+    typedObj["completed_modules"].every((e: any) => isUserCourseModuleCompletion(e) as boolean) &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    typeof typedObj["user_id"] === "string"
   )
 }
 

@@ -59,6 +59,8 @@
   "chapters": "Chapters",
   "choose-a-language": "Choose a language",
   "closing-time": "Closing time",
+  "column-failed": "Fail",
+  "column-passed": "Pass",
   "completions": "Completions",
   "completions-submitted-successfully": "Completions submitted successfully.",
   "configure-completion-requirements": "Configure completion requirements",

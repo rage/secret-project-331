@@ -20,10 +20,7 @@ use headless_lms_models::{
         UserCourseInstanceChapterProgress,
     },
     course_instance_enrollments::CourseInstanceEnrollment,
-    course_instances::{
-        ChapterScore, CourseInstance, CourseInstanceCompletionSummary, Points,
-        UserWithModuleCompletions,
-    },
+    course_instances::{ChapterScore, CourseInstance, Points},
     course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
     course_modules::CourseModule,
     courses::{Course, CourseCount, CourseStructure},
@@ -52,7 +49,8 @@ use headless_lms_models::{
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
         progressing::{
-            CompletionRegistrationLink, UserCompletionInformation, UserModuleCompletionStatus,
+            CompletionRegistrationLink, CourseInstanceCompletionSummary, UserCompletionInformation,
+            UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions,
         },
     },
     material_references::{MaterialReference, NewMaterialReference},
@@ -723,7 +721,11 @@ pub async fn main() -> anyhow::Result<()> {
                 ects_credits: None,
             }],
             users_with_course_module_completions: vec![UserWithModuleCompletions {
-                completed_modules: vec![id],
+                completed_modules: vec![UserCourseModuleCompletion {
+                    course_module_id: id,
+                    grade: Some(4),
+                    passed: true,
+                }],
                 email: "student@example.com".to_string(),
                 first_name: Some("Student".to_string()),
                 last_name: Some("Student".to_string()),

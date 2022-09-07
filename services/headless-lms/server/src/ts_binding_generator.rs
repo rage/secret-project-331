@@ -54,11 +54,9 @@ fn models(target: &mut File) {
 
         course_instances::ChapterScore,
         course_instances::CourseInstance,
-        course_instances::CourseInstanceCompletionSummary,
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
-        course_instances::UserWithModuleCompletions,
 
         course_modules::CourseModule,
         course_modules::ModifiedModule,
@@ -121,8 +119,11 @@ fn models(target: &mut File) {
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
         library::progressing::CompletionRegistrationLink,
+        library::progressing::CourseInstanceCompletionSummary,
         library::progressing::UserCompletionInformation,
+        library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
+        library::progressing::UserWithModuleCompletions,
 
         material_references::MaterialReference,
         material_references::NewMaterialReference,

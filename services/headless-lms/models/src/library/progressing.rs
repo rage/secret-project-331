@@ -1,14 +1,14 @@
 use std::collections::HashMap;
 
 use crate::{
-    course_instances,
+    course_instances::{self, CourseInstance},
     course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
-    users,
+    users::{self, User},
 };
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
@@ -257,6 +257,80 @@ pub async fn process_all_course_instance_completions(
     tx.commit().await?;
     info!("Reprocessing course module completions complete");
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseInstanceCompletionSummary {
+    pub course_modules: Vec<CourseModule>,
+    pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserWithModuleCompletions {
+    pub completed_modules: Vec<UserCourseModuleCompletion>,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub user_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserCourseModuleCompletion {
+    pub course_module_id: Uuid,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+impl From<CourseModuleCompletion> for UserCourseModuleCompletion {
+    fn from(course_module_completion: CourseModuleCompletion) -> Self {
+        Self {
+            course_module_id: course_module_completion.course_module_id,
+            grade: course_module_completion.grade,
+            passed: course_module_completion.passed,
+        }
+    }
+}
+
+impl From<User> for UserWithModuleCompletions {
+    fn from(user: User) -> Self {
+        Self {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            completed_modules: vec![],
+        }
+    }
+}
+
+pub async fn get_course_instance_completion_summary(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+) -> ModelResult<CourseInstanceCompletionSummary> {
+    let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
+    let mut users_with_course_module_completions: HashMap<Uuid, UserWithModuleCompletions> =
+        users::get_users_by_course_instance_enrollment(conn, course_instance.id)
+            .await?
+            .into_iter()
+            .map(|u| (u.id, u.into()))
+            .collect();
+    let completions =
+        course_module_completions::get_all_by_course_instance_id(conn, course_instance.id).await?;
+    completions.into_iter().for_each(|x| {
+        let user_with_completions = users_with_course_module_completions.get_mut(&x.user_id);
+        if let Some(completion) = user_with_completions {
+            completion.completed_modules.push(x.into());
+        }
+    });
+    Ok(CourseInstanceCompletionSummary {
+        course_modules,
+        users_with_course_module_completions: users_with_course_module_completions
+            .into_values()
+            .collect(),
+    })
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]

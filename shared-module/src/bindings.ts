@@ -171,11 +171,6 @@ export interface CourseInstance {
   support_email: string | null
 }
 
-export interface CourseInstanceCompletionSummary {
-  course_modules: Array<CourseModule>
-  users_with_course_module_completions: Array<UserWithModuleCompletions>
-}
-
 export interface CourseInstanceForm {
   name: string | null
   description: string | null
@@ -192,14 +187,6 @@ export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
-}
-
-export interface UserWithModuleCompletions {
-  completed_modules: Array<string>
-  email: string
-  first_name: string | null
-  last_name: string | null
-  user_id: string
 }
 
 export interface CourseModule {
@@ -583,12 +570,23 @@ export interface CompletionRegistrationLink {
   url: string
 }
 
+export interface CourseInstanceCompletionSummary {
+  course_modules: Array<CourseModule>
+  users_with_course_module_completions: Array<UserWithModuleCompletions>
+}
+
 export interface UserCompletionInformation {
   course_module_completion_id: string
   course_name: string
   uh_course_code: string
   email: string
   ects_credits: number | null
+}
+
+export interface UserCourseModuleCompletion {
+  course_module_id: string
+  grade: number | null
+  passed: boolean
 }
 
 export interface UserModuleCompletionStatus {
@@ -598,6 +596,14 @@ export interface UserModuleCompletionStatus {
   name: string
   order_number: number
   prerequisite_modules_completed: boolean
+}
+
+export interface UserWithModuleCompletions {
+  completed_modules: Array<UserCourseModuleCompletion>
+  email: string
+  first_name: string | null
+  last_name: string | null
+  user_id: string
 }
 
 export interface MaterialReference {

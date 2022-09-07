@@ -254,6 +254,7 @@ fn controllers(target: &mut File) {
             roles::RoleInfo,
             course_instances::TeacherManualCompletion,
             course_instances::TeacherManualCompletionRequest,
+            course_instances::ManualCompletionPreview,
             exams::ExamCourseInfo,
             exercises::ExerciseSubmissions,
             exercises::AnswersRequiringAttention,

@@ -94,6 +94,7 @@ import {
   HistoryRestoreData,
   IsChapterFrontPage,
   Login,
+  ManualCompletionPreview,
   MarkAsRead,
   MaterialReference,
   ModifiedModule,
@@ -2165,6 +2166,19 @@ export function isTeacherManualCompletionRequest(
     typeof typedObj["course_module_id"] === "string" &&
     Array.isArray(typedObj["new_completions"]) &&
     typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean)
+  )
+}
+
+export function isManualCompletionPreview(obj: unknown): obj is ManualCompletionPreview {
+  const typedObj = obj as ManualCompletionPreview
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["already_completed_users"]) &&
+    typedObj["already_completed_users"].every((e: any) => typeof e === "string") &&
+    Array.isArray(typedObj["first_time_completing_users"]) &&
+    typedObj["first_time_completing_users"].every((e: any) => typeof e === "string") &&
+    Array.isArray(typedObj["non_enrolled_users"]) &&
+    typedObj["non_enrolled_users"].every((e: any) => typeof e === "string")
   )
 }
 

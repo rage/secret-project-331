@@ -7,12 +7,21 @@ import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
-import { getCompletions, postCompletions } from "../../../../services/backend/course-instances"
-import { UserWithModuleCompletions } from "../../../../shared-module/bindings"
+import {
+  getCompletions,
+  postCompletions,
+  postCompletionsPreview,
+} from "../../../../services/backend/course-instances"
+import {
+  ManualCompletionPreview,
+  TeacherManualCompletionRequest,
+  UserWithModuleCompletions,
+} from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
@@ -40,6 +49,21 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   )
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
+  const [completionFormData, setCompletionFormData] =
+    useState<TeacherManualCompletionRequest | null>(null)
+  const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
+  const mutation = useToastMutation(
+    (data: TeacherManualCompletionRequest) => postCompletions(courseInstanceId, data),
+    { notify: true, method: "POST", successMessage: "TODO" },
+    {
+      onSuccess: () => {
+        setCompletionFormData(null)
+        setPreviewData(null)
+        setShowForm(false)
+        getCompletionsList.refetch()
+      },
+    },
+  )
 
   function sortUsers(first: UserWithModuleCompletions, second: UserWithModuleCompletions): number {
     if (sorting.type === NUMBER) {
@@ -56,6 +80,14 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         (first.completed_modules.includes(sorting.data ?? "") ? 1 : 0)
       )
     }
+  }
+
+  const handlePostCompletionsPreview = async (
+    data: TeacherManualCompletionRequest,
+  ): Promise<void> => {
+    setCompletionFormData(data)
+    const previewDataFromBackend = await postCompletionsPreview(courseInstanceId, data)
+    setPreviewData(previewDataFromBackend)
   }
 
   return (
@@ -98,10 +130,41 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   margin: 2rem;
                 `}
               >
-                <AddCompletionsForm
-                  onSubmit={(data) => postCompletions(courseInstanceId, data)}
-                  courseModules={getCompletionsList.data.course_modules}
-                />
+                <div>
+                  <AddCompletionsForm
+                    onSubmit={handlePostCompletionsPreview}
+                    courseModules={getCompletionsList.data.course_modules}
+                    submitText={t("button-text-check")}
+                  />
+                  {previewData && completionFormData && (
+                    <div>
+                      {/* No localizations yet because text subject to change */}
+                      {/* eslint-disable i18next/no-literal-string */}
+                      <p>New user completions: {previewData.first_time_completing_users.length}</p>
+                      <p>These users will receive completion for the first time.</p>
+                      <p>Already completed users: {previewData.already_completed_users.length}</p>
+                      <p>
+                        These users already have a completion for the course, and proceeding will
+                        create them new completions without changing the existing ones.
+                      </p>
+                      <p>Missing enrollments: {previewData.non_enrolled_users.length}</p>
+                      <p>
+                        These users haven&apost enrolled on the course instance, so proceeding will
+                        automatically create them necessary entries.
+                      </p>
+                      {/* eslint-enable i18next/no-literal-string */}
+                      <Button
+                        variant="primary"
+                        size="medium"
+                        type="button"
+                        value={t("button-text-submit")}
+                        onClick={() => mutation.mutate(completionFormData)}
+                      >
+                        {t("button-text-submit")}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

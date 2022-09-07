@@ -6,6 +6,7 @@ import {
   CourseInstanceForm,
   EmailTemplate,
   EmailTemplateNew,
+  ManualCompletionPreview,
   Points,
   TeacherManualCompletionRequest,
 } from "../../shared-module/bindings"
@@ -13,6 +14,7 @@ import {
   isCourseInstance,
   isCourseInstanceCompletionSummary,
   isEmailTemplate,
+  isManualCompletionPreview,
   isPoints,
 } from "../../shared-module/bindings.guard"
 import { isArray, validateResponse } from "../../shared-module/utils/fetching"
@@ -70,6 +72,18 @@ export const getCompletions = async (
     },
   )
   return validateResponse(response, isCourseInstanceCompletionSummary)
+}
+
+export const postCompletionsPreview = async (
+  courseInstanceId: string,
+  data: TeacherManualCompletionRequest,
+): Promise<ManualCompletionPreview> => {
+  const response = await mainFrontendClient.post(
+    `/course-instances/${courseInstanceId}/completions/preview`,
+    data,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isManualCompletionPreview)
 }
 
 export const postCompletions = async (

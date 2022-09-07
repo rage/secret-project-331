@@ -16,6 +16,8 @@ const DATE = "date"
 interface AddCompletionsFormProps {
   courseModules: Array<CourseModule>
   onSubmit: (data: TeacherManualCompletionRequest) => void
+  /* Text shown in place of the submit button. */
+  submitText?: string
 }
 
 interface AddCompletionsFields {
@@ -29,7 +31,11 @@ interface RawTeacherManualCompletion {
   completion_date: string
 }
 
-const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ courseModules, onSubmit }) => {
+const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
+  courseModules,
+  onSubmit,
+  submitText,
+}) => {
   const {
     clearErrors,
     handleSubmit,
@@ -42,31 +48,36 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ courseModules, 
 
   const onWrapper = handleSubmit((data) => {
     clearErrors()
-    const parsed = Papa.parse(data.completions.trim(), {
-      delimiter: ",",
-      header: true,
-      skipEmptyLines: true,
-      transform: (value) => value.trim(),
-      transformHeader: (header) => header.trim().toLocaleLowerCase(),
-    })
-    if (parsed.errors.length > 0) {
-      setError(COMPLETIONS, { message: parsed.errors[0].message })
+    try {
+      const parsed = Papa.parse(data.completions.trim(), {
+        delimiter: ",",
+        header: true,
+        skipEmptyLines: true,
+        transform: (value) => value.trim(),
+        transformHeader: (header) => header.trim().toLocaleLowerCase(),
+      })
+      if (parsed.errors.length > 0) {
+        setError(COMPLETIONS, { message: parsed.errors[0].message })
+      }
+      const defaultDate = date ? new Date(date) : null
+      const newCompletions = parsed.data.map((entry) => {
+        const completionDate = (entry as RawTeacherManualCompletion).completion_date
+        const grade = (entry as RawTeacherManualCompletion).grade
+        const userId = (entry as RawTeacherManualCompletion).user_id
+        if (!userId) {
+          throw new Error(t("user-id-is-missing"))
+        }
+        return {
+          completion_date: completionDate ? new Date(completionDate) : defaultDate,
+          grade: grade ? parseInt(grade) : null,
+          user_id: userId,
+        }
+      })
+      onSubmit({ course_module_id: data.course_module_id, new_completions: newCompletions })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setError(COMPLETIONS, { message: e.message })
     }
-    const defaultDate = date ? new Date(date) : null
-    const newCompletions = parsed.data.map((entry) => {
-      const completionDate = (entry as RawTeacherManualCompletion).completion_date
-      const grade = (entry as RawTeacherManualCompletion).grade
-      const userId = (entry as RawTeacherManualCompletion).user_id
-      if (!userId) {
-        throw new Error(t("user-id-is-missing"))
-      }
-      return {
-        completion_date: completionDate ? new Date(completionDate) : defaultDate,
-        grade: grade ? parseInt(grade) : null,
-        user_id: userId,
-      }
-    })
-    onSubmit({ course_module_id: data.course_module_id, new_completions: newCompletions })
   })
 
   return (
@@ -88,13 +99,13 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({ courseModules, 
           <code>{{ csvHeaderFormat: CSV_HEADER_FORMAT }}</code> - optional date in ISO format.
         </Trans>
       </p>
+      {errors.completions?.message && <p>{errors.completions.message}</p>}
       <TextAreaField
         placeholder={CSV_HEADER_FORMAT}
-        errorMessage={errors.completions?.message}
         register={register("completions", { required: t("required-field") })}
       />
       <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
-        {t("button-text-submit")}
+        {submitText ?? t("button-text-submit")}
       </Button>
     </form>
   )

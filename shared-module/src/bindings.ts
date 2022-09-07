@@ -1228,6 +1228,12 @@ export interface TeacherManualCompletionRequest {
   new_completions: Array<TeacherManualCompletion>
 }
 
+export interface ManualCompletionPreview {
+  already_completed_users: Array<string>
+  first_time_completing_users: Array<string>
+  non_enrolled_users: Array<string>
+}
+
 export interface ExamCourseInfo {
   course_id: string
 }

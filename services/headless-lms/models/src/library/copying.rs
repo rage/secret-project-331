@@ -101,7 +101,11 @@ RETURNING id,
                     let new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
-                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                "Invalid exercise id in content.".to_string(),
+                                None,
+                            )
                         })?
                         .to_string();
                     block["attributes"]["id"] = Value::String(new_id);
@@ -205,7 +209,11 @@ pub async fn copy_exam(
                     let new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
-                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                "Invalid exercise id in content.".to_string(),
+                                None,
+                            )
                         })?
                         .to_string();
                     block["attributes"]["id"] = Value::String(new_id);
@@ -476,7 +484,11 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
             record
                 .copied_from
                 .ok_or_else(|| {
-                    ModelError::Generic("Query failed to return valid data.".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Query failed to return valid data.".to_string(),
+                        None,
+                    )
                 })?
                 .to_string(),
             record.id.to_string(),
@@ -531,7 +543,11 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
             record
                 .copied_from
                 .ok_or_else(|| {
-                    ModelError::Generic("Query failed to return valid data.".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Query failed to return valid data.".to_string(),
+                        None,
+                    )
                 })?
                 .to_string(),
             record.id.to_string(),

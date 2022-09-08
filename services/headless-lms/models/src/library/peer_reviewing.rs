@@ -29,8 +29,10 @@ pub async fn start_peer_review_for_user(
     user_exercise_state: UserExerciseState,
 ) -> ModelResult<()> {
     if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
-        return Err(ModelError::PreconditionFailed(
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Cannot start peer review anymore.".to_string(),
+            None,
         ));
     }
     let _user_exercise_state = user_exercise_states::update_exercise_progress(
@@ -128,8 +130,10 @@ pub async fn create_peer_review_submission_for_user(
             exercise_slide_submission
                 .course_instance_id
                 .ok_or_else(|| {
-                    ModelError::PreconditionFailed(
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "Exercise slide not part of a course instance.".to_string(),
+                        None,
                     )
                 })?,
         )
@@ -162,8 +166,10 @@ fn validate_and_sanitize_peer_review_submission_answers(
         // Answer is valid if all required questions are answered.
         Ok(valid_peer_review_question_answers)
     } else {
-        Err(ModelError::PreconditionFailed(
+        Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "All required questions need to be answered.".to_string(),
+            None,
         ))
     }
 }

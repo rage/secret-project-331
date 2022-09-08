@@ -135,8 +135,13 @@ pub fn get_exercise_service_internally_preferred_baseurl(
         .internal_url
         .as_ref()
         .unwrap_or(&exercise_service.public_url);
-    let mut url = Url::parse(stored_url_str)
-        .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
+    let mut url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            Some(Box::new(original_error)),
+        )
+    })?;
     // remove the path because all relative urls in service info assume
     // that the base url prefix has no path
     url.set_path("");
@@ -147,8 +152,13 @@ pub fn get_exercise_service_externally_preferred_baseurl(
     exercise_service: &ExerciseService,
 ) -> ModelResult<Url> {
     let stored_url_str = &exercise_service.public_url;
-    let mut url = Url::parse(stored_url_str)
-        .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
+    let mut url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            Some(Box::new(original_error)),
+        )
+    })?;
     // remove the path because all relative urls in service info assume
     // that the base url prefix has no path
     url.set_path("");

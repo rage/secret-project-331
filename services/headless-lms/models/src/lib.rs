@@ -61,7 +61,8 @@ pub mod test_helper;
 
 use uuid::Uuid;
 
-pub use self::error::{ModelError, ModelResult};
+pub use self::error::{ModelError, ModelErrorType, ModelResult};
+use crate::prelude::*;
 
 #[macro_use]
 extern crate tracing;
@@ -78,11 +79,15 @@ impl CourseOrExamId {
         match (course_id, exam_id) {
             (Some(course_id), None) => Ok(Self::Course(course_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
-            (Some(_), Some(_)) => Err(ModelError::Generic(
+            (Some(_), Some(_)) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Database row had both a course id and an exam id".to_string(),
+                None,
             )),
-            (None, None) => Err(ModelError::Generic(
+            (None, None) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Database row did not have a course id or an exam id".to_string(),
+                None,
             )),
         }
     }

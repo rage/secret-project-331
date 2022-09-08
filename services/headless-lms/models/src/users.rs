@@ -167,8 +167,10 @@ pub async fn authenticate_test_user(
     } else if email == "creator@example.com" && password == "creator" {
         crate::users::get_by_email(conn, "creator@example.com").await?
     } else {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Invalid email or password".to_string(),
+            None,
         ));
     };
     Ok(user)

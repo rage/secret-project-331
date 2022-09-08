@@ -189,7 +189,13 @@ fn prerequisite_modules_are_completed(
     let module = modules
         .iter()
         .find(|x| x.module_id == module_id)
-        .ok_or_else(|| ModelError::Generic("Module missing from vec.".to_string()))?;
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Module missing from vec.".to_string(),
+                None,
+            )
+        })?;
     if module.default {
         let submodule_completions: u32 = modules
             .iter()
@@ -202,7 +208,13 @@ fn prerequisite_modules_are_completed(
             .iter()
             .find(|x| x.default)
             .map(|x| x.completed)
-            .ok_or_else(|| ModelError::Generic("Default module missing".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Default module missing".to_string(),
+                    None,
+                )
+            })?;
         Ok(default_completed && module.completed)
     }
 }
@@ -279,7 +291,13 @@ pub async fn get_user_completion_information(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -290,7 +308,11 @@ pub async fn get_user_completion_information(
         .await?;
     // Course code is required only so that fetching the link later works.
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Course module is missing uh_course_code.".to_string(),
+            None,
+        )
     })?;
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
@@ -368,7 +390,13 @@ pub async fn get_completion_registration_link_and_save_attempt(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -384,9 +412,11 @@ pub async fn get_completion_registration_link_and_save_attempt(
     )
     .await?;
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed(
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Course module doesn't have an assossiated University of Helsinki course code."
                 .to_string(),
+            None,
         )
     })?;
     let registration_link =

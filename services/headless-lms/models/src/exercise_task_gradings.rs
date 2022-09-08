@@ -340,7 +340,11 @@ pub fn send_grading_request(
                 ?response_body,
                 "Grading request returned an unsuccesful status code"
             );
-            return Err(ModelError::Generic("Grading failed".to_string()));
+            return Err(ModelError::new(
+                ModelErrorType::Generic,
+                "Grading failed".to_string(),
+                None,
+            ));
         }
         let obj = res.json::<ExerciseTaskGradingResult>().await?;
         info!("Received a grading result: {:#?}", &obj);
@@ -434,7 +438,11 @@ pub async fn get_for_student(
         let enrollment = exams::get_enrollment(conn, exam_id, user_id)
             .await?
             .ok_or_else(|| {
-                ModelError::Generic("User has grading for exam but no enrollment".to_string())
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "User has grading for exam but no enrollment".to_string(),
+                    None,
+                )
             })?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
             || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()

@@ -242,13 +242,17 @@ pub async fn get_course_material_peer_review_data(
                 .await?;
                 Ok(res)
             } else {
-                Err(ModelError::InvalidRequest(
+                Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "You cannot peer review yet".to_string(),
+                    None,
                 ))
             }
         }
-        None => Err(ModelError::InvalidRequest(
+        None => Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "You haven't answered this exercise".to_string(),
+            None,
         )),
     }
 }

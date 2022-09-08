@@ -98,8 +98,10 @@ pub async fn create_user_exercise_slide_submission(
         .user_exercise_state()
         .selected_exercise_slide_id
         .ok_or_else(|| {
-            ModelError::PreconditionFailed(
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
                 "Exercise slide not selected for the student.".to_string(),
+                None,
             )
         })?;
     let exercise_tasks: HashMap<Uuid, ExerciseTask> =
@@ -135,8 +137,10 @@ pub async fn create_user_exercise_slide_submission(
         let exercise_task = exercise_tasks
             .get(&task_submission.exercise_task_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "Attempting to submit exercise for illegal exercise_task_id.".to_string(),
+                    None,
                 )
             })?;
         let submission_id = exercise_task_submissions::insert(
@@ -254,7 +258,13 @@ pub async fn grade_user_submission(
             for task_submission in exercise_slide_submission_tasks {
                 let fixed_result = fixed_results
                     .get(&task_submission.exercise_task_id)
-                    .ok_or_else(|| ModelError::Generic("".to_string()))?
+                    .ok_or_else(|| {
+                        ModelError::new(
+                            ModelErrorType::Generic,
+                            "Could not find fixed test result for testing".to_string(),
+                            None,
+                        )
+                    })?
                     .clone();
                 let submission = create_fixed_grading_for_submission_task(
                     &mut tx,

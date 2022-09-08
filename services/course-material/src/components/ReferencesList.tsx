@@ -35,13 +35,7 @@ const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ cou
       }
     })
     .sort((a, b) => {
-      if (a.text > b.text) {
-        return 1
-      } else if (a.text < b.text) {
-        return -1
-      } else {
-        return 0
-      }
+      return a.text.localeCompare(b.text)
     })
   return <Reference data={refs} />
 }

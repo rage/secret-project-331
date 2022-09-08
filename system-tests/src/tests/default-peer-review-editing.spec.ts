@@ -23,6 +23,7 @@ test("default peer review editing", async ({ page, headless }) => {
   // Click text=Page One/chapter-1/page-1Edit page >> button >> nth=0
   await page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click()
 
+  await page.locator("text=Add peer review").check()
   // Click text=Use course global peer reviewCourse default peer review config >> div >> nth=1
   await page
     .locator("text=Use course global peer reviewCourse default peer review config >> div")

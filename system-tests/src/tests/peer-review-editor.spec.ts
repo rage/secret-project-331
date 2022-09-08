@@ -28,6 +28,7 @@ test("create peer review", async ({ page, headless }) => {
     page.locator("text=Page One/chapter-1/page-1Edit page >> button").first().click(),
   ])
 
+  await page.locator("text=Add peer review").check()
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
   await page
     .locator(

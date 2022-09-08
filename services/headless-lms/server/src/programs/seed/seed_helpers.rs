@@ -206,7 +206,7 @@ pub fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
-        needs_peer_review: true,
+        needs_peer_review: false,
         use_course_default_peer_review_config: true,
         peer_review_config: None,
         peer_review_questions: None,

@@ -3,11 +3,12 @@ use std::collections::HashMap;
 use percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
 use url::Url;
 
-use crate::UtilError;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
+
+use crate::prelude::*;
 
 #[derive(Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -109,12 +110,16 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
                 &format!("url={}&format=json", url),
             );
         }
-        Err(UtilError::Other(
+        Err(UtilError::new(
+            UtilErrorType::Other,
             "Link not supported for embedding.".to_string(),
+            None,
         ))
     } else {
-        Err(UtilError::Other(
+        Err(UtilError::new(
+            UtilErrorType::Other,
             "Failed to parse host from URL.".to_string(),
+            None,
         ))
     }
 }

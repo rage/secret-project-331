@@ -45,6 +45,10 @@ reqwest = { version = "0.11.10", features = ["brotli", "gzip", "json"] }
 url = "2.2.2"
 # Application-level tracing for Rust.
 tracing = "0.1.35"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.0"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.66"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1.0.31"
 # generate typescript bindings from rust types

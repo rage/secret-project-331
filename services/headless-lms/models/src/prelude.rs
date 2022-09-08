@@ -10,3 +10,4 @@ pub use ts_rs::TS;
 pub use uuid::Uuid;
 
 pub use crate::{error::TryToOptional, CourseOrExamId, ModelError, ModelResult};
+pub use headless_lms_utils::error::backend_error::BackendError;

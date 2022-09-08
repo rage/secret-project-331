@@ -41,7 +41,7 @@ GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-at
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn update_submission(
+async fn update_answer_requiring_attention(
     payload: web::Json<NewTeacherGradingDecision>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -107,6 +107,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{submission_id}/info", web::get().to(get_submission_info))
         .route(
             "/update-answer-requiring-attention",
-            web::put().to(update_submission),
+            web::put().to(update_answer_requiring_attention),
         );
 }

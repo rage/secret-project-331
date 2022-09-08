@@ -13,7 +13,7 @@ use bytes::Bytes;
 use futures::Stream;
 use uuid::Uuid;
 
-use crate::{ApplicationConfiguration, UtilError};
+use crate::{prelude::*, ApplicationConfiguration};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**
@@ -61,9 +61,11 @@ fn path_to_str(path: &Path) -> Result<&str, UtilError> {
     let str = path.to_str();
     match str {
         Some(s) => Ok(s),
-        None => Err(UtilError::Other(
+        None => Err(UtilError::new(
+            UtilErrorType::Other,
             "Could not convert path to string because it contained invalid UTF-8 characters."
                 .to_string(),
+            None,
         )),
     }
 }

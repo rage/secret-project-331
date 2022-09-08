@@ -4,8 +4,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::UtilError;
-
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
     "moocfi/exercise",
     "moocfi/exercise-task",
@@ -16,6 +14,7 @@ static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
 ];
 
 pub use crate::attributes;
+use crate::error::util_error::UtilError;
 #[macro_export]
 macro_rules! attributes {
     () => {{

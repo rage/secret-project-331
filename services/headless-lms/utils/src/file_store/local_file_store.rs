@@ -10,7 +10,7 @@ use tokio::{
 use tokio_util::io::ReaderStream;
 
 use super::{path_to_str, FileStore, GenericPayload};
-use crate::UtilError;
+use crate::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct LocalFileStore {
@@ -23,7 +23,11 @@ impl LocalFileStore {
     pub fn new(base_path: PathBuf, base_url: String) -> Result<Self, UtilError> {
         if base_path.exists() {
             if !base_path.is_dir() {
-                return Err(UtilError::Other("Base path should be a folder".to_string()));
+                return Err(UtilError::new(
+                    UtilErrorType::Other,
+                    "Base path should be a folder".to_string(),
+                    None,
+                ));
             }
         } else {
             std::fs::create_dir_all(&base_path)?;
@@ -64,7 +68,11 @@ impl FileStore for LocalFileStore {
     async fn get_direct_download_url(&self, path: &Path) -> Result<String, UtilError> {
         let full_path = self.base_path.join(path);
         if !full_path.exists() {
-            return Err(UtilError::Other("File does not exist.".to_string()));
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                "File does not exist.".to_string(),
+                None,
+            ));
         }
         let path_str = path_to_str(path)?;
         if self.base_url.ends_with('/') {
@@ -82,14 +90,20 @@ impl FileStore for LocalFileStore {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
-            return Err(UtilError::Other(
+            return Err(UtilError::new(
+                UtilErrorType::Other,
                 "Media path did not have a parent folder".to_string(),
+                None,
             ));
         }
         let parent = parent_option.unwrap();
         if parent.exists() {
             if !parent.is_dir() {
-                return Err(UtilError::Other("Base path should be a folder".to_string()));
+                return Err(UtilError::new(
+                    UtilErrorType::Other,
+                    "Base path should be a folder".to_string(),
+                    None,
+                ));
             }
         } else {
             fs::create_dir_all(&parent).await?;
@@ -103,7 +117,8 @@ impl FileStore for LocalFileStore {
         let mut buf_writer = BufWriter::new(file);
 
         while let Some(bytes_res) = contents.next().await {
-            let bytes = bytes_res.map_err(|e| UtilError::Other(e.to_string()))?;
+            let bytes =
+                bytes_res.map_err(|e| UtilError::new(UtilErrorType::Other, e.to_string(), None))?;
             buf_writer.write_all(&bytes).await?;
         }
 

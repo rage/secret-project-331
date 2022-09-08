@@ -15,7 +15,7 @@ use tokio::{fs::File, io::BufReader};
 use tokio_util::io::ReaderStream;
 use walkdir::WalkDir;
 
-use crate::UtilError;
+use crate::error::util_error::UtilError;
 
 /**
 Recursively hashes a folder returning a checksum.

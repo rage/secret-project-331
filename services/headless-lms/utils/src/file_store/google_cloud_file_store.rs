@@ -7,7 +7,7 @@ use futures::{future::try_join, StreamExt};
 use tokio_stream::wrappers::ReceiverStream;
 
 use super::{path_to_str, FileStore, GenericPayload};
-use crate::UtilError;
+use crate::error::util_error::UtilError;
 
 const BUFFER_SIZE: usize = 512;
 

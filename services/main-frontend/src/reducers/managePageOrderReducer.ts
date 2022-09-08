@@ -10,6 +10,7 @@ interface ManagePageOrderLoading {
   chapterIdToPages: null
   chapterIdToFrontPage: null
   unsavedChanges: false
+  unsavedChapterChanges: false
   chapters: null
 }
 
@@ -18,6 +19,7 @@ interface ManagePageOrderReady {
   chapterIdToPages: Dictionary<Page[]>
   chapterIdToFrontPage: Dictionary<Page>
   unsavedChanges: boolean
+  unsavedChapterChanges: boolean
   chapters: Chapter[]
 }
 
@@ -38,6 +40,7 @@ export const managePageOrderInitialState: ManagePageOrderState = {
   chapterIdToPages: null,
   chapterIdToFrontPage: null,
   unsavedChanges: false,
+  unsavedChapterChanges: false,
   chapters: null,
 }
 
@@ -74,6 +77,7 @@ export default function managePageOrderReducer(
 
         draftState.state = "ready"
         draftState.unsavedChanges = false
+        draftState.unsavedChapterChanges = false
         draftState.chapterIdToPages = groupedWithoutFrontpages
         draftState.chapterIdToFrontPage = chapterIdToFrontpage
         draftState.chapters = chapters
@@ -206,11 +210,7 @@ function moveChapterWithinChapterList(
   direction: "up" | "down",
   draftState: WritableDraft<ManagePageOrderLoading> | WritableDraft<ManagePageOrderReady>,
 ) {
-  console.log("chapters", chapters)
-  console.log("chapterToMoveId", chapterToMoveId)
-  console.log("direction", direction)
   const currentIndex = chapters.findIndex((chapter) => chapter.id === chapterToMoveId)
-  console.log("currentIndex", currentIndex)
   if (currentIndex === -1) {
     return
   }
@@ -221,5 +221,5 @@ function moveChapterWithinChapterList(
   const temp = chapters[currentIndex]
   chapters[currentIndex] = chapters[targetIndex]
   chapters[targetIndex] = temp
-  draftState.unsavedChanges = true
+  draftState.unsavedChapterChanges = true
 }

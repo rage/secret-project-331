@@ -2322,6 +2322,7 @@ pub async fn reorder_chapters(
     let db_chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
+
     for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
             if matching_db_chapter.id == chapter.id {
@@ -2338,6 +2339,11 @@ pub async fn reorder_chapters(
                 .execute(&mut tx)
                 .await?;
             }
+        }
+    }
+
+    for chapter in chapters {
+        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
             let old_chapter_id = matching_db_chapter.id;
             let new_chapter_id = chapter.id;
 
@@ -2368,9 +2374,14 @@ pub async fn reorder_chapters(
                         sqlx::query!("UPDATE pages SET url_path = $2, id = $1", page.id, new_path)
                             .execute(&mut tx)
                             .await?;
-                        sqlx::query!("INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",page.id, old_path, course_id)
+
+                        crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
+                            .await
+                            .unwrap();
+
+                        /* sqlx::query!("INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",page.id, old_path, course_id)
                         .execute(&mut tx)
-                        .await?;
+                        .await?; */
                     }
                 }
             } else {

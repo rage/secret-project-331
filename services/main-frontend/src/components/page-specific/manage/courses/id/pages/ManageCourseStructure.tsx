@@ -81,7 +81,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
     () => {
       if (!pageOrderState.chapters) {
         // eslint-disable-next-line i18next/no-literal-string
-        throw new Error("Page data not loaded")
+        throw new Error("Chapter data not loaded")
       }
       const chapters = pageOrderState.chapters
       return postNewChapterOrdering(courseStructure.course.id, chapters)
@@ -336,6 +336,19 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       <BottomPanel
         title={t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}
         show={pageOrderState.unsavedChanges}
+        leftButtonText={t("button-text-save")}
+        onClickLeft={() => {
+          postNewPageOrderingMutation.mutate()
+        }}
+        rightButtonText={t("button-reset")}
+        onClickRight={() => {
+          // eslint-disable-next-line i18next/no-literal-string
+          pageOrderDispatch({ type: "setData", payload: courseStructure })
+        }}
+      />
+      <BottomPanel
+        title={t("message-do-you-want-to-save-the-changes-to-the-chapter-ordering")}
+        show={pageOrderState.unsavedChapterChanges}
         leftButtonText={t("button-text-save")}
         onClickLeft={() => {
           postNewChapterOrderingMutation.mutate()

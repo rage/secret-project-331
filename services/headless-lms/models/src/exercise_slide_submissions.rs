@@ -219,7 +219,7 @@ WHERE id = $1
 
 /// Attempts to find a single random `ExerciseSlideSubmission` that is not related to the provided user.
 ///
-/// This function is mostly provided for very specific peer review purposes.
+/// This function is mostly provided for very specific peer review purposes. Used only as a last resort if no other candidates are found to be peer reviewed.
 pub async fn try_to_get_random_filtered_by_user_and_submissions(
     conn: &mut PgConnection,
     exercise_id: Uuid,

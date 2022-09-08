@@ -13,6 +13,7 @@ pub mod email_templates;
 pub mod exams;
 pub mod exercise_repositories;
 pub mod exercise_services;
+pub mod exercise_slide_submissions;
 pub mod exercises;
 pub mod feedback;
 pub mod glossary;
@@ -22,7 +23,6 @@ pub mod pages;
 pub mod playground_examples;
 pub mod proposed_edits;
 pub mod roles;
-pub mod submissions;
 pub mod users;
 
 use actix_web::web::{self, ServiceConfig};
@@ -39,7 +39,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/org").configure(org::_add_routes))
         .service(web::scope("/organizations").configure(organizations::_add_routes))
         .service(web::scope("/pages").configure(pages::_add_routes))
-        .service(web::scope("/submissions").configure(submissions::_add_routes))
+        .service(
+            web::scope("/exercise-slide-submissions")
+                .configure(exercise_slide_submissions::_add_routes),
+        )
         .service(web::scope("/proposed-edits").configure(proposed_edits::_add_routes))
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(web::scope("/playground_examples").configure(playground_examples::_add_routes))

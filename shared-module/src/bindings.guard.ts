@@ -164,2065 +164,2104 @@ import {
   UserRole,
 } from "./bindings"
 
-export function isActionOnResource(obj: any, _argumentName?: string): obj is ActionOnResource {
+export function isActionOnResource(obj: unknown): obj is ActionOnResource {
+  const typedObj = obj as ActionOnResource
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isAction(obj.action) as boolean) &&
-    (isResource(obj.resource) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isAction(typedObj["action"]) as boolean) &&
+    (isResource(typedObj["resource"]) as boolean)
   )
 }
 
-export function isAction(obj: any, _argumentName?: string): obj is Action {
+export function isAction(obj: unknown): obj is Action {
+  const typedObj = obj as Action
   return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "view") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "edit") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "grade") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "teach") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "download") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "duplicate") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "delete_answer") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "edit_role" &&
-      (isUserRole(obj.variant) as boolean)) ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "create_courses_or_exams") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "usually_unacceptable_deletion")
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "view") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edit") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "grade") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "teach") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "download") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "duplicate") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "delete_answer") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "edit_role" &&
+      (isUserRole(typedObj["variant"]) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "create_courses_or_exams") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "usually_unacceptable_deletion")
   )
 }
 
-export function isResource(obj: any, _argumentName?: string): obj is Resource {
+export function isResource(obj: unknown): obj is Resource {
+  const typedObj = obj as Resource
   return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "global_permissions") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "chapter" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "course" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "course_instance" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exam" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_slide_submission" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_task" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_task_grading" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_task_submission" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "organization" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "page" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "study_registry" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "any_course") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "role") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "user") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "playground_example") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "exercise_service") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.type === "material_reference")
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "global_permissions") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "chapter" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "course" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "course_instance" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exam" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise_slide_submission" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise_task" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise_task_grading" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise_task_submission" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "organization" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "page" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "study_registry" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "any_course") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "role") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "user") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "playground_example") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "exercise_service") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["type"] === "material_reference")
   )
 }
 
-export function isTerm(obj: any, _argumentName?: string): obj is Term {
+export function isTerm(obj: unknown): obj is Term {
+  const typedObj = obj as Term
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.term === "string" &&
-    typeof obj.definition === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["term"] === "string" &&
+    typeof typedObj["definition"] === "string"
   )
 }
 
-export function isTermUpdate(obj: any, _argumentName?: string): obj is TermUpdate {
+export function isTermUpdate(obj: unknown): obj is TermUpdate {
+  const typedObj = obj as TermUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.term === "string" &&
-    typeof obj.definition === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["term"] === "string" &&
+    typeof typedObj["definition"] === "string"
   )
 }
 
-export function isChapter(obj: any, _argumentName?: string): obj is Chapter {
+export function isChapter(obj: unknown): obj is Chapter {
+  const typedObj = obj as Chapter
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    typeof obj.course_module_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["chapter_image_url"] === null || typeof typedObj["chapter_image_url"] === "string") &&
+    typeof typedObj["chapter_number"] === "number" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["course_module_id"] === "string"
   )
 }
 
-export function isDatabaseChapter(obj: any, _argumentName?: string): obj is DatabaseChapter {
+export function isDatabaseChapter(obj: unknown): obj is DatabaseChapter {
+  const typedObj = obj as DatabaseChapter
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.chapter_image_path === null || typeof obj.chapter_image_path === "string") &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    typeof obj.course_module_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["chapter_image_path"] === null ||
+      typeof typedObj["chapter_image_path"] === "string") &&
+    typeof typedObj["chapter_number"] === "number" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["course_module_id"] === "string"
   )
 }
 
-export function isChapterStatus(obj: any, _argumentName?: string): obj is ChapterStatus {
-  return obj === "open" || obj === "closed"
+export function isChapterStatus(obj: unknown): obj is ChapterStatus {
+  const typedObj = obj as ChapterStatus
+  return typedObj === "open" || typedObj === "closed"
 }
 
-export function isChapterUpdate(obj: any, _argumentName?: string): obj is ChapterUpdate {
+export function isChapterUpdate(obj: unknown): obj is ChapterUpdate {
+  const typedObj = obj as ChapterUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.course_module_id === null || typeof obj.course_module_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string")
   )
 }
 
-export function isChapterWithStatus(obj: any, _argumentName?: string): obj is ChapterWithStatus {
+export function isChapterWithStatus(obj: unknown): obj is ChapterWithStatus {
+  const typedObj = obj as ChapterWithStatus
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (isChapterStatus(obj.status) as boolean) &&
-    (obj.chapter_image_url === null || typeof obj.chapter_image_url === "string") &&
-    typeof obj.course_module_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["chapter_number"] === "number" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (isChapterStatus(typedObj["status"]) as boolean) &&
+    (typedObj["chapter_image_url"] === null || typeof typedObj["chapter_image_url"] === "string") &&
+    typeof typedObj["course_module_id"] === "string"
   )
 }
 
-export function isNewChapter(obj: any, _argumentName?: string): obj is NewChapter {
+export function isNewChapter(obj: unknown): obj is NewChapter {
+  const typedObj = obj as NewChapter
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.course_module_id === null || typeof obj.course_module_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["chapter_number"] === "number" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string")
   )
 }
 
 export function isUserCourseInstanceChapterProgress(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is UserCourseInstanceChapterProgress {
+  const typedObj = obj as UserCourseInstanceChapterProgress
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.score_given === "number" &&
-    typeof obj.score_maximum === "number" &&
-    (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["score_given"] === "number" &&
+    typeof typedObj["score_maximum"] === "number" &&
+    (typedObj["total_exercises"] === null || typeof typedObj["total_exercises"] === "number") &&
+    (typedObj["attempted_exercises"] === null ||
+      typeof typedObj["attempted_exercises"] === "number")
   )
 }
 
-export function isCourseInstanceEnrollment(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseInstanceEnrollment {
+export function isCourseInstanceEnrollment(obj: unknown): obj is CourseInstanceEnrollment {
+  const typedObj = obj as CourseInstanceEnrollment
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_id === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.course_instance_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 
-export function isChapterScore(obj: any, _argumentName?: string): obj is ChapterScore {
+export function isChapterScore(obj: unknown): obj is ChapterScore {
+  const typedObj = obj as ChapterScore
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    typeof obj.course_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.chapter_image_path === null || typeof obj.chapter_image_path === "string") &&
-    typeof obj.chapter_number === "number" &&
-    (obj.front_page_id === null || typeof obj.front_page_id === "string") &&
-    (obj.opens_at === null || obj.opens_at instanceof Date) &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    typeof obj.course_module_id === "string" &&
-    typeof obj.score_given === "number" &&
-    typeof obj.score_total === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["chapter_image_path"] === null ||
+      typeof typedObj["chapter_image_path"] === "string") &&
+    typeof typedObj["chapter_number"] === "number" &&
+    (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
+    (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    typeof typedObj["score_given"] === "number" &&
+    typeof typedObj["score_total"] === "number"
   )
 }
 
-export function isCourseInstance(obj: any, _argumentName?: string): obj is CourseInstance {
+export function isCourseInstance(obj: unknown): obj is CourseInstance {
+  const typedObj = obj as CourseInstance
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.course_id === "string" &&
-    (obj.starts_at === null || obj.starts_at instanceof Date) &&
-    (obj.ends_at === null || obj.ends_at instanceof Date) &&
-    (obj.name === null || typeof obj.name === "string") &&
-    (obj.description === null || typeof obj.description === "string") &&
-    typeof obj.teacher_in_charge_name === "string" &&
-    typeof obj.teacher_in_charge_email === "string" &&
-    (obj.support_email === null || typeof obj.support_email === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
+    (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["teacher_in_charge_name"] === "string" &&
+    typeof typedObj["teacher_in_charge_email"] === "string" &&
+    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string")
   )
 }
 
-export function isCourseInstanceForm(obj: any, _argumentName?: string): obj is CourseInstanceForm {
+export function isCourseInstanceForm(obj: unknown): obj is CourseInstanceForm {
+  const typedObj = obj as CourseInstanceForm
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.name === null || typeof obj.name === "string") &&
-    (obj.description === null || typeof obj.description === "string") &&
-    typeof obj.teacher_in_charge_name === "string" &&
-    typeof obj.teacher_in_charge_email === "string" &&
-    (obj.support_email === null || typeof obj.support_email === "string") &&
-    (obj.opening_time === null || obj.opening_time instanceof Date) &&
-    (obj.closing_time === null || obj.closing_time instanceof Date)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["teacher_in_charge_name"] === "string" &&
+    typeof typedObj["teacher_in_charge_email"] === "string" &&
+    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string") &&
+    (typedObj["opening_time"] === null || typedObj["opening_time"] instanceof Date) &&
+    (typedObj["closing_time"] === null || typedObj["closing_time"] instanceof Date)
   )
 }
 
-export function isPointMap(obj: any, _argumentName?: string): obj is PointMap {
+export function isPointMap(obj: unknown): obj is PointMap {
+  const typedObj = obj as PointMap
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Object.entries<any>(obj).every(
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Object.entries<any>(typedObj).every(
       ([key, value]) => typeof value === "number" && typeof key === "string",
     )
   )
 }
 
-export function isPoints(obj: any, _argumentName?: string): obj is Points {
+export function isPoints(obj: unknown): obj is Points {
+  const typedObj = obj as Points
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.chapter_points) &&
-    obj.chapter_points.every((e: any) => isChapterScore(e) as boolean) &&
-    Array.isArray(obj.users) &&
-    obj.users.every((e: any) => isUser(e) as boolean) &&
-    ((obj.user_chapter_points !== null && typeof obj.user_chapter_points === "object") ||
-      typeof obj.user_chapter_points === "function") &&
-    Object.entries<any>(obj.user_chapter_points).every(
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["chapter_points"]) &&
+    typedObj["chapter_points"].every((e: any) => isChapterScore(e) as boolean) &&
+    Array.isArray(typedObj["users"]) &&
+    typedObj["users"].every((e: any) => isUser(e) as boolean) &&
+    ((typedObj["user_chapter_points"] !== null &&
+      typeof typedObj["user_chapter_points"] === "object") ||
+      typeof typedObj["user_chapter_points"] === "function") &&
+    Object.entries<any>(typedObj["user_chapter_points"]).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
   )
 }
 
-export function isCourseModule(obj: any, _argumentName?: string): obj is CourseModule {
+export function isCourseModule(obj: unknown): obj is CourseModule {
+  const typedObj = obj as CourseModule
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.course_id === "string" &&
-    typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
-    typeof obj.automatic_completion === "boolean" &&
-    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
-      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
-    (obj.automatic_completion_number_of_points_treshold === null ||
-      typeof obj.automatic_completion_number_of_points_treshold === "number") &&
-    (obj.ects_credits === null || typeof obj.ects_credits === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
+    typeof typedObj["automatic_completion"] === "boolean" &&
+    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
+        "number") &&
+    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
   )
 }
 
-export function isModifiedModule(obj: any, _argumentName?: string): obj is ModifiedModule {
+export function isModifiedModule(obj: unknown): obj is ModifiedModule {
+  const typedObj = obj as ModifiedModule
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.order_number === "number" &&
-    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
-    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
-    (obj.automatic_completion === null ||
-      obj.automatic_completion === false ||
-      obj.automatic_completion === true) &&
-    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
-      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
-    (obj.automatic_completion_number_of_points_treshold === null ||
-      typeof obj.automatic_completion_number_of_points_treshold === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    (typedObj["automatic_completion"] === null ||
+      typedObj["automatic_completion"] === false ||
+      typedObj["automatic_completion"] === true) &&
+    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
+        "number") &&
+    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
   )
 }
 
-export function isModuleUpdates(obj: any, _argumentName?: string): obj is ModuleUpdates {
+export function isModuleUpdates(obj: unknown): obj is ModuleUpdates {
+  const typedObj = obj as ModuleUpdates
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.new_modules) &&
-    obj.new_modules.every((e: any) => isNewModule(e) as boolean) &&
-    Array.isArray(obj.deleted_modules) &&
-    obj.deleted_modules.every((e: any) => typeof e === "string") &&
-    Array.isArray(obj.modified_modules) &&
-    obj.modified_modules.every((e: any) => isModifiedModule(e) as boolean) &&
-    Array.isArray(obj.moved_chapters) &&
-    obj.moved_chapters.every(
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["new_modules"]) &&
+    typedObj["new_modules"].every((e: any) => isNewModule(e) as boolean) &&
+    Array.isArray(typedObj["deleted_modules"]) &&
+    typedObj["deleted_modules"].every((e: any) => typeof e === "string") &&
+    Array.isArray(typedObj["modified_modules"]) &&
+    typedObj["modified_modules"].every((e: any) => isModifiedModule(e) as boolean) &&
+    Array.isArray(typedObj["moved_chapters"]) &&
+    typedObj["moved_chapters"].every(
       (e: any) => Array.isArray(e) && typeof e[0] === "string" && typeof e[1] === "string",
     )
   )
 }
 
-export function isNewModule(obj: any, _argumentName?: string): obj is NewModule {
+export function isNewModule(obj: unknown): obj is NewModule {
+  const typedObj = obj as NewModule
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => typeof e === "string") &&
-    (obj.uh_course_code === null || typeof obj.uh_course_code === "string") &&
-    (obj.ects_credits === null || typeof obj.ects_credits === "number") &&
-    (obj.automatic_completion === null ||
-      obj.automatic_completion === false ||
-      obj.automatic_completion === true) &&
-    (obj.automatic_completion_number_of_exercises_attempted_treshold === null ||
-      typeof obj.automatic_completion_number_of_exercises_attempted_treshold === "number") &&
-    (obj.automatic_completion_number_of_points_treshold === null ||
-      typeof obj.automatic_completion_number_of_points_treshold === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    Array.isArray(typedObj["chapters"]) &&
+    typedObj["chapters"].every((e: any) => typeof e === "string") &&
+    (typedObj["uh_course_code"] === null || typeof typedObj["uh_course_code"] === "string") &&
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number") &&
+    (typedObj["automatic_completion"] === null ||
+      typedObj["automatic_completion"] === false ||
+      typedObj["automatic_completion"] === true) &&
+    (typedObj["automatic_completion_number_of_exercises_attempted_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
+        "number") &&
+    (typedObj["automatic_completion_number_of_points_treshold"] === null ||
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
   )
 }
 
-export function isCourse(obj: any, _argumentName?: string): obj is Course {
+export function isCourse(obj: unknown): obj is Course {
+  const typedObj = obj as Course
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.slug === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    (obj.description === null || typeof obj.description === "string") &&
-    typeof obj.organization_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.language_code === "string" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.content_search_language === null || typeof obj.content_search_language === "string") &&
-    typeof obj.course_language_group_id === "string" &&
-    typeof obj.is_draft === "boolean" &&
-    typeof obj.is_test_mode === "boolean" &&
-    typeof obj.base_module_completion_requires_n_submodule_completions === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["organization_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["language_code"] === "string" &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    (typedObj["content_search_language"] === null ||
+      typeof typedObj["content_search_language"] === "string") &&
+    typeof typedObj["course_language_group_id"] === "string" &&
+    typeof typedObj["is_draft"] === "boolean" &&
+    typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number"
   )
 }
 
-export function isCourseStructure(obj: any, _argumentName?: string): obj is CourseStructure {
+export function isCourseStructure(obj: unknown): obj is CourseStructure {
+  const typedObj = obj as CourseStructure
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isCourse(obj.course) as boolean) &&
-    Array.isArray(obj.pages) &&
-    obj.pages.every((e: any) => isPage(e) as boolean) &&
-    Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapter(e) as boolean) &&
-    Array.isArray(obj.modules) &&
-    obj.modules.every((e: any) => isCourseModule(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCourse(typedObj["course"]) as boolean) &&
+    Array.isArray(typedObj["pages"]) &&
+    typedObj["pages"].every((e: any) => isPage(e) as boolean) &&
+    Array.isArray(typedObj["chapters"]) &&
+    typedObj["chapters"].every((e: any) => isChapter(e) as boolean) &&
+    Array.isArray(typedObj["modules"]) &&
+    typedObj["modules"].every((e: any) => isCourseModule(e) as boolean)
   )
 }
 
-export function isCourseUpdate(obj: any, _argumentName?: string): obj is CourseUpdate {
+export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
+  const typedObj = obj as CourseUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    (obj.description === null || typeof obj.description === "string") &&
-    typeof obj.is_draft === "boolean" &&
-    typeof obj.is_test_mode === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    typeof typedObj["is_draft"] === "boolean" &&
+    typeof typedObj["is_test_mode"] === "boolean"
   )
 }
 
-export function isNewCourse(obj: any, _argumentName?: string): obj is NewCourse {
+export function isNewCourse(obj: unknown): obj is NewCourse {
+  const typedObj = obj as NewCourse
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.organization_id === "string" &&
-    typeof obj.language_code === "string" &&
-    typeof obj.teacher_in_charge_name === "string" &&
-    typeof obj.teacher_in_charge_email === "string" &&
-    typeof obj.description === "string" &&
-    typeof obj.is_draft === "boolean" &&
-    typeof obj.is_test_mode === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typeof typedObj["organization_id"] === "string" &&
+    typeof typedObj["language_code"] === "string" &&
+    typeof typedObj["teacher_in_charge_name"] === "string" &&
+    typeof typedObj["teacher_in_charge_email"] === "string" &&
+    typeof typedObj["description"] === "string" &&
+    typeof typedObj["is_draft"] === "boolean" &&
+    typeof typedObj["is_test_mode"] === "boolean"
   )
 }
 
-export function isCourseCount(obj: any, _argumentName?: string): obj is CourseCount {
+export function isCourseCount(obj: unknown): obj is CourseCount {
+  const typedObj = obj as CourseCount
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.count === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["count"] === "number"
   )
 }
 
-export function isEmailTemplate(obj: any, _argumentName?: string): obj is EmailTemplate {
+export function isEmailTemplate(obj: unknown): obj is EmailTemplate {
+  const typedObj = obj as EmailTemplate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.name === "string" &&
-    (obj.subject === null || typeof obj.subject === "string") &&
-    (obj.exercise_completions_threshold === null ||
-      typeof obj.exercise_completions_threshold === "number") &&
-    (obj.points_threshold === null || typeof obj.points_threshold === "number") &&
-    typeof obj.course_instance_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["subject"] === null || typeof typedObj["subject"] === "string") &&
+    (typedObj["exercise_completions_threshold"] === null ||
+      typeof typedObj["exercise_completions_threshold"] === "number") &&
+    (typedObj["points_threshold"] === null || typeof typedObj["points_threshold"] === "number") &&
+    typeof typedObj["course_instance_id"] === "string"
   )
 }
 
-export function isEmailTemplateNew(obj: any, _argumentName?: string): obj is EmailTemplateNew {
+export function isEmailTemplateNew(obj: unknown): obj is EmailTemplateNew {
+  const typedObj = obj as EmailTemplateNew
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string"
   )
 }
 
-export function isEmailTemplateUpdate(
-  obj: any,
-  _argumentName?: string,
-): obj is EmailTemplateUpdate {
+export function isEmailTemplateUpdate(obj: unknown): obj is EmailTemplateUpdate {
+  const typedObj = obj as EmailTemplateUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.subject === "string" &&
-    (obj.exercise_completions_threshold === null ||
-      typeof obj.exercise_completions_threshold === "number") &&
-    (obj.points_threshold === null || typeof obj.points_threshold === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["subject"] === "string" &&
+    (typedObj["exercise_completions_threshold"] === null ||
+      typeof typedObj["exercise_completions_threshold"] === "number") &&
+    (typedObj["points_threshold"] === null || typeof typedObj["points_threshold"] === "number")
   )
 }
 
-export function isCourseExam(obj: any, _argumentName?: string): obj is CourseExam {
+export function isCourseExam(obj: unknown): obj is CourseExam {
+  const typedObj = obj as CourseExam
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.course_name === "string" &&
-    typeof obj.name === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["name"] === "string"
   )
 }
 
-export function isExam(obj: any, _argumentName?: string): obj is Exam {
+export function isExam(obj: unknown): obj is Exam {
+  const typedObj = obj as Exam
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.page_id === "string" &&
-    Array.isArray(obj.courses) &&
-    obj.courses.every((e: any) => isCourse(e) as boolean) &&
-    (obj.starts_at === null || obj.starts_at instanceof Date) &&
-    (obj.ends_at === null || obj.ends_at instanceof Date) &&
-    typeof obj.time_minutes === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    Array.isArray(typedObj["courses"]) &&
+    typedObj["courses"].every((e: any) => isCourse(e) as boolean) &&
+    (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
+    (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
+    typeof typedObj["time_minutes"] === "number"
   )
 }
 
-export function isExamEnrollment(obj: any, _argumentName?: string): obj is ExamEnrollment {
+export function isExamEnrollment(obj: unknown): obj is ExamEnrollment {
+  const typedObj = obj as ExamEnrollment
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_id === "string" &&
-    typeof obj.exam_id === "string" &&
-    obj.started_at instanceof Date
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["exam_id"] === "string" &&
+    typedObj["started_at"] instanceof Date
   )
 }
 
-export function isNewExam(obj: any, _argumentName?: string): obj is NewExam {
+export function isNewExam(obj: unknown): obj is NewExam {
+  const typedObj = obj as NewExam
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    (obj.starts_at === null || obj.starts_at instanceof Date) &&
-    (obj.ends_at === null || obj.ends_at instanceof Date) &&
-    typeof obj.time_minutes === "number" &&
-    typeof obj.organization_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
+    (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
+    typeof typedObj["time_minutes"] === "number" &&
+    typeof typedObj["organization_id"] === "string"
   )
 }
 
-export function isOrgExam(obj: any, _argumentName?: string): obj is OrgExam {
+export function isOrgExam(obj: unknown): obj is OrgExam {
+  const typedObj = obj as OrgExam
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    (obj.starts_at === null || obj.starts_at instanceof Date) &&
-    (obj.ends_at === null || obj.ends_at instanceof Date) &&
-    typeof obj.time_minutes === "number" &&
-    typeof obj.organization_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["starts_at"] === null || typedObj["starts_at"] instanceof Date) &&
+    (typedObj["ends_at"] === null || typedObj["ends_at"] instanceof Date) &&
+    typeof typedObj["time_minutes"] === "number" &&
+    typeof typedObj["organization_id"] === "string"
   )
 }
 
-export function isExamInstructions(obj: any, _argumentName?: string): obj is ExamInstructions {
+export function isExamInstructions(obj: unknown): obj is ExamInstructions {
+  const typedObj = obj as ExamInstructions
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string"
   )
 }
 
-export function isExamInstructionsUpdate(
-  obj: any,
-  _argumentName?: string,
-): obj is ExamInstructionsUpdate {
-  return (obj !== null && typeof obj === "object") || typeof obj === "function"
+export function isExamInstructionsUpdate(obj: unknown): obj is ExamInstructionsUpdate {
+  const typedObj = obj as ExamInstructionsUpdate
+  return (typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function"
 }
 
-export function isExerciseRepository(obj: any, _argumentName?: string): obj is ExerciseRepository {
+export function isExerciseRepository(obj: unknown): obj is ExerciseRepository {
+  const typedObj = obj as ExerciseRepository
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.url === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    (isExerciseRepositoryStatus(obj.status) as boolean) &&
-    (obj.error_message === null || typeof obj.error_message === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (isExerciseRepositoryStatus(typedObj["status"]) as boolean) &&
+    (typedObj["error_message"] === null || typeof typedObj["error_message"] === "string")
   )
 }
 
-export function isExerciseRepositoryStatus(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseRepositoryStatus {
-  return obj === "Pending" || obj === "Success" || obj === "Failure"
+export function isExerciseRepositoryStatus(obj: unknown): obj is ExerciseRepositoryStatus {
+  const typedObj = obj as ExerciseRepositoryStatus
+  return typedObj === "Pending" || typedObj === "Success" || typedObj === "Failure"
 }
 
 export function isCourseMaterialExerciseServiceInfo(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is CourseMaterialExerciseServiceInfo {
+  const typedObj = obj as CourseMaterialExerciseServiceInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_iframe_url === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_iframe_url"] === "string"
   )
 }
 
-export function isExerciseServiceInfoApi(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseServiceInfoApi {
+export function isExerciseServiceInfoApi(obj: unknown): obj is ExerciseServiceInfoApi {
+  const typedObj = obj as ExerciseServiceInfoApi
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.service_name === "string" &&
-    typeof obj.user_interface_iframe_path === "string" &&
-    typeof obj.grade_endpoint_path === "string" &&
-    typeof obj.public_spec_endpoint_path === "string" &&
-    typeof obj.model_solution_spec_endpoint_path === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["service_name"] === "string" &&
+    typeof typedObj["user_interface_iframe_path"] === "string" &&
+    typeof typedObj["grade_endpoint_path"] === "string" &&
+    typeof typedObj["public_spec_endpoint_path"] === "string" &&
+    typeof typedObj["model_solution_spec_endpoint_path"] === "string"
   )
 }
 
-export function isExerciseService(obj: any, _argumentName?: string): obj is ExerciseService {
+export function isExerciseService(obj: unknown): obj is ExerciseService {
+  const typedObj = obj as ExerciseService
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.name === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.public_url === "string" &&
-    (obj.internal_url === null || typeof obj.internal_url === "string") &&
-    typeof obj.max_reprocessing_submissions_at_once === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typeof typedObj["public_url"] === "string" &&
+    (typedObj["internal_url"] === null || typeof typedObj["internal_url"] === "string") &&
+    typeof typedObj["max_reprocessing_submissions_at_once"] === "number"
   )
 }
 
-export function isExerciseServiceNewOrUpdate(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseServiceNewOrUpdate {
+export function isExerciseServiceNewOrUpdate(obj: unknown): obj is ExerciseServiceNewOrUpdate {
+  const typedObj = obj as ExerciseServiceNewOrUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.public_url === "string" &&
-    (obj.internal_url === null || typeof obj.internal_url === "string") &&
-    typeof obj.max_reprocessing_submissions_at_once === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typeof typedObj["public_url"] === "string" &&
+    (typedObj["internal_url"] === null || typeof typedObj["internal_url"] === "string") &&
+    typeof typedObj["max_reprocessing_submissions_at_once"] === "number"
   )
 }
 
 export function isExerciseServiceIframeRenderingInfo(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ExerciseServiceIframeRenderingInfo {
+  const typedObj = obj as ExerciseServiceIframeRenderingInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.public_iframe_url === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typeof typedObj["public_iframe_url"] === "string"
   )
 }
 
-export function isCourseMaterialExerciseSlide(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseMaterialExerciseSlide {
+export function isCourseMaterialExerciseSlide(obj: unknown): obj is CourseMaterialExerciseSlide {
+  const typedObj = obj as CourseMaterialExerciseSlide
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 
-export function isExerciseSlide(obj: any, _argumentName?: string): obj is ExerciseSlide {
+export function isExerciseSlide(obj: unknown): obj is ExerciseSlide {
+  const typedObj = obj as ExerciseSlide
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isCourseMaterialExerciseTask(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseMaterialExerciseTask {
+export function isCourseMaterialExerciseTask(obj: unknown): obj is CourseMaterialExerciseTask {
+  const typedObj = obj as CourseMaterialExerciseTask
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_slide_id === "string" &&
-    (obj.exercise_iframe_url === null || typeof obj.exercise_iframe_url === "string") &&
-    (obj.pseudonumous_user_id === null || typeof obj.pseudonumous_user_id === "string") &&
-    (obj.previous_submission === null ||
-      (isExerciseTaskSubmission(obj.previous_submission) as boolean)) &&
-    (obj.previous_submission_grading === null ||
-      (isExerciseTaskGrading(obj.previous_submission_grading) as boolean)) &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    (typedObj["exercise_iframe_url"] === null ||
+      typeof typedObj["exercise_iframe_url"] === "string") &&
+    (typedObj["pseudonumous_user_id"] === null ||
+      typeof typedObj["pseudonumous_user_id"] === "string") &&
+    (typedObj["previous_submission"] === null ||
+      (isExerciseTaskSubmission(typedObj["previous_submission"]) as boolean)) &&
+    (typedObj["previous_submission_grading"] === null ||
+      (isExerciseTaskGrading(typedObj["previous_submission_grading"]) as boolean)) &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isExerciseTask(obj: any, _argumentName?: string): obj is ExerciseTask {
+export function isExerciseTask(obj: unknown): obj is ExerciseTask {
+  const typedObj = obj as ExerciseTask
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    typeof typedObj["exercise_type"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isActivityProgress(obj: any, _argumentName?: string): obj is ActivityProgress {
+export function isActivityProgress(obj: unknown): obj is ActivityProgress {
+  const typedObj = obj as ActivityProgress
   return (
-    obj === "Initialized" ||
-    obj === "Started" ||
-    obj === "InProgress" ||
-    obj === "Submitted" ||
-    obj === "Completed"
+    typedObj === "Initialized" ||
+    typedObj === "Started" ||
+    typedObj === "InProgress" ||
+    typedObj === "Submitted" ||
+    typedObj === "Completed"
   )
 }
 
-export function isCourseMaterialExercise(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseMaterialExercise {
+export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExercise {
+  const typedObj = obj as CourseMaterialExercise
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExercise(obj.exercise) as boolean) &&
-    typeof obj.can_post_submission === "boolean" &&
-    (isCourseMaterialExerciseSlide(obj.current_exercise_slide) as boolean) &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    (isPointMap(obj.exercise_slide_submission_counts) as boolean) &&
-    (obj.peer_review_config === null || (isPeerReviewConfig(obj.peer_review_config) as boolean))
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExercise(typedObj["exercise"]) as boolean) &&
+    typeof typedObj["can_post_submission"] === "boolean" &&
+    (isCourseMaterialExerciseSlide(typedObj["current_exercise_slide"]) as boolean) &&
+    (typedObj["exercise_status"] === null ||
+      (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
+    (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
+    (typedObj["peer_review_config"] === null ||
+      (isPeerReviewConfig(typedObj["peer_review_config"]) as boolean))
   )
 }
 
-export function isExercise(obj: any, _argumentName?: string): obj is Exercise {
+export function isExercise(obj: unknown): obj is Exercise {
+  const typedObj = obj as Exercise
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.page_id === "string" &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.score_maximum === "number" &&
-    typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean" &&
-    typeof obj.needs_peer_review === "boolean" &&
-    typeof obj.use_course_default_peer_review_config === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["page_id"] === "string" &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string") &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["score_maximum"] === "number" &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    (typedObj["max_tries_per_slide"] === null ||
+      typeof typedObj["max_tries_per_slide"] === "number") &&
+    typeof typedObj["limit_number_of_tries"] === "boolean" &&
+    typeof typedObj["needs_peer_review"] === "boolean" &&
+    typeof typedObj["use_course_default_peer_review_config"] === "boolean"
   )
 }
 
-export function isExerciseStatus(obj: any, _argumentName?: string): obj is ExerciseStatus {
+export function isExerciseStatus(obj: unknown): obj is ExerciseStatus {
+  const typedObj = obj as ExerciseStatus
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    (isActivityProgress(obj.activity_progress) as boolean) &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (isReviewingStage(obj.reviewing_stage) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    (isActivityProgress(typedObj["activity_progress"]) as boolean) &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    (isReviewingStage(typedObj["reviewing_stage"]) as boolean)
   )
 }
 
-export function isGradingProgress(obj: any, _argumentName?: string): obj is GradingProgress {
+export function isGradingProgress(obj: unknown): obj is GradingProgress {
+  const typedObj = obj as GradingProgress
   return (
-    obj === "Pending" ||
-    obj === "Failed" ||
-    obj === "NotReady" ||
-    obj === "PendingManual" ||
-    obj === "FullyGraded"
+    typedObj === "Pending" ||
+    typedObj === "Failed" ||
+    typedObj === "NotReady" ||
+    typedObj === "PendingManual" ||
+    typedObj === "FullyGraded"
   )
 }
 
-export function isFeedback(obj: any, _argumentName?: string): obj is Feedback {
+export function isFeedback(obj: unknown): obj is Feedback {
+  const typedObj = obj as Feedback
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.user_id === null || typeof obj.user_id === "string") &&
-    typeof obj.course_id === "string" &&
-    (obj.page_id === null || typeof obj.page_id === "string") &&
-    typeof obj.feedback_given === "string" &&
-    (obj.selected_text === null || typeof obj.selected_text === "string") &&
-    typeof obj.marked_as_read === "boolean" &&
-    obj.created_at instanceof Date &&
-    Array.isArray(obj.blocks) &&
-    obj.blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
-    typeof obj.page_title === "string" &&
-    typeof obj.page_url_path === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["user_id"] === null || typeof typedObj["user_id"] === "string") &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["page_id"] === null || typeof typedObj["page_id"] === "string") &&
+    typeof typedObj["feedback_given"] === "string" &&
+    (typedObj["selected_text"] === null || typeof typedObj["selected_text"] === "string") &&
+    typeof typedObj["marked_as_read"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    Array.isArray(typedObj["blocks"]) &&
+    typedObj["blocks"].every((e: any) => isFeedbackBlock(e) as boolean) &&
+    typeof typedObj["page_title"] === "string" &&
+    typeof typedObj["page_url_path"] === "string"
   )
 }
 
-export function isFeedbackBlock(obj: any, _argumentName?: string): obj is FeedbackBlock {
+export function isFeedbackBlock(obj: unknown): obj is FeedbackBlock {
+  const typedObj = obj as FeedbackBlock
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.text === null || typeof obj.text === "string") &&
-    (obj.order_number === null || typeof obj.order_number === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["text"] === null || typeof typedObj["text"] === "string") &&
+    (typedObj["order_number"] === null || typeof typedObj["order_number"] === "number")
   )
 }
 
-export function isFeedbackCount(obj: any, _argumentName?: string): obj is FeedbackCount {
+export function isFeedbackCount(obj: unknown): obj is FeedbackCount {
+  const typedObj = obj as FeedbackCount
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.read === "number" &&
-    typeof obj.unread === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["read"] === "number" &&
+    typeof typedObj["unread"] === "number"
   )
 }
 
-export function isNewFeedback(obj: any, _argumentName?: string): obj is NewFeedback {
+export function isNewFeedback(obj: unknown): obj is NewFeedback {
+  const typedObj = obj as NewFeedback
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.feedback_given === "string" &&
-    (obj.selected_text === null || typeof obj.selected_text === "string") &&
-    Array.isArray(obj.related_blocks) &&
-    obj.related_blocks.every((e: any) => isFeedbackBlock(e) as boolean) &&
-    typeof obj.page_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["feedback_given"] === "string" &&
+    (typedObj["selected_text"] === null || typeof typedObj["selected_text"] === "string") &&
+    Array.isArray(typedObj["related_blocks"]) &&
+    typedObj["related_blocks"].every((e: any) => isFeedbackBlock(e) as boolean) &&
+    typeof typedObj["page_id"] === "string"
   )
 }
 
 export function isStudentExerciseSlideSubmission(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is StudentExerciseSlideSubmission {
+  const typedObj = obj as StudentExerciseSlideSubmission
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_id === "string" &&
-    Array.isArray(obj.exercise_task_submissions) &&
-    obj.exercise_task_submissions.every((e: any) => isStudentExerciseTaskSubmission(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    Array.isArray(typedObj["exercise_task_submissions"]) &&
+    typedObj["exercise_task_submissions"].every(
+      (e: any) => isStudentExerciseTaskSubmission(e) as boolean,
+    )
   )
 }
 
 export function isStudentExerciseSlideSubmissionResult(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is StudentExerciseSlideSubmissionResult {
+  const typedObj = obj as StudentExerciseSlideSubmissionResult
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.exercise_status === null || (isExerciseStatus(obj.exercise_status) as boolean)) &&
-    Array.isArray(obj.exercise_task_submission_results) &&
-    obj.exercise_task_submission_results.every(
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["exercise_status"] === null ||
+      (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
+    Array.isArray(typedObj["exercise_task_submission_results"]) &&
+    typedObj["exercise_task_submission_results"].every(
       (e: any) => isStudentExerciseTaskSubmissionResult(e) as boolean,
     )
   )
 }
 
 export function isStudentExerciseTaskSubmission(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is StudentExerciseTaskSubmission {
+  const typedObj = obj as StudentExerciseTaskSubmission
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_task_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_task_id"] === "string"
   )
 }
 
 export function isStudentExerciseTaskSubmissionResult(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is StudentExerciseTaskSubmissionResult {
+  const typedObj = obj as StudentExerciseTaskSubmissionResult
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isExerciseTaskSubmission(obj.submission) as boolean) &&
-    (obj.grading === null || (isExerciseTaskGrading(obj.grading) as boolean))
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExerciseTaskSubmission(typedObj["submission"]) as boolean) &&
+    (typedObj["grading"] === null || (isExerciseTaskGrading(typedObj["grading"]) as boolean))
   )
 }
 
-export function isCourseMaterialPeerReviewData(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseMaterialPeerReviewData {
+export function isCourseMaterialPeerReviewData(obj: unknown): obj is CourseMaterialPeerReviewData {
+  const typedObj = obj as CourseMaterialPeerReviewData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.answer_to_review === null ||
-      (isCourseMaterialPeerReviewDataAnswerToReview(obj.answer_to_review) as boolean)) &&
-    (isPeerReviewConfig(obj.peer_review_config) as boolean) &&
-    Array.isArray(obj.peer_review_questions) &&
-    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
-    typeof obj.num_peer_reviews_given === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["answer_to_review"] === null ||
+      (isCourseMaterialPeerReviewDataAnswerToReview(typedObj["answer_to_review"]) as boolean)) &&
+    (isPeerReviewConfig(typedObj["peer_review_config"]) as boolean) &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    typeof typedObj["num_peer_reviews_given"] === "number"
   )
 }
 
 export function isCourseMaterialPeerReviewDataAnswerToReview(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is CourseMaterialPeerReviewDataAnswerToReview {
+  const typedObj = obj as CourseMaterialPeerReviewDataAnswerToReview
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    Array.isArray(obj.course_material_exercise_tasks) &&
-    obj.course_material_exercise_tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_slide_submission_id"] === "string" &&
+    Array.isArray(typedObj["course_material_exercise_tasks"]) &&
+    typedObj["course_material_exercise_tasks"].every(
+      (e: any) => isCourseMaterialExerciseTask(e) as boolean,
+    )
   )
 }
 
 export function isCourseMaterialPeerReviewQuestionAnswer(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is CourseMaterialPeerReviewQuestionAnswer {
+  const typedObj = obj as CourseMaterialPeerReviewQuestionAnswer
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.peer_review_question_id === "string" &&
-    (obj.text_data === null || typeof obj.text_data === "string") &&
-    (obj.number_data === null || typeof obj.number_data === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["peer_review_question_id"] === "string" &&
+    (typedObj["text_data"] === null || typeof typedObj["text_data"] === "string") &&
+    (typedObj["number_data"] === null || typeof typedObj["number_data"] === "number")
   )
 }
 
 export function isCourseMaterialPeerReviewSubmission(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is CourseMaterialPeerReviewSubmission {
+  const typedObj = obj as CourseMaterialPeerReviewSubmission
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    typeof obj.peer_review_config_id === "string" &&
-    Array.isArray(obj.peer_review_question_answers) &&
-    obj.peer_review_question_answers.every(
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_slide_submission_id"] === "string" &&
+    typeof typedObj["peer_review_config_id"] === "string" &&
+    Array.isArray(typedObj["peer_review_question_answers"]) &&
+    typedObj["peer_review_question_answers"].every(
       (e: any) => isCourseMaterialPeerReviewQuestionAnswer(e) as boolean,
     )
   )
 }
 
-export function isCompletionRegistrationLink(
-  obj: any,
-  _argumentName?: string,
-): obj is CompletionRegistrationLink {
+export function isCompletionRegistrationLink(obj: unknown): obj is CompletionRegistrationLink {
+  const typedObj = obj as CompletionRegistrationLink
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.url === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["url"] === "string"
   )
 }
 
-export function isUserCompletionInformation(
-  obj: any,
-  _argumentName?: string,
-): obj is UserCompletionInformation {
+export function isUserCompletionInformation(obj: unknown): obj is UserCompletionInformation {
+  const typedObj = obj as UserCompletionInformation
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.course_module_completion_id === "string" &&
-    typeof obj.course_name === "string" &&
-    typeof obj.uh_course_code === "string" &&
-    typeof obj.email === "string" &&
-    (obj.ects_credits === null || typeof obj.ects_credits === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_completion_id"] === "string" &&
+    typeof typedObj["course_name"] === "string" &&
+    typeof typedObj["uh_course_code"] === "string" &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
   )
 }
 
-export function isUserModuleCompletionStatus(
-  obj: any,
-  _argumentName?: string,
-): obj is UserModuleCompletionStatus {
+export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCompletionStatus {
+  const typedObj = obj as UserModuleCompletionStatus
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.completed === "boolean" &&
-    typeof obj.default === "boolean" &&
-    typeof obj.module_id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    typeof obj.prerequisite_modules_completed === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["completed"] === "boolean" &&
+    typeof typedObj["default"] === "boolean" &&
+    typeof typedObj["module_id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    typeof typedObj["prerequisite_modules_completed"] === "boolean"
   )
 }
 
-export function isMaterialReference(obj: any, _argumentName?: string): obj is MaterialReference {
+export function isMaterialReference(obj: unknown): obj is MaterialReference {
+  const typedObj = obj as MaterialReference
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.course_id === "string" &&
-    typeof obj.citation_key === "string" &&
-    typeof obj.reference === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["citation_key"] === "string" &&
+    typeof typedObj["reference"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 
-export function isNewMaterialReference(
-  obj: any,
-  _argumentName?: string,
-): obj is NewMaterialReference {
+export function isNewMaterialReference(obj: unknown): obj is NewMaterialReference {
+  const typedObj = obj as NewMaterialReference
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.citation_key === "string" &&
-    typeof obj.reference === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["citation_key"] === "string" &&
+    typeof typedObj["reference"] === "string"
   )
 }
 
-export function isOrganization(obj: any, _argumentName?: string): obj is Organization {
+export function isOrganization(obj: unknown): obj is Organization {
+  const typedObj = obj as Organization
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.slug === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.name === "string" &&
-    (obj.description === null || typeof obj.description === "string") &&
-    (obj.organization_image_url === null || typeof obj.organization_image_url === "string") &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["slug"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
+    (typedObj["organization_image_url"] === null ||
+      typeof typedObj["organization_image_url"] === "string") &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 
-export function isPageHistory(obj: any, _argumentName?: string): obj is PageHistory {
+export function isPageHistory(obj: unknown): obj is PageHistory {
+  const typedObj = obj as PageHistory
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    typeof obj.title === "string" &&
-    (isHistoryChangeReason(obj.history_change_reason) as boolean) &&
-    (obj.restored_from_id === null || typeof obj.restored_from_id === "string") &&
-    typeof obj.author_user_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typeof typedObj["title"] === "string" &&
+    (isHistoryChangeReason(typedObj["history_change_reason"]) as boolean) &&
+    (typedObj["restored_from_id"] === null || typeof typedObj["restored_from_id"] === "string") &&
+    typeof typedObj["author_user_id"] === "string"
   )
 }
 
-export function isHistoryChangeReason(
-  obj: any,
-  _argumentName?: string,
-): obj is HistoryChangeReason {
-  return obj === "PageSaved" || obj === "HistoryRestored"
+export function isHistoryChangeReason(obj: unknown): obj is HistoryChangeReason {
+  const typedObj = obj as HistoryChangeReason
+  return typedObj === "PageSaved" || typedObj === "HistoryRestored"
 }
 
-export function isCmsPageExercise(obj: any, _argumentName?: string): obj is CmsPageExercise {
+export function isCmsPageExercise(obj: unknown): obj is CmsPageExercise {
+  const typedObj = obj as CmsPageExercise
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.order_number === "number" &&
-    typeof obj.score_maximum === "number" &&
-    (obj.max_tries_per_slide === null || typeof obj.max_tries_per_slide === "number") &&
-    typeof obj.limit_number_of_tries === "boolean" &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    typeof obj.needs_peer_review === "boolean" &&
-    (obj.peer_review_config === null ||
-      (isCmsPeerReviewConfig(obj.peer_review_config) as boolean)) &&
-    (obj.peer_review_questions === null ||
-      (Array.isArray(obj.peer_review_questions) &&
-        obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean))) &&
-    typeof obj.use_course_default_peer_review_config === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    typeof typedObj["score_maximum"] === "number" &&
+    (typedObj["max_tries_per_slide"] === null ||
+      typeof typedObj["max_tries_per_slide"] === "number") &&
+    typeof typedObj["limit_number_of_tries"] === "boolean" &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    typeof typedObj["needs_peer_review"] === "boolean" &&
+    (typedObj["peer_review_config"] === null ||
+      (isCmsPeerReviewConfig(typedObj["peer_review_config"]) as boolean)) &&
+    (typedObj["peer_review_questions"] === null ||
+      (Array.isArray(typedObj["peer_review_questions"]) &&
+        typedObj["peer_review_questions"].every(
+          (e: any) => isCmsPeerReviewQuestion(e) as boolean,
+        ))) &&
+    typeof typedObj["use_course_default_peer_review_config"] === "boolean"
   )
 }
 
-export function isCmsPageExerciseSlide(
-  obj: any,
-  _argumentName?: string,
-): obj is CmsPageExerciseSlide {
+export function isCmsPageExerciseSlide(obj: unknown): obj is CmsPageExerciseSlide {
+  const typedObj = obj as CmsPageExerciseSlide
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isCmsPageExerciseTask(
-  obj: any,
-  _argumentName?: string,
-): obj is CmsPageExerciseTask {
+export function isCmsPageExerciseTask(obj: unknown): obj is CmsPageExerciseTask {
+  const typedObj = obj as CmsPageExerciseTask
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.exercise_slide_id === "string" &&
-    typeof obj.exercise_type === "string" &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    typeof typedObj["exercise_type"] === "string" &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isCmsPageUpdate(obj: any, _argumentName?: string): obj is CmsPageUpdate {
+export function isCmsPageUpdate(obj: unknown): obj is CmsPageUpdate {
+  const typedObj = obj as CmsPageUpdate
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
-    Array.isArray(obj.exercise_slides) &&
-    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["exercises"]) &&
+    typedObj["exercises"].every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(typedObj["exercise_slides"]) &&
+    typedObj["exercise_slides"].every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    typeof typedObj["url_path"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string")
   )
 }
 
-export function isContentManagementPage(
-  obj: any,
-  _argumentName?: string,
-): obj is ContentManagementPage {
+export function isContentManagementPage(obj: unknown): obj is ContentManagementPage {
+  const typedObj = obj as ContentManagementPage
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isPage(obj.page) as boolean) &&
-    Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
-    Array.isArray(obj.exercise_slides) &&
-    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
-    Array.isArray(obj.peer_review_configs) &&
-    obj.peer_review_configs.every((e: any) => isCmsPeerReviewConfig(e) as boolean) &&
-    Array.isArray(obj.peer_review_questions) &&
-    obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean) &&
-    typeof obj.organization_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isPage(typedObj["page"]) as boolean) &&
+    Array.isArray(typedObj["exercises"]) &&
+    typedObj["exercises"].every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(typedObj["exercise_slides"]) &&
+    typedObj["exercise_slides"].every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    Array.isArray(typedObj["peer_review_configs"]) &&
+    typedObj["peer_review_configs"].every((e: any) => isCmsPeerReviewConfig(e) as boolean) &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isCmsPeerReviewQuestion(e) as boolean) &&
+    typeof typedObj["organization_id"] === "string"
   )
 }
 
-export function isCoursePageWithUserData(
-  obj: any,
-  _argumentName?: string,
-): obj is CoursePageWithUserData {
+export function isCoursePageWithUserData(obj: unknown): obj is CoursePageWithUserData {
+  const typedObj = obj as CoursePageWithUserData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isPage(obj.page) as boolean) &&
-    (obj.instance === null || (isCourseInstance(obj.instance) as boolean)) &&
-    (obj.settings === null || (isUserCourseSettings(obj.settings) as boolean)) &&
-    typeof obj.was_redirected === "boolean" &&
-    typeof obj.is_test_mode === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isPage(typedObj["page"]) as boolean) &&
+    (typedObj["instance"] === null || (isCourseInstance(typedObj["instance"]) as boolean)) &&
+    (typedObj["settings"] === null || (isUserCourseSettings(typedObj["settings"]) as boolean)) &&
+    typeof typedObj["was_redirected"] === "boolean" &&
+    typeof typedObj["is_test_mode"] === "boolean"
   )
 }
 
-export function isExerciseWithExerciseTasks(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseWithExerciseTasks {
+export function isExerciseWithExerciseTasks(obj: unknown): obj is ExerciseWithExerciseTasks {
+  const typedObj = obj as ExerciseWithExerciseTasks
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.course_id === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.name === "string" &&
-    (obj.deadline === null || obj.deadline instanceof Date) &&
-    typeof obj.page_id === "string" &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isExerciseTask(e) as boolean) &&
-    typeof obj.score_maximum === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["name"] === "string" &&
+    (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
+    typeof typedObj["page_id"] === "string" &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isExerciseTask(e) as boolean) &&
+    typeof typedObj["score_maximum"] === "number"
   )
 }
 
-export function isHistoryRestoreData(obj: any, _argumentName?: string): obj is HistoryRestoreData {
+export function isHistoryRestoreData(obj: unknown): obj is HistoryRestoreData {
+  const typedObj = obj as HistoryRestoreData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.history_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["history_id"] === "string"
   )
 }
 
-export function isPage(obj: any, _argumentName?: string): obj is Page {
+export function isPage(obj: unknown): obj is Page {
+  const typedObj = obj as Page
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string") &&
+    typeof typedObj["url_path"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string")
   )
 }
 
-export function isPageInfo(obj: any, _argumentName?: string): obj is PageInfo {
+export function isPageInfo(obj: unknown): obj is PageInfo {
+  const typedObj = obj as PageInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.page_id === "string" &&
-    typeof obj.page_title === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.course_name === null || typeof obj.course_name === "string") &&
-    (obj.course_slug === null || typeof obj.course_slug === "string") &&
-    (obj.organization_slug === null || typeof obj.organization_slug === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["page_id"] === "string" &&
+    typeof typedObj["page_title"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["course_name"] === null || typeof typedObj["course_name"] === "string") &&
+    (typedObj["course_slug"] === null || typeof typedObj["course_slug"] === "string") &&
+    (typedObj["organization_slug"] === null || typeof typedObj["organization_slug"] === "string")
   )
 }
 
-export function isPageSearchRequest(obj: any, _argumentName?: string): obj is PageSearchRequest {
+export function isPageSearchRequest(obj: unknown): obj is PageSearchRequest {
+  const typedObj = obj as PageSearchRequest
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.query === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["query"] === "string"
   )
 }
 
-export function isPageSearchResult(obj: any, _argumentName?: string): obj is PageSearchResult {
+export function isPageSearchResult(obj: unknown): obj is PageSearchResult {
+  const typedObj = obj as PageSearchResult
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.title_headline === null || typeof obj.title_headline === "string") &&
-    (obj.rank === null || typeof obj.rank === "number") &&
-    (obj.content_headline === null || typeof obj.content_headline === "string") &&
-    typeof obj.url_path === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["title_headline"] === null || typeof typedObj["title_headline"] === "string") &&
+    (typedObj["rank"] === null || typeof typedObj["rank"] === "number") &&
+    (typedObj["content_headline"] === null || typeof typedObj["content_headline"] === "string") &&
+    typeof typedObj["url_path"] === "string"
   )
 }
 
-export function isPageWithExercises(obj: any, _argumentName?: string): obj is PageWithExercises {
+export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
+  const typedObj = obj as PageWithExercises
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.order_number === "number" &&
-    (obj.copied_from === null || typeof obj.copied_from === "string") &&
-    Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isExercise(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string") &&
+    typeof typedObj["url_path"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    Array.isArray(typedObj["exercises"]) &&
+    typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
   )
 }
 
-export function isNewPage(obj: any, _argumentName?: string): obj is NewPage {
+export function isNewPage(obj: unknown): obj is NewPage {
+  const typedObj = obj as NewPage
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.exercises) &&
-    obj.exercises.every((e: any) => isCmsPageExercise(e) as boolean) &&
-    Array.isArray(obj.exercise_slides) &&
-    obj.exercise_slides.every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
-    Array.isArray(obj.exercise_tasks) &&
-    obj.exercise_tasks.every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    (obj.front_page_of_chapter_id === null || typeof obj.front_page_of_chapter_id === "string") &&
-    (obj.content_search_language === null || typeof obj.content_search_language === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["exercises"]) &&
+    typedObj["exercises"].every((e: any) => isCmsPageExercise(e) as boolean) &&
+    Array.isArray(typedObj["exercise_slides"]) &&
+    typedObj["exercise_slides"].every((e: any) => isCmsPageExerciseSlide(e) as boolean) &&
+    Array.isArray(typedObj["exercise_tasks"]) &&
+    typedObj["exercise_tasks"].every((e: any) => isCmsPageExerciseTask(e) as boolean) &&
+    typeof typedObj["url_path"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string") &&
+    (typedObj["front_page_of_chapter_id"] === null ||
+      typeof typedObj["front_page_of_chapter_id"] === "string") &&
+    (typedObj["content_search_language"] === null ||
+      typeof typedObj["content_search_language"] === "string")
   )
 }
 
 export function isPageChapterAndCourseInformation(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PageChapterAndCourseInformation {
+  const typedObj = obj as PageChapterAndCourseInformation
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.chapter_name === null || typeof obj.chapter_name === "string") &&
-    (obj.chapter_number === null || typeof obj.chapter_number === "number") &&
-    (obj.course_name === null || typeof obj.course_name === "string") &&
-    (obj.course_slug === null || typeof obj.course_slug === "string") &&
-    (obj.chapter_front_page_id === null || typeof obj.chapter_front_page_id === "string") &&
-    (obj.chapter_front_page_url_path === null ||
-      typeof obj.chapter_front_page_url_path === "string") &&
-    typeof obj.organization_slug === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["chapter_name"] === null || typeof typedObj["chapter_name"] === "string") &&
+    (typedObj["chapter_number"] === null || typeof typedObj["chapter_number"] === "number") &&
+    (typedObj["course_name"] === null || typeof typedObj["course_name"] === "string") &&
+    (typedObj["course_slug"] === null || typeof typedObj["course_slug"] === "string") &&
+    (typedObj["chapter_front_page_id"] === null ||
+      typeof typedObj["chapter_front_page_id"] === "string") &&
+    (typedObj["chapter_front_page_url_path"] === null ||
+      typeof typedObj["chapter_front_page_url_path"] === "string") &&
+    typeof typedObj["organization_slug"] === "string"
   )
 }
 
-export function isIsChapterFrontPage(obj: any, _argumentName?: string): obj is IsChapterFrontPage {
+export function isIsChapterFrontPage(obj: unknown): obj is IsChapterFrontPage {
+  const typedObj = obj as IsChapterFrontPage
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.is_chapter_front_page === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["is_chapter_front_page"] === "boolean"
   )
 }
 
-export function isPageRoutingData(obj: any, _argumentName?: string): obj is PageRoutingData {
+export function isPageRoutingData(obj: unknown): obj is PageRoutingData {
+  const typedObj = obj as PageRoutingData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.url_path === "string" &&
-    typeof obj.title === "string" &&
-    typeof obj.page_id === "string" &&
-    typeof obj.chapter_number === "number" &&
-    typeof obj.chapter_id === "string" &&
-    (obj.chapter_opens_at === null || obj.chapter_opens_at instanceof Date) &&
-    (obj.chapter_front_page_id === null || typeof obj.chapter_front_page_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["url_path"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    typeof typedObj["chapter_number"] === "number" &&
+    typeof typedObj["chapter_id"] === "string" &&
+    (typedObj["chapter_opens_at"] === null || typedObj["chapter_opens_at"] instanceof Date) &&
+    (typedObj["chapter_front_page_id"] === null ||
+      typeof typedObj["chapter_front_page_id"] === "string")
   )
 }
 
-export function isPageNavigationInformation(
-  obj: any,
-  _argumentName?: string,
-): obj is PageNavigationInformation {
+export function isPageNavigationInformation(obj: unknown): obj is PageNavigationInformation {
+  const typedObj = obj as PageNavigationInformation
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.chapter_front_page === null || (isPageRoutingData(obj.chapter_front_page) as boolean)) &&
-    (obj.next_page === null || (isPageRoutingData(obj.next_page) as boolean)) &&
-    (obj.previous_page === null || (isPageRoutingData(obj.previous_page) as boolean))
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["chapter_front_page"] === null ||
+      (isPageRoutingData(typedObj["chapter_front_page"]) as boolean)) &&
+    (typedObj["next_page"] === null || (isPageRoutingData(typedObj["next_page"]) as boolean)) &&
+    (typedObj["previous_page"] === null ||
+      (isPageRoutingData(typedObj["previous_page"]) as boolean))
   )
 }
 
-export function isPeerReviewConfig(obj: any, _argumentName?: string): obj is PeerReviewConfig {
+export function isPeerReviewConfig(obj: unknown): obj is PeerReviewConfig {
+  const typedObj = obj as PeerReviewConfig
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.course_id === "string" &&
-    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
-    typeof obj.peer_reviews_to_give === "number" &&
-    typeof obj.peer_reviews_to_receive === "number" &&
-    typeof obj.accepting_threshold === "number" &&
-    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["exercise_id"] === null || typeof typedObj["exercise_id"] === "string") &&
+    typeof typedObj["peer_reviews_to_give"] === "number" &&
+    typeof typedObj["peer_reviews_to_receive"] === "number" &&
+    typeof typedObj["accepting_threshold"] === "number" &&
+    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean)
   )
 }
 
-export function isPeerReviewAcceptingStrategy(
-  obj: any,
-  _argumentName?: string,
-): obj is PeerReviewAcceptingStrategy {
+export function isPeerReviewAcceptingStrategy(obj: unknown): obj is PeerReviewAcceptingStrategy {
+  const typedObj = obj as PeerReviewAcceptingStrategy
   return (
-    obj === "AutomaticallyAcceptOrRejectByAverage" ||
-    obj === "AutomaticallyAcceptOrManualReviewByAverage" ||
-    obj === "ManualReviewEverything"
+    typedObj === "AutomaticallyAcceptOrRejectByAverage" ||
+    typedObj === "AutomaticallyAcceptOrManualReviewByAverage" ||
+    typedObj === "ManualReviewEverything"
   )
 }
 
-export function isCmsPeerReviewConfig(
-  obj: any,
-  _argumentName?: string,
-): obj is CmsPeerReviewConfig {
+export function isCmsPeerReviewConfig(obj: unknown): obj is CmsPeerReviewConfig {
+  const typedObj = obj as CmsPeerReviewConfig
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.course_id === "string" &&
-    (obj.exercise_id === null || typeof obj.exercise_id === "string") &&
-    typeof obj.peer_reviews_to_give === "number" &&
-    typeof obj.peer_reviews_to_receive === "number" &&
-    typeof obj.accepting_threshold === "number" &&
-    (isPeerReviewAcceptingStrategy(obj.accepting_strategy) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["exercise_id"] === null || typeof typedObj["exercise_id"] === "string") &&
+    typeof typedObj["peer_reviews_to_give"] === "number" &&
+    typeof typedObj["peer_reviews_to_receive"] === "number" &&
+    typeof typedObj["accepting_threshold"] === "number" &&
+    (isPeerReviewAcceptingStrategy(typedObj["accepting_strategy"]) as boolean)
   )
 }
 
-export function isCmsPeerReviewConfiguration(
-  obj: any,
-  _argumentName?: string,
-): obj is CmsPeerReviewConfiguration {
+export function isCmsPeerReviewConfiguration(obj: unknown): obj is CmsPeerReviewConfiguration {
+  const typedObj = obj as CmsPeerReviewConfiguration
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isCmsPeerReviewConfig(obj.peer_review_config) as boolean) &&
-    Array.isArray(obj.peer_review_questions) &&
-    obj.peer_review_questions.every((e: any) => isCmsPeerReviewQuestion(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isCmsPeerReviewConfig(typedObj["peer_review_config"]) as boolean) &&
+    Array.isArray(typedObj["peer_review_questions"]) &&
+    typedObj["peer_review_questions"].every((e: any) => isCmsPeerReviewQuestion(e) as boolean)
   )
 }
 
-export function isCmsPeerReviewQuestion(
-  obj: any,
-  _argumentName?: string,
-): obj is CmsPeerReviewQuestion {
+export function isCmsPeerReviewQuestion(obj: unknown): obj is CmsPeerReviewQuestion {
+  const typedObj = obj as CmsPeerReviewQuestion
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.peer_review_config_id === "string" &&
-    typeof obj.order_number === "number" &&
-    typeof obj.question === "string" &&
-    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
-    typeof obj.answer_required === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["peer_review_config_id"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    typeof typedObj["question"] === "string" &&
+    (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
+    typeof typedObj["answer_required"] === "boolean"
   )
 }
 
-export function isPeerReviewQuestion(obj: any, _argumentName?: string): obj is PeerReviewQuestion {
+export function isPeerReviewQuestion(obj: unknown): obj is PeerReviewQuestion {
+  const typedObj = obj as PeerReviewQuestion
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.peer_review_config_id === "string" &&
-    typeof obj.order_number === "number" &&
-    typeof obj.question === "string" &&
-    (isPeerReviewQuestionType(obj.question_type) as boolean) &&
-    typeof obj.answer_required === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["peer_review_config_id"] === "string" &&
+    typeof typedObj["order_number"] === "number" &&
+    typeof typedObj["question"] === "string" &&
+    (isPeerReviewQuestionType(typedObj["question_type"]) as boolean) &&
+    typeof typedObj["answer_required"] === "boolean"
   )
 }
 
-export function isPeerReviewQuestionType(
-  obj: any,
-  _argumentName?: string,
-): obj is PeerReviewQuestionType {
-  return obj === "Essay" || obj === "Scale"
+export function isPeerReviewQuestionType(obj: unknown): obj is PeerReviewQuestionType {
+  const typedObj = obj as PeerReviewQuestionType
+  return typedObj === "Essay" || typedObj === "Scale"
 }
 
-export function isPlaygroundExample(obj: any, _argumentName?: string): obj is PlaygroundExample {
+export function isPlaygroundExample(obj: unknown): obj is PlaygroundExample {
+  const typedObj = obj as PlaygroundExample
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.name === "string" &&
-    typeof obj.url === "string" &&
-    typeof obj.width === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["width"] === "number"
   )
 }
 
-export function isPlaygroundExampleData(
-  obj: any,
-  _argumentName?: string,
-): obj is PlaygroundExampleData {
+export function isPlaygroundExampleData(obj: unknown): obj is PlaygroundExampleData {
+  const typedObj = obj as PlaygroundExampleData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.name === "string" &&
-    typeof obj.url === "string" &&
-    typeof obj.width === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["width"] === "number"
   )
 }
 
-export function isBlockProposal(obj: any, _argumentName?: string): obj is BlockProposal {
+export function isBlockProposal(obj: unknown): obj is BlockProposal {
+  const typedObj = obj as BlockProposal
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.block_id === "string" &&
-    typeof obj.current_text === "string" &&
-    typeof obj.changed_text === "string" &&
-    typeof obj.original_text === "string" &&
-    (isProposalStatus(obj.status) as boolean) &&
-    (obj.accept_preview === null || typeof obj.accept_preview === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["block_id"] === "string" &&
+    typeof typedObj["current_text"] === "string" &&
+    typeof typedObj["changed_text"] === "string" &&
+    typeof typedObj["original_text"] === "string" &&
+    (isProposalStatus(typedObj["status"]) as boolean) &&
+    (typedObj["accept_preview"] === null || typeof typedObj["accept_preview"] === "string")
   )
 }
 
-export function isBlockProposalAction(
-  obj: any,
-  _argumentName?: string,
-): obj is BlockProposalAction {
+export function isBlockProposalAction(obj: unknown): obj is BlockProposalAction {
+  const typedObj = obj as BlockProposalAction
   return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Accept" &&
-      typeof obj.data === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Reject")
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Accept" &&
+      typeof typedObj["data"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Reject")
   )
 }
 
-export function isBlockProposalInfo(obj: any, _argumentName?: string): obj is BlockProposalInfo {
+export function isBlockProposalInfo(obj: unknown): obj is BlockProposalInfo {
+  const typedObj = obj as BlockProposalInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (isBlockProposalAction(obj.action) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (isBlockProposalAction(typedObj["action"]) as boolean)
   )
 }
 
-export function isNewProposedBlockEdit(
-  obj: any,
-  _argumentName?: string,
-): obj is NewProposedBlockEdit {
+export function isNewProposedBlockEdit(obj: unknown): obj is NewProposedBlockEdit {
+  const typedObj = obj as NewProposedBlockEdit
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.block_id === "string" &&
-    typeof obj.block_attribute === "string" &&
-    typeof obj.original_text === "string" &&
-    typeof obj.changed_text === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["block_id"] === "string" &&
+    typeof typedObj["block_attribute"] === "string" &&
+    typeof typedObj["original_text"] === "string" &&
+    typeof typedObj["changed_text"] === "string"
   )
 }
 
-export function isProposalStatus(obj: any, _argumentName?: string): obj is ProposalStatus {
-  return obj === "Pending" || obj === "Accepted" || obj === "Rejected"
+export function isProposalStatus(obj: unknown): obj is ProposalStatus {
+  const typedObj = obj as ProposalStatus
+  return typedObj === "Pending" || typedObj === "Accepted" || typedObj === "Rejected"
 }
 
-export function isEditProposalInfo(obj: any, _argumentName?: string): obj is EditProposalInfo {
+export function isEditProposalInfo(obj: unknown): obj is EditProposalInfo {
+  const typedObj = obj as EditProposalInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.page_id === "string" &&
-    typeof obj.page_proposal_id === "string" &&
-    Array.isArray(obj.block_proposals) &&
-    obj.block_proposals.every((e: any) => isBlockProposalInfo(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["page_id"] === "string" &&
+    typeof typedObj["page_proposal_id"] === "string" &&
+    Array.isArray(typedObj["block_proposals"]) &&
+    typedObj["block_proposals"].every((e: any) => isBlockProposalInfo(e) as boolean)
   )
 }
 
-export function isNewProposedPageEdits(
-  obj: any,
-  _argumentName?: string,
-): obj is NewProposedPageEdits {
+export function isNewProposedPageEdits(obj: unknown): obj is NewProposedPageEdits {
+  const typedObj = obj as NewProposedPageEdits
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.page_id === "string" &&
-    Array.isArray(obj.block_edits) &&
-    obj.block_edits.every((e: any) => isNewProposedBlockEdit(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["page_id"] === "string" &&
+    Array.isArray(typedObj["block_edits"]) &&
+    typedObj["block_edits"].every((e: any) => isNewProposedBlockEdit(e) as boolean)
   )
 }
 
-export function isPageProposal(obj: any, _argumentName?: string): obj is PageProposal {
+export function isPageProposal(obj: unknown): obj is PageProposal {
+  const typedObj = obj as PageProposal
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.page_id === "string" &&
-    (obj.user_id === null || typeof obj.user_id === "string") &&
-    typeof obj.pending === "boolean" &&
-    obj.created_at instanceof Date &&
-    Array.isArray(obj.block_proposals) &&
-    obj.block_proposals.every((e: any) => isBlockProposal(e) as boolean) &&
-    typeof obj.page_title === "string" &&
-    typeof obj.page_url_path === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    (typedObj["user_id"] === null || typeof typedObj["user_id"] === "string") &&
+    typeof typedObj["pending"] === "boolean" &&
+    typedObj["created_at"] instanceof Date &&
+    Array.isArray(typedObj["block_proposals"]) &&
+    typedObj["block_proposals"].every((e: any) => isBlockProposal(e) as boolean) &&
+    typeof typedObj["page_title"] === "string" &&
+    typeof typedObj["page_url_path"] === "string"
   )
 }
 
-export function isProposalCount(obj: any, _argumentName?: string): obj is ProposalCount {
+export function isProposalCount(obj: unknown): obj is ProposalCount {
+  const typedObj = obj as ProposalCount
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.pending === "number" &&
-    typeof obj.handled === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["pending"] === "number" &&
+    typeof typedObj["handled"] === "number"
   )
 }
 
-export function isRepositoryExercise(obj: any, _argumentName?: string): obj is RepositoryExercise {
+export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
+  const typedObj = obj as RepositoryExercise
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.repository_id === "string" &&
-    typeof obj.part === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.repository_url === "string" &&
-    Array.isArray(obj.checksum) &&
-    obj.checksum.every((e: any) => typeof e === "number") &&
-    typeof obj.download_url === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["repository_id"] === "string" &&
+    typeof typedObj["part"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["repository_url"] === "string" &&
+    Array.isArray(typedObj["checksum"]) &&
+    typedObj["checksum"].every((e: any) => typeof e === "number") &&
+    typeof typedObj["download_url"] === "string"
   )
 }
 
-export function isExerciseSlideSubmission(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseSlideSubmission {
+export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSubmission {
+  const typedObj = obj as ExerciseSlideSubmission
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_slide_id === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.user_id === "string" &&
-    (isUserPointsUpdateStrategy(obj.user_points_update_strategy) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean)
   )
 }
 
-export function isExerciseSlideSubmissionCount(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseSlideSubmissionCount {
+export function isExerciseSlideSubmissionCount(obj: unknown): obj is ExerciseSlideSubmissionCount {
+  const typedObj = obj as ExerciseSlideSubmissionCount
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.date === null || obj.date instanceof Date) &&
-    (obj.count === null || typeof obj.count === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["date"] === null || typedObj["date"] instanceof Date) &&
+    (typedObj["count"] === null || typeof typedObj["count"] === "number")
   )
 }
 
 export function isExerciseSlideSubmissionCountByExercise(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ExerciseSlideSubmissionCountByExercise {
+  const typedObj = obj as ExerciseSlideSubmissionCountByExercise
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_id === "string" &&
-    (obj.count === null || typeof obj.count === "number") &&
-    typeof obj.exercise_name === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_id"] === "string" &&
+    (typedObj["count"] === null || typeof typedObj["count"] === "number") &&
+    typeof typedObj["exercise_name"] === "string"
   )
 }
 
 export function isExerciseSlideSubmissionCountByWeekAndHour(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ExerciseSlideSubmissionCountByWeekAndHour {
+  const typedObj = obj as ExerciseSlideSubmissionCountByWeekAndHour
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.isodow === null || typeof obj.isodow === "number") &&
-    (obj.hour === null || typeof obj.hour === "number") &&
-    (obj.count === null || typeof obj.count === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["isodow"] === null || typeof typedObj["isodow"] === "number") &&
+    (typedObj["hour"] === null || typeof typedObj["hour"] === "number") &&
+    (typedObj["count"] === null || typeof typedObj["count"] === "number")
   )
 }
 
-export function isExerciseSlideSubmissionInfo(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseSlideSubmissionInfo {
+export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlideSubmissionInfo {
+  const typedObj = obj as ExerciseSlideSubmissionInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.tasks) &&
-    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
-    (isExercise(obj.exercise) as boolean) &&
-    (isExerciseSlideSubmission(obj.exercise_slide_submission) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["tasks"]) &&
+    typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
+    (isExercise(typedObj["exercise"]) as boolean) &&
+    (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean)
   )
 }
 
 export function isExerciseAnswersInCourseRequiringAttentionCount(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ExerciseAnswersInCourseRequiringAttentionCount {
+  const typedObj = obj as ExerciseAnswersInCourseRequiringAttentionCount
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.page_id === "string" &&
-    (obj.chapter_id === null || typeof obj.chapter_id === "string") &&
-    typeof obj.order_number === "number" &&
-    (obj.count === null || typeof obj.count === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typeof typedObj["page_id"] === "string" &&
+    (typedObj["chapter_id"] === null || typeof typedObj["chapter_id"] === "string") &&
+    typeof typedObj["order_number"] === "number" &&
+    (typedObj["count"] === null || typeof typedObj["count"] === "number")
   )
 }
 
-export function isAnswerRequiringAttention(
-  obj: any,
-  _argumentName?: string,
-): obj is AnswerRequiringAttention {
+export function isAnswerRequiringAttention(obj: unknown): obj is AnswerRequiringAttention {
+  const typedObj = obj as AnswerRequiringAttention
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.user_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    typeof obj.submission_id === "string" &&
-    typeof obj.exercise_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    typeof typedObj["submission_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string"
   )
 }
 
-export function isTeacherGradingDecision(
-  obj: any,
-  _argumentName?: string,
-): obj is TeacherGradingDecision {
+export function isTeacherGradingDecision(obj: unknown): obj is TeacherGradingDecision {
+  const typedObj = obj as TeacherGradingDecision
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.user_exercise_state_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.score_given === "number" &&
-    (isTeacherDecisionType(obj.teacher_decision) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_exercise_state_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["score_given"] === "number" &&
+    (isTeacherDecisionType(typedObj["teacher_decision"]) as boolean)
   )
 }
 
-export function isTeacherDecisionType(
-  obj: any,
-  _argumentName?: string,
-): obj is TeacherDecisionType {
+export function isTeacherDecisionType(obj: unknown): obj is TeacherDecisionType {
+  const typedObj = obj as TeacherDecisionType
   return (
-    obj === "FullPoints" ||
-    obj === "ZeroPoints" ||
-    obj === "CustomPoints" ||
-    obj === "SuspectedPlagiarism"
+    typedObj === "FullPoints" ||
+    typedObj === "ZeroPoints" ||
+    typedObj === "CustomPoints" ||
+    typedObj === "SuspectedPlagiarism"
   )
 }
 
-export function isNewTeacherGradingDecision(
-  obj: any,
-  _argumentName?: string,
-): obj is NewTeacherGradingDecision {
+export function isNewTeacherGradingDecision(obj: unknown): obj is NewTeacherGradingDecision {
+  const typedObj = obj as NewTeacherGradingDecision
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_exercise_state_id === "string" &&
-    typeof obj.exercise_id === "string" &&
-    (isTeacherDecisionType(obj.action) as boolean) &&
-    (obj.manual_points === null || typeof obj.manual_points === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_exercise_state_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    (isTeacherDecisionType(typedObj["action"]) as boolean) &&
+    (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number")
   )
 }
 
-export function isExerciseTaskGrading(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseTaskGrading {
+export function isExerciseTaskGrading(obj: unknown): obj is ExerciseTaskGrading {
+  const typedObj = obj as ExerciseTaskGrading
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    typeof obj.exercise_task_submission_id === "string" &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.exercise_task_id === "string" &&
-    typeof obj.grading_priority === "number" &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (obj.unscaled_score_given === null || typeof obj.unscaled_score_given === "number") &&
-    (obj.unscaled_score_maximum === null || typeof obj.unscaled_score_maximum === "number") &&
-    (obj.grading_started_at === null || obj.grading_started_at instanceof Date) &&
-    (obj.grading_completed_at === null || obj.grading_completed_at instanceof Date) &&
-    (obj.feedback_text === null || typeof obj.feedback_text === "string") &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    typeof typedObj["exercise_task_submission_id"] === "string" &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["exercise_task_id"] === "string" &&
+    typeof typedObj["grading_priority"] === "number" &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    (typedObj["unscaled_score_given"] === null ||
+      typeof typedObj["unscaled_score_given"] === "number") &&
+    (typedObj["unscaled_score_maximum"] === null ||
+      typeof typedObj["unscaled_score_maximum"] === "number") &&
+    (typedObj["grading_started_at"] === null || typedObj["grading_started_at"] instanceof Date) &&
+    (typedObj["grading_completed_at"] === null ||
+      typedObj["grading_completed_at"] instanceof Date) &&
+    (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string") &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date)
   )
 }
 
-export function isExerciseTaskGradingResult(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseTaskGradingResult {
+export function isExerciseTaskGradingResult(obj: unknown): obj is ExerciseTaskGradingResult {
+  const typedObj = obj as ExerciseTaskGradingResult
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    typeof obj.score_given === "number" &&
-    typeof obj.score_maximum === "number" &&
-    (obj.feedback_text === null || typeof obj.feedback_text === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    typeof typedObj["score_given"] === "number" &&
+    typeof typedObj["score_maximum"] === "number" &&
+    (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string")
   )
 }
 
-export function isUserPointsUpdateStrategy(
-  obj: any,
-  _argumentName?: string,
-): obj is UserPointsUpdateStrategy {
-  return obj === "CanAddPointsButCannotRemovePoints" || obj === "CanAddPointsAndCanRemovePoints"
-}
-
-export function isExerciseTaskSubmission(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseTaskSubmission {
+export function isUserPointsUpdateStrategy(obj: unknown): obj is UserPointsUpdateStrategy {
+  const typedObj = obj as UserPointsUpdateStrategy
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.exercise_slide_submission_id === "string" &&
-    typeof obj.exercise_task_id === "string" &&
-    typeof obj.exercise_slide_id === "string" &&
-    (obj.exercise_task_grading_id === null || typeof obj.exercise_task_grading_id === "string")
+    typedObj === "CanAddPointsButCannotRemovePoints" ||
+    typedObj === "CanAddPointsAndCanRemovePoints"
   )
 }
 
-export function isRoleUser(obj: any, _argumentName?: string): obj is RoleUser {
+export function isExerciseTaskSubmission(obj: unknown): obj is ExerciseTaskSubmission {
+  const typedObj = obj as ExerciseTaskSubmission
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.first_name === null || typeof obj.first_name === "string") &&
-    (obj.last_name === null || typeof obj.last_name === "string") &&
-    typeof obj.email === "string" &&
-    (isUserRole(obj.role) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["exercise_slide_submission_id"] === "string" &&
+    typeof typedObj["exercise_task_id"] === "string" &&
+    typeof typedObj["exercise_slide_id"] === "string" &&
+    (typedObj["exercise_task_grading_id"] === null ||
+      typeof typedObj["exercise_task_grading_id"] === "string")
   )
 }
 
-export function isRoleDomain(obj: any, _argumentName?: string): obj is RoleDomain {
+export function isRoleUser(obj: unknown): obj is RoleUser {
+  const typedObj = obj as RoleUser
   return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Global") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Organization" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Course" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "CourseInstance" &&
-      typeof obj.id === "string") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "Exam" &&
-      typeof obj.id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    typeof typedObj["email"] === "string" &&
+    (isUserRole(typedObj["role"]) as boolean)
   )
 }
 
-export function isUserRole(obj: any, _argumentName?: string): obj is UserRole {
+export function isRoleDomain(obj: unknown): obj is RoleDomain {
+  const typedObj = obj as RoleDomain
   return (
-    obj === "Reviewer" ||
-    obj === "Assistant" ||
-    obj === "Teacher" ||
-    obj === "Admin" ||
-    obj === "CourseOrExamCreator"
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Global") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Organization" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Course" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "CourseInstance" &&
+      typeof typedObj["id"] === "string") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Exam" &&
+      typeof typedObj["id"] === "string")
   )
 }
 
-export function isUserCourseSettings(obj: any, _argumentName?: string): obj is UserCourseSettings {
+export function isUserRole(obj: unknown): obj is UserRole {
+  const typedObj = obj as UserRole
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_id === "string" &&
-    typeof obj.course_language_group_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    typeof obj.current_course_id === "string" &&
-    typeof obj.current_course_instance_id === "string"
+    typedObj === "Reviewer" ||
+    typedObj === "Assistant" ||
+    typedObj === "Teacher" ||
+    typedObj === "Admin" ||
+    typedObj === "CourseOrExamCreator"
+  )
+}
+
+export function isUserCourseSettings(obj: unknown): obj is UserCourseSettings {
+  const typedObj = obj as UserCourseSettings
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_language_group_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["current_course_id"] === "string" &&
+    typeof typedObj["current_course_instance_id"] === "string"
   )
 }
 
 export function isUserCourseInstanceChapterExerciseProgress(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is UserCourseInstanceChapterExerciseProgress {
+  const typedObj = obj as UserCourseInstanceChapterExerciseProgress
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.score_given === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["score_given"] === "number"
   )
 }
 
-export function isUserCourseInstanceProgress(
-  obj: any,
-  _argumentName?: string,
-): obj is UserCourseInstanceProgress {
+export function isUserCourseInstanceProgress(obj: unknown): obj is UserCourseInstanceProgress {
+  const typedObj = obj as UserCourseInstanceProgress
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.course_module_id === "string" &&
-    typeof obj.course_module_name === "string" &&
-    typeof obj.course_module_order_number === "number" &&
-    typeof obj.score_given === "number" &&
-    (obj.score_required === null || typeof obj.score_required === "number") &&
-    (obj.score_maximum === null || typeof obj.score_maximum === "number") &&
-    (obj.total_exercises === null || typeof obj.total_exercises === "number") &&
-    (obj.attempted_exercises === null || typeof obj.attempted_exercises === "number") &&
-    (obj.attempted_exercises_required === null ||
-      typeof obj.attempted_exercises_required === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    typeof typedObj["course_module_name"] === "string" &&
+    typeof typedObj["course_module_order_number"] === "number" &&
+    typeof typedObj["score_given"] === "number" &&
+    (typedObj["score_required"] === null || typeof typedObj["score_required"] === "number") &&
+    (typedObj["score_maximum"] === null || typeof typedObj["score_maximum"] === "number") &&
+    (typedObj["total_exercises"] === null || typeof typedObj["total_exercises"] === "number") &&
+    (typedObj["attempted_exercises"] === null ||
+      typeof typedObj["attempted_exercises"] === "number") &&
+    (typedObj["attempted_exercises_required"] === null ||
+      typeof typedObj["attempted_exercises_required"] === "number")
   )
 }
 
-export function isExerciseUserCounts(obj: any, _argumentName?: string): obj is ExerciseUserCounts {
+export function isExerciseUserCounts(obj: unknown): obj is ExerciseUserCounts {
+  const typedObj = obj as ExerciseUserCounts
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_name === "string" &&
-    typeof obj.exercise_order_number === "number" &&
-    typeof obj.page_order_number === "number" &&
-    typeof obj.chapter_number === "number" &&
-    typeof obj.exercise_id === "string" &&
-    typeof obj.n_users_attempted === "number" &&
-    typeof obj.n_users_with_some_points === "number" &&
-    typeof obj.n_users_with_max_points === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_name"] === "string" &&
+    typeof typedObj["exercise_order_number"] === "number" &&
+    typeof typedObj["page_order_number"] === "number" &&
+    typeof typedObj["chapter_number"] === "number" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    typeof typedObj["n_users_attempted"] === "number" &&
+    typeof typedObj["n_users_with_some_points"] === "number" &&
+    typeof typedObj["n_users_with_max_points"] === "number"
   )
 }
 
-export function isReviewingStage(obj: any, _argumentName?: string): obj is ReviewingStage {
+export function isReviewingStage(obj: unknown): obj is ReviewingStage {
+  const typedObj = obj as ReviewingStage
   return (
-    obj === "NotStarted" ||
-    obj === "PeerReview" ||
-    obj === "SelfReview" ||
-    obj === "WaitingForPeerReviews" ||
-    obj === "WaitingForManualGrading" ||
-    obj === "ReviewedAndLocked"
+    typedObj === "NotStarted" ||
+    typedObj === "PeerReview" ||
+    typedObj === "SelfReview" ||
+    typedObj === "WaitingForPeerReviews" ||
+    typedObj === "WaitingForManualGrading" ||
+    typedObj === "ReviewedAndLocked"
   )
 }
 
-export function isUserExerciseState(obj: any, _argumentName?: string): obj is UserExerciseState {
+export function isUserExerciseState(obj: unknown): obj is UserExerciseState {
+  const typedObj = obj as UserExerciseState
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.user_id === "string" &&
-    typeof obj.exercise_id === "string" &&
-    (obj.course_instance_id === null || typeof obj.course_instance_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (isActivityProgress(obj.activity_progress) as boolean) &&
-    (isReviewingStage(obj.reviewing_stage) as boolean) &&
-    (obj.selected_exercise_slide_id === null || typeof obj.selected_exercise_slide_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    (isActivityProgress(typedObj["activity_progress"]) as boolean) &&
+    (isReviewingStage(typedObj["reviewing_stage"]) as boolean) &&
+    (typedObj["selected_exercise_slide_id"] === null ||
+      typeof typedObj["selected_exercise_slide_id"] === "string")
   )
 }
 
-export function isUser(obj: any, _argumentName?: string): obj is User {
+export function isUser(obj: unknown): obj is User {
+  const typedObj = obj as User
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    (obj.first_name === null || typeof obj.first_name === "string") &&
-    (obj.last_name === null || typeof obj.last_name === "string") &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (obj.upstream_id === null || typeof obj.upstream_id === "number") &&
-    typeof obj.email === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
+    typeof typedObj["email"] === "string"
   )
 }
 
-export function isErrorData(obj: any, _argumentName?: string): obj is ErrorData {
+export function isErrorData(obj: unknown): obj is ErrorData {
+  const typedObj = obj as ErrorData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.block_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["block_id"] === "string"
   )
 }
 
-export function isErrorResponse(obj: any, _argumentName?: string): obj is ErrorResponse {
+export function isErrorResponse(obj: unknown): obj is ErrorResponse {
+  const typedObj = obj as ErrorResponse
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.title === "string" &&
-    typeof obj.message === "string" &&
-    (obj.source === null || typeof obj.source === "string") &&
-    (obj.data === null || (isErrorData(obj.data) as boolean))
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["message"] === "string" &&
+    (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
+    (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
   )
 }
 
-export function isUploadResult(obj: any, _argumentName?: string): obj is UploadResult {
+export function isUploadResult(obj: unknown): obj is UploadResult {
+  const typedObj = obj as UploadResult
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.url === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["url"] === "string"
   )
 }
 
-export function isCreateAccountDetails(
-  obj: any,
-  _argumentName?: string,
-): obj is CreateAccountDetails {
+export function isCreateAccountDetails(obj: unknown): obj is CreateAccountDetails {
+  const typedObj = obj as CreateAccountDetails
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.email === "string" &&
-    typeof obj.first_name === "string" &&
-    typeof obj.last_name === "string" &&
-    typeof obj.language === "string" &&
-    typeof obj.password === "string" &&
-    typeof obj.password_confirmation === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["email"] === "string" &&
+    typeof typedObj["first_name"] === "string" &&
+    typeof typedObj["last_name"] === "string" &&
+    typeof typedObj["language"] === "string" &&
+    typeof typedObj["password"] === "string" &&
+    typeof typedObj["password_confirmation"] === "string"
   )
 }
 
-export function isUserInfo(obj: any, _argumentName?: string): obj is UserInfo {
+export function isUserInfo(obj: unknown): obj is UserInfo {
+  const typedObj = obj as UserInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.user_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string"
   )
 }
 
-export function isLogin(obj: any, _argumentName?: string): obj is Login {
+export function isLogin(obj: unknown): obj is Login {
+  const typedObj = obj as Login
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.email === "string" &&
-    typeof obj.password === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["email"] === "string" &&
+    typeof typedObj["password"] === "string"
   )
 }
 
-export function isChaptersWithStatus(obj: any, _argumentName?: string): obj is ChaptersWithStatus {
+export function isChaptersWithStatus(obj: unknown): obj is ChaptersWithStatus {
+  const typedObj = obj as ChaptersWithStatus
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.is_previewable === "boolean" &&
-    Array.isArray(obj.modules) &&
-    obj.modules.every((e: any) => isCourseMaterialCourseModule(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["is_previewable"] === "boolean" &&
+    Array.isArray(typedObj["modules"]) &&
+    typedObj["modules"].every((e: any) => isCourseMaterialCourseModule(e) as boolean)
   )
 }
 
-export function isCourseMaterialCourseModule(
-  obj: any,
-  _argumentName?: string,
-): obj is CourseMaterialCourseModule {
+export function isCourseMaterialCourseModule(obj: unknown): obj is CourseMaterialCourseModule {
+  const typedObj = obj as CourseMaterialCourseModule
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.chapters) &&
-    obj.chapters.every((e: any) => isChapterWithStatus(e) as boolean) &&
-    typeof obj.id === "string" &&
-    typeof obj.is_default === "boolean" &&
-    (obj.name === null || typeof obj.name === "string") &&
-    typeof obj.order_number === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["chapters"]) &&
+    typedObj["chapters"].every((e: any) => isChapterWithStatus(e) as boolean) &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["is_default"] === "boolean" &&
+    (typedObj["name"] === null || typeof typedObj["name"] === "string") &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 
-export function isExamData(obj: any, _argumentName?: string): obj is ExamData {
+export function isExamData(obj: unknown): obj is ExamData {
+  const typedObj = obj as ExamData
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    obj.starts_at instanceof Date &&
-    obj.ends_at instanceof Date &&
-    typeof obj.ended === "boolean" &&
-    typeof obj.time_minutes === "number" &&
-    (isExamEnrollmentData(obj.enrollment_data) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["name"] === "string" &&
+    typedObj["starts_at"] instanceof Date &&
+    typedObj["ends_at"] instanceof Date &&
+    typeof typedObj["ended"] === "boolean" &&
+    typeof typedObj["time_minutes"] === "number" &&
+    (isExamEnrollmentData(typedObj["enrollment_data"]) as boolean)
   )
 }
 
-export function isExamEnrollmentData(obj: any, _argumentName?: string): obj is ExamEnrollmentData {
+export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
+  const typedObj = obj as ExamEnrollmentData
   return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "EnrolledAndStarted" &&
-      typeof obj.page_id === "string" &&
-      (isPage(obj.page) as boolean) &&
-      (isExamEnrollment(obj.enrollment) as boolean)) ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotEnrolled") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "NotYetStarted") ||
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      obj.tag === "StudentTimeUp")
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "EnrolledAndStarted" &&
+      typeof typedObj["page_id"] === "string" &&
+      (isPage(typedObj["page"]) as boolean) &&
+      (isExamEnrollment(typedObj["enrollment"]) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "NotEnrolled") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "NotYetStarted") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "StudentTimeUp")
   )
 }
 
-export function isRoleQuery(obj: any, _argumentName?: string): obj is RoleQuery {
+export function isRoleQuery(obj: unknown): obj is RoleQuery {
+  const typedObj = obj as RoleQuery
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.global === "undefined" || obj.global === false || obj.global === true) &&
-    (typeof obj.organization_id === "undefined" || typeof obj.organization_id === "string") &&
-    (typeof obj.course_id === "undefined" || typeof obj.course_id === "string") &&
-    (typeof obj.course_instance_id === "undefined" || typeof obj.course_instance_id === "string") &&
-    (typeof obj.exam_id === "undefined" || typeof obj.exam_id === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["global"] === "undefined" ||
+      typedObj["global"] === false ||
+      typedObj["global"] === true) &&
+    (typeof typedObj["organization_id"] === "undefined" ||
+      typeof typedObj["organization_id"] === "string") &&
+    (typeof typedObj["course_id"] === "undefined" || typeof typedObj["course_id"] === "string") &&
+    (typeof typedObj["course_instance_id"] === "undefined" ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    (typeof typedObj["exam_id"] === "undefined" || typeof typedObj["exam_id"] === "string")
   )
 }
 
-export function isRoleInfo(obj: any, _argumentName?: string): obj is RoleInfo {
+export function isRoleInfo(obj: unknown): obj is RoleInfo {
+  const typedObj = obj as RoleInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.email === "string" &&
-    (isUserRole(obj.role) as boolean) &&
-    (isRoleDomain(obj.domain) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["email"] === "string" &&
+    (isUserRole(typedObj["role"]) as boolean) &&
+    (isRoleDomain(typedObj["domain"]) as boolean)
   )
 }
 
-export function isExamCourseInfo(obj: any, _argumentName?: string): obj is ExamCourseInfo {
+export function isExamCourseInfo(obj: unknown): obj is ExamCourseInfo {
+  const typedObj = obj as ExamCourseInfo
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.course_id === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 
-export function isExerciseSubmissions(
-  obj: any,
-  _argumentName?: string,
-): obj is ExerciseSubmissions {
+export function isExerciseSubmissions(obj: unknown): obj is ExerciseSubmissions {
+  const typedObj = obj as ExerciseSubmissions
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isExerciseSlideSubmission(e) as boolean) &&
-    typeof obj.total_pages === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["data"]) &&
+    typedObj["data"].every((e: any) => isExerciseSlideSubmission(e) as boolean) &&
+    typeof typedObj["total_pages"] === "number"
   )
 }
 
-export function isAnswersRequiringAttention(
-  obj: any,
-  _argumentName?: string,
-): obj is AnswersRequiringAttention {
+export function isAnswersRequiringAttention(obj: unknown): obj is AnswersRequiringAttention {
+  const typedObj = obj as AnswersRequiringAttention
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.exercise_max_points === "number" &&
-    Array.isArray(obj.data) &&
-    obj.data.every((e: any) => isAnswerRequiringAttentionWithTasks(e) as boolean) &&
-    typeof obj.total_pages === "number"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_max_points"] === "number" &&
+    Array.isArray(typedObj["data"]) &&
+    typedObj["data"].every((e: any) => isAnswerRequiringAttentionWithTasks(e) as boolean) &&
+    typeof typedObj["total_pages"] === "number"
   )
 }
 
 export function isAnswerRequiringAttentionWithTasks(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is AnswerRequiringAttentionWithTasks {
+  const typedObj = obj as AnswerRequiringAttentionWithTasks
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.id === "string" &&
-    typeof obj.user_id === "string" &&
-    obj.created_at instanceof Date &&
-    obj.updated_at instanceof Date &&
-    (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-    (isGradingProgress(obj.grading_progress) as boolean) &&
-    (obj.score_given === null || typeof obj.score_given === "number") &&
-    typeof obj.submission_id === "string" &&
-    typeof obj.exercise_id === "string" &&
-    Array.isArray(obj.tasks) &&
-    obj.tasks.every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
+    (typedObj["score_given"] === null || typeof typedObj["score_given"] === "number") &&
+    typeof typedObj["submission_id"] === "string" &&
+    typeof typedObj["exercise_id"] === "string" &&
+    Array.isArray(typedObj["tasks"]) &&
+    typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean)
   )
 }
 
-export function isNewExerciseRepository(
-  obj: any,
-  _argumentName?: string,
-): obj is NewExerciseRepository {
+export function isNewExerciseRepository(obj: unknown): obj is NewExerciseRepository {
+  const typedObj = obj as NewExerciseRepository
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (obj.course_id === null || typeof obj.course_id === "string") &&
-    (obj.exam_id === null || typeof obj.exam_id === "string") &&
-    typeof obj.git_url === "string" &&
-    (obj.deploy_key === null || typeof obj.deploy_key === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["course_id"] === null || typeof typedObj["course_id"] === "string") &&
+    (typedObj["exam_id"] === null || typeof typedObj["exam_id"] === "string") &&
+    typeof typedObj["git_url"] === "string" &&
+    (typedObj["deploy_key"] === null || typeof typedObj["deploy_key"] === "string")
   )
 }
 
-export function isMarkAsRead(obj: any, _argumentName?: string): obj is MarkAsRead {
+export function isMarkAsRead(obj: unknown): obj is MarkAsRead {
+  const typedObj = obj as MarkAsRead
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.read === "boolean"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["read"] === "boolean"
   )
 }
 
-export function isGetFeedbackQuery(obj: any, _argumentName?: string): obj is GetFeedbackQuery {
+export function isGetFeedbackQuery(obj: unknown): obj is GetFeedbackQuery {
+  const typedObj = obj as GetFeedbackQuery
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.read === "boolean" &&
-    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
-    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["read"] === "boolean" &&
+    (typeof typedObj["page"] === "undefined" || typeof typedObj["page"] === "number") &&
+    (typeof typedObj["limit"] === "undefined" || typeof typedObj["limit"] === "number")
   )
 }
 
-export function isGetEditProposalsQuery(
-  obj: any,
-  _argumentName?: string,
-): obj is GetEditProposalsQuery {
+export function isGetEditProposalsQuery(obj: unknown): obj is GetEditProposalsQuery {
+  const typedObj = obj as GetEditProposalsQuery
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.pending === "boolean" &&
-    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
-    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["pending"] === "boolean" &&
+    (typeof typedObj["page"] === "undefined" || typeof typedObj["page"] === "number") &&
+    (typeof typedObj["limit"] === "undefined" || typeof typedObj["limit"] === "number")
   )
 }
 
-export function isPagination(obj: any, _argumentName?: string): obj is Pagination {
+export function isPagination(obj: unknown): obj is Pagination {
+  const typedObj = obj as Pagination
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.page === "undefined" || typeof obj.page === "number") &&
-    (typeof obj.limit === "undefined" || typeof obj.limit === "number")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["page"] === "undefined" || typeof typedObj["page"] === "number") &&
+    (typeof typedObj["limit"] === "undefined" || typeof typedObj["limit"] === "number")
   )
 }
 
-export function isOEmbedResponse(obj: any, _argumentName?: string): obj is OEmbedResponse {
+export function isOEmbedResponse(obj: unknown): obj is OEmbedResponse {
+  const typedObj = obj as OEmbedResponse
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.author_name === "string" &&
-    typeof obj.author_url === "string" &&
-    typeof obj.html === "string" &&
-    typeof obj.provider_name === "string" &&
-    typeof obj.provider_url === "string" &&
-    typeof obj.title === "string" &&
-    typeof obj.version === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["author_name"] === "string" &&
+    typeof typedObj["author_url"] === "string" &&
+    typeof typedObj["html"] === "string" &&
+    typeof typedObj["provider_name"] === "string" &&
+    typeof typedObj["provider_url"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["version"] === "string"
   )
 }

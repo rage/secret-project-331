@@ -116,6 +116,11 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
@@ -155,11 +160,11 @@ GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info&quot;
 }
 
 <span class="doccomment">/**
-GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention&quot;` - Updates data for submission
+PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention&quot;` - Given a teacher grading decision, updates an answer by giving it a manual score given.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_submission</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_answer_requiring_attention</span>(
     <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">NewTeacherGradingDecision</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
@@ -189,6 +194,11 @@ GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-at
     } <span class="kw">else</span> {
         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid query&quot;</span>.<span class="ident">to_string</span>()));
     }
+
+    <span class="macro">info!</span>(
+        <span class="string">&quot;Teacher took the following action: {:?}. Points given: {:?}.&quot;</span>,
+        <span class="kw-2">&amp;</span><span class="ident">action</span>, <span class="ident">points_given</span>
+    );
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -225,7 +235,7 @@ GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-at
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{submission_id}/info&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_submission_info</span>))
         .<span class="ident">route</span>(
             <span class="string">&quot;/update-answer-requiring-attention&quot;</span>,
-            <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_submission</span>),
+            <span class="ident">web::put</span>().<span class="ident">to</span>(<span class="ident">update_answer_requiring_attention</span>),
         );
 }
 </code></pre></div>

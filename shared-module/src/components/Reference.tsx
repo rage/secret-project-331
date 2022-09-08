@@ -191,9 +191,9 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
       const target = evt.target as HTMLInputElement
       if (reference) {
         reference.forEach(({ text }) => {
-          if (text === target.innerText) {
+          let elementId = target.innerText.substring(0, text.length)
+          if (text === elementId) {
             evt.preventDefault()
-            let elementId = target.innerText
             elementId = elementId.substring(1, elementId.length - 1)
             const details = document.querySelector<HTMLDetailsElement>(ELEMENT_CLASS)
             // eslint-disable-next-line i18next/no-literal-string

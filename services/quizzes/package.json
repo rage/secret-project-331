@@ -71,12 +71,14 @@
     "@types/react-dom": "^18.0.6",
     "@types/react-outside-click-handler": "^1.3.1",
     "@types/react-redux": "^7.1.24",
+    "@types/supertest": "^2.0.12",
     "@types/uuid": "^8.3.4",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
     "redux-devtools-extension": "^2.13.9",
     "stylelint": "^14.9.1",
     "stylelint-config-recommended": "^8.0.0",
+    "supertest": "^6.2.4",
     "ts-jest": "^28.0.8",
     "typescript": "^4.8.2"
   }

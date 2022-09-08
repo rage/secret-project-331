@@ -814,6 +814,27 @@ pub async fn update_modules(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
+
+Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
+*/
+#[generated_doc]
+#[instrument(skip(pool, user))]
+async fn post_update_peer_review_queue_reviews_received(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    models::library::peer_reviewing::update_peer_review_queue_reviews_received(
+        &mut conn, *course_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -909,5 +930,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-modules",
             web::post().to(update_modules),
+        )
+        .route(
+            "/{course_id}/update-peer-review-queue-reviews-received",
+            web::post().to(post_update_peer_review_queue_reviews_received),
         );
 }

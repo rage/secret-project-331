@@ -1,3 +1,5 @@
+import { isBoolean } from "lodash"
+
 import {
   Chapter,
   Course,
@@ -226,4 +228,13 @@ export const postReferenceUpdate = async (
 
 export const deleteReference = async (courseId: string, referenceId: string): Promise<void> => {
   await mainFrontendClient.delete(`/courses/${courseId}/references/${referenceId}`)
+}
+
+export const postUpdatePeerReviewQueueReviewsReceived = async (
+  courseId: string,
+): Promise<boolean> => {
+  const res = await mainFrontendClient.post(
+    `/courses/${courseId}/update-peer-review-queue-reviews-received`,
+  )
+  return validateResponse(res, isBoolean)
 }

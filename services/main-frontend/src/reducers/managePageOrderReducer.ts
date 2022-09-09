@@ -218,8 +218,8 @@ function moveChapterWithinChapterList(
   if (targetIndex < 0 || targetIndex >= chapters.length) {
     return
   }
-  const temp = chapters[currentIndex]
-  chapters[currentIndex] = chapters[targetIndex]
-  chapters[targetIndex] = temp
+  const temp = chapters[currentIndex].chapter_number
+  chapters[currentIndex].chapter_number = chapters[targetIndex].chapter_number
+  chapters[targetIndex].chapter_number = temp
   draftState.unsavedChapterChanges = true
 }

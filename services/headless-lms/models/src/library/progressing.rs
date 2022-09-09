@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
+    course_instance_enrollments,
     course_instances::{self, CourseInstance},
     course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
@@ -330,6 +331,96 @@ pub async fn get_course_instance_completion_summary(
         users_with_course_module_completions: users_with_course_module_completions
             .into_values()
             .collect(),
+    })
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletionRequest {
+    pub course_module_id: Uuid,
+    pub new_completions: Vec<TeacherManualCompletion>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletion {
+    pub user_id: Uuid,
+    pub grade: Option<i32>,
+    pub completion_date: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreview {
+    pub already_completed_users: Vec<ManualCompletionPreviewUser>,
+    pub first_time_completing_users: Vec<ManualCompletionPreviewUser>,
+    pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreviewUser {
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+/// Gets a preview of changes that will occur to completions with the given manual completion data.
+pub async fn get_manual_completion_result_preview(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+    manual_completion_request: &TeacherManualCompletionRequest,
+) -> ModelResult<ManualCompletionPreview> {
+    let course_module =
+        course_modules::get_by_id(conn, manual_completion_request.course_module_id).await?;
+    if course_module.course_id != course_instance.course_id {
+        return Err(ModelError::PreconditionFailed(
+            "Course module not part of the course.".to_string(),
+        ));
+    }
+    let mut already_completed_users = vec![];
+    let mut first_time_completing_users = vec![];
+    let mut non_enrolled_users = vec![];
+    for completion in manual_completion_request.new_completions.iter() {
+        let user = users::get_by_id(conn, completion.user_id).await?;
+        let user = ManualCompletionPreviewUser {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            grade: completion.grade,
+            passed: true,
+        };
+        let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
+            conn,
+            completion.user_id,
+            course_instance.id,
+        )
+        .await
+        .optional()?;
+        if enrollment.is_none() {
+            non_enrolled_users.push(user.clone());
+        }
+        let course_module_completion =
+            course_module_completions::get_by_course_module_instance_and_user_ids(
+                conn,
+                manual_completion_request.course_module_id,
+                course_instance.id,
+                completion.user_id,
+            )
+            .await
+            .optional()?;
+        if course_module_completion.is_some() {
+            already_completed_users.push(user);
+        } else {
+            first_time_completing_users.push(user);
+        }
+    }
+    Ok(ManualCompletionPreview {
+        already_completed_users,
+        first_time_completing_users,
+        non_enrolled_users,
     })
 }
 

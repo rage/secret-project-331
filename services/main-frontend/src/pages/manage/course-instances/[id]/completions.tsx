@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import Collapsible from "../../../../components/Collapsible"
 import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
+import PreviewUserList from "../../../../components/page-specific/manage/course-instances/id/PreviewUserList"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
 import {
   getCompletions,
@@ -15,11 +17,11 @@ import {
 import {
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
-  UserCourseModuleCompletion,
   UserWithModuleCompletions,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
@@ -83,7 +85,9 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
     }
   }
 
-  function mapGradeToText(moduleCompletion: UserCourseModuleCompletion | undefined): string {
+  function mapGradeToText(
+    moduleCompletion: { grade: number | null; passed: boolean } | undefined,
+  ): string {
     if (moduleCompletion) {
       if (moduleCompletion.grade !== null) {
         return moduleCompletion.grade.toString()
@@ -150,31 +154,75 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                     submitText={t("button-text-check")}
                   />
                   {previewData && completionFormData && (
-                    <div>
-                      {/* No localizations yet because text subject to change */}
-                      {/* eslint-disable i18next/no-literal-string */}
-                      <p>New user completions: {previewData.first_time_completing_users.length}</p>
-                      <p>These users will receive completion for the first time.</p>
-                      <p>Already completed users: {previewData.already_completed_users.length}</p>
-                      <p>
-                        These users already have a completion for the course, and proceeding will
-                        create them new completions without changing the existing ones.
-                      </p>
-                      <p>Missing enrollments: {previewData.non_enrolled_users.length}</p>
-                      <p>
-                        These users haven&apost enrolled on the course instance, so proceeding will
-                        automatically create them necessary entries.
-                      </p>
-                      {/* eslint-enable i18next/no-literal-string */}
-                      <Button
-                        variant="primary"
-                        size="medium"
-                        type="button"
-                        value={t("button-text-submit")}
-                        onClick={() => mutation.mutate(completionFormData)}
-                      >
-                        {t("button-text-submit")}
-                      </Button>
+                    <div
+                      className={css`
+                        margin: 1rem 0;
+                      `}
+                    >
+                      <GenericInfobox>
+                        <p>{t("please-check-the-following-preview-results-before-submitting")}</p>
+                        <div
+                          className={css`
+                            margin: 1rem 0;
+                          `}
+                        >
+                          <Collapsible
+                            title={
+                              t("users-receiving-a-completion-for-the-first-time") +
+                              " (" +
+                              previewData.first_time_completing_users.length +
+                              ")"
+                            }
+                          >
+                            <PreviewUserList users={previewData.first_time_completing_users} />
+                          </Collapsible>
+                        </div>
+                        <div
+                          className={css`
+                            margin: 1rem 0;
+                          `}
+                        >
+                          <Collapsible
+                            title={
+                              t(
+                                "users-that-will-be-enrolled-on-the-course-as-a-part-of-completion-registration",
+                              ) +
+                              " (" +
+                              previewData.non_enrolled_users.length +
+                              ")"
+                            }
+                          >
+                            <PreviewUserList users={previewData.non_enrolled_users} />
+                          </Collapsible>
+                        </div>
+                        <div
+                          className={css`
+                            margin: 1rem 0;
+                          `}
+                        >
+                          <Collapsible
+                            title={
+                              t(
+                                "users-that-already-have-a-completion-and-are-about-to-get-a-duplicate-one",
+                              ) +
+                              " (" +
+                              previewData.already_completed_users.length +
+                              ")"
+                            }
+                          >
+                            <PreviewUserList users={previewData.already_completed_users} />
+                          </Collapsible>
+                        </div>
+                        <Button
+                          variant="primary"
+                          size="medium"
+                          type="button"
+                          value={t("button-text-submit")}
+                          onClick={() => mutation.mutate(completionFormData)}
+                        >
+                          {t("button-text-submit")}
+                        </Button>
+                      </GenericInfobox>
                     </div>
                   )}
                 </div>

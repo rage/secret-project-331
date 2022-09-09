@@ -95,6 +95,7 @@ import {
   IsChapterFrontPage,
   Login,
   ManualCompletionPreview,
+  ManualCompletionPreviewUser,
   MarkAsRead,
   MaterialReference,
   ModifiedModule,
@@ -1129,6 +1130,57 @@ export function isCourseInstanceCompletionSummary(
   )
 }
 
+export function isManualCompletionPreview(obj: unknown): obj is ManualCompletionPreview {
+  const typedObj = obj as ManualCompletionPreview
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["already_completed_users"]) &&
+    typedObj["already_completed_users"].every(
+      (e: any) => isManualCompletionPreviewUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["first_time_completing_users"]) &&
+    typedObj["first_time_completing_users"].every(
+      (e: any) => isManualCompletionPreviewUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["non_enrolled_users"]) &&
+    typedObj["non_enrolled_users"].every((e: any) => isManualCompletionPreviewUser(e) as boolean)
+  )
+}
+
+export function isManualCompletionPreviewUser(obj: unknown): obj is ManualCompletionPreviewUser {
+  const typedObj = obj as ManualCompletionPreviewUser
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean"
+  )
+}
+
+export function isTeacherManualCompletion(obj: unknown): obj is TeacherManualCompletion {
+  const typedObj = obj as TeacherManualCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    (typedObj["completion_date"] === null || typedObj["completion_date"] instanceof Date)
+  )
+}
+
+export function isTeacherManualCompletionRequest(
+  obj: unknown,
+): obj is TeacherManualCompletionRequest {
+  const typedObj = obj as TeacherManualCompletionRequest
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    Array.isArray(typedObj["new_completions"]) &&
+    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean)
+  )
+}
+
 export function isUserCompletionInformation(obj: unknown): obj is UserCompletionInformation {
   const typedObj = obj as UserCompletionInformation
   return (
@@ -2155,41 +2207,6 @@ export function isRoleInfo(obj: unknown): obj is RoleInfo {
     typeof typedObj["email"] === "string" &&
     (isUserRole(typedObj["role"]) as boolean) &&
     (isRoleDomain(typedObj["domain"]) as boolean)
-  )
-}
-
-export function isTeacherManualCompletion(obj: unknown): obj is TeacherManualCompletion {
-  const typedObj = obj as TeacherManualCompletion
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["user_id"] === "string" &&
-    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
-    (typedObj["completion_date"] === null || typedObj["completion_date"] instanceof Date)
-  )
-}
-
-export function isTeacherManualCompletionRequest(
-  obj: unknown,
-): obj is TeacherManualCompletionRequest {
-  const typedObj = obj as TeacherManualCompletionRequest
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["course_module_id"] === "string" &&
-    Array.isArray(typedObj["new_completions"]) &&
-    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean)
-  )
-}
-
-export function isManualCompletionPreview(obj: unknown): obj is ManualCompletionPreview {
-  const typedObj = obj as ManualCompletionPreview
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    Array.isArray(typedObj["already_completed_users"]) &&
-    typedObj["already_completed_users"].every((e: any) => typeof e === "string") &&
-    Array.isArray(typedObj["first_time_completing_users"]) &&
-    typedObj["first_time_completing_users"].every((e: any) => typeof e === "string") &&
-    Array.isArray(typedObj["non_enrolled_users"]) &&
-    typedObj["non_enrolled_users"].every((e: any) => typeof e === "string")
   )
 }
 

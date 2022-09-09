@@ -120,6 +120,10 @@ fn models(target: &mut File) {
 
         library::progressing::CompletionRegistrationLink,
         library::progressing::CourseInstanceCompletionSummary,
+        library::progressing::ManualCompletionPreview,
+        library::progressing::ManualCompletionPreviewUser,
+        library::progressing::TeacherManualCompletion,
+        library::progressing::TeacherManualCompletionRequest,
         library::progressing::UserCompletionInformation,
         library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
@@ -253,9 +257,6 @@ fn controllers(target: &mut File) {
 
             roles::RoleQuery,
             roles::RoleInfo,
-            course_instances::TeacherManualCompletion,
-            course_instances::TeacherManualCompletionRequest,
-            course_instances::ManualCompletionPreview,
             exams::ExamCourseInfo,
             exercises::ExerciseSubmissions,
             exercises::AnswersRequiringAttention,

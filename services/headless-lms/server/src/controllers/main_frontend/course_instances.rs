@@ -1,14 +1,19 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.
 
 use bytes::Bytes;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use models::{
-    course_instance_enrollments,
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
     course_module_completions::{self, NewCourseModuleCompletion},
     course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
-    library::{self, progressing::CourseInstanceCompletionSummary},
+    library::{
+        self,
+        progressing::{
+            CourseInstanceCompletionSummary, ManualCompletionPreview,
+            TeacherManualCompletionRequest,
+        },
+    },
     users,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -213,21 +218,6 @@ async fn completions(
     token.authorized_ok(web::Json(completions))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct TeacherManualCompletionRequest {
-    pub course_module_id: Uuid,
-    pub new_completions: Vec<TeacherManualCompletion>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct TeacherManualCompletion {
-    pub user_id: Uuid,
-    pub grade: Option<i32>,
-    pub completion_date: Option<DateTime<Utc>>,
-}
-
 /**
 POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
 */
@@ -281,6 +271,7 @@ async fn post_completions(
                     eligible_for_ects: true,
                     email: user.email,
                     grade: completion.grade,
+                    // Should passed be false if grade == Some(0)?
                     passed: true,
                 },
                 None,
@@ -291,14 +282,6 @@ async fn post_completions(
     }
     tx.commit().await?;
     token.authorized_ok(web::Json(()))
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ManualCompletionPreview {
-    already_completed_users: Vec<Uuid>,
-    first_time_completing_users: Vec<Uuid>,
-    non_enrolled_users: Vec<Uuid>,
 }
 
 #[instrument(skip(pool, payload))]
@@ -317,47 +300,11 @@ async fn preview_post_completions(
     )
     .await?;
     let data = payload.0;
-    let course_module = course_modules::get_by_id(&mut conn, data.course_module_id).await?;
     let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
-    if course_module.course_id != instance.course_id {
-        return Err(ControllerError::BadRequest(
-            "Course module not part of the course.".to_string(),
-        ));
-    }
-    let mut already_completed_users = vec![];
-    let mut first_time_completing_users = vec![];
-    let mut non_enrolled_users = vec![];
-    for completion in data.new_completions {
-        let course_module_completion =
-            course_module_completions::get_by_course_module_instance_and_user_ids(
-                &mut conn,
-                data.course_module_id,
-                *course_instance_id,
-                completion.user_id,
-            )
-            .await
-            .optional()?;
-        if course_module_completion.is_some() {
-            already_completed_users.push(completion.user_id);
-        } else {
-            first_time_completing_users.push(completion.user_id);
-        }
-        let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
-            &mut conn,
-            completion.user_id,
-            instance.id,
-        )
-        .await
-        .optional()?;
-        if enrollment.is_none() {
-            non_enrolled_users.push(completion.user_id);
-        }
-    }
-    token.authorized_ok(web::Json(ManualCompletionPreview {
-        already_completed_users,
-        first_time_completing_users,
-        non_enrolled_users,
-    }))
+    let preview =
+        library::progressing::get_manual_completion_result_preview(&mut conn, &instance, &data)
+            .await?;
+    token.authorized_ok(web::Json(preview))
 }
 
 /**

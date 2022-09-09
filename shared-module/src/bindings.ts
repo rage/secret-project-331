@@ -575,6 +575,31 @@ export interface CourseInstanceCompletionSummary {
   users_with_course_module_completions: Array<UserWithModuleCompletions>
 }
 
+export interface ManualCompletionPreview {
+  already_completed_users: Array<ManualCompletionPreviewUser>
+  first_time_completing_users: Array<ManualCompletionPreviewUser>
+  non_enrolled_users: Array<ManualCompletionPreviewUser>
+}
+
+export interface ManualCompletionPreviewUser {
+  user_id: string
+  first_name: string | null
+  last_name: string | null
+  grade: number | null
+  passed: boolean
+}
+
+export interface TeacherManualCompletion {
+  user_id: string
+  grade: number | null
+  completion_date: Date | null
+}
+
+export interface TeacherManualCompletionRequest {
+  course_module_id: string
+  new_completions: Array<TeacherManualCompletion>
+}
+
 export interface UserCompletionInformation {
   course_module_completion_id: string
   course_name: string
@@ -1221,23 +1246,6 @@ export interface RoleInfo {
   email: string
   role: UserRole
   domain: RoleDomain
-}
-
-export interface TeacherManualCompletion {
-  user_id: string
-  grade: number | null
-  completion_date: Date | null
-}
-
-export interface TeacherManualCompletionRequest {
-  course_module_id: string
-  new_completions: Array<TeacherManualCompletion>
-}
-
-export interface ManualCompletionPreview {
-  already_completed_users: Array<string>
-  first_time_completing_users: Array<string>
-  non_enrolled_users: Array<string>
 }
 
 export interface ExamCourseInfo {

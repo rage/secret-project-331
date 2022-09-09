@@ -83,7 +83,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Chapter data not loaded")
       }
-      const chapters = pageOrderState.chapters
+      // const chapters = pageOrderState.chapters
+      const chapters = Object.values(pageOrderState.chapters).flat()
       return postNewChapterOrdering(courseStructure.course.id, chapters)
     },
     {

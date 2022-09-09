@@ -2325,20 +2325,20 @@ pub async fn reorder_chapters(
 
     for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            if matching_db_chapter.id == chapter.id {
-                // to avoid conflicting chapter_number when chapter is modified
-                sqlx::query!(
-                    "UPDATE chapters
+            // if matching_db_chapter.id == chapter.id {
+            // to avoid conflicting chapter_number when chapter is modified
+            sqlx::query!(
+                "UPDATE chapters
                 SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
                 WHERE id = $1
                   AND course_id = $2
                   AND deleted_at IS NULL",
-                    chapter.id,
-                    course_id
-                )
-                .execute(&mut tx)
-                .await?;
-            }
+                matching_db_chapter.id,
+                course_id
+            )
+            .execute(&mut tx)
+            .await?;
+            // }
         }
     }
 
@@ -2371,17 +2371,26 @@ pub async fn reorder_chapters(
                             &new_chapter_number.to_string(),
                             1,
                         );
-                        sqlx::query!("UPDATE pages SET url_path = $2, id = $1", page.id, new_path)
-                            .execute(&mut tx)
-                            .await?;
-
-                        crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
-                            .await
-                            .unwrap();
-
-                        /* sqlx::query!("INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",page.id, old_path, course_id)
+                        sqlx::query!(
+                            "UPDATE pages SET url_path = $2 WHERE id = $1",
+                            page.id,
+                            new_path
+                        )
                         .execute(&mut tx)
-                        .await?; */
+                        .await?;
+
+                        sqlx::query!(
+                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
+                            page.id,
+                            old_path,
+                            course_id
+                        )
+                        .execute(&mut tx)
+                        .await?;
+
+                        /* crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
+                        .await
+                        .unwrap(); */
                     }
                 }
             } else {

@@ -210,16 +210,37 @@ function moveChapterWithinChapterList(
   direction: "up" | "down",
   draftState: WritableDraft<ManagePageOrderLoading> | WritableDraft<ManagePageOrderReady>,
 ) {
-  const currentIndex = chapters.findIndex((chapter) => chapter.id === chapterToMoveId)
-  if (currentIndex === -1) {
+  const currentChapter = chapters.find((chapter) => chapter.id === chapterToMoveId)
+
+  if (currentChapter === undefined) {
     return
   }
-  const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
-  if (targetIndex < 0 || targetIndex >= chapters.length) {
+  const currentChapterNumber = currentChapter.chapter_number
+  const target = direction === "up" ? currentChapterNumber - 1 : currentChapterNumber + 1
+  if (target < 0 || target > chapters.length) {
     return
   }
-  const temp = chapters[currentIndex].chapter_number
-  chapters[currentIndex].chapter_number = chapters[targetIndex].chapter_number
-  chapters[targetIndex].chapter_number = temp
+
+  const targetChapter = chapters.find((chapter) => chapter.chapter_number === target)
+
+  if (targetChapter === undefined) {
+    return
+  }
+
+  const targetChapterNumber = targetChapter?.chapter_number
+
+  console.log("currentChapterNumber", currentChapter.name)
+  console.log("targetChapterNumber", targetChapter.name)
+
+  const temp = currentChapterNumber
+  chapters[currentChapterNumber - 1].chapter_number = targetChapterNumber
+  chapters[targetChapterNumber - 1].chapter_number = temp
+
+  console.log("currentChapter.chapter_number", currentChapter.chapter_number)
+  console.log("targetChapter.chapter_number", targetChapter.chapter_number)
+
+  console.log("currentChapter.chapter_number", chapters[currentChapterNumber - 1].chapter_number)
+  console.log("targetChapter.chapter_number", chapters[targetChapterNumber - 1].chapter_number)
+
   draftState.unsavedChapterChanges = true
 }

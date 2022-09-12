@@ -1,5 +1,6 @@
 import KaTex from "katex"
 import * as ReactDOMServer from "react-dom/server"
+import "katex/dist/katex.min.css"
 
 import { Term } from "../../../shared-module/bindings"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"

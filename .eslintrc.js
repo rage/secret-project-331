@@ -109,12 +109,12 @@ module.exports = {
           {
             name: "@mui/material/Box",
             importNames: ["default"],
-            message: "Don't use Box from @material-ui.",
+            message: "Don't use Box from @material-ui. Please use a div.",
           },
           {
             name: "@mui/material",
             importNames: ["Box"],
-            message: "Don't use Box from @material-ui.",
+            message: "Don't use Box from @material-ui. Please use a div.",
           },
           {
             name: "@mui/styles",

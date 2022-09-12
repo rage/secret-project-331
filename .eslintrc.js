@@ -95,6 +95,28 @@ module.exports = {
             message: "Don't use Button from @material-ui. Please use Button from shared-module.",
           },
           {
+            name: "@mui/material/Pagination",
+            importNames: ["default"],
+            message:
+              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
+          },
+          {
+            name: "@mui/material",
+            importNames: ["Pagination"],
+            message:
+              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
+          },
+          {
+            name: "@mui/material/Box",
+            importNames: ["default"],
+            message: "Don't use Box from @material-ui.",
+          },
+          {
+            name: "@mui/material",
+            importNames: ["Box"],
+            message: "Don't use Box from @material-ui.",
+          },
+          {
             name: "@mui/styles",
             importNames: ["withStyles"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",

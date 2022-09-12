@@ -1,12 +1,11 @@
-import { Pagination } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchEditProposalCount } from "../../../../../../services/backend/proposedEdits"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/components/Pagination"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import EditProposalPage from "./EditProposalPage"
 
@@ -22,15 +21,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   perPage,
 }) => {
   const { t } = useTranslation()
-  const router = useRouter()
-
-  let initialPage: number
-  if (typeof router.query.page === "string") {
-    initialPage = parseInt(router.query.page)
-  } else {
-    initialPage = 1
-  }
-  const [page, setPage] = useState(initialPage)
+  const paginationInfo = usePaginationInfo()
 
   const getEditProposalCount = useQuery([`edit-proposal-count-${courseId}`], () =>
     fetchEditProposalCount(courseId),
@@ -50,27 +41,17 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const pageCount = Math.ceil(items / perPage)
-  if (page > pageCount) {
-    setPage(pageCount)
-  }
 
   return (
     <div>
       <EditProposalPage
         courseId={courseId}
-        page={page}
+        page={paginationInfo.page}
         pending={pending}
         limit={perPage}
         onChange={getEditProposalCount.refetch}
       />
-      <Pagination
-        count={pageCount}
-        page={page}
-        onChange={(_, val) => {
-          router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
-          setPage(val)
-        }}
-      />
+      <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
     </div>
   )
 }

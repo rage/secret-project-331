@@ -1,12 +1,12 @@
-import { Pagination } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 import React, { useState } from "react"
 
 import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/components/Pagination"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import HistoryPage from "./HistoryPage"
 
@@ -23,18 +23,8 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   onRestore,
   onCompare,
 }) => {
-  const router = useRouter()
-  const query = router.query.page
-  let initialPage
-  if (typeof query === "string") {
-    initialPage = parseInt(query)
-    initialPage = initialPage && initialPage > 0 ? initialPage : 1
-  } else {
-    initialPage = 1
-  }
+  const paginationInfo = usePaginationInfo()
 
-  const perPage = 1
-  const [currentPage, setCurrentPage] = useState(initialPage)
   const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(
     initialSelectedRevisionId,
   )
@@ -57,8 +47,7 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   function changePage(newPage: number) {
-    router.replace({ query: { ...router.query, page: newPage } }, undefined, { shallow: true })
-    setCurrentPage(newPage)
+    paginationInfo.setPage(newPage)
   }
 
   return (
@@ -71,16 +60,16 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
         <>
           <HistoryPage
             pageId={pageId}
-            page={currentPage}
-            limit={perPage}
+            page={paginationInfo.page}
+            limit={1}
             selectedRevisionId={selectedRevisionId}
             onCompare={compare}
             onRestore={restore}
           />
           <Pagination
-            count={getPageHistoryCount.data / perPage}
-            page={currentPage}
-            onChange={(_, val) => changePage(val)}
+            totalPages={getPageHistoryCount.data / 1}
+            paginationInfo={{ ...paginationInfo, limit: 1 }}
+            disableItemsPerPage
           />
         </>
       )}

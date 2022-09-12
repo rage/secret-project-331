@@ -7,6 +7,7 @@ ensure_program_in_path "kubectl"
 ensure_program_in_path "minikube"
 ensure_program_in_path "kustomize"
 check_minikube_version
+ensure_common_programs_in_path
 
 enforce_inotify_watches_limit_sufficient
 

@@ -215,8 +215,13 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">num::ParseIntError</span>};
 
+<span class="kw">use</span> <span class="ident">anyhow::bail</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{
     <span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">MapAccess</span>, <span class="ident">Visitor</span>},
     <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>,
@@ -238,14 +243,17 @@
 
 <span class="kw">impl</span> <span class="ident">Pagination</span> {
     <span class="doccomment">/// Panics on non-positive page or limit values.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">u32</span>, <span class="ident">limit</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">page</span>: <span class="ident">u32</span>, <span class="ident">limit</span>: <span class="ident">u32</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">page</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Page must be a positive value.&quot;</span>);
         }
         <span class="kw">if</span> <span class="ident">limit</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Limit must be a positive value.&quot;</span>);
         }
-        <span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> }
+        <span class="kw">if</span> <span class="ident">limit</span> <span class="op">&gt;</span> <span class="number">10_000</span> {
+            <span class="macro">bail!</span>(<span class="string">&quot;Limit can be at most 10000.&quot;</span>)
+        }
+        <span class="prelude-val">Ok</span>(<span class="ident">Pagination</span> { <span class="ident">page</span>, <span class="ident">limit</span> })
     }
 
     <span class="doccomment">/// Guaranteed to be positive.</span>
@@ -354,9 +362,9 @@
                                     <span class="ident">e</span>
                                 ))
                             })<span class="question-mark">?</span>;
-                            <span class="kw">if</span> <span class="op">!</span>(<span class="number">1</span>..<span class="op">=</span><span class="number">1000</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
+                            <span class="kw">if</span> <span class="op">!</span>(<span class="number">1</span>..<span class="op">=</span><span class="number">10000</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>) {
                                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">de::Error::custom</span>(
-                                    <span class="string">&quot;query parameter `limit` must be an integer between 1 and 1000&quot;</span>,
+                                    <span class="string">&quot;query parameter `limit` must be an integer between 1 and 10000&quot;</span>,
                                 ));
                             }
                             <span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
@@ -405,7 +413,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">paginates</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>];
-        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">2</span>, <span class="number">3</span>);
+        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">2</span>, <span class="number">3</span>).<span class="ident">unwrap</span>();
         <span class="ident">pagination</span>.<span class="ident">paginate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">v</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="kw-2">&amp;</span>[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]);
     }
@@ -413,7 +421,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">paginates_non_existent_page</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>];
-        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">3</span>, <span class="number">4</span>);
+        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">3</span>, <span class="number">4</span>).<span class="ident">unwrap</span>();
         <span class="ident">pagination</span>.<span class="ident">paginate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">v</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="kw-2">&amp;</span>[] <span class="kw">as</span> <span class="kw-2">&amp;</span>[<span class="ident">i32</span>]);
     }
@@ -421,7 +429,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">paginates_incomplete_page</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>];
-        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">2</span>, <span class="number">5</span>);
+        <span class="kw">let</span> <span class="ident">pagination</span> <span class="op">=</span> <span class="ident">Pagination::new</span>(<span class="number">2</span>, <span class="number">5</span>).<span class="ident">unwrap</span>();
         <span class="ident">pagination</span>.<span class="ident">paginate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">v</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">v</span>, <span class="kw-2">&amp;</span>[<span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>]);
     }

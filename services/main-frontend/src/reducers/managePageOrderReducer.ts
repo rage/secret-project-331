@@ -229,18 +229,12 @@ function moveChapterWithinChapterList(
 
   const targetChapterNumber = targetChapter?.chapter_number
 
-  console.log("currentChapterNumber", currentChapter.name)
-  console.log("targetChapterNumber", targetChapter.name)
+  const currentIndex = currentChapterNumber - 1
+  const targetIndex = targetChapterNumber - 1
 
   const temp = currentChapterNumber
-  chapters[currentChapterNumber - 1].chapter_number = targetChapterNumber
-  chapters[targetChapterNumber - 1].chapter_number = temp
-
-  console.log("currentChapter.chapter_number", currentChapter.chapter_number)
-  console.log("targetChapter.chapter_number", targetChapter.chapter_number)
-
-  console.log("currentChapter.chapter_number", chapters[currentChapterNumber - 1].chapter_number)
-  console.log("targetChapter.chapter_number", chapters[targetChapterNumber - 1].chapter_number)
+  chapters[currentIndex].chapter_number = targetChapterNumber
+  chapters[targetIndex].chapter_number = temp
 
   draftState.unsavedChapterChanges = true
 }

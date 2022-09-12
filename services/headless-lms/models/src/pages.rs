@@ -2368,29 +2368,26 @@ pub async fn reorder_chapters(
                         let old_path = &page.url_path;
                         let new_path = old_path.replacen(
                             &old_chapter_number.to_string(),
-                            &new_chapter.chapter_number.to_string(),
+                            &new_chapter_number.to_string(),
                             1,
                         );
-                        sqlx::query!(
-                            "UPDATE pages SET url_path = $2 WHERE id = $1",
+                        /*                         // update each page path associated with the modified chapter
+                         sqlx::query!(
+                             "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                             page.id,
+                             new_path
+                         )
+                         .execute(&mut tx)
+                         .await?;
+
+                         sqlx::query!(
+                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                             page.id,
-                            new_path
+                            old_path,
+                            course_id
                         )
                         .execute(&mut tx)
-                        .await?;
-
-                        sqlx::query!(
-                           "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
-                           page.id,
-                           old_path,
-                           course_id
-                       )
-                       .execute(&mut tx)
-                       .await?;
-
-                        /* crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
-                        .await
-                        .unwrap(); */
+                        .await?; */
                     }
                 }
             } else {

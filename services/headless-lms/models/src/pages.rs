@@ -2347,7 +2347,7 @@ pub async fn reorder_chapters(
             let old_chapter_id = matching_db_chapter.id;
             let new_chapter_id = chapter.id;
 
-            if let Some(old_chapter) = chapters.iter().find(|o| o.id == old_chapter_id) {
+            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == old_chapter_id) {
                 if let Some(new_chapter) = chapters.iter().find(|o| o.id == new_chapter_id) {
                     let old_chapter_number = &old_chapter.chapter_number;
                     let new_chapter_number = &new_chapter.chapter_number;
@@ -2364,21 +2364,22 @@ pub async fn reorder_chapters(
                     // update all pages url in the modified chapter
                     let pages = get_chapter_pages(&mut tx, chapter.id).await?;
 
-                    /* for page in pages {
+                    for page in pages {
                         let old_path = &page.url_path;
                         let new_path = old_path.replacen(
                             &old_chapter_number.to_string(),
-                            &new_chapter_number.to_string(),
+                            &new_chapter.chapter_number.to_string(),
                             1,
-                       sqlx::query!(
-                           "UPDATE pages SET url_path = $2 WHERE id = $1",
-                           page.id,
-                           new_path
-                       )
-                       .execute(&mut tx)
-                       .await?;
+                        );
+                        sqlx::query!(
+                            "UPDATE pages SET url_path = $2 WHERE id = $1",
+                            page.id,
+                            new_path
+                        )
+                        .execute(&mut tx)
+                        .await?;
 
-                       sqlx::query!(
+                        sqlx::query!(
                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                            page.id,
                            old_path,
@@ -2387,10 +2388,10 @@ pub async fn reorder_chapters(
                        .execute(&mut tx)
                        .await?;
 
-                       /* crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
-                       .await
-                       .unwrap(); */
-                    */
+                        /* crate::url_redirections::insert(&mut tx, page.id, old_path, course_id)
+                        .await
+                        .unwrap(); */
+                    }
                 }
             } else {
                 return Err(ModelError::InvalidRequest(

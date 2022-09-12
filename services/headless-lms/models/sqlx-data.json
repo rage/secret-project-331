@@ -745,16 +745,6 @@
     },
     "query": "\nUPDATE course_modules\nSET deleted_at = now()\nWHERE id = $1\n"
   },
-  "0e0093f6db54cecaa1a7ab1758a24ad02754bcd812b86b3061f37327039329d8": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Varchar"]
-      }
-    },
-    "query": "UPDATE pages SET url_path = $2 WHERE id = $1"
-  },
   "0eb1973f9ce1c28fdf44969a8691da1e88b58501a1eff1e236eed1310dfe2464": {
     "describe": {
       "columns": [

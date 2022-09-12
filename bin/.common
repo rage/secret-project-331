@@ -30,6 +30,12 @@ function ensure_program_in_path() {
   fi
 }
 
+function ensure_common_programs_in_path() {
+  ensure_program_in_path jq
+  ensure_program_in_path find
+  ensure_program_in_path sponge
+}
+
 function enforce_inotify_watches_limit_sufficient() {
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     INOTIFY_WATCHES=$(cat /proc/sys/fs/inotify/max_user_watches)

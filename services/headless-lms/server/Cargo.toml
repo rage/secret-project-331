@@ -77,6 +77,8 @@ tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
 tracing-actix-web = "0.6.0"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.66"
 # Provides compatibility between `tracing` and the `log` crate.
 tracing-log = "0.1.3"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.

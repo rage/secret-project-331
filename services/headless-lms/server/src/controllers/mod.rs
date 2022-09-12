@@ -26,15 +26,38 @@ use actix_web::{
     web::{self, ServiceConfig},
     HttpResponse, HttpResponseBuilder,
 };
+use backtrace::Backtrace;
 use derive_more::Display;
 use headless_lms_models::ModelError;
-use headless_lms_utils::UtilError;
+use headless_lms_utils::error::backend_error::BackendError;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
+use tracing_error::SpanTrace;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
 use uuid::Uuid;
+
+#[derive(Debug, Display, Serialize, Deserialize)]
+pub enum ControllerErrorType {
+    #[display(fmt = "Internal server error")]
+    InternalServerError,
+
+    #[display(fmt = "Bad request")]
+    BadRequest,
+
+    #[display(fmt = "Bad request")]
+    BadRequestWithData(ErrorData),
+
+    #[display(fmt = "Not found")]
+    NotFound,
+
+    #[display(fmt = "Unauthorized")]
+    Unauthorized,
+
+    #[display(fmt = "Forbidden")]
+    Forbidden,
+}
 
 /**
 Represents error messages that are sent in responses.
@@ -43,30 +66,71 @@ Represents error messages that are sent in responses.
 ```json
 {
     "title": "Internal Server Error",
-    "message": "pool timed out while waiting for an open connection"
+    "message": "pool timed out while waiting for an open connection",
     "source": "source of error"
 }
 ```
 */
-#[derive(Debug, Display, Serialize, Deserialize)]
-pub enum ControllerError {
-    #[display(fmt = "Internal server error")]
-    InternalServerError(String),
+#[derive(Debug)]
+pub struct ControllerError {
+    error_type: <ControllerError as BackendError>::ErrorType,
+    message: String,
+    /// Original error that caused this error.
+    source: Option<Box<dyn std::error::Error>>,
+    /// A trace of tokio tracing spans, generated automatically when the error is generated.
+    span_trace: SpanTrace,
+    /// Stack trace, generated automatically when the error is created.
+    backtrace: Backtrace,
+}
 
-    #[display(fmt = "Bad request")]
-    BadRequest(String),
+impl std::error::Error for ControllerError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.source.as_deref()
+    }
 
-    #[display(fmt = "Bad request")]
-    BadRequestWithData(String, ErrorData),
+    fn cause(&self) -> Option<&dyn std::error::Error> {
+        self.source()
+    }
+}
 
-    #[display(fmt = "Not found")]
-    NotFound(String),
+impl std::fmt::Display for ControllerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ControllerError")
+    }
+}
 
-    #[display(fmt = "Unauthorized")]
-    Unauthorized(String),
+impl BackendError for ControllerError {
+    type ErrorType = ControllerErrorType;
 
-    #[display(fmt = "Forbidden")]
-    Forbidden(String),
+    fn new(
+        error_type: Self::ErrorType,
+        message: String,
+        source_error: Option<Box<dyn std::error::Error>>,
+    ) -> Self {
+        Self {
+            error_type,
+            message,
+            source: source_error,
+            span_trace: SpanTrace::capture(),
+            backtrace: Backtrace::new(),
+        }
+    }
+
+    fn backtrace(&self) -> Option<&Backtrace> {
+        Some(&self.backtrace)
+    }
+
+    fn error_type(&self) -> &Self::ErrorType {
+        &self.error_type
+    }
+
+    fn message(&self) -> &str {
+        &self.message
+    }
+
+    fn span_trace(&self) -> &SpanTrace {
+        &self.span_trace
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -86,11 +150,9 @@ pub struct ErrorResponse {
     pub data: Option<ErrorData>,
 }
 
-impl std::error::Error for ControllerError {}
-
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
-        if let ControllerError::InternalServerError(_) = &self {
+        if let ControllerErrorType::InternalServerError(_) = &self {
             let mut err_string = String::new();
             let mut source = Some(&self as &dyn Error);
             while let Some(err) = source {
@@ -107,18 +169,18 @@ impl error::ResponseError for ControllerError {
         }
 
         let status = self.status_code();
-        let detail = if let ControllerError::InternalServerError(reason)
-        | ControllerError::BadRequest(reason)
-        | ControllerError::BadRequestWithData(reason, _)
-        | ControllerError::Forbidden(reason)
-        | ControllerError::Unauthorized(reason) = self
-        {
-            reason
-        } else {
-            "Error"
-        };
+        // let detail = if let ControllerErrorType::InternalServerError
+        // | ControllerErrorType::BadRequest
+        // | ControllerErrorType::BadRequestWithData()
+        // | ControllerErrorType::Forbidden()
+        // | ControllerErrorType::Unauthorized(reason) = self
+        // {
+        //     reason
+        // } else {
+        //     "Error"
+        // };
 
-        let error_data = if let ControllerError::BadRequestWithData(_, data) = self {
+        let error_data = if let ControllerErrorType::BadRequestWithData(_, data) = self {
             Some(data.clone())
         } else {
             None
@@ -144,12 +206,12 @@ impl error::ResponseError for ControllerError {
 
     fn status_code(&self) -> StatusCode {
         match *self {
-            ControllerError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ControllerError::BadRequestWithData(_, _) => StatusCode::BAD_REQUEST,
-            ControllerError::NotFound(_) => StatusCode::NOT_FOUND,
-            ControllerError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
-            ControllerError::Forbidden(_) => StatusCode::FORBIDDEN,
+            ControllerErrorType::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ControllerErrorType::BadRequest(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequestWithData(_, _) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::NotFound(_) => StatusCode::NOT_FOUND,
+            ControllerErrorType::Unauthorized(_) => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::Forbidden(_) => StatusCode::FORBIDDEN,
         }
     }
 }

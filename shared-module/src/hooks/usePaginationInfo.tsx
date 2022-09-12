@@ -5,7 +5,7 @@ import { useMemo, useState } from "react"
 const MAX_LIMIT = 10_000
 
 const DEFAULT_PAGE = 1
-const DEFAULT_LIMIT = 1
+const DEFAULT_LIMIT = 100
 
 export interface PaginationInfo {
   page: number

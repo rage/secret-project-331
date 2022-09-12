@@ -5,7 +5,7 @@ import DoneIcon from "@mui/icons-material/Done"
 import EditIcon from "@mui/icons-material/Edit"
 import ErrorIcon from "@mui/icons-material/Error"
 import SaveIcon from "@mui/icons-material/Save"
-import { Box, Card, CardContent, CardHeader, IconButton } from "@mui/material"
+import { Card, CardContent, CardHeader, IconButton } from "@mui/material"
 import Dialog from "@mui/material/Dialog"
 import DialogActions from "@mui/material/DialogActions"
 import DialogContent from "@mui/material/DialogContent"
@@ -117,7 +117,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   }
 
   return (
-    <Box>
+    <div>
       <Card
         key={key}
         variant="outlined"
@@ -238,7 +238,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   )
 }
 

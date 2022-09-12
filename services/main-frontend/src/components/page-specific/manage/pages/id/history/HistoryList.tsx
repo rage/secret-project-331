@@ -61,13 +61,13 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
           <HistoryPage
             pageId={pageId}
             page={paginationInfo.page}
-            limit={paginationInfo.limit}
+            limit={1}
             selectedRevisionId={selectedRevisionId}
             onCompare={compare}
             onRestore={restore}
           />
           <Pagination
-            totalPages={getPageHistoryCount.data / paginationInfo.limit}
+            totalPages={getPageHistoryCount.data / 1}
             paginationInfo={{ ...paginationInfo, limit: 1 }}
             disableItemsPerPage
           />

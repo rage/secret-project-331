@@ -6,6 +6,7 @@ import {
   MoreHoriz as MoreHorizIcon,
 } from "@mui/icons-material"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { PaginationInfo } from "../hooks/usePaginationInfo"
 import { headingFont } from "../styles"
@@ -103,6 +104,7 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
   totalPages,
   disableItemsPerPage = false,
 }) => {
+  const { t } = useTranslation()
   const page = paginationInfo.page
   const handleChangeEvent = (pageNumber: number) => (_changeEvent: unknown) => {
     if (totalPages <= 1) {
@@ -118,7 +120,12 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
   const generateComponents = () => {
     const components: JSX.Element[] = []
     components.push(
-      <LeftButton onClick={handleChangeEvent(Math.max(1, page - 1))}>
+      <LeftButton
+        tabIndex={0}
+        role="button"
+        aria-label={t("go-to-previous-page")}
+        onClick={handleChangeEvent(Math.max(1, page - 1))}
+      >
         <ChevronLeftIcon />
       </LeftButton>,
     )
@@ -126,12 +133,17 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
     // In case there is nothing
     if (totalPages === 0) {
       components.push(
-        <SelectedCircle>
+        <SelectedCircle aria-label={t("current-page-x", { number: 1 })}>
           <CircleText>1</CircleText>
         </SelectedCircle>,
       )
       components.push(
-        <RightButton onClick={handleChangeEvent(Math.min(page + 1, totalPages))}>
+        <RightButton
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-next-page")}
+          onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
+        >
           <ChevronRightIcon />
         </RightButton>,
       )
@@ -142,13 +154,18 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       for (let idx = 1; idx <= totalPages; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle>
+            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
         } else {
           components.push(
-            <Circle onClick={handleChangeEvent(idx)}>
+            <Circle
+              tabIndex={0}
+              role="button"
+              aria-label={t("go-to-page-x", { number: idx })}
+              onClick={handleChangeEvent(idx)}
+            >
               <CircleText>{idx}</CircleText>
             </Circle>,
           )
@@ -156,7 +173,12 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       }
 
       components.push(
-        <RightButton onClick={handleChangeEvent(Math.min(page + 1, totalPages))}>
+        <RightButton
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-next-page")}
+          onClick={handleChangeEvent(Math.min(page + 1, totalPages))}
+        >
           <ChevronRightIcon />
         </RightButton>,
       )
@@ -167,13 +189,17 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       for (let idx = 1; idx <= CAPACITY; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle>
+            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
         } else {
           components.push(
-            <Circle onClick={handleChangeEvent(idx)}>
+            <Circle
+              role="button"
+              aria-label={t("go-to-page-x", { number: idx })}
+              onClick={handleChangeEvent(idx)}
+            >
               <CircleText>{idx}</CircleText>
             </Circle>,
           )
@@ -195,17 +221,27 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         </HorizontalDots>,
       )
       components.push(
-        <Circle onClick={handleChangeEvent(page - 1)}>
+        <Circle
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-page-x", { number: page - 1 })}
+          onClick={handleChangeEvent(page - 1)}
+        >
           <CircleText>{page - 1}</CircleText>
         </Circle>,
       )
       components.push(
-        <SelectedCircle>
+        <SelectedCircle aria-label={t("current-page-x", { number: page })}>
           <CircleText>{page}</CircleText>
         </SelectedCircle>,
       )
       components.push(
-        <Circle onClick={handleChangeEvent(page + 1)}>
+        <Circle
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-page-x", { number: page + 1 })}
+          onClick={handleChangeEvent(page + 1)}
+        >
           <CircleText>{page + 1}</CircleText>
         </Circle>,
       )
@@ -215,13 +251,23 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
         </HorizontalDots>,
       )
       components.push(
-        <Circle onClick={handleChangeEvent(totalPages)}>
+        <Circle
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-page-x", { number: totalPages })}
+          onClick={handleChangeEvent(totalPages)}
+        >
           <CircleText>{totalPages}</CircleText>
         </Circle>,
       )
     } else {
       components.push(
-        <Circle onClick={handleChangeEvent(1)}>
+        <Circle
+          tabIndex={0}
+          role="button"
+          aria-label={t("go-to-page-x", { number: 1 })}
+          onClick={handleChangeEvent(1)}
+        >
           <CircleText>1</CircleText>
         </Circle>,
       )
@@ -233,13 +279,18 @@ const Pagination: React.FC<React.PropsWithChildren<React.PropsWithChildren<Pagin
       for (let idx = totalPages - CAPACITY + 1; idx <= totalPages; idx++) {
         if (idx == page) {
           components.push(
-            <SelectedCircle>
+            <SelectedCircle aria-label={t("current-page-x", { number: idx })}>
               <CircleText>{idx}</CircleText>
             </SelectedCircle>,
           )
         } else {
           components.push(
-            <Circle onClick={handleChangeEvent(idx)}>
+            <Circle
+              tabIndex={0}
+              role="button"
+              aria-label={t("go-to-page-x", { number: idx })}
+              onClick={handleChangeEvent(idx)}
+            >
               <CircleText>{idx}</CircleText>
             </Circle>,
           )

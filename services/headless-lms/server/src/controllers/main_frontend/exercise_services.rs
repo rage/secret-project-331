@@ -2,7 +2,7 @@
 
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`

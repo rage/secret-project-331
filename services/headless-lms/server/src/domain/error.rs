@@ -21,21 +21,27 @@ use uuid::Uuid;
 
 #[derive(Debug, Display, Serialize, Deserialize)]
 pub enum ControllerErrorType {
+    /// HTTP status code 500.
     #[display(fmt = "Internal server error")]
     InternalServerError,
 
+    /// HTTP status code 400.
     #[display(fmt = "Bad request")]
     BadRequest,
 
+    /// HTTP status code 400.
     #[display(fmt = "Bad request")]
     BadRequestWithData(ErrorData),
 
+    /// HTTP status code 404.
     #[display(fmt = "Not found")]
     NotFound,
 
+    /// HTTP status code 401. Needs to log in.
     #[display(fmt = "Unauthorized")]
     Unauthorized,
 
+    /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display(fmt = "Forbidden")]
     Forbidden,
 }

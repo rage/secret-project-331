@@ -30,6 +30,8 @@ fn domain(target: &mut File) {
         authorization::ActionOnResource,
         authorization::Action,
         authorization::Resource,
+        error::ErrorData,
+        error::ErrorResponse,
     };
 }
 
@@ -212,8 +214,6 @@ fn controllers(target: &mut File) {
     export! {
         target,
 
-        ErrorData,
-        ErrorResponse,
         UploadResult,
     };
 

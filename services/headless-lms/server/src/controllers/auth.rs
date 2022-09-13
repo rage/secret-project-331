@@ -14,13 +14,13 @@ use reqwest::Client;
 use url::form_urlencoded::Target;
 
 use crate::{
-    controllers::prelude::*,
     domain::{
         authorization::{
             self, authorize_with_fetched_list_of_roles, skip_authorize, ActionOnResource,
         },
         rate_limit_middleware_builder::build_rate_limiting_middleware,
     },
+    prelude::*,
     OAuthClient,
 };
 
@@ -138,8 +138,10 @@ pub async fn signup(
             Ok(token) => token,
             Err(error) => {
                 info!(token_error = ?error, "Token error when fetching");
-                return Err(ControllerError::Unauthorized(
+                return Err(ControllerError::new(
+                    ControllerErrorType::Unauthorized,
                     "Incorrect email or password.".to_string(),
+                    None,
                 ));
             }
         };
@@ -151,13 +153,17 @@ pub async fn signup(
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
         } else {
-            Err(ControllerError::Unauthorized(
-                "Incorrect email or password.".to_string().finish(),
+            Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Incorrect email or password.".to_string(),
+                None,
             ))
         }
     } else {
-        Err(ControllerError::BadRequest(
+        Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Cannot create a new account when signed in.".to_string(),
+            None,
         ))
     }
 }
@@ -178,12 +184,7 @@ pub async fn authorize_multiple_actions_on_resources(
     let mut results = Vec::with_capacity(input.len());
     if let Some(user) = user {
         // Prefetch roles so that we can do multiple authorizations without repeteadly querying the database.
-        let user_roles =
-            models::roles::get_roles(&mut conn, user.id)
-                .await
-                .map_err(|original_err| {
-                    ControllerError::InternalServerError(original_err.to_string())
-                })?;
+        let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
 
         for action_on_resource in input {
             if (authorize_with_fetched_list_of_roles(
@@ -255,8 +256,10 @@ pub async fn login(
         Ok(token) => token,
         Err(error) => {
             info!(token_error = ?error, "Token error when fetching");
-            return Err(ControllerError::Unauthorized(
+            return Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
                 "Incorrect email or password.".to_string(),
+                None,
             ));
         }
     };
@@ -267,8 +270,10 @@ pub async fn login(
         authorization::remember(&session, user)?;
         token.authorized_ok(HttpResponse::Ok().finish())
     } else {
-        Err(ControllerError::Unauthorized(
-            "Incorrect email or password.".to_string().finish(),
+        Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Incorrect email or password.".to_string(),
+            None,
         ))
     }
 }
@@ -421,10 +426,7 @@ pub async fn get_user_from_moocfi(
 
     // fetch existing user or create new one
     let user =
-        match models::users::find_by_upstream_id(conn, upstream_id)
-            .await
-            .context("Error while trying to find user")?
-        {
+        match models::users::find_by_upstream_id(conn, upstream_id).await? {
             Some(existing_user) => existing_user,
             None => {
                 models::users::insert_with_upstream_id_and_moocfi_id(

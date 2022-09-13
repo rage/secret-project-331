@@ -1,5 +1,5 @@
 //! Re-exports commonly used types for convenient use across the crate.
-//! Intended to be glob-imported like `use crate::controllers::prelude::*;`.
+//! Intended to be glob-imported like `use crate::prelude::*;`.
 
 pub use crate::controllers::helpers::media::{upload_media, StoreKind};
 pub use crate::controllers::UploadResult;

@@ -11,7 +11,7 @@ use models::{
     CourseOrExamId,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

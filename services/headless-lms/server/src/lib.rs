@@ -1,5 +1,6 @@
 pub mod controllers;
 pub mod domain;
+pub mod prelude;
 
 pub mod programs;
 #[cfg(test)]

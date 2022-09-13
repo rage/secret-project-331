@@ -22,6 +22,7 @@ interface SelectMenuExtraProps<T extends string> {
   onChange?: (value: T, name?: string) => void
   className?: string
   register?: UseFormRegisterReturn
+  disabled?: boolean
 }
 
 export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &
@@ -36,6 +37,7 @@ const SelectField = <T extends string>({
   options,
   className,
   register,
+  disabled,
   ...rest
 }: SelectMenuExtraProps<T>) => {
   return (
@@ -43,7 +45,7 @@ const SelectField = <T extends string>({
       className={cx(
         css`
           margin-bottom: 1rem;
-
+          ${disabled && "opacity: 0.5;"}
           select {
             appearance: none;
             background-color: transparent;
@@ -52,10 +54,11 @@ const SelectField = <T extends string>({
             width: 100%;
             font-family: inherit;
             font-size: inherit;
-            cursor: inherit;
+            cursor: ${disabled ? "default" : "pointer"};
             line-height: inherit;
             z-index: 1;
             outline: none;
+            padding: 8px 10px 10px 10px;
           }
 
           select,
@@ -67,9 +70,8 @@ const SelectField = <T extends string>({
             width: 100%;
             border: 1px solid #e0e0e0;
             border-radius: 3px;
-            padding: 8px 10px 10px 10px;
             font-size: 17px;
-            cursor: pointer;
+            cursor: ${disabled ? "default" : "pointer"};
             background: #f9f9f9;
             display: grid;
             grid-template-areas: "select";
@@ -108,6 +110,7 @@ const SelectField = <T extends string>({
       {label && <label htmlFor={id}>{label}</label>}
       <div className="select">
         <select
+          disabled={Boolean(disabled)}
           id={id}
           onChange={({ target: { value } }) => onChange && onChange(value as T)}
           onBlur={onBlur}

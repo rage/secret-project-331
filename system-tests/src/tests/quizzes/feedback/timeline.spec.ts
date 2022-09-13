@@ -61,7 +61,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
 
   await page.click("text=Submit")
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -127,12 +127,12 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
 
   await page.click("text=Submit")
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "timeline-feedback-incorrect-with-model-solution",
-    scrollToYCoordinate: 470,
+    scrollToYCoordinate: 600,
   })
 })

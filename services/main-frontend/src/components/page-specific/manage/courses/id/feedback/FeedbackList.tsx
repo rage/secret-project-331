@@ -1,12 +1,11 @@
-import { Pagination } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/components/Pagination"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import FeedbackPage from "./FeedbackPage"
 
@@ -18,15 +17,7 @@ interface Props {
 
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read, perPage }) => {
   const { t } = useTranslation()
-  const router = useRouter()
-
-  let initialPage: number
-  if (typeof router.query.page === "string") {
-    initialPage = parseInt(router.query.page)
-  } else {
-    initialPage = 1
-  }
-  const [page, setPage] = useState(initialPage)
+  const paginationInfo = usePaginationInfo()
 
   const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
     fetchFeedbackCount(courseId),
@@ -45,27 +36,16 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
     return <div>{t("no-feedback")}</div>
   }
   const pageCount = Math.ceil(items / perPage)
-  if (page > pageCount) {
-    setPage(pageCount)
-  }
-
   return (
     <div>
       <FeedbackPage
         courseId={courseId}
-        page={page}
+        page={paginationInfo.page}
         read={read}
         limit={perPage}
         onChange={getFeedbackCount.refetch}
       />
-      <Pagination
-        count={pageCount}
-        page={page}
-        onChange={(_, val) => {
-          router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
-          setPage(val)
-        }}
-      />
+      <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
     </div>
   )
 }

@@ -25,8 +25,8 @@ spec:
                 [
                   "cargo",
                   "run",
-                  "--bin",
-                  "open_university_registration_link_fetcher",
+                  "--",
+                  "open-university-registration-link-fetcher",
                 ]
               resources:
                 requests:

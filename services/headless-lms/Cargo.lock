@@ -1193,6 +1193,7 @@ dependencies = [
 name = "headless-lms-models"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "backtrace",
  "chrono",
  "derive_more",

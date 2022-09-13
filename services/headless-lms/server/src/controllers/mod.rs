@@ -28,8 +28,8 @@ use actix_web::{
 };
 use backtrace::Backtrace;
 use derive_more::Display;
-use headless_lms_models::ModelError;
-use headless_lms_utils::error::backend_error::BackendError;
+use headless_lms_models::{ModelError, ModelErrorType};
+use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
@@ -152,7 +152,7 @@ pub struct ErrorResponse {
 
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
-        if let ControllerErrorType::InternalServerError(_) = &self {
+        if let ControllerErrorType::InternalServerError = &self.error_type {
             let mut err_string = String::new();
             let mut source = Some(&self as &dyn Error);
             while let Some(err) = source {
@@ -169,18 +169,7 @@ impl error::ResponseError for ControllerError {
         }
 
         let status = self.status_code();
-        // let detail = if let ControllerErrorType::InternalServerError
-        // | ControllerErrorType::BadRequest
-        // | ControllerErrorType::BadRequestWithData()
-        // | ControllerErrorType::Forbidden()
-        // | ControllerErrorType::Unauthorized(reason) = self
-        // {
-        //     reason
-        // } else {
-        //     "Error"
-        // };
-
-        let error_data = if let ControllerErrorType::BadRequestWithData(_, data) = self {
+        let error_data = if let ControllerErrorType::BadRequestWithData(data) = self.error_type {
             Some(data.clone())
         } else {
             None
@@ -194,7 +183,7 @@ impl error::ResponseError for ControllerError {
                 .canonical_reason()
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| status.to_string()),
-            message: detail.to_string(),
+            message: self.message,
             source: source_message,
             data: error_data,
         };
@@ -205,13 +194,13 @@ impl error::ResponseError for ControllerError {
     }
 
     fn status_code(&self) -> StatusCode {
-        match *self {
-            ControllerErrorType::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerErrorType::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ControllerErrorType::BadRequestWithData(_, _) => StatusCode::BAD_REQUEST,
-            ControllerErrorType::NotFound(_) => StatusCode::NOT_FOUND,
-            ControllerErrorType::Unauthorized(_) => StatusCode::UNAUTHORIZED,
-            ControllerErrorType::Forbidden(_) => StatusCode::FORBIDDEN,
+        match self.error_type {
+            ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ControllerErrorType::BadRequest => StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequestWithData(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
+            ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
         }
     }
 }
@@ -219,53 +208,103 @@ impl error::ResponseError for ControllerError {
 impl From<anyhow::Error> for ControllerError {
     fn from(err: anyhow::Error) -> ControllerError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
-            return Self::NotFound(err.to_string());
+            return Self::new(
+                ControllerErrorType::NotFound,
+                err.to_string(),
+                Some(err.into()),
+            );
         }
 
         error!("Internal server error: {}", err.chain().join("\n    "));
-        Self::InternalServerError(err.to_string())
+        return Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        );
     }
 }
 
 impl From<uuid::Error> for ControllerError {
     fn from(err: uuid::Error) -> ControllerError {
-        Self::BadRequest(err.to_string())
+        return Self::new(
+            ControllerErrorType::BadRequest,
+            err.to_string(),
+            Some(err.into()),
+        );
     }
 }
 
 impl From<sqlx::Error> for ControllerError {
     fn from(err: sqlx::Error) -> ControllerError {
-        Self::InternalServerError(err.to_string())
+        return Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        );
     }
 }
 
 impl From<git2::Error> for ControllerError {
     fn from(err: git2::Error) -> ControllerError {
-        Self::InternalServerError(err.to_string())
+        return Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        );
     }
 }
 
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
-        match err {
-            ModelError::RecordNotFound(_) => Self::NotFound(err.to_string()),
-            ModelError::NotFound(_) => Self::NotFound(err.to_string()),
-            ModelError::PreconditionFailed(msg) => Self::BadRequest(msg),
-            ModelError::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
-                Self::BadRequestWithData(description.to_string(), ErrorData::BlockId(id))
+        match err.error_type() {
+            ModelErrorType::RecordNotFound => Self::new(
+                ControllerErrorType::NotFound,
+                err.to_string(),
+                Some(err.into()),
+            ),
+            ModelErrorType::NotFound => Self::new(
+                ControllerErrorType::NotFound,
+                err.to_string(),
+                Some(err.into()),
+            ),
+            ModelErrorType::PreconditionFailed => Self::new(
+                ControllerErrorType::BadRequest,
+                err.message().to_string(),
+                Some(err.into()),
+            ),
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
+                Self::new(
+                    ControllerErrorType::BadRequestWithData(ErrorData::BlockId(*id)),
+                    description.to_string(),
+                    Some(err.into()),
+                )
             }
-            ModelError::DatabaseConstraint { description, .. } => {
-                Self::BadRequest(description.to_string())
-            }
-            ModelError::InvalidRequest(msg) => Self::BadRequest(msg),
-            _ => Self::InternalServerError(err.to_string()),
+            ModelErrorType::DatabaseConstraint { description, .. } => Self::new(
+                ControllerErrorType::BadRequest,
+                description.to_string(),
+                Some(err.into()),
+            ),
+            ModelErrorType::InvalidRequest => Self::new(
+                ControllerErrorType::BadRequest,
+                err.message().to_string(),
+                Some(err.into()),
+            ),
+            _ => Self::new(
+                ControllerErrorType::InternalServerError,
+                err.to_string(),
+                Some(err.into()),
+            ),
         }
     }
 }
 
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
-        Self::InternalServerError(err.to_string())
+        return Self::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        );
     }
 }
 

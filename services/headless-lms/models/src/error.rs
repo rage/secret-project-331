@@ -203,6 +203,12 @@ impl std::convert::From<UtilError> for ModelError {
     }
 }
 
+impl From<anyhow::Error> for ModelError {
+    fn from(err: anyhow::Error) -> ModelError {
+        return Self::new(ModelErrorType::Generic, err.to_string(), Some(err.into()));
+    }
+}
+
 #[cfg(test)]
 mod test {
     use uuid::Uuid;

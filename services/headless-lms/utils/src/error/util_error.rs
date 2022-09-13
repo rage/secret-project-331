@@ -138,3 +138,9 @@ impl From<cloud_storage::Error> for UtilError {
         )
     }
 }
+
+impl From<anyhow::Error> for UtilError {
+    fn from(err: anyhow::Error) -> UtilError {
+        return Self::new(UtilErrorType::Other, err.to_string(), Some(err.into()));
+    }
+}

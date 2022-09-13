@@ -2,7 +2,9 @@
 //! Intended to be glob-imported like `use crate::controllers::prelude::*;`.
 
 pub use crate::controllers::helpers::media::{upload_media, StoreKind};
-pub use crate::controllers::{ControllerError, ControllerResult, UploadResult};
+pub use crate::controllers::{
+    ControllerError, ControllerErrorType, ControllerResult, UploadResult,
+};
 pub use crate::domain::authorization::{
     authorize, parse_secret_key_from_header, skip_authorize, Action as Act, AuthUser,
     Resource as Res,
@@ -14,6 +16,7 @@ pub use actix_web::{HttpRequest, HttpResponse};
 pub use anyhow::Context;
 pub use headless_lms_models as models;
 pub use headless_lms_models::error::TryToOptional;
+pub use headless_lms_utils::error::backend_error::BackendError;
 pub use headless_lms_utils::{
     file_store::FileStore, pagination::Pagination, ApplicationConfiguration,
 };

@@ -73,7 +73,11 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
           user_id: userId,
         }
       })
-      onSubmit({ course_module_id: data.course_module_id, new_completions: newCompletions })
+      onSubmit({
+        course_module_id: data.course_module_id,
+        new_completions: newCompletions,
+        skip_duplicate_completions: false,
+      })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(COMPLETIONS, { message: e.message })

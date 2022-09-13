@@ -22,6 +22,7 @@ import {
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
@@ -213,6 +214,16 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                             <PreviewUserList users={previewData.already_completed_users} />
                           </Collapsible>
                         </div>
+                        <CheckBox
+                          label={t("do-not-add-duplicate-completions-for-these-users")}
+                          checked={completionFormData.skip_duplicate_completions}
+                          onChange={(value) => {
+                            return setCompletionFormData({
+                              ...completionFormData,
+                              skip_duplicate_completions: value,
+                            })
+                          }}
+                        />
                         <Button
                           variant="primary"
                           size="medium"

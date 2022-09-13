@@ -1177,7 +1177,8 @@ export function isTeacherManualCompletionRequest(
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_module_id"] === "string" &&
     Array.isArray(typedObj["new_completions"]) &&
-    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean)
+    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean) &&
+    typeof typedObj["skip_duplicate_completions"] === "boolean"
   )
 }
 

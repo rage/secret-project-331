@@ -339,6 +339,7 @@ pub async fn get_course_instance_completion_summary(
 pub struct TeacherManualCompletionRequest {
     pub course_module_id: Uuid,
     pub new_completions: Vec<TeacherManualCompletion>,
+    pub skip_duplicate_completions: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

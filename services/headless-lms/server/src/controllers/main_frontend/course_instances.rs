@@ -257,7 +257,7 @@ async fn post_completions(
             )
             .await
             .optional()?;
-        if existing_completion.is_none() {
+        if existing_completion.is_none() || !data.skip_duplicate_completions {
             course_module_completions::insert(
                 &mut tx,
                 &NewCourseModuleCompletion {
@@ -278,7 +278,6 @@ async fn post_completions(
             )
             .await?;
         }
-        // Else: create new entry anyway. TODO + remove database restraint.
     }
     tx.commit().await?;
     token.authorized_ok(web::Json(()))

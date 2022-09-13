@@ -598,6 +598,7 @@ export interface TeacherManualCompletion {
 export interface TeacherManualCompletionRequest {
   course_module_id: string
   new_completions: Array<TeacherManualCompletion>
+  skip_duplicate_completions: boolean
 }
 
 export interface UserCompletionInformation {

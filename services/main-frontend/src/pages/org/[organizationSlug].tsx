@@ -66,7 +66,6 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
             <CourseList
               organizationId={getOrganizationBySlug.data.id}
               organizationSlug={query.organizationSlug}
-              perPage={100}
             />
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}

@@ -252,7 +252,7 @@ test("history test", async ({ page, headless }) => {
     page.click("text=Restore"),
   ])
   await page.click("text=Page edit history") // deselect restore
-  await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
+  await page.waitForSelector("[aria-label='Current page: 1']")
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({

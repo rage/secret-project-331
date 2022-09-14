@@ -11,7 +11,9 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    chapters::{self, course_chapters, get_chapter_by_page_id, Chapter, DatabaseChapter},
+    chapters::{
+        self, course_chapters, get_chapter, get_chapter_by_page_id, Chapter, DatabaseChapter,
+    },
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -2319,38 +2321,73 @@ pub async fn reorder_chapters(
     chapters: &[Chapter],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_chapters = course_chapters(conn, course_id).await?;
+    let db_chapters = dbg!(course_chapters(conn, course_id).await?);
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
 
+    // TODO USE CHAPTER ID FOR THE LOOP
     for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            // if matching_db_chapter.id == chapter.id {
-            // to avoid conflicting chapter_number when chapter is modified
-            sqlx::query!(
-                "UPDATE chapters
+            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
+                // if matching_db_chapter.id == chapter.id {
+                // to avoid conflicting chapter_number when chapter is modified
+
+                //GIVE TWO MODIFIED CHAPTERS RANDOM NUMBERS
+                sqlx::query!(
+                    "UPDATE chapters
                 SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
-                WHERE id = $1
-                  AND course_id = $2
+                WHERE chapters.id = $1
+                  AND chapters.course_id = $2
                   AND deleted_at IS NULL",
-                matching_db_chapter.id,
-                course_id
-            )
-            .execute(&mut tx)
-            .await?;
-            // }
+                    matching_db_chapter.id,
+                    course_id
+                )
+                .execute(&mut tx)
+                .await?;
+                // }
+
+                // get newly modified chapter
+                let chapter_with_randomized_chapter_number =
+                    get_chapter(&mut tx, matching_db_chapter.id).await?;
+                let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
+                let pages =
+                    get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
+
+                for page in pages {
+                    let old_path = &page.url_path;
+                    let new_path = old_path.replacen(
+                        &old_chapter.chapter_number.to_string(),
+                        &random_chapter_number.to_string(),
+                        1,
+                    );
+
+                    // update each page path associated with a random chapter number
+                    sqlx::query!(
+                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                        page.id,
+                        new_path
+                    )
+                    .execute(&mut tx)
+                    .await?;
+                }
+            }
         }
     }
 
-    for chapter in chapters {
+    for chapter in dbg!(chapters) {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            let old_chapter_id = matching_db_chapter.id;
-            let new_chapter_id = chapter.id;
-
-            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == old_chapter_id) {
-                if let Some(new_chapter) = chapters.iter().find(|o| o.id == new_chapter_id) {
+            /*             let old_chapter_id = matching_db_chapter.id;
+                       let new_chapter_id = chapter.id;
+            */
+            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
+                if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id)
+                {
                     let old_chapter_number = &old_chapter.chapter_number;
                     let new_chapter_number = &new_chapter.chapter_number;
+
+                    let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;
+
+                    let randomized_chapter_number = randomized_chapter.chapter_number;
 
                     // update chapter_number
                     sqlx::query!(
@@ -2367,27 +2404,27 @@ pub async fn reorder_chapters(
                     for page in pages {
                         let old_path = &page.url_path;
                         let new_path = old_path.replacen(
-                            &old_chapter_number.to_string(),
+                            &randomized_chapter_number.to_string(),
                             &new_chapter_number.to_string(),
                             1,
                         );
-                        /*                         // update each page path associated with the modified chapter
-                         sqlx::query!(
-                             "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                             page.id,
-                             new_path
-                         )
-                         .execute(&mut tx)
-                         .await?;
+                        // update each page path associated with the modified chapter
+                        sqlx::query!(
+                            "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                            page.id,
+                            new_path
+                        )
+                        .execute(&mut tx)
+                        .await?;
 
-                         sqlx::query!(
+                        sqlx::query!(
                             "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                             page.id,
                             old_path,
                             course_id
                         )
                         .execute(&mut tx)
-                        .await?; */
+                        .await?;
                     }
                 }
             } else {

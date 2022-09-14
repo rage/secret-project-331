@@ -21,18 +21,21 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
           overflow-x: auto;
 
           table {
-            border-collapse: none;
+            border-collapse: unset !important;
           }
 
           thead {
-            border-bottom: none;
+            border-bottom: none !important;
           }
 
           tfoot {
-            border-top: none;
+            border-top: none !important;
 
             th {
               background-color: ${baseTheme.colors.green[200]};
+              text-align: left;
+              color: ${baseTheme.colors.green[600]};
+              border: none !important;
             }
           }
 
@@ -41,7 +44,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             align-items: center;
             margin-bottom: 5px;
             font-family: ${headingFont};
-            font-size: 18px;
+            font-size: 17px;
             font-weight: bold;
             color: #ffffff;
             padding: 12px 10px;
@@ -57,7 +60,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             font-size: 18px;
             font-weight: 500;
             height: auto;
-            border: none;
+            border: none !important;
             margin-right: 20px;
           }
 

@@ -85,6 +85,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       }
       // const chapters = pageOrderState.chapters
       const chapters = Object.values(pageOrderState.chapters).flat()
+      // eslint-disable-next-line i18next/no-literal-string
+      console.log("chapters", chapters)
       return postNewChapterOrdering(courseStructure.course.id, chapters)
     },
     {

@@ -216,41 +216,19 @@ function moveChapterWithinChapterList(
     return
   }
   const currentChapterNumber = currentChapter.chapter_number
-  console.log("currentChapterNumber", currentChapterNumber)
+
   const targetChapterNumber =
     direction === "up" ? currentChapterNumber - 1 : currentChapterNumber + 1
   if (targetChapterNumber < 0 || targetChapterNumber > chapters.length) {
     return
   }
 
-  /*   const targetChapter = chapters.find((chapter) => chapter.chapter_number === target)
-
-  if (targetChapter === undefined) {
-    return
-  }
-
-  const targetChapterNumber = targetChapter?.chapter_number */
-  console.log("targetChapterNumber", targetChapterNumber)
-
   const currentIndex = chapters.findIndex((c) => c.chapter_number == currentChapterNumber)
   const targetIndex = chapters.findIndex((c) => c.chapter_number == targetChapterNumber)
-
-  console.log("currentIndex", currentIndex)
-  console.log("targetIndex", targetIndex)
 
   const temp = currentChapterNumber
   chapters[currentIndex].chapter_number = targetChapterNumber
   chapters[targetIndex].chapter_number = temp
-
-  /*   console.log("first chapter", chapters[0].name, chapters[0].chapter_number)
-  console.log("second chapter", chapters[1].name, chapters[1].chapter_number)
-  console.log("third chapter", chapters[2].name, chapters[2].chapter_number)
-  console.log("fourth chapter", chapters[3].name, chapters[3].chapter_number)
-  console.log("currentChapter.chapter_number", currentChapter.name, currentChapter.chapter_number)
-  console.log("targetChapter.chapter_number", targetChapter.name, targetChapter.chapter_number)
-
-  console.log("currentChapter.chapter_number", chapters[currentIndex].chapter_number)
-  console.log("targetChapter.chapter_number", chapters[targetIndex].chapter_number) */
 
   draftState.unsavedChapterChanges = true
 }

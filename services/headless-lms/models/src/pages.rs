@@ -2376,9 +2376,6 @@ pub async fn reorder_chapters(
 
     for chapter in dbg!(chapters) {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            /*             let old_chapter_id = matching_db_chapter.id;
-                       let new_chapter_id = chapter.id;
-            */
             if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
                 if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id)
                 {

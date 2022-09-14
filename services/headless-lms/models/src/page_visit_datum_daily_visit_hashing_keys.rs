@@ -19,7 +19,7 @@ pub async fn generate_anonymous_identifier(
         input.user_agent,
         input.ip_address,
     )
-    .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(Box::from(e))))?;
+    .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(e)))?;
     Ok(hash)
 }
 

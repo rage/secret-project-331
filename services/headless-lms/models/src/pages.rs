@@ -1280,14 +1280,16 @@ async fn fetch_derived_spec(
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
-                .ok_or(ModelError::new(
-                    ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
-                        id: cms_block_id,
-                        description: "Missing exercise type for exercise task.",
-                    },
-                    "Missing exercise type for exercise task.".to_string(),
-                    None,
-                ))?
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                            id: cms_block_id,
+                            description: "Missing exercise type for exercise task.",
+                        },
+                        "Missing exercise type for exercise task.".to_string(),
+                        None,
+                    )
+                })?
                 .clone();
             let res = client
                 .post(url)

@@ -139,7 +139,7 @@ pub fn get_exercise_service_internally_preferred_baseurl(
         ModelError::new(
             ModelErrorType::Generic,
             original_error.to_string(),
-            Some(Box::new(original_error)),
+            Some(original_error.into()),
         )
     })?;
     // remove the path because all relative urls in service info assume
@@ -156,7 +156,7 @@ pub fn get_exercise_service_externally_preferred_baseurl(
         ModelError::new(
             ModelErrorType::Generic,
             original_error.to_string(),
-            Some(Box::new(original_error)),
+            Some(original_error.into()),
         )
     })?;
     // remove the path because all relative urls in service info assume

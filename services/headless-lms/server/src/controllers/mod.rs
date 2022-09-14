@@ -16,26 +16,12 @@ pub mod helpers;
 pub mod main_frontend;
 pub mod study_registry;
 
-use std::error::Error;
+use actix_web::web::{self, ServiceConfig};
 
-use crate::domain::authorization::AuthorizedResponse;
-use actix_web::{
-    error,
-    http::{header::ContentType, StatusCode},
-    web::{self, ServiceConfig},
-    HttpResponse, HttpResponseBuilder,
-};
-use backtrace::Backtrace;
-use derive_more::Display;
-use headless_lms_models::{ModelError, ModelErrorType};
-use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use std::fmt::Write as _;
-use tracing_error::SpanTrace;
+
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
-use uuid::Uuid;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]

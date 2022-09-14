@@ -11,7 +11,6 @@ use oauth2::{
     ResourceOwnerPassword, ResourceOwnerUsername, StandardTokenResponse, TokenResponse,
 };
 use reqwest::Client;
-use url::form_urlencoded::Target;
 
 use crate::{
     domain::{

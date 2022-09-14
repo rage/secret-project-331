@@ -17,7 +17,6 @@ use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
-use crate::controllers;
 use crate::prelude::*;
 
 use super::authorization::{AuthorizationToken, AuthorizedResponse};

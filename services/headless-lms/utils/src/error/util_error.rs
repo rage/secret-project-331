@@ -22,7 +22,7 @@ pub struct UtilError {
     error_type: <UtilError as BackendError>::ErrorType,
     message: String,
     /// Original error that caused this error.
-    source: Option<Box<dyn std::error::Error>>,
+    source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
     span_trace: SpanTrace,
     /// Stack trace, generated automatically when the error is created.
@@ -31,7 +31,7 @@ pub struct UtilError {
 
 impl std::error::Error for UtilError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_deref()
+        self.source.as_ref().and_then(|o| o.source())
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
@@ -51,7 +51,7 @@ impl BackendError for UtilError {
     fn new(
         error_type: Self::ErrorType,
         message: String,
-        source_error: Option<Box<dyn std::error::Error>>,
+        source_error: Option<anyhow::Error>,
     ) -> Self {
         Self {
             error_type,
@@ -84,7 +84,7 @@ impl From<url::ParseError> for UtilError {
         UtilError::new(
             UtilErrorType::UrlParse,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -94,7 +94,7 @@ impl From<walkdir::Error> for UtilError {
         UtilError::new(
             UtilErrorType::Walkdir,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -104,7 +104,7 @@ impl From<std::path::StripPrefixError> for UtilError {
         UtilError::new(
             UtilErrorType::StripPrefix,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -114,7 +114,7 @@ impl From<tokio::io::Error> for UtilError {
         UtilError::new(
             UtilErrorType::TokioIo,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -124,7 +124,7 @@ impl From<serde_json::Error> for UtilError {
         UtilError::new(
             UtilErrorType::SerdeJson,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -134,13 +134,13 @@ impl From<cloud_storage::Error> for UtilError {
         UtilError::new(
             UtilErrorType::CloudStorage,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
 
 impl From<anyhow::Error> for UtilError {
     fn from(err: anyhow::Error) -> UtilError {
-        return Self::new(UtilErrorType::Other, err.to_string(), Some(err.into()));
+        Self::new(UtilErrorType::Other, err.to_string(), Some(err))
     }
 }

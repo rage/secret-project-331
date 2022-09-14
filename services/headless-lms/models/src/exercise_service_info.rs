@@ -245,7 +245,7 @@ pub async fn get_course_material_service_info_by_exercise_type(
                 ModelError::new(
                     ModelErrorType::Generic,
                     original_err.to_string(),
-                    Some(Box::new(original_err)),
+                    Some(original_err.into()),
                 )
             })?;
             url.set_path(&o.user_interface_iframe_path);

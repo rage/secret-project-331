@@ -34,7 +34,7 @@ pub struct ModelError {
     error_type: ModelErrorType,
     message: String,
     /// Original error that caused this error.
-    source: Option<Box<dyn std::error::Error>>,
+    source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
     span_trace: SpanTrace,
     /// Stack trace, generated automatically when the error is created.
@@ -43,7 +43,7 @@ pub struct ModelError {
 
 impl std::error::Error for ModelError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_deref()
+        self.source.as_ref().and_then(|o| o.source())
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
@@ -63,7 +63,7 @@ impl BackendError for ModelError {
     fn new(
         error_type: Self::ErrorType,
         message: String,
-        source_error: Option<Box<dyn std::error::Error>>,
+        source_error: Option<anyhow::Error>,
     ) -> Self {
         Self {
             error_type,
@@ -91,7 +91,7 @@ impl BackendError for ModelError {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ModelErrorType {
     RecordNotFound,
     NotFound,
@@ -119,7 +119,7 @@ impl From<sqlx::Error> for ModelError {
             sqlx::Error::RowNotFound => ModelError::new(
                 ModelErrorType::RecordNotFound,
                 err.to_string(),
-                Some(Box::new(err)),
+                Some(err.into()),
             ),
             sqlx::Error::Database(db_err) => {
                 if let Some(constraint) = db_err.constraint() {
@@ -130,7 +130,7 @@ impl From<sqlx::Error> for ModelError {
                                 description: "Subject must not be null",
                             },
                             err.to_string(),
-                            Some(Box::new(err)),
+                            Some(err.into()),
                         ),
                         "users_email_check" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
@@ -138,27 +138,19 @@ impl From<sqlx::Error> for ModelError {
                                 description: "Email must contain an '@' symbol.",
                             },
                             err.to_string(),
-                            Some(Box::new(err)),
+                            Some(err.into()),
                         ),
                         _ => ModelError::new(
                             ModelErrorType::Database,
                             err.to_string(),
-                            Some(Box::new(err)),
+                            Some(err.into()),
                         ),
                     }
                 } else {
-                    ModelError::new(
-                        ModelErrorType::Database,
-                        err.to_string(),
-                        Some(Box::new(err)),
-                    )
+                    ModelError::new(ModelErrorType::Database, err.to_string(), Some(err.into()))
                 }
             }
-            _ => ModelError::new(
-                ModelErrorType::Database,
-                err.to_string(),
-                Some(Box::new(err)),
-            ),
+            _ => ModelError::new(ModelErrorType::Database, err.to_string(), Some(err.into())),
         }
     }
 }
@@ -168,7 +160,7 @@ impl std::convert::From<TryFromIntError> for ModelError {
         ModelError::new(
             ModelErrorType::Conversion,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -178,7 +170,7 @@ impl std::convert::From<serde_json::Error> for ModelError {
         ModelError::new(
             ModelErrorType::Json,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -188,7 +180,7 @@ impl std::convert::From<reqwest::Error> for ModelError {
         ModelError::new(
             ModelErrorType::Reqwest,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
@@ -198,14 +190,14 @@ impl std::convert::From<UtilError> for ModelError {
         ModelError::new(
             ModelErrorType::Util,
             source.to_string(),
-            Some(Box::new(source)),
+            Some(source.into()),
         )
     }
 }
 
 impl From<anyhow::Error> for ModelError {
     fn from(err: anyhow::Error) -> ModelError {
-        return Self::new(ModelErrorType::Generic, err.to_string(), Some(err.into()));
+        Self::new(ModelErrorType::Generic, err.to_string(), Some(err))
     }
 }
 

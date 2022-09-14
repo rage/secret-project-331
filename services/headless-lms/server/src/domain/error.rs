@@ -4,7 +4,6 @@ use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     error,
     http::{header::ContentType, StatusCode},
-    web::{self, ServiceConfig},
     HttpResponse, HttpResponseBuilder,
 };
 use backtrace::Backtrace;
@@ -63,7 +62,7 @@ pub struct ControllerError {
     error_type: <ControllerError as BackendError>::ErrorType,
     message: String,
     /// Original error that caused this error.
-    source: Option<Box<dyn std::error::Error>>,
+    source: Option<anyhow::Error>,
     /// A trace of tokio tracing spans, generated automatically when the error is generated.
     span_trace: SpanTrace,
     /// Stack trace, generated automatically when the error is created.
@@ -72,7 +71,7 @@ pub struct ControllerError {
 
 impl std::error::Error for ControllerError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_deref()
+        self.source.as_ref().and_then(|o| o.source())
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
@@ -92,7 +91,7 @@ impl BackendError for ControllerError {
     fn new(
         error_type: Self::ErrorType,
         message: String,
-        source_error: Option<Box<dyn std::error::Error>>,
+        source_error: Option<anyhow::Error>,
     ) -> Self {
         Self {
             error_type,
@@ -156,7 +155,7 @@ impl error::ResponseError for ControllerError {
         }
 
         let status = self.status_code();
-        let error_data = if let ControllerErrorType::BadRequestWithData(data) = self.error_type {
+        let error_data = if let ControllerErrorType::BadRequestWithData(data) = &self.error_type {
             Some(data.clone())
         } else {
             None
@@ -170,7 +169,7 @@ impl error::ResponseError for ControllerError {
                 .canonical_reason()
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| status.to_string()),
-            message: self.message,
+            message: self.message.clone(),
             source: source_message,
             data: error_data,
         };
@@ -195,49 +194,45 @@ impl error::ResponseError for ControllerError {
 impl From<anyhow::Error> for ControllerError {
     fn from(err: anyhow::Error) -> ControllerError {
         if let Some(sqlx::Error::RowNotFound) = err.downcast_ref::<sqlx::Error>() {
-            return Self::new(
-                ControllerErrorType::NotFound,
-                err.to_string(),
-                Some(err.into()),
-            );
+            return Self::new(ControllerErrorType::NotFound, err.to_string(), Some(err));
         }
 
         error!("Internal server error: {}", err.chain().join("\n    "));
-        return Self::new(
+        Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
-            Some(err.into()),
-        );
+            Some(err),
+        )
     }
 }
 
 impl From<uuid::Error> for ControllerError {
     fn from(err: uuid::Error) -> ControllerError {
-        return Self::new(
+        Self::new(
             ControllerErrorType::BadRequest,
             err.to_string(),
             Some(err.into()),
-        );
+        )
     }
 }
 
 impl From<sqlx::Error> for ControllerError {
     fn from(err: sqlx::Error) -> ControllerError {
-        return Self::new(
+        Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             Some(err.into()),
-        );
+        )
     }
 }
 
 impl From<git2::Error> for ControllerError {
     fn from(err: git2::Error) -> ControllerError {
-        return Self::new(
+        Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             Some(err.into()),
-        );
+        )
     }
 }
 
@@ -287,11 +282,11 @@ impl From<ModelError> for ControllerError {
 
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
-        return Self::new(
+        Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             Some(err.into()),
-        );
+        )
     }
 }
 

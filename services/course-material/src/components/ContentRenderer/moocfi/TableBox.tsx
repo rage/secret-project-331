@@ -28,17 +28,6 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             border-bottom: none !important;
           }
 
-          tfoot {
-            border-top: none !important;
-
-            th {
-              background-color: ${baseTheme.colors.green[200]};
-              text-align: left;
-              color: ${baseTheme.colors.green[600]};
-              border: none !important;
-            }
-          }
-
           th {
             background-color: ${baseTheme.colors.green[500]};
             align-items: center;
@@ -49,6 +38,17 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             color: #ffffff;
             padding: 12px 10px;
             border: none;
+          }
+
+          tfoot {
+            border-top: none !important;
+
+            th {
+              background-color: ${baseTheme.colors.green[200]};
+              text-align: left;
+              color: ${baseTheme.colors.green[600]};
+              border: none !important;
+            }
           }
 
           td {

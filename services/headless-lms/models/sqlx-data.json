@@ -1382,16 +1382,6 @@
     },
     "query": "\nSELECT t.*\nFROM exercise_tasks t\n  JOIN exercise_slides s ON (t.exercise_slide_id = s.id)\nWHERE s.exercise_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL;\n        "
   },
-  "1444eac31a466e744847e36e887a82c97d0272b9f6d100f35ab8dd8ca166904d": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Uuid", "Uuid"]
-      }
-    },
-    "query": "UPDATE chapters\n                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)\n                WHERE id = $1\n                  AND course_id = $2\n                  AND deleted_at IS NULL"
-  },
   "1458e1d4f78cf9977b3398903abb905f861f733d2389cccb34213a92c67bfa1d": {
     "describe": {
       "columns": [
@@ -2093,6 +2083,16 @@
       }
     },
     "query": "\nUPDATE exercise_repositories SET url = $1 WHERE id = $2\n"
+  },
+  "1dbfd617b075c78d00dccbf6a2b4b329bd15b40fa8e479a3b54490d6a5da17e7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "UPDATE chapters\n                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)\n                WHERE chapters.id = $1\n                  AND chapters.course_id = $2\n                  AND deleted_at IS NULL"
   },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
     "describe": {

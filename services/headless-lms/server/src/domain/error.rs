@@ -93,13 +93,13 @@ impl BackendError for ControllerError {
         message: String,
         source_error: Option<anyhow::Error>,
     ) -> Self {
-        Self {
+        Self::new_with_traces(
             error_type,
             message,
-            source: source_error,
-            span_trace: SpanTrace::capture(),
-            backtrace: Backtrace::new(),
-        }
+            source_error,
+            Backtrace::new(),
+            SpanTrace::capture(),
+        )
     }
 
     fn backtrace(&self) -> Option<&Backtrace> {
@@ -116,6 +116,22 @@ impl BackendError for ControllerError {
 
     fn span_trace(&self) -> &SpanTrace {
         &self.span_trace
+    }
+
+    fn new_with_traces(
+        error_type: Self::ErrorType,
+        message: String,
+        source_error: Option<anyhow::Error>,
+        backtrace: Backtrace,
+        span_trace: SpanTrace,
+    ) -> Self {
+        Self {
+            error_type,
+            message,
+            source: source_error,
+            span_trace,
+            backtrace,
+        }
     }
 }
 
@@ -197,7 +213,6 @@ impl From<anyhow::Error> for ControllerError {
             return Self::new(ControllerErrorType::NotFound, err.to_string(), Some(err));
         }
 
-        error!("Internal server error: {}", err.chain().join("\n    "));
         Self::new(
             ControllerErrorType::InternalServerError,
             err.to_string(),
@@ -238,43 +253,65 @@ impl From<git2::Error> for ControllerError {
 
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
+        let backtrace: Backtrace = if let Some(backtrace) =
+            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
+        {
+            backtrace.clone()
+        } else {
+            Backtrace::new()
+        };
+        let span_trace = err.span_trace().clone();
         match err.error_type() {
-            ModelErrorType::RecordNotFound => Self::new(
+            ModelErrorType::RecordNotFound => Self::new_with_traces(
                 ControllerErrorType::NotFound,
                 err.to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
-            ModelErrorType::NotFound => Self::new(
+            ModelErrorType::NotFound => Self::new_with_traces(
                 ControllerErrorType::NotFound,
                 err.to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
-            ModelErrorType::PreconditionFailed => Self::new(
+            ModelErrorType::PreconditionFailed => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
                 err.message().to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
-                Self::new(
+                Self::new_with_traces(
                     ControllerErrorType::BadRequestWithData(ErrorData::BlockId(*id)),
                     description.to_string(),
                     Some(err.into()),
+                    backtrace,
+                    span_trace,
                 )
             }
-            ModelErrorType::DatabaseConstraint { description, .. } => Self::new(
+            ModelErrorType::DatabaseConstraint { description, .. } => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
                 description.to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
-            ModelErrorType::InvalidRequest => Self::new(
+            ModelErrorType::InvalidRequest => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
                 err.message().to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
-            _ => Self::new(
+            _ => Self::new_with_traces(
                 ControllerErrorType::InternalServerError,
                 err.to_string(),
                 Some(err.into()),
+                backtrace,
+                span_trace,
             ),
         }
     }
@@ -282,10 +319,20 @@ impl From<ModelError> for ControllerError {
 
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
-        Self::new(
+        let backtrace: Backtrace = if let Some(backtrace) =
+            headless_lms_utils::error::backend_error::BackendError::backtrace(&err)
+        {
+            backtrace.clone()
+        } else {
+            Backtrace::new()
+        };
+        let span_trace = err.span_trace().clone();
+        Self::new_with_traces(
             ControllerErrorType::InternalServerError,
             err.to_string(),
             Some(err.into()),
+            backtrace,
+            span_trace,
         )
     }
 }

@@ -53,13 +53,13 @@ impl BackendError for UtilError {
         message: String,
         source_error: Option<anyhow::Error>,
     ) -> Self {
-        Self {
+        Self::new_with_traces(
             error_type,
             message,
-            source: source_error,
-            span_trace: SpanTrace::capture(),
-            backtrace: Backtrace::new(),
-        }
+            source_error,
+            Backtrace::new(),
+            SpanTrace::capture(),
+        )
     }
 
     fn backtrace(&self) -> Option<&Backtrace> {
@@ -76,6 +76,22 @@ impl BackendError for UtilError {
 
     fn span_trace(&self) -> &SpanTrace {
         &self.span_trace
+    }
+
+    fn new_with_traces(
+        error_type: Self::ErrorType,
+        message: String,
+        source_error: Option<anyhow::Error>,
+        backtrace: Backtrace,
+        span_trace: SpanTrace,
+    ) -> Self {
+        Self {
+            error_type,
+            message,
+            source: source_error,
+            span_trace,
+            backtrace,
+        }
     }
 }
 

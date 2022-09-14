@@ -82,6 +82,13 @@ pub async fn all_organizations(conn: &mut PgConnection) -> ModelResult<Vec<Datab
     )
     .fetch_all(conn)
     .await?;
+    if organizations.len() < 1000 {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Too few organizations".into(),
+            None,
+        ));
+    }
     Ok(organizations)
 }
 

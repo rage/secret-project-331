@@ -11,6 +11,14 @@ pub trait BackendError: std::error::Error + std::marker::Sync {
         source_error: Option<anyhow::Error>,
     ) -> Self;
 
+    fn new_with_traces(
+        error_type: Self::ErrorType,
+        message: String,
+        source_error: Option<anyhow::Error>,
+        backtrace: Backtrace,
+        span_trace: SpanTrace,
+    ) -> Self;
+
     fn backtrace(&self) -> Option<&Backtrace>;
 
     fn error_type(&self) -> &Self::ErrorType;

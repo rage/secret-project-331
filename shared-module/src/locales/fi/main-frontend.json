@@ -328,6 +328,7 @@
   "save-changes": "Tallenna muutokset",
   "save-edited-role": "Tallenna muutettu rooli",
   "score": "Pisteet",
+  "select-course-module": "Valitse kurssimoduuli",
   "select-module-start-end-chapters": "Valitse luvut jotka kuuluvat moduuliin",
   "selected-text": "Valittu teksti:",
   "sent-by": "Lähetettäjä: {{user}}",

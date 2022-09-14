@@ -346,6 +346,7 @@
   "save-changes": "Save changes",
   "save-edited-role": "Save edited role",
   "score": "Score",
+  "select-course-module": "Select course module",
   "select-module-start-end-chapters": "Select starting chapter and ending chapter",
   "selected-text": "Selected text:",
   "sent-by": "Sent by: {{user}}",

@@ -94,6 +94,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
           label: x.name ?? t("label-default"),
         }))}
         register={register("course_module_id", { required: t("required-field") })}
+        aria-label={t("select-course-module")}
       />
       <p>{t("label-completion-date")}</p>
       <DatePicker label={DATE} onChange={(value) => setDate(value)} />

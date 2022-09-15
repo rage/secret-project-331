@@ -35,11 +35,11 @@ const DropdownMenu: React.FC<
           border: none;
           color: ${baseTheme.colors.grey[400]};
           cursor: pointer;
-          padding: 0 0.5rem;
-          margin: 0 0.5rem;
+          padding: 0 0.66em;
+          margin: 0 0.66em;
           &:hover {
             background-color: ${baseTheme.colors.clear[200]};
-            border-radius: 4px;
+            border-radius: 50px;
           }
         `}
         aria-label={expanded ? t("close") : t("dropdown-menu")}

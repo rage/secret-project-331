@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { Dialog } from "@mui/material"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import { max } from "lodash"
@@ -33,6 +33,13 @@ import {
   MOVING_ALLOWED_ONLY_UP,
   MOVING_NOT_ALLOWED,
 } from "./PageList/PageListItem"
+
+const headingDropdown = css`
+  float: right;
+  position: relative;
+  font-size: 30px;
+  top: 12px;
+`
 
 export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
@@ -170,14 +177,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                         "chapter-number": chapter.chapter_number,
                         "chapter-name": chapter.name,
                       })}
-                      <div
-                        className={css`
-                          float: right;
-                          position: relative;
-                          font-size: 30px;
-                          top: 12px;
-                        `}
-                      >
+                      <div className={cx(headingDropdown)}>
                         <DropdownMenu
                           items={[
                             {

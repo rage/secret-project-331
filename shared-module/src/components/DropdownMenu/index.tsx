@@ -57,6 +57,7 @@ const DropdownMenu: React.FC<
             border-radius: 4px;
             overflow: hidden;
             margin: 0;
+            font-size: 17px;
             position: absolute;
             top: 33px;
             left: 0;

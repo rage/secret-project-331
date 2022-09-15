@@ -179,6 +179,12 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                         `}
                       >
                         <DropdownMenu
+                          className={css`
+                            float: right;
+                            position: relative;
+                            font-size: 30px;
+                            top: 12px;
+                          `}
                           items={[
                             {
                               label: t("edit"),

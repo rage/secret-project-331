@@ -2376,45 +2376,43 @@ pub async fn reorder_chapters(
 
     for chapter in dbg!(chapters) {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
-                if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id)
-                {
-                    /* let old_chapter_number = &old_chapter.chapter_number; */
-                    let new_chapter_number = &new_chapter.chapter_number;
+            if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id) {
+                /* let old_chapter_number = &old_chapter.chapter_number; */
+                let new_chapter_number = &new_chapter.chapter_number;
 
-                    let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;
+                let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;
 
-                    let randomized_chapter_number = randomized_chapter.chapter_number;
+                let randomized_chapter_number = randomized_chapter.chapter_number;
 
-                    // update chapter_number
+                // update chapter_number
+                sqlx::query!(
+                    "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
+                    chapter.id,
+                    new_chapter_number
+                )
+                .execute(&mut tx)
+                .await?;
+
+                // update all pages url in the modified chapter
+                let pages = get_chapter_pages(&mut tx, chapter.id).await?;
+
+                for page in pages {
+                    let old_path = &page.url_path;
+                    let new_path = old_path.replacen(
+                        &randomized_chapter_number.to_string(),
+                        &new_chapter_number.to_string(),
+                        1,
+                    );
+                    // update each page path associated with the modified chapter
                     sqlx::query!(
-                        "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
-                        chapter.id,
-                        new_chapter_number
+                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                        page.id,
+                        new_path
                     )
                     .execute(&mut tx)
                     .await?;
 
-                    // update all pages url in the modified chapter
-                    let pages = get_chapter_pages(&mut tx, chapter.id).await?;
-
-                    for page in pages {
-                        let old_path = &page.url_path;
-                        let new_path = old_path.replacen(
-                            &randomized_chapter_number.to_string(),
-                            &new_chapter_number.to_string(),
-                            1,
-                        );
-                        // update each page path associated with the modified chapter
-                        sqlx::query!(
-                            "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                            page.id,
-                            new_path
-                        )
-                        .execute(&mut tx)
-                        .await?;
-
-                        sqlx::query!(
+                    sqlx::query!(
                             "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                             page.id,
                             old_path,
@@ -2422,16 +2420,11 @@ pub async fn reorder_chapters(
                         )
                         .execute(&mut tx)
                         .await?;
-                    }
                 }
-            } else {
-                return Err(ModelError::InvalidRequest(
-                    "New chapter not found".to_string(),
-                ));
             }
         } else {
             return Err(ModelError::InvalidRequest(
-                "Old chapter not found".to_string(),
+                "New chapter not found".to_string(),
             ));
         }
     }

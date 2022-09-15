@@ -175,7 +175,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                           float: right;
                           position: relative;
                           font-size: 30px;
-                          top: 10px;
+                          top: 12px;
                         `}
                       >
                         <DropdownMenu

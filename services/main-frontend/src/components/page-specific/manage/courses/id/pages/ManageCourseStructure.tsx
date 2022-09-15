@@ -83,10 +83,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("Chapter data not loaded")
       }
-      // const chapters = pageOrderState.chapters
       const chapters = Object.values(pageOrderState.chapters).flat()
-      // eslint-disable-next-line i18next/no-literal-string
-      console.log("chapters", chapters)
       return postNewChapterOrdering(courseStructure.course.id, chapters)
     },
     {
@@ -160,92 +157,95 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                   `}
                 >
                   <Centered variant="default">
-                    <div
-                      className={css`
-                        float: right;
-                        position: relative;
-                        top: -20px;
-                      `}
-                    >
-                      <DropdownMenu
-                        items={[
-                          {
-                            label: t("edit"),
-                            onClick: () => {
-                              setChapterBeingEdited(chapter)
-                              setShowEditChapterForm(true)
-                            },
-                          },
-                          {
-                            label: t("button-text-edit-image"),
-                            onClick: () => {
-                              setChapterBeingEdited(chapter)
-                              setShowEditImageModal(true)
-                            },
-                          },
-                          moving === "allowed" || moving === "only-up"
-                            ? {
-                                label: t("button-text-move-up"),
-                                onClick: () => {
-                                  pageOrderDispatch({
-                                    // eslint-disable-next-line i18next/no-literal-string
-                                    type: "move",
-                                    // eslint-disable-next-line i18next/no-literal-string
-                                    payload: {
-                                      pageId: null,
-                                      chapterId: chapter.id,
-                                      // eslint-disable-next-line i18next/no-literal-string
-                                      direction: "up",
-                                    },
-                                  })
-                                },
-                              }
-                            : null,
-                          moving === "allowed" || moving === "only-down"
-                            ? {
-                                label: t("button-text-move-down"),
-                                onClick: () => {
-                                  pageOrderDispatch({
-                                    // eslint-disable-next-line i18next/no-literal-string
-                                    type: "move",
-                                    // eslint-disable-next-line i18next/no-literal-string
-                                    payload: {
-                                      pageId: null,
-                                      chapterId: chapter.id,
-                                      // eslint-disable-next-line i18next/no-literal-string
-                                      direction: "down",
-                                    },
-                                  })
-                                },
-                              }
-                            : null,
-                          {
-                            label: t("button-text-delete"),
-                            onClick: async () => {
-                              if (
-                                !confirm(t("message-are-you-sure-you-want-to-delete-this-chapter"))
-                              ) {
-                                return
-                              }
-                              deleteChapterMutation.mutate(chapter.id)
-                            },
-                          },
-                        ]}
-                      />
-                    </div>
                     <h2
                       className={css`
                         font-size: ${typography.h3};
                         color: ${baseTheme.colors.grey[500]};
                         text-align: center;
                         text-transform: uppercase;
-                        margin-bottom: 5rem;
+                        margin-bottom: 3rem;
                       `}
                     >
                       {t("title-chapter", {
                         "chapter-number": chapter.chapter_number,
                         "chapter-name": chapter.name,
                       })}
+                      <div
+                        className={css`
+                          float: right;
+                          position: relative;
+                          font-size: 30px;
+                          top: 10px;
+                        `}
+                      >
+                        <DropdownMenu
+                          items={[
+                            {
+                              label: t("edit"),
+                              onClick: () => {
+                                setChapterBeingEdited(chapter)
+                                setShowEditChapterForm(true)
+                              },
+                            },
+                            {
+                              label: t("button-text-edit-image"),
+                              onClick: () => {
+                                setChapterBeingEdited(chapter)
+                                setShowEditImageModal(true)
+                              },
+                            },
+                            moving === "allowed" || moving === "only-up"
+                              ? {
+                                  label: t("button-text-move-up"),
+                                  onClick: () => {
+                                    pageOrderDispatch({
+                                      // eslint-disable-next-line i18next/no-literal-string
+                                      type: "move",
+                                      // eslint-disable-next-line i18next/no-literal-string
+                                      payload: {
+                                        pageId: null,
+                                        chapterId: chapter.id,
+                                        // eslint-disable-next-line i18next/no-literal-string
+                                        direction: "up",
+                                      },
+                                    })
+                                  },
+                                }
+                              : null,
+                            moving === "allowed" || moving === "only-down"
+                              ? {
+                                  label: t("button-text-move-down"),
+                                  onClick: () => {
+                                    pageOrderDispatch({
+                                      // eslint-disable-next-line i18next/no-literal-string
+                                      type: "move",
+                                      // eslint-disable-next-line i18next/no-literal-string
+                                      payload: {
+                                        pageId: null,
+                                        chapterId: chapter.id,
+                                        // eslint-disable-next-line i18next/no-literal-string
+                                        direction: "down",
+                                      },
+                                    })
+                                  },
+                                }
+                              : null,
+                            {
+                              label: t("button-text-delete"),
+                              onClick: async () => {
+                                if (
+                                  !confirm(
+                                    t("message-are-you-sure-you-want-to-delete-this-chapter"),
+                                  )
+                                ) {
+                                  return
+                                }
+                                deleteChapterMutation.mutate(chapter.id)
+                              },
+                            },
+                          ]}
+                        />
+                      </div>
                     </h2>
                     <FrontPage
                       data={pageOrderState.chapterIdToFrontPage?.[chapter.id]}

@@ -17,7 +17,6 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionType,
 } from "../shared-module/bindings"
-import { isPeerReviewAcceptingStrategy } from "../shared-module/bindings.guard"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import CheckBox from "../shared-module/components/InputFields/CheckBox"
@@ -309,7 +308,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           <div>
             {!courseGlobalEditor && (
               <CheckBox
-                label={t("use-course-global-peer-review")}
+                label={t("use-course-default-peer-review")}
                 onChange={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
                 checked={useDefaultPeerReview}
               />

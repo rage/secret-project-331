@@ -5,7 +5,6 @@
   "add": "Add",
   "add-course": "Add course",
   "add-new-reference": "Add new reference",
-  "add-peer-review": "Add peer review",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-koski": "After your completion has been registered, you can view completed credits at <strong>Koski</strong>: <4>{{koskiUrl}}</4> NB! There is some delay on registering a completion and the credits being visible at Koski.",
   "american-english": "English",
   "answered-at": "Answered: {{time}}",
@@ -302,6 +301,7 @@
   "password": "Password",
   "password-must-have-at-least-8-characters": "Password must have at least 8 characters!",
   "passwords-dont-match": "Passwords don't match!",
+  "peer-reviews": "Peer reviews",
   "pending": "Pending",
   "playground-examples": "Playground examples",
   "point-summary": "Point summary",
@@ -419,6 +419,5 @@
   "weekday-thursday": "Thursday",
   "weekday-tuesday": "Tuesday",
   "weekday-wednesday": "Wednesday",
-  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>.",
-  "peer-reviews": "peer reviews"
+  "you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here": "You are automatically being redirected to Open University's completion registration page. If nothing happens, please <2>click here</2>."
 }

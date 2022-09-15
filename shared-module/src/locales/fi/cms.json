@@ -54,10 +54,10 @@
   "outdated-blocks-migrated-explanation": "{{num}} lohkoa olivat luotu editorin vanhemmalla versiolla ja ne täytyi automaattisesti muuttaa uuteen muotoon. Tallenna sivu pitääksesi muutokset.",
   "pages-in-chapter-placeholder": "Sivuja luvussa lohko",
   "pages-in-chapter-placeholder-explanation": "Tämä lohko sijoitetaan jokaisen luvun etusivulle, esim. /luku-1/ helpottaaksesi navigointia eri alaosioihin.",
-  "peer-review-accepting-strategy": "Vertaisarvion hyväksyntä strategia",
-  "peer-review-accepting-threshold": "Vertaisarvion hyväksynnän raja",
-  "peer-reviews-to-give": "Vertaisarvioita annettavana",
-  "peer-reviews-to-receive": "Vertaisarvioita saatava",
+  "peer-review-accepting-strategy": "Vertaisarvion hyväksymisstrategia",
+  "peer-review-accepting-threshold": "Vertaisarvion hyväksymiskynnys",
+  "peer-reviews-to-give": "Annettavien vertaisarvioiden määrä",
+  "peer-reviews-to-receive": "Saatavien vertaisarvioiden määrä",
   "please-select-exercise-type": "Ole hyvä ja valitse harjoitustyyppi:",
   "remove": "Poista",
   "reset": "Palauta",
@@ -82,6 +82,6 @@
   "unsupported-block-placeholder": "Lohko, joka ei ole tuettu",
   "unsupported-block-placeholder-explanation": "Tätä lohkoa käytetään paikkamerkkinä lohkoille, joita ei tueta.",
   "upload-or-drag-and-drop-onto-this-block": "Valitse tiedosto tai raahaa tiedosto tähän lohkoon",
-  "use-course-global-peer-review": "Käytä kurssin oletus vertaisarviointi asetusta",
+  "use-course-default-peer-review": "Käytä kurssin oletusarvoista vertaisarvioasetusta",
   "welcome-message-for-course": "Tervetuloa kurssille viesti"
 }

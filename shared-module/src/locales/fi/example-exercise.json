@@ -1,11 +1,8 @@
 {
-  "add-peer-review": "Lisää vertaisarvio",
-  "delete": "Poista",
   "feedback-text": "Palaute",
   "input-placeholder-option-text": "Vaihtoehton teksti",
   "new": "Uusi",
   "score-given": "Pisteet",
-  "submit": "Lähetä",
   "waiting-for-content": "Odotetaan dataa...",
   "waiting-for-port": "Odotetaan porttia..."
 }

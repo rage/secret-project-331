@@ -32,7 +32,7 @@ test("create peer review", async ({ page, headless }) => {
   // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
   await page
     .locator(
-      'text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]',
+      'text=Use course default peer reviewCourse default peer review config >> input[type="checkbox"]',
     )
     .uncheck()
   // Click text=Add peer review question
@@ -55,7 +55,7 @@ test("create peer review", async ({ page, headless }) => {
   // Check text=Use course global peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]
   await page
     .locator(
-      'text=Use course global peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]',
+      'text=Use course default peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]',
     )
     .check()
   // Click text=Course default peer review config

@@ -22,6 +22,7 @@ use headless_lms_models::{
     course_instance_enrollments::CourseInstanceEnrollment,
     course_instances::{ChapterScore, CourseInstance, Points},
     course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
+    course_modules::CourseModule,
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
     exams::{CourseExam, Exam, ExamEnrollment, ExamInstructions, OrgExam},
@@ -48,7 +49,8 @@ use headless_lms_models::{
             CourseMaterialPeerReviewQuestionAnswer, CourseMaterialPeerReviewSubmission,
         },
         progressing::{
-            CompletionRegistrationLink, UserCompletionInformation, UserModuleCompletionStatus,
+            CompletionRegistrationLink, CourseInstanceCompletionSummary, UserCompletionInformation,
+            UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions,
         },
     },
     material_references::{MaterialReference, NewMaterialReference},
@@ -698,6 +700,37 @@ pub async fn main() -> anyhow::Result<()> {
             }],
             user_chapter_points: HashMap::new(),
             users: vec![user.clone()]
+        }
+    );
+    write_docs!(
+        CourseInstanceCompletionSummary,
+        CourseInstanceCompletionSummary {
+            course_modules: vec![CourseModule {
+                id,
+                created_at,
+                updated_at,
+                deleted_at,
+                name: None,
+                course_id: id,
+                order_number: 0,
+                copied_from: None,
+                uh_course_code: None,
+                automatic_completion: false,
+                automatic_completion_number_of_exercises_attempted_treshold: None,
+                automatic_completion_number_of_points_treshold: None,
+                ects_credits: None,
+            }],
+            users_with_course_module_completions: vec![UserWithModuleCompletions {
+                completed_modules: vec![UserCourseModuleCompletion {
+                    course_module_id: id,
+                    grade: Some(4),
+                    passed: true,
+                }],
+                email: "student@example.com".to_string(),
+                first_name: Some("Student".to_string()),
+                last_name: Some("Student".to_string()),
+                user_id: id,
+            }]
         }
     );
     write_docs!(

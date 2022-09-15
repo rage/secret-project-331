@@ -59,6 +59,7 @@
   "modules": "Modules",
   "navigation-menu": "Navigation menu",
   "next-page": "Next page",
+  "no": "No",
   "on-date-at-time": "{{date}} at {{time}}",
   "open-heading-menu": "Open heading navigation",
   "open-menu": "Open menu",
@@ -95,5 +96,6 @@
   "translate": "Translate",
   "university-of-helsinki": "University of Helsinki",
   "what-you-will-learn": "What you will learn in this chapter",
-  "write-a-review": "Write a review"
+  "write-a-review": "Write a review",
+  "yes": "Yes"
 }

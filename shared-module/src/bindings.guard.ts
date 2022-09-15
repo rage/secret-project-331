@@ -34,6 +34,7 @@ import {
   CourseCount,
   CourseExam,
   CourseInstance,
+  CourseInstanceCompletionSummary,
   CourseInstanceEnrollment,
   CourseInstanceForm,
   CourseMaterialCourseModule,
@@ -96,6 +97,8 @@ import {
   HistoryRestoreData,
   IsChapterFrontPage,
   Login,
+  ManualCompletionPreview,
+  ManualCompletionPreviewUser,
   MarkAsRead,
   MaterialReference,
   ModifiedModule,
@@ -148,6 +151,8 @@ import {
   StudentExerciseTaskSubmissionResult,
   TeacherDecisionType,
   TeacherGradingDecision,
+  TeacherManualCompletion,
+  TeacherManualCompletionRequest,
   Term,
   TermUpdate,
   UploadResult,
@@ -156,12 +161,14 @@ import {
   UserCourseInstanceChapterExerciseProgress,
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
+  UserCourseModuleCompletion,
   UserCourseSettings,
   UserExerciseState,
   UserInfo,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserRole,
+  UserWithModuleCompletions,
 } from "./bindings"
 
 export function isActionOnResource(obj: unknown): obj is ActionOnResource {
@@ -1112,6 +1119,73 @@ export function isCompletionRegistrationLink(obj: unknown): obj is CompletionReg
   )
 }
 
+export function isCourseInstanceCompletionSummary(
+  obj: unknown,
+): obj is CourseInstanceCompletionSummary {
+  const typedObj = obj as CourseInstanceCompletionSummary
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["course_modules"]) &&
+    typedObj["course_modules"].every((e: any) => isCourseModule(e) as boolean) &&
+    Array.isArray(typedObj["users_with_course_module_completions"]) &&
+    typedObj["users_with_course_module_completions"].every(
+      (e: any) => isUserWithModuleCompletions(e) as boolean,
+    )
+  )
+}
+
+export function isManualCompletionPreview(obj: unknown): obj is ManualCompletionPreview {
+  const typedObj = obj as ManualCompletionPreview
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["already_completed_users"]) &&
+    typedObj["already_completed_users"].every(
+      (e: any) => isManualCompletionPreviewUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["first_time_completing_users"]) &&
+    typedObj["first_time_completing_users"].every(
+      (e: any) => isManualCompletionPreviewUser(e) as boolean,
+    ) &&
+    Array.isArray(typedObj["non_enrolled_users"]) &&
+    typedObj["non_enrolled_users"].every((e: any) => isManualCompletionPreviewUser(e) as boolean)
+  )
+}
+
+export function isManualCompletionPreviewUser(obj: unknown): obj is ManualCompletionPreviewUser {
+  const typedObj = obj as ManualCompletionPreviewUser
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean"
+  )
+}
+
+export function isTeacherManualCompletion(obj: unknown): obj is TeacherManualCompletion {
+  const typedObj = obj as TeacherManualCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["user_id"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    (typedObj["completion_date"] === null || typedObj["completion_date"] instanceof Date)
+  )
+}
+
+export function isTeacherManualCompletionRequest(
+  obj: unknown,
+): obj is TeacherManualCompletionRequest {
+  const typedObj = obj as TeacherManualCompletionRequest
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    Array.isArray(typedObj["new_completions"]) &&
+    typedObj["new_completions"].every((e: any) => isTeacherManualCompletion(e) as boolean) &&
+    typeof typedObj["skip_duplicate_completions"] === "boolean"
+  )
+}
+
 export function isUserCompletionInformation(obj: unknown): obj is UserCompletionInformation {
   const typedObj = obj as UserCompletionInformation
   return (
@@ -1121,6 +1195,16 @@ export function isUserCompletionInformation(obj: unknown): obj is UserCompletion
     typeof typedObj["uh_course_code"] === "string" &&
     typeof typedObj["email"] === "string" &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
+  )
+}
+
+export function isUserCourseModuleCompletion(obj: unknown): obj is UserCourseModuleCompletion {
+  const typedObj = obj as UserCourseModuleCompletion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean"
   )
 }
 
@@ -1134,6 +1218,19 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["name"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean"
+  )
+}
+
+export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModuleCompletions {
+  const typedObj = obj as UserWithModuleCompletions
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["completed_modules"]) &&
+    typedObj["completed_modules"].every((e: any) => isUserCourseModuleCompletion(e) as boolean) &&
+    typeof typedObj["email"] === "string" &&
+    (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
+    (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
+    typeof typedObj["user_id"] === "string"
   )
 }
 

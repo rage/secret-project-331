@@ -322,7 +322,17 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-
+    seed_sample_course(
+        &db_pool,
+        uh_cs_organization_id,
+        Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
+        "Manual Completions",
+        "manual-completions",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
     Ok(())
 }
 

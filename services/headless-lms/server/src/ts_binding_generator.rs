@@ -119,8 +119,15 @@ fn models(target: &mut File) {
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
 
         library::progressing::CompletionRegistrationLink,
+        library::progressing::CourseInstanceCompletionSummary,
+        library::progressing::ManualCompletionPreview,
+        library::progressing::ManualCompletionPreviewUser,
+        library::progressing::TeacherManualCompletion,
+        library::progressing::TeacherManualCompletionRequest,
         library::progressing::UserCompletionInformation,
+        library::progressing::UserCourseModuleCompletion,
         library::progressing::UserModuleCompletionStatus,
+        library::progressing::UserWithModuleCompletions,
 
         material_references::MaterialReference,
         material_references::NewMaterialReference,

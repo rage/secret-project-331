@@ -480,16 +480,15 @@
 <span id="474">474</span>
 <span id="475">475</span>
 <span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">chapters</span>, <span class="ident">chapters::DatabaseChapter</span>, <span class="ident">exercises</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">users::User</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">chapters</span>,
+    <span class="ident">chapters::DatabaseChapter</span>,
+    <span class="ident">exercises</span>,
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
+    <span class="ident">users</span>::{<span class="self">self</span>, <span class="ident">User</span>},
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
@@ -788,25 +787,12 @@ WHERE course_id = $1
         }
     }
 
-    <span class="kw">let</span> <span class="ident">users</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">User</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">User</span>,
-        <span class="string">&quot;
-SELECT *
-FROM users
-WHERE id IN (
-    SELECT user_id
-    FROM course_instance_enrollments
-    WHERE course_instance_id = $1
-      AND deleted_at IS NULL
-  )
-&quot;</span>,
-        <span class="ident">instance_id</span>
-    )
-    .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>
-    .<span class="ident">into_iter</span>()
-    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> (<span class="ident">u</span>.<span class="ident">id</span>, <span class="ident">u</span>))
-    .<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">users</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">User</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">users::get_users_by_course_instance_enrollment</span>(<span class="ident">conn</span>, <span class="ident">instance_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> (<span class="ident">u</span>.<span class="ident">id</span>, <span class="ident">u</span>))
+            .<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chapter_points_given</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">f32</span><span class="op">&gt;</span><span class="ident">::new</span>();
     <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;

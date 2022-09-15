@@ -1225,6 +1225,39 @@
 <span id="1219">1219</span>
 <span id="1220">1220</span>
 <span id="1221">1221</span>
+<span id="1222">1222</span>
+<span id="1223">1223</span>
+<span id="1224">1224</span>
+<span id="1225">1225</span>
+<span id="1226">1226</span>
+<span id="1227">1227</span>
+<span id="1228">1228</span>
+<span id="1229">1229</span>
+<span id="1230">1230</span>
+<span id="1231">1231</span>
+<span id="1232">1232</span>
+<span id="1233">1233</span>
+<span id="1234">1234</span>
+<span id="1235">1235</span>
+<span id="1236">1236</span>
+<span id="1237">1237</span>
+<span id="1238">1238</span>
+<span id="1239">1239</span>
+<span id="1240">1240</span>
+<span id="1241">1241</span>
+<span id="1242">1242</span>
+<span id="1243">1243</span>
+<span id="1244">1244</span>
+<span id="1245">1245</span>
+<span id="1246">1246</span>
+<span id="1247">1247</span>
+<span id="1248">1248</span>
+<span id="1249">1249</span>
+<span id="1250">1250</span>
+<span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1249,6 +1282,7 @@
     <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
     <span class="ident">course_module_completions</span>::{<span class="ident">StudyRegistryCompletion</span>, <span class="ident">StudyRegistryGrade</span>},
+    <span class="ident">course_modules::CourseModule</span>,
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
     <span class="ident">exams</span>::{<span class="ident">CourseExam</span>, <span class="ident">Exam</span>, <span class="ident">ExamEnrollment</span>, <span class="ident">ExamInstructions</span>, <span class="ident">OrgExam</span>},
@@ -1275,7 +1309,8 @@
             <span class="ident">CourseMaterialPeerReviewQuestionAnswer</span>, <span class="ident">CourseMaterialPeerReviewSubmission</span>,
         },
         <span class="ident">progressing</span>::{
-            <span class="ident">CompletionRegistrationLink</span>, <span class="ident">UserCompletionInformation</span>, <span class="ident">UserModuleCompletionStatus</span>,
+            <span class="ident">CompletionRegistrationLink</span>, <span class="ident">CourseInstanceCompletionSummary</span>, <span class="ident">UserCompletionInformation</span>,
+            <span class="ident">UserCourseModuleCompletion</span>, <span class="ident">UserModuleCompletionStatus</span>, <span class="ident">UserWithModuleCompletions</span>,
         },
     },
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
@@ -1925,6 +1960,37 @@
             }],
             <span class="ident">user_chapter_points</span>: <span class="ident">HashMap::new</span>(),
             <span class="ident">users</span>: <span class="macro">vec!</span>[<span class="ident">user</span>.<span class="ident">clone</span>()]
+        }
+    );
+    <span class="macro">write_docs!</span>(
+        <span class="ident">CourseInstanceCompletionSummary</span>,
+        <span class="ident">CourseInstanceCompletionSummary</span> {
+            <span class="ident">course_modules</span>: <span class="macro">vec!</span>[<span class="ident">CourseModule</span> {
+                <span class="ident">id</span>,
+                <span class="ident">created_at</span>,
+                <span class="ident">updated_at</span>,
+                <span class="ident">deleted_at</span>,
+                <span class="ident">name</span>: <span class="prelude-val">None</span>,
+                <span class="ident">course_id</span>: <span class="ident">id</span>,
+                <span class="ident">order_number</span>: <span class="number">0</span>,
+                <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+                <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
+                <span class="ident">automatic_completion</span>: <span class="bool-val">false</span>,
+                <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-val">None</span>,
+                <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-val">None</span>,
+                <span class="ident">ects_credits</span>: <span class="prelude-val">None</span>,
+            }],
+            <span class="ident">users_with_course_module_completions</span>: <span class="macro">vec!</span>[<span class="ident">UserWithModuleCompletions</span> {
+                <span class="ident">completed_modules</span>: <span class="macro">vec!</span>[<span class="ident">UserCourseModuleCompletion</span> {
+                    <span class="ident">course_module_id</span>: <span class="ident">id</span>,
+                    <span class="ident">grade</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+                    <span class="ident">passed</span>: <span class="bool-val">true</span>,
+                }],
+                <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),
+                <span class="ident">user_id</span>: <span class="ident">id</span>,
+            }]
         }
     );
     <span class="macro">write_docs!</span>(

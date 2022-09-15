@@ -143,6 +143,25 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
+pub async fn get_all_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_instance_id = $1
+  AND deleted_at IS NULL
+        ",
+        course_instance_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
 pub async fn get_by_course_instance_and_user_ids(

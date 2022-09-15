@@ -78,3 +78,25 @@ pub async fn insert_enrollment_and_set_as_current(
 
     Ok(enrollment)
 }
+
+pub async fn get_by_user_and_course_instance_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseInstanceEnrollment> {
+    let res = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+SELECT *
+FROM course_instance_enrollments
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

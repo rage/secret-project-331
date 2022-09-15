@@ -15,6 +15,8 @@ import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
   manageCourseInstancePermissionsPageRoute,
+  viewCourseInstanceCompletionsPageRoute,
+  viewCourseInstancePointsPageRoute,
 } from "../../../../../../utils/routing"
 
 import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
@@ -77,12 +79,16 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                         {t("link-manage-permissions")}
                       </a>
                     </Link>{" "}
-                    <a
-                      href={`/manage/course-instances/${instance.id}/points`}
-                      aria-label={`${t("link-view-points")} (${name})`}
-                    >
-                      {t("link-view-points")}
-                    </a>{" "}
+                    <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)} passHref>
+                      <a href="replace" aria-label={`${t("link-view-completions")}`}>
+                        {t("link-view-completions")}
+                      </a>
+                    </Link>{" "}
+                    <Link href={viewCourseInstancePointsPageRoute(instance.id)} passHref>
+                      <a href="replace" aria-label={`${t("link-view-points")}`}>
+                        {t("link-view-points")}
+                      </a>
+                    </Link>{" "}
                     <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
                     <ModuleCompletionReprocessButton courseInstanceId={instance.id} />
                   </li>

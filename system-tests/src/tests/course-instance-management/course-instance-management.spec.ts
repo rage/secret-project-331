@@ -67,7 +67,7 @@ test("test", async ({ page, headless }) => {
   await Promise.all([
     page.waitForNavigation(),
     page.click(
-      "text=Default Manage Manage emails Manage permissions View Points Export points >> a",
+      "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
     ),
   ])
   await expect(page).toHaveURL(

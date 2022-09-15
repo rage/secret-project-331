@@ -2379,7 +2379,7 @@ pub async fn reorder_chapters(
             if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
                 if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id)
                 {
-                    let old_chapter_number = &old_chapter.chapter_number;
+                    /* let old_chapter_number = &old_chapter.chapter_number; */
                     let new_chapter_number = &new_chapter.chapter_number;
 
                     let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;

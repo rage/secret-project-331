@@ -8,7 +8,7 @@ import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
   name?: string
-  type?: "email" | "password" | "text" | "number"
+  type?: "email" | "password" | "text" | "number" | "color"
   label?: string
   labelStyle?: string
   hint?: string
@@ -32,6 +32,7 @@ const DEFAULTCOLOR = "#dedede"
 interface InputExtraProps {
   error?: string
   disabled?: boolean
+  colorField?: boolean
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -41,7 +42,7 @@ const Input = styled.input<InputExtraProps>`
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  padding: 8px 10px 10px 10px;
+  ${({ colorField }) => !colorField && "padding: 8px 10px 10px 10px;"}
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 20px;
@@ -107,6 +108,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
           id={rest.id}
           name={rest.name}
           disabled={disabled}
+          colorField={rest.type === "color"}
           // eslint-disable-next-line i18next/no-literal-string
           aria-errormessage={`${rest.label}_error`}
           aria-invalid={rest.error !== undefined}

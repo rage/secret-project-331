@@ -156,6 +156,7 @@
   "image-alt-what-to-display-on-chapter": "Mitä näytetään luvussa.",
   "image-alt-what-to-display-on-organization": "Mitä näytetään organisaatiossa.",
   "incorrect-email-or-password": "Väärä sähköposti tai salasana",
+  "input-field-chapter-color": "Luvun väri",
   "instance-ended-at-time": "Kurssiversio on päättynyt: {{time}}",
   "instance-has-no-set-opening-time": "Kurssille ei ole asetettu aloituspäivää",
   "instance-is-currently-open-and-has-no-set-ending-time": "Kurssiversio on auki eikä sille ole asetettu päättymispäivää",

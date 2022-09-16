@@ -13,7 +13,6 @@ interface ChapterProps {
   now: Date
   chapter: ChapterWithStatus
   courseSlug: string
-  bg: string
   organizationSlug: string
   previewable: boolean
   backgroundImage?: string | null
@@ -27,7 +26,6 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,
   chapter,
   courseSlug,
-  bg,
   organizationSlug,
   previewable,
   backgroundImage,
@@ -92,7 +90,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       date={date}
       time={time}
       url={url}
-      bg={bg}
+      bg={chapter.color}
       backgroundImage={backgroundImage}
     />
   )

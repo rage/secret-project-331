@@ -60,6 +60,7 @@ export interface Chapter {
   created_at: Date
   updated_at: Date
   name: string
+  color: string
   course_id: string
   deleted_at: Date | null
   chapter_image_url: string | null
@@ -76,6 +77,7 @@ export interface DatabaseChapter {
   created_at: Date
   updated_at: Date
   name: string
+  color: string
   course_id: string
   deleted_at: Date | null
   chapter_image_path: string | null
@@ -91,6 +93,7 @@ export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
   name: string
+  color: string
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
@@ -102,6 +105,7 @@ export interface ChapterWithStatus {
   created_at: Date
   updated_at: Date
   name: string
+  color: string
   course_id: string
   deleted_at: Date | null
   chapter_number: number
@@ -114,6 +118,7 @@ export interface ChapterWithStatus {
 
 export interface NewChapter {
   name: string
+  color: string
   course_id: string
   chapter_number: number
   front_page_id: string | null
@@ -143,6 +148,7 @@ export interface ChapterScore {
   created_at: Date
   updated_at: Date
   name: string
+  color: string
   course_id: string
   deleted_at: Date | null
   chapter_image_path: string | null

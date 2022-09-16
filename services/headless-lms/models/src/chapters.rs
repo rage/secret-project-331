@@ -18,6 +18,7 @@ pub struct DatabaseChapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_path: Option<String>,
@@ -36,6 +37,7 @@ pub struct Chapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_url: Option<String>,
@@ -62,6 +64,7 @@ impl Chapter {
             created_at: chapter.created_at,
             updated_at: chapter.updated_at,
             name: chapter.name.clone(),
+            color: chapter.color.clone(),
             course_id: chapter.course_id,
             deleted_at: chapter.deleted_at,
             chapter_image_url,
@@ -106,6 +109,7 @@ pub struct ChapterPagesWithExercises {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
+    pub color: String,
     pub course_id: Uuid,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
@@ -120,6 +124,7 @@ pub struct NewChapter {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
+    pub color: String,
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
@@ -136,6 +141,7 @@ pub struct ChapterInfo {
 pub async fn insert(
     conn: &mut PgConnection,
     name: &str,
+    color: &str,
     course_id: Uuid,
     chapter_number: i32,
     course_module_id: Uuid,
@@ -144,14 +150,16 @@ pub async fn insert(
         "
 INSERT INTO chapters (
     name,
+    color,
     course_id,
     chapter_number,
     course_module_id
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         name,
+        color,
         course_id,
         chapter_number,
         course_module_id,
@@ -244,7 +252,8 @@ UPDATE chapters
 SET name = $2,
   deadline = $3,
   opens_at = $4,
-  course_module_id = $5
+  course_module_id = $5,
+  color = $6
 WHERE id = $1
 RETURNING *;
     "#,
@@ -253,6 +262,7 @@ RETURNING *;
         chapter_update.deadline,
         chapter_update.opens_at,
         chapter_update.course_module_id,
+        chapter_update.color,
     )
     .fetch_one(conn)
     .await?;
@@ -286,6 +296,7 @@ pub struct ChapterWithStatus {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: String,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_number: i32,
@@ -316,6 +327,7 @@ impl ChapterWithStatus {
             created_at: database_chapter.created_at,
             updated_at: database_chapter.updated_at,
             name: database_chapter.name,
+            color: database_chapter.color,
             course_id: database_chapter.course_id,
             deleted_at: database_chapter.deleted_at,
             chapter_number: database_chapter.chapter_number,
@@ -348,6 +360,7 @@ SELECT id,
   created_at,
   updated_at,
   name,
+  color,
   course_id,
   deleted_at,
   chapter_image_path,
@@ -379,6 +392,7 @@ SELECT id,
   created_at,
   updated_at,
   name,
+  color,
   course_id,
   deleted_at,
   chapter_image_path,
@@ -417,16 +431,18 @@ pub async fn insert_chapter(
         r#"
 INSERT INTO chapters(
     name,
+    color,
     course_id,
     chapter_number,
     deadline,
     opens_at,
     course_module_id
   )
-VALUES($1, $2, $3, $4, $5, $6)
+VALUES($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 "#,
         chapter.name,
+        chapter.color,
         chapter.course_id,
         chapter.chapter_number,
         chapter.deadline,
@@ -655,6 +671,7 @@ mod tests {
                 tx.as_mut(),
                 NewChapter {
                     name: "Chapter of second course".to_string(),
+                    color: "#065853".to_string(),
                     course_id: course_2,
                     chapter_number: 0,
                     front_page_id: None,

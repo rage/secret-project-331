@@ -22,6 +22,7 @@ interface NewChapterFormProps {
 
 interface Fields {
   name: string
+  color: string
   opens_at: Date | null
   deadline: Date | null
   chapter_number: number
@@ -46,6 +47,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
     mode: "onChange",
     defaultValues: {
       name: "",
+      color: "#065853",
       chapter_number: chapterNumber,
       opens_at: null,
       deadline: null,
@@ -79,9 +81,11 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
+        console.log(data)
         submitMutation.mutate({
           course_id: courseId,
           name: data.name,
+          color: data.color,
           chapter_number: chapterNumber,
           front_page_id: null,
           opens_at: data.opens_at,
@@ -109,6 +113,19 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           valueAsNumber: true,
           disabled: !newRecord,
         })}
+      />
+      <TextField
+        className={css`
+          height: 45px;
+          padding: 0px 0px 0px 0px !important;
+        `}
+        error={errors["color"]?.message}
+        placeholder={t("input-field-chapter-color")}
+        label={t("input-field-chapter-color")}
+        register={register("color", {
+          required: true,
+        })}
+        type="color"
       />
       <CheckboxFieldWrapper
         initialChecked={!!getValues("opens_at")}

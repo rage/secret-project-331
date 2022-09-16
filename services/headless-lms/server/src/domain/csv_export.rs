@@ -345,7 +345,7 @@ mod test {
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2, course_module.id)
+        let c2 = chapters::insert(tx.as_mut(), "", "#065853", course, 2, course_module.id)
             .await
             .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)

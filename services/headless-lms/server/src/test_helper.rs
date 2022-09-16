@@ -186,6 +186,7 @@ macro_rules! insert_data {
             $tx.as_mut(),
             headless_lms_models::chapters::NewChapter {
                 name: "chapter".to_string(),
+                color: "#065853".to_string(),
                 course_id: $course,
                 chapter_number: 1,
                 front_page_id: None,

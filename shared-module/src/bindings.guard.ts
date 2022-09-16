@@ -288,6 +288,7 @@ export function isChapter(obj: unknown): obj is Chapter {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_url"] === null || typeof typedObj["chapter_image_url"] === "string") &&
@@ -308,6 +309,7 @@ export function isDatabaseChapter(obj: unknown): obj is DatabaseChapter {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_path"] === null ||
@@ -331,6 +333,7 @@ export function isChapterUpdate(obj: unknown): obj is ChapterUpdate {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
     (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
     (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
@@ -346,6 +349,7 @@ export function isChapterWithStatus(obj: unknown): obj is ChapterWithStatus {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["chapter_number"] === "number" &&
@@ -362,6 +366,7 @@ export function isNewChapter(obj: unknown): obj is NewChapter {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["chapter_number"] === "number" &&
     (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
@@ -406,6 +411,7 @@ export function isChapterScore(obj: unknown): obj is ChapterScore {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    typeof typedObj["color"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_path"] === null ||

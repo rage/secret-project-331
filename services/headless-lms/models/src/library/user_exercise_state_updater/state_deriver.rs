@@ -2,8 +2,8 @@ use headless_lms_utils::numbers::f32_to_two_decimals;
 
 use crate::{
     exercises::{ActivityProgress, GradingProgress},
+    peer_review_configs::PeerReviewAcceptingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_reviews::PeerReviewAcceptingStrategy,
     prelude::*,
     user_exercise_states::{ReviewingStage, UserExerciseStateUpdate},
 };
@@ -302,8 +302,8 @@ mod tests {
         use crate::{
             exercises::Exercise,
             library::user_exercise_state_updater::UserExerciseStateUpdateRequiredDataPeerReviewInformation,
-            peer_review_queue_entries::PeerReviewQueueEntry,
-            peer_review_submissions::PeerReviewSubmission, peer_reviews::PeerReview,
+            peer_review_configs::PeerReviewConfig, peer_review_queue_entries::PeerReviewQueueEntry,
+            peer_review_submissions::PeerReviewSubmission,
             user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
             user_exercise_states::UserExerciseState,
         };
@@ -313,7 +313,7 @@ mod tests {
         #[test]
         fn updates_state_for_normal_exercise() {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), false);
+            let exercise = create_exercise(CourseOrExamId::Course(id), false, false);
             let user_exercise_state = create_user_exercise_state(
                 &exercise,
                 None,
@@ -345,7 +345,7 @@ mod tests {
         #[test]
         fn doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed() {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), true);
+            let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
             let user_exercise_state = create_user_exercise_state(
                 &exercise,
                 None,
@@ -384,7 +384,7 @@ mod tests {
             #[test]
             fn peer_review_automatically_accept_or_reject_by_average_works_gives_full_points() {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -423,7 +423,7 @@ mod tests {
             #[test]
             fn peer_review_automatically_accept_or_reject_by_average_works_gives_zero_points() {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -468,7 +468,7 @@ mod tests {
             fn peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points(
             ) {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -508,7 +508,7 @@ mod tests {
             fn peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review(
             ) {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -553,7 +553,7 @@ mod tests {
             fn peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review(
             ) {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -593,7 +593,7 @@ mod tests {
             fn peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review(
             ) {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-                let exercise = create_exercise(CourseOrExamId::Course(id), true);
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true);
                 let user_exercise_state = create_user_exercise_state(
                     &exercise,
                     None,
@@ -642,7 +642,11 @@ mod tests {
             assert_eq!(update.reviewing_stage, reviewing_stage);
         }
 
-        fn create_exercise(course_or_exam_id: CourseOrExamId, needs_peer_review: bool) -> Exercise {
+        fn create_exercise(
+            course_or_exam_id: CourseOrExamId,
+            needs_peer_review: bool,
+            use_course_default_peer_review_config: bool,
+        ) -> Exercise {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
             Exercise {
@@ -662,14 +666,15 @@ mod tests {
                 max_tries_per_slide: None,
                 limit_number_of_tries: false,
                 needs_peer_review,
+                use_course_default_peer_review_config,
             }
         }
 
         fn create_peer_review_config(
             accepting_strategy: PeerReviewAcceptingStrategy,
-        ) -> PeerReview {
+        ) -> PeerReviewConfig {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            PeerReview {
+            PeerReviewConfig {
                 id,
                 created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
                 updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
@@ -710,7 +715,7 @@ mod tests {
                 user_id: id,
                 exercise_id: id,
                 course_instance_id: id,
-                peer_review_id: id,
+                peer_review_config_id: id,
                 exercise_slide_submission_id: id,
             }
         }

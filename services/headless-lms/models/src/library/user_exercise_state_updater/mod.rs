@@ -9,10 +9,10 @@ use crate::{
     course_modules,
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
+    peer_review_configs::PeerReviewConfig,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
-    peer_reviews::PeerReview,
     prelude::*,
     teacher_grading_decisions::TeacherGradingDecision,
     user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
@@ -39,7 +39,7 @@ pub(self) struct UserExerciseStateUpdateRequiredDataPeerReviewInformation {
     pub latest_exercise_slide_submission_received_peer_review_question_submissions:
         Vec<PeerReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
-    pub peer_review_config: PeerReview,
+    pub peer_review_config: PeerReviewConfig,
 }
 
 /**
@@ -67,7 +67,7 @@ pub struct UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation
         Option<Vec<PeerReviewQuestionSubmission>>,
     /// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not
     pub peer_review_queue_entry: Option<Option<PeerReviewQueueEntry>>,
-    pub peer_review_config: Option<PeerReview>,
+    pub peer_review_config: Option<PeerReviewConfig>,
 }
 
 /// Loads all required data and updates user_exercise_state. Also creates completions if needed.

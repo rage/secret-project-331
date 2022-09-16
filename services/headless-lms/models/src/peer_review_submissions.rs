@@ -10,7 +10,7 @@ pub struct PeerReviewSubmission {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub course_instance_id: Uuid,
-    pub peer_review_id: Uuid,
+    pub peer_review_config_id: Uuid,
     pub exercise_slide_submission_id: Uuid,
 }
 
@@ -19,7 +19,7 @@ pub async fn insert(
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
-    peer_review_id: Uuid,
+    peer_review_config_id: Uuid,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -28,7 +28,7 @@ INSERT INTO peer_review_submissions (
     user_id,
     exercise_id,
     course_instance_id,
-    peer_review_id,
+    peer_review_config_id,
     exercise_slide_submission_id
   )
 VALUES ($1, $2, $3, $4, $5)
@@ -37,7 +37,7 @@ RETURNING id
         user_id,
         exercise_id,
         course_instance_id,
-        peer_review_id,
+        peer_review_config_id,
         exercise_slide_submission_id,
     )
     .fetch_one(conn)

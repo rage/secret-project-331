@@ -1,0 +1,283 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'headless-lms-actix'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "headless-lms-actix",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'headless-lms-actix'",
+      "cargo": {
+        "args": ["build", "--bin=headless-lms-actix", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "headless-lms-actix",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'headless-lms-actix'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=headless-lms-actix", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "headless-lms-actix",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'doc-file-generator'",
+      "cargo": {
+        "args": ["build", "--bin=doc-file-generator", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "doc-file-generator",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'doc-file-generator'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=doc-file-generator", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "doc-file-generator",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'regrader'",
+      "cargo": {
+        "args": ["build", "--bin=regrader", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "regrader",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'regrader'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=regrader", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "regrader",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'email-deliver'",
+      "cargo": {
+        "args": ["build", "--bin=email-deliver", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "email-deliver",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'email-deliver'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=email-deliver", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "email-deliver",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'seed'",
+      "cargo": {
+        "args": ["build", "--bin=seed", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "seed",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'seed'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=seed", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "seed",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'service_info_fetcher'",
+      "cargo": {
+        "args": ["build", "--bin=service_info_fetcher", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "service_info_fetcher",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'service_info_fetcher'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=service_info_fetcher", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "service_info_fetcher",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'open_university_registration_link_fetcher'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=open_university_registration_link_fetcher",
+          "--package=headless-lms-actix"
+        ],
+        "filter": {
+          "name": "open_university_registration_link_fetcher",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'open_university_registration_link_fetcher'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=open_university_registration_link_fetcher",
+          "--package=headless-lms-actix"
+        ],
+        "filter": {
+          "name": "open_university_registration_link_fetcher",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug integration test 'study_registry_test'",
+      "cargo": {
+        "args": ["test", "--no-run", "--test=study_registry_test", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "study_registry_test",
+          "kind": "test"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug integration test 'integration_test'",
+      "cargo": {
+        "args": ["test", "--no-run", "--test=integration_test", "--package=headless-lms-actix"],
+        "filter": {
+          "name": "integration_test",
+          "kind": "test"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'headless-lms-models'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=headless-lms-models"],
+        "filter": {
+          "name": "headless-lms-models",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'headless-lms-utils'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=headless-lms-utils"],
+        "filter": {
+          "name": "headless-lms-utils",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

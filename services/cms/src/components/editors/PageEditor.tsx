@@ -4,6 +4,7 @@ import { UseMutationResult, useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import dynamic from "next/dynamic"
+import { useRouter } from "next/router"
 import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -67,7 +68,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   setNeedToRunMigrationsAndValidations,
 }) => {
   const { t } = useTranslation()
-  const pageInfo = usePageInfo(data.id)
+  const router = useRouter()
+  const prefix = router.asPath.split("/")[1]
+  const pageInfo = usePageInfo(data.id, prefix)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
   const savedContent = modifyBlocks(

@@ -51,7 +51,7 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
-    env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=warn");
+    env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=info");
 
     dotenv::dotenv().ok();
     setup_tracing()?;

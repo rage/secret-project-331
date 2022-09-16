@@ -64,7 +64,7 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
   await page.frameLocator(SECOND_TASK).locator(CORRECT).click()
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(INCORRECT).click()
-  await page.click("text=Submit")
+  await page.locator('button:has-text("Submit")').click()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
@@ -80,14 +80,14 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
-  await page.click("text=try again")
+  await page.locator('button:has-text("try again")').click()
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(FIRST_TASK).locator(INCORRECT).click()
   await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(SECOND_TASK).locator(INCORRECT).click()
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
-  await page.click("text=Submit")
+  await page.locator('button:has-text("Submit")').click()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({
@@ -104,14 +104,14 @@ test("Exercise score updates gradually", async ({ headless, page }) => {
     elementId: "#c1d545d7-c46b-5076-8f34-32374dd03310",
   })
 
-  await page.click("text=try again")
+  await page.locator('button:has-text("try again")').click()
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(FIRST_TASK).locator(CORRECT).click()
   await page.locator(SECOND_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(SECOND_TASK).locator(CORRECT).click()
   await page.locator(THIRD_TASK).scrollIntoViewIfNeeded()
   await page.frameLocator(THIRD_TASK).locator(CORRECT).click()
-  await page.click("text=Submit")
+  await page.locator('button:has-text("Submit")').click()
 
   await page.locator(FIRST_TASK).scrollIntoViewIfNeeded()
   await expectScreenshotsToMatchSnapshots({

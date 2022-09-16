@@ -1,10 +1,10 @@
 use crate::{
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
+    peer_review_configs::{self, PeerReviewConfig},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::{self, PeerReviewSubmission},
-    peer_reviews::{self, PeerReview},
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
     user_exercise_slide_states::{self, UserExerciseSlideStateGradingSummary},
@@ -197,16 +197,16 @@ async fn load_peer_review_information(
 
 async fn load_peer_review_config(
     conn: &mut PgConnection,
-    already_loaded_peer_review_config: Option<crate::peer_reviews::PeerReview>,
+    already_loaded_peer_review_config: Option<crate::peer_review_configs::PeerReviewConfig>,
     loaded_user_exercise_state: &UserExerciseState,
     loaded_exercise: &Exercise,
-) -> ModelResult<PeerReview> {
+) -> ModelResult<PeerReviewConfig> {
     if let Some(prc) = already_loaded_peer_review_config {
         info!("Using already loaded peer review config");
         Ok(prc)
     } else {
         info!("Loading peer review config");
-        Ok(peer_reviews::get_by_exercise_or_course_id(
+        Ok(peer_review_configs::get_by_exercise_or_course_id(
             conn,
             loaded_user_exercise_state.exercise_id,
             loaded_exercise.course_id.ok_or_else(|| {

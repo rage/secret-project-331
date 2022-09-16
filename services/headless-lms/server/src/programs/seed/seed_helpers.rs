@@ -207,6 +207,9 @@ pub fn example_exercise_flexible(
         limit_number_of_tries: false,
         deadline: None,
         needs_peer_review: false,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
     };
     (block, exercise, slides, tasks)
 }
@@ -248,6 +251,9 @@ pub fn quizzes_exercise(
         limit_number_of_tries: false,
         deadline,
         needs_peer_review,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,

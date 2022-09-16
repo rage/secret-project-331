@@ -85,7 +85,7 @@ async fn get_peer_review_for_exercise(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
     let mut conn = pool.acquire().await?;
-    let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
+    let peer_review_data = models::peer_review_configs::get_course_material_peer_review_data(
         &mut conn,
         user.id,
         *exercise_id,

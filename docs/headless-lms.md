@@ -137,6 +137,45 @@ struct MyNewStruct {
 
 Not all of the traits can be derived for every struct. In those cases, it's fine to simply leave those out.
 
+## SQLx QueryBuilder
+
+QueryBuilder docs at https://docs.rs/sqlx/latest/sqlx/query_builder/struct.QueryBuilder.html
+
+SQLx querybuilder can be used to create more complex and dynamic SQL queries.
+
+```rs
+import sqlx::query_builder::QueryBuilder;
+
+// QueryBuilder is initiated with new() function, which takes 'init' sql statement.
+let sql = QueryBuilder::new("INSERT INTO exercises (id, name, course_id)");
+
+// Iterable of CmsExercises
+let pages: Vec<CmsExercise> = ...;
+
+// .push_values() takes iterable of objects of which values we want to include to sql query
+sql.push_values(pages.take(1000), |mut x, exercise| {
+    // (in https://docs.rs/sqlx/latest/sqlx/query_builder/struct.QueryBuilder.html#method.push_bind) Push a bind argument placeholder (? or $N for Postgres) and bind a value to it.
+    x.push_bind(exercise.id)
+     .push_bind(exercise.name)
+     .push_bind(exercise.course_id);
+});
+
+// Used to push sql fragment to a querybuilder
+sql.push(" ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id;");
+
+
+// .build() constructs executable sql statement that can be executed.
+let res: Vec<PgRow> = sql.build().fetch_all(conn).await?;
+```
+
+Resulting sql query is
+
+```sql
+INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id), (e2.id, e2.name, e2.course_id),... ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id
+```
+
+Most usable QueryBuilder is for bulk inserting or updating.
+
 ## Generating type bindings for frontend
 
 Some structures and enums are also used by frontend services, primarily those that represent a request or response data. When these types are either changed or new ones added, their type bindings need to be regenerated.

@@ -176,10 +176,10 @@
     <span class="ident">course_modules</span>,
     <span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>,
     <span class="ident">exercises::Exercise</span>,
+    <span class="ident">peer_review_configs::PeerReviewConfig</span>,
     <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
     <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
     <span class="ident">peer_review_submissions::PeerReviewSubmission</span>,
-    <span class="ident">peer_reviews::PeerReview</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">teacher_grading_decisions::TeacherGradingDecision</span>,
     <span class="ident">user_exercise_slide_states::UserExerciseSlideStateGradingSummary</span>,
@@ -206,7 +206,7 @@
     <span class="kw">pub</span> <span class="ident">latest_exercise_slide_submission_received_peer_review_question_submissions</span>:
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">peer_review_queue_entry</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="ident">PeerReview</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="ident">PeerReviewConfig</span>,
 }
 
 <span class="doccomment">/**
@@ -234,7 +234,7 @@ Same as `UserExerciseStateUpdateRequiredDataPeerReviewInformation` but public an
         <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestionSubmission</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not</span>
     <span class="kw">pub</span> <span class="ident">peer_review_queue_entry</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewQueueEntry</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReview</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Loads all required data and updates user_exercise_state. Also creates completions if needed.</span>

@@ -568,6 +568,12 @@
 <span id="562">562</span>
 <span id="563">563</span>
 <span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
@@ -577,11 +583,11 @@
     <span class="ident">exercise_task_submissions</span>,
     <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
     <span class="ident">exercises::Exercise</span>,
+    <span class="ident">peer_review_configs</span>::{<span class="self">self</span>, <span class="ident">PeerReviewConfig</span>},
     <span class="ident">peer_review_question_submissions</span>,
     <span class="ident">peer_review_questions</span>::{<span class="self">self</span>, <span class="ident">PeerReviewQuestion</span>},
     <span class="ident">peer_review_queue_entries</span>::{<span class="self">self</span>, <span class="ident">PeerReviewQueueEntry</span>},
     <span class="ident">peer_review_submissions</span>,
-    <span class="ident">peer_reviews</span>::{<span class="self">self</span>, <span class="ident">PeerReview</span>},
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>},
 };
@@ -616,7 +622,7 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialPeerReviewSubmission</span> {
     <span class="kw">pub</span> <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">peer_review_question_answers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewQuestionAnswer</span><span class="op">&gt;</span>,
 }
 
@@ -634,14 +640,15 @@
     <span class="ident">giver_exercise_state</span>: <span class="ident">UserExerciseState</span>,
     <span class="ident">peer_review_submission</span>: <span class="ident">CourseMaterialPeerReviewSubmission</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">peer_reviews::get_by_exercise_or_course_id</span>(
+    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">peer_review_configs::get_by_exercise_or_course_id</span>(
         <span class="ident">conn</span>,
         <span class="ident">giver_exercise_state</span>.<span class="ident">exercise_id</span>,
         <span class="ident">exercise</span>.<span class="ident">get_course_id</span>()<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">sanitized_answers</span> <span class="op">=</span> <span class="ident">validate_and_sanitize_peer_review_submission_answers</span>(
-        <span class="ident">peer_review_questions::get_all_by_peer_review_id_as_map</span>(<span class="ident">conn</span>, <span class="ident">peer_review</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        <span class="ident">peer_review_questions::get_all_by_peer_review_config_id_as_map</span>(<span class="ident">conn</span>, <span class="ident">peer_review</span>.<span class="ident">id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">peer_review_submission</span>.<span class="ident">peer_review_question_answers</span>,
     )<span class="question-mark">?</span>;
 
@@ -744,7 +751,7 @@
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">user_exercise_state</span>: <span class="ident">UserExerciseState</span>,
     <span class="ident">peer_reviews_given</span>: <span class="ident">i32</span>,
-    <span class="ident">peer_review</span>: <span class="ident">PeerReview</span>,
+    <span class="ident">peer_review</span>: <span class="ident">PeerReviewConfig</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseState</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">users_latest_submission</span> <span class="op">=</span>
         <span class="ident">exercise_slide_submissions::get_users_latest_exercise_slide_submission</span>(
@@ -796,7 +803,7 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update_peer_review_receiver_exercise_status</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
-    <span class="ident">peer_review</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReview</span>,
+    <span class="ident">peer_review</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReviewConfig</span>,
     <span class="ident">peer_review_queue_entry</span>: <span class="ident">PeerReviewQueueEntry</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">peer_reviews_received</span> <span class="op">=</span>
@@ -850,7 +857,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialPeerReviewData</span> {
     <span class="doccomment">/// If none, no answer was available for review.</span>
     <span class="kw">pub</span> <span class="ident">answer_to_review</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review</span>: <span class="ident">PeerReview</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="ident">PeerReviewConfig</span>,
     <span class="kw">pub</span> <span class="ident">peer_review_questions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;number&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="ident">num_peer_reviews_given</span>: <span class="ident">i64</span>,
@@ -875,7 +882,7 @@
     <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">reviewer_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">peer_reviews::get_by_exercise_or_course_id</span>(
+    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="ident">peer_review_configs::get_by_exercise_or_course_id</span>(
         <span class="ident">conn</span>,
         <span class="ident">reviewer_user_exercise_state</span>.<span class="ident">exercise_id</span>,
         <span class="ident">exercise</span>.<span class="ident">get_course_id</span>()<span class="question-mark">?</span>,
@@ -967,14 +974,15 @@
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_material_peer_review_data</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">peer_review</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReview</span>,
+    <span class="ident">peer_review_config</span>: <span class="kw-2">&amp;</span><span class="ident">PeerReviewConfig</span>,
     <span class="ident">exercise_slide_submission</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseSlideSubmission</span><span class="op">&gt;</span>,
     <span class="ident">reviewer_user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">reviewer_course_instance_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseMaterialPeerReviewData</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">peer_review_questions</span> <span class="op">=</span>
-        <span class="ident">peer_review_questions::get_all_by_peer_review_id</span>(<span class="ident">conn</span>, <span class="ident">peer_review</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">peer_review_questions::get_all_by_peer_review_config_id</span>(<span class="ident">conn</span>, <span class="ident">peer_review_config</span>.<span class="ident">id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">num_peer_reviews_given</span> <span class="op">=</span>
         <span class="ident">peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise</span>(
             <span class="ident">conn</span>,
@@ -1002,7 +1010,7 @@
 
     <span class="prelude-val">Ok</span>(<span class="ident">CourseMaterialPeerReviewData</span> {
         <span class="ident">answer_to_review</span>,
-        <span class="ident">peer_review</span>: <span class="ident">peer_review</span>.<span class="ident">clone</span>(),
+        <span class="ident">peer_review_config</span>: <span class="ident">peer_review_config</span>.<span class="ident">clone</span>(),
         <span class="ident">peer_review_questions</span>,
         <span class="ident">num_peer_reviews_given</span>,
     })
@@ -1023,7 +1031,8 @@
     <span class="kw">for</span> <span class="ident">exercise</span> <span class="kw">in</span> <span class="ident">exercises</span> {
         <span class="macro">info!</span>(<span class="string">&quot;Processing exercise {:?}&quot;</span>, <span class="ident">exercise</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">peer_review_config</span> <span class="op">=</span>
-            <span class="ident">peer_reviews::get_by_exercise_or_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">peer_review_configs::get_by_exercise_or_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_id</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">peer_review_queue_entries</span> <span class="op">=</span>
             <span class="ident"><span class="kw">crate</span>::peer_review_queue_entries::get_all_that_need_peer_reviews_by_exercise_id</span>(
                 <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
@@ -1062,11 +1071,12 @@
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">accepts_valid_answers</span>() {
-            <span class="kw">let</span> <span class="ident">peer_review_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">peer_review_config_id</span> <span class="op">=</span>
+                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">question_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;68d5cda3-6ad8-464b-9af1-bd1692fcbee1&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">questions</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
                 <span class="ident">question_id</span>,
-                <span class="ident">create_peer_review_question</span>(<span class="ident">question_id</span>, <span class="ident">peer_review_id</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">create_peer_review_question</span>(<span class="ident">question_id</span>, <span class="ident">peer_review_config_id</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>(),
             )]);
             <span class="kw">let</span> <span class="ident">answers</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">create_peer_review_answer</span>(<span class="ident">question_id</span>)];
             <span class="macro">assert_eq!</span>(
@@ -1079,9 +1089,10 @@
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">filters_illegal_answers</span>() {
-            <span class="kw">let</span> <span class="ident">peer_review_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">peer_review_config_id</span> <span class="op">=</span>
+                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">questions</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-            <span class="kw">let</span> <span class="ident">answers</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">create_peer_review_answer</span>(<span class="ident">peer_review_id</span>)];
+            <span class="kw">let</span> <span class="ident">answers</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">create_peer_review_answer</span>(<span class="ident">peer_review_config_id</span>)];
             <span class="macro">assert_eq!</span>(
                 <span class="ident">validate_and_sanitize_peer_review_submission_answers</span>(<span class="ident">questions</span>, <span class="ident">answers</span>)
                     .<span class="ident">unwrap</span>()
@@ -1092,11 +1103,12 @@
 
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">errors_on_missing_required_answers</span>() {
-            <span class="kw">let</span> <span class="ident">peer_review_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">peer_review_config_id</span> <span class="op">=</span>
+                <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">question_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;68d5cda3-6ad8-464b-9af1-bd1692fcbee1&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">questions</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
                 <span class="ident">question_id</span>,
-                <span class="ident">create_peer_review_question</span>(<span class="ident">question_id</span>, <span class="ident">peer_review_id</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">create_peer_review_question</span>(<span class="ident">question_id</span>, <span class="ident">peer_review_config_id</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>(),
             )]);
             <span class="macro">assert!</span>(
                 <span class="ident">validate_and_sanitize_peer_review_submission_answers</span>(<span class="ident">questions</span>, <span class="macro">vec!</span>[]).<span class="ident">is_err</span>()
@@ -1105,7 +1117,7 @@
 
         <span class="kw">fn</span> <span class="ident">create_peer_review_question</span>(
             <span class="ident">id</span>: <span class="ident">Uuid</span>,
-            <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+            <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
             <span class="ident">answer_required</span>: <span class="ident">bool</span>,
         ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">PeerReviewQuestion</span> {
@@ -1113,7 +1125,7 @@
                 <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
                 <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
                 <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">peer_review_id</span>,
+                <span class="ident">peer_review_config_id</span>,
                 <span class="ident">order_number</span>: <span class="number">0</span>,
                 <span class="ident">question</span>: <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,

@@ -9,7 +9,7 @@
 <p>This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.</p>
 <h3 id="response-typescript-definition"><a href="#response-typescript-definition">Response TypeScript definition</a></h3><div class="example-wrap"><pre class="language-ts"><code>type CourseMaterialPeerReviewData = {
   answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
-  peer_review: PeerReview
+  peer_review_config: PeerReviewConfig
   peer_review_questions: Array&lt;PeerReviewQuestion&gt;
   num_peer_reviews_given: number
 }
@@ -85,7 +85,7 @@
       }
     ]
   },
-  &quot;peer_review&quot;: {
+  &quot;peer_review_config&quot;: {
     &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
     &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
     &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
@@ -103,7 +103,7 @@
       &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
       &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
       &quot;deleted_at&quot;: null,
-      &quot;peer_review_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;peer_review_config_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
       &quot;order_number&quot;: 0,
       &quot;question&quot;: &quot;Was the answer well thought out?&quot;,
       &quot;question_type&quot;: &quot;Essay&quot;,

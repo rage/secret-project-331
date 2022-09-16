@@ -445,6 +445,12 @@
 <span id="439">439</span>
 <span id="440">440</span>
 <span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
@@ -654,6 +660,9 @@
         <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">needs_peer_review</span>: <span class="bool-val">false</span>,
+        <span class="ident">use_course_default_peer_review_config</span>: <span class="bool-val">true</span>,
+        <span class="ident">peer_review_config</span>: <span class="prelude-val">None</span>,
+        <span class="ident">peer_review_questions</span>: <span class="prelude-val">None</span>,
     };
     (<span class="ident">block</span>, <span class="ident">exercise</span>, <span class="ident">slides</span>, <span class="ident">tasks</span>)
 }
@@ -695,6 +704,9 @@
         <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
         <span class="ident">deadline</span>,
         <span class="ident">needs_peer_review</span>,
+        <span class="ident">use_course_default_peer_review_config</span>: <span class="bool-val">true</span>,
+        <span class="ident">peer_review_config</span>: <span class="prelude-val">None</span>,
+        <span class="ident">peer_review_questions</span>: <span class="prelude-val">None</span>,
     };
     <span class="kw">let</span> <span class="ident">exercise_slide</span> <span class="op">=</span> <span class="ident">CmsPageExerciseSlide</span> {
         <span class="ident">id</span>: <span class="ident">exercise_slide_id</span>,

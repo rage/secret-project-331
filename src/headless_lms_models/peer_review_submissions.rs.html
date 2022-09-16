@@ -196,7 +196,7 @@
     <span class="kw">pub</span> <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
 }
 
@@ -205,7 +205,7 @@
     <span class="ident">user_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">course_instance_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">peer_review_config_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
@@ -214,7 +214,7 @@ INSERT INTO peer_review_submissions (
     user_id,
     exercise_id,
     course_instance_id,
-    peer_review_id,
+    peer_review_config_id,
     exercise_slide_submission_id
   )
 VALUES ($1, $2, $3, $4, $5)
@@ -223,7 +223,7 @@ RETURNING id
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
         <span class="ident">course_instance_id</span>,
-        <span class="ident">peer_review_id</span>,
+        <span class="ident">peer_review_config_id</span>,
         <span class="ident">exercise_slide_submission_id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)

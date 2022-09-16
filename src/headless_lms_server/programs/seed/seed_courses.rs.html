@@ -2030,63 +2030,6 @@
 <span id="2024">2024</span>
 <span id="2025">2025</span>
 <span id="2026">2026</span>
-<span id="2027">2027</span>
-<span id="2028">2028</span>
-<span id="2029">2029</span>
-<span id="2030">2030</span>
-<span id="2031">2031</span>
-<span id="2032">2032</span>
-<span id="2033">2033</span>
-<span id="2034">2034</span>
-<span id="2035">2035</span>
-<span id="2036">2036</span>
-<span id="2037">2037</span>
-<span id="2038">2038</span>
-<span id="2039">2039</span>
-<span id="2040">2040</span>
-<span id="2041">2041</span>
-<span id="2042">2042</span>
-<span id="2043">2043</span>
-<span id="2044">2044</span>
-<span id="2045">2045</span>
-<span id="2046">2046</span>
-<span id="2047">2047</span>
-<span id="2048">2048</span>
-<span id="2049">2049</span>
-<span id="2050">2050</span>
-<span id="2051">2051</span>
-<span id="2052">2052</span>
-<span id="2053">2053</span>
-<span id="2054">2054</span>
-<span id="2055">2055</span>
-<span id="2056">2056</span>
-<span id="2057">2057</span>
-<span id="2058">2058</span>
-<span id="2059">2059</span>
-<span id="2060">2060</span>
-<span id="2061">2061</span>
-<span id="2062">2062</span>
-<span id="2063">2063</span>
-<span id="2064">2064</span>
-<span id="2065">2065</span>
-<span id="2066">2066</span>
-<span id="2067">2067</span>
-<span id="2068">2068</span>
-<span id="2069">2069</span>
-<span id="2070">2070</span>
-<span id="2071">2071</span>
-<span id="2072">2072</span>
-<span id="2073">2073</span>
-<span id="2074">2074</span>
-<span id="2075">2075</span>
-<span id="2076">2076</span>
-<span id="2077">2077</span>
-<span id="2078">2078</span>
-<span id="2079">2079</span>
-<span id="2080">2080</span>
-<span id="2081">2081</span>
-<span id="2082">2082</span>
-<span id="2083">2083</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_helpers</span>::{
     <span class="ident">create_best_exercise</span>, <span class="ident">create_page</span>, <span class="ident">example_exercise_flexible</span>, <span class="ident">paragraph</span>, <span class="ident">quizzes_exercise</span>,
     <span class="ident">submit_and_grade</span>,
@@ -2108,8 +2051,6 @@
     <span class="ident">page_history::HistoryChangeReason</span>,
     <span class="ident">pages</span>,
     <span class="ident">pages::CmsPageUpdate</span>,
-    <span class="ident">peer_review_questions</span>::{<span class="self">self</span>, <span class="ident">NewPeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
-    <span class="ident">peer_reviews</span>,
     <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
     <span class="ident">proposed_page_edits</span>,
     <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
@@ -3252,62 +3193,6 @@
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
-    <span class="comment">// peer reviews</span>
-    <span class="kw">let</span> <span class="ident">peer_review_id</span> <span class="op">=</span> <span class="ident">peer_reviews::insert_with_id</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64717822-ac25-4a7d-8298-f0ac39d73260&quot;</span>),
-        <span class="ident">course_id</span>,
-        <span class="prelude-val">None</span>,
-        <span class="number">2</span>,
-        <span class="number">1</span>,
-    )
-    .<span class="kw">await</span>
-    .<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">new_peer_review_question</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
-        <span class="ident">peer_review_id</span>,
-        <span class="ident">order_number</span>: <span class="number">0</span>,
-        <span class="ident">question</span>: <span class="string">&quot;General comments&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
-        <span class="ident">answer_required</span>: <span class="bool-val">false</span>,
-    };
-    <span class="kw">let</span> <span class="ident">_peer_review_question_1_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;64717822-ac25-4a7d-8298-f0ac39d73260&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question</span>,
-    )
-    .<span class="kw">await</span>
-    .<span class="ident">unwrap</span>();
-
-    <span class="kw">let</span> <span class="ident">new_peer_review_question2</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
-        <span class="ident">peer_review_id</span>,
-        <span class="ident">order_number</span>: <span class="number">1</span>,
-        <span class="ident">question</span>: <span class="string">&quot;The answer was correct&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Scale</span>,
-        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
-    };
-    <span class="kw">let</span> <span class="ident">_peer_review_question_2_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;6365df37-a9b5-4620-b2fb-926b0c29a954&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question2</span>,
-    )
-    .<span class="kw">await</span>
-    .<span class="ident">unwrap</span>();
-
-    <span class="kw">let</span> <span class="ident">new_peer_review_question3</span> <span class="op">=</span> <span class="ident">NewPeerReviewQuestion</span> {
-        <span class="ident">peer_review_id</span>,
-        <span class="ident">order_number</span>: <span class="number">2</span>,
-        <span class="ident">question</span>: <span class="string">&quot;The answer was easy to read&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Scale</span>,
-        <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
-    };
-    <span class="kw">let</span> <span class="ident">_peer_review_question_3_id</span> <span class="op">=</span> <span class="ident">peer_review_questions::insert_with_id</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;19b81b50-fc7f-4535-a285-8fc0604ed85c&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">new_peer_review_question3</span>,
-    )
-    .<span class="kw">await</span>
-    .<span class="ident">unwrap</span>();
-
     <span class="comment">// feedback</span>
     <span class="macro">info!</span>(<span class="string">&quot;sample feedback&quot;</span>);
     <span class="kw">let</span> <span class="ident">new_feedback</span> <span class="op">=</span> <span class="ident">NewFeedback</span> {
@@ -4134,6 +4019,7 @@
             <span class="ident">exercises</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_7</span>],
             <span class="ident">exercise_slides</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_slide_7</span>],
             <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">quizzes_exercise_task_7</span>],
+
             <span class="ident">content</span>: <span class="macro">serde_json::json!</span>([
                 <span class="ident">paragraph</span>(
                     <span class="string">&quot;Second chapters fifth page&quot;</span>,

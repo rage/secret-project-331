@@ -147,7 +147,7 @@
 }
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">setup_seed_environment</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">Postgres</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,sqlx=warn,headless_lms_models=warn&quot;</span>);
+    <span class="ident">env::set_var</span>(<span class="string">&quot;RUST_LOG&quot;</span>, <span class="string">&quot;info,sqlx=warn,headless_lms_models=info&quot;</span>);
 
     <span class="ident">dotenv::dotenv</span>().<span class="ident">ok</span>();
     <span class="ident">setup_tracing</span>()<span class="question-mark">?</span>;

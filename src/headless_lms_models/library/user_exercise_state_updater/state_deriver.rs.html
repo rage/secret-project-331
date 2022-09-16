@@ -763,12 +763,17 @@
 <span id="757">757</span>
 <span id="758">758</span>
 <span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
+    <span class="ident">peer_review_configs::PeerReviewAcceptingStrategy</span>,
     <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
-    <span class="ident">peer_reviews::PeerReviewAcceptingStrategy</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_exercise_states</span>::{<span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseStateUpdate</span>},
 };
@@ -1067,8 +1072,8 @@
         <span class="kw">use</span> <span class="kw">crate</span>::{
             <span class="ident">exercises::Exercise</span>,
             <span class="ident">library::user_exercise_state_updater::UserExerciseStateUpdateRequiredDataPeerReviewInformation</span>,
-            <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
-            <span class="ident">peer_review_submissions::PeerReviewSubmission</span>, <span class="ident">peer_reviews::PeerReview</span>,
+            <span class="ident">peer_review_configs::PeerReviewConfig</span>, <span class="ident">peer_review_queue_entries::PeerReviewQueueEntry</span>,
+            <span class="ident">peer_review_submissions::PeerReviewSubmission</span>,
             <span class="ident">user_exercise_slide_states::UserExerciseSlideStateGradingSummary</span>,
             <span class="ident">user_exercise_states::UserExerciseState</span>,
         };
@@ -1078,7 +1083,7 @@
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">updates_state_for_normal_exercise</span>() {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">false</span>);
+            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">false</span>, <span class="bool-val">false</span>);
             <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                 <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                 <span class="prelude-val">None</span>,
@@ -1110,7 +1115,7 @@
         <span class="attribute">#[<span class="ident">test</span>]</span>
         <span class="kw">fn</span> <span class="ident">doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed</span>() {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+            <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
             <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                 <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                 <span class="prelude-val">None</span>,
@@ -1149,7 +1154,7 @@
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_reject_by_average_works_gives_full_points</span>() {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1188,7 +1193,7 @@
             <span class="attribute">#[<span class="ident">test</span>]</span>
             <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_reject_by_average_works_gives_zero_points</span>() {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1233,7 +1238,7 @@
             <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_manual_review_by_average_works_gives_full_points</span>(
             ) {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1273,7 +1278,7 @@
             <span class="kw">fn</span> <span class="ident">peer_review_automatically_accept_or_manual_review_by_average_works_puts_the_answer_to_manual_review</span>(
             ) {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1318,7 +1323,7 @@
             <span class="kw">fn</span> <span class="ident">peer_review_manual_review_everything_works_does_not_give_full_points_to_passing_answer_and_puts_to_manual_review</span>(
             ) {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1358,7 +1363,7 @@
             <span class="kw">fn</span> <span class="ident">peer_review_manual_review_everything_works_puts_failing_answer_the_answer_to_manual_review</span>(
             ) {
                 <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>);
+                <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">create_exercise</span>(<span class="ident">CourseOrExamId::Course</span>(<span class="ident">id</span>), <span class="bool-val">true</span>, <span class="bool-val">true</span>);
                 <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">create_user_exercise_state</span>(
                     <span class="kw-2">&amp;</span><span class="ident">exercise</span>,
                     <span class="prelude-val">None</span>,
@@ -1407,7 +1412,11 @@
             <span class="macro">assert_eq!</span>(<span class="ident">update</span>.<span class="ident">reviewing_stage</span>, <span class="ident">reviewing_stage</span>);
         }
 
-        <span class="kw">fn</span> <span class="ident">create_exercise</span>(<span class="ident">course_or_exam_id</span>: <span class="ident">CourseOrExamId</span>, <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Exercise</span> {
+        <span class="kw">fn</span> <span class="ident">create_exercise</span>(
+            <span class="ident">course_or_exam_id</span>: <span class="ident">CourseOrExamId</span>,
+            <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
+            <span class="ident">use_course_default_peer_review_config</span>: <span class="ident">bool</span>,
+        ) -&gt; <span class="ident">Exercise</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
             <span class="kw">let</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) <span class="op">=</span> <span class="ident">course_or_exam_id</span>.<span class="ident">to_course_and_exam_ids</span>();
             <span class="ident">Exercise</span> {
@@ -1427,14 +1436,15 @@
                 <span class="ident">max_tries_per_slide</span>: <span class="prelude-val">None</span>,
                 <span class="ident">limit_number_of_tries</span>: <span class="bool-val">false</span>,
                 <span class="ident">needs_peer_review</span>,
+                <span class="ident">use_course_default_peer_review_config</span>,
             }
         }
 
         <span class="kw">fn</span> <span class="ident">create_peer_review_config</span>(
             <span class="ident">accepting_strategy</span>: <span class="ident">PeerReviewAcceptingStrategy</span>,
-        ) -&gt; <span class="ident">PeerReview</span> {
+        ) -&gt; <span class="ident">PeerReviewConfig</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;5f464818-1e68-4839-ae86-850b310f508c&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">PeerReview</span> {
+            <span class="ident">PeerReviewConfig</span> {
                 <span class="ident">id</span>,
                 <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
                 <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
@@ -1475,7 +1485,7 @@
                 <span class="ident">user_id</span>: <span class="ident">id</span>,
                 <span class="ident">exercise_id</span>: <span class="ident">id</span>,
                 <span class="ident">course_instance_id</span>: <span class="ident">id</span>,
-                <span class="ident">peer_review_id</span>: <span class="ident">id</span>,
+                <span class="ident">peer_review_config_id</span>: <span class="ident">id</span>,
                 <span class="ident">exercise_slide_submission_id</span>: <span class="ident">id</span>,
             }
         }

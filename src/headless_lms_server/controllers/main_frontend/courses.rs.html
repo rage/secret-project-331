@@ -916,6 +916,29 @@
 <span id="910">910</span>
 <span id="911">911</span>
 <span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -932,6 +955,8 @@
     <span class="ident">glossary</span>::{<span class="ident">Term</span>, <span class="ident">TermUpdate</span>},
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
     <span class="ident">pages::Page</span>,
+    <span class="ident">peer_review_configs::PeerReviewConfig</span>,
+    <span class="ident">peer_review_questions::PeerReviewQuestion</span>,
     <span class="ident">user_exercise_states::ExerciseUserCounts</span>,
 };
 
@@ -1709,6 +1734,23 @@ Creates redirects if url_path changes.
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
 }
 
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_default_peer_review</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>(<span class="ident">PeerReviewConfig</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::View</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span>
+        <span class="ident">models::peer_review_configs::get_default_for_course_by_course_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">peer_review_questions</span> <span class="op">=</span>
+        <span class="ident">models::peer_review_questions::get_all_by_peer_review_config_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">peer_review</span>.<span class="ident">id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>((<span class="ident">peer_review</span>, <span class="ident">peer_review_questions</span>)))
+}
+
 <span class="doccomment">/**
 POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
 
@@ -1822,6 +1864,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/course-modules&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">update_modules</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/default-peer-review&quot;</span>,
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_default_peer_review</span>),
         )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/update-peer-review-queue-reviews-received&quot;</span>,

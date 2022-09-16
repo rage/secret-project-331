@@ -15,7 +15,7 @@ expose the correct answers to the user.</p>
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record&lt;string, number&gt;
-  peer_review: PeerReview | null
+  peer_review_config: PeerReviewConfig | null
 }
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
   &quot;exercise&quot;: {
@@ -34,7 +34,8 @@ expose the correct answers to the user.</p>
     &quot;copied_from&quot;: null,
     &quot;max_tries_per_slide&quot;: 17,
     &quot;limit_number_of_tries&quot;: true,
-    &quot;needs_peer_review&quot;: false
+    &quot;needs_peer_review&quot;: false,
+    &quot;use_course_default_peer_review_config&quot;: false
   },
   &quot;can_post_submission&quot;: true,
   &quot;current_exercise_slide&quot;: {
@@ -118,7 +119,7 @@ expose the correct answers to the user.</p>
     &quot;7dea54af-3d38-4f7c-8969-ecb17b55ec02&quot;: 4,
     &quot;2794a98e-d594-40cf-949e-7cc011755a58&quot;: 2
   },
-  &quot;peer_review&quot;: {
+  &quot;peer_review_config&quot;: {
     &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
     &quot;created_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,
     &quot;updated_at&quot;: &quot;2021-12-31T22:00:00Z&quot;,

@@ -23,6 +23,8 @@ Content-Type: application/json
   exercises: Array&lt;CmsPageExercise&gt;
   exercise_slides: Array&lt;CmsPageExerciseSlide&gt;
   exercise_tasks: Array&lt;CmsPageExerciseTask&gt;
+  peer_review_configs: Array&lt;CmsPeerReviewConfig&gt;
+  peer_review_questions: Array&lt;CmsPeerReviewQuestion&gt;
   organization_id: string
 }
 </code></pre></div><h3 id="example-response"><a href="#example-response">Example response</a></h3><div class="example-wrap"><pre class="language-json"><code>{
@@ -68,7 +70,10 @@ Content-Type: application/json
       &quot;max_tries_per_slide&quot;: 17,
       &quot;limit_number_of_tries&quot;: true,
       &quot;deadline&quot;: null,
-      &quot;needs_peer_review&quot;: false
+      &quot;needs_peer_review&quot;: true,
+      &quot;peer_review_config&quot;: null,
+      &quot;peer_review_questions&quot;: null,
+      &quot;use_course_default_peer_review_config&quot;: true
     }
   ],
   &quot;exercise_slides&quot;: [
@@ -88,6 +93,27 @@ Content-Type: application/json
       &quot;exercise_type&quot;: &quot;quiz&quot;,
       &quot;private_spec&quot;: null,
       &quot;order_number&quot;: 1
+    }
+  ],
+  &quot;peer_review_configs&quot;: [
+    {
+      &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;course_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;exercise_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;peer_reviews_to_give&quot;: 1,
+      &quot;peer_reviews_to_receive&quot;: 1,
+      &quot;accepting_threshold&quot;: 0.3,
+      &quot;accepting_strategy&quot;: &quot;AutomaticallyAcceptOrManualReviewByAverage&quot;
+    }
+  ],
+  &quot;peer_review_questions&quot;: [
+    {
+      &quot;id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;peer_review_config_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+      &quot;order_number&quot;: 1,
+      &quot;question&quot;: &quot;what?&quot;,
+      &quot;question_type&quot;: &quot;Essay&quot;,
+      &quot;answer_required&quot;: true
     }
   ],
   &quot;organization_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;

@@ -677,12 +677,13 @@
 <span id="671">671</span>
 <span id="672">672</span>
 <span id="673">673</span>
+<span id="674">674</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_instances</span>, <span class="ident">exams</span>,
     <span class="ident">exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user</span>,
     <span class="ident">exercise_slides</span>::{<span class="self">self</span>, <span class="ident">CourseMaterialExerciseSlide</span>},
     <span class="ident">exercise_tasks</span>,
-    <span class="ident">peer_reviews::PeerReview</span>,
+    <span class="ident">peer_review_configs::PeerReviewConfig</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">user_course_settings</span>,
     <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">CourseInstanceOrExamId</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseState</span>},
@@ -690,7 +691,7 @@
 };
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Exercise</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
@@ -709,6 +710,7 @@
     <span class="kw">pub</span> <span class="ident">max_tries_per_slide</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">limit_number_of_tries</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">needs_peer_review</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">use_course_default_peer_review_config</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Exercise</span> {
@@ -728,7 +730,7 @@
     <span class="kw">pub</span> <span class="ident">exercise_status</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ExerciseStatus</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">ts</span>(<span class="kw">type</span> <span class="op">=</span> <span class="string">&quot;Record&lt;string, number&gt;&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="ident">exercise_slide_submission_counts</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">i64</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">peer_review</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReview</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">CourseMaterialExercise</span> {
@@ -937,9 +939,9 @@ WHERE chapter_id = $1
         <span class="ident">Exercise</span>,
         <span class="string">r#&quot;
 SELECT *
-FROM exercises
+  FROM exercises
 WHERE page_id = $1
-  AND deleted_at IS NULL
+  AND deleted_at IS NULL;
 &quot;#</span>,
         <span class="ident">page_id</span>,
     )
@@ -1037,9 +1039,9 @@ WHERE id = $1
         <span class="ident">HashMap::new</span>()
     };
 
-    <span class="kw">let</span> <span class="ident">peer_review</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span>, <span class="ident">exercise</span>.<span class="ident">course_id</span>) {
+    <span class="kw">let</span> <span class="ident">peer_review_config</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">exercise</span>.<span class="ident">needs_peer_review</span>, <span class="ident">exercise</span>.<span class="ident">course_id</span>) {
         (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">course_id</span>)) =&gt; {
-            <span class="ident"><span class="kw">crate</span>::peer_reviews::get_by_exercise_or_course_id</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_id</span>)
+            <span class="ident"><span class="kw">crate</span>::peer_review_configs::get_by_exercise_or_course_id</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="ident">course_id</span>)
                 .<span class="kw">await</span>
                 .<span class="ident">optional</span>()<span class="question-mark">?</span>
         }
@@ -1052,7 +1054,7 @@ WHERE id = $1
         <span class="ident">current_exercise_slide</span>,
         <span class="ident">exercise_status</span>,
         <span class="ident">exercise_slide_submission_counts</span>,
-        <span class="ident">peer_review</span>,
+        <span class="ident">peer_review_config</span>,
     })
 }
 

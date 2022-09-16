@@ -61,8 +61,11 @@ use headless_lms_models::{
         CoursePageWithUserData, IsChapterFrontPage, Page, PageChapterAndCourseInformation,
         PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
-    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews::{PeerReview, PeerReviewAcceptingStrategy},
+    peer_review_configs::{
+        CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
+        PeerReviewConfig,
+    },
+    peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
@@ -185,6 +188,7 @@ pub async fn main() -> anyhow::Result<()> {
         max_tries_per_slide: Some(17),
         limit_number_of_tries: true,
         needs_peer_review: false,
+        use_course_default_peer_review_config: false,
     };
     let exercise_slide_submission = ExerciseSlideSubmission {
         id,
@@ -302,13 +306,13 @@ pub async fn main() -> anyhow::Result<()> {
         created_at,
         updated_at,
         deleted_at,
-        peer_review_id: id,
+        peer_review_config_id: id,
         order_number: 0,
         question: "Was the answer well thought out?".to_string(),
         question_type: PeerReviewQuestionType::Essay,
         answer_required: true,
     };
-    let peer_review = PeerReview {
+    let peer_review_config = PeerReviewConfig {
         id,
         created_at,
         updated_at,
@@ -333,7 +337,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let course_material_peer_review_submission = CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id: exercise_slide_submission.id,
-        peer_review_id: peer_review.id,
+        peer_review_config_id: peer_review_config.id,
         peer_review_question_answers: vec![CourseMaterialPeerReviewQuestionAnswer {
             peer_review_question_id: id,
             text_data: Some("I think that the answer was well written.".to_string()),
@@ -427,7 +431,10 @@ pub async fn main() -> anyhow::Result<()> {
                 max_tries_per_slide: Some(17),
                 limit_number_of_tries: true,
                 deadline: None,
-                needs_peer_review: false,
+                needs_peer_review: true,
+                use_course_default_peer_review_config: true,
+                peer_review_config: None,
+                peer_review_questions: None
             }],
             exercise_slides: vec![CmsPageExerciseSlide {
                 id,
@@ -441,6 +448,24 @@ pub async fn main() -> anyhow::Result<()> {
                 exercise_type: "quiz".to_string(),
                 private_spec: None,
                 order_number: 1,
+            }],
+            peer_review_configs: vec![CmsPeerReviewConfig {
+                id,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+                accepting_threshold: 0.3,
+                course_id: id,
+                exercise_id: Some(id),
+                peer_reviews_to_give: 1,
+                peer_reviews_to_receive: 1,
+            }],
+            peer_review_questions: vec![CmsPeerReviewQuestion {
+                id,
+                answer_required: true,
+                order_number: 1,
+                peer_review_config_id: id,
+                question: "what?".to_string(),
+                question_type: PeerReviewQuestionType::Essay
             }],
             organization_id: id,
         }
@@ -465,7 +490,7 @@ pub async fn main() -> anyhow::Result<()> {
             }
         ]
     );
-    write_docs!(PeerReview, peer_review.clone());
+    write_docs!(PeerReviewConfig, peer_review_config.clone());
     write_docs!(PeerReviewQuestion, peer_review_question.clone());
     write_docs!(Vec<PeerReviewQuestion>, vec![peer_review_question.clone()]);
     write_docs!(
@@ -645,7 +670,7 @@ pub async fn main() -> anyhow::Result<()> {
                     4_i64
                 )
             ]),
-            peer_review: Some(PeerReview {
+            peer_review_config: Some(PeerReviewConfig {
                 id,
                 created_at,
                 updated_at,
@@ -1021,7 +1046,7 @@ pub async fn main() -> anyhow::Result<()> {
     write_docs!(
         CourseMaterialPeerReviewData,
         CourseMaterialPeerReviewData {
-            peer_review: peer_review.clone(),
+            peer_review_config: peer_review_config.clone(),
             peer_review_questions: vec![peer_review_question.clone()],
 
             num_peer_reviews_given: 2,
@@ -1216,6 +1241,29 @@ pub async fn main() -> anyhow::Result<()> {
             slug: "example-exercise".to_string(),
             public_iframe_url: "https://example.com/iframe".to_string()
         }]
+    );
+    write_docs!(
+        CmsPeerReviewConfiguration,
+        CmsPeerReviewConfiguration {
+            peer_review_config: CmsPeerReviewConfig {
+                id,
+                exercise_id: None,
+                course_id: id,
+                accepting_strategy:
+                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+                accepting_threshold: 0.5,
+                peer_reviews_to_give: 2,
+                peer_reviews_to_receive: 1
+            },
+            peer_review_questions: vec![CmsPeerReviewQuestion {
+                id,
+                answer_required: true,
+                order_number: 0,
+                peer_review_config_id: id,
+                question: "test".to_string(),
+                question_type: PeerReviewQuestionType::Essay
+            }]
+        }
     );
     write_docs!(
         Vec<ExerciseRepository>,

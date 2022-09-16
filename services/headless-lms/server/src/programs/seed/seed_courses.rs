@@ -19,8 +19,6 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages,
     pages::CmsPageUpdate,
-    peer_review_questions::{self, NewPeerReviewQuestion, PeerReviewQuestionType},
-    peer_reviews,
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
@@ -1171,62 +1169,6 @@ pub async fn seed_sample_course(
         .await?;
     }
 
-    // peer reviews
-    let peer_review_id = peer_reviews::insert_with_id(
-        &mut conn,
-        Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
-        course_id,
-        None,
-        2,
-        1,
-    )
-    .await
-    .unwrap();
-    let new_peer_review_question = NewPeerReviewQuestion {
-        peer_review_id,
-        order_number: 0,
-        question: "General comments".to_string(),
-        question_type: PeerReviewQuestionType::Essay,
-        answer_required: false,
-    };
-    let _peer_review_question_1_id = peer_review_questions::insert_with_id(
-        &mut conn,
-        Uuid::new_v5(&course_id, b"64717822-ac25-4a7d-8298-f0ac39d73260"),
-        &new_peer_review_question,
-    )
-    .await
-    .unwrap();
-
-    let new_peer_review_question2 = NewPeerReviewQuestion {
-        peer_review_id,
-        order_number: 1,
-        question: "The answer was correct".to_string(),
-        question_type: PeerReviewQuestionType::Scale,
-        answer_required: true,
-    };
-    let _peer_review_question_2_id = peer_review_questions::insert_with_id(
-        &mut conn,
-        Uuid::new_v5(&course_id, b"6365df37-a9b5-4620-b2fb-926b0c29a954"),
-        &new_peer_review_question2,
-    )
-    .await
-    .unwrap();
-
-    let new_peer_review_question3 = NewPeerReviewQuestion {
-        peer_review_id,
-        order_number: 2,
-        question: "The answer was easy to read".to_string(),
-        question_type: PeerReviewQuestionType::Scale,
-        answer_required: true,
-    };
-    let _peer_review_question_3_id = peer_review_questions::insert_with_id(
-        &mut conn,
-        Uuid::new_v5(&course_id, b"19b81b50-fc7f-4535-a285-8fc0604ed85c"),
-        &new_peer_review_question3,
-    )
-    .await
-    .unwrap();
-
     // feedback
     info!("sample feedback");
     let new_feedback = NewFeedback {
@@ -2056,6 +1998,7 @@ pub async fn seed_cs_course_material(
             exercises: vec![quizzes_exercise_7],
             exercise_slides: vec![quizzes_exercise_slide_7],
             exercise_tasks: vec![quizzes_exercise_task_7],
+
             content: serde_json::json!([
                 paragraph(
                     "Second chapters fifth page",

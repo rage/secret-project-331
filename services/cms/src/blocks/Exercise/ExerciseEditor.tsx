@@ -5,7 +5,9 @@ import { BlockEditProps } from "@wordpress/blocks"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
+import PeerReviewEditor from "../../components/PeerReviewEditor"
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
+import PageContext from "../../contexts/PageContext"
 import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Centered from "../../shared-module/components/Centering/Centered"
@@ -40,6 +42,8 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
   const handleAddNewSlide = () => {
     dispatch({ type: "addExerciseSlide", payload: { clientId } })
   }
+
+  const courseId = useContext(PageContext)?.page.course_id
 
   return (
     <BreakFromCentered {...breakFromCenteredProps}>
@@ -139,6 +143,15 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                   `}
                 />
               </div>
+              {courseId && (
+                <PeerReviewEditor
+                  attributes={attributes}
+                  setAttributes={setAttributes}
+                  exerciseId={attributes.id}
+                  courseId={courseId}
+                  courseGlobalEditor={false}
+                />
+              )}
             </div>
             <div className={gutenbergControlsHidden}>
               <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
@@ -148,6 +161,11 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 {t("add-slide")}
               </Button>
             </div>
+            <div
+              className={css`
+                margin-top: 1rem;
+              `}
+            ></div>
           </ExerciseEditorCard>
         </Centered>
       </div>

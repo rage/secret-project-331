@@ -18,7 +18,13 @@
   ],
   "users_with_course_module_completions": [
     {
-      "completed_modules": ["307fa56f-9853-4f5c-afb9-a6736c232f32"],
+      "completed_modules": [
+        {
+          "course_module_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+          "grade": 4,
+          "passed": true
+        }
+      ],
       "email": "student@example.com",
       "first_name": "Student",
       "last_name": "Student",

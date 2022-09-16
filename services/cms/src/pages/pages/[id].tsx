@@ -3,6 +3,7 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
 import Layout from "../../components/Layout"
+import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
@@ -73,12 +74,14 @@ const Pages = ({ query }: PagesProps) => {
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
       {getPage.isLoading && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
-        <PageEditor
-          data={getPage.data}
-          saveMutation={mutate}
-          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-        />
+        <PageContext.Provider value={{ page: getPage.data }}>
+          <PageEditor
+            data={getPage.data}
+            saveMutation={mutate}
+            needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+            setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+          />
+        </PageContext.Provider>
       )}
     </Layout>
   )

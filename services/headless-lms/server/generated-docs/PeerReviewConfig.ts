@@ -1,4 +1,4 @@
-type PeerReview = {
+type PeerReviewConfig = {
   id: string
   created_at: Date
   updated_at: Date

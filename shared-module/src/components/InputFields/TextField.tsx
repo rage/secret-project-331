@@ -15,7 +15,7 @@ interface TextFieldExtraProps {
   error?: string
   placeholder?: string
   required?: boolean
-  value?: string
+  value?: string | number
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
   onChange?: (value: string, name?: string) => void
@@ -24,6 +24,8 @@ interface TextFieldExtraProps {
   id?: string
   defaultValue?: string
   register?: UseFormRegisterReturn
+  min?: number
+  step?: string
 }
 
 const ERRORCOLOR = "#F76D82"

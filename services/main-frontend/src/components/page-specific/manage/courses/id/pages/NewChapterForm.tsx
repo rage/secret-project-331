@@ -81,7 +81,6 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        console.log(data)
         submitMutation.mutate({
           course_id: courseId,
           name: data.name,

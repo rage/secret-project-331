@@ -102,9 +102,9 @@ test("mange course structure works", async ({ headless, page }) => {
   // Click text=Operation successful!
   await page.waitForSelector("text=Operation successful!")
 
-  /*   await page.waitForSelector(
-        `:text("Chapter 1: The Basics"):below(:text("Chapter 2: The Intermediaries"))`,
-      ) */
+  await page.waitForSelector(
+    `:text("Chapter 2: The Basics"):below(:text("Chapter 1: The intermediaries TEST change"))`,
+  )
 
   await expectScreenshotsToMatchSnapshots({
     page,

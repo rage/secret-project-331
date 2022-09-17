@@ -42,19 +42,6 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.waitForSelector(`:text("Page One"):below(:text("Page 2"))`)
   await page.waitForSelector(`:text("Page 5"):below(:text("Page 6"))`)
 
-  // Click text=Chapter 1: The Basics >> [aria-label="Dropdown\ menu"]
-  await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
-  // Click text=Move down
-  await page.click("text=Move down")
-  // Click button:text-is("Save")
-  await page.click('button:text-is("Save")')
-  // Click text=Operation successful!
-  await page.waitForSelector("text=Operation successful!")
-
-  /*   await page.waitForSelector(
-    `:text("Chapter 1: The Basics"):below(:text("Chapter 2: The Intermediaries"))`,
-  ) */
-
   // Click text=Page 4/chapter-1/page-4Edit page >> [aria-label="Dropdown\ menu"]
   await page.click('text=Page 4/chapter-1/page-4Edit page >> [aria-label="Dropdown\\ menu"]')
   // Click text=Delete
@@ -105,6 +92,19 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.click('button:text-is("Save")')
   // Click text=Operation successful!
   await page.waitForSelector("text=Operation successful!")
+
+  // Click text=Chapter 1: The Basics >> [aria-label="Dropdown\ menu"]
+  await page.click('text=Chapter 1: The Basics >> [aria-label="Dropdown\\ menu"]')
+  // Click text=Move down
+  await page.click("text=Move down")
+  // Click button:text-is("Save")
+  await page.click('button:text-is("Save")')
+  // Click text=Operation successful!
+  await page.waitForSelector("text=Operation successful!")
+
+  /*   await page.waitForSelector(
+        `:text("Chapter 1: The Basics"):below(:text("Chapter 2: The Intermediaries"))`,
+      ) */
 
   await expectScreenshotsToMatchSnapshots({
     page,

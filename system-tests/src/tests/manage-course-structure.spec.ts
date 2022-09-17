@@ -50,10 +50,10 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.click('button:text-is("Save")')
   // Click text=Operation successful!
   await page.waitForSelector("text=Operation successful!")
-  await page.waitForTimeout(100)
-  await page.waitForSelector(
+
+  /*   await page.waitForSelector(
     `:text("Chapter 1: The Basics"):below(:text("Chapter 2: The Intermediaries"))`,
-  )
+  ) */
 
   // Click text=Page 4/chapter-1/page-4Edit page >> [aria-label="Dropdown\ menu"]
   await page.click('text=Page 4/chapter-1/page-4Edit page >> [aria-label="Dropdown\\ menu"]')

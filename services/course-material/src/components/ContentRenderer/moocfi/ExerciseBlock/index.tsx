@@ -286,7 +286,7 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
 
-          {getCourseMaterialExercise.data.peer_review && (
+          {getCourseMaterialExercise.data.peer_review_config && (
             <div
               className={css`
                 padding: 1rem;
@@ -301,7 +301,7 @@ const ExerciseBlock: React.FC<
                 ? t("help-text-answer-has-been-reviewed-and-locked")
                 : t("help-text-exercise-involves-peer-review", {
                     peer_reviews_to_give:
-                      getCourseMaterialExercise.data.peer_review.peer_reviews_to_give,
+                      getCourseMaterialExercise.data.peer_review_config.peer_reviews_to_give,
                   })}
             </div>
           )}

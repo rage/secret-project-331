@@ -4,5 +4,5 @@ type CourseMaterialExercise = {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review: PeerReview | null
+  peer_review_config: PeerReviewConfig | null
 }

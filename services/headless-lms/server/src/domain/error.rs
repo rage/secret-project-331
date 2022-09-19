@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, fmt::Write};
 
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
@@ -9,10 +9,10 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use headless_lms_models::{ModelError, ModelErrorType};
-use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
-use itertools::Itertools;
+use headless_lms_utils::error::{
+    backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
+};
 use serde::{Deserialize, Serialize};
-use std::fmt::Write as _;
 use tracing_error::SpanTrace;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
@@ -57,7 +57,6 @@ Represents error messages that are sent in responses.
 }
 ```
 */
-#[derive(Debug)]
 pub struct ControllerError {
     error_type: <ControllerError as BackendError>::ErrorType,
     message: String,
@@ -67,6 +66,25 @@ pub struct ControllerError {
     span_trace: SpanTrace,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Backtrace,
+}
+
+/// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
+impl std::fmt::Debug for ControllerError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ControllerError")
+            .field("error_type", &self.error_type)
+            .field("message", &self.message)
+            .field("source", &self.source)
+            .finish()?;
+
+        f.write_str("\n\nOperating system thread stack backtrace:\n")?;
+        format_backtrace(&self.backtrace, f)?;
+
+        f.write_str("\n\nTokio tracing span trace:\n")?;
+        f.write_fmt(format_args!("{}\n", &self.span_trace))?;
+
+        Ok(())
+    }
 }
 
 impl std::error::Error for ControllerError {

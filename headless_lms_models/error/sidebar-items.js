@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ModelError",""]],"trait":[["TryToOptional",""]],"type":[["ModelResult",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["ModelErrorType","The type of [ModelError] that occured."]],"struct":[["ModelError","Error type used by all models. Used as the error type in [ModelError], which is used by all the controllers in the application."]],"trait":[["TryToOptional",""]],"type":[["ModelResult","Used as the result types for all models."]]};

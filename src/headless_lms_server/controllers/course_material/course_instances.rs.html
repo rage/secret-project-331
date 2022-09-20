@@ -185,7 +185,7 @@
     <span class="ident">user_exercise_states</span>::{<span class="ident">UserCourseInstanceChapterExerciseProgress</span>, <span class="ident">UserCourseInstanceProgress</span>},
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization::skip_authorize</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.

@@ -48,7 +48,7 @@
 <span id="42">42</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models::glossary</span>::{<span class="self">self</span>, <span class="ident">TermUpdate</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">update</span>(

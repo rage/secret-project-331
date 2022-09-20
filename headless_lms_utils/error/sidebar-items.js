@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["backend_error","Contains a common trait for all the error types for this application."],["backtrace_formatter","Custom formatting for stack backtraces inteded to be printed to the console for developers."],["util_error","Contains error and result types for all the util functions."]]};

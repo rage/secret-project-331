@@ -22,7 +22,7 @@
 <span id="16">16</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">futures::Future</span>;
 
-<span class="doccomment">/// For use with join! or try_join! Makes the future to run parallelly with other tasks instead of concurrently. See: https://docs.rs/tokio/latest/tokio/macro.try_join.html#runtime-characteristics</span>
+<span class="doccomment">/// For use with join! or try_join! Makes the future to run parallelly with other tasks instead of concurrently. See: &lt;https://docs.rs/tokio/latest/tokio/macro.try_join.html#runtime-characteristics&gt;.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run_parallelly</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
     <span class="ident">future</span>: <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">std::marker::Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
 ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>

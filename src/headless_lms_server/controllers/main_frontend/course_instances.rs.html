@@ -396,6 +396,8 @@
 <span id="390">390</span>
 <span id="391">391</span>
 <span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
@@ -417,8 +419,8 @@
 <span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">domain::csv_export</span>::{<span class="self">self</span>, <span class="ident">make_authorized_streamable</span>, <span class="ident">CSVExportAdapter</span>},
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
 };
 
 <span class="doccomment">/**
@@ -638,8 +640,10 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
     <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">course_modules::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">data</span>.<span class="ident">course_module_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">if</span> <span class="ident">course_module</span>.<span class="ident">course_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">instance</span>.<span class="ident">course_id</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+            <span class="ident">ControllerErrorType::BadRequest</span>,
             <span class="string">&quot;Course module not part of the course.&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         ));
     }
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;

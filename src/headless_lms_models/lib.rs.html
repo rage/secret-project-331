@@ -107,6 +107,11 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Functions and structs for interacting with the database.
 
@@ -164,13 +169,14 @@ Each submodule corresponds to a database table.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
-<span class="kw">mod</span> <span class="ident">prelude</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prelude</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">test_helper</span>;
 
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::error</span>::{<span class="ident">ModelError</span>, <span class="ident">ModelResult</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::error</span>::{<span class="ident">ModelError</span>, <span class="ident">ModelErrorType</span>, <span class="ident">ModelResult</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">tracing</span>;
@@ -187,11 +193,15 @@ Each submodule corresponds to a database table.
         <span class="kw">match</span> (<span class="ident">course_id</span>, <span class="ident">exam_id</span>) {
             (<span class="prelude-val">Some</span>(<span class="ident">course_id</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Course</span>(<span class="ident">course_id</span>)),
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Exam</span>(<span class="ident">exam_id</span>)),
-            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+                <span class="ident">ModelErrorType::Generic</span>,
                 <span class="string">&quot;Database row had both a course id and an exam id&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None</span>,
             )),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+                <span class="ident">ModelErrorType::Generic</span>,
                 <span class="string">&quot;Database row did not have a course id or an exam id&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None</span>,
             )),
         }
     }

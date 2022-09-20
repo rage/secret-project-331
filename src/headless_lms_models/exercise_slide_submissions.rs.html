@@ -699,6 +699,10 @@
 <span id="693">693</span>
 <span id="694">694</span>
 <span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
@@ -758,7 +762,11 @@
 <span class="kw">impl</span> <span class="ident">ExerciseSlideSubmission</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_course_instance_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">course_instance_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">ModelError::Generic</span>(<span class="string">&quot;Submission is not related to a course instance.&quot;</span>.<span class="ident">to_string</span>())
+            <span class="ident">ModelError::new</span>(
+                <span class="ident">ModelErrorType::Generic</span>,
+                <span class="string">&quot;Submission is not related to a course instance.&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None</span>,
+            )
         })
     }
 }

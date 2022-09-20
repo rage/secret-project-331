@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["RequestSpan",""],["RequestSpanMiddleware","Wraps HTTP requests into tokio tracing spans, helps with debugging."]]};

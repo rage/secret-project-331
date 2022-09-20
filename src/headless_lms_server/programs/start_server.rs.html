@@ -145,6 +145,8 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">sync::Arc</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">setup_tracing</span>, <span class="ident">OAuthClient</span>};
@@ -244,7 +246,9 @@
                 ))
                 .<span class="ident">build</span>(),
             )
-            .<span class="ident">wrap</span>(<span class="ident">Logger::new</span>(<span class="string">&quot;%r %s %b bytes - %D ms&quot;</span>))
+            .<span class="ident">wrap</span>(<span class="ident">Logger::new</span>(
+                <span class="string">&quot;Completed %r %s %b bytes - %D ms, request_id=%{request-id}o&quot;</span>,
+            ))
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">db_clone</span>.<span class="ident">clone</span>())) <span class="comment">// pass app_databData::new(ase pool to application so we can access it inside handlers</span>
             .<span class="ident">app_data</span>(<span class="ident">Data::new</span>(<span class="ident">oauth_client</span>.<span class="ident">clone</span>()))
     });

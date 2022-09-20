@@ -463,6 +463,10 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercises</span>,
     <span class="ident">library</span>::{<span class="self">self</span>, <span class="ident">peer_reviewing::CourseMaterialPeerReviewData</span>},
@@ -774,13 +778,17 @@ RETURNING id
                 .<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
             } <span class="kw">else</span> {
-                <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+                <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+                    <span class="ident">ModelErrorType::PreconditionFailed</span>,
                     <span class="string">&quot;You cannot peer review yet&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="prelude-val">None</span>,
                 ))
             }
         }
-        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::InvalidRequest</span>(
+        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+            <span class="ident">ModelErrorType::InvalidRequest</span>,
             <span class="string">&quot;You haven&#39;t answered this exercise&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         )),
     }
 }

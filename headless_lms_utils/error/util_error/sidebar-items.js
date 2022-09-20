@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["UtilErrorType","The type of [UtilError] that occured."]],"struct":[["UtilError","Error type used by all models. Used as the error type in [UtilError], which is used by all the controllers in the application."]],"type":[["UtilResult","Used as the result types for all utils."]]};

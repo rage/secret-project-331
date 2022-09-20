@@ -456,6 +456,14 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
@@ -659,7 +667,13 @@ WHERE id = (
 
         <span class="kw">let</span> (<span class="ident">exercise_service</span>, <span class="ident">service_info</span>) <span class="op">=</span> <span class="ident">exercise_service_slug_to_service_and_info</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::InvalidRequest</span>(<span class="string">&quot;Exercise service not found&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">ModelError::new</span>(
+                    <span class="ident">ModelErrorType::InvalidRequest</span>,
+                    <span class="string">&quot;Exercise service not found&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="prelude-val">None</span>,
+                )
+            })<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exercise_iframe_url</span> <span class="op">=</span>
             <span class="ident">exercise_services::get_exercise_service_externally_preferred_baseurl</span>(<span class="ident">exercise_service</span>)<span class="question-mark">?</span>;
         <span class="ident">exercise_iframe_url</span>.<span class="ident">set_path</span>(<span class="kw-2">&amp;</span><span class="ident">service_info</span>.<span class="ident">user_interface_iframe_path</span>);
@@ -798,8 +812,10 @@ WHERE exercise_slide_id = ANY($1)
         <span class="ident">get_course_material_exercise_tasks</span>(<span class="ident">conn</span>, <span class="ident">selected_exercise_slide_id</span>, <span class="prelude-val">Some</span>(<span class="ident">user_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="macro">info!</span>(<span class="string">&quot;got tasks&quot;</span>);
     <span class="kw">if</span> <span class="ident">exercise_tasks</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::PreconditionFailed</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+            <span class="ident">ModelErrorType::PreconditionFailed</span>,
             <span class="string">&quot;Missing exercise definition.&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         ));
     }
 

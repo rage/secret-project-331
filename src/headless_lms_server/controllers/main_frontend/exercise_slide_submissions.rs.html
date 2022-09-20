@@ -121,7 +121,11 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">exercises::get_exercise_by_id</span>,
@@ -192,7 +196,11 @@ PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-at
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">action</span> <span class="op">==</span> <span class="ident">TeacherDecisionType::SuspectedPlagiarism</span> {
         <span class="ident">points_given</span> <span class="op">=</span> <span class="number">0.0</span>;
     } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(<span class="string">&quot;Invalid query&quot;</span>.<span class="ident">to_string</span>()));
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+            <span class="ident">ControllerErrorType::BadRequest</span>,
+            <span class="string">&quot;Invalid query&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
+        ));
     }
 
     <span class="macro">info!</span>(

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"trait":[["BackendError","The error types of this program all implement this trait for interoperability."]]};

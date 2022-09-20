@@ -939,6 +939,8 @@
 <span id="933">933</span>
 <span id="934">934</span>
 <span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -960,7 +962,7 @@
     <span class="ident">user_exercise_states::ExerciseUserCounts</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -1004,8 +1006,10 @@ Content-Type: application/json
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">new_course</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
     <span class="kw">if</span> <span class="op">!</span><span class="ident">is_ietf_language_code_like</span>(<span class="kw-2">&amp;</span><span class="ident">new_course</span>.<span class="ident">language_code</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::BadRequest</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+            <span class="ident">ControllerErrorType::BadRequest</span>,
             <span class="string">&quot;Malformed language code.&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         ));
     }
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(

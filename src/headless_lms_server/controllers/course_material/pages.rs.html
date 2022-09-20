@@ -127,7 +127,7 @@
 <span id="121">121</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/pages`.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">controllers::prelude</span>::<span class="kw-2">*</span>, <span class="ident">domain::authorization::skip_authorize</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="ident">models::pages</span>::{
     <span class="ident">IsChapterFrontPage</span>, <span class="ident">Page</span>, <span class="ident">PageChapterAndCourseInformation</span>, <span class="ident">PageNavigationInformation</span>,
 };

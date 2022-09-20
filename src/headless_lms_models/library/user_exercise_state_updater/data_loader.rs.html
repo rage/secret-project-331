@@ -315,6 +315,12 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>,
     <span class="ident">exercises::Exercise</span>,
@@ -527,9 +533,11 @@
             <span class="ident">conn</span>,
             <span class="ident">loaded_user_exercise_state</span>.<span class="ident">exercise_id</span>,
             <span class="ident">loaded_exercise</span>.<span class="ident">course_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ModelError::InvalidRequest</span>(
+                <span class="ident">ModelError::new</span>(
+                    <span class="ident">ModelErrorType::InvalidRequest</span>,
                     <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
                         .<span class="ident">to_string</span>(),
+                    <span class="prelude-val">None</span>,
                 )
             })<span class="question-mark">?</span>,
         )
@@ -552,9 +560,11 @@
             <span class="ident">loaded_user_exercise_state</span>
                 .<span class="ident">course_instance_id</span>
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::InvalidRequest</span>(
+                    <span class="ident">ModelError::new</span>(
+                        <span class="ident">ModelErrorType::InvalidRequest</span>,
                         <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
                             .<span class="ident">to_string</span>(),
+                        <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
         <span class="comment">// The result is optinal because not all answers are in the peer review queue yet. For example, we don&#39;t place any answers to the queue if their giver has not given enough peer reviews.</span>
@@ -591,7 +601,7 @@
         <span class="prelude-val">Ok</span>(<span class="ident">latest_exercise_slide_submission</span>)
     } <span class="kw">else</span> {
         <span class="macro">info!</span>(<span class="string">&quot;Loading latest exercise slide submission&quot;</span>);
-        <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span> <span class="ident">loaded_user_exercise_state</span>.<span class="ident">selected_exercise_slide_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::PreconditionFailed</span>(<span class="string">&quot;No selected exercise slide id found: presumably the user has not answered the exercise.&quot;</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">selected_exercise_slide_id</span> <span class="op">=</span> <span class="ident">loaded_user_exercise_state</span>.<span class="ident">selected_exercise_slide_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ModelError::new</span>(<span class="ident">ModelErrorType::PreconditionFailed</span>, <span class="string">&quot;No selected exercise slide id found: presumably the user has not answered the exercise.&quot;</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
         <span class="comment">// Received peer reviews are only considered for the latest submission.</span>
         <span class="kw">let</span> <span class="ident">latest_exercise_slide_submission</span> <span class="op">=</span>
             <span class="ident"><span class="kw">crate</span>::exercise_slide_submissions::get_users_latest_exercise_slide_submission</span>(
@@ -618,9 +628,11 @@
             <span class="ident">loaded_user_exercise_state</span>
                 .<span class="ident">course_instance_id</span>
                 .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">ModelError::InvalidRequest</span>(
+                    <span class="ident">ModelError::new</span>(
+                        <span class="ident">ModelErrorType::InvalidRequest</span>,
                         <span class="string">&quot;Peer reviews work only on courses (and not, for example, on exams)&quot;</span>
                             .<span class="ident">to_string</span>(),
+                        <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">peer_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise</span>(<span class="ident">conn</span>, <span class="ident">loaded_user_exercise_state</span>.<span class="ident">user_id</span>, <span class="ident">course_instance_id</span>, <span class="ident">loaded_user_exercise_state</span>.<span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span>)

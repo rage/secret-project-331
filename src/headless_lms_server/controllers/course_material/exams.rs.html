@@ -203,13 +203,23 @@
 <span id="197">197</span>
 <span id="198">198</span>
 <span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Duration</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">exams</span>::{<span class="self">self</span>, <span class="ident">ExamEnrollment</span>},
     <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">Page</span>},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::controllers::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/**
 GET /api/v0/course-material/exams/:id/enrollment
@@ -244,7 +254,11 @@ POST /api/v0/course-material/exams/:id/enroll
     <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Utc::now</span>();
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span> {
         <span class="kw">if</span> <span class="ident">ends_at</span> <span class="op">&lt;</span> <span class="ident">now</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(<span class="string">&quot;Exam is over&quot;</span>.<span class="ident">to_string</span>()));
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+                <span class="ident">ControllerErrorType::Forbidden</span>,
+                <span class="string">&quot;Exam is over&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None</span>,
+            ));
         }
     }
 
@@ -258,8 +272,10 @@ POST /api/v0/course-material/exams/:id/enroll
     }
 
     <span class="comment">// no start time defined or it&#39;s still upcoming</span>
-    <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(
+    <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+        <span class="ident">ControllerErrorType::Forbidden</span>,
         <span class="string">&quot;Exam has not started yet&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="prelude-val">None</span>,
     ))
 }
 
@@ -306,15 +322,19 @@ GET /api/v0/course-material/exams/:id
     <span class="kw">let</span> <span class="ident">starts_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">starts_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">starts_at</span> {
         <span class="ident">starts_at</span>
     } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+            <span class="ident">ControllerErrorType::Forbidden</span>,
             <span class="string">&quot;Cannot fetch exam that has no start time&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         ));
     };
     <span class="kw">let</span> <span class="ident">ends_at</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ends_at</span>) <span class="op">=</span> <span class="ident">exam</span>.<span class="ident">ends_at</span> {
         <span class="ident">ends_at</span>
     } <span class="kw">else</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::Forbidden</span>(
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+            <span class="ident">ControllerErrorType::Forbidden</span>,
             <span class="string">&quot;Cannot fetch exam that has no end time&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="prelude-val">None</span>,
         ));
     };
 

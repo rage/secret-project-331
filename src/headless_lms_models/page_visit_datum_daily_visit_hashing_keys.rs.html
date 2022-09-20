@@ -90,6 +90,8 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::page_visit_hasher::hash_anonymous_identifier</span>;
 
@@ -111,7 +113,7 @@
         <span class="ident">input</span>.<span class="ident">user_agent</span>,
         <span class="ident">input</span>.<span class="ident">ip_address</span>,
     )
-    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">ModelError::Generic</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))<span class="question-mark">?</span>;
+    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">ModelError::new</span>(<span class="ident">ModelErrorType::Generic</span>, <span class="ident">e</span>.<span class="ident">to_string</span>(), <span class="prelude-val">Some</span>(<span class="ident">e</span>)))<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">hash</span>)
 }
 
@@ -126,8 +128,10 @@
             <span class="kw">let</span> <span class="ident">second_try</span> <span class="op">=</span> <span class="ident">try_get_key_for_the_day_internal</span>(<span class="ident">conn</span>, <span class="ident">valid_for_date</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">match</span> <span class="ident">second_try</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">hashing_key</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">hashing_key</span>),
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::Generic</span>(
+                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ModelError::new</span>(
+                    <span class="ident">ModelErrorType::Generic</span>,
                     <span class="string">&quot;Failed to get hashing key for the day&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="prelude-val">None</span>,
                 )),
             }
         }

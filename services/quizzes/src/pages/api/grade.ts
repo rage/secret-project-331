@@ -241,12 +241,6 @@ function getMultipleChoicePointsByGradingPolicy(
 
   let totalScore = 0
   switch (quizItem.multipleChoiceMultipleOptionsGradingPolicy) {
-    case "default":
-      totalScore =
-        countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
-          ? totalCorrectAnswers
-          : 0
-      break
     case "points-off-incorrect-options":
       totalScore = Math.max(0, countOfCorrectAnswers - countOfIncorrectAnswers)
       break
@@ -255,6 +249,12 @@ function getMultipleChoicePointsByGradingPolicy(
         0,
         countOfCorrectAnswers * 2 - totalCorrectAnswers - countOfIncorrectAnswers,
       )
+      break
+    default:
+      totalScore =
+        countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
+          ? totalCorrectAnswers
+          : 0
       break
   }
 

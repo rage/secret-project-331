@@ -22,7 +22,7 @@ interface NewChapterFormProps {
 
 interface Fields {
   name: string
-  color: string
+  color: string | null
   opens_at: Date | null
   deadline: Date | null
   chapter_number: number
@@ -77,7 +77,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
 
   const deadlineRegister = register("deadline", { valueAsDate: true, required: false })
   const opensAtRegister = register("opens_at", { valueAsDate: true, required: false })
-
+  const chapterColorRegister = register("color", { required: false })
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
@@ -113,19 +113,23 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           disabled: !newRecord,
         })}
       />
-      <TextField
-        className={css`
-          height: 45px;
-          padding: 0px 0px 0px 0px !important;
-        `}
-        error={errors["color"]?.message}
-        placeholder={t("input-field-chapter-color")}
-        label={t("input-field-chapter-color")}
-        register={register("color", {
-          required: true,
-        })}
-        type="color"
-      />
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("color")}
+        fieldName={t("input-field-chapter-color")}
+        onUncheck={() => setValue("color", null)}
+      >
+        <TextField
+          className={css`
+            height: 45px;
+            padding: 0px 0px 0px 0px !important;
+          `}
+          error={errors["color"]?.message}
+          placeholder={t("input-field-chapter-color")}
+          label={t("input-field-chapter-color")}
+          register={chapterColorRegister}
+          type="color"
+        />
+      </CheckboxFieldWrapper>
       <CheckboxFieldWrapper
         initialChecked={!!getValues("opens_at")}
         fieldName={t("label-opens-at")}

@@ -18,7 +18,7 @@ pub struct DatabaseChapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    pub color: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_path: Option<String>,
@@ -37,7 +37,7 @@ pub struct Chapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    pub color: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_url: Option<String>,
@@ -109,7 +109,7 @@ pub struct ChapterPagesWithExercises {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
-    pub color: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
@@ -124,7 +124,7 @@ pub struct NewChapter {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
-    pub color: String,
+    pub color: Option<String>,
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
@@ -296,7 +296,7 @@ pub struct ChapterWithStatus {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
-    pub color: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_number: i32,
@@ -671,7 +671,7 @@ mod tests {
                 tx.as_mut(),
                 NewChapter {
                     name: "Chapter of second course".to_string(),
-                    color: "#065853".to_string(),
+                    color: None,
                     course_id: course_2,
                     chapter_number: 0,
                     front_page_id: None,

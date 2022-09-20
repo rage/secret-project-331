@@ -3,8 +3,23 @@ import { css } from "@emotion/css"
 import { ChapterWithStatus } from "../../../../shared-module/bindings"
 import { cardMaxWidth } from "../../../../shared-module/styles/constants"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 
 import ChapterGridCard from "./ChapterGridCard"
+
+const COLORS_ARRAY = [
+  "#215887",
+  "#1F6964",
+  "#822630",
+  "#A84835",
+  "#6245A9",
+  "#313947",
+  "#51309F",
+  "#065853",
+  "#1A2333",
+  "#065853",
+  "#08457A",
+]
 
 export interface StyledCardProps {
   chapter: ChapterWithStatus
@@ -25,6 +40,8 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
   organizationSlug,
   previewable,
 }) => {
+  const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
+  const randomizedColor = COLORS_ARRAY[randomNumber]
   return (
     <div
       className={css`
@@ -44,6 +61,7 @@ const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
     >
       <ChapterGridCard
         backgroundImage={chapter.chapter_image_url}
+        bg={randomizedColor}
         now={now}
         chapter={chapter}
         courseSlug={courseSlug}

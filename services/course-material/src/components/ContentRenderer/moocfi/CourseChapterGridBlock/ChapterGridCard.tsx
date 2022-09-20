@@ -11,6 +11,7 @@ import { coursePageRoute } from "../../../../utils/routing"
 
 interface ChapterProps {
   now: Date
+  bg: string
   chapter: ChapterWithStatus
   courseSlug: string
   organizationSlug: string
@@ -24,6 +25,7 @@ const OPEN = "open"
 
 const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,
+  bg,
   chapter,
   courseSlug,
   organizationSlug,
@@ -90,7 +92,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       date={date}
       time={time}
       url={url}
-      bg={chapter.color}
+      bg={chapter.color !== null ? chapter.color : bg}
       backgroundImage={backgroundImage}
     />
   )

@@ -1,3 +1,7 @@
+/*!
+Contains a common trait for all the error types for this application.
+*/
+
 use backtrace::Backtrace;
 use tracing_error::SpanTrace;
 

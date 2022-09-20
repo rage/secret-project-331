@@ -341,7 +341,7 @@ pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenTyp
 
 /// Posts new user account to tmc.mooc.fi.
 ///
-/// Based on implementation from https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts
+/// Based on implementation from <https://github.com/rage/mooc.fi/blob/fb9a204f4dbf296b35ec82b2442e1e6ae0641fe9/frontend/lib/account.ts>
 pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> anyhow::Result<()> {
     let tmc_api_url = "https://tmc.mooc.fi/api/v8";
     let origin = env::var("TMC_ACCOUNT_CREATION_ORIGIN")

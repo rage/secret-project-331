@@ -1,3 +1,7 @@
+/*!
+Contains error and result types for all the controllers.
+*/
+
 use std::{error::Error, fmt::Write};
 
 use crate::domain::authorization::AuthorizedResponse;
@@ -18,6 +22,15 @@ use tracing_error::SpanTrace;
 use ts_rs::TS;
 use uuid::Uuid;
 
+/**
+Used as the result types for all controllers.
+Only put information here that you want to be visible to users.
+
+See also [ControllerError] for documentation on how to return errors from controllers.
+*/
+pub type ControllerResult<T, E = ControllerError> = std::result::Result<AuthorizedResponse<T>, E>;
+
+/// The type of [ControllerError] that occured.
 #[derive(Debug, Display, Serialize, Deserialize)]
 pub enum ControllerErrorType {
     /// HTTP status code 500.
@@ -46,9 +59,60 @@ pub enum ControllerErrorType {
 }
 
 /**
-Represents error messages that are sent in responses.
+Represents error messages that are sent in responses. Used as the error type in [ControllerError], which is used by all the controllers in the application.
 
-# Example
+All the information in the error is meant to be seen by the user. The type of error is determined by the [ControllerErrorType] enum, which is stored inside this struct. The type of the error determines which HTTP status code will be sent to the user.
+
+## Examples
+
+### Usage without source error
+
+```no_run
+# use headless_lms_server::prelude::*;
+# fn random_function() -> ControllerResult<web::Json<()>> {
+#    let token = skip_authorize()?;
+#    let erroneous_condition = 1 == 1;
+if erroneous_condition {
+    return Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        "Cannot create a new account when signed in.".to_string(),
+        None,
+    ));
+}
+# token.authorized_ok(web::Json(()))
+# }
+```
+
+### Usage with a source error
+
+Used when calling a function that returns an error that cannot be automatically converted to an ControllerError. (See `impl From<X>` implementations on this struct.)
+
+```no_run
+# use headless_lms_server::prelude::*;
+# fn some_function_returning_an_error() -> ControllerResult<web::Json<()>> {
+#    return Err(ControllerError::new(
+#         ControllerErrorType::BadRequest,
+#         "Cannot create a new account when signed in.".to_string(),
+#         None,
+#     ));
+# }
+#
+# fn random_function() -> ControllerResult<web::Json<()>> {
+#    let token = skip_authorize()?;
+#    let erroneous_condition = 1 == 1;
+some_function_returning_an_error().map_err(|original_error| {
+    ControllerError::new(
+        ControllerErrorType::InternalServerError,
+        "Could not read file".to_string(),
+        Some(original_error.into()),
+    )
+})?;
+# token.authorized_ok(web::Json(()))
+# }
+```
+
+### Example HTTP response from an error
+
 ```json
 {
     "title": "Internal Server Error",
@@ -354,9 +418,3 @@ impl From<UtilError> for ControllerError {
         )
     }
 }
-
-/**
-Used as the result types for all controllers.
-Only put information here that you want to be visible to users.
-*/
-pub type ControllerResult<T, E = ControllerError> = std::result::Result<AuthorizedResponse<T>, E>;

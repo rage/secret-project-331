@@ -1,3 +1,7 @@
+/*!
+Contains error and result types for all the model functions.
+*/
+
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
@@ -5,6 +9,11 @@ use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilErr
 use tracing_error::SpanTrace;
 use uuid::Uuid;
 
+/**
+Used as the result types for all models.
+
+See also [ModelError] for documentation on how to return errors from models.
+*/
 pub type ModelResult<T> = Result<T, ModelError>;
 
 pub trait TryToOptional<T, E> {
@@ -28,7 +37,57 @@ impl<T> TryToOptional<T, ModelError> for ModelResult<T> {
     }
 }
 
-/// Error type used by all models.
+/**
+Error type used by all models. Used as the error type in [ModelError], which is used by all the controllers in the application.
+
+All the information in the error is meant to be seen by the user. The type of error is determined by the [ModelErrorType] enum, which is stored inside this struct.
+
+## Examples
+
+### Usage without source error
+
+```no_run
+# use headless_lms_models::prelude::*;
+# fn random_function() -> ModelResult<()> {
+#    let erroneous_condition = 1 == 1;
+if erroneous_condition {
+    return Err(ModelError::new(
+        ModelErrorType::PreconditionFailed,
+        "The user has not enrolled to this course".to_string(),
+        None,
+    ));
+}
+# Ok(())
+# }
+```
+
+### Usage with a source error
+
+Used when calling a function that returns an error that cannot be automatically converted to an ModelError. (See `impl From<X>` implementations on this struct.)
+
+```no_run
+# use headless_lms_models::prelude::*;
+# fn some_function_returning_an_error() -> ModelResult<()> {
+#    return Err(ModelError::new(
+#        ModelErrorType::PreconditionFailed,
+#        "The user has not enrolled to this course".to_string(),
+#        None,
+#    ));
+# }
+#
+# fn random_function() -> ModelResult<()> {
+#    let erroneous_condition = 1 == 1;
+some_function_returning_an_error().map_err(|original_error| {
+    ModelError::new(
+        ModelErrorType::Generic,
+        "Everything went wrong".to_string(),
+        Some(original_error.into()),
+    )
+})?;
+# Ok(())
+# }
+```
+*/
 #[derive(Debug)]
 pub struct ModelError {
     error_type: ModelErrorType,
@@ -107,6 +166,7 @@ impl BackendError for ModelError {
     }
 }
 
+/// The type of [ModelError] that occured.
 #[derive(Debug, PartialEq, Eq)]
 pub enum ModelErrorType {
     RecordNotFound,

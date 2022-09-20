@@ -12,7 +12,7 @@ pub mod merge_edits;
 pub mod numbers;
 pub mod page_visit_hasher;
 pub mod pagination;
-pub(crate) mod prelude;
+pub mod prelude;
 pub mod strings;
 pub mod url_to_oembed_endpoint;
 

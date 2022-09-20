@@ -55,7 +55,7 @@ pub mod user_exercise_task_states;
 pub mod users;
 
 pub mod error;
-mod prelude;
+pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 

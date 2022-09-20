@@ -1,3 +1,7 @@
+/*!
+Contains error and result types for all the util functions.
+*/
+
 use std::fmt::Display;
 
 use backtrace::Backtrace;
@@ -5,6 +9,14 @@ use tracing_error::SpanTrace;
 
 use super::backend_error::BackendError;
 
+/**
+Used as the result types for all utils.
+
+See also [UtilError] for documentation on how to return errors from models.
+*/
+pub type UtilResult<T> = Result<T, UtilError>;
+
+/// The type of [UtilError] that occured.
 #[derive(Debug)]
 pub enum UtilErrorType {
     UrlParse,
@@ -16,7 +28,57 @@ pub enum UtilErrorType {
     Other,
 }
 
-/// Error type used by all utils
+/**
+Error type used by all models. Used as the error type in [UtilError], which is used by all the controllers in the application.
+
+All the information in the error is meant to be seen by the user. The type of error is determined by the [UtilErrorType] enum, which is stored inside this struct.
+
+## Examples
+
+### Usage without source error
+
+```no_run
+# use headless_lms_utils::prelude::*;
+# fn random_function() -> UtilResult<()> {
+#    let erroneous_condition = 1 == 1;
+if erroneous_condition {
+    return Err(UtilError::new(
+        UtilErrorType::Other,
+        "File not found".to_string(),
+        None,
+    ));
+}
+# Ok(())
+# }
+```
+
+### Usage with a source error
+
+Used when calling a function that returns an error that cannot be automatically converted to an UtilError. (See `impl From<X>` implementations on this struct.)
+
+```no_run
+# use headless_lms_utils::prelude::*;
+# fn some_function_returning_an_error() -> UtilResult<()> {
+#    return Err(UtilError::new(
+#        UtilErrorType::Other,
+#        "File not found".to_string(),
+#        None,
+#    ));
+# }
+#
+# fn random_function() -> UtilResult<()> {
+#    let erroneous_condition = 1 == 1;
+some_function_returning_an_error().map_err(|original_error| {
+    UtilError::new(
+        UtilErrorType::Other,
+        "Library x failed to do y".to_string(),
+        Some(original_error.into()),
+    )
+})?;
+# Ok(())
+# }
+```
+*/
 #[derive(Debug)]
 pub struct UtilError {
     error_type: <UtilError as BackendError>::ErrorType,

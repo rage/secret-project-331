@@ -1,2 +1,2 @@
 pub use crate::error::backend_error::BackendError;
-pub use crate::error::util_error::{UtilError, UtilErrorType};
+pub use crate::error::util_error::{UtilError, UtilErrorType, UtilResult};

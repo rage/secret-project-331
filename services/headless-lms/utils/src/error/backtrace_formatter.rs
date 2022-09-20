@@ -1,3 +1,7 @@
+/*!
+Custom formatting for stack backtraces inteded to be printed to the console for developers.
+*/
+
 use core::fmt;
 
 use backtrace::{Backtrace, BacktraceFmt, BacktraceFrame, PrintFmt, SymbolName};

@@ -112,7 +112,7 @@ async fn get_oembed_data_from_provider(
 /**
 GET `/api/v0/cms/gutenberg/themes?context=edit&status=active&_locale=user` - Mock themes response
 Endpoint for proxying themes requests.
-https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/embed/test/index.native.js#L128
+<https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/embed/test/index.native.js#L128>
 
 # Example
 

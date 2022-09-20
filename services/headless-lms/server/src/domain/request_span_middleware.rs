@@ -1,4 +1,6 @@
-use std::future::{ready, Ready};
+/*!
+Middleware that wraps HTTP requests to tokio tracing spans for debugging and attaches a request id to all log messages.
+*/
 
 use actix_http::header::{HeaderName, HeaderValue};
 use actix_web::{
@@ -6,6 +8,7 @@ use actix_web::{
     Error,
 };
 use futures_util::future::LocalBoxFuture;
+use std::future::{ready, Ready};
 use tracing::Instrument;
 use uuid::Uuid;
 

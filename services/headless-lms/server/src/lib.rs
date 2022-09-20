@@ -1,3 +1,12 @@
+/*!
+The server that handles the requests.
+
+## See also
+
+* [headless_lms_utils]
+* [headless_lms_models]
+*/
+
 pub mod controllers;
 pub mod domain;
 pub mod prelude;

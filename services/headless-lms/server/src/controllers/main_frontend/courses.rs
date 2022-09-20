@@ -19,7 +19,7 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -63,8 +63,10 @@ async fn post_new_course(
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
     if !is_ietf_language_code_like(&new_course.language_code) {
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Malformed language code.".to_string(),
+            None,
         ));
     }
     let token = authorize(

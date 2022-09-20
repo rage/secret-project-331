@@ -3,7 +3,7 @@ use models::{
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`

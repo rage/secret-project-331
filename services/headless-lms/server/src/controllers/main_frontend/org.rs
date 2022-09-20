@@ -2,7 +2,7 @@
 
 use models::organizations::Organization;
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
 GET `/api/v0/main-frontend/org/:slug

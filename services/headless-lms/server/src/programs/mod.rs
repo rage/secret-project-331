@@ -1,4 +1,6 @@
-/// Executable programs that can be started. Contains for example the server program, background services, and utility programs.
+/*!
+Executable programs that can be started. Contains for example the server program, background services, and utility programs.
+*/
 pub mod doc_file_generator;
 pub mod email_deliver;
 pub mod open_university_registration_link_fetcher;

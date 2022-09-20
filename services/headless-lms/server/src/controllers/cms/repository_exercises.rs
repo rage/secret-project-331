@@ -1,4 +1,4 @@
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 use models::repository_exercises::{self, RepositoryExercise};
 
 #[generated_doc]

@@ -3,7 +3,7 @@ use models::{
     users,
 };
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -123,7 +123,11 @@ impl TryFrom<RoleQuery> for RoleDomain {
         } else if let Some(id) = exam_id {
             RoleDomain::Exam(id)
         } else {
-            return Err(ControllerError::BadRequest("Invalid query".to_string()));
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Invalid query".to_string(),
+                None,
+            ));
         };
         Ok(domain)
     }

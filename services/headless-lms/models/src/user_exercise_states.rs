@@ -71,13 +71,22 @@ pub struct UserExerciseState {
 impl UserExerciseState {
     pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
         self.course_instance_id.ok_or_else(|| {
-            ModelError::Generic("Exercise is not part of a course instance.".to_string())
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not part of a course instance.".to_string(),
+                None,
+            )
         })
     }
 
     pub fn get_selected_exercise_slide_id(&self) -> ModelResult<Uuid> {
-        self.selected_exercise_slide_id
-            .ok_or_else(|| ModelError::Generic("No exercise slide selected.".to_string()))
+        self.selected_exercise_slide_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "No exercise slide selected.".to_string(),
+                None,
+            )
+        })
     }
 }
 
@@ -106,13 +115,17 @@ impl CourseInstanceOrExamId {
         exam_id: Option<Uuid>,
     ) -> ModelResult<Self> {
         match (course_instance_id, exam_id) {
-            (None, None) => Err(ModelError::Generic(
+            (None, None) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Expected either course instance or exam id, but neither were provided.".into(),
+                None,
             )),
             (Some(instance_id), None) => Ok(Self::Instance(instance_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
-            (Some(_), Some(_)) => Err(ModelError::Generic(
+            (Some(_), Some(_)) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Expected either course instance or exam id, but both were provided.".into(),
+                None,
             )),
         }
     }
@@ -538,7 +551,11 @@ pub async fn get_users_current_by_exercise(
                     CourseInstanceOrExamId::Instance(settings.current_course_instance_id)
                 })
                 .ok_or_else(|| {
-                    ModelError::PreconditionFailed("Missing user course settings.".to_string())
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailed,
+                        "Missing user course settings.".to_string(),
+                        None,
+                    )
                 })
         }
         CourseOrExamId::Exam(exam_id) => Ok(CourseInstanceOrExamId::Exam(exam_id)),
@@ -547,7 +564,11 @@ pub async fn get_users_current_by_exercise(
         get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_instance_or_exam_id)
             .await?
             .ok_or_else(|| {
-                ModelError::PreconditionFailed("Missing user exercise state.".to_string())
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Missing user exercise state.".to_string(),
+                    None,
+                )
             })?;
     Ok(user_exercise_state)
 }
@@ -862,11 +883,17 @@ impl EwusCourseOrExam {
                     course_id,
                     course_instance_id,
                 })),
-                _ => Err(ModelError::Generic("Invalid initializer data.".to_string())),
+                _ => Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    "Invalid initializer data.".to_string(),
+                    None,
+                )),
             }
         } else {
-            Err(ModelError::Generic(
+            Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Exercise doesn't match the state.".to_string(),
+                None,
             ))
         }
     }

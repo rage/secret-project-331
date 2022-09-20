@@ -511,7 +511,11 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    Err(ModelError::NotFound("Page not found".to_string()))
+    Err(ModelError::new(
+        ModelErrorType::NotFound,
+        "Page not found".to_string(),
+        None,
+    ))
 }
 
 pub async fn try_to_find_redirected_page(
@@ -558,8 +562,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !crate::chapters::is_open(conn, chapter_id).await? {
-            return Err(ModelError::PreconditionFailed(
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
                 "Chapter is not open yet".to_string(),
+                None,
             ));
         }
     }
@@ -794,34 +800,46 @@ impl CmsPageUpdate {
                     e.insert(true);
                     Ok((x.id, false))
                 } else {
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "Exercide ids in slides don't match.".to_string(),
+                        None,
                     ))
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
 
         if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: exercise_id,
-                description: "Exercise must have at least one slide.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: exercise_id,
+                    description: "Exercise must have at least one slide.",
+                },
+                "Exercise must have at least one slide.".to_string(),
+                None,
+            ));
         }
 
         for task in self.exercise_tasks.iter() {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);
             } else {
-                return Err(ModelError::PreconditionFailed(
+                return Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "Exercise slide ids in tasks don't match.".to_string(),
+                    None,
                 ));
             }
         }
         if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: slide_id,
-                description: "Exercise slide must have at least one task.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: slide_id,
+                    description: "Exercise slide must have at least one task.",
+                },
+                "Exercise slide must have at least one task.".to_string(),
+                None,
+            ));
         }
         Ok(())
     }
@@ -843,8 +861,8 @@ pub async fn update_page(
         && page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
-        return Err(ModelError::Generic(
-                "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+        return Err(ModelError::new(
+               ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
             ));
     }
 
@@ -1181,8 +1199,10 @@ async fn upsert_exercise_slides(
         let safe_for_db_exercise_id = remapped_exercises
             .get(&slide_update.exercise_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise id for exercise slide.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1283,8 +1303,10 @@ async fn upsert_exercise_tasks(
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise slide id for exercise task.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1427,7 +1449,11 @@ WHERE id IN (
             let old_id = new_peer_review_config_id_to_old_id
                 .get(&pr.id)
                 .ok_or_else(|| {
-                    ModelError::Generic("Inserted peer reviews not found".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
                 })?;
             remapped_peer_reviews.insert(*old_id, pr);
         }
@@ -1468,8 +1494,10 @@ pub async fn upsert_peer_review_questions(
                     .get(&prq.peer_review_config_id)
                     .map(|r| (prq, r.id))
                     .ok_or_else(|| {
-                        ModelError::Generic(
+                        ModelError::new(
+                            ModelErrorType::Generic,
                             "No peer review found for peer review questions".to_string(),
+                            None,
                         )
                     })
             })
@@ -1547,7 +1575,11 @@ WHERE id IN (
             let old_id = new_peer_review_question_id_to_old_id
                 .get(&prq.id)
                 .ok_or_else(|| {
-                    ModelError::Generic("Inserted peer reviews not found".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
                 })?;
             remapped_peer_review_questions.insert(*old_id, prq);
         }
@@ -1600,9 +1632,15 @@ async fn fetch_derived_spec(
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
-                .ok_or(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                    id: cms_block_id,
-                    description: "Missing exercise type for exercise task.",
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                            id: cms_block_id,
+                            description: "Missing exercise type for exercise task.",
+                        },
+                        "Missing exercise type for exercise task.".to_string(),
+                        None,
+                    )
                 })?
                 .clone();
             let res = client
@@ -1613,10 +1651,11 @@ async fn fetch_derived_spec(
                 .await?;
             if !res.status().is_success() {
                 let error = res.text().await.unwrap_or_default();
-                return Err(ModelError::Generic(format!(
-                    "Failed to generate spec for exercise: {}.",
-                    error,
-                )));
+                return Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("Failed to generate spec for exercise: {}.", error,),
+                    None,
+                ));
             }
             Some(res.json::<serde_json::Value>().await?)
         }
@@ -1951,8 +1990,10 @@ WHERE p.id = $1;
     .await?;
 
     if page_metadata.chapter_number.is_none() {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Page is not related to any chapter".to_string(),
+            None,
         ));
     }
 
@@ -2085,8 +2126,10 @@ pub async fn get_page_navigation_data(
                     chapter_front_page_id: Some(front_page.id),
                 })
             } else {
-                Err(ModelError::InvalidRequest(
+                Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Chapter front page chapter not found".to_string(),
+                    None,
                 ))
             }
         })
@@ -2590,35 +2633,44 @@ WHERE pages.order_number = $1
                                 .execute(&mut tx)
                                 .await?;
                             } else {
-                                return Err(ModelError::InvalidRequest(
+                                return Err(ModelError::new(
+                                    ModelErrorType::InvalidRequest,
                                     "New chapter not found".to_string(),
+                                    None,
                                 ));
                             }
                         } else {
-                            return Err(ModelError::InvalidRequest(
+                            return Err(ModelError::new(
+                                ModelErrorType::InvalidRequest,
                                 "Old chapter not found".to_string(),
+                                None,
                             ));
                         }
                     } else {
                         // Moving page from a chapter to a top level page
-                        return Err(ModelError::InvalidRequest(
+                        return Err(ModelError::new(
+                            ModelErrorType::InvalidRequest,
                             "Making a chapter page a top level page is not supported yet"
                                 .to_string(),
+                            None,
                         ));
                     }
                 } else {
                     error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
                     // Moving page from the top level to a chapter
-                    return Err(ModelError::InvalidRequest(
+                    return Err(ModelError::new(
+                        ModelErrorType::InvalidRequest,
                         "Moving a top level page to a chapter is not supported yet".to_string(),
+                        None,
                     ));
                 }
             }
         } else {
-            return Err(ModelError::InvalidRequest(format!(
-                "Page {} does exist in course {}",
-                page.id, course_id
-            )));
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Page {} does exist in course {}", page.id, course_id),
+                None,
+            ));
         }
     }
     tx.commit().await?;

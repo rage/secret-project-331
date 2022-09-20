@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/course-instances`.
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id.

@@ -1,4 +1,4 @@
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     exercises::get_exercise_by_id,
@@ -69,7 +69,11 @@ async fn update_answer_requiring_attention(
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
     } else {
-        return Err(ControllerError::BadRequest("Invalid query".to_string()));
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid query".to_string(),
+            None,
+        ));
     }
 
     info!(

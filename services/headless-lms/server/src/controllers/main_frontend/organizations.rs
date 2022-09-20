@@ -10,8 +10,8 @@ use models::{
 };
 
 use crate::{
-    controllers::{helpers::media::upload_image_for_organization, prelude::*},
-    domain::authorization::skip_authorize,
+    controllers::helpers::media::upload_image_for_organization,
+    domain::authorization::skip_authorize, prelude::*,
 };
 use actix_web::web::{self, Json};
 
@@ -167,10 +167,18 @@ async fn set_organization_image(
     // Remove old image if one exists.
     if let Some(old_image_path) = organization.organization_image_path {
         let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
 
@@ -211,13 +219,21 @@ async fn remove_organization_image(
     .await?;
     if let Some(organization_image_path) = organization.organization_image_path {
         let file = PathBuf::from_str(&organization_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         let _res =
             models::organizations::update_organization_image_path(&mut conn, organization.id, None)
                 .await?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
     token.authorized_ok(web::Json(()))

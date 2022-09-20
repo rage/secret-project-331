@@ -35,8 +35,13 @@ pub struct Exercise {
 
 impl Exercise {
     pub fn get_course_id(&self) -> ModelResult<Uuid> {
-        self.course_id
-            .ok_or_else(|| ModelError::Generic("Exercise is not related to a course.".to_string()))
+        self.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not related to a course.".to_string(),
+                None,
+            )
+        })
     }
 }
 
@@ -522,8 +527,10 @@ pub async fn get_or_select_exercise_slide(
                 None => {
                     // User is not enrolled on any course version. This is not a valid scenario because
                     // tasks are based on a specific instance.
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "User must be enrolled to the course".to_string(),
+                        None,
                     ))
                 }
             }
@@ -543,8 +550,10 @@ pub async fn get_or_select_exercise_slide(
             info!("selecting exam task {:#?}", tasks);
             Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
         }
-        (Some(_), ..) => Err(ModelError::Generic(
+        (Some(_), ..) => Err(ModelError::new(
+            ModelErrorType::Generic,
             "The selected exercise is not attached to any course or exam".to_string(),
+            None,
         )),
     }
 }

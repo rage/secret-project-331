@@ -19,10 +19,10 @@ use models::course_modules::CourseModule;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    controllers::prelude::*,
     domain::csv_export::{
         make_authorized_streamable, serializable_sqlx_result_stream_to_json_stream,
     },
+    prelude::*,
 };
 
 /**
@@ -180,8 +180,10 @@ async fn get_module_completions(
 
     let module = models::course_modules::get_by_id(&mut conn, module_id).await?;
     if !module_belongs_to_course(&mut conn, &module, &course_id_slug_or_code).await? {
-        return Err(ControllerError::NotFound(
+        return Err(ControllerError::new(
+            ControllerErrorType::NotFound,
             "No such module in a given course.".to_string(),
+            None,
         ));
     }
 

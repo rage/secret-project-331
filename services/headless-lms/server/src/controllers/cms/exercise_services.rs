@@ -2,7 +2,7 @@
 
 use models::exercise_services::ExerciseServiceIframeRenderingInfo;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.

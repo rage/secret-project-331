@@ -201,7 +201,13 @@ pub async fn get_course_material_exercise_tasks(
 
         let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
             .get(&exercise_task.exercise_type)
-            .ok_or_else(|| ModelError::InvalidRequest("Exercise service not found".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Exercise service not found".to_string(),
+                    None,
+                )
+            })?;
         let mut exercise_iframe_url =
             exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
         exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
@@ -340,8 +346,10 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
         get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
-        return Err(ModelError::PreconditionFailed(
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Missing exercise definition.".to_string(),
+            None,
         ));
     }
 

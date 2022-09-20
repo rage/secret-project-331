@@ -4,7 +4,7 @@ use std::{path::PathBuf, str::FromStr};
 
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -173,10 +173,18 @@ async fn set_chapter_image(
     // Remove old image if one exists.
     if let Some(old_image_path) = chapter.chapter_image_path {
         let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
 
@@ -215,11 +223,19 @@ async fn remove_chapter_image(
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
         let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
     token.authorized_ok(web::Json(()))

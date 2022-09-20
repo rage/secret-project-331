@@ -1,6 +1,6 @@
 use models::glossary::TermUpdate;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[instrument(skip(pool))]
 async fn update(

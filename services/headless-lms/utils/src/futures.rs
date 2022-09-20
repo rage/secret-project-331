@@ -1,6 +1,6 @@
 use futures::Future;
 
-/// For use with join! or try_join! Makes the future to run parallelly with other tasks instead of concurrently. See: https://docs.rs/tokio/latest/tokio/macro.try_join.html#runtime-characteristics
+/// For use with join! or try_join! Makes the future to run parallelly with other tasks instead of concurrently. See: <https://docs.rs/tokio/latest/tokio/macro.try_join.html#runtime-characteristics>.
 pub async fn run_parallelly<T>(
     future: impl Future<Output = anyhow::Result<T>> + std::marker::Send + 'static,
 ) -> anyhow::Result<T>

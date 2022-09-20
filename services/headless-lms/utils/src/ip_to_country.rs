@@ -56,8 +56,16 @@ impl IpToCountryMapper {
                     for line in contents.trim().lines() {
                         if let Ok(ipnet) = line.parse::<IpNet>() {
                             list.push(ipnet);
+                            // Speed up loading only in bin/dev
+                            if cfg!(debug_assertions) && (list.len() > 10) {
+                                break;
+                            }
                         }
                     }
+                }
+                // Speed up loading only in bin/dev
+                if cfg!(debug_assertions) && lists.len() > 10 {
+                    break;
                 }
             }
             info!(

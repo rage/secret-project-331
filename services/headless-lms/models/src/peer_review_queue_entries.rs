@@ -440,8 +440,10 @@ pub async fn remove_from_queue_and_give_full_points(
         user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)
             .await?;
     } else {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "User exercise state not found".to_string(),
+            None,
         ));
     }
 

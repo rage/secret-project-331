@@ -1,6 +1,6 @@
 use models::proposed_page_edits::NewProposedPageEdits;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 POST `/api/v0/course-material/proposed-edits/:course-id`

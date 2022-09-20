@@ -8,8 +8,8 @@ members = [
 ]
 
 [profile.dev]
-# Speeds up builds, makes backtraces to lose the source line
-debug = 0
+# Include only line tables so that we get line numbers in backtraces
+debug = 1
 
 # Speeds up development builds because the sqlx macros do a lot of work during compile time
 [profile.dev.package.sqlx-macros]
@@ -18,3 +18,7 @@ opt-level = 3
 # Speeds up development server startup time because parsing ip to country mappings benefits from the optimizations.
 [profile.dev.package.ipnet]
 opt-level = 3
+
+[profile.release]
+# Include only line tables so that we get line numbers in backtraces
+debug = 1

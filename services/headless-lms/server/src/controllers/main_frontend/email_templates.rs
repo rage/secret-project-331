@@ -2,7 +2,7 @@
 
 use models::email_templates::EmailTemplate;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 DELETE `/api/v0/main-frontend/email-templates/:id`

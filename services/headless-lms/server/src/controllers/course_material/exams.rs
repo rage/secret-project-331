@@ -4,7 +4,7 @@ use models::{
     pages::{self, Page},
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET /api/v0/course-material/exams/:id/enrollment
@@ -39,7 +39,11 @@ pub async fn enroll(
     let now = Utc::now();
     if let Some(ends_at) = exam.ends_at {
         if ends_at < now {
-            return Err(ControllerError::Forbidden("Exam is over".to_string()));
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Exam is over".to_string(),
+                None,
+            ));
         }
     }
 
@@ -53,8 +57,10 @@ pub async fn enroll(
     }
 
     // no start time defined or it's still upcoming
-    Err(ControllerError::Forbidden(
+    Err(ControllerError::new(
+        ControllerErrorType::Forbidden,
         "Exam has not started yet".to_string(),
+        None,
     ))
 }
 
@@ -101,15 +107,19 @@ pub async fn fetch_exam_for_user(
     let starts_at = if let Some(starts_at) = exam.starts_at {
         starts_at
     } else {
-        return Err(ControllerError::Forbidden(
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
             "Cannot fetch exam that has no start time".to_string(),
+            None,
         ));
     };
     let ends_at = if let Some(ends_at) = exam.ends_at {
         ends_at
     } else {
-        return Err(ControllerError::Forbidden(
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
             "Cannot fetch exam that has no end time".to_string(),
+            None,
         ));
     };
 

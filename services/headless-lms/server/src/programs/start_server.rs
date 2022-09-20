@@ -97,7 +97,9 @@ pub async fn main() -> anyhow::Result<()> {
                 ))
                 .build(),
             )
-            .wrap(Logger::new("%r %s %b bytes - %D ms"))
+            .wrap(Logger::new(
+                "Completed %r %s %b bytes - %D ms, request_id=%{request-id}o",
+            ))
             .app_data(Data::new(db_clone.clone())) // pass app_databData::new(ase pool to application so we can access it inside handlers
             .app_data(Data::new(oauth_client.clone()))
     });

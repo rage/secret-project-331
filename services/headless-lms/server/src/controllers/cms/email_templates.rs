@@ -2,7 +2,7 @@
 
 use models::email_templates::{EmailTemplate, EmailTemplateUpdate};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/cms/email-templates/:id`

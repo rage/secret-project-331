@@ -1,3 +1,5 @@
+use crate::prelude::*;
+
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
@@ -12,8 +14,6 @@ use sqlx::PgConnection;
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
 use uuid::Uuid;
-
-use crate::controllers::{ControllerError, ControllerResult};
 
 const SESSION_KEY: &str = "user";
 
@@ -52,11 +52,20 @@ impl FromRequest for AuthUser {
         let session = req.get_session();
         match session.get::<AuthUser>(SESSION_KEY) {
             Ok(Some(user)) => ok(user),
-            Ok(None) => err(ControllerError::Unauthorized("Unauthorized.".to_string())),
+            Ok(None) => err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Unauthorized.".to_string(),
+                None,
+            )),
             Err(_) => {
                 // session had an invalid value
                 session.remove(SESSION_KEY);
-                err(ControllerError::Unauthorized("Unauthorized.".to_string()))
+                err(ControllerError::new(
+                    ControllerErrorType::Unauthorized,
+                    "Unauthorized.".to_string(),
+                    // Don't want to leak too many details from the error to the user
+                    None,
+                ))
             }
         }
     }
@@ -208,7 +217,11 @@ pub async fn authorize(
         models::roles::get_roles(conn, user_id)
             .await
             .map_err(|original_err| {
-                ControllerError::InternalServerError(original_err.to_string())
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    original_err.to_string(),
+                    Some(original_err.into()),
+                )
             })?
     } else {
         Vec::new()
@@ -304,7 +317,11 @@ pub async fn authorize_with_fetched_list_of_roles(
         | Resource::ExerciseService
         | Resource::GlobalPermissions => {
             // permissions for these resources have already been checked
-            Err(ControllerError::Forbidden("Unauthorized".to_string()))
+            Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Unauthorized".to_string(),
+                None,
+            ))
         }
         Resource::MaterialReference => {
             check_material_reference_permissions(user_roles, action).await
@@ -328,7 +345,11 @@ async fn check_organization_permission(
             return Ok(AuthorizationToken(()));
         }
     }
-    Err(ControllerError::Forbidden("Unauthorized".to_string()))
+    Err(ControllerError::new(
+        ControllerErrorType::Forbidden,
+        "Unauthorized".to_string(),
+        None,
+    ))
 }
 
 /// Also checks organization role which is valid for courses.
@@ -418,7 +439,11 @@ async fn check_material_reference_permissions(
             return Ok(AuthorizationToken(()));
         }
     }
-    Err(ControllerError::Forbidden("Unauthorized".to_string()))
+    Err(ControllerError::new(
+        ControllerErrorType::Forbidden,
+        "Unauthorized".to_string(),
+        None,
+    ))
 }
 
 async fn check_study_registry_permission(
@@ -464,12 +489,19 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
         .map_or(Ok(""), |x| x.to_str())
         .map_err(|_| anyhow::anyhow!("Access denied.".to_string()))?;
     if !raw_token.starts_with("Basic") {
-        return Err(ControllerError::Forbidden("Access denied".to_string()));
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Access denied".to_string(),
+            None,
+        ));
     }
-    let secret_key = raw_token
-        .split(' ')
-        .nth(1)
-        .ok_or_else(|| ControllerError::Forbidden("Malformed authorization token".to_string()))?;
+    let secret_key = raw_token.split(' ').nth(1).ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Malformed authorization token".to_string(),
+            None,
+        )
+    })?;
     Ok(secret_key)
 }
 

@@ -1,5 +1,15 @@
+/*!
+The server that handles the requests.
+
+## See also
+
+* [headless_lms_utils]
+* [headless_lms_models]
+*/
+
 pub mod controllers;
 pub mod domain;
+pub mod prelude;
 
 pub mod programs;
 #[cfg(test)]
@@ -22,11 +32,11 @@ use actix_web::{
     HttpResponse,
 };
 use anyhow::Result;
-use oauth2::basic::BasicClient;
-// use tracing_actix_web::TracingLogger;
+use domain::request_span_middleware::RequestSpan;
 use headless_lms_utils::{
     file_store::FileStore, ip_to_country::IpToCountryMapper, ApplicationConfiguration,
 };
+use oauth2::basic::BasicClient;
 use tracing_error::ErrorLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
@@ -54,7 +64,7 @@ pub fn configure(
         .app_data(json_config)
         .service(
             web::scope("/api/v0")
-                // .wrap(TracingLogger::default())
+                .wrap(RequestSpan)
                 .configure(controllers::configure_controllers),
         )
         // Not using Data::new for file_store to avoid double wrapping it in a arc

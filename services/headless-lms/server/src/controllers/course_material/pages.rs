@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/pages`.
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 use models::pages::{
     IsChapterFrontPage, Page, PageChapterAndCourseInformation, PageNavigationInformation,
 };

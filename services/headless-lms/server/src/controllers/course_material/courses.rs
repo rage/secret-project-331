@@ -26,7 +26,7 @@ use models::{
     user_course_settings::UserCourseSettings,
 };
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
@@ -250,7 +250,11 @@ async fn get_current_course_instance(
         let token = skip_authorize()?;
         token.authorized_ok(web::Json(instance))
     } else {
-        Err(ControllerError::NotFound("User not found".to_string()))
+        Err(ControllerError::new(
+            ControllerErrorType::NotFound,
+            "User not found".to_string(),
+            None,
+        ))
     }
 }
 
@@ -367,7 +371,11 @@ fn collect_course_modules(
         course_modules
             .get_mut(&chapter.course_module_id)
             .ok_or_else(|| {
-                ControllerError::InternalServerError("Module data mismatch.".to_string())
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Module data mismatch.".to_string(),
+                    None,
+                )
             })?
             .chapters
             .push(chapter);
@@ -395,7 +403,11 @@ async fn get_user_course_settings(
         let token = skip_authorize()?;
         token.authorized_ok(web::Json(settings))
     } else {
-        Err(ControllerError::NotFound("User not found".to_string()))
+        Err(ControllerError::new(
+            ControllerErrorType::NotFound,
+            "User not found".to_string(),
+            None,
+        ))
     }
 }
 
@@ -480,19 +492,25 @@ pub async fn feedback(
     // validate
     for f in &fs {
         if f.feedback_given.len() > 1000 {
-            return Err(ControllerError::BadRequest(
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
                 "Feedback given too long: max 1000".to_string(),
+                None,
             ));
         }
         if f.related_blocks.len() > 100 {
-            return Err(ControllerError::BadRequest(
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
                 "Too many related blocks: max 100".to_string(),
+                None,
             ));
         }
         for block in &f.related_blocks {
             if block.text.as_ref().map(|t| t.len()).unwrap_or_default() > 10000 {
-                return Err(ControllerError::BadRequest(
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
                     "Block text too long: max 10000".to_string(),
+                    None,
                 ));
             }
         }

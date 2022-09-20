@@ -19,8 +19,8 @@ use models::{
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    controllers::prelude::*,
     domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    prelude::*,
 };
 
 /**
@@ -240,8 +240,10 @@ async fn post_completions(
     let course_module = course_modules::get_by_id(&mut conn, data.course_module_id).await?;
     let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     if course_module.course_id != instance.course_id {
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Course module not part of the course.".to_string(),
+            None,
         ));
     }
     let course = courses::get_course(&mut conn, instance.course_id).await?;

@@ -301,14 +301,32 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         let grading = exercise_task_gradings
             .iter()
             .find(|g| Some(g.id) == ts.exercise_task_grading_id)
-            .ok_or_else(|| ModelError::NotFound("Grading not found".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::NotFound,
+                    "Grading not found".to_string(),
+                    None,
+                )
+            })?;
         let task = exercise_tasks
             .iter()
             .find(|t| t.id == ts.exercise_task_id)
-            .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::NotFound,
+                    "Exercise task not found".to_string(),
+                    None,
+                )
+            })?;
         let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
             .get(&task.exercise_type)
-            .ok_or_else(|| ModelError::InvalidRequest("Exercise service not found".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Exercise service not found".to_string(),
+                    None,
+                )
+            })?;
         let mut exercise_iframe_url =
             exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
         exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);

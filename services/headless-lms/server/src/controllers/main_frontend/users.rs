@@ -1,6 +1,6 @@
 use models::users::User;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/users/:id`

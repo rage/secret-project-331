@@ -28,6 +28,8 @@ tokio = { version = "1.19.2", features = ["fs", "io-util"] }
 tokio-stream = "0.1.9"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.21"
+# Common utilities and extension traits for the futures-rs library.
+futures-util = "0.3.24"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
@@ -73,10 +75,10 @@ url = "2.2.2"
 tracing = "0.1.35"
 # Utilities for implementing and composing `tracing` subscribers.
 tracing-subscriber = { version = "0.3.11", features = ["env-filter"] }
-# Structured logging middleware for actix-web.
-tracing-actix-web = "0.6.0"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.66"
 # Provides compatibility between `tracing` and the `log` crate.
 tracing-log = "0.1.3"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.

@@ -2,7 +2,7 @@
 
 use models::pages::{Page, PageWithExercises};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.

@@ -49,7 +49,7 @@ test("create peer review", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: `text="Add peer review"`,
     page,
     clearNotifications: true,
-    axeSkip: ["aria-allowed-attr"],
+    axeSkip: ["aria-allowed-attr", "aria-allowed-role"],
   })
 
   // Check text=Use course global peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]
@@ -72,6 +72,6 @@ test("create peer review", async ({ page, headless }) => {
     waitForThisToBeVisibleAndStable: `text="Add peer review"`,
     page,
     clearNotifications: true,
-    axeSkip: ["aria-allowed-attr"],
+    axeSkip: ["aria-allowed-attr", "aria-allowed-role"],
   })
 })

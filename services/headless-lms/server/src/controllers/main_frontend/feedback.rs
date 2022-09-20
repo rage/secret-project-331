@@ -1,6 +1,6 @@
 use models::feedback;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

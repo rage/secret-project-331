@@ -57,7 +57,11 @@ pub struct ExerciseSlideSubmission {
 impl ExerciseSlideSubmission {
     pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
         self.course_instance_id.ok_or_else(|| {
-            ModelError::Generic("Submission is not related to a course instance.".to_string())
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Submission is not related to a course instance.".to_string(),
+                None,
+            )
         })
     }
 }

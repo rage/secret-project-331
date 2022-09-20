@@ -5,7 +5,7 @@ use models::{
     pages::{HistoryRestoreData, NewPage, Page, PageInfo},
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -45,7 +45,11 @@ async fn post_new_page(
     let mut conn = pool.acquire().await?;
     let new_page = payload.0;
     let course_id = new_page.course_id.ok_or_else(|| {
-        ControllerError::BadRequest("Cannot create a new page without a course id".to_string())
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Cannot create a new page without a course id".to_string(),
+            None,
+        )
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 

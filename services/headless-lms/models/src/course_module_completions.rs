@@ -164,7 +164,7 @@ WHERE course_instance_id = $1
 
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_by_course_instance_and_user_ids(
+pub async fn get_all_by_course_instance_and_user_ids(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
@@ -186,12 +186,12 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
-pub async fn get_by_course_module_instance_and_user_ids(
+pub async fn get_all_by_course_module_instance_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<CourseModuleCompletion> {
+) -> ModelResult<Vec<CourseModuleCompletion>> {
     let res = sqlx::query_as!(
         CourseModuleCompletion,
         "
@@ -206,7 +206,7 @@ WHERE course_module_id = $1
         course_instance_id,
         user_id,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

@@ -249,7 +249,7 @@ async fn post_completions(
     for completion in data.new_completions {
         let user = users::get_by_id(&mut tx, completion.user_id).await?;
         let existing_completion =
-            course_module_completions::get_by_course_module_instance_and_user_ids(
+            course_module_completions::get_all_by_course_module_instance_and_user_ids(
                 &mut tx,
                 data.course_module_id,
                 *course_instance_id,

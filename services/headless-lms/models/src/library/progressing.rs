@@ -101,7 +101,7 @@ async fn user_has_completed_course_module(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<bool> {
-    let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
+    let completion = course_module_completions::get_all_by_course_module_instance_and_user_ids(
         conn,
         course_module_id,
         course_instance_id,
@@ -163,13 +163,17 @@ async fn update_module_completion_prerequisite_statuses(
             )?;
         if need_to_update {
             info!(module_id = ?status.module_id, "Updating module completion prerequisite status");
-            let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
-                conn,
-                status.module_id,
-                course_instance_id,
-                user_id,
-            )
-            .await?;
+            let completion =
+                course_module_completions::get_all_by_course_module_instance_and_user_ids(
+                    conn,
+                    status.module_id,
+                    course_instance_id,
+                    user_id,
+                )
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| ModelError::Generic("Missing completion.".to_string()))?;
             // Completion conditions are met, but the status needs to be updated to database.
             course_module_completions::update_prerequisite_modules_completed(
                 conn,
@@ -404,7 +408,7 @@ pub async fn get_manual_completion_result_preview(
             non_enrolled_users.push(user.clone());
         }
         let course_module_completion =
-            course_module_completions::get_by_course_module_instance_and_user_ids(
+            course_module_completions::get_all_by_course_module_instance_and_user_ids(
                 conn,
                 manual_completion_request.course_module_id,
                 course_instance.id,
@@ -447,13 +451,16 @@ pub async fn get_user_completion_information(
             .await?
             .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
     let course_module_completion =
-        course_module_completions::get_by_course_module_instance_and_user_ids(
+        course_module_completions::get_all_by_course_module_instance_and_user_ids(
             conn,
             course_module.id,
             user_settings.current_course_instance_id,
             user.id,
         )
-        .await?;
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(|| ModelError::Generic("Missing completion.".to_string()))?;
     // Course code is required only so that fetching the link later works.
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
         ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
@@ -491,7 +498,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
-        course_module_completions::get_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_ids(
             conn,
             course_instance_id,
             user_id,
@@ -536,13 +543,16 @@ pub async fn get_completion_registration_link_and_save_attempt(
             .await?
             .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
     let course_module_completion =
-        course_module_completions::get_by_course_module_instance_and_user_ids(
+        course_module_completions::get_all_by_course_module_instance_and_user_ids(
             conn,
             course_module.id,
             user_settings.current_course_instance_id,
             user.id,
         )
-        .await?;
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(|| ModelError::Generic("Missing completion.".to_string()))?;
     course_module_completions::update_completion_registration_attempt_date(
         conn,
         course_module_completion.id,

@@ -14,7 +14,8 @@ static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
 ];
 
 pub use crate::attributes;
-use crate::error::util_error::UtilError;
+use crate::prelude::*;
+
 #[macro_export]
 macro_rules! attributes {
     () => {{
@@ -199,7 +200,7 @@ pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) 
 pub fn remap_ids_in_content(
     content: &serde_json::Value,
     chaged_ids: HashMap<Uuid, Uuid>,
-) -> Result<serde_json::Value, UtilError> {
+) -> UtilResult<serde_json::Value> {
     // naive implementation for now because the structure of the content was not decided at the time of writing this.
     // In the future we could only edit the necessary fields.
     let mut content_str = serde_json::to_string(content)?;

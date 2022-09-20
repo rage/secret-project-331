@@ -20,7 +20,7 @@ pub struct LocalFileStore {
 
 impl LocalFileStore {
     /// Needs to not be async because of how this is used in worker factories
-    pub fn new(base_path: PathBuf, base_url: String) -> Result<Self, UtilError> {
+    pub fn new(base_path: PathBuf, base_url: String) -> UtilResult<Self> {
         if base_path.exists() {
             if !base_path.is_dir() {
                 return Err(UtilError::new(
@@ -40,12 +40,7 @@ impl LocalFileStore {
 }
 #[async_trait(?Send)]
 impl FileStore for LocalFileStore {
-    async fn upload(
-        &self,
-        path: &Path,
-        contents: Vec<u8>,
-        _mime_type: &str,
-    ) -> Result<(), UtilError> {
+    async fn upload(&self, path: &Path, contents: Vec<u8>, _mime_type: &str) -> UtilResult<()> {
         let full_path = self.base_path.join(path);
         if let Some(parent) = full_path.parent() {
             fs::create_dir_all(parent).await?;
@@ -54,18 +49,18 @@ impl FileStore for LocalFileStore {
         Ok(())
     }
 
-    async fn download(&self, path: &Path) -> Result<Vec<u8>, UtilError> {
+    async fn download(&self, path: &Path) -> UtilResult<Vec<u8>> {
         let full_path = self.base_path.join(path);
         Ok(fs::read(full_path).await?)
     }
 
-    async fn delete(&self, path: &Path) -> Result<(), UtilError> {
+    async fn delete(&self, path: &Path) -> UtilResult<()> {
         let full_path = self.base_path.join(path);
         fs::remove_file(full_path).await?;
         Ok(())
     }
 
-    async fn get_direct_download_url(&self, path: &Path) -> Result<String, UtilError> {
+    async fn get_direct_download_url(&self, path: &Path) -> UtilResult<String> {
         let full_path = self.base_path.join(path);
         if !full_path.exists() {
             return Err(UtilError::new(
@@ -86,7 +81,7 @@ impl FileStore for LocalFileStore {
         path: &Path,
         mut contents: GenericPayload,
         _mime_type: &str,
-    ) -> Result<(), UtilError> {
+    ) -> UtilResult<()> {
         let full_path = self.base_path.join(path);
         let parent_option = full_path.parent();
         if parent_option.is_none() {
@@ -130,7 +125,7 @@ impl FileStore for LocalFileStore {
     async fn download_stream(
         &self,
         path: &Path,
-    ) -> Result<Box<dyn Stream<Item = std::io::Result<Bytes>>>, UtilError> {
+    ) -> UtilResult<Box<dyn Stream<Item = std::io::Result<Bytes>>>> {
         let full_path = self.base_path.join(path);
         let file = fs::File::open(full_path).await?;
         let reader = io::BufReader::new(file);

@@ -28,7 +28,7 @@ pub struct OEmbedRequest {
 }
 
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
-pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<Url, UtilError> {
+pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResult<Url> {
     let parsed_url = Url::parse(url.as_str())?;
     if let Some(host) = parsed_url.host_str() {
         if host.ends_with("youtu.be") || host.ends_with("youtube.com") {
@@ -127,7 +127,7 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
 pub fn mentimeter_oembed_response_builder(
     url: String,
     base_url: String,
-) -> Result<OEmbedResponse, UtilError> {
+) -> UtilResult<OEmbedResponse> {
     let mut parsed_url = Url::parse(url.as_str()).unwrap();
     // Get the height and title params
     let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
@@ -162,7 +162,7 @@ pub fn mentimeter_oembed_response_builder(
     Ok(response)
 }
 
-fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {
+fn oembed_url_builder(url: &str, query_params: &str) -> UtilResult<Url> {
     let mut endpoint_url = Url::parse(url)?;
     endpoint_url.set_query(Some(query_params));
     Ok(endpoint_url)

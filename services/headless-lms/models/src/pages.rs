@@ -2811,10 +2811,18 @@ pub async fn reorder_chapters(
                         .execute(&mut tx)
                         .await?;
                 }
+            } else {
+                return Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "New chapter not found".to_string(),
+                    None,
+                ));
             }
         } else {
-            return Err(ModelError::InvalidRequest(
-                "New chapter not found".to_string(),
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Matching DB chapters not found".to_string(),
+                None,
             ));
         }
     }

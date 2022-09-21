@@ -86,7 +86,13 @@ pub async fn insert_completions(
     for completion in completions.into_iter() {
         let module_completion = completions_by_id
             .get(&completion.completion_id)
-            .ok_or_else(|| ModelError::PreconditionFailed("Missing completion.".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Missing completion.".to_string(),
+                    None,
+                )
+            })?;
         insert(
             &mut tx,
             &NewCourseModuleCompletionRegisteredToStudyRegistry {

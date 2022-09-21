@@ -136,6 +136,31 @@ test("material reference tests", async ({ page, headless }) => {
     beforeScreenshot: async () => await page.locator(`text=${PARAGRAPH}`).scrollIntoViewIfNeeded(),
   })
 
+  // Create table with citations
+  await page.keyboard.press("Enter")
+  await page.fill(
+    '[aria-label="Empty block\\; start writing or type forward slash to choose a block"]',
+    "/table",
+  )
+  await page.keyboard.press("Enter")
+
+  const TABLE_CONTENT = ["This cell contains citation\\cite{wang2003}", "Blank", "Blank", "Blank"]
+  const CAPTION_CONTENT = "This caption has citation\\cite{wang2003}"
+
+  // Click text=Create Table
+  await page.locator("text=Create Table").click()
+  // Press Tab
+  await page.locator('[aria-label="Body cell text"]').first().fill(TABLE_CONTENT[0])
+  // Click [aria-label="Body cell text"] >> nth=1
+  await page.locator('[aria-label="Body cell text"]').nth(1).fill(TABLE_CONTENT[1])
+  // Click td[role="textbox"]:has-text("first")
+  // Click [aria-label="Body cell text"] >> nth=2
+  await page.locator('[aria-label="Body cell text"]').nth(2).fill(TABLE_CONTENT[2])
+  // Click [aria-label="Body cell text"] >> nth=3
+  await page.locator('[aria-label="Body cell text"]').nth(3).fill(TABLE_CONTENT[3])
+  // Click [aria-label="Table caption text"]
+  await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
+
   // Click text=Save >> nth=3
   await page.locator("text=Save").nth(3).click()
 

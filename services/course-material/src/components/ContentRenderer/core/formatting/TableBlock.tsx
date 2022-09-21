@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 
 import { BlockRendererProps } from "../.."
 import {
@@ -6,10 +7,11 @@ import {
   Cells,
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
+import { GlossaryContext } from "../../../../contexts/GlossaryContext"
 import { baseTheme } from "../../../../shared-module/styles"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
-import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
+import { parseText } from "../../util/textParsing"
 
 const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttributes>>> = ({
   data,
@@ -30,6 +32,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
   const head = data.attributes.head
   const foot = data.attributes.foot
 
+  const { terms } = useContext(GlossaryContext)
   const isStriped = className === "is-style-stripes"
 
   const fetchAlignment = (align: string | undefined) => {
@@ -83,9 +86,10 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       className={fetchAlignment(cell.align)}
                       key={i}
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeCourseMaterialHtml(
+                        __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
-                        ),
+                          terms,
+                        ).parsedText,
                       }}
                     />
                   ))}
@@ -102,9 +106,10 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                     className={fetchAlignment(cell.align)}
                     key={i}
                     dangerouslySetInnerHTML={{
-                      __html: sanitizeCourseMaterialHtml(
+                      __html: parseText(
                         cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
-                      ),
+                        terms,
+                      ).parsedText,
                     }}
                   />
                 ))}
@@ -121,9 +126,10 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       className={fetchAlignment(cell.align)}
                       key={i}
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeCourseMaterialHtml(
+                        __html: parseText(
                           cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
-                        ),
+                          terms,
+                        ).parsedText,
                       }}
                     />
                   ))}
@@ -137,9 +143,10 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             font-size: 0.8125rem;
             caption-side: bottom;
           `}
-        >
-          {caption}
-        </caption>
+          dangerouslySetInnerHTML={{
+            __html: parseText(caption, terms).parsedText,
+          }}
+        />
       </table>
     </div>
   )

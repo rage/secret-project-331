@@ -1,6 +1,6 @@
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

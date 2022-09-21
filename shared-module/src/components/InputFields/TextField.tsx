@@ -127,7 +127,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
                 visibility: hidden;
               `
         }
-        id={`${rest.label}_error`}
+        id={`${rest.id ?? rest.label}_error`}
         role="alert"
       >
         {rest.error}

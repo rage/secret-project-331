@@ -6,7 +6,7 @@ use models::{
     CourseOrExamId,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.

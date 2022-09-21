@@ -941,10 +941,37 @@
 <span id="935">935</span>
 <span id="936">936</span>
 <span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">chapters::Chapter</span>,
     <span class="ident">course_instances</span>::{<span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">NewCourseInstance</span>},
     <span class="ident">course_modules::ModuleUpdates</span>,
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseStructure</span>, <span class="ident">CourseUpdate</span>, <span class="ident">NewCourse</span>},
@@ -1656,6 +1683,27 @@ Creates redirects if url_path changes.
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
 }
 
+<span class="doccomment">/**
+POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
+
+Creates redirects if url_path changes.
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">post_new_chapter_ordering</span>(
+    <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+    <span class="ident">payload</span>: <span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Chapter</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_id</span> <span class="op">=</span> <span class="ident">course_id</span>.<span class="ident">into_inner</span>();
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Teach</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">models::pages::reorder_chapters</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">payload</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
+}
+
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_material_references_by_course_id</span>(
@@ -1848,6 +1896,10 @@ We add the routes by calling the route method instead of using the route annotat
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/new-page-ordering&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_page_ordering</span>),
+        )
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{course_id}/new-chapter-ordering&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">post_new_chapter_ordering</span>),
         )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/references&quot;</span>,

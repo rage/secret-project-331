@@ -34,11 +34,11 @@ pub mod page_history;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod pages;
+pub mod peer_review_configs;
 pub mod peer_review_question_submissions;
 pub mod peer_review_questions;
 pub mod peer_review_queue_entries;
 pub mod peer_review_submissions;
-pub mod peer_reviews;
 pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
@@ -55,13 +55,14 @@ pub mod user_exercise_task_states;
 pub mod users;
 
 pub mod error;
-mod prelude;
+pub mod prelude;
 #[cfg(test)]
 pub mod test_helper;
 
 use uuid::Uuid;
 
-pub use self::error::{ModelError, ModelResult};
+pub use self::error::{ModelError, ModelErrorType, ModelResult};
+use crate::prelude::*;
 
 #[macro_use]
 extern crate tracing;
@@ -78,11 +79,15 @@ impl CourseOrExamId {
         match (course_id, exam_id) {
             (Some(course_id), None) => Ok(Self::Course(course_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
-            (Some(_), Some(_)) => Err(ModelError::Generic(
+            (Some(_), Some(_)) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Database row had both a course id and an exam id".to_string(),
+                None,
             )),
-            (None, None) => Err(ModelError::Generic(
+            (None, None) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Database row did not have a course id or an exam id".to_string(),
+                None,
             )),
         }
     }

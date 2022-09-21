@@ -167,8 +167,10 @@ pub async fn authenticate_test_user(
     } else if email == "creator@example.com" && password == "creator" {
         crate::users::get_by_email(conn, "creator@example.com").await?
     } else {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Invalid email or password".to_string(),
+            None,
         ));
     };
     Ok(user)
@@ -190,6 +192,29 @@ WHERE course_instance_id = $1
     )
     .map(|x| x.user_id)
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_users_by_course_instance_enrollment(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<User>> {
+    let res = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id IN (
+    SELECT user_id
+    FROM course_instance_enrollments
+    WHERE course_instance_id = $1
+      AND deleted_at IS NULL
+  )
+",
+        course_instance_id,
+    )
+    .fetch_all(&mut *conn)
     .await?;
     Ok(res)
 }

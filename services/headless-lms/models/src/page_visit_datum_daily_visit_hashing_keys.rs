@@ -19,7 +19,7 @@ pub async fn generate_anonymous_identifier(
         input.user_agent,
         input.ip_address,
     )
-    .map_err(|e| ModelError::Generic(e.to_string()))?;
+    .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(e)))?;
     Ok(hash)
 }
 
@@ -34,8 +34,10 @@ pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>
             let second_try = try_get_key_for_the_day_internal(conn, valid_for_date).await?;
             match second_try {
                 Some(hashing_key) => Ok(hashing_key),
-                None => Err(ModelError::Generic(
+                None => Err(ModelError::new(
+                    ModelErrorType::Generic,
                     "Failed to get hashing key for the day".to_string(),
+                    None,
                 )),
             }
         }

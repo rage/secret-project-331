@@ -3,7 +3,7 @@ use crate::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
-    peer_reviews::PeerReview,
+    peer_review_configs::PeerReviewConfig,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
@@ -11,7 +11,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
@@ -30,12 +30,18 @@ pub struct Exercise {
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
     pub needs_peer_review: bool,
+    pub use_course_default_peer_review_config: bool,
 }
 
 impl Exercise {
     pub fn get_course_id(&self) -> ModelResult<Uuid> {
-        self.course_id
-            .ok_or_else(|| ModelError::Generic("Exercise is not related to a course.".to_string()))
+        self.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not related to a course.".to_string(),
+                None,
+            )
+        })
     }
 }
 
@@ -49,7 +55,7 @@ pub struct CourseMaterialExercise {
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
-    pub peer_review: Option<PeerReview>,
+    pub peer_review_config: Option<PeerReviewConfig>,
 }
 
 impl CourseMaterialExercise {
@@ -258,9 +264,9 @@ pub async fn get_exercises_by_page_id(
         Exercise,
         r#"
 SELECT *
-FROM exercises
+  FROM exercises
 WHERE page_id = $1
-  AND deleted_at IS NULL
+  AND deleted_at IS NULL;
 "#,
         page_id,
     )
@@ -358,9 +364,9 @@ pub async fn get_course_material_exercise(
         HashMap::new()
     };
 
-    let peer_review = match (exercise.needs_peer_review, exercise.course_id) {
+    let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
         (true, Some(course_id)) => {
-            crate::peer_reviews::get_by_exercise_or_course_id(conn, exercise.id, course_id)
+            crate::peer_review_configs::get_by_exercise_or_course_id(conn, exercise.id, course_id)
                 .await
                 .optional()?
         }
@@ -373,7 +379,7 @@ pub async fn get_course_material_exercise(
         current_exercise_slide,
         exercise_status,
         exercise_slide_submission_counts,
-        peer_review,
+        peer_review_config,
     })
 }
 
@@ -521,8 +527,10 @@ pub async fn get_or_select_exercise_slide(
                 None => {
                     // User is not enrolled on any course version. This is not a valid scenario because
                     // tasks are based on a specific instance.
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "User must be enrolled to the course".to_string(),
+                        None,
                     ))
                 }
             }
@@ -542,8 +550,10 @@ pub async fn get_or_select_exercise_slide(
             info!("selecting exam task {:#?}", tasks);
             Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
         }
-        (Some(_), ..) => Err(ModelError::Generic(
+        (Some(_), ..) => Err(ModelError::new(
+            ModelErrorType::Generic,
             "The selected exercise is not attached to any course or exam".to_string(),
+            None,
         )),
     }
 }

@@ -22,4 +22,5 @@ module.exports = {
     `./bin/check-no-test-only-in-system-tests`,
     "npx tsc -p system-tests --noEmit",
   ],
+  "shared-module/src/locales/**/*.json": () => ["./bin/translations-sort"],
 }

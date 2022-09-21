@@ -1,4 +1,4 @@
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     exercises::get_exercise_by_id,
@@ -37,11 +37,11 @@ async fn get_submission_info(
 }
 
 /**
-GET `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention"` - Updates data for submission
+PUT `/api/v0/main-frontend/exercise-slide-submissions/update-answer-requiring-attention"` - Given a teacher grading decision, updates an answer by giving it a manual score given.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn update_submission(
+async fn update_answer_requiring_attention(
     payload: web::Json<NewTeacherGradingDecision>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -69,8 +69,17 @@ async fn update_submission(
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
     } else {
-        return Err(ControllerError::BadRequest("Invalid query".to_string()));
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid query".to_string(),
+            None,
+        ));
     }
+
+    info!(
+        "Teacher took the following action: {:?}. Points given: {:?}.",
+        &action, points_given
+    );
 
     let mut tx = conn.begin().await?;
 
@@ -107,6 +116,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{submission_id}/info", web::get().to(get_submission_info))
         .route(
             "/update-answer-requiring-attention",
-            web::put().to(update_submission),
+            web::put().to(update_answer_requiring_attention),
         );
 }

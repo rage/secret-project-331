@@ -8,6 +8,7 @@ use headless_lms_utils::document_schema_processor::{
     contains_blocks_not_allowed_in_top_level_pages, GutenbergBlock,
 };
 use itertools::Itertools;
+use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
 use crate::{
@@ -22,6 +23,8 @@ use crate::{
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
+    peer_review_configs::CmsPeerReviewConfig,
+    peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
     CourseOrExamId,
@@ -82,7 +85,7 @@ pub struct PageWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
@@ -154,13 +157,15 @@ pub struct PageSearchResult {
     pub url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ContentManagementPage {
     pub page: Page,
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub peer_review_configs: Vec<CmsPeerReviewConfig>,
+    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
     pub organization_id: Uuid,
 }
 
@@ -242,6 +247,8 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            peer_review_configs: Vec::new(),
+            peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -289,6 +296,8 @@ RETURNING id
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            peer_review_configs: Vec::new(),
+            peer_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -504,7 +513,11 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    Err(ModelError::NotFound("Page not found".to_string()))
+    Err(ModelError::new(
+        ModelErrorType::NotFound,
+        "Page not found".to_string(),
+        None,
+    ))
 }
 
 pub async fn try_to_find_redirected_page(
@@ -551,8 +564,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !crate::chapters::is_open(conn, chapter_id).await? {
-            return Err(ModelError::PreconditionFailed(
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
                 "Chapter is not open yet".to_string(),
+                None,
             ));
         }
     }
@@ -585,24 +600,54 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 
 pub async fn get_page_with_exercises(
     conn: &mut PgConnection,
-    id: Uuid,
+    page_id: Uuid,
 ) -> ModelResult<ContentManagementPage> {
-    let page = get_page(&mut *conn, id).await?;
-    let exercises: Vec<CmsPageExercise> =
-        crate::exercises::get_exercises_by_page_id(&mut *conn, page.id)
+    let page = get_page(&mut *conn, page_id).await?;
+
+    let peer_review_configs =
+        crate::peer_review_configs::get_peer_reviews_by_page_id(conn, page.id)
             .await?
             .into_iter()
-            .map(|x| x.into())
-            .collect();
+            .flat_map(|pr| (pr.exercise_id.map(|id| (id, pr))))
+            .collect::<HashMap<_, _>>();
+
+    let peer_review_questions = crate::peer_review_questions::get_by_page_id(conn, page.id)
+        .await?
+        .into_iter()
+        .into_group_map_by(|prq| prq.peer_review_config_id)
+        .into_iter()
+        .collect::<HashMap<_, _>>();
+
+    let exercises = crate::exercises::get_exercises_by_page_id(&mut *conn, page.id)
+        .await?
+        .into_iter()
+        .map(|exercise| {
+            let (a, b) =
+                if exercise.needs_peer_review && exercise.use_course_default_peer_review_config {
+                    (None, None)
+                } else {
+                    let peer_review_config = peer_review_configs.get(&exercise.id).copied();
+                    let peer_review_questions = peer_review_config
+                        .and_then(|prc| peer_review_questions.get(&prc.id).cloned());
+                    (peer_review_config, peer_review_questions)
+                };
+
+            Ok(CmsPageExercise::from_exercise_and_peer_review_data(
+                exercise, a, b,
+            ))
+        })
+        .collect::<ModelResult<Vec<_>>>()?;
+
     let exercise_slides: Vec<CmsPageExerciseSlide> =
         crate::exercise_slides::get_exercise_slides_by_exercise_ids(
             &mut *conn,
-            &exercises.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+            &exercises.iter().map(|x| x.id).collect::<Vec<_>>(),
         )
         .await?
         .into_iter()
         .map(|x| x.into())
         .collect();
+
     let exercise_tasks: Vec<CmsPageExerciseTask> =
         crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
             &mut *conn,
@@ -612,12 +657,15 @@ pub async fn get_page_with_exercises(
         .into_iter()
         .map(|x| x.into())
         .collect();
-    let organization_id = get_organization_id(&mut *conn, id).await?;
+
+    let organization_id = get_organization_id(&mut *conn, page_id).await?;
     Ok(ContentManagementPage {
         page,
         exercises,
         exercise_slides,
         exercise_tasks,
+        peer_review_configs: peer_review_configs.into_values().collect(),
+        peer_review_questions: peer_review_questions.into_values().flatten().collect(),
         organization_id,
     })
 }
@@ -649,7 +697,7 @@ AND pages.deleted_at IS NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExercise {
     pub id: Uuid,
@@ -660,10 +708,17 @@ pub struct CmsPageExercise {
     pub limit_number_of_tries: bool,
     pub deadline: Option<DateTime<Utc>>,
     pub needs_peer_review: bool,
+    pub peer_review_config: Option<CmsPeerReviewConfig>,
+    pub peer_review_questions: Option<Vec<CmsPeerReviewQuestion>>,
+    pub use_course_default_peer_review_config: bool,
 }
 
-impl From<Exercise> for CmsPageExercise {
-    fn from(exercise: Exercise) -> Self {
+impl CmsPageExercise {
+    fn from_exercise_and_peer_review_data(
+        exercise: Exercise,
+        peer_review_config: Option<CmsPeerReviewConfig>,
+        peer_review_questions: Option<Vec<CmsPeerReviewQuestion>>,
+    ) -> Self {
         Self {
             id: exercise.id,
             name: exercise.name,
@@ -673,6 +728,9 @@ impl From<Exercise> for CmsPageExercise {
             limit_number_of_tries: exercise.limit_number_of_tries,
             deadline: exercise.deadline,
             needs_peer_review: exercise.needs_peer_review,
+            use_course_default_peer_review_config: exercise.use_course_default_peer_review_config,
+            peer_review_config,
+            peer_review_questions,
         }
     }
 }
@@ -719,7 +777,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageUpdate {
     pub content: serde_json::Value,
@@ -744,34 +802,46 @@ impl CmsPageUpdate {
                     e.insert(true);
                     Ok((x.id, false))
                 } else {
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "Exercide ids in slides don't match.".to_string(),
+                        None,
                     ))
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
 
         if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: exercise_id,
-                description: "Exercise must have at least one slide.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: exercise_id,
+                    description: "Exercise must have at least one slide.",
+                },
+                "Exercise must have at least one slide.".to_string(),
+                None,
+            ));
         }
 
         for task in self.exercise_tasks.iter() {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);
             } else {
-                return Err(ModelError::PreconditionFailed(
+                return Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "Exercise slide ids in tasks don't match.".to_string(),
+                    None,
                 ));
             }
         }
         if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: slide_id,
-                description: "Exercise slide must have at least one task.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: slide_id,
+                    description: "Exercise slide must have at least one task.",
+                },
+                "Exercise slide must have at least one task.".to_string(),
+                None,
+            ));
         }
         Ok(())
     }
@@ -782,7 +852,7 @@ pub async fn update_page(
     page_id: Uuid,
     page_update: CmsPageUpdate,
     author: Uuid,
-    retain_exercise_ids: bool,
+    retain_ids: bool,
     history_change_reason: HistoryChangeReason,
     is_exam_page: bool,
 ) -> ModelResult<ContentManagementPage> {
@@ -793,8 +863,8 @@ pub async fn update_page(
         && page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
-        return Err(ModelError::Generic(
-                "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+        return Err(ModelError::new(
+               ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
             ));
     }
 
@@ -840,7 +910,7 @@ RETURNING id,
         &page,
         &existing_exercise_ids,
         &page_update.exercises,
-        retain_exercise_ids,
+        retain_ids,
     )
     .await?;
 
@@ -856,7 +926,50 @@ RETURNING id,
         &remapped_exercises,
         &existing_exercise_slide_ids,
         &page_update.exercise_slides,
-        retain_exercise_ids,
+        retain_ids,
+    )
+    .await?;
+
+    // Peer reviews
+    let existing_peer_review_config_ids =
+        crate::peer_review_configs::delete_peer_reviews_by_exrcise_ids(
+            &mut tx,
+            &existing_exercise_ids,
+        )
+        .await?;
+
+    let (peer_reviews, peer_review_questions) = page_update
+        .exercises
+        .into_iter()
+        .flat_map(|e| e.peer_review_config.zip(e.peer_review_questions))
+        .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
+            a.push(pr);
+            b.extend(prq);
+            (a, b)
+        });
+
+    let remapped_peer_review_configs = upsert_peer_review_configs(
+        &mut tx,
+        &existing_peer_review_config_ids,
+        &peer_reviews,
+        retain_ids,
+    )
+    .await?;
+
+    // Peer review questions
+    let existing_peer_review_questions =
+        crate::peer_review_questions::delete_peer_review_questions_by_peer_review_config_ids(
+            &mut tx,
+            &existing_peer_review_config_ids,
+        )
+        .await?;
+
+    let remapped_peer_review_questions = upsert_peer_review_questions(
+        &mut tx,
+        &existing_peer_review_questions,
+        &peer_review_questions,
+        &remapped_peer_review_configs,
+        retain_ids,
     )
     .await?;
 
@@ -881,7 +994,7 @@ RETURNING id,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
         &page_update.exercise_tasks,
-        retain_exercise_ids,
+        retain_ids,
     )
     .await?;
 
@@ -919,13 +1032,40 @@ RETURNING id,
     .fetch_one(&mut tx)
     .await?;
 
-    let final_exercises: Vec<CmsPageExercise> = remapped_exercises.into_values().collect();
+    let x = remapped_exercises.into_values().collect::<Vec<_>>();
+    let final_exercises = x
+        .iter()
+        .map(|e| {
+            let peer_review_config = remapped_peer_review_configs
+                .values()
+                .find(|prc| prc.exercise_id == Some(e.id));
+            if let Some(prc) = peer_review_config {
+                let peer_review_questions = remapped_peer_review_questions
+                    .values()
+                    .filter(|prq| prq.peer_review_config_id == prc.id)
+                    .cloned()
+                    .collect::<Vec<_>>();
+                return CmsPageExercise::from_exercise_and_peer_review_data(
+                    e.clone(),
+                    Some(*prc),
+                    Some(peer_review_questions),
+                );
+            }
+            CmsPageExercise::from_exercise_and_peer_review_data(e.clone(), None, None)
+        })
+        .collect();
     let final_slides: Vec<CmsPageExerciseSlide> = remapped_exercise_slides.into_values().collect();
+    let final_peer_reviews: Vec<CmsPeerReviewConfig> =
+        remapped_peer_review_configs.into_values().collect();
+    let final_peer_review_questions: Vec<CmsPeerReviewQuestion> =
+        remapped_peer_review_questions.into_values().collect();
     let history_content = PageHistoryContent {
         content: page.content.clone(),
         exercises: final_exercises,
         exercise_slides: final_slides,
         exercise_tasks: final_tasks,
+        peer_review_configs: final_peer_reviews,
+        peer_review_questions: final_peer_review_questions,
     };
     crate::page_history::insert(
         &mut tx,
@@ -946,6 +1086,8 @@ RETURNING id,
         exercises: history_content.exercises,
         exercise_slides: history_content.exercise_slides,
         exercise_tasks: history_content.exercise_tasks,
+        peer_review_configs: history_content.peer_review_configs,
+        peer_review_questions: history_content.peer_review_questions,
         organization_id,
     })
 }
@@ -957,7 +1099,7 @@ async fn upsert_exercises(
     existing_exercise_ids: &[Uuid],
     exercise_updates: &[CmsPageExercise],
     retain_exercise_ids: bool,
-) -> ModelResult<HashMap<Uuid, CmsPageExercise>> {
+) -> ModelResult<HashMap<Uuid, Exercise>> {
     let mut remapped_exercises = HashMap::new();
     for exercise_update in exercise_updates.iter() {
         let exercise_exists = existing_exercise_ids
@@ -970,7 +1112,7 @@ async fn upsert_exercises(
         };
 
         let exercise = sqlx::query_as!(
-            CmsPageExercise,
+            Exercise,
             "
 INSERT INTO exercises(
     id,
@@ -984,7 +1126,8 @@ INSERT INTO exercises(
     max_tries_per_slide,
     limit_number_of_tries,
     deadline,
-    needs_peer_review
+    needs_peer_review,
+    use_course_default_peer_review_config
   )
 VALUES (
     $1,
@@ -998,7 +1141,8 @@ VALUES (
     $9,
     $10,
     $11,
-    $12
+    $12,
+    $13
   ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
@@ -1012,15 +1156,9 @@ SET course_id = $2,
   limit_number_of_tries = $10,
   deadline = $11,
   needs_peer_review = $12,
+  use_course_default_peer_review_config = $13,
   deleted_at = NULL
-RETURNING id,
-  name,
-  order_number,
-  score_maximum,
-  max_tries_per_slide,
-  limit_number_of_tries,
-  deadline,
-  needs_peer_review
+RETURNING *;
             ",
             safe_for_db_exercise_id,
             page.course_id,
@@ -1034,9 +1172,11 @@ RETURNING id,
             exercise_update.limit_number_of_tries,
             exercise_update.deadline,
             exercise_update.needs_peer_review,
+            exercise_update.use_course_default_peer_review_config
         )
         .fetch_one(&mut *conn)
         .await?;
+
         remapped_exercises.insert(exercise_update.id, exercise);
     }
     Ok(remapped_exercises)
@@ -1045,7 +1185,7 @@ RETURNING id,
 /// Remaps ids from updates to exercise slides that may have their ids changed.
 async fn upsert_exercise_slides(
     conn: &mut PgConnection,
-    remapped_exercises: &HashMap<Uuid, CmsPageExercise>,
+    remapped_exercises: &HashMap<Uuid, Exercise>,
     existing_slide_ids: &[Uuid],
     slide_updates: &[CmsPageExerciseSlide],
     retain_exercise_ids: bool,
@@ -1061,8 +1201,10 @@ async fn upsert_exercise_slides(
         let safe_for_db_exercise_id = remapped_exercises
             .get(&slide_update.exercise_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise id for exercise slide.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1163,8 +1305,10 @@ async fn upsert_exercise_tasks(
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise slide id for exercise task.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1216,6 +1360,236 @@ RETURNING id,
     Ok(remapped_exercise_tasks)
 }
 
+pub async fn upsert_peer_review_configs(
+    conn: &mut PgConnection,
+    existing_peer_reviews: &[Uuid],
+    peer_reviews: &[CmsPeerReviewConfig],
+    retain_ids: bool,
+) -> ModelResult<HashMap<Uuid, CmsPeerReviewConfig>> {
+    if peer_reviews.is_empty() {
+        Ok(HashMap::new())
+    } else {
+        let mut new_peer_review_config_id_to_old_id = HashMap::new();
+
+        let mut sql: QueryBuilder<Postgres> = QueryBuilder::new(
+            "INSERT INTO peer_review_configs (
+        id,
+        course_id,
+        exercise_id,
+        peer_reviews_to_give,
+        peer_reviews_to_receive,
+        accepting_strategy,
+        accepting_threshold,
+        deleted_at
+      ) ",
+        );
+
+        sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
+            let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
+            let safe_for_db_peer_review_config_id = if retain_ids || peer_review_exists {
+                pr.id
+            } else {
+                Uuid::new_v4()
+            };
+            new_peer_review_config_id_to_old_id.insert(safe_for_db_peer_review_config_id, pr.id);
+            x.push_bind(safe_for_db_peer_review_config_id)
+                .push_bind(pr.course_id)
+                .push_bind(pr.exercise_id)
+                .push_bind(pr.peer_reviews_to_give)
+                .push_bind(pr.peer_reviews_to_receive)
+                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.accepting_threshold)
+                .push("NULL");
+        });
+
+        sql.push(
+            " ON CONFLICT (id) DO
+UPDATE
+SET course_id = excluded.course_id,
+  exercise_id = excluded.exercise_id,
+  peer_reviews_to_give = excluded.peer_reviews_to_give,
+  peer_reviews_to_receive = excluded.peer_reviews_to_receive,
+  accepting_strategy = excluded.accepting_strategy,
+  accepting_threshold = excluded.accepting_threshold,
+  deleted_at = NULL
+RETURNING id;
+",
+        );
+
+        let ids = sql
+            .build()
+            .fetch_all(&mut *conn)
+            .await?
+            .iter()
+            .map(|x| x.get(0))
+            .collect::<Vec<_>>();
+
+        let prs = sqlx::query_as!(
+            CmsPeerReviewConfig,
+            r#"
+SELECT id as "id!",
+  course_id as "course_id!",
+  exercise_id,
+  peer_reviews_to_give as "peer_reviews_to_give!",
+  peer_reviews_to_receive as "peer_reviews_to_receive!",
+  accepting_strategy AS "accepting_strategy!: _",
+  accepting_threshold "accepting_threshold!"
+FROM peer_review_configs
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL;
+    "#,
+            &ids
+        )
+        .fetch_all(&mut *conn)
+        .await?;
+
+        let mut remapped_peer_reviews = HashMap::new();
+
+        for pr in prs {
+            let old_id = new_peer_review_config_id_to_old_id
+                .get(&pr.id)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
+                })?;
+            remapped_peer_reviews.insert(*old_id, pr);
+        }
+
+        Ok(remapped_peer_reviews)
+    }
+}
+
+pub async fn upsert_peer_review_questions(
+    conn: &mut PgConnection,
+    existing_peer_review_questions: &[Uuid],
+    peer_review_questions: &[CmsPeerReviewQuestion],
+    remapped_peer_review_config_ids: &HashMap<Uuid, CmsPeerReviewConfig>,
+    retain_ids: bool,
+) -> ModelResult<HashMap<Uuid, CmsPeerReviewQuestion>> {
+    if peer_review_questions.is_empty() {
+        Ok(HashMap::new())
+    } else {
+        let mut new_peer_review_question_id_to_old_id = HashMap::new();
+
+        let mut sql: QueryBuilder<Postgres> = QueryBuilder::new(
+            "INSERT INTO peer_review_questions (
+        id,
+        peer_review_config_id,
+        order_number,
+        question,
+        question_type,
+        answer_required,
+        deleted_at
+      ) ",
+        );
+
+        let peer_review_questions = peer_review_questions
+            .iter()
+            .take(1000)
+            .map(|prq| {
+                remapped_peer_review_config_ids
+                    .get(&prq.peer_review_config_id)
+                    .map(|r| (prq, r.id))
+                    .ok_or_else(|| {
+                        ModelError::new(
+                            ModelErrorType::Generic,
+                            "No peer review found for peer review questions".to_string(),
+                            None,
+                        )
+                    })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        sql.push_values(
+            peer_review_questions,
+            |mut x, (prq, peer_review_config_id)| {
+                let peer_review_question_exists = existing_peer_review_questions
+                    .iter()
+                    .any(|id| *id == prq.id);
+                let safe_for_db_peer_review_question_id =
+                    if retain_ids || peer_review_question_exists {
+                        prq.id
+                    } else {
+                        Uuid::new_v4()
+                    };
+                new_peer_review_question_id_to_old_id
+                    .insert(safe_for_db_peer_review_question_id, prq.id);
+
+                x.push_bind(safe_for_db_peer_review_question_id)
+                    .push_bind(peer_review_config_id)
+                    .push_bind(prq.order_number)
+                    .push_bind(prq.question.as_str())
+                    .push_bind(prq.question_type)
+                    .push_bind(prq.answer_required)
+                    .push("NULL");
+            },
+        );
+
+        sql.push(
+            " ON CONFLICT (id) DO
+UPDATE
+SET peer_review_config_id = excluded.peer_review_config_id,
+    order_number = excluded.order_number,
+    question = excluded.question,
+    question_type = excluded.question_type,
+    answer_required = excluded.answer_required,
+    deleted_at = NULL
+RETURNING id;
+",
+        );
+
+        let ids = sql
+            .build()
+            .fetch_all(&mut *conn)
+            .await?
+            .iter()
+            .map(|x| x.get(0))
+            .collect::<Vec<_>>();
+
+        let prqs = sqlx::query_as!(
+            CmsPeerReviewQuestion,
+            r#"
+SELECT id AS "id!",
+  answer_required AS "answer_required!",
+  order_number AS "order_number!",
+  peer_review_config_id AS "peer_review_config_id!",
+  question AS "question!",
+  question_type AS "question_type!: _"
+FROM peer_review_questions
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at is null;
+        "#,
+            &ids
+        )
+        .fetch_all(&mut *conn)
+        .await?;
+
+        let mut remapped_peer_review_questions = HashMap::new();
+
+        for prq in prqs {
+            let old_id = new_peer_review_question_id_to_old_id
+                .get(&prq.id)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
+                })?;
+            remapped_peer_review_questions.insert(*old_id, prq);
+        }
+
+        Ok(remapped_peer_review_questions)
+    }
+}
+
 /// Only used when testing.
 pub async fn update_page_content(
     conn: &mut PgConnection,
@@ -1260,9 +1634,15 @@ async fn fetch_derived_spec(
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
-                .ok_or(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                    id: cms_block_id,
-                    description: "Missing exercise type for exercise task.",
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                            id: cms_block_id,
+                            description: "Missing exercise type for exercise task.",
+                        },
+                        "Missing exercise type for exercise task.".to_string(),
+                        None,
+                    )
                 })?
                 .clone();
             let res = client
@@ -1273,10 +1653,11 @@ async fn fetch_derived_spec(
                 .await?;
             if !res.status().is_success() {
                 let error = res.text().await.unwrap_or_default();
-                return Err(ModelError::Generic(format!(
-                    "Failed to generate spec for exercise: {}.",
-                    error,
-                )));
+                return Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("Failed to generate spec for exercise: {}.", error,),
+                    None,
+                ));
             }
             Some(res.json::<serde_json::Value>().await?)
         }
@@ -1611,8 +1992,10 @@ WHERE p.id = $1;
     .await?;
 
     if page_metadata.chapter_number.is_none() {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Page is not related to any chapter".to_string(),
+            None,
         ));
     }
 
@@ -1745,8 +2128,10 @@ pub async fn get_page_navigation_data(
                     chapter_front_page_id: Some(front_page.id),
                 })
             } else {
-                Err(ModelError::InvalidRequest(
+                Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Chapter front page chapter not found".to_string(),
+                    None,
                 ))
             }
         })
@@ -2281,35 +2666,44 @@ WHERE pages.order_number = $1
                                 .execute(&mut tx)
                                 .await?;
                             } else {
-                                return Err(ModelError::InvalidRequest(
+                                return Err(ModelError::new(
+                                    ModelErrorType::InvalidRequest,
                                     "New chapter not found".to_string(),
+                                    None,
                                 ));
                             }
                         } else {
-                            return Err(ModelError::InvalidRequest(
+                            return Err(ModelError::new(
+                                ModelErrorType::InvalidRequest,
                                 "Old chapter not found".to_string(),
+                                None,
                             ));
                         }
                     } else {
                         // Moving page from a chapter to a top level page
-                        return Err(ModelError::InvalidRequest(
+                        return Err(ModelError::new(
+                            ModelErrorType::InvalidRequest,
                             "Making a chapter page a top level page is not supported yet"
                                 .to_string(),
+                            None,
                         ));
                     }
                 } else {
                     error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
                     // Moving page from the top level to a chapter
-                    return Err(ModelError::InvalidRequest(
+                    return Err(ModelError::new(
+                        ModelErrorType::InvalidRequest,
                         "Moving a top level page to a chapter is not supported yet".to_string(),
+                        None,
                     ));
                 }
             }
         } else {
-            return Err(ModelError::InvalidRequest(format!(
-                "Page {} does exist in course {}",
-                page.id, course_id
-            )));
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Page {} does exist in course {}", page.id, course_id),
+                None,
+            ));
         }
     }
     tx.commit().await?;
@@ -2506,6 +2900,9 @@ mod test {
             limit_number_of_tries: false,
             deadline: Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
             needs_peer_review: false,
+            peer_review_config: None,
+            peer_review_questions: None,
+            use_course_default_peer_review_config: false,
         };
         let e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str("43380e81-6ff2-4f46-9f38-af0ac6a8421a").unwrap(),
@@ -2536,12 +2933,12 @@ mod test {
         .is_ok());
 
         // Fails with missing slide
-        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1],)
+        assert!(create_update(vec![e1.clone()], vec![], vec![e1_s1_t1])
             .validate_exercise_data()
             .is_err());
 
         // Fails with missing task
-        assert!(create_update(vec![e1], vec![e1_s1], vec![],)
+        assert!(create_update(vec![e1], vec![e1_s1], vec![])
             .validate_exercise_data()
             .is_err());
     }
@@ -2560,5 +2957,91 @@ mod test {
             title: "".to_string(),
             chapter_id: None,
         }
+    }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise);
+        let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
+        let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+
+        let pr1 = CmsPeerReviewConfig {
+            id:pr_id,
+            exercise_id: Some(exercise),
+            course_id: course,
+            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_threshold:0.5,
+            peer_reviews_to_give:2,
+            peer_reviews_to_receive:1
+        };
+        let prq = CmsPeerReviewQuestion {
+            id: prq_id,
+            peer_review_config_id: pr_id,
+            answer_required: true,
+            order_number: 0,
+            question: "juu".to_string(),
+            question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+        };
+        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], false)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, false)
+            .await
+            .unwrap();
+
+        assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
+
+        assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
+    }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work_retain_ids() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page:_page, exercise:exercise);
+        let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
+        let prq_id = Uuid::parse_str("de18fa14-4ac6-4b57-b9f8-4843fa52d948").unwrap();
+        let pr1 = CmsPeerReviewConfig {
+            id:pr_id,
+            exercise_id: Some(exercise),
+            course_id: course,
+            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
+            accepting_threshold:0.5,
+            peer_reviews_to_give:2,
+            peer_reviews_to_receive:1
+        };
+        let prq = CmsPeerReviewQuestion {
+            id: prq_id,
+            peer_review_config_id: pr_id,
+            answer_required: true,
+            order_number: 0,
+            question: "juu".to_string(),
+            question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+        };
+        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], true)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[prq], &pr_res, true)
+            .await
+            .unwrap();
+
+        assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
+        assert!(pr_res.get(&pr_id).unwrap().id == pr_id);
+
+        assert!(prq_res.get(&prq_id).unwrap().id == prq_id);
+        assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
+    }
+
+    #[tokio::test]
+    async fn page_upsert_peer_reviews_work_empty() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter);
+
+        let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[], true)
+            .await
+            .unwrap();
+        let prq_res = upsert_peer_review_questions(tx.as_mut(), &[], &[], &pr_res, true)
+            .await
+            .unwrap();
+
+        assert!(pr_res.is_empty());
+        assert!(prq_res.is_empty());
     }
 }

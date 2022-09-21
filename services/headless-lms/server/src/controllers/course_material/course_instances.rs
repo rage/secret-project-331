@@ -8,7 +8,7 @@ use models::{
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.

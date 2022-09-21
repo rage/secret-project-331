@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
 use crate::{
-    course_instances,
+    course_instance_enrollments,
+    course_instances::{self, CourseInstance},
     course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
-    users,
+    users::{self, User},
 };
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
@@ -189,7 +190,13 @@ fn prerequisite_modules_are_completed(
     let module = modules
         .iter()
         .find(|x| x.module_id == module_id)
-        .ok_or_else(|| ModelError::Generic("Module missing from vec.".to_string()))?;
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Module missing from vec.".to_string(),
+                None,
+            )
+        })?;
     if module.default {
         let submodule_completions: u32 = modules
             .iter()
@@ -202,7 +209,13 @@ fn prerequisite_modules_are_completed(
             .iter()
             .find(|x| x.default)
             .map(|x| x.completed)
-            .ok_or_else(|| ModelError::Generic("Default module missing".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Default module missing".to_string(),
+                    None,
+                )
+            })?;
         Ok(default_completed && module.completed)
     }
 }
@@ -259,6 +272,173 @@ pub async fn process_all_course_instance_completions(
     Ok(())
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseInstanceCompletionSummary {
+    pub course_modules: Vec<CourseModule>,
+    pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserWithModuleCompletions {
+    pub completed_modules: Vec<UserCourseModuleCompletion>,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub user_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserCourseModuleCompletion {
+    pub course_module_id: Uuid,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+impl From<CourseModuleCompletion> for UserCourseModuleCompletion {
+    fn from(course_module_completion: CourseModuleCompletion) -> Self {
+        Self {
+            course_module_id: course_module_completion.course_module_id,
+            grade: course_module_completion.grade,
+            passed: course_module_completion.passed,
+        }
+    }
+}
+
+impl From<User> for UserWithModuleCompletions {
+    fn from(user: User) -> Self {
+        Self {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            completed_modules: vec![],
+        }
+    }
+}
+
+pub async fn get_course_instance_completion_summary(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+) -> ModelResult<CourseInstanceCompletionSummary> {
+    let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
+    let mut users_with_course_module_completions: HashMap<Uuid, UserWithModuleCompletions> =
+        users::get_users_by_course_instance_enrollment(conn, course_instance.id)
+            .await?
+            .into_iter()
+            .map(|u| (u.id, u.into()))
+            .collect();
+    let completions =
+        course_module_completions::get_all_by_course_instance_id(conn, course_instance.id).await?;
+    completions.into_iter().for_each(|x| {
+        let user_with_completions = users_with_course_module_completions.get_mut(&x.user_id);
+        if let Some(completion) = user_with_completions {
+            completion.completed_modules.push(x.into());
+        }
+    });
+    Ok(CourseInstanceCompletionSummary {
+        course_modules,
+        users_with_course_module_completions: users_with_course_module_completions
+            .into_values()
+            .collect(),
+    })
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletionRequest {
+    pub course_module_id: Uuid,
+    pub new_completions: Vec<TeacherManualCompletion>,
+    pub skip_duplicate_completions: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletion {
+    pub user_id: Uuid,
+    pub grade: Option<i32>,
+    pub completion_date: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreview {
+    pub already_completed_users: Vec<ManualCompletionPreviewUser>,
+    pub first_time_completing_users: Vec<ManualCompletionPreviewUser>,
+    pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreviewUser {
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+/// Gets a preview of changes that will occur to completions with the given manual completion data.
+pub async fn get_manual_completion_result_preview(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+    manual_completion_request: &TeacherManualCompletionRequest,
+) -> ModelResult<ManualCompletionPreview> {
+    let course_module =
+        course_modules::get_by_id(conn, manual_completion_request.course_module_id).await?;
+    if course_module.course_id != course_instance.course_id {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Course module not part of the course.".to_string(),
+            None,
+        ));
+    }
+    let mut already_completed_users = vec![];
+    let mut first_time_completing_users = vec![];
+    let mut non_enrolled_users = vec![];
+    for completion in manual_completion_request.new_completions.iter() {
+        let user = users::get_by_id(conn, completion.user_id).await?;
+        let user = ManualCompletionPreviewUser {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            grade: completion.grade,
+            passed: true,
+        };
+        let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
+            conn,
+            completion.user_id,
+            course_instance.id,
+        )
+        .await
+        .optional()?;
+        if enrollment.is_none() {
+            non_enrolled_users.push(user.clone());
+        }
+        let course_module_completion =
+            course_module_completions::get_by_course_module_instance_and_user_ids(
+                conn,
+                manual_completion_request.course_module_id,
+                course_instance.id,
+                completion.user_id,
+            )
+            .await
+            .optional()?;
+        if course_module_completion.is_some() {
+            already_completed_users.push(user);
+        } else {
+            first_time_completing_users.push(user);
+        }
+    }
+    Ok(ManualCompletionPreview {
+        already_completed_users,
+        first_time_completing_users,
+        non_enrolled_users,
+    })
+}
+
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCompletionInformation {
@@ -279,7 +459,13 @@ pub async fn get_user_completion_information(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -290,7 +476,11 @@ pub async fn get_user_completion_information(
         .await?;
     // Course code is required only so that fetching the link later works.
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Course module is missing uh_course_code.".to_string(),
+            None,
+        )
     })?;
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
@@ -368,7 +558,13 @@ pub async fn get_completion_registration_link_and_save_attempt(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -384,9 +580,11 @@ pub async fn get_completion_registration_link_and_save_attempt(
     )
     .await?;
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed(
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Course module doesn't have an assossiated University of Helsinki course code."
                 .to_string(),
+            None,
         )
     })?;
     let registration_link =

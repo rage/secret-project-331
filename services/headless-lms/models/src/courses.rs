@@ -9,6 +9,7 @@ use crate::{
     course_language_groups,
     course_modules::CourseModule,
     pages::{course_pages, NewPage, Page},
+    peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
 };
 
@@ -375,7 +376,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions;
             "#,
         id,
         new_course.name,
@@ -433,6 +434,40 @@ RETURNING id,
 
     // Create default course module
     let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+
+    let peer_review_config_id =
+        crate::peer_review_configs::insert(&mut tx, course.id, None, 3, 2).await?;
+
+    crate::peer_review_questions::upsert_multiple_peer_review_questions(
+        &mut tx,
+        &[
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 0,
+                question: "General comments".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+                answer_required: false,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 1,
+                question: "The answer was correct".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: true,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 2,
+                question: "The answer was easy to read".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: true,
+            },
+        ],
+    )
+    .await?;
 
     tx.commit().await?;
     Ok((course, page, default_course_instance, default_module))

@@ -1,10 +1,10 @@
 use crate::{
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
+    peer_review_configs::{self, PeerReviewConfig},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::{self, PeerReviewSubmission},
-    peer_reviews::{self, PeerReview},
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
     user_exercise_slide_states::{self, UserExerciseSlideStateGradingSummary},
@@ -197,22 +197,24 @@ async fn load_peer_review_information(
 
 async fn load_peer_review_config(
     conn: &mut PgConnection,
-    already_loaded_peer_review_config: Option<crate::peer_reviews::PeerReview>,
+    already_loaded_peer_review_config: Option<crate::peer_review_configs::PeerReviewConfig>,
     loaded_user_exercise_state: &UserExerciseState,
     loaded_exercise: &Exercise,
-) -> ModelResult<PeerReview> {
+) -> ModelResult<PeerReviewConfig> {
     if let Some(prc) = already_loaded_peer_review_config {
         info!("Using already loaded peer review config");
         Ok(prc)
     } else {
         info!("Loading peer review config");
-        Ok(peer_reviews::get_by_exercise_or_course_id(
+        Ok(peer_review_configs::get_by_exercise_or_course_id(
             conn,
             loaded_user_exercise_state.exercise_id,
             loaded_exercise.course_id.ok_or_else(|| {
-                ModelError::InvalidRequest(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Peer reviews work only on courses (and not, for example, on exams)"
                         .to_string(),
+                    None,
                 )
             })?,
         )
@@ -235,9 +237,11 @@ async fn load_peer_review_queue_entry(
             loaded_user_exercise_state
                 .course_instance_id
                 .ok_or_else(|| {
-                    ModelError::InvalidRequest(
+                    ModelError::new(
+                        ModelErrorType::InvalidRequest,
                         "Peer reviews work only on courses (and not, for example, on exams)"
                             .to_string(),
+                        None,
                     )
                 })?;
         // The result is optinal because not all answers are in the peer review queue yet. For example, we don't place any answers to the queue if their giver has not given enough peer reviews.
@@ -274,7 +278,7 @@ async fn load_latest_exercise_slide_submission(
         Ok(latest_exercise_slide_submission)
     } else {
         info!("Loading latest exercise slide submission");
-        let selected_exercise_slide_id = loaded_user_exercise_state.selected_exercise_slide_id.ok_or_else(|| ModelError::PreconditionFailed("No selected exercise slide id found: presumably the user has not answered the exercise.".to_string()))?;
+        let selected_exercise_slide_id = loaded_user_exercise_state.selected_exercise_slide_id.ok_or_else(|| ModelError::new(ModelErrorType::PreconditionFailed, "No selected exercise slide id found: presumably the user has not answered the exercise.".to_string(), None))?;
         // Received peer reviews are only considered for the latest submission.
         let latest_exercise_slide_submission =
             crate::exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -301,9 +305,11 @@ async fn load_given_peer_review_submissions(
             loaded_user_exercise_state
                 .course_instance_id
                 .ok_or_else(|| {
-                    ModelError::InvalidRequest(
+                    ModelError::new(
+                        ModelErrorType::InvalidRequest,
                         "Peer reviews work only on courses (and not, for example, on exams)"
                             .to_string(),
+                        None,
                     )
                 })?;
         Ok(peer_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(conn, loaded_user_exercise_state.user_id, course_instance_id, loaded_user_exercise_state.exercise_id).await?)

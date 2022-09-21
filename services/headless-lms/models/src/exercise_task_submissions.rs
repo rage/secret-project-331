@@ -27,7 +27,7 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewsRecieved {
     pub peer_review_questions: Vec<PeerReviewQuestion>,

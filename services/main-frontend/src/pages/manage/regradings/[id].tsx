@@ -91,6 +91,9 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
               ? query.data.regrading.user_points_update_strategy
               : "null"}
           </p>
+          <p>
+            <b>user_id</b>: {query.data.regrading.user_id ? query.data.regrading.user_id : "null"}
+          </p>
         </div>
         <ProgressBar
           label={t("label-submissions-regraded")}

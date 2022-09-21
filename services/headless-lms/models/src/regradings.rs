@@ -15,6 +15,7 @@ pub struct Regrading {
     pub regrading_completed_at: Option<DateTime<Utc>>,
     pub total_grading_progress: GradingProgress,
     pub user_points_update_strategy: UserPointsUpdateStrategy,
+    pub user_id: Option<Uuid>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -60,16 +61,18 @@ RETURNING id
 pub async fn insert_and_create_exercise_task_regradings(
     conn: &mut PgConnection,
     new_regrading: NewRegrading,
+    user_id: Uuid,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
     info!("Creating a new regrading.");
     let res = sqlx::query!(
         "
-INSERT INTO regradings (user_points_update_strategy)
-VALUES ($1)
+INSERT INTO regradings (user_points_update_strategy, user_id)
+VALUES ($1, $2)
 RETURNING id
         ",
-        new_regrading.user_points_update_strategy as UserPointsUpdateStrategy
+        new_regrading.user_points_update_strategy as UserPointsUpdateStrategy,
+        user_id
     )
     .fetch_one(&mut tx)
     .await?;
@@ -153,7 +156,8 @@ SELECT id,
   regrading_started_at,
   regrading_completed_at,
   total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_id
 FROM regradings
 WHERE deleted_at IS NULL
 ORDER BY regradings.created_at
@@ -190,7 +194,8 @@ SELECT id,
   created_at,
   updated_at,
   total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _"
+  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_id
 FROM regradings
 WHERE id = $1
 "#,

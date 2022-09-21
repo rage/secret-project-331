@@ -1809,7 +1809,8 @@ export function isRegrading(obj: unknown): obj is Regrading {
     (typedObj["regrading_completed_at"] === null ||
       typedObj["regrading_completed_at"] instanceof Date) &&
     (isGradingProgress(typedObj["total_grading_progress"]) as boolean) &&
-    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean)
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
+    (typedObj["user_id"] === null || typeof typedObj["user_id"] === "string")
   )
 }
 

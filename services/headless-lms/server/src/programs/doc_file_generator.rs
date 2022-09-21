@@ -1298,7 +1298,8 @@ pub async fn main() -> anyhow::Result<()> {
                 regrading_completed_at: Some(created_at),
                 total_grading_progress: GradingProgress::FullyGraded,
                 user_points_update_strategy:
-                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+                user_id: Some(id)
             },
             Regrading {
                 id,
@@ -1308,7 +1309,8 @@ pub async fn main() -> anyhow::Result<()> {
                 regrading_completed_at: None,
                 total_grading_progress: GradingProgress::NotReady,
                 user_points_update_strategy:
-                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+                user_id: Some(id)
             }
         ]
     );
@@ -1323,7 +1325,8 @@ pub async fn main() -> anyhow::Result<()> {
                 regrading_completed_at: Some(created_at),
                 total_grading_progress: GradingProgress::FullyGraded,
                 user_points_update_strategy:
-                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+                user_id: Some(id)
             },
             submission_infos: vec![RegradingSubmissionInfo {
                 exercise_task_submission_id: id,

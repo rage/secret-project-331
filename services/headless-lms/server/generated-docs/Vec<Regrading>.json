@@ -6,7 +6,8 @@
     "regrading_started_at": "2021-12-31T22:00:00Z",
     "regrading_completed_at": "2021-12-31T22:00:00Z",
     "total_grading_progress": "FullyGraded",
-    "user_points_update_strategy": "CanAddPointsAndCanRemovePoints"
+    "user_points_update_strategy": "CanAddPointsAndCanRemovePoints",
+    "user_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"
   },
   {
     "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
@@ -15,6 +16,7 @@
     "regrading_started_at": null,
     "regrading_completed_at": null,
     "total_grading_progress": "NotReady",
-    "user_points_update_strategy": "CanAddPointsButCannotRemovePoints"
+    "user_points_update_strategy": "CanAddPointsButCannotRemovePoints",
+    "user_id": "307fa56f-9853-4f5c-afb9-a6736c232f32"
   }
 ]

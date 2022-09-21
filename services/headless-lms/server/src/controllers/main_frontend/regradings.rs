@@ -47,9 +47,12 @@ async fn create_by_exercise_task_submission_ids(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let res =
-        models::regradings::insert_and_create_exercise_task_regradings(&mut conn, new_regrading.0)
-            .await?;
+    let res = models::regradings::insert_and_create_exercise_task_regradings(
+        &mut conn,
+        new_regrading.0,
+        user.id,
+    )
+    .await?;
     token.authorized_ok(web::Json(res))
 }
 

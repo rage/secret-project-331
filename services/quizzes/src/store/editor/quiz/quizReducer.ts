@@ -4,7 +4,13 @@ import { createReducer } from "typesafe-actions"
 
 import { action, NormalizedQuiz, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
-import { createdNewItem, createdNewQuiz, deletedItem, initializedEditor } from "../editorActions"
+import {
+  createdDuplicateItem,
+  createdNewItem,
+  createdNewQuiz,
+  deletedItem,
+  initializedEditor,
+} from "../editorActions"
 
 import {
   editedQuizTitle,
@@ -74,6 +80,12 @@ export const quizReducer = createReducer<{ [quizId: string]: NormalizedQuiz }, a
   })
 
   .handleAction(createdNewItem, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.quizId].items.push(action.payload.itemId)
+    })
+  })
+
+  .handleAction(createdDuplicateItem, (state, action) => {
     return produce(state, (draftState) => {
       draftState[action.payload.quizId].items.push(action.payload.itemId)
     })

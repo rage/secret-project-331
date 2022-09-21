@@ -27,7 +27,7 @@ const HeaderBar = styled.div`
   }
 `
 
-const DebugModal: React.FC<DebugModalProps> = ({
+const DebugModal: React.FC<React.PropsWithChildren<React.PropsWithChildren<DebugModalProps>>> = ({
   data,
   readOnly = true,
   updateDataOnClose,
@@ -36,10 +36,6 @@ const DebugModal: React.FC<DebugModalProps> = ({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [editedContent, setEditedContent] = useState<string | null>(null)
-
-  if (!data) {
-    return null
-  }
 
   const closeModal = () => {
     setOpen(false)

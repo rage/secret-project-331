@@ -102,7 +102,8 @@ test.describe("admin", () => {
     // Uncheck input[type="checkbox"]
     await page.uncheck('input[type="checkbox"]')
     // Click text=Update
-    await page.click("text=Update")
+    await page.click(`button:text-is("Update")`)
+    await page.locator(`button:text-is("Update")`).waitFor({ state: "hidden" })
 
     await expectScreenshotsToMatchSnapshots({
       page,

@@ -4,8 +4,8 @@ Handlers for HTTP requests to `/api/v0/files`.
 */
 use std::path::{Path, PathBuf};
 
-use crate::controllers::prelude::*;
 pub use crate::domain::authorization::AuthorizationToken;
+use crate::prelude::*;
 use actix_files::NamedFile;
 use tokio::fs::read;
 /**
@@ -79,19 +79,24 @@ async fn serve_upload(
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let mut conn = pool.acquire().await?;
     let base_folder = Path::new("uploads");
-    let relative_path: PathBuf = req
-        .match_info()
-        .query("tail")
-        .parse()
-        .map_err(|_e| ControllerError::BadRequest("Invalid file path".to_string()))?;
+    let relative_path = PathBuf::from(req.match_info().query("tail"));
     let path = base_folder.join(relative_path);
 
-    let named_file = NamedFile::open(path)
-        .map_err(|_e| ControllerError::NotFound("File not found".to_string()))?;
+    let named_file = NamedFile::open(path).map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::NotFound,
+            "File not found".to_string(),
+            None,
+        )
+    })?;
     let path = named_file.path();
-    let contents = read(path)
-        .await
-        .map_err(|_e| ControllerError::InternalServerError("Could not read file".to_string()))?;
+    let contents = read(path).await.map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Could not read file".to_string(),
+            None,
+        )
+    })?;
 
     let extension = path.extension().map(|o| o.to_string_lossy().to_string());
     let mut mime_type = None;

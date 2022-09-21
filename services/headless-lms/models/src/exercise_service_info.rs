@@ -100,8 +100,10 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServic
         let response_url = res.url().to_string();
         let body = res.text().await?;
         warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
-        return Err(ModelError::Generic(
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
             "Could not fetch service info.".to_string(),
+            None,
         ));
     }
     let res = res.json::<ExerciseServiceInfoApi>().await?;
@@ -219,8 +221,8 @@ pub async fn get_service_info_by_exercise_service(
         exercise_service_info
     } else {
         warn!("Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.", exercise_service.name, exercise_service.slug);
-        let fetched_service_info = fetch_and_upsert_service_info(conn, exercise_service).await?;
-        fetched_service_info
+
+        fetch_and_upsert_service_info(conn, exercise_service).await?
     };
     Ok(service_info)
 }
@@ -239,8 +241,13 @@ pub async fn get_course_material_service_info_by_exercise_type(
             // Need to convert relative url to absolute url because
             // otherwise the material won't be able to request the path
             // if the path is in a different domain
-            let mut url = Url::parse(&exercise_service.public_url)
-                .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
+            let mut url = Url::parse(&exercise_service.public_url).map_err(|original_err| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    original_err.to_string(),
+                    Some(original_err.into()),
+                )
+            })?;
             url.set_path(&o.user_interface_iframe_path);
             url.set_query(None);
             url.set_fragment(None);

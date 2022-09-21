@@ -166,8 +166,6 @@ const BannerWrapper = styled.div`
     width: 100%;
     height: 100%;
   }
-
-  margin-bottom: 10px;
 `
 const Content = styled.div`
   font-weight: 500;
@@ -230,7 +228,9 @@ const StyledArrow = styled(Arrow)`
 `
 export type ContributeProps = React.HTMLAttributes<HTMLDivElement>
 
-const Contribute: React.FC<ContributeProps> = () => {
+const Contribute: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ContributeProps>>
+> = () => {
   const { t } = useTranslation()
   return (
     <BannerWrapper>

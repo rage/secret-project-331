@@ -95,6 +95,28 @@ module.exports = {
             message: "Don't use Button from @material-ui. Please use Button from shared-module.",
           },
           {
+            name: "@mui/material/Pagination",
+            importNames: ["default"],
+            message:
+              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
+          },
+          {
+            name: "@mui/material",
+            importNames: ["Pagination"],
+            message:
+              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
+          },
+          {
+            name: "@mui/material/Box",
+            importNames: ["default"],
+            message: "Don't use Box from @material-ui. Please use a div.",
+          },
+          {
+            name: "@mui/material",
+            importNames: ["Box"],
+            message: "Don't use Box from @material-ui. Please use a div.",
+          },
+          {
             name: "@mui/styles",
             importNames: ["withStyles"],
             message: "Don't use withStyles from @material-ui. Please use emotion.js.",
@@ -110,7 +132,7 @@ module.exports = {
             message: 'Use this instead: import { css } from "@emotion/css"',
           },
           {
-            name: "react-query",
+            name: "@tanstack/react-query",
             importNames: ["useMutation"],
             message:
               "Don't use useMutation from react-query. Please use useToastMutation from shared-module",
@@ -191,6 +213,7 @@ module.exports = {
           "testPlaceholder",
           "sidebarPosition",
           "buttonSize",
+          "labelStyle",
         ],
         ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
         ignoreCallee: [

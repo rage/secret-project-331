@@ -4,14 +4,23 @@ use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-    courses,
+    course_module_completions::{self, NewCourseModuleCompletion},
+    course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
+    library::{
+        self,
+        progressing::{
+            CourseInstanceCompletionSummary, ManualCompletionPreview,
+            TeacherManualCompletionRequest,
+        },
+    },
+    users,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    controllers::prelude::*,
     domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    prelude::*,
 };
 
 /**
@@ -70,7 +79,7 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-comp
 Reprocesses all module completions for the given course instance. Only available to admins.
 */
 #[generated_doc]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, user))]
 async fn post_reprocess_module_completions(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -184,6 +193,122 @@ async fn points(
 }
 
 /**
+GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn completions(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseInstanceCompletionSummary>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let completions =
+        library::progressing::get_course_instance_completion_summary(&mut conn, &course_instance)
+            .await?;
+    token.authorized_ok(web::Json(completions))
+}
+
+/**
+POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
+*/
+#[instrument(skip(pool, payload))]
+async fn post_completions(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<TeacherManualCompletionRequest>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let data = payload.0;
+    let course_module = course_modules::get_by_id(&mut conn, data.course_module_id).await?;
+    let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    if course_module.course_id != instance.course_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Course module not part of the course.".to_string(),
+            None,
+        ));
+    }
+    let course = courses::get_course(&mut conn, instance.course_id).await?;
+    let mut tx = conn.begin().await?;
+    for completion in data.new_completions {
+        let user = users::get_by_id(&mut tx, completion.user_id).await?;
+        let existing_completion =
+            course_module_completions::get_by_course_module_instance_and_user_ids(
+                &mut tx,
+                data.course_module_id,
+                *course_instance_id,
+                completion.user_id,
+            )
+            .await
+            .optional()?;
+        if existing_completion.is_none() || !data.skip_duplicate_completions {
+            course_module_completions::insert(
+                &mut tx,
+                &NewCourseModuleCompletion {
+                    course_id: instance.course_id,
+                    course_instance_id: instance.id,
+                    course_module_id: data.course_module_id,
+                    user_id: completion.user_id,
+                    completion_date: completion.completion_date.unwrap_or_else(Utc::now),
+                    completion_registration_attempt_date: None,
+                    completion_language: course.language_code.clone(),
+                    eligible_for_ects: true,
+                    email: user.email,
+                    grade: completion.grade,
+                    // Should passed be false if grade == Some(0)?
+                    passed: true,
+                },
+                None,
+            )
+            .await?;
+        }
+    }
+    tx.commit().await?;
+    token.authorized_ok(web::Json(()))
+}
+
+#[instrument(skip(pool, payload))]
+async fn preview_post_completions(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<TeacherManualCompletionRequest>,
+) -> ControllerResult<web::Json<ManualCompletionPreview>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
+    let data = payload.0;
+    let instance = course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let preview =
+        library::progressing::get_manual_completion_result_preview(&mut conn, &instance, &data)
+            .await?;
+    token.authorized_ok(web::Json(preview))
+}
+
+/**
 POST /course-instances/:id/edit
 */
 #[instrument(skip(pool))]
@@ -249,6 +374,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_instance_id}/edit", web::post().to(edit))
         .route("/{course_instance_id}/delete", web::post().to(delete))
+        .route(
+            "/{course_instance_id}/completions",
+            web::get().to(completions),
+        )
+        .route(
+            "/{course_instance_id}/completions",
+            web::post().to(post_completions),
+        )
+        .route(
+            "/{course_instance_id}/completions/preview",
+            web::post().to(preview_post_completions),
+        )
         .route("/{course_instance_id}/points", web::get().to(points))
         .route(
             "/{course_instance_id}/reprocess-completions",

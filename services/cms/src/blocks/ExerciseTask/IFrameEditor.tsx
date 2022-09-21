@@ -1,14 +1,20 @@
 import { Alert } from "@mui/lab"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
+import { v5 } from "uuid"
 
 import { SIDEBAR_WIDTH_PX } from "../../components/Layout"
+import CourseContext from "../../contexts/CourseContext"
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
+import Spinner from "../../shared-module/components/Spinner"
+import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../shared-module/exercise-service-protocol-types"
 import { isCurrentStateMessage } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
+import useUserInfo from "../../shared-module/hooks/useUserInfo"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import getGuestPseudonymousUserId from "../../shared-module/utils/getGuestPseudonymousUserId"
 import withNoSsr from "../../shared-module/utils/withNoSsr"
 
 const VIEW_TYPE = "exercise-editor"
@@ -17,18 +23,19 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseTaskId: string
-  onPrivateSpecChange(newSpec: unknown): void
-  privateSpec: unknown
+  onPrivateSpecChange(newSpec: string): void
+  privateSpec: string | null
   url: string | null | undefined
 }
 
-const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
-  exerciseTaskId,
-  onPrivateSpecChange,
-  privateSpec,
-  url,
-}) => {
+const ExerciseTaskIFrameEditor: React.FC<
+  React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
+> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
+  const loginStateContext = useContext(LoginStateContext)
+  const userInfo = useUserInfo()
+  const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
+  const courseContext = useContext(CourseContext)
 
   const largeScreen = useMedia(respondToOrLarger.xl)
 
@@ -36,12 +43,23 @@ const ExerciseTaskIFrameEditor: React.FC<ExerciseTaskIFrameEditorProps> = ({
     return {
       view_type: VIEW_TYPE,
       exercise_task_id: exerciseTaskId,
-      data: { private_spec: privateSpec },
+      user_information: {
+        pseudonymous_id: v5(courseContext?.courseId ?? "", userId) ?? getGuestPseudonymousUserId(),
+        signed_in: Boolean(loginStateContext.signedIn),
+      },
+      data: {
+        private_spec:
+          privateSpec === null || privateSpec === undefined ? null : JSON.parse(privateSpec),
+      },
     }
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
     return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+  }
+
+  if (!userInfo.data) {
+    return <Spinner variant="medium" />
   }
 
   return (

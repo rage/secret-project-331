@@ -28,13 +28,14 @@ test("It renders", async () => {
       <MessageChannelIFrame
         url="http://example.com/example-iframe-page"
         postThisStateToIFrame={{
-          view_type: "exercise",
+          view_type: "answer-exercise",
           exercise_task_id: "2c75563d-4129-49dd-9515-e55e006f875d",
           data: { public_spec: {}, previous_submission: null },
         }}
         onMessageFromIframe={(message, responsePort) => {
           console.log(message, responsePort)
         }}
+        title="test"
       />
     </I18nextProvider>,
   )

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -67,11 +68,11 @@ const Open: React.FC<QuizItemComponentProps> = ({
   )
 }
 
-export default Open
-
 const answerFormatIsValidAgainstRegex = (answer: string, validatorRegex: string): boolean => {
   const cleanedInput = stripNonPrintableCharacters(answer)
   // eslint-disable-next-line i18next/no-literal-string
   const validator = new RegExp(validatorRegex.trim(), "i")
   return validator.test(cleanedInput)
 }
+
+export default withErrorBoundary(Open)

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use crate::{
-    course_modules,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
         self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
@@ -9,17 +8,17 @@ use crate::{
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, ExerciseTask},
-    exercises::{ActivityProgress, Exercise, ExerciseStatus, GradingProgress},
+    exercises::{Exercise, ExerciseStatus},
+    peer_review_configs::PeerReviewAcceptingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_reviews::PeerReviewAcceptingStrategy,
     prelude::*,
     regradings,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{
-        self, ExerciseWithUserState, ReviewingStage, UserExerciseState, UserExerciseStateUpdate,
-    },
+    user_exercise_states::{self, ExerciseWithUserState, UserExerciseState},
     user_exercise_task_states,
 };
+
+use super::user_exercise_state_updater;
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -99,8 +98,10 @@ pub async fn create_user_exercise_slide_submission(
         .user_exercise_state()
         .selected_exercise_slide_id
         .ok_or_else(|| {
-            ModelError::PreconditionFailed(
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
                 "Exercise slide not selected for the student.".to_string(),
+                None,
             )
         })?;
     let exercise_tasks: HashMap<Uuid, ExerciseTask> =
@@ -136,8 +137,10 @@ pub async fn create_user_exercise_slide_submission(
         let exercise_task = exercise_tasks
             .get(&task_submission.exercise_task_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "Attempting to submit exercise for illegal exercise_task_id.".to_string(),
+                    None,
                 )
             })?;
         let submission_id = exercise_task_submissions::insert(
@@ -255,7 +258,13 @@ pub async fn grade_user_submission(
             for task_submission in exercise_slide_submission_tasks {
                 let fixed_result = fixed_results
                     .get(&task_submission.exercise_task_id)
-                    .ok_or_else(|| ModelError::Generic("".to_string()))?
+                    .ok_or_else(|| {
+                        ModelError::new(
+                            ModelErrorType::Generic,
+                            "Could not find fixed test result for testing".to_string(),
+                            None,
+                        )
+                    })?
                     .clone();
                 let submission = create_fixed_grading_for_submission_task(
                     &mut tx,
@@ -270,9 +279,8 @@ pub async fn grade_user_submission(
             results
         }
     };
-    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
+    let user_exercise_state = update_user_exercise_slide_state_and_user_exercise_state(
         &mut tx,
-        exercise_with_user_state.exercise(),
         user_exercise_slide_state,
         exercise_slide_submission.user_points_update_strategy,
     )
@@ -356,209 +364,10 @@ async fn create_fixed_grading_for_submission_task(
     })
 }
 
-pub async fn update_user_exercise_state_peer_review_status(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: UserExerciseState,
-    need_to_update_peer_review_status_with_this: ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis,
-) -> ModelResult<UserExerciseState> {
-    let user_exercise_state = update_user_exercise_state(
-        conn,
-        exercise,
-        &user_exercise_state,
-        UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
-        Some(need_to_update_peer_review_status_with_this),
-    )
-    .await?;
-    Ok(user_exercise_state)
-}
-
-async fn update_user_exercise_state(
-    conn: &mut PgConnection,
-    exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
-    user_points_update_strategy: UserPointsUpdateStrategy,
-    need_to_update_peer_review_status_with_this: Option<
-        ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis,
-    >,
-) -> ModelResult<UserExerciseState> {
-    let (points_from_slides, grading_progress) =
-        user_exercise_slide_states::get_grading_summary_by_user_exercise_state_id(
-            conn,
-            user_exercise_state.id,
-        )
-        .await?;
-    let new_score_given = user_exercise_task_states::figure_out_new_score_given(
-        user_exercise_state.score_given,
-        points_from_slides,
-        user_points_update_strategy,
-    );
-    let user_exercise_state_update = derive_new_user_exercise_state(
-        exercise,
-        user_exercise_state,
-        new_score_given,
-        grading_progress,
-        need_to_update_peer_review_status_with_this,
-    );
-    let new_user_exercise_state =
-        user_exercise_states::update(conn, user_exercise_state_update).await?;
-    if let Some(course_instance_id) = user_exercise_state.course_instance_id {
-        let course_module = course_modules::get_by_exercise_id(conn, exercise.id).await?;
-        super::progressing::update_automatic_completion_status_and_grant_if_eligible(
-            conn,
-            &course_module,
-            course_instance_id,
-            user_exercise_state.user_id,
-        )
-        .await?;
-    }
-    Ok(new_user_exercise_state)
-}
-
-#[instrument(skip(
-    exercise,
-    user_exercise_state,
-    new_score_given,
-    new_grading_progress,
-    need_to_update_peer_review_status_with_this
-))]
-fn derive_new_user_exercise_state(
-    exercise: &Exercise,
-    user_exercise_state: &UserExerciseState,
-    new_score_given: Option<f32>,
-    new_grading_progress: GradingProgress,
-    need_to_update_peer_review_status_with_this: Option<
-        ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis,
-    >,
-) -> UserExerciseStateUpdate {
-    let reviewing_stage = match (
-        exercise.needs_peer_review,
-        &need_to_update_peer_review_status_with_this,
-    ) {
-        (true, Some(info)) => {
-            // Separate booleans in case we want more elaborate exercise state later
-            if info.given_enough_peer_reviews && info.received_enough_peer_reviews {
-                ReviewingStage::ReviewedAndLocked
-            } else if info.given_enough_peer_reviews {
-                ReviewingStage::WaitingForPeerReviews
-            } else {
-                user_exercise_state.reviewing_stage
-            }
-        }
-        (true, None) => {
-            // Even though the exercise needs peer review, we are calling this function from a context where there is no new peer review information available. The only logical thing here is to keep the current stage since nothing has changed.
-            user_exercise_state.reviewing_stage
-        }
-        (false, _) => {
-            // Don't change the field value ever for exercises that don't need peer review
-            // Most states need to stay in the ReviewingStage::NotStarted stage
-            user_exercise_state.reviewing_stage
-        }
-    };
-
-    let reviewing_stage_changed = user_exercise_state.reviewing_stage != reviewing_stage;
-
-    if user_exercise_state.reviewing_stage != reviewing_stage {
-        info!(
-            "UserExerciseState {} changed reviewing_stage from {:?} to {:?}",
-            user_exercise_state.id, user_exercise_state.reviewing_stage, reviewing_stage
-        );
-    }
-    let score_given = match (exercise.needs_peer_review, reviewing_stage) {
-        (true, ReviewingStage::ReviewedAndLocked) => {
-            if reviewing_stage_changed {
-                // We want to give or remove points only when the peer review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
-                // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review.
-                derive_score_given_when_peer_review_complete(
-                    new_score_given,
-                    need_to_update_peer_review_status_with_this,
-                )
-            } else {
-                new_score_given
-            }
-        }
-        (false, ReviewingStage::NotStarted) => new_score_given,
-        // This case could happen if an answer without peer review requirement would be marked for manual teacher review
-        (false, ReviewingStage::ReviewedAndLocked) => new_score_given,
-        _ => user_exercise_state.score_given,
-    };
-
-    UserExerciseStateUpdate {
-        id: user_exercise_state.id,
-        score_given,
-        grading_progress: new_grading_progress,
-        activity_progress: ActivityProgress::Completed,
-        reviewing_stage,
-    }
-}
-
-#[instrument(skip(grading_score_given, need_to_update_peer_review_status_with_this))]
-fn derive_score_given_when_peer_review_complete(
-    grading_score_given: Option<f32>,
-    need_to_update_peer_review_status_with_this: Option<
-        ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis,
-    >,
-) -> Option<f32> {
-    if let Some(info) = need_to_update_peer_review_status_with_this {
-        match info.peer_review_accepting_strategy {
-            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage => {
-                let avg = calculate_average_received_peer_review_score(
-                    info.received_peer_review_question_submissions,
-                );
-                if avg < info.peer_review_accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_accepting_strategy, "Automatically giving zero points because average is below the threshold");
-                    Some(0.0)
-                } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_accepting_strategy, "Automatically giving the points since the average is above the threshold");
-                    grading_score_given
-                }
-            }
-            PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage => {
-                let avg = calculate_average_received_peer_review_score(
-                    info.received_peer_review_question_submissions,
-                );
-                if avg < info.peer_review_accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_accepting_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
-                    None
-                } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_accepting_threshold, peer_review_accepting_strategy = ?info.peer_review_accepting_strategy, "Automatically giving the points since the average is above the threshold");
-                    grading_score_given
-                }
-            }
-            PeerReviewAcceptingStrategy::ManualReviewEverything => {
-                info!(peer_review_accepting_strategy = ?info.peer_review_accepting_strategy, "Not giving points because the teacher reviews all answers manually");
-                None
-            }
-        }
-    } else {
-        grading_score_given
-    }
-}
-
-fn calculate_average_received_peer_review_score(
-    peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
-) -> f32 {
-    let answers_considered = peer_review_question_submissions
-        .iter()
-        .filter_map(|prqs| {
-            if prqs.deleted_at.is_some() {
-                return None;
-            }
-            prqs.number_data
-        })
-        .collect::<Vec<_>>();
-    if answers_considered.is_empty() {
-        warn!("No peer review question submissions for this answer with number data. Assuming score is 0.");
-        return 0.0;
-    }
-    answers_considered.iter().sum::<f32>() / answers_considered.len() as f32
-}
-
 /// Updates the user exercise state starting from a slide state, and propagates the update up to the
 /// whole user exercise state.
-async fn propagate_user_exercise_state_update_from_slide(
+async fn update_user_exercise_slide_state_and_user_exercise_state(
     conn: &mut PgConnection,
-    exercise: &Exercise,
     user_exercise_slide_state: UserExerciseSlideState,
     user_points_update_strategy: UserPointsUpdateStrategy,
 ) -> ModelResult<UserExerciseState> {
@@ -568,18 +377,12 @@ async fn propagate_user_exercise_state_update_from_slide(
         user_points_update_strategy,
     )
     .await?;
-    let user_exercise_state =
-        user_exercise_states::get_by_id(conn, user_exercise_slide_state.user_exercise_state_id)
-            .await?;
-    let user_exercise_state = update_user_exercise_state(
+    let user_exercise_state = user_exercise_state_updater::update_user_exercise_state(
         conn,
-        exercise,
-        &user_exercise_state,
-        user_points_update_strategy,
-        // Won't update peer review status because we haven't received new peer review submissions at this time
-        None,
+        user_exercise_slide_state.user_exercise_state_id,
     )
     .await?;
+
     Ok(user_exercise_state)
 }
 
@@ -647,253 +450,11 @@ pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_res
         user_exercise_task_state.user_exercise_slide_state_id,
     )
     .await?;
-    let user_exercise_state = propagate_user_exercise_state_update_from_slide(
+    let user_exercise_state = update_user_exercise_slide_state_and_user_exercise_state(
         conn,
-        exercise,
         user_exercise_slide_state,
         user_points_update_strategy,
     )
     .await?;
     Ok(user_exercise_state)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    mod derive_new_user_exercise_state {
-        use chrono::TimeZone;
-        use headless_lms_utils::numbers::f32_approx_eq;
-
-        use super::*;
-
-        #[test]
-        fn updates_state_for_normal_exercise() {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), false);
-            let user_exercise_state = create_user_exercise_state(
-                &exercise,
-                None,
-                ActivityProgress::Initialized,
-                ReviewingStage::NotStarted,
-            );
-            let new_user_exercise_state = derive_new_user_exercise_state(
-                &exercise,
-                &user_exercise_state,
-                Some(1.0),
-                GradingProgress::FullyGraded,
-                None,
-            );
-            assert_results(
-                &new_user_exercise_state,
-                Some(1.0),
-                ActivityProgress::Completed,
-                // Exercises that don't have peer review new leave the not started stage
-                ReviewingStage::NotStarted,
-            );
-        }
-
-        #[test]
-        fn doesnt_update_score_for_exercise_that_needs_to_be_peer_reviewed() {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), true);
-            let user_exercise_state = create_user_exercise_state(
-                &exercise,
-                Some(0.0),
-                ActivityProgress::Initialized,
-                ReviewingStage::NotStarted,
-            );
-            let new_user_exercise_state = derive_new_user_exercise_state(
-                &exercise,
-                &user_exercise_state,
-                Some(1.0),
-                GradingProgress::FullyGraded,
-                Some(ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
-                    given_enough_peer_reviews: false,
-                    received_enough_peer_reviews: false,
-                    peer_review_accepting_strategy:
-                        PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage,
-                    peer_review_accepting_threshold: 3.0,
-                    received_peer_review_question_submissions: Vec::new(),
-                }),
-            );
-            assert_results(
-                &new_user_exercise_state,
-                Some(0.0),
-                ActivityProgress::Completed,
-                ReviewingStage::NotStarted,
-            );
-        }
-
-        #[test]
-        fn updates_score_for_exercise_that_has_been_peer_reviewed() {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), true);
-            let user_exercise_state = create_user_exercise_state(
-                &exercise,
-                Some(0.0),
-                ActivityProgress::Initialized,
-                ReviewingStage::NotStarted,
-            );
-            let new_user_exercise_state = derive_new_user_exercise_state(
-                &exercise,
-                &user_exercise_state,
-                Some(1.0),
-                GradingProgress::FullyGraded,
-                Some(ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
-                    given_enough_peer_reviews: true,
-                    received_enough_peer_reviews: true,
-                    peer_review_accepting_strategy:
-                        PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage,
-                    peer_review_accepting_threshold: 3.0,
-                    received_peer_review_question_submissions: vec![
-                        PeerReviewQuestionSubmission {
-                            id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a").unwrap(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                            peer_review_question_id: Uuid::parse_str(
-                                "b853bbd7-feee-4447-ab14-c9622e565ea1",
-                            )
-                            .unwrap(),
-                            peer_review_submission_id: Uuid::parse_str(
-                                "be4061b5-b468-4f50-93b0-cf3bf9de9a13",
-                            )
-                            .unwrap(),
-                            text_data: None,
-                            number_data: Some(2.0),
-                        },
-                        PeerReviewQuestionSubmission {
-                            id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a").unwrap(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                            peer_review_question_id: Uuid::parse_str(
-                                "b853bbd7-feee-4447-ab14-c9622e565ea1",
-                            )
-                            .unwrap(),
-                            peer_review_submission_id: Uuid::parse_str(
-                                "be4061b5-b468-4f50-93b0-cf3bf9de9a13",
-                            )
-                            .unwrap(),
-                            text_data: None,
-                            number_data: Some(3.0),
-                        },
-                        PeerReviewQuestionSubmission {
-                            id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a").unwrap(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                            peer_review_question_id: Uuid::parse_str(
-                                "b853bbd7-feee-4447-ab14-c9622e565ea1",
-                            )
-                            .unwrap(),
-                            peer_review_submission_id: Uuid::parse_str(
-                                "be4061b5-b468-4f50-93b0-cf3bf9de9a13",
-                            )
-                            .unwrap(),
-                            text_data: None,
-                            number_data: Some(4.0),
-                        },
-                    ],
-                }),
-            );
-            assert_results(
-                &new_user_exercise_state,
-                Some(1.0),
-                ActivityProgress::Completed,
-                ReviewingStage::ReviewedAndLocked,
-            );
-        }
-
-        // Not sure if this makes sense in the long run, but having to get peer review information
-        // for every single submission would be cumbersome. There shouldn't be any scenario where
-        // we want to (automatically) revert peer review progress back to incomplete.
-        #[test]
-        fn doesnt_degrade_state_if_peer_review_was_once_finished() {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let exercise = create_exercise(CourseOrExamId::Course(id), true);
-            let user_exercise_state = create_user_exercise_state(
-                &exercise,
-                Some(1.0),
-                ActivityProgress::Completed,
-                ReviewingStage::ReviewedAndLocked,
-            );
-            let new_user_exercise_state = derive_new_user_exercise_state(
-                &exercise,
-                &user_exercise_state,
-                Some(1.0),
-                GradingProgress::FullyGraded,
-                None,
-            );
-            assert_results(
-                &new_user_exercise_state,
-                Some(1.0),
-                ActivityProgress::Completed,
-                ReviewingStage::ReviewedAndLocked,
-            );
-        }
-
-        fn assert_results(
-            update: &UserExerciseStateUpdate,
-            score_given: Option<f32>,
-            activity_progress: ActivityProgress,
-            reviewing_stage: ReviewingStage,
-        ) {
-            if let Some(score_given) = score_given {
-                assert!(f32_approx_eq(update.score_given.unwrap(), score_given,));
-            } else {
-                assert_eq!(update.score_given, None);
-            }
-            assert_eq!(update.activity_progress, activity_progress);
-            assert_eq!(update.reviewing_stage, reviewing_stage);
-        }
-
-        fn create_exercise(course_or_exam_id: CourseOrExamId, needs_peer_review: bool) -> Exercise {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
-            Exercise {
-                id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                name: "".to_string(),
-                course_id,
-                exam_id,
-                page_id: id,
-                chapter_id: None,
-                deadline: None,
-                deleted_at: None,
-                score_maximum: 9000,
-                order_number: 0,
-                copied_from: None,
-                max_tries_per_slide: None,
-                limit_number_of_tries: false,
-                needs_peer_review,
-            }
-        }
-
-        fn create_user_exercise_state(
-            exercise: &Exercise,
-            score_given: Option<f32>,
-            activity_progress: ActivityProgress,
-            reviewing_stage: ReviewingStage,
-        ) -> UserExerciseState {
-            let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            UserExerciseState {
-                id,
-                user_id: id,
-                exercise_id: exercise.id,
-                course_instance_id: exercise.course_id,
-                exam_id: exercise.exam_id,
-                created_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 1, 1).and_hms(0, 0, 0),
-                deleted_at: None,
-                score_given,
-                grading_progress: GradingProgress::NotReady,
-                activity_progress,
-                reviewing_stage,
-                selected_exercise_slide_id: None,
-            }
-        }
-    }
 }

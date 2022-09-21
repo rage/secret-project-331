@@ -25,6 +25,7 @@ export interface ItemAnswerFeedback {
   quiz_item_correct: boolean | null
   quiz_item_option_feedbacks: OptionAnswerFeedback[] | null
   timeline_item_feedbacks: TimelineItemFeedback[] | null
+  score: number
 }
 
 interface QuizItemAnswerGrading {
@@ -36,7 +37,7 @@ interface QuizItemAnswerGrading {
    * user would get `2*0.75=1.5` points for this quiz item.
    *
    * * 0 will be regarded as an incorrect answer
-   * * 0 > x < 1 will be regarded as a partially correct answer
+   * * 0 < x < 1 will be regarded as a partially correct answer
    * * 1 will be regarded as a correct answer
    *
    */
@@ -132,7 +133,7 @@ function assessAnswers(quizAnswer: QuizAnswer, quiz: Quiz): QuizItemAnswerGradin
       item.type === "clickable-multiple-choice" ||
       item.type === "multiple-choice-dropdown"
     ) {
-      return assesMultipleChoiceQuizzes(ia, item)
+      return assessMultipleChoiceQuizzes(ia, item)
     } else if (item.type === "open") {
       return assessOpenQuiz(ia, item)
     } else if (item.type === "matrix") {
@@ -190,7 +191,77 @@ function assessTimelineQuiz(
   }
 }
 
-function assesMultipleChoiceQuizzes(
+/**
+ * Calculate correctness coefficient according to grading policy.
+ * Correctness coefficient is used to determine the percentage of correct answers in a quizz item.
+ * The score is set by the quiz and is the sum of the scores multiplied by their correctness coeffiecients
+ * from quiz items. E.g. if there are three quiz items with scores 10, 5, 2 and correctness coefficients are 0.5, 0.2
+ * and 1.0 then the total score is 10 * 0.5 + 5 * 0.2 + 2 * 1.0 = 8.0
+ *
+ * Multiple-choice has three grading policies:
+ *  - default, all answers has to be correct in order to get full points, none otherwise.
+ *  - points-off-incorrect-options, each correct answers increases points and each incorrect answer decreases it.
+ *  - points-off-unselected-options, similar to above with addition that unselected correct options will
+ *    also decrease points.
+ *
+ * @param quizItemAnswer Quiz item answer
+ * @param quizItem Quiz item
+ * @see QuizItem
+ * @see QuizItemAnswer
+ * @returns Correctness coefficient
+ */
+function getMultipleChoicePointsByGradingPolicy(
+  quizItemAnswer: QuizItemAnswer,
+  quizItem: QuizItem,
+): number {
+  let countOfCorrectAnswers = 0
+  let countOfIncorrectAnswers = 0
+
+  if (!quizItemAnswer.optionAnswers) {
+    return 0
+  }
+
+  const totalCorrectAnswers = quizItem.options.filter((o) => o.correct).length
+  quizItemAnswer.optionAnswers?.forEach((oa) => {
+    const option = quizItem.options.find((o) => o.id === oa)
+    if (option && option.correct) {
+      countOfCorrectAnswers++
+    } else {
+      countOfIncorrectAnswers++
+    }
+  })
+
+  if (!quizItem.multi) {
+    if (countOfCorrectAnswers > 0) {
+      return 1
+    } else {
+      return 0
+    }
+  }
+
+  let totalScore = 0
+  switch (quizItem.multipleChoiceMultipleOptionsGradingPolicy) {
+    case "points-off-incorrect-options":
+      totalScore = Math.max(0, countOfCorrectAnswers - countOfIncorrectAnswers)
+      break
+    case "points-off-unselected-options":
+      totalScore = Math.max(
+        0,
+        countOfCorrectAnswers * 2 - totalCorrectAnswers - countOfIncorrectAnswers,
+      )
+      break
+    default:
+      totalScore =
+        countOfCorrectAnswers == totalCorrectAnswers && countOfIncorrectAnswers == 0
+          ? totalCorrectAnswers
+          : 0
+      break
+  }
+
+  return totalScore / totalCorrectAnswers
+}
+
+function assessMultipleChoiceQuizzes(
   quizItemAnswer: QuizItemAnswer,
   quizItem: QuizItem,
 ): QuizItemAnswerGrading {
@@ -205,26 +276,12 @@ function assesMultipleChoiceQuizzes(
     throw new Error("Cannot select multiple answer options on this quiz item")
   }
 
-  // Check if every selected option was a correct answer
-  const allSelectedOptionsAreCorrect = quizItemAnswer.optionAnswers.every((oa) => {
-    const option = quizItem.options.find((o) => o.id === oa)
-    if (option && option.correct) {
-      return true
-    }
-    return false
-  })
-
-  // Check if user selected correct amount of options
-  const selectedAllCorrectOptions =
-    quizItemAnswer.optionAnswers.length === quizItem.options.filter((o) => o.correct).length
-  const correct = quizItem.multi
-    ? selectedAllCorrectOptions && allSelectedOptionsAreCorrect
-    : allSelectedOptionsAreCorrect
+  const correctnessCoefficient = getMultipleChoicePointsByGradingPolicy(quizItemAnswer, quizItem)
 
   return {
     quizItemId: quizItem.id,
-    correct,
-    correctnessCoefficient: correct ? 1 : 0,
+    correct: correctnessCoefficient == 1,
+    correctnessCoefficient,
   }
 }
 
@@ -270,6 +327,7 @@ function submissionFeedback(
         quiz_item_option_feedbacks: null,
         quiz_item_correct: null,
         timeline_item_feedbacks: null,
+        score: 1,
       }
     }
     if (
@@ -282,6 +340,7 @@ function submissionFeedback(
         quiz_item_id: item.id,
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
+        score: itemGrading.correctnessCoefficient,
         quiz_item_option_feedbacks: ia.optionAnswers
           ? ia.optionAnswers.map((oa): OptionAnswerFeedback => {
               const option = item.options.find((o) => o.id === oa) || null
@@ -309,6 +368,7 @@ function submissionFeedback(
         quiz_item_feedback: itemGrading.correct ? item.successMessage : item.failureMessage,
         quiz_item_correct: itemGrading.correct,
         quiz_item_option_feedbacks: null,
+        score: itemGrading.correctnessCoefficient,
         timeline_item_feedbacks: ia.timelineChoices
           ? ia.timelineChoices.map<TimelineItemFeedback>((tc) => {
               const timelineItem = item.timelineItems?.find((ti) => ti.id === tc.timelineItemId)
@@ -332,6 +392,7 @@ function submissionFeedback(
       quiz_item_correct: itemGrading.correct,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
+      score: itemGrading.correctnessCoefficient,
     }
   })
   return feedbacks

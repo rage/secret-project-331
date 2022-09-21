@@ -7,7 +7,9 @@ use crate::{
     chapters::{course_chapters, Chapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
+    course_modules::CourseModule,
     pages::{course_pages, NewPage, Page},
+    peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
 };
 
@@ -53,6 +55,7 @@ pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
     pub chapters: Vec<Chapter>,
+    pub modules: Vec<CourseModule>,
 }
 
 pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
@@ -244,10 +247,12 @@ pub async fn get_course_structure(
         .iter()
         .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
         .collect();
+    let modules = crate::course_modules::get_by_course_id(conn, course_id).await?;
     Ok(CourseStructure {
         course,
         pages,
         chapters,
+        modules,
     })
 }
 
@@ -348,7 +353,7 @@ pub async fn insert_course(
     default_instance_id: Uuid,
     new_course: NewCourse,
     user: Uuid,
-) -> ModelResult<(Course, Page, CourseInstance)> {
+) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
 
     let course_language_group_id = course_language_groups::insert(&mut tx).await?;
@@ -371,7 +376,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions;
             "#,
         id,
         new_course.name,
@@ -427,8 +432,45 @@ RETURNING id,
     )
     .await?;
 
+    // Create default course module
+    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+
+    let peer_review_config_id =
+        crate::peer_review_configs::insert(&mut tx, course.id, None, 3, 2).await?;
+
+    crate::peer_review_questions::upsert_multiple_peer_review_questions(
+        &mut tx,
+        &[
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 0,
+                question: "General comments".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+                answer_required: false,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 1,
+                question: "The answer was correct".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: true,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id,
+                order_number: 2,
+                question: "The answer was easy to read".to_string(),
+                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                answer_required: true,
+            },
+        ],
+    )
+    .await?;
+
     tx.commit().await?;
-    Ok((course, page, default_course_instance))
+    Ok((course, page, default_course_instance, default_module))
 }
 
 // Represents the subset of page fields that one is allowed to update in a course

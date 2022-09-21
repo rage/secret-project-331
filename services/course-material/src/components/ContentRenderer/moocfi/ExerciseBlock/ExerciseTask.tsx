@@ -23,7 +23,7 @@ interface ExerciseTaskProps {
   exerciseNumber: number
 }
 
-const ExerciseTask: React.FC<ExerciseTaskProps> = ({
+const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   canPostSubmission,
   exerciseTask,
   isExam,

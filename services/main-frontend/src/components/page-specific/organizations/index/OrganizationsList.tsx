@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchOrganizations } from "../../../../services/backend/organizations"
 import DebugModal from "../../../../shared-module/components/DebugModal"
@@ -12,9 +12,9 @@ import { baseTheme, typography } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
-const OrganizationsList: React.FC = () => {
+const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
-  const getOrganizations = useQuery(`organizations`, () => fetchOrganizations(), {
+  const getOrganizations = useQuery([`organizations`], () => fetchOrganizations(), {
     cacheTime: 60000,
   })
 
@@ -38,7 +38,7 @@ const OrganizationsList: React.FC = () => {
       {getOrganizations.isError && (
         <ErrorBanner variant={"readOnly"} error={getOrganizations.error} />
       )}
-      {(getOrganizations.isLoading || getOrganizations.isIdle) && <Spinner variant={"medium"} />}
+      {getOrganizations.isLoading && <Spinner variant={"medium"} />}
       {getOrganizations.isSuccess && (
         <div
           className={css`

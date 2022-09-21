@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../components/Layout"
 import {
@@ -19,11 +19,12 @@ import Spinner from "../shared-module/components/Spinner"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { monospaceFont } from "../shared-module/styles"
 import { narrowContainerWidthPx } from "../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../shared-module/utils/getGuestPseudonymousUserId"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
-const Home: React.FC = () => {
+const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
@@ -32,7 +33,7 @@ const Home: React.FC = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery("playground-examples", () => fetchPlaygroundExamples())
+  const getPlaygroundExamples = useQuery(["playground-examples"], () => fetchPlaygroundExamples())
   const saveMutation = useToastMutation(
     savePlaygroundExample,
     {
@@ -174,9 +175,7 @@ const Home: React.FC = () => {
         {getPlaygroundExamples.isError && (
           <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
         )}
-        {(getPlaygroundExamples.isLoading || getPlaygroundExamples.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
         {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
             <h3>{t("title-list-of-examples")}</h3>
@@ -295,8 +294,12 @@ const Home: React.FC = () => {
             url={combinedUrl}
             postThisStateToIFrame={{
               // eslint-disable-next-line i18next/no-literal-string
-              view_type: "exercise",
+              view_type: "answer-exercise",
               exercise_task_id: EXAMPLE_UUID,
+              user_information: {
+                pseudonymous_id: getGuestPseudonymousUserId(),
+                signed_in: true,
+              },
               data: {
                 public_spec: JSON.parse(exampleData),
                 previous_submission: null,

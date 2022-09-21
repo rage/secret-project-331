@@ -3,11 +3,12 @@ use std::collections::HashMap;
 use percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
 use url::Url;
 
-use crate::UtilError;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
+
+use crate::prelude::*;
 
 #[derive(Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -27,7 +28,7 @@ pub struct OEmbedRequest {
 }
 
 // https://github.com/WordPress/wordpress-develop/blob/master/src/wp-includes/class-wp-oembed.php
-pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<Url, UtilError> {
+pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> UtilResult<Url> {
     let parsed_url = Url::parse(url.as_str())?;
     if let Some(host) = parsed_url.host_str() {
         if host.ends_with("youtu.be") || host.ends_with("youtube.com") {
@@ -109,16 +110,24 @@ pub fn url_to_oembed_endpoint(url: String, base_url: Option<String>) -> Result<U
                 &format!("url={}&format=json", url),
             );
         }
-        Err(UtilError::Other("Link not supported for embedding."))
+        Err(UtilError::new(
+            UtilErrorType::Other,
+            "Link not supported for embedding.".to_string(),
+            None,
+        ))
     } else {
-        Err(UtilError::Other("Failed to parse host from URL."))
+        Err(UtilError::new(
+            UtilErrorType::Other,
+            "Failed to parse host from URL.".to_string(),
+            None,
+        ))
     }
 }
 
 pub fn mentimeter_oembed_response_builder(
     url: String,
     base_url: String,
-) -> Result<OEmbedResponse, UtilError> {
+) -> UtilResult<OEmbedResponse> {
     let mut parsed_url = Url::parse(url.as_str()).unwrap();
     // Get the height and title params
     let params: HashMap<_, _> = parsed_url.query_pairs().into_owned().collect();
@@ -153,7 +162,7 @@ pub fn mentimeter_oembed_response_builder(
     Ok(response)
 }
 
-fn oembed_url_builder(url: &str, query_params: &str) -> Result<Url, UtilError> {
+fn oembed_url_builder(url: &str, query_params: &str) -> UtilResult<Url> {
     let mut endpoint_url = Url::parse(url)?;
     endpoint_url.set_query(Some(query_params));
     Ok(endpoint_url)

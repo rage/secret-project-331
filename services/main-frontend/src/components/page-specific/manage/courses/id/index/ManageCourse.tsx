@@ -1,27 +1,28 @@
 import { css } from "@emotion/css"
 import { Dialog } from "@mui/material"
-import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
   useQueryClient,
-} from "react-query"
+} from "@tanstack/react-query"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { deleteCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
 import { Course, NewCourse } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import NewCourseForm from "../../../../../forms/NewCourseForm"
 import CourseCourseInstances from "../course-instances/CourseCourseInstances"
-import ExerciseList from "../exercises/ExerciseList"
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "../language-versions/CourseLanguageVersionsList"
 
 import UpdateCourseForm from "./UpdateCourseForm"
+import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 interface Props {
   course: Course
@@ -30,7 +31,7 @@ interface Props {
   ) => Promise<QueryObserverResult<Course, unknown>>
 }
 
-const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
+const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
@@ -61,12 +62,19 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
     await postNewCourseTranslation(course.id, newCourse)
     await refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries(formatLanguageVersionsQueryKey(course.id))
+    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(course.id)])
   }
 
   return (
     <>
-      <h1>
+      <h1
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
         {course.name}
         {course.is_draft && ` (${t("draft")})`}
         {course.deleted_at && ` (${t("deleted")})`}
@@ -141,6 +149,8 @@ const ManageCourse: React.FC<Props> = ({ course, refetch }) => {
         {t("button-text-new")}
       </Button>
       <CourseCourseInstances courseId={course.id} />
+
+      <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
     </>
   )
 }

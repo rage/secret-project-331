@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { UseFormRegisterReturn } from "react-hook-form"
 
-import { primaryFont } from "../../styles"
+import { baseTheme, primaryFont } from "../../styles"
 
 interface CheckboxFieldExtraProps {
   label: string
@@ -14,6 +14,7 @@ interface CheckboxFieldExtraProps {
   onChange?: (checked: boolean, name?: string) => void
   className?: string
   register?: UseFormRegisterReturn
+  id?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -26,18 +27,18 @@ interface LabelExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const Label = styled.label<LabelExtraProps>`
   font-family: ${primaryFont};
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1.1;
   display: grid;
   grid-template-columns: 1em auto;
   gap: 0.5em;
+  color: ${baseTheme.colors.grey[600]};
 
   input[type="checkbox"] {
     appearance: none;
     background-color: #fff;
     margin: 0;
     font: inherit;
-    color: currentColor;
     width: 1.15em;
     height: 1.1em;
     border: 2px solid ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
@@ -124,7 +125,7 @@ const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxF
                   display: block;
                 `
           }
-          id={`${rest.label}_error`}
+          id={`${rest.id ?? rest.label}_error`}
           role="alert"
         >
           {ERROR}

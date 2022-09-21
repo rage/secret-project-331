@@ -3,20 +3,23 @@
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
+    course_modules::ModuleUpdates,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
     exercise_slide_submissions::{
-        self, ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
-        ExerciseSlideSubmissionCountByWeekAndHour,
+        self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
+        ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
     },
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
+    peer_review_configs::PeerReviewConfig,
+    peer_review_questions::PeerReviewQuestion,
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -60,8 +63,10 @@ async fn post_new_course(
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
     if !is_ietf_language_code_like(&new_course.language_code) {
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Malformed language code.".to_string(),
+            None,
         ));
     }
     let token = authorize(
@@ -81,8 +86,6 @@ async fn post_new_course(
         user.id,
     )
     .await?;
-    // Create default course module
-    models::course_modules::insert_default_for_course(&mut tx, course.id).await?;
     models::roles::insert(
         &mut tx,
         user.id,
@@ -282,6 +285,23 @@ async fn get_all_exercises(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_all_exercises_and_count_of_answers_requiring_attention(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseAnswersInCourseRequiringAttentionCount>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let _exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
+    let count_of_answers_requiring_attention = models::exercise_slide_submissions::get_count_of_answers_requiring_attention_in_exercise_by_course_id(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(count_of_answers_requiring_attention))
+}
+
+/**
 GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
 
 # Example
@@ -411,6 +431,33 @@ async fn get_daily_submission_counts(
     let res =
         exercise_slide_submissions::get_course_daily_slide_submission_counts(&mut conn, &course)
             .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_daily_user_counts_with_submissions(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionCount>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+    let res = exercise_slide_submissions::get_course_daily_user_counts_with_submissions(
+        &mut conn, &course,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -733,6 +780,59 @@ async fn delete_material_reference_by_id(
     token.authorized_ok(web::Json(()))
 }
 
+#[generated_doc]
+#[instrument(skip(pool))]
+pub async fn update_modules(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<ModuleUpdates>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+
+    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    token.authorized_ok(web::Json(()))
+}
+
+async fn get_course_default_peer_review(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+
+    let peer_review =
+        models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)
+            .await?;
+    let peer_review_questions =
+        models::peer_review_questions::get_all_by_peer_review_config_id(&mut conn, peer_review.id)
+            .await?;
+    token.authorized_ok(web::Json((peer_review, peer_review_questions)))
+}
+
+/**
+POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received`
+
+Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
+*/
+#[generated_doc]
+#[instrument(skip(pool, user))]
+async fn post_update_peer_review_queue_reviews_received(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+    models::library::peer_reviewing::update_peer_review_queue_reviews_received(
+        &mut conn, *course_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(true))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -749,7 +849,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/daily-submission-counts",
             web::get().to(get_daily_submission_counts),
         )
+        .route(
+            "/{course_id}/daily-users-who-have-submitted-something",
+            web::get().to(get_daily_user_counts_with_submissions),
+        )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
+        .route(
+            "/{course_id}/exercises-and-count-of-answers-requiring-attention",
+            web::get().to(get_all_exercises_and_count_of_answers_requiring_attention),
+        )
         .route(
             "/{course_id}/structure",
             web::get().to(get_course_structure),
@@ -813,5 +921,17 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/references/{reference_id}",
             web::delete().to(delete_material_reference_by_id),
+        )
+        .route(
+            "/{course_id}/course-modules",
+            web::post().to(update_modules),
+        )
+        .route(
+            "/{course_id}/default-peer-review",
+            web::get().to(get_course_default_peer_review),
+        )
+        .route(
+            "/{course_id}/update-peer-review-queue-reviews-received",
+            web::post().to(post_update_peer_review_queue_reviews_received),
         );
 }

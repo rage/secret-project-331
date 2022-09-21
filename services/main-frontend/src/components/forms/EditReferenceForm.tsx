@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -24,7 +24,9 @@ interface EditReferenceFields {
   reference: string
 }
 
-const EditReferenceForm: React.FC<EditReferenceFormProps> = ({
+const EMPTY_STRING = ""
+
+const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
   onDelete,
   onCancel,
@@ -38,14 +40,32 @@ const EditReferenceForm: React.FC<EditReferenceFormProps> = ({
     formState: { errors },
   } = useForm<EditReferenceFields>()
 
+  const [errorMessage, setErrorMessage] = useState("")
+
   const onEditReferenceWrapper = handleSubmit((data) => {
-    const cite = new Cite(data.reference)
-    const editedReference = cite.data[0]
-    onEdit(courseId, reference.id, { reference: data.reference, citation_key: editedReference.id })
+    try {
+      const cite = new Cite(data.reference)
+      const editedReference = cite.data[0]
+      onEdit(courseId, reference.id, {
+        reference: data.reference,
+        citation_key: editedReference.id,
+      })
+    } catch (error: any) {
+      console.log(error)
+      setErrorMessage(t("reference-parsing-error"))
+      setTimeout(() => {
+        setErrorMessage(EMPTY_STRING)
+      }, 5000)
+    }
   })
 
-  const cite = new Cite(reference.reference)
-  const defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
+  let defaultValueReference: string = reference.reference
+  try {
+    const cite = new Cite(reference.reference)
+    defaultValueReference = cite.get({ type: "string", style: "bibtex", lang: "en-US" })
+  } catch (error: any) {
+    console.log(error)
+  }
 
   return (
     <form
@@ -59,6 +79,7 @@ const EditReferenceForm: React.FC<EditReferenceFormProps> = ({
         error={errors["reference"]}
         placeholder={REFERENCE}
         register={register}
+        errorMessage={errorMessage}
         defaultValue={defaultValueReference}
         className={css`
           width: 100%;

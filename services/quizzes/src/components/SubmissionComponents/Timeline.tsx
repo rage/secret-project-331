@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme, headingFont } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -124,12 +125,9 @@ export interface Time {
   text: string
 }
 
-const Timeline: React.FunctionComponent<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  quiz_item_model_solution,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-}) => {
+const Timeline: React.FunctionComponent<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({ public_quiz_item, quiz_item_model_solution, user_quiz_item_answer, quiz_item_feedback }) => {
   const { t } = useTranslation()
   return (
     <TimelineWrapper>
@@ -264,4 +262,4 @@ const Timeline: React.FunctionComponent<QuizItemSubmissionComponentProps> = ({
   )
 }
 
-export default Timeline
+export default withErrorBoundary(Timeline)

@@ -11,7 +11,7 @@ import { ProgressBarExtraProps } from "."
 // eslint-disable-next-line i18next/no-literal-string
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
-  background: ${baseTheme.colors.green[100]};
+  background: ${baseTheme.colors.yellow[200]};
   border-radius: 100px;
   overflow: hidden;
   align-items: center;
@@ -27,6 +27,7 @@ const LinearProgress = styled.div<LinearProgressProps>`
 interface LinearProgressFillProps {
   percentage: number
   height: string
+  light?: boolean
 }
 interface LinearProgressProps {
   height: string
@@ -42,8 +43,12 @@ const load = (percentage: number) => keyframes`
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
   animation: ${(props: LinearProgressFillProps) => load(props.percentage)} 3s normal forwards;
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 0;
-  background: ${baseTheme.colors.green[600]};
+  background: ${(props) =>
+    props.light ? baseTheme.colors.green[100] : baseTheme.colors.green[600]};
   justify-content: end;
 
   ${respondToOrLarger.sm} {
@@ -72,18 +77,23 @@ const Label = styled.div`
   }
 `
 
-const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
+const ProgresssBar: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ProgressBarExtraProps>>
+> = ({
   showAsPercentage = false,
-  exercisesAttempted = 10,
-  exercisesTotal = 30,
+  exercisesAttempted,
+  exercisesTotal,
   height = "medium",
   label = true,
+  required,
 }) => {
   const { t } = useTranslation()
-  const done = exercisesAttempted ?? 0
-  const total = exercisesTotal ?? 0
-  const exerciseScaled = showAsPercentage && done !== 0 && total !== 0 ? (done / total) * 100 : 0
-  const percentage = Math.floor(exerciseScaled)
+  const ratio = (exercisesTotal ?? 0) > 0 ? (exercisesAttempted ?? 0) / (exercisesTotal ?? 0) : 0
+  const requiredRatio = (exercisesTotal ?? 0) > 0 ? (required ?? 0) / (exercisesTotal ?? 0) : 0
+
+  const percentage = ratio * 100
+  const requiredPercentage = requiredRatio * 100
+
   return (
     <>
       <div
@@ -99,12 +109,21 @@ const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
             <span>
               {showAsPercentage
                 ? `${percentage}% ${t("exercises-attempted")}`
-                : `${done} / ${total} ${t("exercises-attempted")}`}
+                : `${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${t("exercises-attempted")}`}
             </span>
           </Label>
         )}
         <LinearProgress height={height}>
-          <LinearProgressFill percentage={percentage} height={height} />
+          <div
+            className={css`
+              width: 100%;
+              position: relative;
+              height: inherit;
+            `}
+          >
+            <LinearProgressFill light percentage={requiredPercentage} height={height} />
+            <LinearProgressFill percentage={percentage} height={height} />
+          </div>
         </LinearProgress>
       </div>
     </>

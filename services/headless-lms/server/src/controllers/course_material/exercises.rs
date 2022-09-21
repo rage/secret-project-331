@@ -16,7 +16,7 @@ use models::{
 
 use chrono::{Duration, Utc};
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
 GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
@@ -86,7 +86,7 @@ async fn get_peer_review_for_exercise(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseMaterialPeerReviewData>> {
     let mut conn = pool.acquire().await?;
-    let peer_review_data = models::peer_reviews::get_course_material_peer_review_data(
+    let peer_review_data = models::peer_review_configs::get_course_material_peer_review_data(
         &mut conn,
         user.id,
         *exercise_id,
@@ -167,8 +167,10 @@ async fn post_submission(
         .or_else(|| chapter.and_then(|c| c.deadline))
     {
         if Utc::now() + Duration::seconds(1) >= deadline {
-            return Err(ControllerError::BadRequest(
-                "exercise deadline passed".to_string(),
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Exercise deadline passed.".to_string(),
+                None,
             ));
         }
     }
@@ -191,7 +193,13 @@ async fn post_submission(
         course_instance_or_exam_id,
     )
     .await?
-    .ok_or_else(|| ControllerError::Unauthorized("Missing exercise state.".to_string()))?;
+    .ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Missing exercise state.".to_string(),
+            None,
+        )
+    })?;
     let mut exercise_with_user_state = ExerciseWithUserState::new(exercise, user_exercise_state)?;
     let mut result = models::library::grading::grade_user_submission(
         &mut conn,
@@ -315,8 +323,10 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
                 settings.current_course_instance_id,
             ))
         } else {
-            Err(ControllerError::Unauthorized(
+            Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
                 "User is not enrolled on this course.".to_string(),
+                None,
             ))
         }
     } else if let Some(exam_id) = exercise.exam_id {
@@ -325,14 +335,18 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
             let token = authorize(conn, Act::View, Some(user_id), Res::Exam(exam_id)).await?;
             token.authorized_ok(CourseInstanceOrExamId::Exam(exam_id))
         } else {
-            Err(ControllerError::Unauthorized(
+            Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
                 "Submissions for this exam are no longer accepted.".to_string(),
+                None,
             ))
         }
     } else {
         // On database level this scenario is impossible.
-        Err(ControllerError::InternalServerError(
+        Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
             "Exam doesn't belong to either a course nor exam.".to_string(),
+            None,
         ))
     }?
     .data;
@@ -350,8 +364,10 @@ async fn resolve_course_instance_or_exam_id_and_verify_that_user_can_submit(
 
             let count = slide_id_to_submissions_count.get(&slide_id).unwrap_or(&0);
             if count >= &(max_tries_per_slide as i64) {
-                return Err(ControllerError::BadRequest(
+                return Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
                     "You've ran out of tries.".to_string(),
+                    None,
                 ));
             }
             if count + 1 >= (max_tries_per_slide as i64) {

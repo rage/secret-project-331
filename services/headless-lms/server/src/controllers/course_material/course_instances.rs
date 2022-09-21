@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/course-instances`.
 
-use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
@@ -8,7 +8,7 @@ use models::{
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
 
-use crate::{controllers::prelude::*, domain::authorization::skip_authorize};
+use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
@@ -84,7 +84,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
         user_course_instance_exercise_progress
             .into_iter()
             .map(|i| UserCourseInstanceChapterExerciseProgress {
-                score_given: option_f32_to_f32_two_decimals(i.score_given),
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(i.score_given),
                 exercise_id: i.exercise_id,
             })
             .collect();

@@ -45,7 +45,7 @@ export interface HeroSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<CardProps> = ({
+const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
   title,
   subtitle,
   backgroundImage,

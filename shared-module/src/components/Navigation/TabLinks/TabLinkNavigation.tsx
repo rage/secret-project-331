@@ -13,11 +13,9 @@ interface TabLinkNavigationProps {
   enableRouting?: boolean
 }
 
-const TabLinkNavigation: React.FC<TabLinkNavigationProps> = ({
-  children,
-  orientation = "horizontal",
-  enableRouting = false,
-}) => {
+const TabLinkNavigation: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<TabLinkNavigationProps>>
+> = ({ children, orientation = "horizontal", enableRouting = false }) => {
   const tabsRef = useRef<HTMLDivElement>(null)
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
@@ -112,7 +110,7 @@ const TabLinkNavigation: React.FC<TabLinkNavigationProps> = ({
         flex-wrap: wrap;
         background: ${theme.secondary.bg};
         padding: 0.5rem;
-        border-radius: 10px;
+        border-radius: 4px;
         gap: 10px;
         flex-direction: ${orientation === "horizontal" ? "row" : "column"};
         margin: 2rem 0;

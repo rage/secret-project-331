@@ -33,7 +33,7 @@ export interface StyledCardProps {
  * This component should probably just be merged with `ChapterGridCard` but that is subject for further
  * refactoring.
  */
-const StyledCard: React.FC<StyledCardProps> = ({
+const StyledCard: React.FC<React.PropsWithChildren<StyledCardProps>> = ({
   chapter,
   courseSlug,
   now,

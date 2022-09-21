@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use futures::TryStreamExt;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 use crate::{
-    exercise_service_info,
+    exercise_service_info, exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
@@ -25,6 +25,11 @@ pub struct CourseMaterialExerciseTask {
     be configured to the system.
     */
     pub exercise_iframe_url: Option<String>,
+    /**
+    Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub pseudonumous_user_id: Option<Uuid>,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
@@ -40,7 +45,6 @@ pub struct NewExerciseTask {
     pub assignment: Vec<GutenbergBlock>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub order_number: i32,
 }
@@ -57,7 +61,6 @@ pub struct ExerciseTask {
     pub deleted_at: Option<DateTime<Utc>>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
     pub order_number: i32,
@@ -172,15 +175,22 @@ pub async fn get_course_material_exercise_tasks(
         HashMap::new()
     };
 
+    let unique_exercise_service_slugs = exercise_tasks
+        .iter()
+        .cloned()
+        .map(|et| et.exercise_type)
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let exercise_service_slug_to_service_and_info =
+        exercise_service_info::get_selected_exercise_services_by_type(
+            &mut *conn,
+            &unique_exercise_service_slugs,
+        )
+        .await?;
+
     let mut material_tasks = Vec::with_capacity(exercise_tasks.len());
     for exercise_task in exercise_tasks.into_iter() {
-        // This can be improved in the future so that the same info isn't fetched multiple times.
-        let exercise_iframe_url = exercise_service_info::get_service_info_by_exercise_type(
-            conn,
-            &exercise_task.exercise_type,
-        )
-        .await?
-        .user_interface_iframe_path;
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
@@ -188,10 +198,26 @@ pub async fn get_course_material_exercise_tasks(
         } else {
             None
         };
+
+        let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
+            .get(&exercise_task.exercise_type)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Exercise service not found".to_string(),
+                    None,
+                )
+            })?;
+        let mut exercise_iframe_url =
+            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
+        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
+
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,
             exercise_slide_id: exercise_task.exercise_slide_id,
-            exercise_iframe_url: Some(exercise_iframe_url),
+            exercise_iframe_url: Some(exercise_iframe_url.to_string()),
+            pseudonumous_user_id: user_id
+                .map(|uid| Uuid::new_v5(&service_info.exercise_service_id, uid.as_bytes())),
             assignment: exercise_task.assignment,
             public_spec: exercise_task.public_spec,
             model_solution_spec,
@@ -320,8 +346,10 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
         get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
-        return Err(ModelError::PreconditionFailed(
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Missing exercise definition.".to_string(),
+            None,
         ));
     }
 

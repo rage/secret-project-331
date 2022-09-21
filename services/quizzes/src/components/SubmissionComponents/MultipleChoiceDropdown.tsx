@@ -3,6 +3,7 @@ import React from "react"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -31,12 +32,9 @@ const incorrectAnswer = css`
   background: ${quizTheme.gradingWrongItemBackground};
 `
 
-const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
-  public_quiz_item,
-  user_quiz_item_answer,
-  quiz_item_feedback,
-  quiz_item_model_solution,
-}) => {
+const MultipleChoiceDropdownFeedback: React.FC<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({ public_quiz_item, user_quiz_item_answer, quiz_item_feedback, quiz_item_model_solution }) => {
   const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.optionAnswers as string[])[0],
@@ -105,4 +103,4 @@ const MultipleChoiceDropdownFeedback: React.FC<QuizItemSubmissionComponentProps>
   )
 }
 
-export default MultipleChoiceDropdownFeedback
+export default withErrorBoundary(MultipleChoiceDropdownFeedback)

@@ -61,7 +61,7 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
 
   await page.click("text=Submit")
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
@@ -71,6 +71,10 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   })
 
   await page.click("text=Try again")
+  // Clear previous answers
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
 
   await page
     .frameLocator("iframe")
@@ -101,6 +105,10 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
   // Model solution is now visible since we got full points, so we can see what feedback looks like with the model solution
 
   await page.click("text=Try again")
+  // Clear previous answers
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+  await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
 
   await page
     .frameLocator("iframe")
@@ -119,12 +127,12 @@ test("test quizzes timeline feedback", async ({ headless, page }) => {
 
   await page.click("text=Submit")
 
-  await page.frameLocator("iframe").locator("text=Your answer was not correct.").waitFor()
+  await page.frameLocator("iframe").locator("text=Your answer was partially correct.").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "timeline-feedback-incorrect-with-model-solution",
-    scrollToYCoordinate: 470,
+    scrollToYCoordinate: 600,
   })
 })

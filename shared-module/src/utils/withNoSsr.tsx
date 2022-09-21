@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
+function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
   // Name to display in React Dev tools
   // eslint-disable-next-line i18next/no-literal-string
   const displayName = WrappedComponent.displayName || WrappedComponent.name || "Component"
@@ -16,6 +15,7 @@ export function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
     if (!rendered) {
       return null
     }
+    // @ts-ignore: no intrisic attributes
     return <WrappedComponent {...(props as T)} />
   }
 

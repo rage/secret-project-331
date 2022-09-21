@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
-import React, { useMemo, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { getExerciseBlockBeginningScrollingId } from ".."
 import {
@@ -15,8 +15,10 @@ import Centered from "../../../../../shared-module/components/Centering/Centered
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
@@ -24,17 +26,18 @@ import PeerReviewQuestion from "./PeerReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
 
-const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
+const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
   parentExerciseQuery,
 }) => {
   const { t } = useTranslation()
+  const loginStateContext = useContext(LoginStateContext)
   const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerReviewQuestionAnswer>>(
     new Map(),
   )
 
-  const query = useQuery(`exercise-${exerciseId}-peer-review`, () => {
+  const query = useQuery([`exercise-${exerciseId}-peer-review`], () => {
     return fetchPeerReviewDataByExerciseId(exerciseId)
   })
 
@@ -72,7 +75,7 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
       }
       return await postPeerReviewSubmission(exerciseId, {
         exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
-        peer_review_id: peerReviewData.peer_review.id,
+        peer_review_config_id: peerReviewData.peer_review_config.id,
         peer_review_question_answers: Array.from(answers.values()),
       })
     },
@@ -81,7 +84,7 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
       onSuccess: async () => {
         // still old data because we have't refetched yet
         const givenEnoughReviews =
-          (peerReviewData?.peer_review.peer_reviews_to_give ?? Number.MAX_VALUE) <=
+          (peerReviewData?.peer_review_config.peer_reviews_to_give ?? Number.MAX_VALUE) <=
           (peerReviewData?.num_peer_reviews_given ?? 0) + 1
 
         if (givenEnoughReviews) {
@@ -150,7 +153,7 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
       `}
     >
       <PeerReviewProgress
-        total={peerReviewData.peer_review.peer_reviews_to_give}
+        total={peerReviewData.peer_review_config.peer_reviews_to_give}
         attempt={peerReviewData.num_peer_reviews_given}
       />
 
@@ -199,6 +202,12 @@ const PeerReviewViewImpl: React.FC<PeerReviewViewProps> = ({
                       // eslint-disable-next-line i18next/no-literal-string
                       view_type: "view-submission",
                       exercise_task_id: course_material_exercise_task.id,
+                      user_information: {
+                        pseudonymous_id:
+                          course_material_exercise_task.pseudonumous_user_id ??
+                          getGuestPseudonymousUserId(),
+                        signed_in: Boolean(loginStateContext.signedIn),
+                      },
                       data: {
                         grading: exerciseTaskGradingToExerciseTaskGradingResult(
                           course_material_exercise_task.previous_submission_grading,

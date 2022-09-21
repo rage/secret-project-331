@@ -7,7 +7,6 @@ export interface CircularProgressExtraProps {
   size?: "medium" | "large"
   max: number | null
   given: number | null
-  point: number
   label: string
   required?: number
 }
@@ -18,13 +17,16 @@ export interface ProgressBarExtraProps {
   exercisesTotal: number | null
   height?: string
   label?: boolean
+  required?: number
 }
 
 type ProgressExtraProps = CircularProgressExtraProps | ProgressBarExtraProps
 
 type ProgressProps = React.HTMLAttributes<HTMLDivElement> & ProgressExtraProps
 
-const Progress: React.FC<ProgressProps> = (props) => {
+const Progress: React.FC<React.PropsWithChildren<React.PropsWithChildren<ProgressProps>>> = (
+  props,
+) => {
   return (
     <>{props.variant === "circle" ? <CircularProgress {...props} /> : <ProgressBar {...props} />}</>
   )

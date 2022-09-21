@@ -22,7 +22,7 @@ interface UpdateCourseFormProps {
   onSubmitForm: () => void
 }
 
-const UpdateCourseForm: React.FC<UpdateCourseFormProps> = ({
+const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>> = ({
   courseId,
   courseName,
   courseDescription,

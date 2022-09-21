@@ -2,12 +2,17 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import { useTranslation } from "react-i18next"
 
-import { Renderer } from "../components/Renderer"
+import Renderer from "../components/Renderer"
 import { ExerciseTaskGradingResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { isSetStateMessage } from "../shared-module/exercise-service-protocol-types.guard"
+import {
+  isSetLanguageMessage,
+  isSetStateMessage,
+} from "../shared-module/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 import { ExerciseFeedback } from "./api/grade"
@@ -20,7 +25,7 @@ export interface SubmissionData {
 
 export type State =
   | {
-      view_type: "exercise"
+      view_type: "answer-exercise"
       public_spec: PublicAlternative[]
     }
   | {
@@ -36,7 +41,8 @@ export type State =
       private_spec: Alternative[]
     }
 
-const Iframe: React.FC = () => {
+const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -48,7 +54,7 @@ const Iframe: React.FC = () => {
   const port = useExerciseServiceParentConnection((messageData) => {
     if (isSetStateMessage(messageData)) {
       ReactDOM.flushSync(() => {
-        if (messageData.view_type === "exercise") {
+        if (messageData.view_type === "answer-exercise") {
           setState({
             view_type: messageData.view_type,
             public_spec: messageData.data.public_spec as PublicAlternative[],
@@ -56,8 +62,7 @@ const Iframe: React.FC = () => {
         } else if (messageData.view_type === "exercise-editor") {
           setState({
             view_type: messageData.view_type,
-            private_spec:
-              (JSON.parse(messageData.data.private_spec as string) as Alternative[]) || [],
+            private_spec: (messageData.data.private_spec as Alternative[]) || [],
           })
         } else if (messageData.view_type === "view-submission") {
           const userAnswer = messageData.data.user_answer as Answer
@@ -74,6 +79,8 @@ const Iframe: React.FC = () => {
           console.error("Unknown view type received from parent")
         }
       })
+    } else if (isSetLanguageMessage(messageData)) {
+      i18n.changeLanguage(messageData.data)
     } else {
       // eslint-disable-next-line i18next/no-literal-string
       console.error("Frame received an unknown message from message port")
@@ -95,4 +102,4 @@ const Iframe: React.FC = () => {
   )
 }
 
-export default Iframe
+export default withErrorBoundary(Iframe)

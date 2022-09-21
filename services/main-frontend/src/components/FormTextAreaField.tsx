@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import React from "react"
 import { FieldError, FieldPath, FieldValues, UseFormRegister } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -13,7 +13,12 @@ interface Props<T extends FieldValues> {
   type?: string
   value?: string
   className?: string
+  errorMessage?: string
 }
+
+const ErrorText = styled.p`
+  color: red;
+`
 
 const FormTextAreaField = <T extends FieldValues>({
   id,
@@ -22,6 +27,7 @@ const FormTextAreaField = <T extends FieldValues>({
   register,
   required,
   placeholder,
+  errorMessage,
   ...rest
 }: Props<T>): React.ReactElement => {
   const { t } = useTranslation()
@@ -43,6 +49,7 @@ const FormTextAreaField = <T extends FieldValues>({
         {...rest}
       ></textarea>
       <br />
+      {errorMessage && <ErrorText> {errorMessage} </ErrorText>}
     </>
   )
 }

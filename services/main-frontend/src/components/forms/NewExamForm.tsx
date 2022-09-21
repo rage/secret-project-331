@@ -6,7 +6,7 @@ import { NewExam, OrgExam } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import DateTimeLocal from "../../shared-module/components/InputFields/DateTimeLocal"
-import SelectMenu from "../../shared-module/components/InputFields/SelectField"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
 import TextField from "../../shared-module/components/InputFields/TextField"
 import { dateToDateTimeLocalString } from "../../shared-module/utils/time"
 
@@ -27,7 +27,7 @@ interface NewExamFields {
   parentId: string | null
 }
 
-const NewExamForm: React.FC<NewExamFormProps> = ({
+const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   initialData,
   organizationId,
   exams,
@@ -124,11 +124,8 @@ const NewExamForm: React.FC<NewExamFormProps> = ({
           onChange={() => setDuplicateExam(!duplicateExam)}
         />
         {duplicateExam && (
-          <SelectMenu
+          <SelectField
             id={"parentId"}
-            onBlur={() => {
-              // no-op
-            }}
             onChange={(value) => handleSetExamToDuplicate(value)}
             options={exams.map((e) => {
               return { label: e.name, value: e.id }

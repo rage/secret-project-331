@@ -49,6 +49,7 @@ warm_route "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24f
 warm_route "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/pages"
 warm_route "http://project-331.local/cms/pages/ff25bda5-075a-456f-89f4-74b040b716c6"
 warm_route "http://project-331.local/quizzes/iframe"
+warm_route "http://project-331.local/tmc/iframe"
 warm_route "http://project-331.local/example-exercise/iframe"
 echo ""
 

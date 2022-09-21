@@ -1,11 +1,12 @@
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, mapValues } from "lodash"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import { fetchCourseExercises } from "../../../../../../services/backend/courses"
+import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 
@@ -13,10 +14,11 @@ export interface ExerciseListProps {
   courseId: string
 }
 
-const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
+const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseExercises = useQuery(`course-${courseId}-exercises`, () =>
-    fetchCourseExercises(courseId),
+  const getCourseExercises = useQuery(
+    [`courses-${courseId}-exercises-and-count-of-answers-requiring-attention`],
+    () => fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
   )
   const courseStructure = useCourseStructure(courseId)
 
@@ -28,12 +30,7 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
     return <ErrorBanner variant={"readOnly"} error={courseStructure.error} />
   }
 
-  if (
-    getCourseExercises.isLoading ||
-    getCourseExercises.isIdle ||
-    courseStructure.isLoading ||
-    courseStructure.isIdle
-  ) {
+  if (getCourseExercises.isLoading || courseStructure.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -73,6 +70,28 @@ const ExerciseList: React.FC<ExerciseListProps> = ({ courseId }) => {
               >
                 {t("link-view-submissions")}
               </Link>
+              <span
+                className={css`
+                  margin-left: 1rem;
+                `}
+              ></span>
+              <Link
+                href={{
+                  pathname: "/manage/exercises/[exerciseId]/answers-requiring-attention",
+                  query: { exerciseId: x.id },
+                }}
+              >
+                {t("link-view-answers-requiring-attention")}
+              </Link>
+              {x.count !== null ? (
+                <span
+                  className={css`
+                    margin-left: 0.5em;
+                  `}
+                >
+                  ({x.count})
+                </span>
+              ) : null}
             </li>
           ))}
       </ul>

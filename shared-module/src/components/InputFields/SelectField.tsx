@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
+import { UseFormRegisterReturn } from "react-hook-form"
 
 interface SelectOption<T extends string> {
   value: T
@@ -10,21 +11,24 @@ interface SelectOption<T extends string> {
 interface SelectMenuExtraProps<T extends string> {
   id: string
   label?: string
+  labelStyle?: string
   name?: string
   placeholder?: string
   error?: string
   value?: string
   defaultValue?: T
   options: SelectOption<T>[]
-  onBlur: (event: React.FocusEvent<HTMLSelectElement>) => void
-  onChange: (value: T, name?: string) => void
+  onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void
+  onChange?: (value: T, name?: string) => void
   className?: string
+  register?: UseFormRegisterReturn
+  disabled?: boolean
 }
 
 export type SelectMenuProps<T extends string> = React.HTMLAttributes<HTMLInputElement> &
   SelectMenuExtraProps<T>
 
-const SelectMenu = <T extends string>({
+const SelectField = <T extends string>({
   id,
   label,
   onChange,
@@ -32,6 +36,8 @@ const SelectMenu = <T extends string>({
   defaultValue,
   options,
   className,
+  register,
+  disabled,
   ...rest
 }: SelectMenuExtraProps<T>) => {
   return (
@@ -39,7 +45,7 @@ const SelectMenu = <T extends string>({
       className={cx(
         css`
           margin-bottom: 1rem;
-
+          ${disabled && "opacity: 0.5;"}
           select {
             appearance: none;
             background-color: transparent;
@@ -48,10 +54,11 @@ const SelectMenu = <T extends string>({
             width: 100%;
             font-family: inherit;
             font-size: inherit;
-            cursor: inherit;
+            cursor: ${disabled ? "default" : "pointer"};
             line-height: inherit;
             z-index: 1;
             outline: none;
+            padding: 8px 10px 10px 10px;
           }
 
           select,
@@ -63,9 +70,8 @@ const SelectMenu = <T extends string>({
             width: 100%;
             border: 1px solid #e0e0e0;
             border-radius: 3px;
-            padding: 10px 12px;
-            font-size: 18px;
-            cursor: pointer;
+            font-size: 17px;
+            cursor: ${disabled ? "default" : "pointer"};
             background: #f9f9f9;
             display: grid;
             grid-template-areas: "select";
@@ -91,6 +97,7 @@ const SelectMenu = <T extends string>({
             color: #333;
             font-size: 14px;
             font-weight: 500;
+            ${rest.labelStyle}
           }
 
           .select + label {
@@ -103,11 +110,14 @@ const SelectMenu = <T extends string>({
       {label && <label htmlFor={id}>{label}</label>}
       <div className="select">
         <select
+          disabled={Boolean(disabled)}
           id={id}
-          onChange={({ target: { value } }) => onChange(value as T)}
-          onBlur={(event) => onBlur(event)}
+          onChange={({ target: { value } }) => onChange && onChange(value as T)}
+          onBlur={onBlur}
           defaultValue={defaultValue}
           {...rest}
+          // Register overrides onChange if specified
+          {...register}
         >
           {options.map(({ value, label, disabled }) => (
             <option value={value} key={label} disabled={disabled} selected={disabled && true}>
@@ -120,4 +130,4 @@ const SelectMenu = <T extends string>({
   )
 }
 
-export default SelectMenu
+export default SelectField

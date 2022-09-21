@@ -1,9 +1,8 @@
 import { css } from "@emotion/css"
-import { Box, Dialog, Pagination } from "@mui/material"
-import { useRouter } from "next/router"
+import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { postNewCourse, postNewCourseDuplicate } from "../../../../services/backend/courses"
 import {
@@ -14,9 +13,11 @@ import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
+import Pagination from "../../../../shared-module/components/Pagination"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useAuthorizeMultiple from "../../../../shared-module/hooks/useAuthorizeMultiple"
+import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
 import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
@@ -24,26 +25,20 @@ import { CourseComponent, CourseGrid } from "./CourseCard"
 interface Props {
   organizationId: string
   organizationSlug: string
-  perPage: number
 }
 
-const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage }) => {
+const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
+  organizationId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
-  const router = useRouter()
-
-  let initialPage: number
-  if (typeof router.query.page === "string") {
-    initialPage = parseInt(router.query.page)
-  } else {
-    initialPage = 1
-  }
-  const [page, setPage] = useState(initialPage)
+  const paginationInfo = usePaginationInfo()
 
   const getOrgCourses = useQuery(
-    [`organization-courses`, page, perPage],
+    [`organization-courses`, paginationInfo.page, paginationInfo.limit],
     () => {
       if (organizationId) {
-        return fetchOrganizationCourses(organizationId, page, perPage)
+        return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
       } else {
         // This should never happen, used for typescript because enabled boolean doesn't do type checking
         return Promise.reject(new Error("Organization ID undefined"))
@@ -98,23 +93,11 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (
-    getOrgCourses.isLoading ||
-    getOrgCourses.isIdle ||
-    getOrgCourseCount.isLoading ||
-    getOrgCourseCount.isIdle
-  ) {
+  if (getOrgCourses.isLoading || getOrgCourseCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
   const courseCount = getOrgCourseCount.data.count
-  if (courseCount <= 0) {
-    return <div>{t("no-courses-in-org")}</div>
-  }
-  const pageCount = Math.ceil(courseCount / perPage)
-  if (page > pageCount) {
-    setPage(pageCount)
-  }
 
   const courses = getOrgCourses.data.map((course, n) => {
     return (
@@ -136,27 +119,20 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
 
   return (
     <div>
-      <CourseGrid>{courses}</CourseGrid>
+      {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
+      {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
       {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Box my={2} display="flex" justifyContent="center">
+      <div
+        className={css`
+          display: flex;
+          justify-content: center;
+        `}
+      >
         <Pagination
-          count={Math.ceil(Number(courseCount) / perPage)}
-          page={page}
-          onChange={async (_, pageNumber) => {
-            router.replace(
-              {
-                query: {
-                  ...router.query,
-                  page: pageNumber,
-                },
-              },
-              undefined,
-              { shallow: true },
-            )
-            setPage(pageNumber)
-          }}
+          totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
+          paginationInfo={paginationInfo}
         />
-      </Box>
+      </div>
       <div
         className={css`
           margin-bottom: 1rem;
@@ -185,7 +161,6 @@ const CourseList: React.FC<Props> = ({ organizationId, organizationSlug, perPage
           </div>
         </Dialog>
       </div>
-
       <br />
       {loginStateContext.signedIn && (
         <OnlyRenderIfPermissions

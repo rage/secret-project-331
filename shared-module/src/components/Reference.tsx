@@ -111,7 +111,9 @@ const BEHAVIOR = "smooth"
 
 export type ReferenceProps = React.HTMLAttributes<HTMLDivElement> & ReferenceExtraProps
 
-const Reference: React.FC<ReferenceProps> = ({ data }) => {
+const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<ReferenceProps>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const [reference, setReference] = useState<Reference[]>([])
   const [active, setActive] = useState<string>()
@@ -135,13 +137,19 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
     // eslint-disable-next-line i18next/no-literal-string
     const references = document.querySelectorAll(".reference")
 
-    const eventHandler = (evt: any) => {
-      const target = evt.target
-      const citationId = target?.parentNode?.dataset.citationId || ""
+    const eventHandler = (evt: Event) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      let citation = null
+      if (evt.target instanceof Element) {
+        citation = evt.target
+      } else {
+        return
+      }
+
+      // @ts-expect-error: Type not aware of the field
+      const citationId = citation?.parentNode?.dataset.citationId || ""
       const el = data.find((item) => item.id === citationId)
 
-      // eslint-disable-next-line i18next/no-literal-string
-      const citation = document.querySelector(`[data-citation-id="${citationId}"]`)
       if (el) {
         // eslint-disable-next-line i18next/no-literal-string
         const wrapper = document.createElement("div")
@@ -151,15 +159,17 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
         const wrapperEl = document.getElementById("wrapper")
 
         if (evt.type === "mouseover") {
-          target.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
+          // @ts-expect-error: Type not aware of the field
+          citation.style.cssText = "text-decoration: underline; color: #08457A; cursor: pointer"
           wrapper.style.cssText =
-            "opacity: 1; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
+            "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
           // eslint-disable-next-line i18next/no-literal-string
           wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {
-          target.style.cssText = "text-decoration: none; color: #46749B;"
+          // @ts-expect-error: Type not aware of the field
+          citation.style.cssText = "text-decoration: none; color: #46749B;"
           wrapperEl && wrapperEl.remove()
         }
       }
@@ -181,9 +191,9 @@ const Reference: React.FC<ReferenceProps> = ({ data }) => {
       const target = evt.target as HTMLInputElement
       if (reference) {
         reference.forEach(({ text }) => {
-          if (text === target.innerText) {
+          let elementId = target.innerText.substring(0, text.length)
+          if (text === elementId) {
             evt.preventDefault()
-            let elementId = target.innerText
             elementId = elementId.substring(1, elementId.length - 1)
             const details = document.querySelector<HTMLDetailsElement>(ELEMENT_CLASS)
             // eslint-disable-next-line i18next/no-literal-string

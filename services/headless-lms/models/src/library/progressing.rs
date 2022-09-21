@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
 use crate::{
-    course_instances,
+    course_instance_enrollments,
+    course_instances::{self, CourseInstance},
     course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, UserCourseInstanceMetrics},
-    users,
+    users::{self, User},
 };
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
@@ -45,6 +46,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
 
 /// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
 /// whether a completion exists after calling this function.
+#[instrument(skip(conn))]
 async fn create_course_module_completion_if_eligible(
     conn: &mut PgConnection,
     course_module: &CourseModule,
@@ -84,6 +86,7 @@ async fn create_course_module_completion_if_eligible(
                 None,
             )
             .await?;
+            info!("Created a completion");
             Ok(true)
         } else {
             // Can't grant automatic completion; no-op.
@@ -141,6 +144,7 @@ fn user_is_eligible_for_automatic_completion(
     flags > 0
 }
 
+#[instrument(skip(conn))]
 async fn update_module_completion_prerequisite_statuses(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -158,6 +162,7 @@ async fn update_module_completion_prerequisite_statuses(
                 &statuses,
             )?;
         if need_to_update {
+            info!(module_id = ?status.module_id, "Updating module completion prerequisite status");
             let completion = course_module_completions::get_by_course_module_instance_and_user_ids(
                 conn,
                 status.module_id,
@@ -185,7 +190,13 @@ fn prerequisite_modules_are_completed(
     let module = modules
         .iter()
         .find(|x| x.module_id == module_id)
-        .ok_or_else(|| ModelError::Generic("Module missing from vec.".to_string()))?;
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Module missing from vec.".to_string(),
+                None,
+            )
+        })?;
     if module.default {
         let submodule_completions: u32 = modules
             .iter()
@@ -198,42 +209,55 @@ fn prerequisite_modules_are_completed(
             .iter()
             .find(|x| x.default)
             .map(|x| x.completed)
-            .ok_or_else(|| ModelError::Generic("Default module missing".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Default module missing".to_string(),
+                    None,
+                )
+            })?;
         Ok(default_completed && module.completed)
     }
 }
 
+#[instrument(skip(conn))]
 pub async fn process_all_course_instance_completions(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
 ) -> ModelResult<()> {
+    info!("Reprocessing course module completions");
     let course_instance = course_instances::get_course_instance(conn, course_instance_id).await?;
     let course = courses::get_course(conn, course_instance.course_id).await?;
     let submodule_completions_required = course
         .base_module_completion_requires_n_submodule_completions
         .try_into()?;
     let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
-    let users = course_module_completions::get_all_users_with_completions_on_course_instance(
+    // If user has an user exercise state, they might have returned an exercise so we need to check whether they have completed modules.
+    let users = crate::users::get_all_user_ids_with_user_exercise_states_on_course_instance(
         conn,
         course_instance_id,
     )
     .await?;
+    info!(users = ?users.len(), course_modules = ?course_modules.len(), ?submodule_completions_required, "Completion reprocessing info");
+    for course_module in course_modules.iter() {
+        info!(?course_module, "Course module information");
+    }
     let mut tx = conn.begin().await?;
     for user_id in users {
-        let mut updates = 0;
+        let mut num_completions = 0;
         for course_module in course_modules.iter() {
-            let updated = create_course_module_completion_if_eligible(
+            let completion_exists = create_course_module_completion_if_eligible(
                 &mut tx,
                 course_module,
                 course_instance_id,
                 user_id,
             )
             .await?;
-            if updated {
-                updates += 1;
+            if completion_exists {
+                num_completions += 1;
             }
         }
-        if updates > 0 {
+        if num_completions > 0 {
             update_module_completion_prerequisite_statuses(
                 &mut tx,
                 user_id,
@@ -244,7 +268,175 @@ pub async fn process_all_course_instance_completions(
         }
     }
     tx.commit().await?;
+    info!("Reprocessing course module completions complete");
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseInstanceCompletionSummary {
+    pub course_modules: Vec<CourseModule>,
+    pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserWithModuleCompletions {
+    pub completed_modules: Vec<UserCourseModuleCompletion>,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub user_id: Uuid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserCourseModuleCompletion {
+    pub course_module_id: Uuid,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+impl From<CourseModuleCompletion> for UserCourseModuleCompletion {
+    fn from(course_module_completion: CourseModuleCompletion) -> Self {
+        Self {
+            course_module_id: course_module_completion.course_module_id,
+            grade: course_module_completion.grade,
+            passed: course_module_completion.passed,
+        }
+    }
+}
+
+impl From<User> for UserWithModuleCompletions {
+    fn from(user: User) -> Self {
+        Self {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            completed_modules: vec![],
+        }
+    }
+}
+
+pub async fn get_course_instance_completion_summary(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+) -> ModelResult<CourseInstanceCompletionSummary> {
+    let course_modules = course_modules::get_by_course_id(conn, course_instance.course_id).await?;
+    let mut users_with_course_module_completions: HashMap<Uuid, UserWithModuleCompletions> =
+        users::get_users_by_course_instance_enrollment(conn, course_instance.id)
+            .await?
+            .into_iter()
+            .map(|u| (u.id, u.into()))
+            .collect();
+    let completions =
+        course_module_completions::get_all_by_course_instance_id(conn, course_instance.id).await?;
+    completions.into_iter().for_each(|x| {
+        let user_with_completions = users_with_course_module_completions.get_mut(&x.user_id);
+        if let Some(completion) = user_with_completions {
+            completion.completed_modules.push(x.into());
+        }
+    });
+    Ok(CourseInstanceCompletionSummary {
+        course_modules,
+        users_with_course_module_completions: users_with_course_module_completions
+            .into_values()
+            .collect(),
+    })
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletionRequest {
+    pub course_module_id: Uuid,
+    pub new_completions: Vec<TeacherManualCompletion>,
+    pub skip_duplicate_completions: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct TeacherManualCompletion {
+    pub user_id: Uuid,
+    pub grade: Option<i32>,
+    pub completion_date: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreview {
+    pub already_completed_users: Vec<ManualCompletionPreviewUser>,
+    pub first_time_completing_users: Vec<ManualCompletionPreviewUser>,
+    pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ManualCompletionPreviewUser {
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+/// Gets a preview of changes that will occur to completions with the given manual completion data.
+pub async fn get_manual_completion_result_preview(
+    conn: &mut PgConnection,
+    course_instance: &CourseInstance,
+    manual_completion_request: &TeacherManualCompletionRequest,
+) -> ModelResult<ManualCompletionPreview> {
+    let course_module =
+        course_modules::get_by_id(conn, manual_completion_request.course_module_id).await?;
+    if course_module.course_id != course_instance.course_id {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Course module not part of the course.".to_string(),
+            None,
+        ));
+    }
+    let mut already_completed_users = vec![];
+    let mut first_time_completing_users = vec![];
+    let mut non_enrolled_users = vec![];
+    for completion in manual_completion_request.new_completions.iter() {
+        let user = users::get_by_id(conn, completion.user_id).await?;
+        let user = ManualCompletionPreviewUser {
+            user_id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            grade: completion.grade,
+            passed: true,
+        };
+        let enrollment = course_instance_enrollments::get_by_user_and_course_instance_id(
+            conn,
+            completion.user_id,
+            course_instance.id,
+        )
+        .await
+        .optional()?;
+        if enrollment.is_none() {
+            non_enrolled_users.push(user.clone());
+        }
+        let course_module_completion =
+            course_module_completions::get_by_course_module_instance_and_user_ids(
+                conn,
+                manual_completion_request.course_module_id,
+                course_instance.id,
+                completion.user_id,
+            )
+            .await
+            .optional()?;
+        if course_module_completion.is_some() {
+            already_completed_users.push(user);
+        } else {
+            first_time_completing_users.push(user);
+        }
+    }
+    Ok(ManualCompletionPreview {
+        already_completed_users,
+        first_time_completing_users,
+        non_enrolled_users,
+    })
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -267,7 +459,13 @@ pub async fn get_user_completion_information(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -278,7 +476,11 @@ pub async fn get_user_completion_information(
         .await?;
     // Course code is required only so that fetching the link later works.
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed("Course module is missing uh_course_code.".to_string())
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Course module is missing uh_course_code.".to_string(),
+            None,
+        )
     })?;
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
@@ -356,7 +558,13 @@ pub async fn get_completion_registration_link_and_save_attempt(
     let user_settings =
         user_course_settings::get_user_course_settings_by_course_id(conn, user.id, course.id)
             .await?
-            .ok_or_else(|| ModelError::Generic("Missing settings".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "Missing settings".to_string(),
+                    None,
+                )
+            })?;
     let course_module_completion =
         course_module_completions::get_by_course_module_instance_and_user_ids(
             conn,
@@ -372,9 +580,11 @@ pub async fn get_completion_registration_link_and_save_attempt(
     )
     .await?;
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::PreconditionFailed(
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Course module doesn't have an assossiated University of Helsinki course code."
                 .to_string(),
+            None,
         )
     })?;
     let registration_link =
@@ -403,7 +613,8 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, _submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, default_module, _submodule_1, _submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &default_module,
@@ -430,10 +641,11 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
             insert_data!(:tx);
-            let (mut tx, user, instance, _default_module, submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, _default_module, submodule_1, _submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &submodule,
+                &submodule_1,
                 instance,
                 user,
             )
@@ -448,7 +660,7 @@ mod tests {
             .unwrap();
             let status = statuses
                 .iter()
-                .find(|x| x.module_id == submodule.id)
+                .find(|x| x.module_id == submodule_1.id)
                 .unwrap();
             assert!(status.completed);
             assert!(!status.prerequisite_modules_completed);
@@ -458,10 +670,11 @@ mod tests {
         async fn grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
         {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, submodule) = create_test_data(tx).await;
+            let (mut tx, user, instance, default_module, submodule_1, submodule_2) =
+                create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &submodule,
+                &default_module,
                 instance,
                 user,
             )
@@ -469,7 +682,15 @@ mod tests {
             .unwrap();
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
-                &default_module,
+                &submodule_1,
+                instance,
+                user,
+            )
+            .await
+            .unwrap();
+            update_automatic_completion_status_and_grant_if_eligible(
+                tx.as_mut(),
+                &submodule_2,
                 instance,
                 user,
             )
@@ -490,7 +711,7 @@ mod tests {
 
         async fn create_test_data(
             mut tx: Tx<'_>,
-        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule) {
+        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
             let automatic_completion_policy =
                 AutomaticCompletionPolicy::AutomaticCompletion(AutomaticCompletionCriteria {
                     number_of_exercises_attempted_treshold: Some(0),
@@ -512,7 +733,7 @@ mod tests {
                     front_page_id: None,
                     opens_at: None,
                     deadline: None,
-                    course_module_id: Some(course_module_2),
+                    course_module_id: Some(course_module_2.id),
                 },
                 user,
             )
@@ -563,16 +784,16 @@ mod tests {
             )
             .await
             .unwrap();
-            course_modules::update_automatic_completion_status(
+            let default_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
+                .await
+                .unwrap();
+            let default_module = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
-                course_module,
+                default_module.id,
                 &automatic_completion_policy,
             )
             .await
             .unwrap();
-            let course_module = course_modules::get_by_id(tx.as_mut(), course_module)
-                .await
-                .unwrap();
             let course_module = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
                 course_module.id,
@@ -580,9 +801,6 @@ mod tests {
             )
             .await
             .unwrap();
-            let course_module_2 = course_modules::get_by_id(tx.as_mut(), course_module_2)
-                .await
-                .unwrap();
             let course_module_2 = course_modules::update_automatic_completion_status(
                 tx.as_mut(),
                 course_module_2.id,
@@ -590,7 +808,14 @@ mod tests {
             )
             .await
             .unwrap();
-            (tx, user, instance.id, course_module, course_module_2)
+            (
+                tx,
+                user,
+                instance.id,
+                default_module,
+                course_module,
+                course_module_2,
+            )
         }
     }
 

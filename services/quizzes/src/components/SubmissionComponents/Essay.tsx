@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../shared-module/styles"
 import { wordCount } from "../../shared-module/utils/strings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -56,4 +57,4 @@ const EssayFeedback: React.FC<QuizItemSubmissionComponentProps> = ({ user_quiz_i
   )
 }
 
-export default EssayFeedback
+export default withErrorBoundary(EssayFeedback)

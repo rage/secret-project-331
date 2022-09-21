@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -17,17 +18,23 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 
-import { NormalizedQuizItem } from "../../../../../types/types"
+import {
+  multipleChoiceMultipleOptionsGradingPolicy,
+  NormalizedQuizItem,
+} from "../../../../../types/types"
+import SelectField from "../../../../shared-module/components/InputFields/SelectField"
 import { createdNewOption } from "../../../../store/editor/editorActions"
 import {
   editedItemDirection,
   editedItemFailureMessage,
   editedItemSuccessMessage,
+  editedMultipleChoiceMultipleOptionsGradingPolicy,
   editedQuizItemTitle,
   editedSharedOptionsFeedbackMessage,
   toggledAllAnswersCorrect,
   toggledMultiOptions,
   toggledSharedOptionFeedbackMessage,
+  toggledShuffleOptions,
 } from "../../../../store/editor/items/itemAction"
 import { useTypedSelector } from "../../../../store/store"
 import MarkdownEditor from "../../../MarkdownEditor"
@@ -75,11 +82,44 @@ interface EditorModalProps {
   item: NormalizedQuizItem
 }
 
-export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item }) => {
+/* eslint-disable i18next/no-literal-string */
+const stringToMultipleChoiceMultipleOptionsGradingPolicy = (
+  content: string,
+): multipleChoiceMultipleOptionsGradingPolicy => {
+  switch (content) {
+    case "default":
+      return "default"
+    case "points-off-incorrect-options":
+      return "points-off-incorrect-options"
+    case "points-off-unselected-options":
+      return "points-off-unselected-options"
+  }
+  return "default"
+}
+
+export const MultipleChoiceModalContent: React.FC<React.PropsWithChildren<EditorModalProps>> = ({
+  item,
+}) => {
   const { t } = useTranslation()
   const storeItem = useTypedSelector((state) => state.editor.items[item.id])
   const storeOptions = useTypedSelector((state) => state.editor.options)
   const dispatch = useDispatch()
+
+  const multipleChoiceOptions = [
+    {
+      value: "default",
+      label: t("multiple-choice-grading-default"),
+    },
+    {
+      value: "points-off-incorrect-options",
+      label: t("multiple-choice-grading-points-off-incorrect-options"),
+    },
+    {
+      value: "points-off-unselected-options",
+      label: t("multiple-choice-grading-points-off-unselected-options"),
+    },
+  ]
+
   return (
     <ModalWrapper>
       <ModalContentTitleWrapper>
@@ -101,6 +141,19 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
             }
           />
           <FormControlLabel
+            label={t("shuffled-checkbox-message")}
+            labelPlacement="start"
+            control={
+              <Checkbox
+                color="primary"
+                checked={storeItem.shuffleOptions}
+                onChange={(event) =>
+                  dispatch(toggledShuffleOptions(storeItem.id, event.target.checked))
+                }
+              />
+            }
+          />
+          <FormControlLabel
             label={t("allow-selecting-multiple-options")}
             labelPlacement="start"
             control={
@@ -115,6 +168,44 @@ export const MultipleChoiceModalContent: React.FC<EditorModalProps> = ({ item })
           />
         </FormGroup>
       </ModalContent>
+      <div>
+        <SelectField
+          id={"multiple-choice-grading"}
+          className={css`
+            width: 100%;
+            margin-bottom: 0.3rem;
+          `}
+          disabled={!storeItem.multi}
+          onChange={(value) =>
+            dispatch(
+              editedMultipleChoiceMultipleOptionsGradingPolicy(
+                storeItem.id,
+                stringToMultipleChoiceMultipleOptionsGradingPolicy(value),
+              ),
+            )
+          }
+          defaultValue={storeItem.multipleChoiceMultipleOptionsGradingPolicy}
+          label={t("multiple-choice-grading")}
+          options={multipleChoiceOptions}
+        />
+        <span
+          className={css`
+            color: #414246;
+            font-size: 17px;
+            font-family: Josefin Sans, sans-serif;
+            ${!storeItem.multi && "opacity: 0.5;"}
+          `}
+        >
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+            t("multiple-choice-grading-default-description")}
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy == "points-off-incorrect-options" &&
+            t("multiple-choice-grading-points-off-incorrect-options-description")}
+          {storeItem.multipleChoiceMultipleOptionsGradingPolicy ==
+            "points-off-unselected-options" &&
+            t("multiple-choice-grading-points-off-unselected-options-description")}
+        </span>
+      </div>
+
       <ModalContent>
         <MarkdownEditor
           label={t("title")}

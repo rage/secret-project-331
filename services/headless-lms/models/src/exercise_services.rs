@@ -1,6 +1,9 @@
 use url::Url;
 
-use crate::{exercise_service_info::ExerciseServiceInfo, prelude::*};
+use crate::{
+    exercise_service_info::{get_all_exercise_services_by_type, ExerciseServiceInfo},
+    prelude::*,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -15,6 +18,16 @@ pub struct ExerciseService {
     /// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
     pub internal_url: Option<String>,
     pub max_reprocessing_submissions_at_once: i32,
+}
+
+/// Exercise service definition that the CMS can use to render the editor view.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseServiceIframeRenderingInfo {
+    pub id: Uuid,
+    pub name: String,
+    pub slug: String,
+    pub public_iframe_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -122,8 +135,30 @@ pub fn get_exercise_service_internally_preferred_baseurl(
         .internal_url
         .as_ref()
         .unwrap_or(&exercise_service.public_url);
-    let mut url = Url::parse(stored_url_str)
-        .map_err(|original_error| ModelError::Generic(original_error.to_string()))?;
+    let mut url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    // remove the path because all relative urls in service info assume
+    // that the base url prefix has no path
+    url.set_path("");
+    Ok(url)
+}
+
+pub fn get_exercise_service_externally_preferred_baseurl(
+    exercise_service: &ExerciseService,
+) -> ModelResult<Url> {
+    let stored_url_str = &exercise_service.public_url;
+    let mut url = Url::parse(stored_url_str).map_err(|original_error| {
+        ModelError::new(
+            ModelErrorType::Generic,
+            original_error.to_string(),
+            Some(original_error.into()),
+        )
+    })?;
     // remove the path because all relative urls in service info assume
     // that the base url prefix has no path
     url.set_path("");
@@ -174,6 +209,37 @@ WHERE deleted_at IS NULL
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_all_exercise_services_iframe_rendering_infos(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ExerciseServiceIframeRenderingInfo>> {
+    let services = get_exercise_services(conn).await?;
+    let service_infos = get_all_exercise_services_by_type(conn).await?;
+    let res = services
+        .into_iter()
+        .filter_map(|exercise_service| {
+            if let Some((_, service_info)) = service_infos.get(&exercise_service.slug) {
+                if let Ok(mut url) =  get_exercise_service_externally_preferred_baseurl(&exercise_service) {
+                    url.set_path(&service_info.user_interface_iframe_path);
+                    Some(ExerciseServiceIframeRenderingInfo {
+                        id: exercise_service.id,
+                        name: exercise_service.name,
+                        slug: exercise_service.slug,
+                        public_iframe_url: url.to_string(),
+                    })
+                } else {
+                    warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it has an invalid base url");
+                    None
+                }
+
+            } else {
+                warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it doesn't have a service info");
+                None
+            }
+        })
+        .collect::<Vec<_>>();
     Ok(res)
 }
 

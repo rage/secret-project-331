@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../components/Layout"
 import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
@@ -9,23 +9,41 @@ import {
   addExerciseService,
   fetchExerciseServices,
 } from "../../../services/backend/exercise-services"
+import { ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 
-const ExerciseServicePage: React.FC = () => {
+const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [exerciseService, setExerciseService] = useState({
+  const [exerciseService, setExerciseService] = useState<ExerciseServiceNewOrUpdate>({
     name: "",
     slug: "",
     public_url: "",
     internal_url: "",
     max_reprocessing_submissions_at_once: 1,
   })
+  const createExerciseServiceMutation = useToastMutation(
+    async () => {
+      if (!canSave(exerciseService)) {
+        return
+      }
+      await addExerciseService(exerciseService)
+    },
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        getExerciseServices.refetch()
+        handleClose()
+        resetExerciseService()
+      },
+    },
+  )
 
   const resetExerciseService = () => {
     setExerciseService({
@@ -46,13 +64,24 @@ const ExerciseServicePage: React.FC = () => {
   }
 
   const onChangeCreationModal = (key: string) => (value: string) => {
-    setExerciseService({
-      ...exerciseService,
-      [key]: value,
-    })
+    if (key === "max_reprocessing_submissions_at_once") {
+      try {
+        setExerciseService({
+          ...exerciseService,
+          [key]: Number(value),
+        })
+      } catch (e) {
+        // NOP
+      }
+    } else {
+      setExerciseService({
+        ...exerciseService,
+        [key]: value,
+      })
+    }
   }
 
-  const getExerciseServices = useQuery(`exercise-services`, () => fetchExerciseServices())
+  const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
 
   const handleClose = () => {
     setOpen(false)
@@ -60,21 +89,6 @@ const ExerciseServicePage: React.FC = () => {
 
   const openModal = () => {
     setOpen(true)
-  }
-
-  const createExerciseService = async () => {
-    if (!canSave(exerciseService)) {
-      return
-    }
-    try {
-      await addExerciseService(exerciseService)
-      getExerciseServices.refetch()
-      handleClose()
-      resetExerciseService()
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
   }
 
   return (
@@ -88,9 +102,7 @@ const ExerciseServicePage: React.FC = () => {
         {getExerciseServices.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
         )}
-        {(getExerciseServices.isLoading || getExerciseServices.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
         {getExerciseServices.isSuccess && (
           <>
             <ExerciseServiceContainer
@@ -103,7 +115,9 @@ const ExerciseServicePage: React.FC = () => {
               exercise_service={exerciseService}
               onChange={onChangeCreationModal}
               onChangeName={onChangeName}
-              handleSubmit={createExerciseService}
+              handleSubmit={async () => {
+                createExerciseServiceMutation.mutateAsync()
+              }}
             />
           </>
         )}

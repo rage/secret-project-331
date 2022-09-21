@@ -26,7 +26,15 @@ You may also need stern and kubectx.
 You don't need these if you don't intend to change the headless-lms.
 
 1. Install rust (https://www.rust-lang.org/tools/install)
-2. Install sqlx-cli (`cargo install sqlx-cli`)
+2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
+3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
+4. Install `pkg-config`
+
+### Set up the TMC CLI for the TMC exercise service
+
+```sh
+bin/download-tmc-langs
+```
 
 ### Setting up minikube
 
@@ -112,7 +120,7 @@ You may also need [stern](https://community.chocolatey.org/packages/stern) and [
 You don't need these if you don't intend to change the headless-lms.
 
 1. Install rust (https://www.rust-lang.org/tools/install)
-2. Install sqlx-cli (`cargo install sqlx-cli`)
+2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
 
 ### Windows Terminal & Cygwin
 

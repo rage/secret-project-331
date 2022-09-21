@@ -19,6 +19,11 @@ patches:
       version: v1
       kind: CronJob
       name: open-university-registration-link-fetcher
+  - path: headless-lms/patch-peer-review-updater.yml
+    target:
+      version: v1
+      kind: CronJob
+      name: peer-review-updater
   - path: headless-lms/patch-regrader.yml
     target:
       version: v1
@@ -39,6 +44,8 @@ images:
     newName: eu.gcr.io/moocfi-public/secret-project-course-material-production-slim:latest
   - name: quizzes
     newName: eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim:latest
+  - name: tmc
+    newName: eu.gcr.io/moocfi-public/secret-project-tmc-production-slim:latest
   - name: example-exercise
     newName: eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim:latest
   - name: main-frontend

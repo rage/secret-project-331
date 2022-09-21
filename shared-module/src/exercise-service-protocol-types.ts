@@ -1,4 +1,4 @@
-import { ExerciseTaskGradingResult, ExerciseTaskSubmission } from "./bindings"
+import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
 
 /**
  * from: IFrame
@@ -31,24 +31,42 @@ export interface ReadyMessage {
 }
 
 /**
+ * from: Parent
+ *
+ * to: IFrame
+ */
+export interface SetLanguageMessage {
+  message: "set-language"
+  // e.g. "en" or "fi"
+  data: string
+}
+
+/**
  * from: parent
  *
  * to: IFrame
  */
 export type SetStateMessage = { message: "set-state" } & IframeState
 
+export type UserInformation = {
+  pseudonymous_id: string
+  signed_in: boolean
+}
+
 export type IframeState =
   | {
-      view_type: "exercise"
+      view_type: "answer-exercise"
       exercise_task_id: string
+      user_information: UserInformation
       data: {
         public_spec: unknown
-        previous_submission: ExerciseTaskSubmission | null
+        previous_submission: unknown | null
       }
     }
   | {
       view_type: "view-submission"
       exercise_task_id: string
+      user_information: UserInformation
       data: {
         grading: ExerciseTaskGradingResult | null
         user_answer: unknown
@@ -59,7 +77,8 @@ export type IframeState =
   | {
       view_type: "exercise-editor"
       exercise_task_id: string
-      data: { private_spec: unknown }
+      user_information: UserInformation
+      data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
     }
 
 export type IframeViewType = IframeState["view_type"]

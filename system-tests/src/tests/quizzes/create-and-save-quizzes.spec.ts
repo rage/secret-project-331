@@ -1,6 +1,6 @@
 import { Frame, Page, test } from "@playwright/test"
 
-import expectPath from "../../utils/expect"
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { closeModal, fillQuizItemOptionModal } from "../../utils/quizzesActions"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -17,7 +17,7 @@ test("create quizzes test", async ({ page }) => {
     page.waitForNavigation(),
     await page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Add course
   await page.click(`button:text("Create")`)
@@ -44,11 +44,11 @@ test("create quizzes test", async ({ page }) => {
   ])
   // Click :nth-match(:text("Manage"), 4)
 
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   // Click text=Add new chapter
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
@@ -125,87 +125,196 @@ test("create quizzes test", async ({ page }) => {
     }),
   )
 
-  await frame.click(`button:text("Essay")`)
+  if (!frame) {
+    throw new Error("Frame not found")
+  }
+
+  await frame.click(`#quiz-option-card-essay`)
   await frame.fill(`label:has-text("Min words") input`, "100")
   await frame.fill(`label:has-text("Max words") input`, "500")
 
-  await frame.click(`button:text("Scale")`)
-  await frame.fill(`label:has-text("Title") input`, "Answer this question 1-6")
-  await frame.fill(`label:has-text("Minimum") input`, "1")
-  await frame.fill(`label:has-text("Maximum") input`, "6")
+  await page.click(`[aria-label="Close"]`)
 
-  await frame.click(`button:text("Open")`)
-  await frame.fill(`label:has-text("Validity regular expression") input`, `1\\/2`)
-  await frame.fill(`label:has-text("Format regular expression") input`, `\\d+\\/\\d+`)
-  await frame.click(
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Edit"] >> nth=1
+  await page.locator('[aria-label="Edit"]').nth(1).click()
+
+  // Click text=Quizzes
+  await page.locator("text=Quizzes").click()
+
+  const frame2 = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/quizzes/iframe")
+    }),
+  )
+  if (!frame2) {
+    throw new Error("Frame2 not found")
+  }
+  await scrollToFrame(page, frame2)
+
+  await frame2.click(`#quiz-option-card-scale`)
+  await frame2.fill(`label:has-text("Title") input`, "Answer this question 1-6")
+  await frame2.fill(`label:has-text("Minimum") input`, "1")
+  await frame2.fill(`label:has-text("Maximum") input`, "6")
+
+  await page.click(`[aria-label="Close"]`)
+
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Edit"] >> nth=1
+  await page.locator('[aria-label="Edit"]').nth(2).click()
+
+  // Click text=Quizzes
+  await page.locator("text=Quizzes").click()
+
+  const frame3 = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/quizzes/iframe")
+    }),
+  )
+  if (!frame3) {
+    throw new Error("Frame3 not found")
+  }
+  await scrollToFrame(page, frame3)
+
+  await frame3.click(`#quiz-option-card-open`)
+  await frame3.fill(`label:has-text("Validity regular expression") input`, `1\\/2`)
+  await frame3.fill(`label:has-text("Format regular expression") input`, `\\d+\\/\\d+`)
+  await frame3.click(
     `:nth-match(button:text("Test"):right-of(label:has-text("Format regular expression")), 1)`,
   )
-  await frame.fill(`label:has-text("Test") input`, `5`)
-  await frame.waitForSelector(`text="Given text does not match regular expression"`)
-  await frame.fill(`label:has-text("Test") input`, `1/2`)
-  await frame.waitForSelector(`text="Given text matches regular expression"`)
-  await closeModal(page, frame)
+  await frame3.fill(`label:has-text("Test") input`, `5`)
+  await frame3.waitForSelector(`text="Given text does not match regular expression"`)
+  await frame3.fill(`label:has-text("Test") input`, `1/2`)
+  await frame3.waitForSelector(`text="Given text matches regular expression"`)
+  await closeModal(page, frame3)
 
-  await frame.click(`:nth-match(button:text("Multiple-Choice"), 1)`)
-  await frame.fill(`label:has-text("Title") input`, `What is the answer to this question?`)
-  await frame.click(`button:text("Add option")`)
-  await frame.click(`button:text("Add option")`)
-  await frame.click(`[aria-label="Option 1"]`)
-  await fillQuizItemOptionModal(page, frame, {
+  await page.click(`[aria-label="Close"]`)
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Edit"] >> nth=3
+  await page.locator('[aria-label="Edit"]').nth(3).click()
+
+  // Click text=Quizzes
+  await page.locator("text=Quizzes").click()
+
+  const frame4 = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/quizzes/iframe")
+    }),
+  )
+  if (!frame4) {
+    throw new Error("Frame4 not found")
+  }
+  await scrollToFrame(page, frame4)
+
+  await frame4.click(`#quiz-option-card-multiple-choice`)
+  await frame4.fill(`label:has-text("Title") input`, `What is the answer to this question?`)
+  await frame4.click(`button:text("Add option")`)
+  await frame4.click(`button:text("Add option")`)
+  await frame4.click(`[aria-label="Option 1"]`)
+  await fillQuizItemOptionModal(page, frame4, {
     type: "multiple-choice",
     correct: false,
     title: `wrong`,
     messageAfterSubmissionWhenSelected: `no`,
   })
-  await frame.click(`[aria-label="Option 2"]`)
+  await frame4.click(`[aria-label="Option 2"]`)
   await page.evaluate(() => {
     window.scrollBy(0, 200)
   })
-  await fillQuizItemOptionModal(page, frame, {
+  await fillQuizItemOptionModal(page, frame4, {
     type: "multiple-choice",
     correct: true,
     title: `correct`,
     messageAfterSubmissionWhenSelected: `yes`,
   })
 
-  await frame.click(`button:text("Checkbox")`)
-  await frame.fill(`label:has-text("Title") input:below(h4:text("checkbox"))`, `Please check this`)
+  await page.click(`[aria-label="Close"]`)
 
-  await frame.click(`button:text("Matrix")`)
-  await frame.fill(`tr:nth-child(1) td:nth-child(1) input`, "1")
-  await frame.fill(`tr:nth-child(1) td:nth-child(2) input`, "2")
-  await frame.fill(`tr:nth-child(2) td:nth-child(1) input`, "3")
-  await frame.fill(`tr:nth-child(2) td:nth-child(2) input`, "4")
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Edit"] >> nth=4
+  await page.locator('[aria-label="Edit"]').nth(4).click()
+
+  // Click text=Quizzes
+  await page.locator("text=Quizzes").click()
+
+  const frame5 = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/quizzes/iframe")
+    }),
+  )
+  if (!frame5) {
+    throw new Error("Frame5 not found")
+  }
+  await scrollToFrame(page, frame5)
+
+  await frame5.click(`#quiz-option-card-checkbox`)
+  await frame5.fill(`label:has-text("Title") input:below(h4:text("checkbox"))`, `Please check this`)
+
+  await page.click(`[aria-label="Close"]`)
+  // Click text=Add task
+  await page.click("text=Add task")
+
+  // Click [aria-label="Edit"] >> nth=5
+  await page.locator('[aria-label="Edit"]').nth(5).click()
+
+  // Click text=Quizzes
+  await page.locator("text=Quizzes").click()
+
+  const frame6 = await waitForFunction(page, () =>
+    page.frames().find((f) => {
+      return f.url().startsWith("http://project-331.local/quizzes/iframe")
+    }),
+  )
+  if (!frame6) {
+    throw new Error("Frame6 not found")
+  }
+  await scrollToFrame(page, frame6)
+
+  await frame6.click(`#quiz-option-card-matrix`)
+  await frame6.fill(`tr:nth-child(1) td:nth-child(1) input`, "1")
+  await frame6.fill(`tr:nth-child(1) td:nth-child(2) input`, "2")
+  await frame6.fill(`tr:nth-child(2) td:nth-child(1) input`, "3")
+  await frame6.fill(`tr:nth-child(2) td:nth-child(2) input`, "4")
 
   // rest quiz item types created on their own tasks
   // multiple choice dropdown
   await page.click(`[aria-label="Close"]`)
   await page.click(`text="Add task"`)
-  await page.click(`:nth-match([aria-label="Edit"], 2)`)
+  await page.click(`:nth-match([aria-label="Edit"], 7)`)
   await page.click(`text="Quizzes"`)
-  const frame2 = await waitForFunction(page, () =>
+  const frame7 = await waitForFunction(page, () =>
     page.frames().find((f) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
-  await scrollToFrame(page, frame2)
-  await frame2.click(`:nth-match(button:text("Multiple-choice-dropdown"), 1)`)
-  await frame2.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
-  await frame2.click(`button:text("Add option")`)
-  await frame2.click(`button:text("Add option")`)
-  await frame2.click(`[aria-label="Option 1"]`)
-  await fillQuizItemOptionModal(page, frame2, {
+
+  if (!frame7) {
+    throw new Error("Frame7 not found")
+  }
+
+  await scrollToFrame(page, frame7)
+
+  await frame7.click(`#quiz-option-card-multiple-choice-dropdown`)
+  await frame7.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
+  await frame7.click(`button:text("Add option")`)
+  await frame7.click(`button:text("Add option")`)
+  await frame7.click(`[aria-label="Option 1"]`)
+  await fillQuizItemOptionModal(page, frame7, {
     type: "multiple-choice",
     correct: false,
     title: `wrong`,
     messageAfterSubmissionWhenSelected: `no`,
   })
-  await frame2.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
-  await fillQuizItemOptionModal(page, frame2, {
+  await frame7.click(`[aria-label="Option 2"]`)
+  await fillQuizItemOptionModal(page, frame7, {
     type: "multiple-choice",
     correct: true,
     title: `correct`,
@@ -215,31 +324,34 @@ test("create quizzes test", async ({ page }) => {
   // clickable multiple choice
   await page.click(`[aria-label="Close"]`)
   await page.click(`text="Add task"`)
-  await page.click(`:nth-match([aria-label="Edit"], 3)`)
+  await page.click(`:nth-match([aria-label="Edit"], 8)`)
   await page.click(`text="Quizzes"`)
-  const frame3 = await waitForFunction(page, () =>
+  const frame8 = await waitForFunction(page, () =>
     page.frames().find((f) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")
     }),
   )
-  await scrollToFrame(page, frame3)
-  await frame3.click(`:nth-match(button:text("Clickable-multiple-choice"), 1)`)
-  await frame3.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
-  await frame3.click(`button:text("Add option")`)
-  await frame3.click(`button:text("Add option")`)
-  await frame3.click(`[aria-label="Option 1"]`)
-  await fillQuizItemOptionModal(page, frame3, {
+
+  if (!frame8) {
+    throw new Error("Frame8 not found")
+  }
+
+  await scrollToFrame(page, frame8)
+
+  await frame8.click(`#quiz-option-card-clickable-multiple-choice`)
+  await frame8.fill(`label:has-text("Title") input`, `Select correct option from dropdown`)
+  await frame8.click(`button:text("Add option")`)
+  await frame8.click(`button:text("Add option")`)
+  await frame8.click(`[aria-label="Option 1"]`)
+  await fillQuizItemOptionModal(page, frame8, {
     type: "multiple-choice",
     correct: false,
     title: `input`,
     messageAfterSubmissionWhenSelected: `no`,
   })
-  await frame3.click(`[aria-label="Option 2"]`)
-  // TODO: Figure out why clicking the option makes screen jump upwards
-  await page.evaluate(() => {
-    window.scrollBy(0, 300)
-  })
-  await fillQuizItemOptionModal(page, frame3, {
+  await frame8.click(`[aria-label="Option 2"]`)
+
+  await fillQuizItemOptionModal(page, frame8, {
     type: "multiple-choice",
     correct: true,
     title: `correct`,
@@ -253,6 +365,9 @@ test("create quizzes test", async ({ page }) => {
 async function scrollToFrame(page: Page, frame: Frame) {
   const frameElement = await frame.frameElement()
   const boundingBox = await frameElement.boundingBox()
+  if (!boundingBox) {
+    throw new Error("Frame had no bounding box")
+  }
   const y = boundingBox.y
   await page.evaluate((y) => {
     window.scrollTo(0, window.scrollY + y)

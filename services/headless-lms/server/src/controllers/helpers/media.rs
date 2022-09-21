@@ -3,14 +3,16 @@
 use std::{path::PathBuf, sync::Arc};
 
 pub use crate::domain::authorization::AuthorizationToken;
-use crate::{controllers::prelude::*, domain::authorization::AuthorizedResponse};
+use crate::{
+    domain::{authorization::AuthorizedResponse, file_uploading::upload_media_to_storage},
+    prelude::*,
+};
 use actix_http::header::HeaderMap;
 use actix_multipart::Field;
 use actix_web::http::header;
 use futures::StreamExt;
 use headless_lms_utils::{
-    file_store::file_utils::{get_extension_from_filename, upload_media_to_storage},
-    strings::generate_random_string,
+    file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
 use models::organizations::DatabaseOrganization;
 
@@ -32,10 +34,13 @@ pub async fn upload_media<'a>(
 ) -> ControllerResult<PathBuf> {
     let mut conn = pool.acquire().await?;
     validate_media_headers(headers, &user, &pool).await?;
-    let file_payload = payload
-        .next()
-        .await
-        .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
+    let file_payload = payload.next().await.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Missing form data".into(),
+            None,
+        )
+    })?;
     match file_payload {
         Ok(field) => {
             let path: AuthorizedResponse<PathBuf> = match field.content_type().type_() {
@@ -47,7 +52,11 @@ pub async fn upload_media<'a>(
             let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
             token.authorized_ok(path.data)
         }
-        Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
+        Err(err) => Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )),
     }
 }
 
@@ -61,10 +70,13 @@ pub async fn upload_image_for_organization(
 ) -> ControllerResult<PathBuf> {
     validate_media_headers(headers, &user, &pool).await?;
     let mut conn = pool.acquire().await?;
-    let next_payload = payload
-        .next()
-        .await
-        .ok_or_else(|| ControllerError::BadRequest("Missing form data".into()))?;
+    let next_payload = payload.next().await.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Missing form data".into(),
+            None,
+        )
+    })?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     match next_payload {
         Ok(field) => {
@@ -78,16 +90,21 @@ pub async fn upload_image_for_organization(
                     )
                     .await
                 }
-                unsupported => Err(ControllerError::BadRequest(format!(
-                    "Unsupported image Mime type: {}",
-                    unsupported
-                ))),
+                unsupported => Err(ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    format!("Unsupported image Mime type: {}", unsupported),
+                    None,
+                )),
             }
             .map(|value| value.data)?;
             upload_media_to_storage(&path, field, file_store.as_ref()).await?;
             token.authorized_ok(path)
         }
-        Err(err) => Err(ControllerError::InternalServerError(err.to_string())),
+        Err(err) => Err(ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            err.to_string(),
+            Some(err.into()),
+        )),
     }
 }
 
@@ -108,10 +125,11 @@ async fn generate_audio_path(
         "audio/midi" => ".mid",
         "audio/x-midi" => ".mid",
         unsupported => {
-            return Err(ControllerError::BadRequest(format!(
-                "Unsupported audio Mime type: {}",
-                unsupported
-            )))
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!("Unsupported audio Mime type: {}", unsupported),
+                None,
+            ))
         }
     };
     let mut file_name = generate_random_string(30);
@@ -130,7 +148,11 @@ async fn generate_file_path(
     let mut conn = pool.acquire().await?;
     let field_content = field.content_disposition();
     let field_content_name = field_content.get_filename().ok_or_else(|| {
-        ControllerError::BadRequest("Missing file name in content-disposition".into())
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Missing file name in content-disposition".into(),
+            None,
+        )
     })?;
 
     let mut file_name = generate_random_string(30);
@@ -161,10 +183,11 @@ async fn generate_image_path(
         "image/webp" => ".webp",
         "image/gif" => ".gif",
         unsupported => {
-            return Err(ControllerError::BadRequest(format!(
-                "Unsupported image Mime type: {}",
-                unsupported
-            )))
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                format!("Unsupported image Mime type: {}", unsupported),
+                None,
+            ))
         }
     };
 
@@ -186,29 +209,46 @@ async fn validate_media_headers(
 ) -> ControllerResult<()> {
     let mut conn = pool.acquire().await?;
     let content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
-        ControllerError::BadRequest("Please provide a Content-Type header".into())
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Please provide a Content-Type header".into(),
+            None,
+        )
     })?;
     let content_type_string = String::from_utf8_lossy(content_type.as_bytes()).to_string();
 
     if !content_type_string.contains("multipart/form-data") {
-        return Err(ControllerError::BadRequest(format!(
-            "Unsupported type: {}",
-            content_type_string
-        )));
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            format!("Unsupported type: {}", content_type_string),
+            None,
+        ));
     }
 
     let content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
-        ControllerError::BadRequest("Please provide a Content-Length in header".into())
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Please provide a Content-Length in header".into(),
+            None,
+        )
     })?;
     let content_length_number = String::from_utf8_lossy(content_length.as_bytes())
         .to_string()
         .parse::<i32>()
-        .map_err(|original_err| ControllerError::InternalServerError(original_err.to_string()))?;
+        .map_err(|original_err| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_err.to_string(),
+                Some(original_err.into()),
+            )
+        })?;
 
     // This does not enforce the size of the file since the client can lie about the content length
     if content_length_number > 10485760 {
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Content length over 10 MB".into(),
+            None,
         ));
     }
 

@@ -17,7 +17,7 @@ use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
-use crate::controllers::{self, ControllerResult};
+use crate::prelude::*;
 
 use super::authorization::{AuthorizationToken, AuthorizedResponse};
 /// Convenience struct for creating CSV data.
@@ -270,10 +270,8 @@ HttpResponse::Ok()
 ```
 */
 pub fn make_authorized_streamable(
-    stream: UnboundedReceiverStream<
-        Result<AuthorizedResponse<bytes::Bytes>, controllers::ControllerError>,
-    >,
-) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+    stream: UnboundedReceiverStream<Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
+) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
     stream.map(|item| item.map(|item2| item2.data))
 }
 
@@ -282,7 +280,7 @@ pub fn make_authorized_streamable(
 */
 pub fn serializable_sqlx_result_stream_to_json_stream(
     stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
-) -> impl Stream<Item = Result<bytes::Bytes, controllers::ControllerError>> {
+) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
     let res_stream = stream.enumerate().map(|(n, item)| {
         item.map(|item2| {
             match serde_json::to_vec(&item2) {
@@ -308,7 +306,13 @@ pub fn serializable_sqlx_result_stream_to_json_stream(
                 }
             }
         })
-        .map_err(|e| controllers::ControllerError::InternalServerError(e.to_string()))
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
+        })
     });
     // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
     res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
@@ -338,14 +342,14 @@ mod test {
     use super::*;
     use crate::test_helper::*;
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn exports() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2, course_module)
+        let c2 = chapters::insert(tx.as_mut(), "", course, 2, course_module.id)
             .await
             .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
@@ -360,7 +364,6 @@ mod test {
                 assignment: vec![],
                 public_spec: Some(Value::Null),
                 private_spec: Some(Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(Value::Null),
                 order_number: 1,
             },
@@ -379,7 +382,6 @@ mod test {
                 assignment: vec![],
                 public_spec: Some(Value::Null),
                 private_spec: Some(Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(Value::Null),
                 order_number: 2,
             },

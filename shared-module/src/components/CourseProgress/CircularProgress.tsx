@@ -10,12 +10,7 @@ import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/c
 
 import { CircularProgressExtraProps } from "."
 
-interface StyledSVGProps {
-  required: number
-  current: number
-}
-
-const StyledSVG = styled.div<StyledSVGProps>`
+const StyledSVG = styled.div`
   position: relative;
   width: 100%;
   text-align: center;
@@ -82,11 +77,10 @@ const StyledSVG = styled.div<StyledSVGProps>`
   }
 `
 const CircularProgress: React.FC<CircularProgressExtraProps> = ({
-  point = 10,
   label,
   given,
   max,
-  required = 60,
+  required,
 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
@@ -95,11 +89,12 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   const maximum = max ?? 0
 
   const radius = 160
-  const circumference = radius * 2 * Math.PI
-  const current = (givenScore / maximum) * 100
+  const circumference = 2 * Math.PI * radius
+  const receivedPointsRatio = givenScore / maximum
+  const requiredForCompletionRatio = required && required > 0 && max && max > 0 ? required / max : 0
 
-  const currentStrokeDashoffset = circumference - (current / 100) * circumference
-  const requiredStrokeDashoffset = circumference - (required / 100) * circumference
+  const receivedPointsStrokeDashOffset = (1 - receivedPointsRatio) * circumference
+  const requiredForCompletionStrokeDashOffset = (1 - requiredForCompletionRatio) * circumference
 
   useLayoutEffect(() => {
     const onScroll = () => {
@@ -114,7 +109,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   }, [])
 
   useSpring({
-    number: !willAnimate ? 0 : point,
+    number: !willAnimate ? 0 : givenScore,
     config: { duration: 1000 },
   })
   return (
@@ -132,7 +127,7 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
       >
         {label}
       </h2>
-      <StyledSVG required={required} current={current}>
+      <StyledSVG>
         <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
           <g id="Group_11" transform="translate(-712 -7629)">
             <g
@@ -161,18 +156,18 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
                 cx={radius}
                 cy={radius}
                 r={radius}
-                strokeDasharray={circumference + " " + circumference}
                 className={css`
-                  stroke-dashoffset: ${requiredStrokeDashoffset};
+                  stroke-dasharray: ${circumference} ${circumference * 2};
+                  stroke-dashoffset: ${requiredForCompletionStrokeDashOffset};
                 `}
               />
               <circle
                 cx={radius}
                 cy={radius}
                 r={radius}
-                strokeDasharray={circumference + " " + circumference}
                 className={css`
-                  stroke-dashoffset: ${currentStrokeDashoffset};
+                  stroke-dasharray: ${circumference} ${circumference * 2};
+                  stroke-dashoffset: ${receivedPointsStrokeDashOffset};
                 `}
               />
             </g>

@@ -3,6 +3,7 @@ import React from "react"
 
 import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -88,4 +89,4 @@ const Scale: React.FC<QuizItemComponentProps> = ({
   )
 }
 
-export default Scale
+export default withErrorBoundary(Scale)

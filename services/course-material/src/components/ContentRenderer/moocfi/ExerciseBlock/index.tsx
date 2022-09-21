@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import HelpIcon from "@mui/icons-material/Help"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import CheckIcon from "humbleicons/icons/check.svg"
+import produce from "immer"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery, useQueryClient } from "react-query"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
@@ -58,7 +60,9 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
-const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (props) => {
+const ExerciseBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
+> = (props) => {
   const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
@@ -75,7 +79,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
 
   const id = props.data.attributes.id
   // eslint-disable-next-line i18next/no-literal-string
-  const queryUniqueKey = `exercise-${id}`
+  const queryUniqueKey = [`exercise`, id]
   const getCourseMaterialExercise = useQuery(queryUniqueKey, () => fetchExerciseById(id), {
     enabled: showExercise,
     onSuccess: (data) => {
@@ -85,6 +89,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
       dispatch({
         type: "exerciseDownloaded",
         payload: data.current_exercise_slide.exercise_tasks,
+        signedIn: Boolean(loginState.signedIn),
       })
     },
   })
@@ -103,8 +108,29 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
         dispatch({
           type: "submissionGraded",
           payload: data,
+          signedIn: Boolean(loginState.signedIn),
         })
       },
+    },
+  )
+
+  const tryAgainMutation = useToastMutation(
+    async () => {
+      const data = getCourseMaterialExercise.data
+      if (!data) {
+        // eslint-disable-next-line i18next/no-literal-string
+        throw new Error("No data for the try again view")
+      }
+      dispatch({
+        type: "tryAgain",
+        payload: data.current_exercise_slide.exercise_tasks,
+        signedIn: Boolean(loginState.signedIn),
+      })
+      postSubmissionMutation.reset()
+      setAnswers(new Map())
+    },
+    {
+      notify: false,
     },
   )
 
@@ -115,7 +141,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
   if (getCourseMaterialExercise.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
-  if (getCourseMaterialExercise.isLoading || getCourseMaterialExercise.isIdle) {
+  if (getCourseMaterialExercise.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -230,9 +256,17 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                   font-family: ${secondaryFont} !important;
                 `}
               >
-                {t("points-label")}
-                <br />
-                {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+                {isExam && points === null ? (
+                  <>
+                    {t("max-points")}: {getCourseMaterialExercise.data.exercise.score_maximum}
+                  </>
+                ) : (
+                  <>
+                    {t("points-label")}:
+                    <br />
+                    {points ?? 0}/{getCourseMaterialExercise.data.exercise.score_maximum}
+                  </>
+                )}
               </div>
             </div>
           </Centered>
@@ -253,7 +287,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
               </DeadlineText>
             ))}
 
-          {getCourseMaterialExercise.data.peer_review && (
+          {getCourseMaterialExercise.data.peer_review_config && (
             <div
               className={css`
                 padding: 1rem;
@@ -268,7 +302,7 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                 ? t("help-text-answer-has-been-reviewed-and-locked")
                 : t("help-text-exercise-involves-peer-review", {
                     peer_reviews_to_give:
-                      getCourseMaterialExercise.data.peer_review.peer_reviews_to_give,
+                      getCourseMaterialExercise.data.peer_review_config.peer_reviews_to_give,
                   })}
             </div>
           )}
@@ -335,23 +369,47 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
                         ),
                     },
                     {
-                      onSuccess: () => {
-                        queryClient.setQueryData(queryUniqueKey, (old) => {
-                          // Update slide submission counts without refetching
-                          const oldData = old as CourseMaterialExercise
-                          const oldSubmissionCounts =
-                            oldData?.exercise_slide_submission_counts ?? {}
-                          const slideId =
-                            getCourseMaterialExercise?.data?.current_exercise_slide?.id
-                          const newSubmissionCounts = { ...oldSubmissionCounts }
-                          if (slideId) {
-                            newSubmissionCounts[slideId] = (oldSubmissionCounts[slideId] ?? 0) + 1
-                          }
-                          return {
-                            ...oldData,
-                            exercise_slide_submission_counts: newSubmissionCounts,
-                          }
-                        })
+                      onSuccess: (res) => {
+                        queryClient.setQueryData(
+                          queryUniqueKey,
+                          (old: CourseMaterialExercise | undefined) => {
+                            if (!old) {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              throw new Error("No CourseMaterialExercise found")
+                            }
+                            return produce(old, (draft: CourseMaterialExercise) => {
+                              // Update slide submission counts without refetching
+                              const slideId = draft?.current_exercise_slide?.id
+                              if (slideId) {
+                                draft.exercise_slide_submission_counts[slideId] =
+                                  (draft.exercise_slide_submission_counts[slideId] ?? 0) + 1
+                              }
+
+                              res.exercise_task_submission_results.forEach(
+                                (et_submission_result) => {
+                                  // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
+                                  const receivedExerciseTaskSubmission =
+                                    et_submission_result.submission
+                                  const draftExerciseTask =
+                                    draft.current_exercise_slide.exercise_tasks.find((et) => {
+                                      return (
+                                        et.id === et_submission_result.submission.exercise_task_id
+                                      )
+                                    })
+                                  if (draftExerciseTask) {
+                                    draftExerciseTask.previous_submission =
+                                      receivedExerciseTaskSubmission
+                                  }
+                                  // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                  if (isExam && et_submission_result.grading !== null) {
+                                    // eslint-disable-next-line i18next/no-literal-string
+                                    throw new Error("Exams should have hidden gradings")
+                                  }
+                                },
+                              )
+                            })
+                          },
+                        )
                       },
                     },
                   )
@@ -363,22 +421,38 @@ const ExerciseBlock: React.FC<BlockRendererProps<ExerciseBlockAttributes>> = (pr
             {true && <PeerReviewGiven id={id} />}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
+                {isExam && (
+                  <div
+                    className={css`
+                      background-color: ${baseTheme.colors.green[100]};
+                      color: ${baseTheme.colors.green[700]};
+                      padding: 0.7rem 1rem;
+                      margin: 1rem 0;
+                      border: 1px solid ${baseTheme.colors.green[300]};
+
+                      display: flex;
+
+                      svg {
+                        width: 80px;
+                        margin-right: 1rem;
+                      }
+                    `}
+                  >
+                    <CheckIcon />
+                    <div>{t("exam-submission-has-been-saved-help-text")}</div>
+                  </div>
+                )}
                 {!ranOutOfTries && (
                   <Button
                     variant="primary"
                     size="medium"
                     onClick={() => {
-                      dispatch({
-                        type: "tryAgain",
-                        payload:
-                          getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks,
-                      })
-                      postSubmissionMutation.reset()
-                      setAnswers(new Map())
+                      tryAgainMutation.mutate()
                     }}
                     disabled={
                       getCourseMaterialExercise.isRefetching ||
-                      !getCourseMaterialExercise.data.can_post_submission
+                      !getCourseMaterialExercise.data.can_post_submission ||
+                      tryAgainMutation.isLoading
                     }
                   >
                     {t("try-again")}

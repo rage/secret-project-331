@@ -3,8 +3,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
+import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
+import ParsedText from "../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -41,11 +44,14 @@ const gradingOptionCorrectAndSelected = css`
   color: ${quizTheme.gradingCorrectItemColor};
 `
 
-const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
+const MultipleChoiceSubmission: React.FC<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({
   public_quiz_item,
   quiz_item_model_solution,
   user_quiz_item_answer,
   quiz_item_feedback,
+  user_information,
 }) => {
   const { t } = useTranslation()
 
@@ -53,6 +59,11 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   // device width. Sanitized since the value is used in CSS.
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
+
+  let quiz_options = public_quiz_item.options
+  if (public_quiz_item.shuffleOptions) {
+    quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
+  }
 
   return (
     <div
@@ -67,7 +78,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           font-family: "Raleway", sans-serif;
         `}
       >
-        {public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}
+        <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
       </div>
       <p
         className={css`
@@ -88,7 +99,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           }
         `}
       >
-        {public_quiz_item.options.map((qo) => {
+        {quiz_options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
@@ -122,7 +133,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                       max-width: 50ch;
                     `}
                   >
-                    <MarkdownText text={qo.title || qo.body || ""} />
+                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
                   </div>
                   <div>
                     <div
@@ -155,14 +166,15 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   )
 }
 
-export default MultipleChoiceSubmission
-
 interface RowSubmissionFeedbackProps {
   feedback: string | null | undefined
   correct: boolean
 }
 
-const RowSubmissionFeedback: React.FC<RowSubmissionFeedbackProps> = ({ feedback, correct }) => {
+const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedbackProps>> = ({
+  feedback,
+  correct,
+}) => {
   return feedback ? (
     <div
       className={css`
@@ -180,3 +192,5 @@ const RowSubmissionFeedback: React.FC<RowSubmissionFeedbackProps> = ({ feedback,
     </div>
   ) : null
 }
+
+export default withErrorBoundary(MultipleChoiceSubmission)

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use futures::Stream;
-use headless_lms_utils::numbers::option_f32_to_f32_two_decimals;
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
 
 use crate::{
@@ -50,6 +50,7 @@ pub enum ReviewingStage {
     ReviewedAndLocked,
 }
 
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct UserExerciseState {
     pub id: Uuid,
@@ -70,13 +71,22 @@ pub struct UserExerciseState {
 impl UserExerciseState {
     pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
         self.course_instance_id.ok_or_else(|| {
-            ModelError::Generic("Exercise is not part of a course instance.".to_string())
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not part of a course instance.".to_string(),
+                None,
+            )
         })
     }
 
     pub fn get_selected_exercise_slide_id(&self) -> ModelResult<Uuid> {
-        self.selected_exercise_slide_id
-            .ok_or_else(|| ModelError::Generic("No exercise slide selected.".to_string()))
+        self.selected_exercise_slide_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "No exercise slide selected.".to_string(),
+                None,
+            )
+        })
     }
 }
 
@@ -93,7 +103,7 @@ pub struct UserExerciseStateUpdate {
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum CourseInstanceOrExamId {
     Instance(Uuid),
     Exam(Uuid),
@@ -105,13 +115,17 @@ impl CourseInstanceOrExamId {
         exam_id: Option<Uuid>,
     ) -> ModelResult<Self> {
         match (course_instance_id, exam_id) {
-            (None, None) => Err(ModelError::Generic(
+            (None, None) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Expected either course instance or exam id, but neither were provided.".into(),
+                None,
             )),
             (Some(instance_id), None) => Ok(Self::Instance(instance_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
-            (Some(_), Some(_)) => Err(ModelError::Generic(
+            (Some(_), Some(_)) => Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Expected either course instance or exam id, but both were provided.".into(),
+                None,
             )),
         }
     }
@@ -175,21 +189,21 @@ pub struct UserCourseInstanceMetrics {
     pub attempted_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
-    exercise_name: Option<String>,
-    exercise_order_number: Option<i32>,
-    page_order_number: Option<i32>,
-    chapter_number: Option<i32>,
-    exercise_id: Option<Uuid>,
+    exercise_name: String,
+    exercise_order_number: i32,
+    page_order_number: i32,
+    chapter_number: i32,
+    exercise_id: Uuid,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     n_users_attempted: Option<i64>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
@@ -374,7 +388,7 @@ fn merge_modules_with_metrics(
                     .name
                     .unwrap_or_else(|| default_course_module_name_placeholder.to_string()),
                 course_module_order_number: course_module.order_number,
-                score_given: option_f32_to_f32_two_decimals(
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     user_metrics.and_then(|x| x.score_given),
                 ),
                 score_required: course_module.automatic_completion_number_of_points_treshold,
@@ -537,7 +551,11 @@ pub async fn get_users_current_by_exercise(
                     CourseInstanceOrExamId::Instance(settings.current_course_instance_id)
                 })
                 .ok_or_else(|| {
-                    ModelError::PreconditionFailed("Missing user course settings.".to_string())
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailed,
+                        "Missing user course settings.".to_string(),
+                        None,
+                    )
                 })
         }
         CourseOrExamId::Exam(exam_id) => Ok(CourseInstanceOrExamId::Exam(exam_id)),
@@ -546,7 +564,11 @@ pub async fn get_users_current_by_exercise(
         get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_instance_or_exam_id)
             .await?
             .ok_or_else(|| {
-                ModelError::PreconditionFailed("Missing user exercise state.".to_string())
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Missing user exercise state.".to_string(),
+                    None,
+                )
             })?;
     Ok(user_exercise_state)
 }
@@ -653,6 +675,7 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// TODO: should be moved to the user_exercise_state_updater as a private module so that this cannot be called outside of that module
 pub async fn update(
     conn: &mut PgConnection,
     user_exercise_state_update: UserExerciseStateUpdate,
@@ -692,6 +715,48 @@ RETURNING id,
     Ok(res)
 }
 
+pub async fn update_reviewing_stage(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+    exercise_id: Uuid,
+    new_reviewing_stage: ReviewingStage,
+) -> ModelResult<UserExerciseState> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+UPDATE user_exercise_states
+SET reviewing_stage = $5
+WHERE user_id = $1
+AND (course_instance_id = $2 OR exam_id = $3)
+AND exercise_id = $4
+RETURNING id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+        "#,
+        user_id,
+        course_instance_id,
+        exam_id,
+        exercise_id,
+        new_reviewing_stage as ReviewingStage
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// TODO: should be removed
 pub async fn update_exercise_progress(
     conn: &mut PgConnection,
     id: Uuid,
@@ -720,46 +785,6 @@ RETURNING id,
         "#,
         reviewing_stage as ReviewingStage,
         id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn update_grading_state(
-    conn: &mut PgConnection,
-    id: Uuid,
-    score_given: Option<f32>,
-    grading_progress: GradingProgress,
-    activity_progress: ActivityProgress,
-) -> ModelResult<UserExerciseState> {
-    let res = sqlx::query_as!(
-        UserExerciseState,
-        r#"
-UPDATE user_exercise_states
-SET score_given = $1,
-  grading_progress = $2,
-  activity_progress = $3
-WHERE id = $4
-  AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_instance_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
-        score_given,
-        grading_progress as GradingProgress,
-        activity_progress as ActivityProgress,
-        id,
     )
     .fetch_one(conn)
     .await?;
@@ -858,11 +883,17 @@ impl EwusCourseOrExam {
                     course_id,
                     course_instance_id,
                 })),
-                _ => Err(ModelError::Generic("Invalid initializer data.".to_string())),
+                _ => Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    "Invalid initializer data.".to_string(),
+                    None,
+                )),
             }
         } else {
-            Err(ModelError::Generic(
+            Err(ModelError::new(
+                ModelErrorType::Generic,
                 "Exercise doesn't match the state.".to_string(),
+                None,
             ))
         }
     }
@@ -1030,7 +1061,7 @@ mod tests {
             let res = get_single_module_course_instance_metrics(
                 tx.as_mut(),
                 instance.id,
-                course_module,
+                course_module.id,
                 user,
             )
             .await;

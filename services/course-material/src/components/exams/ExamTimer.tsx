@@ -14,7 +14,7 @@ const SHORT = "short"
 
 const InfoBoxLightGreenMedium = styled.div`
   align-items: center;
-  background-color: ${baseTheme.colors.green[500]};
+  background-color: ${baseTheme.colors.green[200]};
   color: black;
   display: flex;
   flex: 2;
@@ -33,7 +33,8 @@ const InfoBoxLightGreenMedium = styled.div`
 const InfoBoxDarkGreenSmall = styled.div`
   padding: 0.5rem;
   flex: 1;
-  background-color: ${baseTheme.colors.green[200]};
+  background-color: ${baseTheme.colors.green[700]};
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,7 +49,7 @@ export interface ExamTimerProps {
   secondsLeft: number
 }
 
-const ExamTimer: React.FC<ExamTimerProps> = ({
+const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
   endsAt,
   hour12,
   maxScore,

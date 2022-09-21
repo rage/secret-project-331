@@ -1,8 +1,10 @@
+use std::collections::HashSet;
+
 use futures::Stream;
 use serde_json::Value;
 
 use crate::{
-    exercise_slide_submissions,
+    exercise_service_info, exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::PeerReviewQuestion,
@@ -25,7 +27,7 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewsRecieved {
     pub peer_review_questions: Vec<PeerReviewQuestion>,
@@ -222,9 +224,11 @@ pub async fn get_peer_reviews_received(
     exercise_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
-    let peer_review = crate::peer_reviews::get_by_exercise_id(&mut *conn, exercise_id).await?;
+    let peer_review =
+        crate::peer_review_configs::get_by_exercise_id(&mut *conn, exercise_id).await?;
     let peer_review_questions =
-        crate::peer_review_questions::get_by_peer_review_id(&mut *conn, peer_review.id).await?;
+        crate::peer_review_questions::get_by_peer_review_configs_id(&mut *conn, peer_review.id)
+            .await?;
 
     let peer_review_question_submissions =
         crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
@@ -296,6 +300,7 @@ WHERE exercise_slide_submissions.exam_id = $1
 pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     conn: &mut PgConnection,
     exercise_slide_submission_id: Uuid,
+    viewer_user_id: Uuid,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let task_submisssions = crate::exercise_task_submissions::get_by_exercise_slide_submission_id(
         &mut *conn,
@@ -314,25 +319,62 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
     >(&mut *conn, &task_submisssions[0].exercise_slide_id)
     .await?;
     let mut res = Vec::with_capacity(task_submisssions.len());
+
+    let unique_exercise_service_slugs = exercise_tasks
+        .iter()
+        .cloned()
+        .map(|et| et.exercise_type)
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let exercise_service_slug_to_service_and_info =
+        exercise_service_info::get_selected_exercise_services_by_type(
+            &mut *conn,
+            &unique_exercise_service_slugs,
+        )
+        .await?;
+
     for ts in task_submisssions {
         let grading = exercise_task_gradings
             .iter()
             .find(|g| Some(g.id) == ts.exercise_task_grading_id)
-            .ok_or_else(|| ModelError::NotFound("Grading not found".to_string()))?;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::NotFound,
+                    "Grading not found".to_string(),
+                    None,
+                )
+            })?;
         let task = exercise_tasks
             .iter()
             .find(|t| t.id == ts.exercise_task_id)
-            .ok_or_else(|| ModelError::NotFound("Exercise task not found".to_string()))?;
-        let exercise_iframe_url = crate::exercise_service_info::get_service_info_by_exercise_type(
-            &mut *conn,
-            &task.exercise_type,
-        )
-        .await?
-        .user_interface_iframe_path;
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::NotFound,
+                    "Exercise task not found".to_string(),
+                    None,
+                )
+            })?;
+        let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
+            .get(&task.exercise_type)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Exercise service not found".to_string(),
+                    None,
+                )
+            })?;
+        let mut exercise_iframe_url =
+            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
+        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,
-            exercise_iframe_url: Some(exercise_iframe_url),
+            exercise_iframe_url: Some(exercise_iframe_url.to_string()),
+            pseudonumous_user_id: Some(Uuid::new_v5(
+                &service_info.exercise_service_id,
+                viewer_user_id.as_bytes(),
+            )),
             assignment: task.assignment.clone(),
             public_spec: task.public_spec.clone(),
             model_solution_spec: task.model_solution_spec.clone(),

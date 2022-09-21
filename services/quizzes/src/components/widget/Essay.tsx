@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
 import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import { wordCount } from "../../shared-module/utils/strings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 
@@ -14,8 +15,8 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
-  const [usersWordCount, setUsersWordCOunt] = useState<number>(0)
-
+  const text = quizItemAnswerState?.textData ?? ""
+  const usersWordCount = useMemo(() => wordCount(text), [text])
   return (
     <div
       className={css`
@@ -65,7 +66,6 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       >
         <TextArea
           onChange={(newValue) => {
-            setUsersWordCOunt(wordCount(newValue))
             if (quizItemAnswerState) {
               let valid = true
               if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {
@@ -94,7 +94,7 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
               resize: vertical;
             }
           `}
-          value={quizItemAnswerState?.textData ?? ""}
+          value={text}
         />
       </div>
       <div
@@ -115,4 +115,4 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   )
 }
 
-export default Essay
+export default withErrorBoundary(Essay)

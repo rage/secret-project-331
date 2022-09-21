@@ -43,11 +43,13 @@ import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import HighlightBox from "./moocfi/HighglightBox"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import SponsorBlock from "./moocfi/SponsorBlock"
+import TableBox from "./moocfi/TableBox"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
@@ -123,6 +125,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/learning-objectives": LearningObjectiveBlock,
   "moocfi/pages-in-chapter": PagesInChapterBlock,
   "moocfi/sponsor": SponsorBlock,
+  "moocfi/highlightbox": HighlightBox,
+  "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
 }
 
@@ -131,7 +135,7 @@ const highlightedBlockStyles = css`
   outline-offset: 10px;
 `
 
-const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
     .filter((id) => id !== "")

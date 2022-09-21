@@ -35,6 +35,10 @@
     {
       "name": "Quizzes",
       "path": "./services/quizzes"
+    },
+    {
+      "name": "TMC",
+      "path": "./services/tmc"
     }
   ],
   "settings": {

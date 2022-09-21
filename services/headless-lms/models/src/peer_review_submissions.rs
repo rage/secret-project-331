@@ -10,7 +10,7 @@ pub struct PeerReviewSubmission {
     pub user_id: Uuid,
     pub exercise_id: Uuid,
     pub course_instance_id: Uuid,
-    pub peer_review_id: Uuid,
+    pub peer_review_config_id: Uuid,
     pub exercise_slide_submission_id: Uuid,
 }
 
@@ -19,7 +19,7 @@ pub async fn insert(
     user_id: Uuid,
     exercise_id: Uuid,
     course_instance_id: Uuid,
-    peer_review_id: Uuid,
+    peer_review_config_id: Uuid,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -28,7 +28,7 @@ INSERT INTO peer_review_submissions (
     user_id,
     exercise_id,
     course_instance_id,
-    peer_review_id,
+    peer_review_config_id,
     exercise_slide_submission_id
   )
 VALUES ($1, $2, $3, $4, $5)
@@ -37,7 +37,7 @@ RETURNING id
         user_id,
         exercise_id,
         course_instance_id,
-        peer_review_id,
+        peer_review_config_id,
         exercise_slide_submission_id,
     )
     .fetch_one(conn)
@@ -111,6 +111,32 @@ WHERE user_id = $1
     .await?;
     Ok(res.count.unwrap_or(0))
 }
+
+pub async fn get_peer_reviews_given_by_user_and_course_instance_and_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT *
+FROM peer_review_submissions
+WHERE user_id = $1
+  AND exercise_id = $3
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+    ",
+        user_id,
+        course_instance_id,
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_users_submission_count_for_exercise_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,

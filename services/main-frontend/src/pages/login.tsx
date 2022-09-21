@@ -17,7 +17,7 @@ import {
 } from "../shared-module/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 
-const Login: React.FC = () => {
+const Login: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
 

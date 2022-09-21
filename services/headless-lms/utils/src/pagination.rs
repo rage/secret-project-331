@@ -1,5 +1,6 @@
 use std::{fmt, num::ParseIntError};
 
+use anyhow::bail;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer,
@@ -12,23 +13,26 @@ use ts_rs::TS;
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
-    #[cfg_attr(feature = "ts_rs", ts(rename = "page?"))]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     page: u32,
     // the deserialize implementation contains a default value for limit
-    #[cfg_attr(feature = "ts_rs", ts(rename = "limit?"))]
+    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     limit: u32,
 }
 
 impl Pagination {
     /// Panics on non-positive page or limit values.
-    pub fn new(page: u32, limit: u32) -> Self {
+    pub fn new(page: u32, limit: u32) -> anyhow::Result<Self> {
         if page == 0 {
-            panic!("Page must be a positive value.");
+            bail!("Page must be a positive value.");
         }
         if limit == 0 {
-            panic!("Limit must be a positive value.");
+            bail!("Limit must be a positive value.");
         }
-        Pagination { page, limit }
+        if limit > 10_000 {
+            bail!("Limit can be at most 10000.")
+        }
+        Ok(Pagination { page, limit })
     }
 
     /// Guaranteed to be positive.
@@ -137,9 +141,9 @@ impl<'de> Deserialize<'de> for Pagination {
                                     e
                                 ))
                             })?;
-                            if !(1..=1000).contains(&value) {
+                            if !(1..=10000).contains(&value) {
                                 return Err(de::Error::custom(
-                                    "query parameter `limit` must be an integer between 1 and 1000",
+                                    "query parameter `limit` must be an integer between 1 and 10000",
                                 ));
                             }
                             limit = Some(value);
@@ -188,7 +192,7 @@ mod test {
     #[test]
     fn paginates() {
         let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
-        let pagination = Pagination::new(2, 3);
+        let pagination = Pagination::new(2, 3).unwrap();
         pagination.paginate(&mut v);
         assert_eq!(v, &[4, 5, 6]);
     }
@@ -196,7 +200,7 @@ mod test {
     #[test]
     fn paginates_non_existent_page() {
         let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
-        let pagination = Pagination::new(3, 4);
+        let pagination = Pagination::new(3, 4).unwrap();
         pagination.paginate(&mut v);
         assert_eq!(v, &[] as &[i32]);
     }
@@ -204,7 +208,7 @@ mod test {
     #[test]
     fn paginates_incomplete_page() {
         let mut v = vec![1, 2, 3, 4, 5, 6, 7, 8];
-        let pagination = Pagination::new(2, 5);
+        let pagination = Pagination::new(2, 5).unwrap();
         pagination.paginate(&mut v);
         assert_eq!(v, &[6, 7, 8]);
     }

@@ -8,4 +8,4 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command cargo doc -p headless-lms-actix --open --document-private-items "$@"
+run_command cargo doc -p headless-lms-server --open --document-private-items "$@"

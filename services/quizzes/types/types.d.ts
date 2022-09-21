@@ -92,7 +92,12 @@ export interface ModelSolutionQuiz {
   submitMessage: string | null
 }
 
+type multipleChoiceMultipleOptionsGradingPolicy =
+  | "default"
+  | "points-off-incorrect-options"
+  | "points-off-unselected-options"
 export interface QuizItem {
+  shuffleOptions: boolean
   id: string
   quizId: string
   type: string
@@ -119,6 +124,7 @@ export interface QuizItem {
   allAnswersCorrect: boolean
   direction: "row" | "column"
   timelineItems: QuizItemTimelineItem[] | null
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
 }
 
 export interface QuizItemModelSolution {
@@ -140,6 +146,8 @@ export interface OptionsFeedback {
  * See this for an introduction to normalization in Redux: https://redux.js.org/tutorials/essentials/part-6-performance-normalization#normalizing-data
  */
 export interface NormalizedQuizItem {
+  shuffleOptions: boolean
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
   id: string
   quizId: string
   type: string
@@ -191,6 +199,8 @@ export interface PublicQuizItem {
   order: number
   formatRegex: string | null
   multi: boolean
+  shuffleOptions: boolean
+  multipleChoiceMultipleOptionsGradingPolicy: multipleChoiceMultipleOptionsGradingPolicy
   minWords: number | null
   maxWords: number | null
   maxValue: number | null

@@ -101,7 +101,11 @@ RETURNING id,
                     let new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
-                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                "Invalid exercise id in content.".to_string(),
+                                None,
+                            )
                         })?
                         .to_string();
                     block["attributes"]["id"] = Value::String(new_id);
@@ -205,7 +209,11 @@ pub async fn copy_exam(
                     let new_id = old_to_new_exercise_ids
                         .get(old_id)
                         .ok_or_else(|| {
-                            ModelError::Generic("Invalid exercise id in content.".to_string())
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                "Invalid exercise id in content.".to_string(),
+                                None,
+                            )
                         })?
                         .to_string();
                     block["attributes"]["id"] = Value::String(new_id);
@@ -476,7 +484,11 @@ async fn map_old_exr_ids_to_new_exr_ids_for_courses(
             record
                 .copied_from
                 .ok_or_else(|| {
-                    ModelError::Generic("Query failed to return valid data.".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Query failed to return valid data.".to_string(),
+                        None,
+                    )
                 })?
                 .to_string(),
             record.id.to_string(),
@@ -531,7 +543,11 @@ async fn map_old_exr_ids_to_new_exr_ids_for_exams(
             record
                 .copied_from
                 .ok_or_else(|| {
-                    ModelError::Generic("Query failed to return valid data.".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Query failed to return valid data.".to_string(),
+                        None,
+                    )
                 })?
                 .to_string(),
             record.id.to_string(),
@@ -583,7 +599,6 @@ INSERT INTO exercise_tasks (
     exercise_type,
     assignment,
     private_spec,
-    spec_file_id,
     public_spec,
     model_solution_spec,
     order_number,
@@ -594,7 +609,6 @@ SELECT uuid_generate_v5($1, id::text),
   exercise_type,
   assignment,
   private_spec,
-  spec_file_id,
   public_spec,
   model_solution_spec,
   order_number,
@@ -686,7 +700,7 @@ mod tests {
 
         #[tokio::test]
         async fn copies_course_modules() {
-            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            insert_data!(:tx, :user, :org, :course);
             let course = crate::courses::get_course(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -694,14 +708,17 @@ mod tests {
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
+
+            let original_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course.id)
+                .await
+                .unwrap();
             let copied_modules =
                 crate::course_modules::get_by_course_id(tx.as_mut(), copied_course.id)
                     .await
                     .unwrap();
-            assert_eq!(copied_modules.len(), 1);
             assert_eq!(
-                copied_modules.first().unwrap().copied_from,
-                Some(course_module)
+                original_modules.first().unwrap().id,
+                copied_modules.first().unwrap().copied_from.unwrap(),
             )
         }
 

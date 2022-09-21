@@ -15,24 +15,28 @@ const STYLE = "vancouver"
 const LANG = "en-US"
 const BIBLIOGRAPHY = "bibliography"
 
-const ReferenceList: React.FC<ReferencesProps> = ({ courseId }) => {
+const ReferenceList: React.FC<React.PropsWithChildren<ReferencesProps>> = ({ courseId }) => {
   const pageRefs = usePageReferences(courseId)
 
   if (!pageRefs || pageRefs.length === 0) {
     return null
   }
 
-  const refs: { id: string; text: string }[] = pageRefs.map((r) => {
-    const c = cite(r.reference.reference)
-    return {
-      id: r.reference.citation_key,
-      text: c.format(BIBLIOGRAPHY, {
-        type: TYPE,
-        style: STYLE,
-        lang: LANG,
-      }),
-    }
-  })
+  const refs: { id: string; text: string }[] = pageRefs
+    .map((r) => {
+      const c = cite(r.reference.reference)
+      return {
+        id: r.reference.citation_key,
+        text: c.format(BIBLIOGRAPHY, {
+          type: TYPE,
+          style: STYLE,
+          lang: LANG,
+        }),
+      }
+    })
+    .sort((a, b) => {
+      return a.text.localeCompare(b.text)
+    })
   return <Reference data={refs} />
 }
 

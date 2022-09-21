@@ -21,6 +21,8 @@ export interface ParagraphAttributes {
   className?: string
   backgroundColor?: string
   textColor?: string
+  gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -155,6 +157,7 @@ export interface ImageAttributes {
   }
   anchor?: string
   className?: string
+  borderColor?: string
   style?: {
     [k: string]: unknown
   }
@@ -170,16 +173,16 @@ export interface ImageDeprecated1Attributes {
   url?: string
   alt: string
   caption?: string
+  title?: string
   href?: string
   rel?: string
   linkClass?: string
   id?: number
   width?: number
   height?: number
+  sizeSlug?: string
   linkDestination: string
   linkTarget?: string
-  title?: string
-  sizeSlug?: string
   lock?: {
     [k: string]: unknown
   }
@@ -200,18 +203,24 @@ export interface ImageDeprecated2Attributes {
   url?: string
   alt: string
   caption?: string
+  title?: string
   href?: string
   rel?: string
   linkClass?: string
   id?: number
   width?: number
   height?: number
+  sizeSlug?: string
   linkDestination: string
   linkTarget?: string
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   blurDataUrl: string
 }
 
@@ -224,12 +233,14 @@ export interface ImageDeprecated3Attributes {
   url?: string
   alt: string
   caption?: string
+  title?: string
   href?: string
   rel?: string
   linkClass?: string
   id?: number
   width?: number
   height?: number
+  sizeSlug?: string
   linkDestination: string
   linkTarget?: string
   lock?: {
@@ -248,12 +259,40 @@ export interface ImageDeprecated4Attributes {
   url?: string
   alt: string
   caption?: string
+  title?: string
   href?: string
   rel?: string
   linkClass?: string
   id?: number
   width?: number
   height?: number
+  sizeSlug?: string
+  linkDestination: string
+  linkTarget?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  blurDataUrl: string
+}
+
+/**
+ * @deprecated This is an older version of ImageAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ImageDeprecated5Attributes {
+  align?: string
+  url?: string
+  alt: string
+  caption?: string
+  title?: string
+  href?: string
+  rel?: string
+  linkClass?: string
+  id?: number
+  width?: number
+  height?: number
+  sizeSlug?: string
   linkDestination: string
   linkTarget?: string
   lock?: {
@@ -276,6 +315,8 @@ export interface HeadingAttributes {
   className?: string
   backgroundColor?: string
   textColor?: string
+  gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -434,7 +475,12 @@ export interface QuoteDeprecated1Attributes {
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -442,6 +488,20 @@ export interface QuoteDeprecated1Attributes {
  */
 
 export interface QuoteDeprecated2Attributes {
+  value: string
+  citation: string
+  align?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface QuoteDeprecated3Attributes {
   value: string
   citation: string
   align?: string
@@ -456,7 +516,7 @@ export interface QuoteDeprecated2Attributes {
  * @deprecated This is an older version of QuoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface QuoteDeprecated3Attributes {
+export interface QuoteDeprecated4Attributes {
   value: string
   citation: string
   align?: string
@@ -480,6 +540,9 @@ export interface AudioAttributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -591,13 +654,9 @@ export interface ButtonDeprecated3Attributes {
   linkTarget?: string
   rel?: string
   placeholder?: string
-  borderRadius?: number
   backgroundColor?: string
   textColor?: string
   gradient?: string
-  style?: {
-    [k: string]: unknown
-  }
   width?: number
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
@@ -605,6 +664,11 @@ export interface ButtonDeprecated3Attributes {
   }
   anchor?: string
   className?: string
+  fontFamily?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**
@@ -652,6 +716,33 @@ export interface ButtonDeprecated5Attributes {
   style?: {
     [k: string]: unknown
   }
+  width?: number
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ButtonDeprecated6Attributes {
+  url?: string
+  title?: string
+  text?: string
+  linkTarget?: string
+  rel?: string
+  placeholder?: string
+  borderRadius?: number
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  style?: {
+    [k: string]: unknown
+  }
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
@@ -663,7 +754,7 @@ export interface ButtonDeprecated5Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated6Attributes {
+export interface ButtonDeprecated7Attributes {
   url?: string
   title?: string
   text?: string
@@ -688,7 +779,7 @@ export interface ButtonDeprecated6Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated7Attributes {
+export interface ButtonDeprecated8Attributes {
   url?: string
   title?: string
   text?: string
@@ -710,7 +801,7 @@ export interface ButtonDeprecated7Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated8Attributes {
+export interface ButtonDeprecated9Attributes {
   url?: string
   title?: string
   text?: string
@@ -729,7 +820,7 @@ export interface ButtonDeprecated8Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated9Attributes {
+export interface ButtonDeprecated10Attributes {
   url?: string
   title?: string
   text?: string
@@ -746,7 +837,7 @@ export interface ButtonDeprecated9Attributes {
  * @deprecated This is an older version of ButtonAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ButtonDeprecated10Attributes {
+export interface ButtonDeprecated11Attributes {
   url?: string
   title?: string
   text?: string
@@ -816,6 +907,7 @@ export interface CodeAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -836,6 +928,8 @@ export interface ColumnAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -870,6 +964,8 @@ export interface ColumnsAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1013,6 +1109,7 @@ export interface PreformattedAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -1033,6 +1130,7 @@ export interface PullquoteAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -1046,10 +1144,7 @@ export interface PullquoteAttributes {
 export interface PullquoteDeprecated1Attributes {
   value?: string
   citation: string
-  mainColor?: string
-  customMainColor?: string
-  textColor?: string
-  customTextColor?: string
+  textAlign?: string
   lock?: {
     [k: string]: unknown
   }
@@ -1067,9 +1162,6 @@ export interface PullquoteDeprecated2Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
-  figureStyle?: {
-    [k: string]: unknown
-  }
   lock?: {
     [k: string]: unknown
   }
@@ -1087,6 +1179,9 @@ export interface PullquoteDeprecated3Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
+  figureStyle?: {
+    [k: string]: unknown
+  }
   lock?: {
     [k: string]: unknown
   }
@@ -1115,6 +1210,23 @@ export interface PullquoteDeprecated4Attributes {
  */
 
 export interface PullquoteDeprecated5Attributes {
+  value?: string
+  citation: string
+  mainColor?: string
+  customMainColor?: string
+  textColor?: string
+  customTextColor?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of PullquoteAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface PullquoteDeprecated6Attributes {
   value?: string
   citation?: string
   mainColor?: string
@@ -1172,6 +1284,9 @@ export interface SpacerAttributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
 }
 
 /**

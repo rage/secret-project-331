@@ -11,7 +11,9 @@ const MonacoDiffEditorImpl = dynamic(() => import("./impl/MonacoDiffEditorImpl")
   loading: () => MonacoLoading,
 })
 
-const MonacoDiffEditor: React.FC<DiffEditorProps> = (props) => {
+const MonacoDiffEditor: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<DiffEditorProps>>
+> = (props) => {
   return <MonacoDiffEditorImpl {...props} />
 }
 

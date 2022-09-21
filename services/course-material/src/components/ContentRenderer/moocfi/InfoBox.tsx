@@ -11,7 +11,9 @@ interface InfoBoxBlockAttributes {
   backgroundColor: string
 }
 
-const InfoBoxBlock: React.FC<BlockRendererProps<InfoBoxBlockAttributes>> = (props) => {
+const InfoBoxBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
+> = (props) => {
   return (
     <BreakFromCentered sidebar={false}>
       <div

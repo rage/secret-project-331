@@ -19,7 +19,9 @@ const styledspan = css`
   text-transform: uppercase;
 `
 
-const CardOpensText: React.FC<CardOpensTextProps> = ({ open, date, time }) => {
+const CardOpensText: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<CardOpensTextProps>>
+> = ({ open, date, time }) => {
   const { t } = useTranslation()
   if (date && time) {
     return (

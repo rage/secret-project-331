@@ -40,7 +40,8 @@ const StTopic = styled.div`
   padding: 0.4rem 0.5rem 0.4rem 0.75rem;
   width: 100%;
   margin: 0;
-  font-size: 20px;
+  font-size: 15px;
+  line-height: 1.4;
   cursor: pointer;
 
   div {
@@ -85,7 +86,7 @@ export interface Topic {
 
 export type HeadingsNavigationProps = React.HTMLAttributes<HTMLDivElement>
 
-const HeadingsNavigation: React.FC<HeadingsNavigationProps> = () => {
+const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationProps>> = () => {
   const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()
   // eslint-disable-next-line i18next/no-literal-string
   const [activeHeading, setActiveHeading] = useState<string | undefined>(undefined)

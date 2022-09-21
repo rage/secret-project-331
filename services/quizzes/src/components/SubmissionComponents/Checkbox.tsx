@@ -4,6 +4,7 @@ import React from "react"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import { baseTheme } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -85,4 +86,4 @@ const CheckBoxFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   )
 }
 
-export default CheckBoxFeedback
+export default withErrorBoundary(CheckBoxFeedback)

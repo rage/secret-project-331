@@ -1,13 +1,14 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchCourseWeekdayHourSubmissionCounts } from "../../../../../../services/backend/courses"
 import DebugModal from "../../../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/styles"
 import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
@@ -46,12 +47,12 @@ const hours = [
 
 const maxCircleSize = 100
 
-const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndHourProps> = ({
-  courseId,
-}) => {
+const CourseSubmissionsByWeekdayAndHour: React.FC<
+  React.PropsWithChildren<CourseSubmissionsByWeekdayAndHourProps>
+> = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseWeekdayHourSubmissionCount = useQuery(
-    `course-submissions-by-weekday-and-hour-${courseId}`,
+    [`course-submissions-by-weekday-and-hour-${courseId}`],
     () => fetchCourseWeekdayHourSubmissionCounts(courseId),
     {
       select: (data) => {
@@ -76,7 +77,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
     return <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
   }
 
-  if (getCourseWeekdayHourSubmissionCount.isLoading || getCourseWeekdayHourSubmissionCount.isIdle) {
+  if (getCourseWeekdayHourSubmissionCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -87,7 +88,10 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<CourseSubmissionsByWeekdayAndH
   return (
     <div
       className={css`
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
+        border: 3px solid ${baseTheme.colors.clear[200]};
+        border-radius: 6px;
+        padding: 1rem;
       `}
     >
       <Echarts

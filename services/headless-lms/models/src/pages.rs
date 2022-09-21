@@ -2321,7 +2321,7 @@ pub async fn reorder_chapters(
     chapters: &[Chapter],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_chapters = dbg!(course_chapters(conn, course_id).await?);
+    let db_chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
 
@@ -2329,10 +2329,8 @@ pub async fn reorder_chapters(
     for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
             if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
-                // if matching_db_chapter.id == chapter.id {
                 // to avoid conflicting chapter_number when chapter is modified
-
-                //GIVE TWO MODIFIED CHAPTERS RANDOM NUMBERS
+                //Assign random number to modified chapters
                 sqlx::query!(
                     "UPDATE chapters
                 SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
@@ -2344,7 +2342,6 @@ pub async fn reorder_chapters(
                 )
                 .execute(&mut tx)
                 .await?;
-                // }
 
                 // get newly modified chapter
                 let chapter_with_randomized_chapter_number =
@@ -2374,10 +2371,9 @@ pub async fn reorder_chapters(
         }
     }
 
-    for chapter in dbg!(chapters) {
+    for chapter in chapters {
         if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
             if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id) {
-                /* let old_chapter_number = &old_chapter.chapter_number; */
                 let new_chapter_number = &new_chapter.chapter_number;
 
                 let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;

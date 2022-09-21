@@ -1,140 +1,80 @@
 import { css } from "@emotion/css"
-import React, { useId } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
-
-interface Cell {
-  content: string
-  tag: string
-}
+import InnerBlocks from "../util/InnerBlocks"
 
 const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = (props) => {
-  const innerBlocks: any = props.data.innerBlocks[0]
-  const id = useId()
-
   return (
-    innerBlocks && (
+    <div
+      className={css`
+        margin: 1rem 0;
+      `}
+    >
       <div
         className={css`
           margin: 1rem 0;
+          min-height: 100%;
+          padding-bottom: 6px;
+          overflow-x: auto;
+
+          table {
+            border-collapse: unset !important;
+          }
+
+          thead {
+            border-bottom: none !important;
+          }
+
+          th {
+            background-color: ${baseTheme.colors.green[500]};
+            align-items: center;
+            margin-bottom: 5px;
+            font-family: ${headingFont};
+            font-size: 17px;
+            font-weight: bold;
+            color: #ffffff;
+            padding: 12px 10px;
+            border: none;
+          }
+
+          tfoot {
+            border-top: none !important;
+
+            th {
+              background-color: ${baseTheme.colors.green[200]};
+              text-align: left;
+              color: ${baseTheme.colors.green[600]};
+              border: none !important;
+            }
+          }
+
+          td {
+            background-color: ${baseTheme.colors.green[100]};
+            align-items: center;
+            padding: 10px;
+            color: ${baseTheme.colors.green[600]};
+            font-family: ${primaryFont};
+            font-size: 18px;
+            font-weight: 500;
+            height: auto;
+            border: none !important;
+            margin-right: 20px;
+          }
+
+          caption {
+            font-size: 15px;
+            text-align: center;
+            color: ${baseTheme.colors.grey[600]};
+            margin-top: 10px;
+          }
         `}
       >
-        <div
-          className={css`
-            background-color: ${baseTheme.colors.green[200]};
-            margin: 1rem 0;
-            min-height: 100%;
-            padding-bottom: 6px;
-            overflow-x: auto;
-          `}
-        >
-          <div
-            className={css`
-              display: grid;
-              grid-template-columns: repeat(${innerBlocks.attributes?.head[0].cells.length}, 1fr);
-              min-height: 45px;
-              grid-gap: 5px;
-            `}
-          >
-            {innerBlocks.attributes?.head[0]?.cells.map((item: Cell) => (
-              <div
-                className={css`
-                  background-color: ${baseTheme.colors.green[500]};
-                  display: flex;
-                  align-items: center;
-                  margin-bottom: 5px;
-                  font-family: ${headingFont};
-                  font-size: 18px;
-                  font-weight: bold;
-                  color: #ffffff;
-                  padding: 12px 10px;
-                `}
-                key={item.content}
-              >
-                {item.content}
-              </div>
-            ))}
-          </div>
-
-          {innerBlocks.attributes?.body.map((item: any) => (
-            <div
-              className={css`
-                display: grid;
-                grid-template-columns: repeat(${item.cells.length}, 1fr);
-                gap: 5px;
-                margin-bottom: 5px;
-
-                :last-of-type {
-                  margin-bottom: 0;
-                }
-              `}
-              key={id}
-            >
-              {item.cells.map((o: Cell) => (
-                <div
-                  className={css`
-                    background-color: #f9f9f9;
-                    display: flex;
-                    align-items: center;
-                    padding: 10px;
-                    color: ${baseTheme.colors.grey[600]};
-                    font-family: ${primaryFont};
-                    font-size: 18px;
-                    font-weight: 500;
-                    height: auto;
-                  `}
-                  key={o.content}
-                >
-                  {o.content}
-                </div>
-              ))}
-            </div>
-          ))}
-          {innerBlocks.attributes?.foot && innerBlocks.attributes?.foot[0] && (
-            <div
-              className={css`
-                display: grid;
-                grid-template-columns: repeat(${innerBlocks.attributes?.foot[0].cells.length}, 1fr);
-                height: 45px;
-                grid-gap: 5px;
-              `}
-            >
-              {innerBlocks.attributes?.foot[0].cells.map((item: Cell) => (
-                <div
-                  className={css`
-                    background-color: ${baseTheme.colors.green[100]};
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 5px;
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #1a2333;
-                    padding: 10px;
-                  `}
-                  key={item.content}
-                >
-                  {item.content}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        {innerBlocks.attributes?.caption && (
-          <span
-            className={css`
-              font-size: 16px;
-              display: block;
-              text-align: center;
-              color: ${baseTheme.colors.grey[600]};
-            `}
-          >
-            {innerBlocks.attributes.caption}
-          </span>
-        )}
+        <InnerBlocks parentBlockProps={props} />
       </div>
-    )
+    </div>
   )
 }
 

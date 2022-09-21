@@ -14,6 +14,7 @@ interface CheckboxFieldExtraProps {
   onChange?: (checked: boolean, name?: string) => void
   className?: string
   register?: UseFormRegisterReturn
+  id?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -124,7 +125,7 @@ const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxF
                   display: block;
                 `
           }
-          id={`${rest.label}_error`}
+          id={`${rest.id ?? rest.label}_error`}
           role="alert"
         >
           {ERROR}

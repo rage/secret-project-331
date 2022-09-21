@@ -1946,6 +1946,16 @@
     },
     "query": "\nUPDATE exercise_repositories SET url = $1 WHERE id = $2\n"
   },
+  "1dbfd617b075c78d00dccbf6a2b4b329bd15b40fa8e479a3b54490d6a5da17e7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "UPDATE chapters\n                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)\n                WHERE chapters.id = $1\n                  AND chapters.course_id = $2\n                  AND deleted_at IS NULL"
+  },
   "1e26900e33b2a6f1baafb787523f3539beb5c20be6a2a0857d6510e597217134": {
     "describe": {
       "columns": [
@@ -7893,6 +7903,16 @@
     },
     "query": "\nINSERT INTO exercise_task_regrading_submissions (\n    regrading_id,\n    exercise_task_submission_id,\n    grading_before_regrading\n  )\nVALUES ($1, $2, $3)\nRETURNING id\n"
   },
+  "6f991c6fb574e712b360038802e99f87606b370f10fe37c8160388a4b087c638": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Int4"]
+      }
+    },
+    "query": "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1"
+  },
   "70153b30b4c994da2fcc85853bc4a56e406477b77390a85d8d2c4436a038e67a": {
     "describe": {
       "columns": [
@@ -9735,6 +9755,77 @@
     },
     "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE receiving_peer_reviews_exercise_slide_submission_id = $1\n  AND course_instance_id = $2\n  AND deleted_at IS NULL\n    "
   },
+  "8982dd7ad769a58dfd56e0708966859fd25470ee150bb536d4fb6ee52e99d109": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "chapter_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "url_path",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "title",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "content",
+          "ordinal": 9,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "order_number",
+          "ordinal": 10,
+          "type_info": "Int4"
+        },
+        {
+          "name": "copied_from",
+          "ordinal": 11,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false, false, false, true, true, true, false, false, true, false, false, true],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages p\nWHERE p.chapter_id = $1\n  AND p.deleted_at IS NULL;\n    "
+  },
   "8996c28a928545504a3741a926ceb7831d752406f9f3c6871854343bb7b1aa4b": {
     "describe": {
       "columns": [
@@ -11194,6 +11285,16 @@
       }
     },
     "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MAX(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number < $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\n  AND p.deleted_at IS NULL\nORDER BY p.order_number\nLIMIT 1;\n        "
+  },
+  "a31ab4987f8b24cf19bb676819c964d629e6147d37e4732109cd39ad9793e68a": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Varchar"]
+      }
+    },
+    "query": "UPDATE pages SET url_path = $2 WHERE pages.id = $1"
   },
   "a31f19aeb82cb164528744c6ca787c1c69bcab7575494559728a80de5ad5231a": {
     "describe": {

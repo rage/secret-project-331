@@ -1,5 +1,68 @@
 {
   "db": "PostgreSQL",
+  "001e9b06dd05bc2610cf16d96bda32bff96244cb441831d67e82b2d2b58d6200": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "regrading_started_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "regrading_completed_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "total_grading_progress: _",
+          "ordinal": 5,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              },
+              "name": "grading_progress"
+            }
+          }
+        },
+        {
+          "name": "user_points_update_strategy: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              },
+              "name": "user_points_update_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, true, true, false, false, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  regrading_started_at,\n  regrading_completed_at,\n  created_at,\n  updated_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM regradings\nWHERE id = $1\n"
+  },
   "005c8e8610ece4e77a3e40c1f12314768b110445a5fc575323d8b9df355e3e29": {
     "describe": {
       "columns": [
@@ -1560,59 +1623,6 @@
       }
     },
     "query": "\nSELECT proposed_page_edits.id AS \"page_proposal_id!\",\n  proposed_block_edits.id AS \"block_proposal_id!\",\n  page_id as \"page_id!\",\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending as \"pending!\",\n  block_attribute,\n  proposed_block_edits.status as \"block_proposal_status: ProposalStatus\",\n  proposed_page_edits.created_at as \"created_at!\",\n  pages.title as \"page_title!\",\n  pages.url_path as \"page_url_path!\"\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\n  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id\nWHERE proposed_block_edits.deleted_at IS NULL\n"
-  },
-  "188a190803a27da1f4357586f0ef3b7f6997c96297c361ce47315edf031f5603": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "regrading_started_at",
-          "ordinal": 1,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "regrading_completed_at",
-          "ordinal": 2,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "total_grading_progress: _",
-          "ordinal": 3,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
-              },
-              "name": "grading_progress"
-            }
-          }
-        },
-        {
-          "name": "user_points_update_strategy: _",
-          "ordinal": 4,
-          "type_info": {
-            "Custom": {
-              "kind": {
-                "Enum": [
-                  "can-add-points-but-cannot-remove-points",
-                  "can-add-points-and-can-remove-points"
-                ]
-              },
-              "name": "user_points_update_strategy"
-            }
-          }
-        }
-      ],
-      "nullable": [false, true, true, false, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT id,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM regradings\nWHERE id = $1\n"
   },
   "18cad5d0cf2a854a36655738b9a05c4fe5376c77174239b17cdf7e21bc739b1f": {
     "describe": {
@@ -4201,6 +4211,133 @@
       }
     },
     "query": "\nINSERT INTO url_redirections (destination_page_id, old_url_path, course_id)\nSELECT $1, $2, $3\nRETURNING id\n"
+  },
+  "429b0be3031e72b89ad7ec5a1842d525dffab9765e44a324fdcfaa049787fc74": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "exercise_task_submission_id",
+          "ordinal": 3,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exam_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "exercise_task_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "grading_priority",
+          "ordinal": 8,
+          "type_info": "Int4"
+        },
+        {
+          "name": "score_given",
+          "ordinal": 9,
+          "type_info": "Float4"
+        },
+        {
+          "name": "grading_progress: _",
+          "ordinal": 10,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              },
+              "name": "grading_progress"
+            }
+          }
+        },
+        {
+          "name": "unscaled_score_given",
+          "ordinal": 11,
+          "type_info": "Float4"
+        },
+        {
+          "name": "unscaled_score_maximum",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "grading_started_at",
+          "ordinal": 13,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "grading_completed_at",
+          "ordinal": 14,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "feedback_json",
+          "ordinal": 15,
+          "type_info": "Jsonb"
+        },
+        {
+          "name": "feedback_text",
+          "ordinal": 16,
+          "type_info": "Text"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 17,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE deleted_at IS NULL\n  AND id IN (\n    SELECT etrs.grading_before_regrading\n    FROM exercise_task_regrading_submissions etrs\n    WHERE etrs.deleted_at IS NULL\n      AND etrs.regrading_id = $1\n    UNION\n    SELECT etrs.grading_after_regrading\n    FROM exercise_task_regrading_submissions etrs\n    WHERE etrs.grading_after_regrading IS NOT NULL\n      AND etrs.deleted_at IS NULL\n      AND etrs.regrading_id = $1\n  );\n    "
   },
   "42bb90fd049adc897da8bdd2b82ab5b13af558433fae08261cecd5facb0c2f4f": {
     "describe": {
@@ -8215,6 +8352,69 @@
       }
     },
     "query": "\nSELECT etg.grading_progress as \"grading_progress: GradingProgress\"\nFROM exercise_task_gradings etg\n  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nLIMIT 1\n    "
+  },
+  "7629a8b98e3ca536d27268b5b4674f9a200c686137ba3be5cfa8df9868e4027b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "regrading_started_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "regrading_completed_at",
+          "ordinal": 4,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "total_grading_progress: _",
+          "ordinal": 5,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+              },
+              "name": "grading_progress"
+            }
+          }
+        },
+        {
+          "name": "user_points_update_strategy: _",
+          "ordinal": 6,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "can-add-points-but-cannot-remove-points",
+                  "can-add-points-and-can-remove-points"
+                ]
+              },
+              "name": "user_points_update_strategy"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, true, true, false, false],
+      "parameters": {
+        "Left": ["Int8", "Int8"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  regrading_started_at,\n  regrading_completed_at,\n  total_grading_progress AS \"total_grading_progress: _\",\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM regradings\nWHERE deleted_at IS NULL\nORDER BY regradings.created_at\nLIMIT $1 OFFSET $2;\n"
   },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
     "describe": {
@@ -17457,6 +17657,22 @@
       }
     },
     "query": "\nUPDATE course_module_completions\nSET completion_registration_attempt_date = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        "
+  },
+  "fa31ade190afca7bf9906e2eac082253dbc1876a609ef8cf7cb8b22e05c168da": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "\nSELECT COUNT(*) as count\nfrom regradings\nWHERE deleted_at IS NULL;\n"
   },
   "fb18b61c85778ef2bffb9dc1d388e1f5d1a7f53af4ffbe102a731c39a353afe8": {
     "describe": {

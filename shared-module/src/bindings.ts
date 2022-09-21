@@ -44,6 +44,15 @@ export type Resource =
   | { type: "exercise_service" }
   | { type: "material_reference" }
 
+export type ErrorData = { block_id: string }
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+  data: ErrorData | null
+}
+
 export interface Term {
   id: string
   term: string
@@ -978,6 +987,32 @@ export interface RepositoryExercise {
   download_url: string
 }
 
+export interface Regrading {
+  id: string
+  created_at: Date
+  updated_at: Date
+  regrading_started_at: Date | null
+  regrading_completed_at: Date | null
+  total_grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
+}
+
+export interface NewRegrading {
+  user_points_update_strategy: UserPointsUpdateStrategy
+  exercise_task_submission_ids: Array<string>
+}
+
+export interface RegradingInfo {
+  regrading: Regrading
+  submission_infos: Array<RegradingSubmissionInfo>
+}
+
+export interface RegradingSubmissionInfo {
+  exercise_task_submission_id: string
+  grading_before_regrading: ExerciseTaskGrading
+  grading_after_regrading: ExerciseTaskGrading | null
+}
+
 export interface ExerciseSlideSubmission {
   id: string
   created_at: Date
@@ -1194,15 +1229,6 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
-}
-
-export type ErrorData = { block_id: string }
-
-export interface ErrorResponse {
-  title: string
-  message: string
-  source: string | null
-  data: ErrorData | null
 }
 
 export interface UploadResult {

@@ -16,7 +16,7 @@ export interface ProgressBarExtraProps {
   exercisesAttempted: number | null
   exercisesTotal: number | null
   height?: string
-  label?: boolean
+  label: string
   required?: number
 }
 

@@ -69,6 +69,7 @@ use headless_lms_models::{
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
+    regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
     repository_exercises::RepositoryExercise,
     user_course_settings::UserCourseSettings,
     user_exercise_states::{
@@ -1284,6 +1285,90 @@ pub async fn main() -> anyhow::Result<()> {
             checksum: vec![0, 1, 2, 3],
             download_url: "direct-download-link".to_string(),
         }]
+    );
+
+    write_docs!(
+        Vec<Regrading>,
+        vec![
+            Regrading {
+                id,
+                created_at,
+                updated_at,
+                regrading_started_at: Some(created_at),
+                regrading_completed_at: Some(created_at),
+                total_grading_progress: GradingProgress::FullyGraded,
+                user_points_update_strategy:
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+            },
+            Regrading {
+                id,
+                created_at,
+                updated_at,
+                regrading_started_at: None,
+                regrading_completed_at: None,
+                total_grading_progress: GradingProgress::NotReady,
+                user_points_update_strategy:
+                    UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints
+            }
+        ]
+    );
+    write_docs!(
+        RegradingInfo,
+        RegradingInfo {
+            regrading: Regrading {
+                id,
+                created_at,
+                updated_at,
+                regrading_started_at: Some(created_at),
+                regrading_completed_at: Some(created_at),
+                total_grading_progress: GradingProgress::FullyGraded,
+                user_points_update_strategy:
+                    UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints
+            },
+            submission_infos: vec![RegradingSubmissionInfo {
+                exercise_task_submission_id: id,
+                grading_before_regrading: ExerciseTaskGrading {
+                    id,
+                    created_at,
+                    updated_at,
+                    exercise_task_submission_id: id,
+                    course_id: Some(id),
+                    exam_id: None,
+                    exercise_id: id,
+                    exercise_task_id: id,
+                    grading_priority: 1,
+                    score_given: Some(80.0),
+                    grading_progress: GradingProgress::FullyGraded,
+                    unscaled_score_given: Some(80.0),
+                    unscaled_score_maximum: Some(100),
+                    grading_started_at: Some(date_time),
+                    grading_completed_at: Some(date_time),
+                    feedback_json: None,
+                    feedback_text: None,
+                    deleted_at,
+                },
+                grading_after_regrading: Some(ExerciseTaskGrading {
+                    id,
+                    created_at,
+                    updated_at,
+                    exercise_task_submission_id: id,
+                    course_id: Some(id),
+                    exam_id: None,
+                    exercise_id: id,
+                    exercise_task_id: id,
+                    grading_priority: 1,
+                    score_given: Some(60.0),
+                    grading_progress: GradingProgress::FullyGraded,
+                    unscaled_score_given: Some(60.0),
+                    unscaled_score_maximum: Some(100),
+                    grading_started_at: Some(date_time),
+                    grading_completed_at: Some(date_time),
+                    feedback_json: None,
+                    feedback_text: None,
+                    deleted_at,
+                })
+            }],
+        }
     );
     Ok(())
 }

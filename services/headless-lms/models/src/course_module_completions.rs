@@ -162,6 +162,52 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModuleCompletionWithRegistrationInfo {
+    /// ID of the course module.
+    pub course_module_id: Uuid,
+    /// Grade that the student received for the completion.
+    pub grade: Option<i32>,
+    /// Whether or not the student is eligible for credit for the completion.
+    pub passed: bool,
+    /// Whether or not the student is qualified for credit based on other modules in the course.
+    pub prerequisite_modules_completed: bool,
+    /// Whether or not the completion has been registered to a study registry.
+    pub registered: bool,
+    /// ID of the user for the completion.
+    pub user_id: Uuid,
+}
+
+/// Gets summaries for all completions on the given course instance.
+pub async fn get_all_with_registration_information_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletionWithRegistrationInfo>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletionWithRegistrationInfo,
+        r#"
+SELECT completions.course_module_id,
+  completions.grade,
+  completions.passed,
+  completions.prerequisite_modules_completed,
+  (registered.id IS NOT NULL) AS "registered!",
+  completions.user_id
+FROM course_module_completions completions
+  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
+    completions.id = registered.course_module_completion_id
+  )
+WHERE completions.course_instance_id = $1
+  AND completions.deleted_at IS NULL
+  AND registered.deleted_at IS NULL
+        "#,
+        course_instance_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
 pub async fn get_all_by_course_instance_and_user_ids(

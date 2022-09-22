@@ -47,6 +47,7 @@ import {
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
+  CourseModuleCompletionWithRegistrationInfo,
   CoursePageWithUserData,
   CourseStructure,
   CourseUpdate,
@@ -480,6 +481,21 @@ export function isPoints(obj: unknown): obj is Points {
     Object.entries<any>(typedObj["user_chapter_points"]).every(
       ([key, value]) => (isPointMap(value) as boolean) && typeof key === "string",
     )
+  )
+}
+
+export function isCourseModuleCompletionWithRegistrationInfo(
+  obj: unknown,
+): obj is CourseModuleCompletionWithRegistrationInfo {
+  const typedObj = obj as CourseModuleCompletionWithRegistrationInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_module_id"] === "string" &&
+    (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
+    typeof typedObj["passed"] === "boolean" &&
+    typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
+    typeof typedObj["registered"] === "boolean" &&
+    typeof typedObj["user_id"] === "string"
   )
 }
 
@@ -1226,7 +1242,9 @@ export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModule
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     Array.isArray(typedObj["completed_modules"]) &&
-    typedObj["completed_modules"].every((e: any) => isUserCourseModuleCompletion(e) as boolean) &&
+    typedObj["completed_modules"].every(
+      (e: any) => isCourseModuleCompletionWithRegistrationInfo(e) as boolean,
+    ) &&
     typeof typedObj["email"] === "string" &&
     (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
     (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&

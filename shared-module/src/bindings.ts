@@ -189,6 +189,15 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
+export interface CourseModuleCompletionWithRegistrationInfo {
+  course_module_id: string
+  grade: number | null
+  passed: boolean
+  prerequisite_modules_completed: boolean
+  registered: boolean
+  user_id: string
+}
+
 export interface CourseModule {
   id: string
   created_at: Date
@@ -626,7 +635,7 @@ export interface UserModuleCompletionStatus {
 }
 
 export interface UserWithModuleCompletions {
-  completed_modules: Array<UserCourseModuleCompletion>
+  completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
   email: string
   first_name: string | null
   last_name: string | null

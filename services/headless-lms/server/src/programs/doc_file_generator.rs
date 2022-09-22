@@ -21,7 +21,9 @@ use headless_lms_models::{
     },
     course_instance_enrollments::CourseInstanceEnrollment,
     course_instances::{ChapterScore, CourseInstance, Points},
-    course_module_completions::{StudyRegistryCompletion, StudyRegistryGrade},
+    course_module_completions::{
+        CourseModuleCompletionWithRegistrationInfo, StudyRegistryCompletion, StudyRegistryGrade,
+    },
     course_modules::CourseModule,
     courses::{Course, CourseCount, CourseStructure},
     email_templates::EmailTemplate,
@@ -50,7 +52,7 @@ use headless_lms_models::{
         },
         progressing::{
             CompletionRegistrationLink, CourseInstanceCompletionSummary, UserCompletionInformation,
-            UserCourseModuleCompletion, UserModuleCompletionStatus, UserWithModuleCompletions,
+            UserModuleCompletionStatus, UserWithModuleCompletions,
         },
     },
     material_references::{MaterialReference, NewMaterialReference},
@@ -727,6 +729,19 @@ pub async fn main() -> anyhow::Result<()> {
             users: vec![user.clone()]
         }
     );
+    let course_module_completion_with_registration_info =
+        CourseModuleCompletionWithRegistrationInfo {
+            course_module_id: id,
+            grade: Some(4),
+            passed: true,
+            prerequisite_modules_completed: true,
+            registered: false,
+            user_id: id,
+        };
+    write_docs!(
+        CourseModuleCompletionWithRegistrationInfo,
+        course_module_completion_with_registration_info.clone()
+    );
     write_docs!(
         CourseInstanceCompletionSummary,
         CourseInstanceCompletionSummary {
@@ -746,11 +761,7 @@ pub async fn main() -> anyhow::Result<()> {
                 ects_credits: None,
             }],
             users_with_course_module_completions: vec![UserWithModuleCompletions {
-                completed_modules: vec![UserCourseModuleCompletion {
-                    course_module_id: id,
-                    grade: Some(4),
-                    passed: true,
-                }],
+                completed_modules: vec![course_module_completion_with_registration_info],
                 email: "student@example.com".to_string(),
                 first_name: Some("Student".to_string()),
                 last_name: Some("Student".to_string()),

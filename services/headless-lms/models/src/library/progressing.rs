@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use crate::{
     course_instance_enrollments,
     course_instances::{self, CourseInstance},
-    course_module_completions::{self, CourseModuleCompletion, NewCourseModuleCompletion},
+    course_module_completions::{
+        self, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo,
+        NewCourseModuleCompletion,
+    },
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
     prelude::*,
@@ -274,7 +277,7 @@ pub struct CourseInstanceCompletionSummary {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserWithModuleCompletions {
-    pub completed_modules: Vec<UserCourseModuleCompletion>,
+    pub completed_modules: Vec<CourseModuleCompletionWithRegistrationInfo>,
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -323,11 +326,15 @@ pub async fn get_course_instance_completion_summary(
             .map(|u| (u.id, u.into()))
             .collect();
     let completions =
-        course_module_completions::get_all_by_course_instance_id(conn, course_instance.id).await?;
+        course_module_completions::get_all_with_registration_information_by_course_instance_id(
+            conn,
+            course_instance.id,
+        )
+        .await?;
     completions.into_iter().for_each(|x| {
         let user_with_completions = users_with_course_module_completions.get_mut(&x.user_id);
         if let Some(completion) = user_with_completions {
-            completion.completed_modules.push(x.into());
+            completion.completed_modules.push(x);
         }
     });
     Ok(CourseInstanceCompletionSummary {

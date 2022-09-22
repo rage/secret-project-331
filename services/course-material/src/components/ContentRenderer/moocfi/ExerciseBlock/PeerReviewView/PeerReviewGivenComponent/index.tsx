@@ -1,8 +1,8 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPeerReviewDataGivenByExerciseId } from "../../../../../../services/backend"
 import Spinner from "../../../../../../shared-module/components/Spinner"
@@ -104,11 +104,11 @@ interface PeerReviewProps {
 
 const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
   const { t } = useTranslation()
-  const getPeerReviewReceived = useQuery(`exerciSse-${id}-peer-reviews-received`, () =>
+  const getPeerReviewReceived = useQuery([`exercise-${id}-peer-reviews-received`], () =>
     fetchPeerReviewDataGivenByExerciseId(id),
   )
 
-  if (getPeerReviewReceived.isLoading || getPeerReviewReceived.isIdle) {
+  if (getPeerReviewReceived.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -117,13 +117,14 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
   }
 
   // WORK ON THE LOOP
+  let result
 
   if (
     getPeerReviewReceived.isSuccess &&
     getPeerReviewReceived.data.peer_review_question_submissions.length > 0
   ) {
     const { peer_review_questions, peer_review_question_submissions } = getPeerReviewReceived.data
-    const result = peer_review_questions.map((item) =>
+    result = peer_review_questions.map((item) =>
       peer_review_question_submissions.filter((o) => {
         item.id === o.peer_review_question_id
         return {
@@ -134,13 +135,17 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
       }),
     )
   }
+
+  // eslint-disable-next-line i18next/no-literal-string
+  console.log("result", result)
+
   return (
     <Wrapper>
       <details>
         <summary>
           {t("peer-review-received-from-other-student")}
           <Notification>
-            {getPeerReviewReceived.data?.peer_review_question_submissions.length}
+            {getPeerReviewReceived.data?.peer_review_question_submissions.length ?? "0"}
           </Notification>
         </summary>
         {arr?.map((item, index) => (

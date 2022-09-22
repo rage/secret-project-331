@@ -86,7 +86,7 @@ const Linkert: React.FC<LinkertProps> = ({ question, content, index }) => {
       <IconContainer>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n}>
-            {SVGMatcher(option.text)}
+            {SVGMatcher(option.text.toLowerCase())}
             <p className="linkert-scale-text">{option.text}</p>
           </Icon>
         ))}

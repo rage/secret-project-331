@@ -6105,22 +6105,6 @@
     },
     "query": "\nINSERT INTO organizations (id, name, slug, description)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
   },
-  "5f56a41fe920bce374c0094b87dedaccb61e6e4d45cb07bf5924ec48349c41a3": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Uuid", "Int4", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO peer_review_configs (\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        "
-  },
   "5fd89014ad25b81efa0488da0d6cb6cbe52793878ebb1d5a3a3d97432c858c4c": {
     "describe": {
       "columns": [
@@ -12751,6 +12735,22 @@
       }
     },
     "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_instance_id = $1\n  AND deleted_at IS NULL\n        "
+  },
+  "b6b60c4748fab75cfe03fabdcc3c7a36b1f1f806a8a41fa4a3690eaaa9d6838f": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO peer_review_configs (course_id, exercise_id)\nVALUES ($1, $2)\nRETURNING id\n        "
   },
   "b6def96f6973719237ce93811fd8a9215bf24529cab71d262f22f11d13ddf526": {
     "describe": {

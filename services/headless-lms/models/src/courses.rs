@@ -435,9 +435,11 @@ RETURNING id,
     // Create default course module
     let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
 
+    // Create course default peer review config
     let peer_review_config_id =
-        crate::peer_review_configs::insert(&mut tx, course.id, None, 3, 2).await?;
+        crate::peer_review_configs::insert(&mut tx, course.id, None).await?;
 
+    // Create peer review questions for default peer review config
     crate::peer_review_questions::upsert_multiple_peer_review_questions(
         &mut tx,
         &[

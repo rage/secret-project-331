@@ -5,6 +5,15 @@ import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
  *
  * to: parent
  */
+export type MessageFromIframe =
+  | CurrentStateMessage
+  | { message: "file-upload"; url: string; data: unknown }
+
+/**
+ * from: IFrame
+ *
+ * to: parent
+ */
 export interface CurrentStateMessage {
   message: "current-state"
   data: unknown

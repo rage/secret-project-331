@@ -1,9 +1,11 @@
 import { Alert } from "@mui/lab"
+import axios from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
 import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   url: string
@@ -27,11 +29,17 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
     <MessageChannelIFrame
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
-      onMessageFromIframe={(messageContainer, _responsePort) => {
+      onMessageFromIframe={async (messageContainer, _responsePort) => {
         console.log(messageContainer)
-        const { data, valid } = messageContainer
-        if (setAnswer) {
-          setAnswer({ data, valid })
+        if (isMessageFromIframe(messageContainer)) {
+          if (messageContainer.message === "current-state") {
+            const { data, valid } = messageContainer
+            if (setAnswer) {
+              setAnswer({ data, valid })
+            }
+          } else if (messageContainer.message === "file-upload") {
+            await axios.post(messageContainer.url, messageContainer.data)
+          }
         }
       }}
       title={title}

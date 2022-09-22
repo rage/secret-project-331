@@ -1,4 +1,5 @@
 import { Alert } from "@mui/lab"
+import axios from "axios"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
@@ -10,7 +11,7 @@ import MessageChannelIFrame from "../../shared-module/components/MessageChannelI
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { IframeState } from "../../shared-module/exercise-service-protocol-types"
-import { isCurrentStateMessage } from "../../shared-module/exercise-service-protocol-types.guard"
+import { isMessageFromIframe } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
 import useUserInfo from "../../shared-module/hooks/useUserInfo"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
@@ -66,10 +67,14 @@ const ExerciseTaskIFrameEditor: React.FC<
     <MessageChannelIFrame
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
-      onMessageFromIframe={(messageContainer, _responsePort) => {
-        if (isCurrentStateMessage(messageContainer)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+      onMessageFromIframe={async (messageContainer, _responsePort) => {
+        if (isMessageFromIframe(messageContainer)) {
+          if (messageContainer.message === "current-state") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+          } else if (messageContainer.message === "file-upload") {
+            await axios.post(messageContainer.url, messageContainer.data)
+          }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)
         }

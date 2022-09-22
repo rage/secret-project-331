@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use crate::controllers::prelude::*;
 pub use crate::domain::authorization::AuthorizationToken;
 use actix_files::NamedFile;
+use futures::{StreamExt, TryStreamExt};
 use tokio::fs::read;
 /**
 
@@ -109,6 +110,38 @@ async fn serve_upload(
     token.authorized_ok(response.body(contents))
 }
 
+async fn upload_from_exercise_service(
+    params: web::Path<(String, String)>,
+    data: web::Payload,
+    file_store: web::Data<dyn FileStore>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let (exercise_service_slug, tail) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+
+    // the playground uses the "playground" slug to upload temporary files
+    if exercise_service_slug != "playground" {
+        // check that the given slug matches with a service
+        headless_lms_models::exercise_services::get_exercise_services(&mut conn)
+            .await?
+            .into_iter()
+            .find(|es| es.slug == exercise_service_slug)
+            .ok_or_else(|| anyhow::anyhow!("Unknown exercise service"))?;
+    }
+
+    file_store
+        .upload_stream(
+            Path::new(&format!("{exercise_service_slug}/{tail}")),
+            data.map_err(anyhow::Error::msg).boxed_local(),
+            "application/octet-stream",
+        )
+        .await?;
+
+    token.authorized_ok(HttpResponse::Ok().finish())
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -118,5 +151,9 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/uploads/{tail:.*}", web::get().to(serve_upload))
+        .route(
+            "/{exercise_service_slug}/{tail:.*}",
+            web::post().to(upload_from_exercise_service),
+        )
         .route("{tail:.*}", web::get().to(redirect_to_storage_service));
 }

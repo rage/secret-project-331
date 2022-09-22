@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
+import axios from "axios"
 import { useTranslation } from "react-i18next"
 
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
@@ -7,6 +8,7 @@ import {
   CurrentStateMessage,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -64,8 +66,15 @@ const PlaygroundExerciseIframe: React.FC<
             previous_submission: userAnswer,
           },
         }}
-        onMessageFromIframe={(msg) => {
-          setCurrentStateReceivedFromIframe(msg)
+        onMessageFromIframe={async (msg) => {
+          if (isMessageFromIframe(msg)) {
+            if (msg.message === "current-state") {
+              setCurrentStateReceivedFromIframe(msg)
+            } else if (msg.message === "file-upload") {
+              // upload data to playground-specific endpoint
+              await axios.post(msg.url, msg.data)
+            }
+          }
         }}
         title={TITLE}
         showBorders={showIframeBorders}

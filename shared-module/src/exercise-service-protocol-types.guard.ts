@@ -10,11 +10,21 @@ import {
   HeightChangedMessage,
   IframeState,
   IframeViewType,
+  MessageFromIframe,
   ReadyMessage,
   SetLanguageMessage,
   SetStateMessage,
   UserInformation,
 } from "./exercise-service-protocol-types"
+
+export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
+  const typedObj = obj as MessageFromIframe
+  return (
+    (isCurrentStateMessage(typedObj) as boolean) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "file-upload")
+  )
+}
 
 export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage {
   const typedObj = obj as CurrentStateMessage

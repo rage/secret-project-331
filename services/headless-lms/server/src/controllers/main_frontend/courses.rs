@@ -640,9 +640,10 @@ async fn glossary(
     token.authorized_ok(web::Json(glossary))
 }
 
+// unused?
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn new_term(
+async fn _new_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,

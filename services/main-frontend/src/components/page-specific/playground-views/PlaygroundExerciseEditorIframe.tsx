@@ -1,11 +1,12 @@
 import { css } from "@emotion/css"
+import axios from "axios"
 
-import { RepositoryExercise } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -51,8 +52,18 @@ const PlaygroundExerciseEditorIframe: React.FC<
           },
           user_information: userInformation,
         }}
-        onMessageFromIframe={(msg) => {
-          setCurrentStateReceivedFromIframe(msg)
+        onMessageFromIframe={async (msg) => {
+          if (isMessageFromIframe(msg)) {
+            if (msg.message === "current-state") {
+              setCurrentStateReceivedFromIframe(msg)
+            } else if (msg.message === "file-upload") {
+              // upload data to playground-specific endpoint
+              await axios.post(
+                `http://project-331.local/api/v0/files/playground/${msg.url}`,
+                msg.data,
+              )
+            }
+          }
         }}
         title={TITLE}
         showBorders={showIframeBorders}

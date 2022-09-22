@@ -205,6 +205,7 @@ macro_rules! insert_data {
             $tx.as_mut(),
             $crate::chapters::NewChapter {
                 name: "chapter".to_string(),
+                color: None,
                 course_id: $course,
                 chapter_number: 1,
                 front_page_id: None,

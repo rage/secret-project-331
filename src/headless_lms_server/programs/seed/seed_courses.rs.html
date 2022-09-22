@@ -2030,6 +2030,17 @@
 <span id="2024">2024</span>
 <span id="2025">2025</span>
 <span id="2026">2026</span>
+<span id="2027">2027</span>
+<span id="2028">2028</span>
+<span id="2029">2029</span>
+<span id="2030">2030</span>
+<span id="2031">2031</span>
+<span id="2032">2032</span>
+<span id="2033">2033</span>
+<span id="2034">2034</span>
+<span id="2035">2035</span>
+<span id="2036">2036</span>
+<span id="2037">2037</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_helpers</span>::{
     <span class="ident">create_best_exercise</span>, <span class="ident">create_page</span>, <span class="ident">example_exercise_flexible</span>, <span class="ident">paragraph</span>, <span class="ident">quizzes_exercise</span>,
     <span class="ident">submit_and_grade</span>,
@@ -2119,6 +2130,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;The Basics&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -2131,6 +2143,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;The intermediaries&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -2148,6 +2161,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Advanced studies&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -2165,6 +2179,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Forbidden magicks&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -2186,6 +2201,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Another chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">second_module</span>.<span class="ident">id</span>),
@@ -2197,6 +2213,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Another another chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">second_module</span>.<span class="ident">id</span>),
@@ -2209,6 +2226,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Bonus chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">module</span>.<span class="ident">id</span>),
@@ -2220,6 +2238,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Another bonus chapter&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">module</span>.<span class="ident">id</span>),
@@ -3355,6 +3374,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;Glossary&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">Some</span>(<span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2025</span>, <span class="number">1</span>, <span class="number">1</span>).<span class="ident">and_hms</span>(<span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>)),
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -3711,6 +3731,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;User Interface&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),
@@ -3858,6 +3879,7 @@
         <span class="ident">course_id</span>: <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">front_page_id</span>: <span class="prelude-val">None</span>,
         <span class="ident">name</span>: <span class="string">&quot;User Experience&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">color</span>: <span class="prelude-val">None</span>,
         <span class="ident">opens_at</span>: <span class="prelude-val">None</span>,
         <span class="ident">deadline</span>: <span class="prelude-val">None</span>,
         <span class="ident">course_module_id</span>: <span class="prelude-val">Some</span>(<span class="ident">default_module</span>.<span class="ident">id</span>),

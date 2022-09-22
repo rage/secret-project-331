@@ -359,6 +359,13 @@
 <span id="353">353</span>
 <span id="354">354</span>
 <span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exercises::GradingProgress</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
@@ -693,8 +700,15 @@ RETURNING id
 
         <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">create_test_data</span>(<span class="ident">tx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Tx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span> {
             <span class="macro">insert_data!</span>(<span class="ident">tx</span>: <span class="ident">tx</span>; :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>, :<span class="ident">instance</span>, :<span class="ident">course_module</span>);
-            <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span>
-                <span class="ident">chapters::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="string">&quot;chapter&quot;</span>, <span class="ident">course</span>, <span class="number">1</span>, <span class="ident">course_module</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">chapter_id</span> <span class="op">=</span> <span class="ident">chapters::insert</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="string">&quot;chapter&quot;</span>,
+                <span class="string">&quot;#065853&quot;</span>,
+                <span class="ident">course</span>,
+                <span class="number">1</span>,
+                <span class="ident">course_module</span>.<span class="ident">id</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> (<span class="ident">page_id</span>, <span class="ident">_history</span>) <span class="op">=</span>
                 <span class="ident">pages::insert_course_page</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>, <span class="number">1</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span>

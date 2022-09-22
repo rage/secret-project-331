@@ -115,7 +115,7 @@ const CourseInstancePointsList: React.FC<
                   `}
                 >
                   <th>
-                    {t("serial-number")}{" "}
+                    {t("label-user-id")}{" "}
                     <a href="#number" onClick={() => setSorting(NUMBER)}>
                       {DOWN_ARROW}
                     </a>

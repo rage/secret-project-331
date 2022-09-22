@@ -249,7 +249,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                 `}
               >
                 <th>
-                  {t("serial-number")}{" "}
+                  {t("label-user-id")}{" "}
                   <a href="#number" onClick={() => setSorting({ type: NUMBER, data: null })}>
                     {DOWN_ARROW}
                   </a>

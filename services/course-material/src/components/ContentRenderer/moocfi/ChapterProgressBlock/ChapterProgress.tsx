@@ -61,6 +61,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
               showAsPercentage={false}
               exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
               exercisesTotal={getUserChapterProgress.data.total_exercises}
+              label={t("exercises-attempted")}
             />
           </div>
         </div>

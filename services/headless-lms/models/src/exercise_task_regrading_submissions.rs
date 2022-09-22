@@ -10,7 +10,7 @@ pub struct ExerciseTaskRegradingSubmission {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_task_regrading_id: Uuid,
+    regrading_id: Uuid,
     exercise_task_submission_id: Uuid,
     grading_before_regrading_id: Uuid,
 ) -> ModelResult<Uuid> {
@@ -24,7 +24,7 @@ INSERT INTO exercise_task_regrading_submissions (
 VALUES ($1, $2, $3)
 RETURNING id
 ",
-        exercise_task_regrading_id,
+        regrading_id,
         exercise_task_submission_id,
         grading_before_regrading_id
     )

@@ -4,6 +4,8 @@ import { AxiosResponse } from "axios"
 
 import { ErrorResponse } from "../bindings"
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 // usage: validateResponse(response, isOrganization)
 // checks the data in an axios response with the given guard and only returns the data if its type is correct
 // throws the response with an ErrorResponse if the data is invalid for useQuery to catch
@@ -44,6 +46,13 @@ export function isNumber(x: unknown): x is number {
 
 export function isNull(x: unknown): x is null {
   return x === null
+}
+
+export function isUuid(x: unknown): x is string {
+  if (!isString(x)) {
+    return false
+  }
+  return UUID_REGEX.test(x)
 }
 
 /**

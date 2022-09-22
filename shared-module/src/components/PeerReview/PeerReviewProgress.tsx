@@ -14,17 +14,6 @@ const Wrapper = styled.div`
   margin-bottom: 2rem;
 `
 
-const Label = styled.div`
-  font-weight: 500;
-  margin-left: 1.5rem;
-  text-align: left;
-  font-size: 17px;
-  text-transform: lowercase;
-
-  span {
-    color: #1f6964;
-  }
-`
 export interface ReviewExtraProps {
   total: number
   attempt: number
@@ -49,12 +38,9 @@ const PeerReviewProgress: React.FC<
           exercisesAttempted={attempt}
           showAsPercentage={true}
           height="small"
-          label={false}
+          label={t("peer-reviews-given")}
         />
       </div>
-      <Label>
-        <span>{`${attempt} / ${total} ${t("peer-reviews-given")}`}</span>
-      </Label>
     </Wrapper>
   )
 }

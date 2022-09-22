@@ -33,5 +33,6 @@ test("test", async ({ page }) => {
 
   // Finally, check if the first regrading has completed
   await page.goto(firstRegradingPageUrl)
-  await page.locator(`text=total_grading_progress: FullyGraded`).waitFor()
+  // Long timeout to make sure the regrader has actually had the opportunity to run
+  await page.locator(`text=total_grading_progress: FullyGraded`).waitFor({ timeout: 15_000 })
 })

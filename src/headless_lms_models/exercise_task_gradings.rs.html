@@ -503,7 +503,58 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">time::Duration</span>};
 
 <span class="kw">use</span> <span class="ident">futures::Future</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
@@ -1001,6 +1052,57 @@ WHERE deleted_at IS NULL
     .<span class="ident">fetch_all</span>(<span class="kw-2">&amp;mut</span> <span class="kw-2">*</span><span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_new_and_old_exercise_task_gradings_by_regrading_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">regrading_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">ExerciseTaskGrading</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">ExerciseTaskGrading</span>,
+        <span class="string">r#&quot;
+SELECT id,
+  created_at,
+  updated_at,
+  exercise_task_submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as &quot;grading_progress: _&quot;,
+  unscaled_score_given,
+  unscaled_score_maximum,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND id IN (
+    SELECT etrs.grading_before_regrading
+    FROM exercise_task_regrading_submissions etrs
+    WHERE etrs.deleted_at IS NULL
+      AND etrs.regrading_id = $1
+    UNION
+    SELECT etrs.grading_after_regrading
+    FROM exercise_task_regrading_submissions etrs
+    WHERE etrs.grading_after_regrading IS NOT NULL
+      AND etrs.deleted_at IS NULL
+      AND etrs.regrading_id = $1
+  );
+    &quot;#</span>,
+        <span class="ident">regrading_id</span>
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">HashMap::with_capacity</span>(<span class="ident">res</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> <span class="ident">regrading</span> <span class="kw">in</span> <span class="ident">res</span> {
+        <span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">regrading</span>.<span class="ident">id</span>, <span class="ident">regrading</span>);
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">map</span>)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

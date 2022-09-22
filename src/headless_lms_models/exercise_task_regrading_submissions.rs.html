@@ -113,7 +113,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_task_regrading_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">regrading_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_task_submission_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">grading_before_regrading_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
@@ -127,7 +127,7 @@ INSERT INTO exercise_task_regrading_submissions (
 VALUES ($1, $2, $3)
 RETURNING id
 &quot;</span>,
-        <span class="ident">exercise_task_regrading_id</span>,
+        <span class="ident">regrading_id</span>,
         <span class="ident">exercise_task_submission_id</span>,
         <span class="ident">grading_before_regrading_id</span>
     )

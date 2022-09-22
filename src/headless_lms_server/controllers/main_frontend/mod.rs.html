@@ -84,6 +84,7 @@ This documents all endpoints. Select a module below for a category.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pages</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">playground_examples</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">proposed_edits</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">regradings</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">roles</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">users</span>;
 
@@ -112,9 +113,8 @@ This documents all endpoints. Select a module below for a category.
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exams&quot;</span>).<span class="ident">configure</span>(<span class="ident">exams::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/glossary&quot;</span>).<span class="ident">configure</span>(<span class="ident">glossary::_add_routes</span>))
         .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/roles&quot;</span>).<span class="ident">configure</span>(<span class="ident">roles::_add_routes</span>))
-        .<span class="ident">service</span>(
-            <span class="ident">web::scope</span>(<span class="string">&quot;/exercise-repositories&quot;</span>).<span class="ident">configure</span>(<span class="ident">exercise_repositories::_add_routes</span>),
-        );
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/exercise-repositories&quot;</span>).<span class="ident">configure</span>(<span class="ident">exercise_repositories::_add_routes</span>))
+        .<span class="ident">service</span>(<span class="ident">web::scope</span>(<span class="string">&quot;/regradings&quot;</span>).<span class="ident">configure</span>(<span class="ident">regradings::_add_routes</span>));
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>

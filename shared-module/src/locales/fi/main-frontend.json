@@ -267,6 +267,7 @@
   "message-creating-failed": "Jokin meni vikaan, ei voitu luoda",
   "message-deleting-failed": "Jotakin meni pieleen, poistaminen ei onnistunut",
   "message-deleting-succesful": "Poistaminen onnistui",
+  "message-do-you-want-to-save-the-changes-to-the-chapter-ordering": "Haluatko tallentaa kappaleen uuden järjestyksen?",
   "message-do-you-want-to-save-the-changes-to-the-page-ordering": "Haluatko tallentaa muutokset sivujen järjestykseen?",
   "message-invalid-query": "Epäkelpo kysely",
   "message-no-current-state-message-received-from-the-iframe-yet": "IFrame ei ole vielä vastaanottanut current-state -viestiä",

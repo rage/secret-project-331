@@ -48,6 +48,16 @@ const CourseCard = styled.div`
   }
 `
 
+const CourseWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  background: #f5f6f7;
+  :hover {
+    cursor: pointer;
+    background: #ebedee;
+  }
+`
+
 const CourseContent = styled.div`
   padding: 60px 28px 0px 40px;
 `
@@ -148,9 +158,11 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
             position: absolute;
             top: 30px;
             right: 40px;
+            opacity: 0.6;
 
             :hover {
               cursor: pointer;
+              opacity: 1;
             }
           `}
           aria-label={t("manage-course", { title })}
@@ -160,50 +172,52 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
         </a>
       )}
 
-      <a
-        href={navigateToCourseHref}
-        aria-label={t("course-navigation", { title })}
-        className={css`
-          display: block;
-          width: 100%;
-          height: 100%;
-          text-decoration: none;
-        `}
-      >
-        <CourseContent>
-          <CourseHeading>
-            {title}
-            {isDraft && ` (${t("draft")})`}
-          </CourseHeading>
-          <CourseDescription>{description}</CourseDescription>
-        </CourseContent>
-        <CourseLanguageContent>
-          <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
-          {LanguageComponent && (
-            <LanguageComponent.image
-              className={css`
-                width: 45px;
-                height: 45px;
-                clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-                margin-left: 35px;
-              `}
-            />
-          )}
-          <LanguageCode>
-            {LanguageComponent ? (
-              capitalizeFirstLetter(LanguageComponent.humanReadableName)
-            ) : (
-              <span
+      <CourseWrapper>
+        <a
+          href={navigateToCourseHref}
+          aria-label={t("course-navigation", { title })}
+          className={css`
+            display: block;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
+          `}
+        >
+          <CourseContent>
+            <CourseHeading>
+              {title}
+              {isDraft && ` (${t("draft")})`}
+            </CourseHeading>
+            <CourseDescription>{description}</CourseDescription>
+          </CourseContent>
+          <CourseLanguageContent>
+            <LanguageLabel>{LANGUAGE_TEXT}</LanguageLabel>
+            {LanguageComponent && (
+              <LanguageComponent.image
                 className={css`
-                  margin-left: 1rem;
+                  width: 45px;
+                  height: 45px;
+                  clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
+                  margin-left: 35px;
                 `}
-              >
-                {languageCode}
-              </span>
+              />
             )}
-          </LanguageCode>
-        </CourseLanguageContent>
-      </a>
+            <LanguageCode>
+              {LanguageComponent ? (
+                capitalizeFirstLetter(LanguageComponent.humanReadableName)
+              ) : (
+                <span
+                  className={css`
+                    margin-left: 1rem;
+                  `}
+                >
+                  {languageCode}
+                </span>
+              )}
+            </LanguageCode>
+          </CourseLanguageContent>
+        </a>
+      </CourseWrapper>
     </CourseCard>
   )
 }

@@ -38,6 +38,7 @@ const FullWidthTable: React.FC<React.PropsWithChildren> = ({ children }) => {
             width: max-content;
             margin-top: 67px;
             border-spacing: 0 10px;
+            padding: 0 1rem;
             th:not(:first-child),
             td {
               padding-left: 30px;

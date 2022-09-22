@@ -263,6 +263,25 @@ export function isResource(obj: unknown): obj is Resource {
   )
 }
 
+export function isErrorData(obj: unknown): obj is ErrorData {
+  const typedObj = obj as ErrorData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["block_id"] === "string"
+  )
+}
+
+export function isErrorResponse(obj: unknown): obj is ErrorResponse {
+  const typedObj = obj as ErrorResponse
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["message"] === "string" &&
+    (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
+    (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
+  )
+}
+
 export function isTerm(obj: unknown): obj is Term {
   const typedObj = obj as Term
   return (
@@ -2112,25 +2131,6 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     typeof typedObj["email"] === "string"
-  )
-}
-
-export function isErrorData(obj: unknown): obj is ErrorData {
-  const typedObj = obj as ErrorData
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["block_id"] === "string"
-  )
-}
-
-export function isErrorResponse(obj: unknown): obj is ErrorResponse {
-  const typedObj = obj as ErrorResponse
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["title"] === "string" &&
-    typeof typedObj["message"] === "string" &&
-    (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
-    (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
   )
 }
 

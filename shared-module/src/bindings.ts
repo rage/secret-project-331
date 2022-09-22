@@ -44,6 +44,15 @@ export type Resource =
   | { type: "exercise_service" }
   | { type: "material_reference" }
 
+export type ErrorData = { block_id: string }
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+  data: ErrorData | null
+}
+
 export interface Term {
   id: string
   term: string
@@ -1194,15 +1203,6 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
-}
-
-export type ErrorData = { block_id: string }
-
-export interface ErrorResponse {
-  title: string
-  message: string
-  source: string | null
-  data: ErrorData | null
 }
 
 export interface UploadResult {

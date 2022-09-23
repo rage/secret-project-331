@@ -83,6 +83,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   exercisesAttempted={courseModuleProgress.attempted_exercises}
                   exercisesTotal={courseModuleProgress.total_exercises}
                   required={courseModuleProgress.attempted_exercises_required ?? undefined}
+                  label={t("exercises-attempted")}
                 />
               </div>
             </TotalWrapper>

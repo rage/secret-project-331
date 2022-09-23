@@ -114,6 +114,7 @@ import {
   NewPage,
   NewProposedBlockEdit,
   NewProposedPageEdits,
+  NewRegrading,
   NewTeacherGradingDecision,
   OEmbedResponse,
   Organization,
@@ -139,6 +140,9 @@ import {
   Points,
   ProposalCount,
   ProposalStatus,
+  Regrading,
+  RegradingInfo,
+  RegradingSubmissionInfo,
   RepositoryExercise,
   Resource,
   ReviewingStage,
@@ -264,6 +268,25 @@ export function isResource(obj: unknown): obj is Resource {
   )
 }
 
+export function isErrorData(obj: unknown): obj is ErrorData {
+  const typedObj = obj as ErrorData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["block_id"] === "string"
+  )
+}
+
+export function isErrorResponse(obj: unknown): obj is ErrorResponse {
+  const typedObj = obj as ErrorResponse
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["message"] === "string" &&
+    (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
+    (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
+  )
+}
+
 export function isTerm(obj: unknown): obj is Term {
   const typedObj = obj as Term
   return (
@@ -291,6 +314,7 @@ export function isChapter(obj: unknown): obj is Chapter {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_url"] === null || typeof typedObj["chapter_image_url"] === "string") &&
@@ -311,6 +335,7 @@ export function isDatabaseChapter(obj: unknown): obj is DatabaseChapter {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_path"] === null ||
@@ -334,6 +359,7 @@ export function isChapterUpdate(obj: unknown): obj is ChapterUpdate {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
     (typedObj["deadline"] === null || typedObj["deadline"] instanceof Date) &&
     (typedObj["opens_at"] === null || typedObj["opens_at"] instanceof Date) &&
@@ -349,6 +375,7 @@ export function isChapterWithStatus(obj: unknown): obj is ChapterWithStatus {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["chapter_number"] === "number" &&
@@ -365,6 +392,7 @@ export function isNewChapter(obj: unknown): obj is NewChapter {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["chapter_number"] === "number" &&
     (typedObj["front_page_id"] === null || typeof typedObj["front_page_id"] === "string") &&
@@ -409,6 +437,7 @@ export function isChapterScore(obj: unknown): obj is ChapterScore {
     typedObj["created_at"] instanceof Date &&
     typedObj["updated_at"] instanceof Date &&
     typeof typedObj["name"] === "string" &&
+    (typedObj["color"] === null || typeof typedObj["color"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["chapter_image_path"] === null ||
@@ -1792,6 +1821,54 @@ export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {
   )
 }
 
+export function isRegrading(obj: unknown): obj is Regrading {
+  const typedObj = obj as Regrading
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["regrading_started_at"] === null ||
+      typedObj["regrading_started_at"] instanceof Date) &&
+    (typedObj["regrading_completed_at"] === null ||
+      typedObj["regrading_completed_at"] instanceof Date) &&
+    (isGradingProgress(typedObj["total_grading_progress"]) as boolean) &&
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
+    (typedObj["user_id"] === null || typeof typedObj["user_id"] === "string")
+  )
+}
+
+export function isNewRegrading(obj: unknown): obj is NewRegrading {
+  const typedObj = obj as NewRegrading
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
+    Array.isArray(typedObj["exercise_task_submission_ids"]) &&
+    typedObj["exercise_task_submission_ids"].every((e: any) => typeof e === "string")
+  )
+}
+
+export function isRegradingInfo(obj: unknown): obj is RegradingInfo {
+  const typedObj = obj as RegradingInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isRegrading(typedObj["regrading"]) as boolean) &&
+    Array.isArray(typedObj["submission_infos"]) &&
+    typedObj["submission_infos"].every((e: any) => isRegradingSubmissionInfo(e) as boolean)
+  )
+}
+
+export function isRegradingSubmissionInfo(obj: unknown): obj is RegradingSubmissionInfo {
+  const typedObj = obj as RegradingSubmissionInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["exercise_task_submission_id"] === "string" &&
+    (isExerciseTaskGrading(typedObj["grading_before_regrading"]) as boolean) &&
+    (typedObj["grading_after_regrading"] === null ||
+      (isExerciseTaskGrading(typedObj["grading_after_regrading"]) as boolean))
+  )
+}
+
 export function isExerciseSlideSubmission(obj: unknown): obj is ExerciseSlideSubmission {
   const typedObj = obj as ExerciseSlideSubmission
   return (
@@ -2130,25 +2207,6 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     typeof typedObj["email"] === "string"
-  )
-}
-
-export function isErrorData(obj: unknown): obj is ErrorData {
-  const typedObj = obj as ErrorData
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["block_id"] === "string"
-  )
-}
-
-export function isErrorResponse(obj: unknown): obj is ErrorResponse {
-  const typedObj = obj as ErrorResponse
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["title"] === "string" &&
-    typeof typedObj["message"] === "string" &&
-    (typedObj["source"] === null || typeof typedObj["source"] === "string") &&
-    (typedObj["data"] === null || (isErrorData(typedObj["data"]) as boolean))
   )
 }
 

@@ -12,7 +12,9 @@ use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 
 use crate::{
-    chapters::{self, course_chapters, get_chapter_by_page_id, DatabaseChapter},
+    chapters::{
+        self, course_chapters, get_chapter, get_chapter_by_page_id, Chapter, DatabaseChapter,
+    },
     course_instances::{self, CourseInstance},
     courses::{get_nondeleted_course_id_by_slug, Course},
     exercise_service_info,
@@ -511,7 +513,11 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    Err(ModelError::NotFound("Page not found".to_string()))
+    Err(ModelError::new(
+        ModelErrorType::NotFound,
+        "Page not found".to_string(),
+        None,
+    ))
 }
 
 pub async fn try_to_find_redirected_page(
@@ -558,8 +564,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
 ) -> ModelResult<CoursePageWithUserData> {
     if let Some(chapter_id) = page.chapter_id {
         if !crate::chapters::is_open(conn, chapter_id).await? {
-            return Err(ModelError::PreconditionFailed(
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
                 "Chapter is not open yet".to_string(),
+                None,
             ));
         }
     }
@@ -794,34 +802,46 @@ impl CmsPageUpdate {
                     e.insert(true);
                     Ok((x.id, false))
                 } else {
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "Exercide ids in slides don't match.".to_string(),
+                        None,
                     ))
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
 
         if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: exercise_id,
-                description: "Exercise must have at least one slide.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: exercise_id,
+                    description: "Exercise must have at least one slide.",
+                },
+                "Exercise must have at least one slide.".to_string(),
+                None,
+            ));
         }
 
         for task in self.exercise_tasks.iter() {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);
             } else {
-                return Err(ModelError::PreconditionFailed(
+                return Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
                     "Exercise slide ids in tasks don't match.".to_string(),
+                    None,
                 ));
             }
         }
         if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                id: slide_id,
-                description: "Exercise slide must have at least one task.",
-            });
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    id: slide_id,
+                    description: "Exercise slide must have at least one task.",
+                },
+                "Exercise slide must have at least one task.".to_string(),
+                None,
+            ));
         }
         Ok(())
     }
@@ -843,8 +863,8 @@ pub async fn update_page(
         && page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&parsed_content)
     {
-        return Err(ModelError::Generic(
-                "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(),
+        return Err(ModelError::new(
+               ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
             ));
     }
 
@@ -1181,8 +1201,10 @@ async fn upsert_exercise_slides(
         let safe_for_db_exercise_id = remapped_exercises
             .get(&slide_update.exercise_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise id for exercise slide.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1283,8 +1305,10 @@ async fn upsert_exercise_tasks(
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
-                ModelError::PreconditionFailed(
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Illegal exercise slide id for exercise task.".to_string(),
+                    None,
                 )
             })?
             .id;
@@ -1427,7 +1451,11 @@ WHERE id IN (
             let old_id = new_peer_review_config_id_to_old_id
                 .get(&pr.id)
                 .ok_or_else(|| {
-                    ModelError::Generic("Inserted peer reviews not found".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
                 })?;
             remapped_peer_reviews.insert(*old_id, pr);
         }
@@ -1468,8 +1496,10 @@ pub async fn upsert_peer_review_questions(
                     .get(&prq.peer_review_config_id)
                     .map(|r| (prq, r.id))
                     .ok_or_else(|| {
-                        ModelError::Generic(
+                        ModelError::new(
+                            ModelErrorType::Generic,
                             "No peer review found for peer review questions".to_string(),
+                            None,
                         )
                     })
             })
@@ -1547,7 +1577,11 @@ WHERE id IN (
             let old_id = new_peer_review_question_id_to_old_id
                 .get(&prq.id)
                 .ok_or_else(|| {
-                    ModelError::Generic("Inserted peer reviews not found".to_string())
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "Inserted peer reviews not found".to_string(),
+                        None,
+                    )
                 })?;
             remapped_peer_review_questions.insert(*old_id, prq);
         }
@@ -1600,9 +1634,15 @@ async fn fetch_derived_spec(
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
-                .ok_or(ModelError::PreconditionFailedWithCMSAnchorBlockId {
-                    id: cms_block_id,
-                    description: "Missing exercise type for exercise task.",
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                            id: cms_block_id,
+                            description: "Missing exercise type for exercise task.",
+                        },
+                        "Missing exercise type for exercise task.".to_string(),
+                        None,
+                    )
                 })?
                 .clone();
             let res = client
@@ -1613,10 +1653,11 @@ async fn fetch_derived_spec(
                 .await?;
             if !res.status().is_success() {
                 let error = res.text().await.unwrap_or_default();
-                return Err(ModelError::Generic(format!(
-                    "Failed to generate spec for exercise: {}.",
-                    error,
-                )));
+                return Err(ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("Failed to generate spec for exercise: {}.", error,),
+                    None,
+                ));
             }
             Some(res.json::<serde_json::Value>().await?)
         }
@@ -1951,8 +1992,10 @@ WHERE p.id = $1;
     .await?;
 
     if page_metadata.chapter_number.is_none() {
-        return Err(ModelError::InvalidRequest(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Page is not related to any chapter".to_string(),
+            None,
         ));
     }
 
@@ -2085,8 +2128,10 @@ pub async fn get_page_navigation_data(
                     chapter_front_page_id: Some(front_page.id),
                 })
             } else {
-                Err(ModelError::InvalidRequest(
+                Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
                     "Chapter front page chapter not found".to_string(),
+                    None,
                 ))
             }
         })
@@ -2221,6 +2266,37 @@ where p.course_id = $1
         Some(order_number) => Ok(order_number + 1),
         None => Ok(0),
     }
+}
+
+pub async fn get_chapter_pages(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL;
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
 }
 
 pub async fn get_chapters_pages_exclude_main_frontpage(
@@ -2523,7 +2599,7 @@ WHERE pages.id = $1
     Ok(res)
 }
 
-/// Makes the order numebers and chapter ids to match in the db what's in the page objects
+/// Makes the order numbers and chapter ids to match in the db what's in the page objects
 /// Assumes that all pages belong to the given course id
 pub async fn reorder_pages(
     conn: &mut PgConnection,
@@ -2590,37 +2666,167 @@ WHERE pages.order_number = $1
                                 .execute(&mut tx)
                                 .await?;
                             } else {
-                                return Err(ModelError::InvalidRequest(
+                                return Err(ModelError::new(
+                                    ModelErrorType::InvalidRequest,
                                     "New chapter not found".to_string(),
+                                    None,
                                 ));
                             }
                         } else {
-                            return Err(ModelError::InvalidRequest(
+                            return Err(ModelError::new(
+                                ModelErrorType::InvalidRequest,
                                 "Old chapter not found".to_string(),
+                                None,
                             ));
                         }
                     } else {
                         // Moving page from a chapter to a top level page
-                        return Err(ModelError::InvalidRequest(
+                        return Err(ModelError::new(
+                            ModelErrorType::InvalidRequest,
                             "Making a chapter page a top level page is not supported yet"
                                 .to_string(),
+                            None,
                         ));
                     }
                 } else {
                     error!("Cannot move a top level page to a chapter. matching_db_page.chapter_id: {:?} page.chapter_id: {:?}", matching_db_page.chapter_id, page.chapter_id);
                     // Moving page from the top level to a chapter
-                    return Err(ModelError::InvalidRequest(
+                    return Err(ModelError::new(
+                        ModelErrorType::InvalidRequest,
                         "Moving a top level page to a chapter is not supported yet".to_string(),
+                        None,
                     ));
                 }
             }
         } else {
-            return Err(ModelError::InvalidRequest(format!(
-                "Page {} does exist in course {}",
-                page.id, course_id
-            )));
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Page {} does exist in course {}", page.id, course_id),
+                None,
+            ));
         }
     }
+    tx.commit().await?;
+    Ok(())
+}
+
+pub async fn reorder_chapters(
+    conn: &mut PgConnection,
+    chapters: &[Chapter],
+    course_id: Uuid,
+) -> ModelResult<()> {
+    let db_chapters = course_chapters(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
+    // Look for the modified chapter in the existing database
+
+    // TODO USE CHAPTER ID FOR THE LOOP
+    for chapter in chapters {
+        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
+            if let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id) {
+                // to avoid conflicting chapter_number when chapter is modified
+                //Assign random number to modified chapters
+                sqlx::query!(
+                    "UPDATE chapters
+                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
+                WHERE chapters.id = $1
+                  AND chapters.course_id = $2
+                  AND deleted_at IS NULL",
+                    matching_db_chapter.id,
+                    course_id
+                )
+                .execute(&mut tx)
+                .await?;
+
+                // get newly modified chapter
+                let chapter_with_randomized_chapter_number =
+                    get_chapter(&mut tx, matching_db_chapter.id).await?;
+                let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
+                let pages =
+                    get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
+
+                for page in pages {
+                    let old_path = &page.url_path;
+                    let new_path = old_path.replacen(
+                        &old_chapter.chapter_number.to_string(),
+                        &random_chapter_number.to_string(),
+                        1,
+                    );
+
+                    // update each page path associated with a random chapter number
+                    sqlx::query!(
+                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                        page.id,
+                        new_path
+                    )
+                    .execute(&mut tx)
+                    .await?;
+                }
+            }
+        }
+    }
+
+    for chapter in chapters {
+        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
+            if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id) {
+                let new_chapter_number = &new_chapter.chapter_number;
+
+                let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;
+
+                let randomized_chapter_number = randomized_chapter.chapter_number;
+
+                // update chapter_number
+                sqlx::query!(
+                    "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
+                    chapter.id,
+                    new_chapter_number
+                )
+                .execute(&mut tx)
+                .await?;
+
+                // update all pages url in the modified chapter
+                let pages = get_chapter_pages(&mut tx, chapter.id).await?;
+
+                for page in pages {
+                    let old_path = &page.url_path;
+                    let new_path = old_path.replacen(
+                        &randomized_chapter_number.to_string(),
+                        &new_chapter_number.to_string(),
+                        1,
+                    );
+                    // update each page path associated with the modified chapter
+                    sqlx::query!(
+                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                        page.id,
+                        new_path
+                    )
+                    .execute(&mut tx)
+                    .await?;
+
+                    sqlx::query!(
+                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
+                            page.id,
+                            old_path,
+                            course_id
+                        )
+                        .execute(&mut tx)
+                        .await?;
+                }
+            } else {
+                return Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "New chapter not found".to_string(),
+                    None,
+                ));
+            }
+        } else {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Matching DB chapters not found".to_string(),
+                None,
+            ));
+        }
+    }
+
     tx.commit().await?;
     Ok(())
 }

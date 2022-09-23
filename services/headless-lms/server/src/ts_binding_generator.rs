@@ -30,6 +30,8 @@ fn domain(target: &mut File) {
         authorization::ActionOnResource,
         authorization::Action,
         authorization::Resource,
+        error::ErrorData,
+        error::ErrorResponse,
     };
 }
 
@@ -183,6 +185,11 @@ fn models(target: &mut File) {
 
         repository_exercises::RepositoryExercise,
 
+        regradings::Regrading,
+        regradings::NewRegrading,
+        regradings::RegradingInfo,
+        regradings::RegradingSubmissionInfo,
+
         exercise_slide_submissions::ExerciseSlideSubmission,
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
@@ -223,8 +230,6 @@ fn controllers(target: &mut File) {
     export! {
         target,
 
-        ErrorData,
-        ErrorResponse,
         UploadResult,
     };
 

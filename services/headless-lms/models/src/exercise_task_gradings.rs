@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use futures::Future;
 use headless_lms_utils::numbers::f32_to_two_decimals;
@@ -340,7 +340,11 @@ pub fn send_grading_request(
                 ?response_body,
                 "Grading request returned an unsuccesful status code"
             );
-            return Err(ModelError::Generic("Grading failed".to_string()));
+            return Err(ModelError::new(
+                ModelErrorType::Generic,
+                "Grading failed".to_string(),
+                None,
+            ));
         }
         let obj = res.json::<ExerciseTaskGradingResult>().await?;
         info!("Received a grading result: {:#?}", &obj);
@@ -434,7 +438,11 @@ pub async fn get_for_student(
         let enrollment = exams::get_enrollment(conn, exam_id, user_id)
             .await?
             .ok_or_else(|| {
-                ModelError::Generic("User has grading for exam but no enrollment".to_string())
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    "User has grading for exam but no enrollment".to_string(),
+                    None,
+                )
             })?;
         if Utc::now() > enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into())
             || exam.ends_at.map(|ea| Utc::now() > ea).unwrap_or_default()
@@ -488,4 +496,55 @@ WHERE deleted_at IS NULL
     .fetch_all(&mut *conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_new_and_old_exercise_task_gradings_by_regrading_id(
+    conn: &mut PgConnection,
+    regrading_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  exercise_task_submission_id,
+  course_id,
+  exam_id,
+  exercise_id,
+  exercise_task_id,
+  grading_priority,
+  score_given,
+  grading_progress as "grading_progress: _",
+  unscaled_score_given,
+  unscaled_score_maximum,
+  grading_started_at,
+  grading_completed_at,
+  feedback_json,
+  feedback_text,
+  deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND id IN (
+    SELECT etrs.grading_before_regrading
+    FROM exercise_task_regrading_submissions etrs
+    WHERE etrs.deleted_at IS NULL
+      AND etrs.regrading_id = $1
+    UNION
+    SELECT etrs.grading_after_regrading
+    FROM exercise_task_regrading_submissions etrs
+    WHERE etrs.grading_after_regrading IS NOT NULL
+      AND etrs.deleted_at IS NULL
+      AND etrs.regrading_id = $1
+  );
+    "#,
+        regrading_id
+    )
+    .fetch_all(conn)
+    .await?;
+    let mut map = HashMap::with_capacity(res.len());
+    for regrading in res {
+        map.insert(regrading.id, regrading);
+    }
+    Ok(map)
 }

@@ -45,6 +45,10 @@ reqwest = { version = "0.11.10", features = ["brotli", "gzip", "json"] }
 url = "2.2.2"
 # Application-level tracing for Rust.
 tracing = "0.1.35"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.0"
+#  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
+backtrace = "0.3.66"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
 thiserror = "1.0.31"
 # generate typescript bindings from rust types
@@ -58,6 +62,8 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "8b0a9fd00acb43447c28
 lettre = "0.10.0-rc.7"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.57"
 
 # Workaround for this issue: https://github.com/tkaitchuck/aHash/issues/95. Once the issue has been resolved, this dependency can be removed.
 indexmap = "1.8.2"

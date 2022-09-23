@@ -2,6 +2,7 @@
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
+    chapters::Chapter,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_modules::ModuleUpdates,
     courses::{Course, CourseStructure, CourseUpdate, NewCourse},
@@ -19,7 +20,7 @@ use models::{
     user_exercise_states::ExerciseUserCounts,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -63,8 +64,10 @@ async fn post_new_course(
     let mut conn = pool.acquire().await?;
     let new_course = payload.0;
     if !is_ietf_language_code_like(&new_course.language_code) {
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Malformed language code.".to_string(),
+            None,
         ));
     }
     let token = authorize(
@@ -711,6 +714,27 @@ pub async fn post_new_page_ordering(
     token.authorized_ok(web::Json(()))
 }
 
+/**
+POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
+
+Creates redirects if url_path changes.
+*/
+#[instrument(skip(pool))]
+pub async fn post_new_chapter_ordering(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    payload: web::Json<Vec<Chapter>>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::pages::reorder_chapters(&mut conn, &payload, course_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
 #[generated_doc]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
@@ -903,6 +927,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/new-page-ordering",
             web::post().to(post_new_page_ordering),
+        )
+        .route(
+            "/{course_id}/new-chapter-ordering",
+            web::post().to(post_new_chapter_ordering),
         )
         .route(
             "/{course_id}/references",

@@ -23,6 +23,22 @@ pub struct CourseModuleCompletion {
     pub grade: Option<i32>,
     pub passed: bool,
     pub prerequisite_modules_completed: bool,
+    pub completion_granter_user_id: Option<Uuid>,
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub enum CourseModuleCompletionGranter {
+    Automatic,
+    User(Uuid),
+}
+
+impl CourseModuleCompletionGranter {
+    fn to_database_field(&self) -> Option<Uuid> {
+        match self {
+            CourseModuleCompletionGranter::Automatic => None,
+            CourseModuleCompletionGranter::User(user_id) => Some(*user_id),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -44,6 +60,7 @@ pub struct NewCourseModuleCompletion {
 pub async fn insert(
     conn: &mut PgConnection,
     new_course_module_completion: &NewCourseModuleCompletion,
+    completion_granter: CourseModuleCompletionGranter,
     test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -60,7 +77,8 @@ INSERT INTO course_module_completions (
     eligible_for_ects,
     email,
     grade,
-    passed
+    passed,
+    completion_granter_user_id
   )
 VALUES (
     COALESCE($1, uuid_generate_v4()),
@@ -74,7 +92,8 @@ VALUES (
     $9,
     $10,
     $11,
-    $12
+    $12,
+    $13
   )
 RETURNING id
         ",
@@ -90,6 +109,7 @@ RETURNING id
         new_course_module_completion.email,
         new_course_module_completion.grade,
         new_course_module_completion.passed,
+        completion_granter.to_database_field(),
     )
     .fetch_one(conn)
     .await?;
@@ -253,6 +273,35 @@ WHERE course_module_id = $1
         user_id,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets automatically granted course module completion for the given user on the specified course
+/// instance. This entry is quaranteed to be unique in database by the index
+/// `course_module_automatic_completion_uniqueness`.
+pub async fn get_automatic_completion_by_course_module_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND course_instance_id = $2
+  AND user_id = $3
+  AND completion_granter_user_id IS NULL
+  AND deleted_at IS NULL
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

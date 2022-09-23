@@ -4,8 +4,8 @@ use crate::{
     course_instance_enrollments,
     course_instances::{self, CourseInstance},
     course_module_completions::{
-        self, CourseModuleCompletion, CourseModuleCompletionWithRegistrationInfo,
-        NewCourseModuleCompletion,
+        self, CourseModuleCompletion, CourseModuleCompletionGranter,
+        CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, CourseModule},
     courses, open_university_registration_links,
@@ -86,6 +86,7 @@ async fn create_course_module_completion_if_eligible(
                     grade: None,
                     passed: true,
                 },
+                CourseModuleCompletionGranter::Automatic,
                 None,
             )
             .await?;
@@ -167,22 +168,13 @@ async fn update_module_completion_prerequisite_statuses(
         if need_to_update {
             info!(module_id = ?status.module_id, "Updating module completion prerequisite status");
             let completion =
-                course_module_completions::get_all_by_course_module_instance_and_user_ids(
+                course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids(
                     conn,
                     status.module_id,
                     course_instance_id,
                     user_id,
                 )
-                .await?
-                .into_iter()
-                .next()
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::NotFound,
-                        "Missing completion.".to_string(),
-                        None,
-                    )
-                })?;
+                .await?;
             // Completion conditions are met, but the status needs to be updated to database.
             course_module_completions::update_prerequisite_modules_completed(
                 conn,
@@ -483,6 +475,7 @@ pub async fn get_user_completion_information(
                     None,
                 )
             })?;
+    // TODO: Which completion to choose?
     let course_module_completion =
         course_module_completions::get_all_by_course_module_instance_and_user_ids(
             conn,
@@ -591,6 +584,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
                     None,
                 )
             })?;
+    // TODO: Which completion to choose?
     let course_module_completion =
         course_module_completions::get_all_by_course_module_instance_and_user_ids(
             conn,

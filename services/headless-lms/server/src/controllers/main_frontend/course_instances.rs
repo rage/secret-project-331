@@ -4,7 +4,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use models::{
     course_instances::{self, CourseInstance, CourseInstanceForm, Points},
-    course_module_completions::{self, NewCourseModuleCompletion},
+    course_module_completions::{self, CourseModuleCompletionGranter, NewCourseModuleCompletion},
     course_modules, courses,
     email_templates::{EmailTemplate, EmailTemplateNew},
     library::{
@@ -276,6 +276,7 @@ async fn post_completions(
                     // Should passed be false if grade == Some(0)?
                     passed: true,
                 },
+                CourseModuleCompletionGranter::User(user.id),
                 None,
             )
             .await?;

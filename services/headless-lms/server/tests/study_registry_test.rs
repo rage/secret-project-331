@@ -3,7 +3,9 @@ use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_models::{
     course_module_completion_registered_to_study_registries::RegisteredCompletion,
-    course_module_completions::{NewCourseModuleCompletion, StudyRegistryCompletion},
+    course_module_completions::{
+        CourseModuleCompletionGranter, NewCourseModuleCompletion, StudyRegistryCompletion,
+    },
     courses::NewCourse,
 };
 use sqlx::PgConnection;
@@ -161,6 +163,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             grade: Some(4),
             passed: true,
         },
+        CourseModuleCompletionGranter::Automatic,
         None,
     )
     .await
@@ -187,6 +190,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             grade: Some(3),
             passed: true,
         },
+        CourseModuleCompletionGranter::Automatic,
         None,
     )
     .await

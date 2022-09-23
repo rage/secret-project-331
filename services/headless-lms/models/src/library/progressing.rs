@@ -24,7 +24,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
-    let completion_exists = create_course_module_completion_if_eligible(
+    let completion_exists = create_automatic_course_module_completion_if_eligible(
         conn,
         course_module,
         course_instance_id,
@@ -50,14 +50,22 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
 /// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
 /// whether a completion exists after calling this function.
 #[instrument(skip(conn))]
-async fn create_course_module_completion_if_eligible(
+async fn create_automatic_course_module_completion_if_eligible(
     conn: &mut PgConnection,
     course_module: &CourseModule,
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<bool> {
-    if user_has_completed_course_module(conn, course_module.id, course_instance_id, user_id).await?
-    {
+    let existing_completion =
+        course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids(
+            conn,
+            course_module.id,
+            course_instance_id,
+            user_id,
+        )
+        .await
+        .optional()?;
+    if existing_completion.is_some() {
         // If user already has a completion, do not attempt to create a new one.
         Ok(true)
     } else {
@@ -97,23 +105,6 @@ async fn create_course_module_completion_if_eligible(
             Ok(false)
         }
     }
-}
-
-async fn user_has_completed_course_module(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-    course_instance_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<bool> {
-    let completion = course_module_completions::get_all_by_course_module_instance_and_user_ids(
-        conn,
-        course_module_id,
-        course_instance_id,
-        user_id,
-    )
-    .await
-    .optional()?;
-    Ok(completion.is_some())
 }
 
 fn user_is_eligible_for_automatic_completion(
@@ -251,7 +242,7 @@ pub async fn process_all_course_instance_completions(
     for user_id in users {
         let mut num_completions = 0;
         for course_module in course_modules.iter() {
-            let completion_exists = create_course_module_completion_if_eligible(
+            let completion_exists = create_automatic_course_module_completion_if_eligible(
                 &mut tx,
                 course_module,
                 course_instance_id,

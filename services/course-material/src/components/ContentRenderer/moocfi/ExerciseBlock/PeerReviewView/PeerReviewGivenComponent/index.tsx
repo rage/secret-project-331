@@ -131,8 +131,6 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     questions = peer_review_questions
   }
 
-  console.log("result", result)
-
   return (
     <Wrapper>
       <details>

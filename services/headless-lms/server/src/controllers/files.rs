@@ -8,6 +8,7 @@ use crate::controllers::prelude::*;
 pub use crate::domain::authorization::AuthorizationToken;
 use actix_files::NamedFile;
 use futures::{StreamExt, TryStreamExt};
+use headless_lms_utils::file_store::file_utils;
 use tokio::fs::read;
 /**
 
@@ -110,36 +111,46 @@ async fn serve_upload(
     token.authorized_ok(response.body(contents))
 }
 
+/**
+POST `/api/v0/files/:exercise_service_slug`
+Used to upload data from exercise service iframes.
+
+# Returns
+The randomly generated path to the uploaded file.
+*/
+#[instrument(skip(data, file_store, pool, user))]
+#[generated_doc]
 async fn upload_from_exercise_service(
-    params: web::Path<(String, String)>,
+    exercise_service_slug: web::Path<String>,
     data: web::Payload,
     file_store: web::Data<dyn FileStore>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<HttpResponse> {
-    let (exercise_service_slug, tail) = params.into_inner();
+) -> ControllerResult<web::Json<String>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
 
-    // the playground uses the "playground" slug to upload temporary files
-    if exercise_service_slug != "playground" {
+    // the playground uses the special "playground" slug to upload temporary files
+    if exercise_service_slug.as_ref() != "playground" {
         // check that the given slug matches with a service
         headless_lms_models::exercise_services::get_exercise_services(&mut conn)
             .await?
             .into_iter()
-            .find(|es| es.slug == exercise_service_slug)
+            .find(|es| &es.slug == exercise_service_slug.as_ref())
             .ok_or_else(|| anyhow::anyhow!("Unknown exercise service"))?;
     }
 
+    let random_filename = file_utils::random_filename();
+    let path = format!("{exercise_service_slug}/{random_filename}");
     file_store
         .upload_stream(
-            Path::new(&format!("{exercise_service_slug}/{tail}")),
+            Path::new(&path),
             data.map_err(anyhow::Error::msg).boxed_local(),
             "application/octet-stream",
         )
         .await?;
 
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(path))
 }
 
 /**
@@ -152,7 +163,7 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/uploads/{tail:.*}", web::get().to(serve_upload))
         .route(
-            "/{exercise_service_slug}/{tail:.*}",
+            "/{exercise_service_slug}",
             web::post().to(upload_from_exercise_service),
         )
         .route("{tail:.*}", web::get().to(redirect_to_storage_service));

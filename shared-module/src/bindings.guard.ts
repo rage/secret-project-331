@@ -856,6 +856,7 @@ export function isCourseMaterialExerciseTask(obj: unknown): obj is CourseMateria
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
+    typeof typedObj["exercise_service_slug"] === "string" &&
     typeof typedObj["exercise_slide_id"] === "string" &&
     (typedObj["exercise_iframe_url"] === null ||
       typeof typedObj["exercise_iframe_url"] === "string") &&

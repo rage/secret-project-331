@@ -7,6 +7,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import { onUploadFileMessage } from "../../../shared-module/utils/exerciseServices"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -52,16 +53,13 @@ const PlaygroundExerciseEditorIframe: React.FC<
           },
           user_information: userInformation,
         }}
-        onMessageFromIframe={async (msg) => {
+        onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
-              // upload data to playground-specific endpoint
-              await axios.post(
-                `http://project-331.local/api/v0/files/playground/${msg.url}`,
-                msg.data,
-              )
+              // eslint-disable-next-line i18next/no-literal-string
+              await onUploadFileMessage("playground", msg.data, responsePort)
             }
           }
         }}

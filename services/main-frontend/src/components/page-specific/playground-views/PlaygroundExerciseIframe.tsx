@@ -9,6 +9,7 @@ import {
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import { onUploadFileMessage } from "../../../shared-module/utils/exerciseServices"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -66,13 +67,13 @@ const PlaygroundExerciseIframe: React.FC<
             previous_submission: userAnswer,
           },
         }}
-        onMessageFromIframe={async (msg) => {
+        onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
-              // upload data to playground-specific endpoint
-              await axios.post(msg.url, msg.data)
+              // eslint-disable-next-line i18next/no-literal-string
+              await onUploadFileMessage("playground", msg.data, responsePort)
             }
           }
         }}

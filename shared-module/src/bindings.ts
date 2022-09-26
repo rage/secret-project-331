@@ -424,6 +424,7 @@ export interface ExerciseSlide {
 
 export interface CourseMaterialExerciseTask {
   id: string
+  exercise_service_slug: string
   exercise_slide_id: string
   exercise_iframe_url: string | null
   pseudonumous_user_id: string | null

@@ -9,7 +9,7 @@ import SVGMatcher from "./SVGmatcher"
 interface LinkertProps {
   question: string
   index: number
-  content: string | number
+  content: number | null
 }
 
 interface StyledProps {

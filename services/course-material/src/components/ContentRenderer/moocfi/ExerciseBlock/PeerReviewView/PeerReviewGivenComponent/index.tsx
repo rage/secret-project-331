@@ -5,6 +5,10 @@ import * as React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataGivenByExerciseId } from "../../../../../../services/backend"
+import {
+  PeerReviewQuestion,
+  PeerReviewQuestionSubmission,
+} from "../../../../../../shared-module/bindings"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
@@ -96,14 +100,15 @@ const Notification = styled.div`
   margin-left: 0.5rem;
 `
 
-const arr = [{ peerReview: 1 }, { peerReview: 2 }, { peerReview: 3 }]
-
 interface PeerReviewProps {
   id: string
 }
 
 const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
   const { t } = useTranslation()
+  let result: PeerReviewQuestionSubmission[] = []
+  let questions: PeerReviewQuestion[] = []
+
   const getPeerReviewReceived = useQuery([`exercise-${id}-peer-reviews-received`], () =>
     fetchPeerReviewDataGivenByExerciseId(id),
   )
@@ -117,27 +122,14 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
   }
 
   // WORK ON THE LOOP
-  let result
-
   if (
     getPeerReviewReceived.isSuccess &&
     getPeerReviewReceived.data.peer_review_question_submissions.length > 0
   ) {
     const { peer_review_questions, peer_review_question_submissions } = getPeerReviewReceived.data
-    result = peer_review_questions.map((item) =>
-      peer_review_question_submissions.filter((o) => {
-        item.id === o.peer_review_question_id
-        return {
-          id: item.id,
-          question: item.question,
-          type: item.question_type === "Essay" ? o.text_data : o.number_data,
-        }
-      }),
-    )
+    result = peer_review_question_submissions
+    questions = peer_review_questions
   }
-
-  // eslint-disable-next-line i18next/no-literal-string
-  console.log("result", result)
 
   return (
     <Wrapper>
@@ -148,15 +140,14 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
             {getPeerReviewReceived.data?.peer_review_question_submissions.length ?? "0"}
           </Notification>
         </summary>
-        {arr?.map((item, index) => (
-          <Reviews orderNumber={index} key={index} />
-        ))}
+        {result &&
+          questions &&
+          result?.map((item, index) => (
+            <Reviews orderNumber={index} key={index} review={item} questions={questions} />
+          ))}
       </details>
     </Wrapper>
   )
-
-  // eslint-disable-next-line i18next/no-literal-string
-  /* console.log("getPeerReviewReceived", getPeerReviewReceived.data) */
 }
 
 export default PeerReview

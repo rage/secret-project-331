@@ -2,11 +2,17 @@ import styled from "@emotion/styled"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  PeerReviewQuestion,
+  PeerReviewQuestionSubmission,
+} from "../../../../../../shared-module/bindings"
+
 import Essay from "./Essay"
 import Linkert from "./Linkert"
-
 interface ReviewProps {
   orderNumber: number
+  review: PeerReviewQuestionSubmission
+  questions: PeerReviewQuestion[]
 }
 
 const Wrapper = styled.div`
@@ -19,37 +25,21 @@ const Heading = styled.div`
   border-bottom: 2px solid #ebedee;
 `
 
-const arr = [
-  {
-    // eslint-disable-next-line i18next/no-literal-string
-    peerReviewType: "essay",
-    // eslint-disable-next-line i18next/no-literal-string
-    question: "What is your opinion regarding the structure of the answer givern by student?",
-    // eslint-disable-next-line i18next/no-literal-string
-    content:
-      // eslint-disable-next-line i18next/no-literal-string
-      "Lorem ipsum is a placeholderIt is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
-  },
-  {
-    // eslint-disable-next-line i18next/no-literal-string
-    peerReviewType: "linkert",
-    // eslint-disable-next-line i18next/no-literal-string
-    question: "Do you think the answer is sufficient?",
-    content: 4,
-  },
-]
-
-const Reviews: React.FunctionComponent<ReviewProps> = ({ orderNumber }) => {
+const Reviews: React.FunctionComponent<ReviewProps> = ({ orderNumber, review, questions }) => {
   const { t } = useTranslation()
+  const { id, number_data, text_data, peer_review_question_id } = review
+
+  const questionIndex = questions.findIndex((q) => q.id === peer_review_question_id)
+  const question = questions[questionIndex].question
+
   return (
     <Wrapper>
       <Heading>{`${t("peer-review")} #${orderNumber + 1}`}</Heading>
-      {arr.map(({ peerReviewType, question, content }, index) =>
-        peerReviewType === "essay" ? (
-          <Essay question={question} content={content} index={index} />
-        ) : (
-          <Linkert question={question} content={content} index={index} />
-        ),
+      {text_data && (
+        <Essay key={id} question={question} content={text_data} index={orderNumber + 1} />
+      )}
+      {number_data && (
+        <Linkert key={id} question={question} content={number_data} index={orderNumber + 1} />
       )}
     </Wrapper>
   )

@@ -98,6 +98,7 @@ const Notification = styled.div`
   border-radius: 50%;
   text-align: center;
   margin-left: 0.5rem;
+  border: 1px solid ${baseTheme.colors.green[100]};
 `
 
 interface PeerReviewProps {
@@ -121,7 +122,6 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     console.log(getPeerReviewReceived.error)
   }
 
-  // WORK ON THE LOOP
   if (
     getPeerReviewReceived.isSuccess &&
     getPeerReviewReceived.data.peer_review_question_submissions.length > 0
@@ -130,6 +130,8 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     result = peer_review_question_submissions
     questions = peer_review_questions
   }
+
+  console.log("result", result)
 
   return (
     <Wrapper>

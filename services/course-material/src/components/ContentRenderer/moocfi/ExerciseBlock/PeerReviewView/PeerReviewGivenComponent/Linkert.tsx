@@ -30,7 +30,8 @@ const IconContainer = styled.div`
   min-height: 100px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  margin: 0 auto;
+  gap: 20px;
+  margin: 10px auto 0 auto;
   max-width: 1000px;
 `
 
@@ -44,7 +45,7 @@ const Icon = styled.div<StyledProps>`
   padding: 25px 0;
   background-color: ${({ active }: StyledProps) => (active ? "#313947" : " #f5f6f7")};
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: all 0.2s;
 
   svg .bg {

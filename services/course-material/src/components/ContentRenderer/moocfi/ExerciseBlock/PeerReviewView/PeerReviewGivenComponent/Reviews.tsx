@@ -38,7 +38,7 @@ const Reviews: React.FunctionComponent<ReviewProps> = ({ orderNumber, review, qu
       {text_data && (
         <Essay key={id} question={question} content={text_data} index={orderNumber + 1} />
       )}
-      {number_data && (
+      {number_data !== null && (
         <Linkert key={id} question={question} content={number_data} index={orderNumber + 1} />
       )}
     </Wrapper>

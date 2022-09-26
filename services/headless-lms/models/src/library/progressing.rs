@@ -728,6 +728,7 @@ mod tests {
                 tx.as_mut(),
                 NewChapter {
                     name: "chapter 2".to_string(),
+                    color: None,
                     course_id: course,
                     chapter_number: 2,
                     front_page_id: None,

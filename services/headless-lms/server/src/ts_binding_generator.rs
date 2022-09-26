@@ -183,6 +183,11 @@ fn models(target: &mut File) {
 
         repository_exercises::RepositoryExercise,
 
+        regradings::Regrading,
+        regradings::NewRegrading,
+        regradings::RegradingInfo,
+        regradings::RegradingSubmissionInfo,
+
         exercise_slide_submissions::ExerciseSlideSubmission,
         exercise_slide_submissions::ExerciseSlideSubmissionCount,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,

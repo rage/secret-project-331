@@ -44,6 +44,15 @@ export type Resource =
   | { type: "exercise_service" }
   | { type: "material_reference" }
 
+export type ErrorData = { block_id: string }
+
+export interface ErrorResponse {
+  title: string
+  message: string
+  source: string | null
+  data: ErrorData | null
+}
+
 export interface Term {
   id: string
   term: string
@@ -60,6 +69,7 @@ export interface Chapter {
   created_at: Date
   updated_at: Date
   name: string
+  color: string | null
   course_id: string
   deleted_at: Date | null
   chapter_image_url: string | null
@@ -76,6 +86,7 @@ export interface DatabaseChapter {
   created_at: Date
   updated_at: Date
   name: string
+  color: string | null
   course_id: string
   deleted_at: Date | null
   chapter_image_path: string | null
@@ -91,6 +102,7 @@ export type ChapterStatus = "open" | "closed"
 
 export interface ChapterUpdate {
   name: string
+  color: string | null
   front_page_id: string | null
   deadline: Date | null
   opens_at: Date | null
@@ -102,6 +114,7 @@ export interface ChapterWithStatus {
   created_at: Date
   updated_at: Date
   name: string
+  color: string | null
   course_id: string
   deleted_at: Date | null
   chapter_number: number
@@ -114,6 +127,7 @@ export interface ChapterWithStatus {
 
 export interface NewChapter {
   name: string
+  color: string | null
   course_id: string
   chapter_number: number
   front_page_id: string | null
@@ -143,6 +157,7 @@ export interface ChapterScore {
   created_at: Date
   updated_at: Date
   name: string
+  color: string | null
   course_id: string
   deleted_at: Date | null
   chapter_image_path: string | null
@@ -994,6 +1009,33 @@ export interface RepositoryExercise {
   download_url: string
 }
 
+export interface Regrading {
+  id: string
+  created_at: Date
+  updated_at: Date
+  regrading_started_at: Date | null
+  regrading_completed_at: Date | null
+  total_grading_progress: GradingProgress
+  user_points_update_strategy: UserPointsUpdateStrategy
+  user_id: string | null
+}
+
+export interface NewRegrading {
+  user_points_update_strategy: UserPointsUpdateStrategy
+  exercise_task_submission_ids: Array<string>
+}
+
+export interface RegradingInfo {
+  regrading: Regrading
+  submission_infos: Array<RegradingSubmissionInfo>
+}
+
+export interface RegradingSubmissionInfo {
+  exercise_task_submission_id: string
+  grading_before_regrading: ExerciseTaskGrading
+  grading_after_regrading: ExerciseTaskGrading | null
+}
+
 export interface ExerciseSlideSubmission {
   id: string
   created_at: Date
@@ -1210,15 +1252,6 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
-}
-
-export type ErrorData = { block_id: string }
-
-export interface ErrorResponse {
-  title: string
-  message: string
-  source: string | null
-  data: ErrorData | null
 }
 
 export interface UploadResult {

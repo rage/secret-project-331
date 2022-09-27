@@ -9,10 +9,11 @@ import {
   PeerReviewQuestion,
   PeerReviewQuestionSubmission,
 } from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
-import Reviews from "./Reviews"
+import PeerReviewQuestionAnswer from "./PeerReviewQuestionAnswer"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }
@@ -119,7 +120,7 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
   }
 
   if (getPeerReviewReceived.isError) {
-    console.log(getPeerReviewReceived.error)
+    return <ErrorBanner variant={"readOnly"} error={getPeerReviewReceived.error} />
   }
 
   if (
@@ -137,13 +138,24 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
         <summary>
           {t("peer-review-received-from-other-student")}
           <Notification>
-            {getPeerReviewReceived.data?.peer_review_question_submissions.length ?? "0"}
+            {[
+              ...new Set(
+                getPeerReviewReceived.data?.peer_review_question_submissions.map(
+                  (o) => o.peer_review_submission_id,
+                ),
+              ),
+            ].length ?? "0"}
           </Notification>
         </summary>
         {result &&
           questions &&
           result?.map((item, index) => (
-            <Reviews orderNumber={index} key={index} review={item} questions={questions} />
+            <PeerReviewQuestionAnswer
+              orderNumber={index}
+              key={index}
+              review={item}
+              questions={questions}
+            />
           ))}
       </details>
     </Wrapper>

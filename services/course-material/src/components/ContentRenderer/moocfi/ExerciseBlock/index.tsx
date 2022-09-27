@@ -418,7 +418,10 @@ const ExerciseBlock: React.FC<
                 {t("submit-button")}
               </Button>
             )}
-            {true && <PeerReviewGiven id={id} />}
+            {inSubmissionView &&
+              getCourseMaterialExercise.data.exercise.needs_peer_review &&
+              (reviewingStage === "WaitingForPeerReviews" ||
+                reviewingStage === "ReviewedAndLocked") && <PeerReviewGiven id={id} />}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
                 {isExam && (

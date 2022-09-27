@@ -1289,6 +1289,7 @@ pub async fn main() -> anyhow::Result<()> {
             download_url: "direct-download-link".to_string(),
         }]
     );
+    write_docs!(String, String::from("a string"));
     Ok(())
 }
 

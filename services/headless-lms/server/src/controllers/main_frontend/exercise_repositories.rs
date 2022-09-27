@@ -5,7 +5,7 @@ use models::{
     CourseOrExamId,
 };
 
-use crate::{controllers::prelude::*, domain};
+use crate::{domain, prelude::*};
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

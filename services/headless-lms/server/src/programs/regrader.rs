@@ -14,16 +14,12 @@ pub async fn main() -> anyhow::Result<()> {
     let db_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
 
-    // fetch exercise services
-    let mut conn = PgConnection::connect(&db_url).await?;
-    let exercise_services_by_type =
-        models::exercise_service_info::get_all_exercise_services_by_type(&mut conn).await?;
-    drop(conn);
-
-    let mut interval = tokio::time::interval(Duration::from_secs(60));
+    let mut interval = tokio::time::interval(Duration::from_secs(10));
     loop {
         interval.tick().await;
         let mut conn = PgConnection::connect(&db_url).await?;
+        let exercise_services_by_type =
+            models::exercise_service_info::get_all_exercise_services_by_type(&mut conn).await?;
         // do not stop the thread on error, report it and try again next tick
         if let Err(err) = regrading::regrade(&mut conn, &exercise_services_by_type).await {
             tracing::error!("Error in regrader: {}", err);

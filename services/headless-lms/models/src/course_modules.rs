@@ -109,10 +109,14 @@ WHERE id = $2
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let associated_chapters = chapters::get_for_module(conn, id).await?;
     if !associated_chapters.is_empty() {
-        return Err(ModelError::InvalidRequest(format!(
-            "Cannot remove module {id} because it has {} chapters associated with it",
-            associated_chapters.len()
-        )));
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            format!(
+                "Cannot remove module {id} because it has {} chapters associated with it",
+                associated_chapters.len()
+            ),
+            None,
+        ));
     }
     sqlx::query!(
         "

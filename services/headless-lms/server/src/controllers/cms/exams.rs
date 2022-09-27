@@ -2,7 +2,7 @@
 
 use models::exams::{ExamInstructions, ExamInstructionsUpdate};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 POST `/api/v0/cms/exams/:exam_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.

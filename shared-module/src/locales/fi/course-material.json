@@ -59,6 +59,7 @@
   "exam-time-up": "Aikasi on loppunut ja koe on päättynyt. Voit tarkistaa tulokset tältä sivulta {{ ends-at }} jälkeen.",
   "exam-timer-has-run-out": "Aika on loppunut ja tentti on päättynyt",
   "exercise-task-content": "Tehtävän {{ exercise-number }} osion {{ task-number }} sisältö",
+  "exercises-attempted": "Tehtäviä yritetty",
   "exercises-in-this-chapter": "Tehtävät tässä luvussa",
   "exit": "Poistu",
   "failed-to-submit": "Lähettäminen epäonnistui {{ error }}",

@@ -160,8 +160,10 @@ pub async fn edit(
     time_minutes: Option<i32>,
 ) -> ModelResult<()> {
     if time_minutes.map(|i| i > 0).unwrap_or_default() {
-        return Err(ModelError::PreconditionFailed(
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
             "Exam duration has to be positive".to_string(),
+            None,
         ));
     }
     sqlx::query!(
@@ -311,7 +313,11 @@ pub async fn verify_exam_submission_can_be_made(
     let enrollment = get_enrollment(conn, exam_id, user_id)
         .await?
         .ok_or_else(|| {
-            ModelError::PreconditionFailed("User has no enrollment for the exam".to_string())
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "User has no enrollment for the exam".to_string(),
+                None,
+            )
         })?;
     let student_has_time =
         Utc::now() <= enrollment.started_at + Duration::minutes(exam.time_minutes.into());

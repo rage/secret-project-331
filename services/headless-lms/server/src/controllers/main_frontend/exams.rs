@@ -4,8 +4,8 @@ use models::exams::{self, Exam, NewExam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    controllers::prelude::*,
     domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    prelude::*,
 };
 
 /**

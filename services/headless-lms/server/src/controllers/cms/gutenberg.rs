@@ -5,7 +5,7 @@ use headless_lms_utils::url_to_oembed_endpoint::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -75,30 +75,44 @@ async fn get_oembed_data_from_provider(
         .timeout(Duration::from_secs(120))
         .send()
         .await
-        .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
+        .map_err(|oe| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                oe.to_string(),
+                Some(oe.into()),
+            )
+        })?;
     let status = res.status();
     if !status.is_success() {
         let response_url = res.url().to_string();
-        let body = res
-            .text()
-            .await
-            .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
+        let body = res.text().await.map_err(|oe| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                oe.to_string(),
+                Some(oe.into()),
+            )
+        })?;
         warn!(url=?response_url, status=?status, body=?body, "Could not fetch oembed data from provider");
-        return Err(ControllerError::BadRequest(
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
             "Could not fetch oembed data from provider".to_string(),
+            None,
         ));
     }
-    let res = res
-        .json::<serde_json::Value>()
-        .await
-        .map_err(|oe| ControllerError::BadRequest(oe.to_string()))?;
+    let res = res.json::<serde_json::Value>().await.map_err(|oe| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            oe.to_string(),
+            Some(oe.into()),
+        )
+    })?;
     token.authorized_ok(web::Json(res))
 }
 
 /**
 GET `/api/v0/cms/gutenberg/themes?context=edit&status=active&_locale=user` - Mock themes response
 Endpoint for proxying themes requests.
-https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/embed/test/index.native.js#L128
+<https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/embed/test/index.native.js#L128>
 
 # Example
 

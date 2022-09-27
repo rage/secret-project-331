@@ -82,6 +82,7 @@ test("test", async ({ page, headless }) => {
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.locator(`div:text-is("Success")`).waitFor()
+  await page.locator("text=efgh").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,

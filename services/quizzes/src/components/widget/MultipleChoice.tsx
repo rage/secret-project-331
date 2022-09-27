@@ -124,7 +124,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
         `}
         role={quizItem.multi ? "group" : "radiogroup"}
       >
-        {quiz_options.map((qo, i) => {
+        {quiz_options.map((qo) => {
           const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
 
           return (
@@ -132,9 +132,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
-              tabIndex={quizItem.multi ? 0 : i === 0 ? 0 : -1}
-              role={quizItem.multi ? "checkbox" : "radio"}
-              aria-checked={selected ?? false}
+              aria-pressed={selected ?? false}
               className={cx(
                 optionButton,
                 selected && optionButtonSelected,

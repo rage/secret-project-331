@@ -23,5 +23,5 @@ module.exports = {
     "npx tsc -p system-tests --noEmit",
   ],
   "shared-module/src/locales/**/*.json": () => ["./bin/translations-sort"],
-  ".github/workflows/**/*.yaml": () => ["actionlint"],
+  ".github/workflows/**/*.{yaml,yml}": () => ["actionlint"],
 }

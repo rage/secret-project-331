@@ -277,6 +277,34 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
+/// Gets latest created completion for the given user on the specified course instance.
+pub async fn get_latest_by_course_module_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND course_instance_id = $2
+  AND user_id = $3
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets automatically granted course module completion for the given user on the specified course
 /// instance. This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.

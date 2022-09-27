@@ -417,16 +417,15 @@ pub async fn get_manual_completion_result_preview(
         if enrollment.is_none() {
             non_enrolled_users.push(user.clone());
         }
-        let course_module_completion =
+        let course_module_completions =
             course_module_completions::get_all_by_course_module_instance_and_user_ids(
                 conn,
                 manual_completion_request.course_module_id,
                 course_instance.id,
                 completion.user_id,
             )
-            .await
-            .optional()?;
-        if course_module_completion.is_some() {
+            .await?;
+        if course_module_completions.is_empty() {
             already_completed_users.push(user);
         } else {
             first_time_completing_users.push(user);
@@ -466,24 +465,14 @@ pub async fn get_user_completion_information(
                     None,
                 )
             })?;
-    // TODO: Which completion to choose?
     let course_module_completion =
-        course_module_completions::get_all_by_course_module_instance_and_user_ids(
+        course_module_completions::get_latest_by_course_module_instance_and_user_ids(
             conn,
             course_module.id,
             user_settings.current_course_instance_id,
             user.id,
         )
-        .await?
-        .into_iter()
-        .next()
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::NotFound,
-                "Missing completion.".to_string(),
-                None,
-            )
-        })?;
+        .await?;
     // Course code is required only so that fetching the link later works.
     let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
         ModelError::new(
@@ -575,24 +564,14 @@ pub async fn get_completion_registration_link_and_save_attempt(
                     None,
                 )
             })?;
-    // TODO: Which completion to choose?
     let course_module_completion =
-        course_module_completions::get_all_by_course_module_instance_and_user_ids(
+        course_module_completions::get_latest_by_course_module_instance_and_user_ids(
             conn,
             course_module.id,
             user_settings.current_course_instance_id,
             user.id,
         )
-        .await?
-        .into_iter()
-        .next()
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::NotFound,
-                "Missing completion.".to_string(),
-                None,
-            )
-        })?;
+        .await?;
     course_module_completions::update_completion_registration_attempt_date(
         conn,
         course_module_completion.id,

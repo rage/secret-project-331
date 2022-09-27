@@ -3,27 +3,24 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Collapsible from "../../../../components/Collapsible"
 import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
-import PreviewUserList from "../../../../components/page-specific/manage/course-instances/id/PreviewUserList"
-import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
+import CompletionRegistrationPreview from "../../../../components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
+import UserCompletionRow from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
+import FullWidthTable from "../../../../components/tables/FullWidthTable"
 import {
   getCompletions,
   postCompletions,
   postCompletionsPreview,
 } from "../../../../services/backend/course-instances"
 import {
-  CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
   UserWithModuleCompletions,
 } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
-import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
@@ -87,28 +84,6 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
     }
   }
 
-  function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
-    let innerText = completion.grade?.toString()
-    if (innerText === undefined) {
-      innerText = completion.passed ? t("column-passed") : t("column-failed")
-    }
-    if (completion.prerequisite_modules_completed) {
-      return <>{innerText}</>
-    } else {
-      return <i>{innerText}*</i>
-    }
-  }
-
-  function mapRegistration(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
-    if (completion.registered) {
-      return <>{t("yes")}</>
-    } else if (completion.completion_registration_attempt_date) {
-      return <i>{t("column-pending")}</i>
-    } else {
-      return <></>
-    }
-  }
-
   const handlePostCompletionsPreview = async (
     data: TeacherManualCompletionRequest,
   ): Promise<void> => {
@@ -164,86 +139,15 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                     submitText={t("button-text-check")}
                   />
                   {previewData && completionFormData && (
-                    <div
-                      className={css`
-                        margin: 1rem 0;
-                      `}
-                    >
-                      <GenericInfobox>
-                        <p>{t("please-check-the-following-preview-results-before-submitting")}</p>
-                        <div
-                          className={css`
-                            margin: 1rem 0;
-                          `}
-                        >
-                          <Collapsible
-                            title={
-                              t("users-receiving-a-completion-for-the-first-time") +
-                              " (" +
-                              previewData.first_time_completing_users.length +
-                              ")"
-                            }
-                          >
-                            <PreviewUserList users={previewData.first_time_completing_users} />
-                          </Collapsible>
-                        </div>
-                        <div
-                          className={css`
-                            margin: 1rem 0;
-                          `}
-                        >
-                          <Collapsible
-                            title={
-                              t(
-                                "users-that-will-be-enrolled-on-the-course-as-a-part-of-completion-registration",
-                              ) +
-                              " (" +
-                              previewData.non_enrolled_users.length +
-                              ")"
-                            }
-                          >
-                            <PreviewUserList users={previewData.non_enrolled_users} />
-                          </Collapsible>
-                        </div>
-                        <div
-                          className={css`
-                            margin: 1rem 0;
-                          `}
-                        >
-                          <Collapsible
-                            title={
-                              t(
-                                "users-that-already-have-a-completion-and-are-about-to-get-a-duplicate-one",
-                              ) +
-                              " (" +
-                              previewData.already_completed_users.length +
-                              ")"
-                            }
-                          >
-                            <PreviewUserList users={previewData.already_completed_users} />
-                          </Collapsible>
-                        </div>
-                        <CheckBox
-                          label={t("do-not-add-duplicate-completions-for-these-users")}
-                          checked={completionFormData.skip_duplicate_completions}
-                          onChange={(value) => {
-                            return setCompletionFormData({
-                              ...completionFormData,
-                              skip_duplicate_completions: value,
-                            })
-                          }}
-                        />
-                        <Button
-                          variant="primary"
-                          size="medium"
-                          type="button"
-                          value={t("button-text-submit")}
-                          onClick={() => mutation.mutate(completionFormData)}
-                        >
-                          {t("button-text-submit")}
-                        </Button>
-                      </GenericInfobox>
-                    </div>
+                    <CompletionRegistrationPreview
+                      manualCompletionPreview={previewData}
+                      onSubmit={(options) => {
+                        mutation.mutate({
+                          ...completionFormData,
+                          skip_duplicate_completions: options.skipDuplicateCompletions,
+                        })
+                      }}
+                    />
                   )}
                 </div>
               </div>
@@ -312,26 +216,11 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               {getCompletionsList.data.users_with_course_module_completions
                 .sort(sortUsers)
                 .map((user) => (
-                  <FullWidthTableRow key={user.user_id}>
-                    <td>{user.user_id}</td>
-                    <td>
-                      {user.first_name} {user.last_name}
-                    </td>
-                    <td>{user.email}</td>
-                    {getCompletionsList.data.course_modules
-                      .sort((a, b) => a.order_number - b.order_number)
-                      .map((module) => {
-                        const completion = user.completed_modules.find(
-                          (x) => x.course_module_id === module.id,
-                        )
-                        return (
-                          <React.Fragment key={module.id}>
-                            <td>{completion ? mapGradeToText(completion) : "-"}</td>
-                            <td>{completion ? mapRegistration(completion) : ""}</td>
-                          </React.Fragment>
-                        )
-                      })}
-                  </FullWidthTableRow>
+                  <UserCompletionRow
+                    key={user.user_id}
+                    courseModules={getCompletionsList.data.course_modules}
+                    user={user}
+                  />
                 ))}
             </tbody>
           </FullWidthTable>

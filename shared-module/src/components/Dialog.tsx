@@ -8,6 +8,7 @@ interface DialogExtraProps {
   open: boolean
   onClose?: () => void
   closeable?: boolean
+  noPadding?: boolean
 }
 
 const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProps> = ({
@@ -15,6 +16,7 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
   open,
   onClose,
   closeable = true,
+  noPadding = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -110,7 +112,7 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
           <div
             role="presentation"
             className={css`
-              padding: 2rem 3rem;
+              ${!noPadding && `padding: 2rem 3rem;`}
             `}
           >
             {children}

@@ -22,9 +22,24 @@ const Template: Story<ComponentProps> = (args: ComponentProps) => (
   </>
 )
 
-export const Primary: Story<ComponentProps> = Template.bind({})
-Primary.args = {
+export const Closeable: Story<ComponentProps> = Template.bind({})
+Closeable.args = {
   open: true,
+  onClose: () => {
+    console.info("onClose")
+  },
+  children: (
+    <>
+      <h1>Heading inside dialog</h1>
+      <p>Paragraph inside dialog</p>
+    </>
+  ),
+}
+
+export const NotCloseable: Story<ComponentProps> = Template.bind({})
+NotCloseable.args = {
+  open: true,
+  closeable: false,
   onClose: () => {
     console.info("onClose")
   },

@@ -103,7 +103,7 @@ async fn get_peer_review_for_exercise(
 }
 
 /**
-GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get peer review given for an exercise. This includes peer review submitted and the question asociated with it.
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
 */
 #[generated_doc]
 #[instrument(skip(pool))]

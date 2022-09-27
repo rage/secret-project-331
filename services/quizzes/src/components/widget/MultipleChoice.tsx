@@ -122,7 +122,6 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
             flex-direction: ${direction};
           }
         `}
-        role={quizItem.multi ? "group" : "radiogroup"}
       >
         {quiz_options.map((qo) => {
           const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)

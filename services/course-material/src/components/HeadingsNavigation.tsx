@@ -256,7 +256,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         <StyledTopics role="navigation">
           <div>
             {headings &&
-              headings.map(({ headingsNavigationIndex, title, element }, n) => {
+              headings.map(({ headingsNavigationIndex, title, element }) => {
                 return (
                   <button
                     className={css`
@@ -266,7 +266,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
                       width: 100%;
                       padding: 0;
                     `}
-                    tabIndex={realCollapsed ? -1 : n}
+                    tabIndex={realCollapsed ? -1 : 0}
                     key={headingsNavigationIndex}
                     onClick={(e) => {
                       e.preventDefault()

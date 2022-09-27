@@ -425,7 +425,7 @@ pub async fn get_manual_completion_result_preview(
                 completion.user_id,
             )
             .await?;
-        if course_module_completions.is_empty() {
+        if !course_module_completions.is_empty() {
             already_completed_users.push(user);
         } else {
             first_time_completing_users.push(user);

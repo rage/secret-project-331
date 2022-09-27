@@ -519,6 +519,8 @@ export function isCourseModuleCompletionWithRegistrationInfo(
   const typedObj = obj as CourseModuleCompletionWithRegistrationInfo
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["completion_registration_attempt_date"] === null ||
+      typedObj["completion_registration_attempt_date"] instanceof Date) &&
     typeof typedObj["course_module_id"] === "string" &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
     typeof typedObj["passed"] === "boolean" &&

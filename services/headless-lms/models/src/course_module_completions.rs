@@ -185,6 +185,8 @@ WHERE course_instance_id = $1
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletionWithRegistrationInfo {
+    /// When the student has attempted to register the completion.
+    pub completion_registration_attempt_date: Option<DateTime<Utc>>,
     /// ID of the course module.
     pub course_module_id: Uuid,
     /// Grade that the student received for the completion.
@@ -207,7 +209,8 @@ pub async fn get_all_with_registration_information_by_course_instance_id(
     let res = sqlx::query_as!(
         CourseModuleCompletionWithRegistrationInfo,
         r#"
-SELECT completions.course_module_id,
+SELECT completions.completion_registration_attempt_date,
+  completions.course_module_id,
   completions.grade,
   completions.passed,
   completions.prerequisite_modules_completed,

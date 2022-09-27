@@ -15,6 +15,7 @@ import {
   postCompletionsPreview,
 } from "../../../../services/backend/course-instances"
 import {
+  CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
   UserWithModuleCompletions,
@@ -86,17 +87,25 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
     }
   }
 
-  function mapGradeToText(
-    moduleCompletion: { grade: number | null; passed: boolean } | undefined,
-  ): string {
-    if (moduleCompletion) {
-      if (moduleCompletion.grade !== null) {
-        return moduleCompletion.grade.toString()
-      } else {
-        return moduleCompletion.passed ? t("column-passed") : t("column-failed")
-      }
+  function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
+    let innerText = completion.grade?.toString()
+    if (innerText === undefined) {
+      innerText = completion.passed ? t("column-passed") : t("column-failed")
+    }
+    if (completion.prerequisite_modules_completed) {
+      return <>{innerText}</>
     } else {
-      return "-"
+      return <i>{innerText}*</i>
+    }
+  }
+
+  function mapRegistration(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
+    if (completion.registered) {
+      return <>{t("yes")}</>
+    } else if (completion.completion_registration_attempt_date) {
+      return <i>{t("column-pending")}</i>
+    } else {
+      return <></>
     }
   }
 
@@ -248,20 +257,19 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   font-size: 13px;
                 `}
               >
-                <th>
+                <th rowSpan={2}>
                   {t("label-user-id")}{" "}
                   <a href="#number" onClick={() => setSorting({ type: NUMBER, data: null })}>
                     {DOWN_ARROW}
                   </a>
                 </th>
-                <th>
+                <th rowSpan={2}>
                   {t("student-name")}{" "}
                   <a href="#name" onClick={() => setSorting({ type: NAME, data: null })}>
                     {DOWN_ARROW}
                   </a>
                 </th>
-
-                <th>
+                <th rowSpan={2}>
                   {t("label-email")}{" "}
                   <a href="#email" onClick={() => setSorting({ type: EMAIL, data: null })}>
                     {DOWN_ARROW}
@@ -273,17 +281,31 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                     // eslint-disable-next-line i18next/no-literal-string
                     const moduleSorting = `#mod${module.order_number}`
                     return (
-                      <th key={module.id}>
-                        {module.name ?? t("label-default")}{" "}
-                        <a
-                          href={moduleSorting}
-                          onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                      <th key={module.id} colSpan={2}>
+                        <div
+                          className={css`
+                            text-align: center;
+                          `}
                         >
-                          {DOWN_ARROW}
-                        </a>
+                          {module.name ?? t("label-default")}{" "}
+                          <a
+                            href={moduleSorting}
+                            onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                          >
+                            {DOWN_ARROW}
+                          </a>
+                        </div>
                       </th>
                     )
                   })}
+              </tr>
+              <tr>
+                {getCompletionsList.data.course_modules.map((_, i) => (
+                  <React.Fragment key={i}>
+                    <td>{t("label-grade")}</td>
+                    <td>{t("label-registered")}</td>
+                  </React.Fragment>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -298,17 +320,22 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                     <td>{user.email}</td>
                     {getCompletionsList.data.course_modules
                       .sort((a, b) => a.order_number - b.order_number)
-                      .map((module) => (
-                        <td key={module.id}>
-                          {mapGradeToText(
-                            user.completed_modules.find((x) => x.course_module_id === module.id),
-                          )}
-                        </td>
-                      ))}
+                      .map((module) => {
+                        const completion = user.completed_modules.find(
+                          (x) => x.course_module_id === module.id,
+                        )
+                        return (
+                          <React.Fragment key={module.id}>
+                            <td>{completion ? mapGradeToText(completion) : "-"}</td>
+                            <td>{completion ? mapRegistration(completion) : ""}</td>
+                          </React.Fragment>
+                        )
+                      })}
                   </FullWidthTableRow>
                 ))}
             </tbody>
           </FullWidthTable>
+          <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
         </>
       )}
     </Layout>

@@ -1,4 +1,5 @@
 type CourseModuleCompletionWithRegistrationInfo = {
+  completion_registration_attempt_date: Date | null
   course_module_id: string
   grade: number | null
   passed: boolean

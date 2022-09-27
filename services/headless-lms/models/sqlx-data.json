@@ -1358,47 +1358,6 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        "
   },
-  "171daf7f0fab3feef84467a328e54df0169fa2ba7cc32333da26fee7709fda04": {
-    "describe": {
-      "columns": [
-        {
-          "name": "course_module_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "grade",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "passed",
-          "ordinal": 2,
-          "type_info": "Bool"
-        },
-        {
-          "name": "prerequisite_modules_completed",
-          "ordinal": 3,
-          "type_info": "Bool"
-        },
-        {
-          "name": "registered!",
-          "ordinal": 4,
-          "type_info": "Bool"
-        },
-        {
-          "name": "user_id",
-          "ordinal": 5,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false, true, false, false, null, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT completions.course_module_id,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\nWHERE completions.course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n        "
-  },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {
     "describe": {
       "columns": [
@@ -14375,6 +14334,52 @@
       }
     },
     "query": "\n    INSERT INTO pages (\n        id,\n        exam_id,\n        content,\n        url_path,\n        title,\n        chapter_id,\n        order_number,\n        copied_from,\n        content_search_language\n      )\n    SELECT uuid_generate_v5($1, id::text),\n      $1,\n      content,\n      url_path,\n      title,\n      uuid_generate_v5($1, chapter_id::text),\n      order_number,\n      id,\n      content_search_language\n    FROM pages\n    WHERE (exam_id = $2)\n    AND deleted_at IS NULL\n    RETURNING id,\n      content;\n        "
+  },
+  "cc5362931d9c8dc332347dd8764be413f17536dbd5d6fe66eb210afcbe0c37f4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 0,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "grade",
+          "ordinal": 2,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 3,
+          "type_info": "Bool"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "registered!",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [true, false, true, false, false, null, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\nWHERE completions.course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n        "
   },
   "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60": {
     "describe": {

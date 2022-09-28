@@ -3,6 +3,7 @@ type Chapter = {
   created_at: Date
   updated_at: Date
   name: string
+  color: string | null
   course_id: string
   deleted_at: Date | null
   chapter_image_url: string | null

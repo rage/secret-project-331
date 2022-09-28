@@ -65,6 +65,7 @@ use headless_lms_models::{
         CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
         PeerReviewConfig,
     },
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
@@ -313,6 +314,16 @@ pub async fn main() -> anyhow::Result<()> {
         question_type: PeerReviewQuestionType::Essay,
         answer_required: true,
     };
+    let peer_review_question_submission = PeerReviewQuestionSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        peer_review_question_id: id,
+        peer_review_submission_id: id,
+        text_data: Some("I think that the answer was well written.".to_string()),
+        number_data: None,
+    };
     let peer_review_config = PeerReviewConfig {
         id,
         created_at,
@@ -347,7 +358,7 @@ pub async fn main() -> anyhow::Result<()> {
     };
     let peer_reviews_recieved = PeerReviewsRecieved {
         peer_review_questions: vec![peer_review_question.clone()],
-        peer_review_question_submissions: vec![course_material_peer_review_submission.clone()],
+        peer_review_question_submissions: vec![peer_review_question_submission.clone()],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),

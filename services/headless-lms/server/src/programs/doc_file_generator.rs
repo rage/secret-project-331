@@ -35,9 +35,7 @@ use headless_lms_models::{
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::{
-        ExerciseTaskSubmission, ExerciseTaskSubmission, PeerReviewsRecieved,
-    },
+    exercise_task_submissions::{ExerciseTaskSubmission, PeerReviewsRecieved},
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -218,10 +216,6 @@ pub async fn main() -> anyhow::Result<()> {
         metadata: None,
         exercise_slide_id: id,
     };
-    let peer_reviews_recieved = PeerReviewsRecieved {
-        peer_review_questions,
-        peer_review_question_submissions,
-    };
     let grading = ExerciseTaskGrading {
         id,
         created_at,
@@ -350,6 +344,10 @@ pub async fn main() -> anyhow::Result<()> {
             text_data: Some("I think that the answer was well written.".to_string()),
             number_data: None,
         }],
+    };
+    let peer_reviews_recieved = PeerReviewsRecieved {
+        peer_review_questions: vec![peer_review_question],
+        peer_review_question_submissions: vec![course_material_peer_review_submission],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),

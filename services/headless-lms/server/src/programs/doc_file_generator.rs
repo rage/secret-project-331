@@ -346,8 +346,8 @@ pub async fn main() -> anyhow::Result<()> {
         }],
     };
     let peer_reviews_recieved = PeerReviewsRecieved {
-        peer_review_questions: vec![peer_review_question],
-        peer_review_question_submissions: vec![course_material_peer_review_submission],
+        peer_review_questions: vec![peer_review_question.clone()],
+        peer_review_question_submissions: vec![course_material_peer_review_submission.clone()],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),

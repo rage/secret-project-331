@@ -2,7 +2,6 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { faXmark as closeIcon, faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog, Paper } from "@mui/material"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,6 +11,7 @@ import { useDebounce } from "use-debounce"
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
+import Dialog from "../shared-module/components/Dialog"
 import { baseTheme } from "../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
@@ -125,14 +125,8 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         onClick={openModal}
         onKeyPress={openModalOnEnter}
       />
-      {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Dialog
-        fullWidth={true}
-        open={open}
-        onClose={closeModal}
-        aria-labelledby="search-for-pages-button"
-      >
-        <Paper
+      <Dialog open={open} onClose={closeModal} noPadding aria-labelledby="search-for-pages-button">
+        <div
           className={css`
             overflow: hidden;
             width: 100%;
@@ -258,7 +252,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
               }
             </div>
           </div>
-        </Paper>
+        </div>
       </Dialog>
     </>
   )

@@ -60,7 +60,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=radio[checked]")
+    .locator("role=button[pressed]")
     .locator("text=cargo")
     .waitFor({ state: "visible" })
 
@@ -71,7 +71,7 @@ test("Can start an exam and can answer exercises", async ({ page, headless }) =>
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=radio[checked]")
+    .locator("role=button[pressed]")
     .locator("text=cargo")
     .waitFor({ state: "visible" })
 })

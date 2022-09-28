@@ -10,11 +10,11 @@ export async function login(
   await page.click("id=main-navigation-menu")
 
   await page.click("text=Log in")
-  await page.click('input[name="email"]')
-  await page.fill('input[name="email"]', user)
+  await page.click(`label:has-text("Email")`)
+  await page.fill(`label:has-text("Email")`, user)
 
-  await page.click('input[name="password"]')
-  await page.fill('input[name="password"]', password)
+  await page.click(`label:has-text("Password")`)
+  await page.fill(`label:has-text("Password")`, password)
 
   await page.click("id=login-button")
 

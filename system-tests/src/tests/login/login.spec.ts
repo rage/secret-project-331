@@ -78,16 +78,16 @@ test.describe("Login return_to", async () => {
     // Click text=Login
     await page.click("id=main-navigation-menu")
     await Promise.all([page.waitForNavigation(), page.click("text=Log in")])
-    await page.waitForSelector('input[name="password"]')
+    await page.waitForSelector(`label:has-text("Password")`)
     expect(page.url().startsWith("http://project-331.local/login?return_to=")).toBe(true)
     // Click input[name="email"]
-    await page.click('input[name="email"]')
+    await page.click(`label:has-text("Email")`)
     // Fill input[name="email"]
-    await page.fill('input[name="email"]', "admin@example.com")
+    await page.fill(`label:has-text("Email")`, "admin@example.com")
     // Click input[name="password"]
-    await page.click('input[name="password"]')
+    await page.click(`label:has-text("Password")`)
     // Fill input[name="password"]
-    await page.fill('input[name="password"]', "admin")
+    await page.fill(`label:has-text("Password")`, "admin")
     // Click text=Submit
     await Promise.all([
       page.waitForNavigation(/*{ url: 'http://project-331.local/organizations/f242f19e-6d6f-43d5-9186-d0424864146e' }*/),

@@ -238,6 +238,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
           transition: transform 0.3s;
           transform: ${realCollapsed ? `translateX(${WIDTH_PX}px);` : "translateX(0px)"};
         `}
+        aria-hidden={Boolean(realCollapsed)}
       >
         <h3
           className={css`
@@ -265,6 +266,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
                       width: 100%;
                       padding: 0;
                     `}
+                    tabIndex={realCollapsed ? -1 : 0}
                     key={headingsNavigationIndex}
                     onClick={(e) => {
                       e.preventDefault()

@@ -53,11 +53,7 @@ test("create peer review", async ({ page, headless }) => {
   })
 
   // Check text=Use course global peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]
-  await page
-    .locator(
-      'text=Use course default peer reviewPeer reviews to receivePeer reviews to givePeer rev >> input[type="checkbox"]',
-    )
-    .check()
+  await page.locator("text=Use course default peer review").click()
   // Click text=Course default peer review config
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),

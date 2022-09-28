@@ -23,7 +23,9 @@ import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
+import ErrorNotification from "../shared-module/components/Notifications/Error"
 import Spinner from "../shared-module/components/Spinner"
+import { baseTheme } from "../shared-module/styles"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -331,12 +333,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <div
                   className={css`
                     display: flex;
+                    gap: 5px 5px;
+                    justify-content: space-between;
                   `}
                 >
                   <TextField
                     className={css`
                       width: 100%;
-                      margin-right: 0.5rem;
                     `}
                     type={"number"}
                     min={0}
@@ -350,7 +353,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <TextField
                     className={css`
                       width: 100%;
-                      margin-left: 0.5rem;
                     `}
                     type={"number"}
                     min={0}
@@ -360,6 +362,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     onChange={(e) => handlePeerReviewValueChange(e, "peer_reviews_to_give")}
                   />
                 </div>
+                <p
+                  className={css`
+                    font-size: 1.5em !important;
+                    color: ${baseTheme.colors.crimson[700]};
+                    width: 100%;
+                  `}
+                >
+                  {parsedPeerReview.peer_reviews_to_receive >=
+                    parsedPeerReview.peer_reviews_to_give &&
+                    t("peer-reviews-to-receive-and-give-error-message")}
+                </p>
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   label={t("peer-review-accepting-strategy")}
@@ -380,7 +393,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(e, "accepting_threshold")
                   }}
                 />
-
                 <h2>{HEADING_TEXT}</h2>
                 {parsedPeerReviewQuestion &&
                   parsedPeerReviewQuestion.map(
@@ -410,7 +422,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         </StyledQuestionType>
                         <StyledQuestion>
                           <CheckBox
-                            label={t("needs-peer-review")}
+                            label={t("answer-required")}
                             checked={answer_required}
                             onChange={(e) =>
                               handlePeerReviewQuestionValueChange(id, e, "answer_required")

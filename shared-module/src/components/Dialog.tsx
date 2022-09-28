@@ -6,13 +6,17 @@ import { typography } from "../styles"
 
 interface DialogExtraProps {
   open: boolean
-  onClose: () => void
+  onClose?: () => void
+  closeable?: boolean
+  noPadding?: boolean
 }
 
 const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProps> = ({
   children,
   open,
   onClose,
+  closeable = true,
+  noPadding = false,
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
@@ -20,7 +24,9 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
   useEffect(() => {
     const current = ref.current
     const closeCallback = () => {
-      onClose()
+      if (onClose) {
+        onClose()
+      }
     }
     current?.addEventListener("close", closeCallback)
     return () => {
@@ -38,6 +44,26 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
       ref.current.close()
     }
   }, [open])
+
+  // Make non-closable dialogs not closable
+  useEffect(() => {
+    if (!ref.current || closeable) {
+      return
+    }
+    const eventHandler = (event: Event) => {
+      if (!event.cancelable) {
+        ref.current?.showModal()
+      }
+      event.preventDefault()
+    }
+    const element = ref.current
+    element.addEventListener("close", eventHandler)
+    element.addEventListener("cancel", eventHandler)
+    return () => {
+      element?.removeEventListener("close", eventHandler)
+      element?.removeEventListener("cancel", eventHandler)
+    }
+  }, [closeable])
 
   return (
     <dialog
@@ -77,14 +103,16 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
       {open && (
         <ClickAwayListener
           onClickAway={() => {
-            ref.current?.close()
+            if (closeable) {
+              ref.current?.close()
+            }
           }}
         >
           {/* For accessibility, so that screen readers don't interpret the whole dialog as clickable. */}
           <div
             role="presentation"
             className={css`
-              padding: 2rem 3rem;
+              ${!noPadding && `padding: 2rem 3rem;`}
             `}
           >
             {children}

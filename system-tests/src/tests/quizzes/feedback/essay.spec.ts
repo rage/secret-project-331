@@ -31,6 +31,7 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
+  await page.waitForSelector("text=Page 3")
   await Promise.all([page.waitForNavigation(), page.click("text=Page 3")])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-3",

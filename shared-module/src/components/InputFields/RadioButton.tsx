@@ -22,7 +22,6 @@ const label = css`
   line-height: 1;
   display: grid;
   grid-template-columns: 1em auto;
-  justify-content: center;
   gap: 0.5em;
 
   input[type="radio"] {
@@ -69,6 +68,7 @@ const RadioField = ({ onChange, className, ...rest }: RadioFieldExtraProps) => {
       className={cx(
         css`
           margin-bottom: 1rem;
+          margin-top: 1rem;
         `,
         className,
       )}

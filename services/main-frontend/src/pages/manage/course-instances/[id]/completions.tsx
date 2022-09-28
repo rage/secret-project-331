@@ -46,9 +46,11 @@ interface Sorting {
 const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], () =>
-    getCompletions(courseInstanceId),
-  )
+  const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], async () => {
+    const completions = await getCompletions(courseInstanceId)
+    completions.course_modules.sort((a, b) => a.order_number - b.order_number)
+    return completions
+  })
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
   const [completionFormData, setCompletionFormData] =
@@ -218,7 +220,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                 .map((user) => (
                   <UserCompletionRow
                     key={user.user_id}
-                    courseModules={getCompletionsList.data.course_modules}
+                    sortedCourseModules={getCompletionsList.data.course_modules}
                     user={user}
                   />
                 ))}

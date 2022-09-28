@@ -1,3 +1,4 @@
+import { times } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,11 +10,11 @@ import {
 import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
 
 export interface UserCompletionRowProps {
-  courseModules: Array<CourseModule>
+  sortedCourseModules: Array<CourseModule>
   user: UserWithModuleCompletions
 }
 
-const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ courseModules, user }) => {
+const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseModules, user }) => {
   const { t } = useTranslation()
 
   function mapGradeToText(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
@@ -38,17 +39,25 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ courseModules, 
     }
   }
 
+  const asd = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  let maxCompletions = 1
+  for (const completion of user.completed_modules) {
+    const bucket = asd.get(completion.course_module_id) ?? []
+    bucket.push(completion)
+    asd.set(completion.course_module_id, bucket)
+    maxCompletions = Math.max(bucket.length, maxCompletions)
+  }
+
   return (
-    <FullWidthTableRow>
-      <td>{user.user_id}</td>
-      <td>
-        {user.first_name} {user.last_name}
-      </td>
-      <td>{user.email}</td>
-      {courseModules
-        .sort((a, b) => a.order_number - b.order_number)
-        .map((module) => {
-          const completion = user.completed_modules.find((x) => x.course_module_id === module.id)
+    <>
+      <FullWidthTableRow>
+        <td rowSpan={maxCompletions}>{user.user_id}</td>
+        <td rowSpan={maxCompletions}>
+          {user.first_name} {user.last_name}
+        </td>
+        <td rowSpan={maxCompletions}>{user.email}</td>
+        {sortedCourseModules.map((module) => {
+          const completion = asd.get(module.id)?.[0]
           return (
             <React.Fragment key={module.id}>
               <td>{completion ? mapGradeToText(completion) : "-"}</td>
@@ -56,7 +65,23 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ courseModules, 
             </React.Fragment>
           )
         })}
-    </FullWidthTableRow>
+      </FullWidthTableRow>
+      {/* Render extra rows if there are any. */}
+      {times(maxCompletions - 1, (i) => (
+        <FullWidthTableRow key={i}>
+          {sortedCourseModules.map((module) => {
+            // First index we want is 1 but iteration starts from 0.
+            const completion = asd.get(module.id)?.[i + 1]
+            return (
+              <React.Fragment key={module.id}>
+                <td>{completion ? mapGradeToText(completion) : "-"}</td>
+                <td>{completion ? mapRegistration(completion) : ""}</td>
+              </React.Fragment>
+            )
+          })}
+        </FullWidthTableRow>
+      ))}
+    </>
   )
 }
 

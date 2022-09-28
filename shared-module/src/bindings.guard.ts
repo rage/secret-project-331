@@ -522,6 +522,7 @@ export function isCourseModuleCompletionWithRegistrationInfo(
     (typedObj["completion_registration_attempt_date"] === null ||
       typedObj["completion_registration_attempt_date"] instanceof Date) &&
     typeof typedObj["course_module_id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
     (typedObj["grade"] === null || typeof typedObj["grade"] === "number") &&
     typeof typedObj["passed"] === "boolean" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&

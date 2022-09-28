@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { maxBy } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,7 +8,9 @@ import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../../../../components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
-import UserCompletionRow from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
+import UserCompletionRow, {
+  UserCompletionRowUser,
+} from "../../../../components/page-specific/manage/course-instances/id/UserCompletionRow"
 import FullWidthTable from "../../../../components/tables/FullWidthTable"
 import {
   getCompletions,
@@ -15,6 +18,7 @@ import {
   postCompletionsPreview,
 } from "../../../../services/backend/course-instances"
 import {
+  CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
   UserWithModuleCompletions,
@@ -48,8 +52,13 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const courseInstanceId = query.id
   const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], async () => {
     const completions = await getCompletions(courseInstanceId)
-    completions.course_modules.sort((a, b) => a.order_number - b.order_number)
-    return completions
+    const sortedCourseModules = completions.course_modules.sort(
+      (a, b) => a.order_number - b.order_number,
+    )
+    return {
+      sortedCourseModules,
+      users: completions.users_with_course_module_completions.map(prepareUser),
+    }
   })
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
@@ -69,19 +78,19 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
     },
   )
 
-  function sortUsers(first: UserWithModuleCompletions, second: UserWithModuleCompletions): number {
+  function sortUsers(first: UserCompletionRowUser, second: UserCompletionRowUser): number {
     if (sorting.type === NUMBER) {
-      return first.user_id.localeCompare(second.user_id)
+      return first.userId.localeCompare(second.userId)
     } else if (sorting.type === NAME) {
-      return `${first.last_name} ${first.first_name}`.localeCompare(
-        `${second.last_name} ${second.first_name}`,
+      return `${first.lastName} ${first.firstName}`.localeCompare(
+        `${second.lastName} ${second.firstName}`,
       )
     } else if (sorting.type === EMAIL) {
       return first.email.localeCompare(second.email)
     } else {
       return (
-        (second.completed_modules.find((x) => x.course_module_id === sorting.data)?.grade ?? 0) -
-        (first.completed_modules.find((x) => x.course_module_id === sorting.data)?.grade ?? 0)
+        (maxBy(second.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0) -
+        (maxBy(first.moduleCompletions.get(sorting.data ?? "") ?? [], "grade")?.grade ?? 0)
       )
     }
   }
@@ -107,17 +116,17 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         <>
           <div>
             <ChapterPointsDashboard
-              chapterScores={getCompletionsList.data.course_modules.map((module) => ({
+              chapterScores={getCompletionsList.data.sortedCourseModules.map((module) => ({
                 id: module.id,
                 name: module.name ?? t("label-default"),
                 value: `${
-                  getCompletionsList.data.users_with_course_module_completions.filter((user) =>
-                    user.completed_modules.some((x) => x.course_module_id === module.id),
+                  getCompletionsList.data.users.filter(
+                    (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
                   ).length
-                }/${getCompletionsList.data.users_with_course_module_completions.length}`,
+                }/${getCompletionsList.data.users.length}`,
               }))}
               title={t("total-completions-dashboard")}
-              userCount={getCompletionsList.data.users_with_course_module_completions.length}
+              userCount={getCompletionsList.data.users.length}
             />
           </div>
           <div
@@ -137,7 +146,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                 <div>
                   <AddCompletionsForm
                     onSubmit={handlePostCompletionsPreview}
-                    courseModules={getCompletionsList.data.course_modules}
+                    courseModules={getCompletionsList.data.sortedCourseModules}
                     submitText={t("button-text-check")}
                   />
                   {previewData && completionFormData && (
@@ -181,7 +190,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                     {DOWN_ARROW}
                   </a>
                 </th>
-                {getCompletionsList.data.course_modules
+                {getCompletionsList.data.sortedCourseModules
                   .sort((a, b) => a.order_number - b.order_number)
                   .map((module) => {
                     // eslint-disable-next-line i18next/no-literal-string
@@ -206,7 +215,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
                   })}
               </tr>
               <tr>
-                {getCompletionsList.data.course_modules.map((_, i) => (
+                {getCompletionsList.data.sortedCourseModules.map((_, i) => (
                   <React.Fragment key={i}>
                     <td>{t("label-grade")}</td>
                     <td>{t("label-registered")}</td>
@@ -215,15 +224,13 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
               </tr>
             </thead>
             <tbody>
-              {getCompletionsList.data.users_with_course_module_completions
-                .sort(sortUsers)
-                .map((user) => (
-                  <UserCompletionRow
-                    key={user.user_id}
-                    sortedCourseModules={getCompletionsList.data.course_modules}
-                    user={user}
-                  />
-                ))}
+              {getCompletionsList.data.users.sort(sortUsers).map((user) => (
+                <UserCompletionRow
+                  key={user.userId}
+                  sortedCourseModules={getCompletionsList.data.sortedCourseModules}
+                  user={user}
+                />
+              ))}
             </tbody>
           </FullWidthTable>
           <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
@@ -234,3 +241,22 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
 }
 
 export default withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(CompletionsPage)))
+
+function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
+  const moduleCompletions = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  for (const completion of user.completed_modules) {
+    const bucket = moduleCompletions.get(completion.course_module_id) ?? []
+    bucket.push(completion)
+    moduleCompletions.set(completion.course_module_id, bucket)
+  }
+  for (const completions of Array.from(moduleCompletions.values())) {
+    completions.sort((a, b) => (a.created_at >= b.created_at ? 1 : -1))
+  }
+  return {
+    moduleCompletions,
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    userId: user.user_id,
+  }
+}

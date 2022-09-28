@@ -189,6 +189,8 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
     pub completion_registration_attempt_date: Option<DateTime<Utc>>,
     /// ID of the course module.
     pub course_module_id: Uuid,
+    /// When the record was created
+    pub created_at: DateTime<Utc>,
     /// Grade that the student received for the completion.
     pub grade: Option<i32>,
     /// Whether or not the student is eligible for credit for the completion.
@@ -211,6 +213,7 @@ pub async fn get_all_with_registration_information_by_course_instance_id(
         r#"
 SELECT completions.completion_registration_attempt_date,
   completions.course_module_id,
+  completions.created_at,
   completions.grade,
   completions.passed,
   completions.prerequisite_modules_completed,

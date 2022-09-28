@@ -5,13 +5,21 @@ import { useTranslation } from "react-i18next"
 import {
   CourseModule,
   CourseModuleCompletionWithRegistrationInfo,
-  UserWithModuleCompletions,
 } from "../../../../../shared-module/bindings"
 import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
 
 export interface UserCompletionRowProps {
   sortedCourseModules: Array<CourseModule>
-  user: UserWithModuleCompletions
+  user: UserCompletionRowUser
+}
+
+export interface UserCompletionRowUser {
+  /** Maps module id to an array of all completions for that module. */
+  moduleCompletions: Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>
+  email: string
+  firstName: string | null
+  lastName: string | null
+  userId: string
 }
 
 const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseModules, user }) => {
@@ -39,25 +47,29 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     }
   }
 
-  const asd = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
+  // let maxCompletions = max(user.completedModules.values())
+  // const asd = new Map<string, Array<CourseModuleCompletionWithRegistrationInfo>>()
   let maxCompletions = 1
-  for (const completion of user.completed_modules) {
-    const bucket = asd.get(completion.course_module_id) ?? []
-    bucket.push(completion)
-    asd.set(completion.course_module_id, bucket)
-    maxCompletions = Math.max(bucket.length, maxCompletions)
+  for (const completions of Array.from(user.moduleCompletions.values())) {
+    maxCompletions = Math.max(maxCompletions, completions.length)
   }
+  // for (const completion of user.completed_modules) {
+  //   const bucket = asd.get(completion.course_module_id) ?? []
+  //   bucket.push(completion)
+  //   asd.set(completion.course_module_id, bucket)
+  //   maxCompletions = Math.max(bucket.length, maxCompletions)
+  // }
 
   return (
     <>
       <FullWidthTableRow>
-        <td rowSpan={maxCompletions}>{user.user_id}</td>
+        <td rowSpan={maxCompletions}>{user.userId}</td>
         <td rowSpan={maxCompletions}>
-          {user.first_name} {user.last_name}
+          {user.firstName} {user.lastName}
         </td>
         <td rowSpan={maxCompletions}>{user.email}</td>
         {sortedCourseModules.map((module) => {
-          const completion = asd.get(module.id)?.[0]
+          const completion = user.moduleCompletions.get(module.id)?.[0]
           return (
             <React.Fragment key={module.id}>
               <td>{completion ? mapGradeToText(completion) : "-"}</td>
@@ -71,7 +83,7 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
         <FullWidthTableRow key={i}>
           {sortedCourseModules.map((module) => {
             // First index we want is 1 but iteration starts from 0.
-            const completion = asd.get(module.id)?.[i + 1]
+            const completion = user.moduleCompletions.get(module.id)?.[i + 1]
             return (
               <React.Fragment key={module.id}>
                 <td>{completion ? mapGradeToText(completion) : "-"}</td>

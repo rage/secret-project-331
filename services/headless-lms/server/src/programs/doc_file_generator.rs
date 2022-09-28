@@ -735,6 +735,7 @@ pub async fn main() -> anyhow::Result<()> {
     let course_module_completion_with_registration_info =
         CourseModuleCompletionWithRegistrationInfo {
             completion_registration_attempt_date: None,
+            created_at,
             course_module_id: id,
             grade: Some(4),
             passed: true,

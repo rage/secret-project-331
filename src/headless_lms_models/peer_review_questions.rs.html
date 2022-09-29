@@ -297,10 +297,6 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Postgres</span>, <span class="ident">QueryBuilder</span>, <span class="ident">Row</span>};
@@ -363,17 +359,15 @@ INSERT INTO peer_review_questions (
     peer_review_config_id,
     order_number,
     question,
-    question_type,
-    answer_required
+    question_type
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
         &quot;</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">peer_review_config_id</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">order_number</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">question</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">question_type</span> <span class="kw">as</span> <span class="ident">PeerReviewQuestionType</span>,
-        <span class="ident">new_peer_review_question</span>.<span class="ident">answer_required</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -392,10 +386,9 @@ INSERT INTO peer_review_questions (
     peer_review_config_id,
     order_number,
     question,
-    question_type,
-    answer_required
+    question_type
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
         &quot;</span>,
         <span class="ident">id</span>,
@@ -403,7 +396,6 @@ RETURNING id;
         <span class="ident">new_peer_review_question</span>.<span class="ident">order_number</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">question</span>,
         <span class="ident">new_peer_review_question</span>.<span class="ident">question_type</span> <span class="kw">as</span> <span class="ident">PeerReviewQuestionType</span>,
-        <span class="ident">new_peer_review_question</span>.<span class="ident">answer_required</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;

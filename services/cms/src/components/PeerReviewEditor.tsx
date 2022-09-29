@@ -23,7 +23,9 @@ import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
+import ErrorNotification from "../shared-module/components/Notifications/Error"
 import Spinner from "../shared-module/components/Spinner"
+import { baseTheme } from "../shared-module/styles"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -56,7 +58,7 @@ const DeleteBtn = styled.button`
 `
 const List = styled.div`
   display: grid;
-  grid-template-columns: 0.5fr 1.2fr 0.1fr;
+  grid-template-columns: 0.5fr 1.2fr 0.1fr 0.1fr;
   min-height: 40px;
   gap: 10px;
   margin-top: 10px;
@@ -193,6 +195,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             return { ...prq, question: value }
           case "question_type":
             return { ...prq, question_type: value }
+          case "answer_required":
+            return { ...prq, answer_required: value }
           default:
             break
         }
@@ -213,10 +217,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       id: v4(),
       course_id: courseId,
       exercise_id: exerciseId ?? null,
-      accepting_strategy: "ManualReviewEverything",
-      accepting_threshold: 1,
-      peer_reviews_to_give: 2,
-      peer_reviews_to_receive: 1,
+      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+      accepting_threshold: 2.1,
+      peer_reviews_to_give: 3,
+      peer_reviews_to_receive: 2,
     }
     setAttributes({
       ...attributes,
@@ -233,10 +237,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       id: v4(),
       exercise_id: exerciseId ? exerciseId : null,
       course_id: courseId,
-      accepting_strategy: "ManualReviewEverything",
-      accepting_threshold: 1,
-      peer_reviews_to_give: 2,
-      peer_reviews_to_receive: 1,
+      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+      accepting_threshold: 2.1,
+      peer_reviews_to_give: 3,
+      peer_reviews_to_receive: 2,
     }
 
     setAttributes({
@@ -329,12 +333,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <div
                   className={css`
                     display: flex;
+                    gap: 5px 5px;
+                    justify-content: space-between;
                   `}
                 >
                   <TextField
                     className={css`
                       width: 100%;
-                      margin-right: 0.5rem;
                     `}
                     type={"number"}
                     min={0}
@@ -348,7 +353,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <TextField
                     className={css`
                       width: 100%;
-                      margin-left: 0.5rem;
                     `}
                     type={"number"}
                     min={0}
@@ -358,6 +362,17 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     onChange={(e) => handlePeerReviewValueChange(e, "peer_reviews_to_give")}
                   />
                 </div>
+                <p
+                  className={css`
+                    font-size: 1.5em !important;
+                    color: ${baseTheme.colors.crimson[700]};
+                    width: 100%;
+                  `}
+                >
+                  {parsedPeerReview.peer_reviews_to_receive >=
+                    parsedPeerReview.peer_reviews_to_give &&
+                    t("peer-reviews-to-receive-and-give-error-message")}
+                </p>
                 <SelectField
                   id={`peer-review-accepting-strategy-${id}`}
                   label={t("peer-review-accepting-strategy")}
@@ -378,41 +393,51 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(e, "accepting_threshold")
                   }}
                 />
-
                 <h2>{HEADING_TEXT}</h2>
                 {parsedPeerReviewQuestion &&
-                  parsedPeerReviewQuestion.map(({ id, question, question_type }) => (
-                    <List key={id} id={id}>
-                      <StyledQuestion>
-                        <StyledSelectField
-                          label="Peer review question type"
-                          onChange={(e) => {
-                            handlePeerReviewQuestionValueChange(id, e, "question_type")
-                          }}
-                          defaultValue={question_type}
-                          options={peerReviewQuestionTypeoptions}
-                          id={`peer-review-question-${id}`}
-                          onBlur={() => null}
-                        />
-                      </StyledQuestion>
-                      <StyledQuestionType>
-                        <TextAreaField
-                          label="Peer review question"
-                          onChange={(e) => {
-                            handlePeerReviewQuestionValueChange(id, e, "question")
-                          }}
-                          defaultValue={question}
-                          autoResize={true}
-                        />
-                      </StyledQuestionType>
-                      <DeleteBtn
-                        aria-label={t("delete")}
-                        onClick={() => deletePeerReviewQuestion(id)}
-                      >
-                        <FontAwesomeIcon icon={faXmark} />
-                      </DeleteBtn>
-                    </List>
-                  ))}
+                  parsedPeerReviewQuestion.map(
+                    ({ id, question, question_type, answer_required }) => (
+                      <List key={id} id={id}>
+                        <StyledQuestion>
+                          <StyledSelectField
+                            label={t("peer-review-question-type")}
+                            onChange={(e) => {
+                              handlePeerReviewQuestionValueChange(id, e, "question_type")
+                            }}
+                            defaultValue={question_type}
+                            options={peerReviewQuestionTypeoptions}
+                            id={`peer-review-question-${id}`}
+                            onBlur={() => null}
+                          />
+                        </StyledQuestion>
+                        <StyledQuestionType>
+                          <TextAreaField
+                            label={t("peer-review-question")}
+                            onChange={(e) => {
+                              handlePeerReviewQuestionValueChange(id, e, "question")
+                            }}
+                            defaultValue={question}
+                            autoResize={true}
+                          />
+                        </StyledQuestionType>
+                        <StyledQuestion>
+                          <CheckBox
+                            label={t("answer-required")}
+                            checked={answer_required}
+                            onChange={(e) =>
+                              handlePeerReviewQuestionValueChange(id, e, "answer_required")
+                            }
+                          />
+                        </StyledQuestion>
+                        <DeleteBtn
+                          aria-label={t("delete")}
+                          onClick={() => deletePeerReviewQuestion(id)}
+                        >
+                          <FontAwesomeIcon icon={faXmark} />
+                        </DeleteBtn>
+                      </List>
+                    ),
+                  )}
                 <Button
                   variant="primary"
                   size="medium"

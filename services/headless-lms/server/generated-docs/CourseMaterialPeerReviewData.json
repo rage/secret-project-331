@@ -4,6 +4,7 @@
     "course_material_exercise_tasks": [
       {
         "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
+        "exercise_service_slug": "example-exercise",
         "exercise_slide_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
         "exercise_iframe_url": "http://project-331.local/example-exercise/exercise",
         "pseudonumous_user_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",

@@ -4,14 +4,14 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  CurrentStateMessage,
   IframeState,
+  MessageFromIframe,
   SetLanguageMessage,
   SetStateMessage,
 } from "../exercise-service-protocol-types"
 import {
-  isCurrentStateMessage,
   isHeightChangedMessage,
+  isMessageFromIframe,
 } from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
 
@@ -20,7 +20,7 @@ import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFrom
 interface MessageChannelIFrameProps {
   url: string
   postThisStateToIFrame: IframeState | null
-  onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
+  onMessageFromIframe: (message: MessageFromIframe, responsePort: MessagePort) => void
   breakFromCenteredProps?: BreakFromCenteredProps
   title: string
   showBorders?: boolean
@@ -74,7 +74,7 @@ const MessageChannelIFrame: React.FC<
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
-      } else if (isCurrentStateMessage(data)) {
+      } else if (isMessageFromIframe(data)) {
         try {
           onMessageFromIframe(message.data, messageChannel.port1)
         } catch (e) {

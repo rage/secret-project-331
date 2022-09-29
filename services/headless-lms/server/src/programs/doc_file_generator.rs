@@ -372,6 +372,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     let course_material_exercise_task = CourseMaterialExerciseTask {
         id,
+        exercise_service_slug: "example-exercise".to_string(),
         exercise_slide_id: id,
         exercise_iframe_url: Some("http://project-331.local/example-exercise/exercise".to_string()),
         assignment: serde_json::json! {{"name":"core/paragraph","isValid":true,"clientId":"187a0aea-c088-4354-a1ea-f0cab082c065","attributes":{"content":"Answer this question.","dropCap":false},"innerBlocks":[]}},
@@ -446,7 +447,7 @@ pub async fn main() -> anyhow::Result<()> {
                 id,
                 exercise_slide_id: id,
                 assignment: serde_json::json!({"options": ["a", "b", "c"]}),
-                exercise_type: "quiz".to_string(),
+                exercise_type: "quizzes".to_string(),
                 private_spec: None,
                 order_number: 1,
             }],
@@ -639,6 +640,7 @@ pub async fn main() -> anyhow::Result<()> {
                 id,
                 exercise_tasks: vec![CourseMaterialExerciseTask {
                     id,
+                    exercise_service_slug: "example-exercise".to_string(),
                     exercise_slide_id: id,
                     exercise_iframe_url: Some(
                         "http://project-331.local/example-exercise/exercise".to_string()
@@ -1020,6 +1022,7 @@ pub async fn main() -> anyhow::Result<()> {
         ExerciseSlideSubmissionInfo {
             tasks: vec![CourseMaterialExerciseTask {
                 id,
+                exercise_service_slug: "example-exercise".to_string(),
                 exercise_slide_id: id,
                 exercise_iframe_url: Some(
                     "http://project-331.local/example-exercise/exercise".to_string()
@@ -1054,6 +1057,7 @@ pub async fn main() -> anyhow::Result<()> {
             answer_to_review: Some(CourseMaterialPeerReviewDataAnswerToReview {
                 course_material_exercise_tasks: vec![CourseMaterialExerciseTask {
                     id,
+                    exercise_service_slug: "example-exercise".to_string(),
                     exercise_slide_id: id,
                     exercise_iframe_url: Some(
                         "http://project-331.local/example-exercise/exercise".to_string(),
@@ -1289,7 +1293,7 @@ pub async fn main() -> anyhow::Result<()> {
             download_url: "direct-download-link".to_string(),
         }]
     );
-
+    write_docs!(String, String::from("a string"));
     write_docs!(
         Vec<Regrading>,
         vec![

@@ -109,7 +109,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         },
       ],
       order_number: 0,
-      exercise_type: "quiz",
+      exercise_type: "quizzes",
       private_spec: {
         options: ["a", "b", "c"],
       },
@@ -144,7 +144,7 @@ const exampleUnnormalizedDocumentExerciseSlideAttributes: ExerciseSlideAttribute
 // Doing this separately so that we get type errors when the type changes
 const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes = {
   id: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
-  exercise_type: "quiz",
+  exercise_type: "quizzes",
   private_spec: '{"options":["a","b","c"]}',
   show_editor: false,
   order_number: 0,

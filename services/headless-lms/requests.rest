@@ -74,7 +74,7 @@ Content-Type: application/json
       "exercise_tasks": [
         {
           "id": "3ad208d0-a22a-43e3-a395-6f9972ce873e",
-          "exercise_type": "quiz",
+          "exercise_type": "quizzes",
           "assignment": [{"type": "y"}],
           "spec": { "has_swag": false }
         }

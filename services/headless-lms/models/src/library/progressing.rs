@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
@@ -197,6 +198,7 @@ fn prerequisite_modules_are_completed(
         let submodule_completions: u32 = modules
             .iter()
             .filter(|x| !x.default && x.completed)
+            .unique_by(|x| x.module_id)
             .count()
             .try_into()?;
         Ok(module.completed && submodule_completions >= submodule_completions_required)
@@ -956,6 +958,39 @@ mod tests {
                 },
             ];
             assert!(!prerequisite_modules_are_completed(default_id, 1, &module_statuses).unwrap());
+        }
+
+        #[test]
+        fn doesnt_count_duplicate_completions_multiple_times() {
+            let default_id = Uuid::parse_str(DEFAULT_ID).unwrap();
+            let submodule_id_1 = Uuid::parse_str(SUBMODULE_ID_1).unwrap();
+            let module_statuses = vec![
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: true,
+                    module_id: default_id,
+                    name: "Course".to_string(),
+                    order_number: 0,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+                UserModuleCompletionStatus {
+                    completed: true,
+                    default: false,
+                    module_id: submodule_id_1,
+                    name: "Submodule".to_string(),
+                    order_number: 1,
+                    prerequisite_modules_completed: false,
+                },
+            ];
+            assert!(!prerequisite_modules_are_completed(default_id, 2, &module_statuses).unwrap());
         }
 
         #[test]

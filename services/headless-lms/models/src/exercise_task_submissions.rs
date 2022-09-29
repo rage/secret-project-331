@@ -332,6 +332,7 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
+            exercise_service_slug: task.exercise_type.clone(),
             exercise_slide_id: task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url.to_string()),
             pseudonumous_user_id: Some(Uuid::new_v5(

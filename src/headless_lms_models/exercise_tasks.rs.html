@@ -458,6 +458,8 @@
 <span id="458">458</span>
 <span id="459">459</span>
 <span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
@@ -479,6 +481,7 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialExerciseTask</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_service_slug</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
     <span class="doccomment">/**
     If none, the task is not completable at the moment because the service needs to
@@ -674,6 +677,7 @@ WHERE id = (
 
         <span class="ident">material_tasks</span>.<span class="ident">push</span>(<span class="ident">CourseMaterialExerciseTask</span> {
             <span class="ident">id</span>: <span class="ident">exercise_task</span>.<span class="ident">id</span>,
+            <span class="ident">exercise_service_slug</span>: <span class="ident">exercise_task</span>.<span class="ident">exercise_type</span>,
             <span class="ident">exercise_slide_id</span>: <span class="ident">exercise_task</span>.<span class="ident">exercise_slide_id</span>,
             <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_iframe_url</span>.<span class="ident">to_string</span>()),
             <span class="ident">pseudonumous_user_id</span>: <span class="ident">user_id</span>

@@ -129,6 +129,54 @@
 <span id="129">129</span>
 <span id="130">130</span>
 <span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/files`.
 
@@ -138,6 +186,8 @@ Handlers for HTTP requests to `/api/v0/files`.
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::AuthorizationToken</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">actix_files::NamedFile</span>;
+<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">StreamExt</span>, <span class="ident">TryStreamExt</span>};
+<span class="kw">use</span> <span class="ident">headless_lms_utils::file_store::file_utils</span>;
 <span class="kw">use</span> <span class="ident">tokio::fs::read</span>;
 <span class="doccomment">/**
 
@@ -250,6 +300,48 @@ The file.
 }
 
 <span class="doccomment">/**
+POST `/api/v0/files/:exercise_service_slug`
+Used to upload data from exercise service iframes.
+
+# Returns
+The randomly generated path to the uploaded file.
+*/</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">data</span>, <span class="ident">file_store</span>, <span class="ident">pool</span>, <span class="ident">user</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upload_from_exercise_service</span>(
+    <span class="ident">exercise_service_slug</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="ident">data</span>: <span class="ident">web::Payload</span>,
+    <span class="ident">file_store</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FileStore</span><span class="op">&gt;</span>,
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// the playground uses the special &quot;playground&quot; slug to upload temporary files</span>
+    <span class="kw">if</span> <span class="ident">exercise_service_slug</span>.<span class="ident">as_ref</span>() <span class="op">!</span><span class="op">=</span> <span class="string">&quot;playground&quot;</span> {
+        <span class="comment">// check that the given slug matches with a service</span>
+        <span class="ident">headless_lms_models::exercise_services::get_exercise_services</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">es</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">es</span>.<span class="ident">slug</span> <span class="op">==</span> <span class="ident">exercise_service_slug</span>.<span class="ident">as_ref</span>())
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow::anyhow!</span>(<span class="string">&quot;Unknown exercise service&quot;</span>))<span class="question-mark">?</span>;
+    }
+
+    <span class="kw">let</span> <span class="ident">random_filename</span> <span class="op">=</span> <span class="ident">file_utils::random_filename</span>();
+    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{exercise_service_slug}/{random_filename}&quot;</span>);
+    <span class="ident">file_store</span>
+        .<span class="ident">upload_stream</span>(
+            <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>),
+            <span class="ident">data</span>.<span class="ident">map_err</span>(<span class="ident">anyhow::Error::msg</span>).<span class="ident">boxed_local</span>(),
+            <span class="string">&quot;application/octet-stream&quot;</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">path</span>))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -258,6 +350,10 @@ We add the routes by calling the route method instead of using the route annotat
 */</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/uploads/{tail:.*}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">serve_upload</span>))
+        .<span class="ident">route</span>(
+            <span class="string">&quot;/{exercise_service_slug}&quot;</span>,
+            <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">upload_from_exercise_service</span>),
+        )
         .<span class="ident">route</span>(<span class="string">&quot;{tail:.*}&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">redirect_to_storage_service</span>));
 }
 </code></pre></div>

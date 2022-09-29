@@ -1391,6 +1391,10 @@
 <span id="1391">1391</span>
 <span id="1392">1392</span>
 <span id="1393">1393</span>
+<span id="1394">1394</span>
+<span id="1395">1395</span>
+<span id="1396">1396</span>
+<span id="1397">1397</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1765,6 +1769,7 @@
 
     <span class="kw">let</span> <span class="ident">course_material_exercise_task</span> <span class="op">=</span> <span class="ident">CourseMaterialExerciseTask</span> {
         <span class="ident">id</span>,
+        <span class="ident">exercise_service_slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
         <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()),
         <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span> {{<span class="string">&quot;name&quot;</span>:<span class="string">&quot;core/paragraph&quot;</span>,<span class="string">&quot;isValid&quot;</span>:<span class="bool-val">true</span>,<span class="string">&quot;clientId&quot;</span>:<span class="string">&quot;187a0aea-c088-4354-a1ea-f0cab082c065&quot;</span>,<span class="string">&quot;attributes&quot;</span>:{<span class="string">&quot;content&quot;</span>:<span class="string">&quot;Answer this question.&quot;</span>,<span class="string">&quot;dropCap&quot;</span>:<span class="bool-val">false</span>},<span class="string">&quot;innerBlocks&quot;</span>:[]}},
@@ -1839,7 +1844,7 @@
                 <span class="ident">id</span>,
                 <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
                 <span class="ident">assignment</span>: <span class="macro">serde_json::json!</span>({<span class="string">&quot;options&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]}),
-                <span class="ident">exercise_type</span>: <span class="string">&quot;quiz&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">exercise_type</span>: <span class="string">&quot;quizzes&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">private_spec</span>: <span class="prelude-val">None</span>,
                 <span class="ident">order_number</span>: <span class="number">1</span>,
             }],
@@ -2032,6 +2037,7 @@
                 <span class="ident">id</span>,
                 <span class="ident">exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialExerciseTask</span> {
                     <span class="ident">id</span>,
+                    <span class="ident">exercise_service_slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
                     <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(
                         <span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()
@@ -2413,6 +2419,7 @@
         <span class="ident">ExerciseSlideSubmissionInfo</span> {
             <span class="ident">tasks</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialExerciseTask</span> {
                 <span class="ident">id</span>,
+                <span class="ident">exercise_service_slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
                 <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(
                     <span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>()
@@ -2447,6 +2454,7 @@
             <span class="ident">answer_to_review</span>: <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialPeerReviewDataAnswerToReview</span> {
                 <span class="ident">course_material_exercise_tasks</span>: <span class="macro">vec!</span>[<span class="ident">CourseMaterialExerciseTask</span> {
                     <span class="ident">id</span>,
+                    <span class="ident">exercise_service_slug</span>: <span class="string">&quot;example-exercise&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">exercise_slide_id</span>: <span class="ident">id</span>,
                     <span class="ident">exercise_iframe_url</span>: <span class="prelude-val">Some</span>(
                         <span class="string">&quot;http://project-331.local/example-exercise/exercise&quot;</span>.<span class="ident">to_string</span>(),
@@ -2682,7 +2690,7 @@
             <span class="ident">download_url</span>: <span class="string">&quot;direct-download-link&quot;</span>.<span class="ident">to_string</span>(),
         }]
     );
-
+    <span class="macro">write_docs!</span>(<span class="ident">String</span>, <span class="ident">String::from</span>(<span class="string">&quot;a string&quot;</span>));
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Regrading</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[

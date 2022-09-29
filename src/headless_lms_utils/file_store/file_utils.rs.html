@@ -3,10 +3,22 @@
 <span id="3">3</span>
 <span id="4">4</span>
 <span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">ffi::OsStr</span>, <span class="ident">path::Path</span>};
+
+<span class="kw">use</span> <span class="ident">rand::distributions</span>::{<span class="ident">Alphanumeric</span>, <span class="ident">DistString</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_extension_from_filename</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
     <span class="ident">Path::new</span>(<span class="ident">filename</span>).<span class="ident">extension</span>().<span class="ident">and_then</span>(<span class="ident">OsStr::to_str</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">random_filename</span>() -&gt; <span class="ident">String</span> {
+    <span class="ident">Alphanumeric</span>.<span class="ident">sample_string</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rand::thread_rng</span>(), <span class="number">32</span>)
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="headless_lms_utils" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

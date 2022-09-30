@@ -19,6 +19,7 @@ metadata:
   labels:
     app: course-material
     deploymentType: without-init-container
+    needsTitle: "yes"
 spec:
   replicas: 1
   selector:

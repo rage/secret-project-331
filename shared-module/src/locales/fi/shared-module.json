@@ -78,6 +78,7 @@
   "reply": "Vastaa",
   "report": "Ilmianna",
   "report-as-spam": "Merkikse spammiksi",
+  "required": "Vaadittu",
   "resources": "Materiaalit",
   "select-question": "Valitse kysymyksen tyypiksi",
   "set-field-value": "Aseta {{name}}",

@@ -78,6 +78,7 @@
   "reply": "Reply",
   "report": "Report",
   "report-as-spam": "Report as spam",
+  "required": "Required",
   "resources": "Resources",
   "select-question": "Select question type",
   "set-field-value": "Set {{name}}",

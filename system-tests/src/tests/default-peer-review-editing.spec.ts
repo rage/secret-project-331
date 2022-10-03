@@ -32,7 +32,7 @@ test("default peer review editing", async ({ page, headless }) => {
   // Click text=Course default peer review config
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
-    page.locator("text=Course default peer review config").click(),
+    page.locator(`a:has-text("Course default peer review config")`).click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({

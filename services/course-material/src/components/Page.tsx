@@ -62,16 +62,18 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
 
         {isMaterialPage && <HeadingsNavigation />}
-        {/* TODO: Better type for Page.content in bindings. */}
-        <div id="content" className={inlineColorStyles}>
-          <ContentRenderer
-            data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
-            editing={editingMaterial}
-            selectedBlockId={selectedBlockId}
-            setEdits={setEdits}
-            isExam={pageContext.exam !== null}
-          />
-        </div>
+        <main id="maincontent">
+          {/* TODO: Better type for Page.content in bindings. */}
+          <div id="content" className={inlineColorStyles}>
+            <ContentRenderer
+              data={(pageContext.pageData?.content as Array<Block<unknown>>) ?? []}
+              editing={editingMaterial}
+              selectedBlockId={selectedBlockId}
+              setEdits={setEdits}
+              isExam={pageContext.exam !== null}
+            />
+          </div>
+        </main>
         {pageContext.pageData?.chapter_id && <NavigationContainer />}
         {pageContext.pageData?.course_id && (
           <ReferenceList courseId={pageContext.pageData.course_id} />

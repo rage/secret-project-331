@@ -94,9 +94,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </Menu>
         </NavBar>
 
-        <main id="maincontent">
-          <Centered variant="narrow">{children}</Centered>
-        </main>
+        <Centered variant="narrow">{children}</Centered>
       </div>
       <div
         className={css`

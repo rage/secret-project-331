@@ -119,12 +119,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const { t } = useTranslation()
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
 
-  // const [usePeerReview, setUsePeerReview] = useState(attributes.needs_peer_review)
-  // const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
-  //   /// If undefined or null, defaults to false
-  //   attributes.use_course_default_peer_review === false,
-  // )
-
   useEffect(() => {
     if (
       exerciseAttributes.use_course_default_peer_review === undefined ||

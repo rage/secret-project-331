@@ -361,16 +361,15 @@ pub async fn add_manual_completions(
     let mut tx = conn.begin().await?;
     for completion in manual_completion_request.new_completions.iter() {
         let completion_receiver = users::get_by_id(&mut tx, completion.user_id).await?;
-        let existing_completions =
-            course_module_completions::get_all_by_course_module_instance_and_user_ids(
+        let module_completed =
+            course_module_completions::user_has_completed_course_module_on_instance(
                 &mut tx,
+                completion.user_id,
                 manual_completion_request.course_module_id,
                 course_instance.id,
-                completion.user_id,
             )
             .await?;
-        if existing_completions.is_empty() || !manual_completion_request.skip_duplicate_completions
-        {
+        if module_completed || !manual_completion_request.skip_duplicate_completions {
             course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
                 &mut tx,
                 NewCourseInstanceEnrollment {
@@ -470,15 +469,15 @@ pub async fn get_manual_completion_result_preview(
         if enrollment.is_none() {
             non_enrolled_users.push(user.clone());
         }
-        let course_module_completions =
-            course_module_completions::get_all_by_course_module_instance_and_user_ids(
+        let module_completed =
+            course_module_completions::user_has_completed_course_module_on_instance(
                 conn,
+                completion.user_id,
                 manual_completion_request.course_module_id,
                 course_instance.id,
-                completion.user_id,
             )
             .await?;
-        if !course_module_completions.is_empty() {
+        if module_completed {
             already_completed_users.push(user);
         } else {
             first_time_completing_users.push(user);

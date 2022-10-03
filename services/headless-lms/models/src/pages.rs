@@ -3017,7 +3017,7 @@ mod test {
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
         };
         let mut remapped_exercises = HashMap::new();
-        remapped_exercises.insert(pr_id, exercise);
+        remapped_exercises.insert(exercise_id, exercise);
         let pr_res =
             upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], &remapped_exercises, false)
                 .await
@@ -3057,7 +3057,7 @@ mod test {
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
         };
         let mut remapped_exercises = HashMap::new();
-        remapped_exercises.insert(pr_id, exercise);
+        remapped_exercises.insert(exercise_id, exercise);
         let pr_res =
             upsert_peer_review_configs(tx.as_mut(), &[], &[pr1], &remapped_exercises, true)
                 .await
@@ -3075,13 +3075,12 @@ mod test {
 
     #[tokio::test]
     async fn page_upsert_peer_reviews_work_empty() {
-        let pr_id = Uuid::parse_str("9b69dc5e-0eca-4fcd-8fd2-031a3a65da82").unwrap();
         insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
         let exercise = crate::exercises::get_by_id(tx.as_mut(), exercise_id)
             .await
             .unwrap();
         let mut remapped_exercises = HashMap::new();
-        remapped_exercises.insert(pr_id, exercise);
+        remapped_exercises.insert(exercise_id, exercise);
         let pr_res = upsert_peer_review_configs(tx.as_mut(), &[], &[], &remapped_exercises, true)
             .await
             .unwrap();

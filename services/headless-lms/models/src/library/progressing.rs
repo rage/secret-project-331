@@ -361,16 +361,16 @@ pub async fn add_manual_completions(
     let mut tx = conn.begin().await?;
     for completion in manual_completion_request.new_completions.iter() {
         let completion_receiver = users::get_by_id(&mut tx, completion.user_id).await?;
-        let existing_completion =
+        let existing_completions =
             course_module_completions::get_all_by_course_module_instance_and_user_ids(
                 &mut tx,
                 manual_completion_request.course_module_id,
                 course_instance.id,
                 completion.user_id,
             )
-            .await
-            .optional()?;
-        if existing_completion.is_none() || !manual_completion_request.skip_duplicate_completions {
+            .await?;
+        if existing_completions.is_empty() || !manual_completion_request.skip_duplicate_completions
+        {
             course_module_completions::insert(
                 &mut tx,
                 &NewCourseModuleCompletion {

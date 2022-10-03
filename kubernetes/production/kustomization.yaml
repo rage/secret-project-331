@@ -37,6 +37,10 @@ patches:
     target:
       version: v1
       labelSelector: "needs-db=job"
+  - path: ./patch-add-site-name-env.yml
+    target:
+      version: v1
+      labelSelector: "needsTitle=yes"
 
 # Patch image names
 images:

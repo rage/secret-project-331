@@ -19,6 +19,7 @@ metadata:
   labels:
     app: main-frontend
     deploymentType: without-init-container
+    needsTitle: "yes"
 spec:
   replicas: 1
   selector:
@@ -39,7 +40,7 @@ spec:
               name: main-frontend
           env:
             - name: NEXT_PUBLIC_BASE_PATH
-              value: ""
+              value: null
           resources:
             requests:
               memory: 100Mi

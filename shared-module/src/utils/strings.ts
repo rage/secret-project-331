@@ -1,3 +1,5 @@
+import { FieldError } from "react-hook-form"
+
 /* eslint-disable i18next/no-literal-string */
 const NON_PRINTING_CHAR_REGEX =
   // eslint-disable-next-line no-control-regex, no-misleading-character-class
@@ -78,4 +80,14 @@ export function nullIfEmptyString(string: string | undefined | null): string | n
     return null
   }
   return string === "" ? null : string
+}
+
+export function errorToDescription(error: string | FieldError | undefined): string | null {
+  if (error === undefined) {
+    return null
+  }
+  if (typeof error === "string") {
+    return error
+  }
+  return error.message ?? error.type
 }

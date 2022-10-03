@@ -1164,7 +1164,26 @@ export type RoleDomain =
   | { tag: "CourseInstance"; id: string }
   | { tag: "Exam"; id: string }
 
-export type UserRole = "Reviewer" | "Assistant" | "Teacher" | "Admin" | "CourseOrExamCreator"
+export type UserRole =
+  | "Reviewer"
+  | "Assistant"
+  | "Teacher"
+  | "Admin"
+  | "CourseOrExamCreator"
+  | "MaterialViewer"
+
+export interface RoleInfo {
+  email: string
+  role: UserRole
+  domain: RoleDomain
+}
+
+export interface PendingRole {
+  id: string
+  user_email: string
+  role: UserRole
+  expires_at: Date
+}
 
 export interface UserCourseSettings {
   user_id: string
@@ -1297,12 +1316,6 @@ export interface RoleQuery {
   course_id?: string
   course_instance_id?: string
   exam_id?: string
-}
-
-export interface RoleInfo {
-  email: string
-  role: UserRole
-  domain: RoleDomain
 }
 
 export interface ExamCourseInfo {

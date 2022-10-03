@@ -3,7 +3,6 @@ import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode, useContext } from "react"
-import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
 import Centered from "../../shared-module/components/Centering/Centered"
@@ -17,7 +16,6 @@ import {
   NavItems,
   // NavLink,
 } from "../../shared-module/components/Navigation/NavBar"
-import SkipLink from "../../shared-module/components/SkipLink"
 import SearchDialog from "../SearchDialog"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
@@ -50,8 +48,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   organizationSlug,
 }) => {
   const router = useRouter()
-  const { t } = useTranslation()
-
   const pageContext = useContext(PageContext)
 
   const courseId = pageContext?.pageData?.course_id
@@ -69,7 +65,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <ScrollIndicator />
         <NavBar variant={navVariant ?? "simple"}>
           <NavContainer>
@@ -94,7 +89,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           </Menu>
         </NavBar>
 
-        <main id="maincontent">
+        <main>
           <Centered variant="narrow">{children}</Centered>
         </main>
       </div>

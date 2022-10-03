@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useCallback, useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
@@ -22,6 +22,7 @@ const CourseInstanceSelectModal: React.FC<
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
+  const dialogTitleId = useId()
 
   const [submitError, setSubmitError] = useState<unknown>()
   const [open, setOpen] = useState(false)
@@ -81,14 +82,14 @@ const CourseInstanceSelectModal: React.FC<
   }
 
   return (
-    <Dialog open={open} aria-labelledby="dialog-label" closeable={false}>
+    <Dialog open={open} aria-labelledby={dialogTitleId} closeable={false}>
       <div
         className={css`
           margin: 1rem;
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h1 id="dialog-label">{t("title-select-course-instance-to-continue")}</h1>
+        <h1 id={dialogTitleId}>{t("title-select-course-instance-to-continue")}</h1>
         <div
           className={css`
             margin-top: 1rem;

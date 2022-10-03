@@ -16,7 +16,7 @@ interface NewCourseFormProps {
   initialSelectedInstanceId?: string
 }
 
-const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
+const SelectCourseInstanceForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   courseInstances,
   onSubmitForm,
   initialSelectedInstanceId,
@@ -34,14 +34,18 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
 
   return (
     <div>
-      <FieldContainer>
+      <FieldContainer
+        role="radiogroup"
+        aria-label={t("label-course-instance")}
+        // eslint-disable-next-line i18next/no-literal-string
+        aria-required="true"
+      >
         {courseInstances.map((x) => (
           <RadioButton
             key={x.id}
             label={x.name || t("default-course-instance-name")}
-            value={x.id}
-            onChange={(value) => setInstance(value)}
-            checked={instance === x.id}
+            onChange={(_event) => setInstance(x.id)}
+            defaultChecked={instance === x.id}
             // eslint-disable-next-line i18next/no-literal-string
             name="select-course-instance"
           />
@@ -68,4 +72,4 @@ function figureOutInitialValue(
   }
 }
 
-export default NewCourseForm
+export default SelectCourseInstanceForm

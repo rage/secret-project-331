@@ -4,7 +4,7 @@ import styled from "@emotion/styled"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -23,7 +23,6 @@ import CheckBox from "../shared-module/components/InputFields/CheckBox"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextAreaField from "../shared-module/components/InputFields/TextAreaField"
 import TextField from "../shared-module/components/InputFields/TextField"
-import ErrorNotification from "../shared-module/components/Notifications/Error"
 import Spinner from "../shared-module/components/Spinner"
 import { baseTheme } from "../shared-module/styles"
 
@@ -113,26 +112,48 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   id,
   exerciseId,
   courseId,
-  attributes,
-  setAttributes,
+  attributes: exerciseAttributes,
+  setAttributes: setExerciseAttributes,
   courseGlobalEditor,
 }) => {
   const { t } = useTranslation()
+  const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
 
-  const [usePeerReview, setUsePeerReview] = useState(attributes.needs_peer_review)
-  const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
-    attributes.use_course_default_peer_review,
-  )
+  // const [usePeerReview, setUsePeerReview] = useState(attributes.needs_peer_review)
+  // const [useDefaultPeerReview, setUseDefaultPeerReview] = useState(
+  //   /// If undefined or null, defaults to false
+  //   attributes.use_course_default_peer_review === false,
+  // )
+
+  useEffect(() => {
+    if (
+      exerciseAttributes.use_course_default_peer_review === undefined ||
+      exerciseAttributes.use_course_default_peer_review === null
+    ) {
+      setExerciseAttributes({ use_course_default_peer_review: true })
+    }
+  })
 
   const defaultCmsPeerReviewConfig = useQuery(
     [`course-default-peer-review-config-${courseId}`],
     () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
   )
 
-  const parsedPeerReview: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
+  let parsedPeerReviewConfig: CmsPeerReviewConfig | null = JSON.parse(
+    exerciseAttributes.peer_review_config ?? "{}",
+  )
 
-  const parsedPeerReviewQuestion: CmsPeerReviewQuestion[] = JSON.parse(
-    attributes.peer_review_questions_config ?? "[]",
+  if (parsedPeerReviewConfig === null) {
+    const defaultConfig = defaultPeerReviewConfig(exerciseId, courseId)
+    parsedPeerReviewConfig = defaultConfig
+    setExerciseAttributes({
+      ...exerciseAttributes,
+      peer_review_config: JSON.stringify(defaultConfig),
+    })
+  }
+
+  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = JSON.parse(
+    exerciseAttributes.peer_review_questions_config ?? "[]",
   )
 
   const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
@@ -162,33 +183,33 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     let peerReviewConfig
     switch (field) {
       case "accepting_strategy":
-        peerReviewConfig = { ...parsedPeerReview, accepting_strategy: value }
+        peerReviewConfig = { ...parsedPeerReviewConfig, accepting_strategy: value }
         break
       case "accepting_threshold":
-        peerReviewConfig = { ...parsedPeerReview, accepting_threshold: Number(value) }
+        peerReviewConfig = { ...parsedPeerReviewConfig, accepting_threshold: Number(value) }
         break
       case "peer_reviews_to_give":
-        peerReviewConfig = { ...parsedPeerReview, peer_reviews_to_give: Number(value) }
+        peerReviewConfig = { ...parsedPeerReviewConfig, peer_reviews_to_give: Number(value) }
         break
       case "peer_reviews_to_receive":
-        peerReviewConfig = { ...parsedPeerReview, peer_reviews_to_receive: Number(value) }
+        peerReviewConfig = { ...parsedPeerReviewConfig, peer_reviews_to_receive: Number(value) }
         break
       default:
         break
     }
-    setAttributes({
-      ...attributes,
+    setExerciseAttributes({
+      ...exerciseAttributes,
       peer_review_config: JSON.stringify(peerReviewConfig),
-      peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestion),
+      peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestionConfig),
     })
   }
 
   const handlePeerReviewQuestionValueChange = (
     id: string,
-    value: any,
+    value: unknown,
     field: keyof CmsPeerReviewQuestion,
   ) => {
-    const peerReviewQuestions = parsedPeerReviewQuestion.map((prq) => {
+    const peerReviewQuestions = parsedPeerReviewQuestionConfig.map((prq) => {
       if (prq.id === id) {
         switch (field) {
           case "question":
@@ -204,15 +225,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         return prq
       }
     })
-    setAttributes({
-      ...attributes,
-      peer_review_config: JSON.stringify(parsedPeerReview),
+    setExerciseAttributes({
+      ...exerciseAttributes,
+      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
       peer_review_questions_config: JSON.stringify(peerReviewQuestions),
     })
   }
 
   const toggleUsePeerReviewConfig = (checked: boolean) => {
-    setUsePeerReview(checked)
     const prc: CmsPeerReviewConfig = {
       id: v4(),
       course_id: courseId,
@@ -222,29 +242,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       peer_reviews_to_give: 3,
       peer_reviews_to_receive: 2,
     }
-    setAttributes({
-      ...attributes,
+    setExerciseAttributes({
+      ...exerciseAttributes,
       peer_review_config: checked ? JSON.stringify(prc) : "{}",
       peer_review_questions_config: "[]",
-      use_course_default_peer_review: false,
+      use_course_default_peer_review: true,
       needs_peer_review: checked,
     })
   }
 
   const toggleUseDefaultPeerReviewConfig = (checked: boolean) => {
-    setUseDefaultPeerReview(checked)
-    const prc: CmsPeerReviewConfig = {
-      id: v4(),
-      exercise_id: exerciseId ? exerciseId : null,
-      course_id: courseId,
-      accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
-      accepting_threshold: 2.1,
-      peer_reviews_to_give: 3,
-      peer_reviews_to_receive: 2,
-    }
+    const prc = defaultPeerReviewConfig(exerciseId, courseId)
 
-    setAttributes({
-      ...attributes,
+    setExerciseAttributes({
+      ...exerciseAttributes,
       use_course_default_peer_review: checked,
       peer_review_config: checked ? "null" : JSON.stringify(prc),
       peer_review_questions_config: checked ? "null" : "[]",
@@ -252,37 +263,37 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   }
 
   const addPeerReviewQuestion = (peerReviewId: string) => {
-    if (attributes.peer_review_questions_config === undefined) {
-      setAttributes({ ...attributes, peer_review_questions_config: "[]" })
+    if (exerciseAttributes.peer_review_questions_config === undefined) {
+      setExerciseAttributes({ ...exerciseAttributes, peer_review_questions_config: "[]" })
     }
-    setAttributes({
-      ...attributes,
+    setExerciseAttributes({
+      ...exerciseAttributes,
       peer_review_questions_config: JSON.stringify([
-        ...parsedPeerReviewQuestion,
+        ...parsedPeerReviewQuestionConfig,
         {
           id: v4(),
           question: "Insert question here",
           question_type: "Essay",
           peer_review_config_id: peerReviewId,
           answer_required: true,
-          order_number: parsedPeerReviewQuestion.length,
+          order_number: parsedPeerReviewQuestionConfig.length,
         },
       ]),
-      peer_review_config: JSON.stringify(parsedPeerReview),
+      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
     })
   }
 
   const deletePeerReviewQuestion = (peerReviewQuestionId: string) => {
-    setAttributes({
-      ...attributes,
+    setExerciseAttributes({
+      ...exerciseAttributes,
       peer_review_questions_config: JSON.stringify(
-        parsedPeerReviewQuestion
+        parsedPeerReviewQuestionConfig
           .filter((x) => x.id !== peerReviewQuestionId)
           .map((prq, idx) => {
             return { ...prq, order_number: idx } as PeerReviewQuestion
           }),
       ),
-      peer_review_config: JSON.stringify(parsedPeerReview),
+      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
     })
   }
 
@@ -305,19 +316,19 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
           <CheckBox
             label={t("add-peer-review")}
             onChange={(checked, _name) => toggleUsePeerReviewConfig(checked)}
-            checked={usePeerReview}
+            checked={peerReviewEnabled}
           />
         )}
-        {usePeerReview && (
+        {peerReviewEnabled && (
           <div>
             {!courseGlobalEditor && (
               <CheckBox
-                label={t("use-course-default-peer-review")}
+                label={t("use-course-default-peer-review-config")}
                 onChange={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
-                checked={useDefaultPeerReview}
+                checked={exerciseAttributes.use_course_default_peer_review}
               />
             )}
-            {useDefaultPeerReview && (
+            {exerciseAttributes.use_course_default_peer_review && (
               <div>
                 <a
                   href={`/cms/courses/${defaultCmsPeerReviewConfig.data.peer_review_config.course_id}/default-peer-review`}
@@ -328,7 +339,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 </a>
               </div>
             )}
-            {!useDefaultPeerReview && (
+            {!exerciseAttributes.use_course_default_peer_review && (
               <Wrapper>
                 <div
                   className={css`
@@ -345,7 +356,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     min={0}
                     label={t("peer-reviews-to-receive")}
                     required
-                    value={parsedPeerReview.peer_reviews_to_receive}
+                    value={parsedPeerReviewConfig.peer_reviews_to_receive}
                     onChange={(e) => {
                       handlePeerReviewValueChange(e, "peer_reviews_to_receive")
                     }}
@@ -357,7 +368,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     type={"number"}
                     min={0}
                     required
-                    value={parsedPeerReview.peer_reviews_to_give}
+                    value={parsedPeerReviewConfig.peer_reviews_to_give}
                     label={t("peer-reviews-to-give")}
                     onChange={(e) => handlePeerReviewValueChange(e, "peer_reviews_to_give")}
                   />
@@ -369,8 +380,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     width: 100%;
                   `}
                 >
-                  {parsedPeerReview.peer_reviews_to_receive >=
-                    parsedPeerReview.peer_reviews_to_give &&
+                  {parsedPeerReviewConfig.peer_reviews_to_receive >=
+                    parsedPeerReviewConfig.peer_reviews_to_give &&
                     t("peer-reviews-to-receive-and-give-error-message")}
                 </p>
                 <SelectField
@@ -380,7 +391,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     handlePeerReviewValueChange(e, "accepting_strategy")
                   }}
                   options={peerReviewAcceptingStrategyOptions}
-                  defaultValue={parsedPeerReview.accepting_strategy}
+                  defaultValue={parsedPeerReviewConfig.accepting_strategy}
                 />
                 <TextField
                   label={t("peer-review-accepting-threshold")}
@@ -388,14 +399,14 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   step="0.01"
                   min={0}
                   required
-                  value={parsedPeerReview.accepting_threshold}
+                  value={parsedPeerReviewConfig.accepting_threshold}
                   onChange={(e) => {
                     handlePeerReviewValueChange(e, "accepting_threshold")
                   }}
                 />
                 <h2>{HEADING_TEXT}</h2>
-                {parsedPeerReviewQuestion &&
-                  parsedPeerReviewQuestion.map(
+                {parsedPeerReviewQuestionConfig &&
+                  parsedPeerReviewQuestionConfig.map(
                     ({ id, question, question_type, answer_required }) => (
                       <List key={id} id={id}>
                         <StyledQuestion>
@@ -441,7 +452,13 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 <Button
                   variant="primary"
                   size="medium"
-                  onClick={() => addPeerReviewQuestion(parsedPeerReview.id)}
+                  onClick={() => {
+                    if (parsedPeerReviewConfig) {
+                      addPeerReviewQuestion(parsedPeerReviewConfig.id)
+                    } else {
+                      console.error("Parsed peer review config is null")
+                    }
+                  }}
                 >
                   {t("add-peer-review-question")}
                 </Button>
@@ -452,6 +469,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       </div>
     </>
   )
+}
+
+function defaultPeerReviewConfig(
+  exerciseId: string | null | undefined,
+  courseId: string,
+): CmsPeerReviewConfig {
+  return {
+    id: v4(),
+    exercise_id: exerciseId ? exerciseId : null,
+    course_id: courseId,
+    accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+    accepting_threshold: 2.1,
+    peer_reviews_to_give: 3,
+    peer_reviews_to_receive: 2,
+  }
 }
 
 export default PeerReviewEditor

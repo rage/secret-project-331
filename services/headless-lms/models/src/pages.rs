@@ -952,6 +952,7 @@ RETURNING id,
         &mut tx,
         &existing_peer_review_config_ids,
         &peer_reviews,
+        &remapped_exercises,
         retain_ids,
     )
     .await?;
@@ -1364,6 +1365,7 @@ pub async fn upsert_peer_review_configs(
     conn: &mut PgConnection,
     existing_peer_reviews: &[Uuid],
     peer_reviews: &[CmsPeerReviewConfig],
+    remapped_exercises: &HashMap<Uuid, Exercise>,
     retain_ids: bool,
 ) -> ModelResult<HashMap<Uuid, CmsPeerReviewConfig>> {
     if peer_reviews.is_empty() {
@@ -1384,6 +1386,9 @@ pub async fn upsert_peer_review_configs(
       ) ",
         );
 
+        // No way to return from push_values, we can use this to detect an error after the push_values
+        let mut illegal_exercise_id = None;
+
         sql.push_values(peer_reviews.iter().take(1000), |mut x, pr| {
             let peer_review_exists = existing_peer_reviews.iter().any(|id| *id == pr.id);
             let safe_for_db_peer_review_config_id = if retain_ids || peer_review_exists {
@@ -1392,15 +1397,33 @@ pub async fn upsert_peer_review_configs(
                 Uuid::new_v4()
             };
             new_peer_review_config_id_to_old_id.insert(safe_for_db_peer_review_config_id, pr.id);
+
+            let safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
+                let res = remapped_exercises.get(&id).map(|e| e.id);
+                if res.is_none() {
+                    error!("Illegal exercise id {:?}", id);
+                    illegal_exercise_id = Some(id);
+                }
+                res
+            });
+
             x.push_bind(safe_for_db_peer_review_config_id)
                 .push_bind(pr.course_id)
-                .push_bind(pr.exercise_id)
+                .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.accepting_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push("NULL");
         });
+
+        if let Some(illegal_exercise_id) = illegal_exercise_id {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Illegal exercise id {:?}", illegal_exercise_id),
+                None,
+            ));
+        }
 
         sql.push(
             " ON CONFLICT (id) DO

@@ -163,6 +163,7 @@ test("material reference tests", async ({ page, headless }) => {
 
   // Click text=Save >> nth=3
   await page.locator("text=Save").nth(3).click()
+  await page.waitForSelector(`text="Operation successful!"`)
 
   await page.goto(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",

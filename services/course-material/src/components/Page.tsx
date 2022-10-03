@@ -62,7 +62,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
 
         {isMaterialPage && <HeadingsNavigation />}
-        <main id="maincontent">
+        <div id="maincontent">
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer
@@ -73,7 +73,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               isExam={pageContext.exam !== null}
             />
           </div>
-        </main>
+        </div>
         {pageContext.pageData?.chapter_id && <NavigationContainer />}
         {pageContext.pageData?.course_id && (
           <ReferenceList courseId={pageContext.pageData.course_id} />

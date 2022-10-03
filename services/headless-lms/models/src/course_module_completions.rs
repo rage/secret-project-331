@@ -378,6 +378,24 @@ WHERE id = $2 AND deleted_at IS NULL
     Ok(res.rows_affected() > 0)
 }
 
+/// Checks whether the user has any completions for the given course module on the specified
+/// course instance.
+pub async fn user_has_completed_course_module_on_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<bool> {
+    let res = get_all_by_course_module_instance_and_user_ids(
+        conn,
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
+    Ok(!res.is_empty())
+}
+
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]

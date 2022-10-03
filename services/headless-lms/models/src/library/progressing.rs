@@ -2,7 +2,7 @@ use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
-    course_instance_enrollments,
+    course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_instances::{self, CourseInstance},
     course_module_completions::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
@@ -371,6 +371,15 @@ pub async fn add_manual_completions(
             .await?;
         if existing_completions.is_empty() || !manual_completion_request.skip_duplicate_completions
         {
+            course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
+                &mut tx,
+                NewCourseInstanceEnrollment {
+                    user_id: completion_receiver.id,
+                    course_id: course.id,
+                    course_instance_id: course_instance.id,
+                },
+            )
+            .await?;
             course_module_completions::insert(
                 &mut tx,
                 &NewCourseModuleCompletion {

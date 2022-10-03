@@ -5,8 +5,8 @@ import React, { useLayoutEffect, useRef, useState } from "react"
 
 import { dateToString } from "../utils/time"
 
-import HideTextInSystemTests from "./HideTextInSystemTests"
 import SpeechBalloon from "./SpeechBalloon"
+import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 
 interface TimeComponentProps {
   label?: string
@@ -15,7 +15,9 @@ interface TimeComponentProps {
   boldLabel?: boolean
 }
 
-const TimeComponent: React.FC<TimeComponentProps> = ({ label, date, right, boldLabel }) => {
+const TimeComponent: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<TimeComponentProps>>
+> = ({ label, date, right, boldLabel }) => {
   const [visible, setVisible] = useState(false)
 
   const speechBubbleRef = useRef<HTMLDivElement>(null)

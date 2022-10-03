@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { PublicTimelineItem, TimelineChoice } from "../../../types/types"
 import TimelineSelect from "../../shared-module/components/TimelineSelect"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 
@@ -272,4 +273,4 @@ function validate(timelineChoices: TimelineChoice[], timelineItems: PublicTimeli
   return allAnswered && noDuplicateAnswers && numberOfAnswersMatch
 }
 
-export default Timeline
+export default withErrorBoundary(Timeline)

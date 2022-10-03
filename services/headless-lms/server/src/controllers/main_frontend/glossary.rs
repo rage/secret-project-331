@@ -1,23 +1,32 @@
 use models::glossary::{self, TermUpdate};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[instrument(skip(pool))]
 async fn update(
     id: web::Path<Uuid>,
     update: web::Json<TermUpdate>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     glossary::update(&mut conn, *id, &update.term, &update.definition).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[instrument(skip(pool))]
-async fn delete(id: web::Path<Uuid>, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+async fn delete(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     glossary::delete(&mut conn, *id).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

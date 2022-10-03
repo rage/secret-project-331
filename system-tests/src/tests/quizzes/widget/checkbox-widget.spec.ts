@@ -27,6 +27,10 @@ test("widget, checkbox", async ({ page, headless }) => {
     frame,
   })
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   // Check input[type="checkbox"]
   await frame.check('input[type="checkbox"]')
 

@@ -4,8 +4,8 @@ use models::exams::{self, Exam, NewExam};
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    controllers::prelude::*,
-    domain::csv_export::{self, CSVExportAdapter},
+    domain::csv_export::{self, make_authorized_streamable, CSVExportAdapter},
+    prelude::*,
 };
 
 /**
@@ -19,10 +19,11 @@ pub async fn get_exam(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Exam>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let exam = exams::get(&mut conn, *exam_id).await?;
-    Ok(web::Json(exam))
+
+    token.authorized_ok(web::Json(exam))
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,10 +44,11 @@ pub async fn set_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::set_course(&mut conn, *exam_id, exam.course_id).await?;
-    Ok(web::Json(()))
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -61,10 +63,11 @@ pub async fn unset_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
     exams::unset_course(&mut conn, *exam_id, exam.course_id).await?;
-    Ok(web::Json(()))
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -78,16 +81,22 @@ pub async fn export_points(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
     // spawn handle that writes the csv row by row into the sender
     let mut handle_conn = pool.acquire().await?;
     let _handle = tokio::spawn(async move {
-        let res =
-            csv_export::export_exam_points(&mut handle_conn, exam_id, CSVExportAdapter { sender })
-                .await;
+        let res = csv_export::export_exam_points(
+            &mut handle_conn,
+            exam_id,
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
+        )
+        .await;
         if let Err(err) = res {
             tracing::error!("Failed to export exam points: {}", err);
         }
@@ -96,16 +105,21 @@ pub async fn export_points(
     let exam = exams::get(&mut conn, exam_id).await?;
 
     // return response that streams data from the receiver
-    Ok(HttpResponse::Ok()
-        .append_header((
-            "Content-Disposition",
-            format!(
-                "attachment; filename=\"Exam: {} - Point export {}.csv\"",
-                exam.name,
-                Utc::today().format("%Y-%m-%d")
-            ),
-        ))
-        .streaming(UnboundedReceiverStream::new(receiver)))
+
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"Exam: {} - Point export {}.csv\"",
+                    exam.name,
+                    Utc::today().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
 }
 
 /**
@@ -119,7 +133,7 @@ pub async fn export_submissions(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let exam_id = exam_id.into_inner();
-    authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(exam_id)).await?;
 
     let (sender, receiver) = tokio::sync::mpsc::unbounded_channel::<ControllerResult<Bytes>>();
 
@@ -129,7 +143,10 @@ pub async fn export_submissions(
         let res = csv_export::export_exam_submissions(
             &mut handle_conn,
             exam_id,
-            CSVExportAdapter { sender },
+            CSVExportAdapter {
+                sender,
+                authorization_token: token,
+            },
         )
         .await;
         if let Err(err) = res {
@@ -140,16 +157,21 @@ pub async fn export_submissions(
     let exam = exams::get(&mut conn, exam_id).await?;
 
     // return response that streams data from the receiver
-    Ok(HttpResponse::Ok()
-        .append_header((
-            "Content-Disposition",
-            format!(
-                "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
-                exam.name,
-                Utc::today().format("%Y-%m-%d")
-            ),
-        ))
-        .streaming(UnboundedReceiverStream::new(receiver)))
+
+    return token.authorized_ok(
+        HttpResponse::Ok()
+            .append_header((
+                "Content-Disposition",
+                format!(
+                    "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+                    exam.name,
+                    Utc::today().format("%Y-%m-%d")
+                ),
+            ))
+            .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+                receiver,
+            ))),
+    );
 }
 
 /**
@@ -165,7 +187,7 @@ async fn duplicate_exam(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::CreateCoursesOrExams,
         Some(user.id),
@@ -185,7 +207,7 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    Ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**

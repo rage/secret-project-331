@@ -13,14 +13,21 @@ export const quizTheme = {
   errorItemBackgroundColor: baseTheme.colors.crimson[500],
   successItemBackgroundColor: baseTheme.colors.green[600],
   successItemForegroundColor: baseTheme.colors.clear[200],
+  feedbackBackground: baseTheme.colors.clear[100],
   gradingWrongItemBackground: baseTheme.colors.red[600],
   gradingWrongItemColor: baseTheme.colors.clear[200],
   quizBodyColor: baseTheme.colors.grey[700],
   quizBodyFontSize: "24px",
   quizItemBackground: baseTheme.colors.clear[200],
-  quizTitleFontSize: "16px",
+  quizTitleFontSize: "18px",
   selectedItemBackground: baseTheme.colors.grey[700],
   selectedItemColor: baseTheme.colors.clear[100],
+  // Quiz multiplechoices editor
+  quizAnswer: baseTheme.colors.clear[100],
+  quizWrongAnswer: baseTheme.colors.crimson[600],
+  quizWrongAnswerHover: baseTheme.colors.crimson[500],
+  quizCorrectAnswer: baseTheme.colors.green[600],
+  quizCorrectAnswerHover: baseTheme.colors.green[500],
 }
 
 export const SelectedQuizItem = css`

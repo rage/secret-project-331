@@ -3,14 +3,15 @@ use crate::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
+    peer_review_configs::PeerReviewConfig,
     prelude::*,
     user_course_settings,
-    user_exercise_states::{self, CourseInstanceOrExamId},
+    user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
@@ -28,6 +29,20 @@ pub struct Exercise {
     pub copied_from: Option<Uuid>,
     pub max_tries_per_slide: Option<i32>,
     pub limit_number_of_tries: bool,
+    pub needs_peer_review: bool,
+    pub use_course_default_peer_review_config: bool,
+}
+
+impl Exercise {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Generic,
+                "Exercise is not related to a course.".to_string(),
+                None,
+            )
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,6 +55,7 @@ pub struct CourseMaterialExercise {
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
+    pub peer_review_config: Option<PeerReviewConfig>,
 }
 
 impl CourseMaterialExercise {
@@ -71,7 +87,7 @@ As close as possible to LTI's activity progress for compatibility: <https://www.
 */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-#[sqlx(type_name = "activity_progress", rename_all = "snake_case")]
+#[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
     Initialized,
@@ -128,6 +144,7 @@ pub struct ExerciseStatus {
     pub score_given: Option<f32>,
     pub activity_progress: ActivityProgress,
     pub grading_progress: GradingProgress,
+    pub reviewing_stage: ReviewingStage,
 }
 
 pub async fn insert(
@@ -247,9 +264,9 @@ pub async fn get_exercises_by_page_id(
         Exercise,
         r#"
 SELECT *
-FROM exercises
+  FROM exercises
 WHERE page_id = $1
-  AND deleted_at IS NULL
+  AND deleted_at IS NULL;
 "#,
         page_id,
     )
@@ -303,7 +320,10 @@ pub async fn get_course_material_exercise(
     let exercise = get_by_id(conn, exercise_id).await?;
     let (current_exercise_slide, instance_or_exam_id) =
         get_or_select_exercise_slide(&mut *conn, user_id, &exercise).await?;
-    info!("current exercise slide: {:#?}", current_exercise_slide);
+    info!(
+        "Current exercise slide id: {:#?}",
+        current_exercise_slide.id
+    );
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_instance_or_exam_id)) => {
@@ -318,20 +338,14 @@ pub async fn get_course_material_exercise(
         _ => None,
     };
 
-    let can_post_submission = if let Some(user_id) = user_id {
-        if let Some(exam_id) = exercise.exam_id {
-            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
-        } else {
-            true
-        }
-    } else {
-        false
-    };
+    let can_post_submission =
+        determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
         grading_progress: user_exercise_state.grading_progress,
+        reviewing_stage: user_exercise_state.reviewing_stage,
     });
 
     let exercise_slide_submission_counts = if let Some(user_id) = user_id {
@@ -350,16 +364,51 @@ pub async fn get_course_material_exercise(
         HashMap::new()
     };
 
+    let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
+        (true, Some(course_id)) => {
+            crate::peer_review_configs::get_by_exercise_or_course_id(conn, exercise.id, course_id)
+                .await
+                .optional()?
+        }
+        _ => None,
+    };
+
     Ok(CourseMaterialExercise {
         exercise,
         can_post_submission,
         current_exercise_slide,
         exercise_status,
         exercise_slide_submission_counts,
+        peer_review_config,
     })
 }
 
-async fn get_or_select_exercise_slide(
+async fn determine_can_post_submission(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &Exercise,
+    user_exercise_state: &Option<UserExerciseState>,
+) -> Result<bool, ModelError> {
+    if let Some(user_exercise_state) = user_exercise_state {
+        // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
+        if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
+            return Ok(false);
+        }
+    }
+
+    let can_post_submission = if let Some(user_id) = user_id {
+        if let Some(exam_id) = exercise.exam_id {
+            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
+        } else {
+            true
+        }
+    } else {
+        false
+    };
+    Ok(can_post_submission)
+}
+
+pub async fn get_or_select_exercise_slide(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
     exercise: &Exercise,
@@ -370,7 +419,7 @@ async fn get_or_select_exercise_slide(
             let random_slide =
                 exercise_slides::get_random_exercise_slide_for_exercise(conn, exercise.id).await?;
             let random_slide_tasks =
-                exercise_tasks::get_course_material_exercise_tasks(conn, &random_slide.id, None)
+                exercise_tasks::get_course_material_exercise_tasks(conn, random_slide.id, None)
                     .await?;
             Ok((
                 CourseMaterialExerciseSlide {
@@ -437,8 +486,8 @@ async fn get_or_select_exercise_slide(
                                 .await?;
                             let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                                 conn,
-                                &random_slide.id,
-                                Some(&user_id),
+                                random_slide.id,
+                                Some(user_id),
                             )
                             .await?;
 
@@ -461,8 +510,8 @@ async fn get_or_select_exercise_slide(
                         .await?;
                         let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
                             conn,
-                            &random_slide.id,
-                            Some(&user_id),
+                            random_slide.id,
+                            Some(user_id),
                         )
                         .await?;
 
@@ -478,8 +527,10 @@ async fn get_or_select_exercise_slide(
                 None => {
                     // User is not enrolled on any course version. This is not a valid scenario because
                     // tasks are based on a specific instance.
-                    Err(ModelError::PreconditionFailed(
+                    Err(ModelError::new(
+                        ModelErrorType::PreconditionFailed,
                         "User must be enrolled to the course".to_string(),
+                        None,
                     ))
                 }
             }
@@ -499,8 +550,10 @@ async fn get_or_select_exercise_slide(
             info!("selecting exam task {:#?}", tasks);
             Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
         }
-        (Some(_), ..) => Err(ModelError::Generic(
+        (Some(_), ..) => Err(ModelError::new(
+            ModelErrorType::Generic,
             "The selected exercise is not attached to any course or exam".to_string(),
+            None,
         )),
     }
 }
@@ -546,6 +599,7 @@ mod test {
             org: organization_id,
             course: course_id,
             instance: course_instance,
+            :course_module,
             chapter: chapter_id,
             page: page_id,
             exercise: exercise_id,
@@ -557,7 +611,7 @@ mod test {
             &ExerciseServiceNewOrUpdate {
                 name: "text-exercise".to_string(),
                 slug: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),
-                public_url: "".to_string(),
+                public_url: "https://example.com".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
             },
@@ -568,10 +622,10 @@ mod test {
             tx.as_mut(),
             &PathInfo {
                 exercise_service_id: exercise_service.id,
-                exercise_type_specific_user_interface_iframe: "".to_string(),
-                grade_endpoint_path: "".to_string(),
-                public_spec_endpoint_path: "".to_string(),
-                model_solution_path: "test-only-empty-path".to_string(),
+                user_interface_iframe_path: "/iframe".to_string(),
+                grade_endpoint_path: "/grade".to_string(),
+                public_spec_endpoint_path: "/public-spec".to_string(),
+                model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
             },
         )
         .await

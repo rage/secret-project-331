@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -24,11 +25,11 @@ test("test", async ({ page, headless }) => {
     page.click("text=Point view for teachers"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
+  // Click text=default
+  await page.click("text=default")
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click text=Start course
   await page.click("text=Start course")
@@ -48,6 +49,9 @@ test("test", async ({ page, headless }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
   await frame.click("text=b")
 
   // Click text=Submit
@@ -68,7 +72,7 @@ test("test", async ({ page, headless }) => {
   // Click text=View points
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/course-instances/1544bf21-240a-56c4-a391-9b0621051fa6/points' }*/),
-    page.click("text=View points"),
+    page.locator("text=View points").nth(1).click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({

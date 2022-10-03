@@ -1,14 +1,22 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import ReactDOM from "react-dom"
+import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ModelSolutionQuiz, PublicQuiz, Quiz, QuizAnswer } from "../../types/types"
-import { Renderer } from "../components/Renderer"
+import Renderer from "../components/Renderer"
 import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
 import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { isSetStateMessage } from "../shared-module/iframe-protocol-types.guard"
+import { UserInformation } from "../shared-module/exercise-service-protocol-types"
+import {
+  isSetLanguageMessage,
+  isSetStateMessage,
+} from "../shared-module/exercise-service-protocol-types.guard"
+import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import { migrateQuiz } from "../util/migrate"
 
 import { ItemAnswerFeedback } from "./api/grade"
 
@@ -19,18 +27,24 @@ export interface SubmissionData {
 }
 
 export type State =
-  | { viewType: "exercise"; publicSpec: PublicQuiz }
+  | {
+      viewType: "answer-exercise"
+      publicSpec: PublicQuiz
+      userInformation: UserInformation
+      previousSubmission: QuizAnswer | null
+    }
   | {
       viewType: "view-submission"
       publicSpec: PublicQuiz
       modelSolutions: ModelSolutionQuiz | null
       userAnswer: QuizAnswer
       gradingFeedbackJson: ItemAnswerFeedback[] | null
+      userInformation: UserInformation
     }
-  | { viewType: "exercise-editor"; privateSpec: Quiz }
+  | { viewType: "exercise-editor"; privateSpec: Quiz; userInformation: UserInformation }
 
-const IFrame: React.FC = () => {
-  const [port, setPort] = useState<MessagePort | null>(null)
+const IFrame: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const { i18n } = useTranslation()
   const [state, setState] = useState<State | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -39,85 +53,53 @@ const IFrame: React.FC = () => {
     maxWidth = Number(rawMaxWidth)
   }
 
-  useEffect(() => {
-    const handler = (message: WindowEventMap["message"]) => {
-      if (message.source !== parent) {
-        return
-      }
-
-      const port = message.ports[0]
-      if (port) {
-        // eslint-disable-next-line i18next/no-literal-string
-        console.info("Frame received a port:", port)
-        setPort(port)
-        port.onmessage = (message: WindowEventMap["message"]) => {
-          if (message.data.message) {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.groupCollapsed(`Frame received a ${message.data.message} message from port`)
-          } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.groupCollapsed(`Frame received a message from port`)
-          }
-
-          console.info(JSON.stringify(message.data, undefined, 2))
-          const data = message.data
-          console.log(data)
-          if (isSetStateMessage(data)) {
-            ReactDOM.flushSync(() => {
-              if (data.view_type === "exercise") {
-                setState({
-                  viewType: data.view_type,
-                  publicSpec: data.data.public_spec as PublicQuiz,
-                })
-              } else if (data.view_type === "exercise-editor") {
-                if (data.data.private_spec === null) {
-                  setState({
-                    viewType: data.view_type,
-                    privateSpec: emptyQuiz,
-                  })
-                } else {
-                  setState({
-                    viewType: data.view_type,
-                    privateSpec: JSON.parse(data.data.private_spec as string),
-                  })
-                }
-              } else if (data.view_type === "view-submission") {
-                setState({
-                  viewType: data.view_type,
-                  publicSpec: data.data.public_spec as PublicQuiz,
-                  modelSolutions: data.data.model_solution_spec as ModelSolutionQuiz | null,
-                  userAnswer: data.data.user_answer as QuizAnswer,
-                  gradingFeedbackJson: data.data.grading?.feedback_json as
-                    | ItemAnswerFeedback[]
-                    | null,
-                })
-              } else {
-                // eslint-disable-next-line i18next/no-literal-string
-                console.error("Unknown view type received from parent")
-              }
+  const port = useExerciseServiceParentConnection((messageData) => {
+    if (isSetStateMessage(messageData)) {
+      ReactDOM.flushSync(() => {
+        if (messageData.view_type === "answer-exercise") {
+          setState({
+            viewType: messageData.view_type,
+            publicSpec: messageData.data.public_spec as PublicQuiz,
+            userInformation: messageData.user_information,
+            previousSubmission: messageData.data.previous_submission as QuizAnswer | null,
+          })
+        } else if (messageData.view_type === "exercise-editor") {
+          if (messageData.data.private_spec === null) {
+            setState({
+              viewType: messageData.view_type,
+              privateSpec: emptyQuiz,
+              userInformation: messageData.user_information,
             })
           } else {
-            // eslint-disable-next-line i18next/no-literal-string
-            console.error("Frame received an unknown message from message port")
+            setState({
+              viewType: messageData.view_type,
+              privateSpec: migrateQuiz(messageData.data.private_spec),
+              userInformation: messageData.user_information,
+            })
           }
-          console.groupEnd()
+        } else if (messageData.view_type === "view-submission") {
+          setState({
+            viewType: messageData.view_type,
+            publicSpec: messageData.data.public_spec as PublicQuiz,
+            modelSolutions: messageData.data.model_solution_spec as ModelSolutionQuiz | null,
+            userAnswer: messageData.data.user_answer as QuizAnswer,
+            userInformation: messageData.user_information,
+            gradingFeedbackJson: messageData.data.grading?.feedback_json as
+              | ItemAnswerFeedback[]
+              | null,
+          })
+        } else {
+          // eslint-disable-next-line i18next/no-literal-string
+          console.error("Unknown view type received from parent")
         }
-      }
-    }
-    // eslint-disable-next-line i18next/no-literal-string
-    console.info("frame adding event listener")
-    addEventListener("message", handler)
-    // target origin is *, beacause this is a sandboxed iframe without the
-    // allow-same-origin permission
-    parent.postMessage("ready", "*")
-
-    // cleanup function
-    return () => {
+      })
+    } else if (isSetLanguageMessage(messageData)) {
+      i18n.changeLanguage(messageData.data)
+    } else {
       // eslint-disable-next-line i18next/no-literal-string
-      console.info("removing event listener")
-      removeEventListener("message", handler)
+      console.error("Frame received an unknown message from message port")
     }
-  }, [])
+  })
 
   return (
     <HeightTrackingContainer port={port}>
@@ -160,4 +142,4 @@ const emptyQuiz: Quiz = {
   open: new Date(),
 }
 
-export default IFrame
+export default withErrorBoundary(IFrame)

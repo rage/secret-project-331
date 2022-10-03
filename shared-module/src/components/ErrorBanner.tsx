@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { AxiosError } from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -115,7 +116,9 @@ export interface BannerExtraProps {
 
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
-const ErrorBanner: React.FC<BannerProps> = (props) => {
+const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
+  props,
+) => {
   const { t } = useTranslation()
   const { error: unknownError } = props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -168,6 +171,34 @@ const ErrorBanner: React.FC<BannerProps> = (props) => {
           </Content>
         </BannerWrapper>
       )
+    } else if (error.isAxiosError) {
+      const axiosError = error as AxiosError
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const responseMessage = (axiosError.response?.data as any)?.message
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>
+                {t("error-title")}: {axiosError.message}
+              </h2>
+              {responseMessage && <p>{responseMessage}</p>}
+            </Text>
+            <DetailTag>
+              {Boolean(axiosError.response?.data) && (
+                <details>
+                  <summary>{t("show-error-source")}</summary>
+                  <ul>
+                    <li>
+                      <pre>{JSON.stringify(axiosError.response?.data, undefined, 2)}</pre>
+                    </li>
+                  </ul>
+                </details>
+              )}
+            </DetailTag>
+          </Content>
+        </BannerWrapper>
+      )
     } else if (
       error.status !== undefined &&
       error.statusText !== undefined &&
@@ -195,6 +226,31 @@ const ErrorBanner: React.FC<BannerProps> = (props) => {
                   </ul>
                 </details>
               )}
+            </DetailTag>
+          </Content>
+        </BannerWrapper>
+      )
+    } else if (error instanceof Error) {
+      // caught error from somewhere (JSON.stringifying an error returns {})
+      return (
+        <BannerWrapper>
+          <Content>
+            <Text>
+              <h2>{t("error-title")}</h2>
+            </Text>
+            <DetailTag>
+              <details>
+                <summary>{t("show-error-source")}</summary>
+                <ul>
+                  <li>
+                    <pre>
+                      {error.toString()}
+                      <br />
+                      {error.stack}
+                    </pre>
+                  </li>
+                </ul>
+              </details>
             </DetailTag>
           </Content>
         </BannerWrapper>

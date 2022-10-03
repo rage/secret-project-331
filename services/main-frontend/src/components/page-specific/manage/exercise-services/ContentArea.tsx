@@ -13,7 +13,7 @@ interface ContentAreaProps {
   error?: string
 }
 
-const ContentArea: React.FC<ContentAreaProps> = ({
+const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
   title,
   text,
   error,

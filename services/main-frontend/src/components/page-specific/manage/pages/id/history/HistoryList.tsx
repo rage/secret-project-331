@@ -1,12 +1,12 @@
-import { Pagination } from "@mui/material"
-import { useRouter } from "next/router"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { useQuery } from "react-query"
 
 import { fetchHistoryCountForPage, restorePage } from "../../../../../../services/backend/pages"
 import { PageHistory } from "../../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/components/Pagination"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import HistoryPage from "./HistoryPage"
 
@@ -17,29 +17,19 @@ interface Props {
   onCompare: (ph: PageHistory) => void
 }
 
-const HistoryList: React.FC<Props> = ({
+const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   pageId,
   initialSelectedRevisionId,
   onRestore,
   onCompare,
 }) => {
-  const router = useRouter()
-  const query = router.query.page
-  let initialPage
-  if (typeof query === "string") {
-    initialPage = parseInt(query)
-    initialPage = initialPage && initialPage > 0 ? initialPage : 1
-  } else {
-    initialPage = 1
-  }
+  const paginationInfo = usePaginationInfo()
 
-  const perPage = 1
-  const [currentPage, setCurrentPage] = useState(initialPage)
   const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(
     initialSelectedRevisionId,
   )
 
-  const getPageHistoryCount = useQuery(`page-history-count-${pageId}`, () =>
+  const getPageHistoryCount = useQuery([`page-history-count-${pageId}`], () =>
     fetchHistoryCountForPage(pageId),
   )
 
@@ -57,8 +47,7 @@ const HistoryList: React.FC<Props> = ({
   }
 
   function changePage(newPage: number) {
-    router.replace({ query: { ...router.query, page: newPage } }, undefined, { shallow: true })
-    setCurrentPage(newPage)
+    paginationInfo.setPage(newPage)
   }
 
   return (
@@ -66,23 +55,21 @@ const HistoryList: React.FC<Props> = ({
       {getPageHistoryCount.isError && (
         <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
       )}
-      {(getPageHistoryCount.isLoading || getPageHistoryCount.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
       {getPageHistoryCount.isSuccess && (
         <>
           <HistoryPage
             pageId={pageId}
-            page={currentPage}
-            limit={perPage}
+            page={paginationInfo.page}
+            limit={1}
             selectedRevisionId={selectedRevisionId}
             onCompare={compare}
             onRestore={restore}
           />
           <Pagination
-            count={getPageHistoryCount.data / perPage}
-            page={currentPage}
-            onChange={(_, val) => changePage(val)}
+            totalPages={getPageHistoryCount.data / 1}
+            paginationInfo={{ ...paginationInfo, limit: 1 }}
+            disableItemsPerPage
           />
         </>
       )}

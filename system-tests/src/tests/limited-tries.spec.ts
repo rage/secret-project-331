@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -56,7 +56,9 @@ test("Limited tries work", async ({ page }) => {
     page.locator("text=Limited tries").click(),
   ])
 
-  await selectCourseVariantIfPrompted(page)
+  await page.locator("text=Objective #1").waitFor({ state: "attached" })
+
+  await selectCourseInstanceIfPrompted(page)
 
   await page.locator("text=Start course").click()
   // Click text=The Basics

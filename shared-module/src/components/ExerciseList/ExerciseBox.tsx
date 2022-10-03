@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme } from "../../styles"
+import { baseTheme, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   h2 {
     text-align: center;
     color: #3b4754;
-    font-family: "Josefin Sans", sans-serif;
+    font-family: ${secondaryFont};
     text-transform: uppercase;
     font-size: 1.6rem;
     margin-bottom: 2rem;
@@ -95,7 +95,8 @@ export interface ExerciseBoxExtraProps {
   exerciseTitle: string
   url: string
   scoreMaximum: number
-  userPoints: number
+  /// The caller will set this to null if the user is not logged in
+  userPoints: number | null
   bg?: string
 }
 export interface StyledProps {
@@ -104,7 +105,7 @@ export interface StyledProps {
 
 export type ExerciseBox = React.HTMLAttributes<HTMLDivElement> & ExerciseBoxExtraProps
 
-const ExerciseBox: React.FC<ExerciseBox> = ({
+const ExerciseBox: React.FC<React.PropsWithChildren<React.PropsWithChildren<ExerciseBox>>> = ({
   exerciseIndex,
   exerciseTitle,
   url,
@@ -135,11 +136,13 @@ const ExerciseBox: React.FC<ExerciseBox> = ({
                 </div>
               </ImageBox>
               <span>{exerciseTitle}</span>
-              <CircularProgressBar
-                scoreMaximum={scoreMaximum}
-                userPoints={userPoints}
-                className="progress"
-              />
+              {userPoints !== null && (
+                <CircularProgressBar
+                  scoreMaximum={scoreMaximum}
+                  userPoints={userPoints}
+                  className="progress"
+                />
+              )}
             </ExercisePart>
           </a>
         </Link>

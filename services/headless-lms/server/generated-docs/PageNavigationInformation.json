@@ -1,0 +1,29 @@
+{
+  "chapter_front_page": {
+    "url_path": "/chapter-1",
+    "title": "Chapter 1",
+    "page_id": "634d1116-4a00-4f97-988d-e2fd523ac43a",
+    "chapter_number": 1,
+    "chapter_id": "22552232-c1b6-4067-9aae-e09221b63e8f",
+    "chapter_opens_at": null,
+    "chapter_front_page_id": "f8726e97-5ebe-4698-9163-7d6e2568ec7e"
+  },
+  "next_page": {
+    "url_path": "/chapter-1/page-3",
+    "title": "Page 3",
+    "page_id": "634d1116-4a00-4f97-988d-e2fd523ac43a",
+    "chapter_number": 1,
+    "chapter_id": "22552232-c1b6-4067-9aae-e09221b63e8f",
+    "chapter_opens_at": null,
+    "chapter_front_page_id": "f8726e97-5ebe-4698-9163-7d6e2568ec7e"
+  },
+  "previous_page": {
+    "url_path": "/chapter-1/page-1",
+    "title": "Page 1",
+    "page_id": "25d1932b-ad97-4461-8280-412fe8b75ca2",
+    "chapter_number": 1,
+    "chapter_id": "22552232-c1b6-4067-9aae-e09221b63e8f",
+    "chapter_opens_at": null,
+    "chapter_front_page_id": "f8726e97-5ebe-4698-9163-7d6e2568ec7e"
+  }
+}

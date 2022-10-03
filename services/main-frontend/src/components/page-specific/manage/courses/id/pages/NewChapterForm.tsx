@@ -22,12 +22,13 @@ interface NewChapterFormProps {
 
 interface Fields {
   name: string
+  color: string | null
   opens_at: Date | null
   deadline: Date | null
   chapter_number: number
 }
 
-const NewChapterForm: React.FC<NewChapterFormProps> = ({
+const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = ({
   courseId,
   onSubmitForm,
   chapterNumber,
@@ -46,6 +47,7 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
     mode: "onChange",
     defaultValues: {
       name: "",
+      color: "#065853",
       chapter_number: chapterNumber,
       opens_at: null,
       deadline: null,
@@ -55,6 +57,8 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
 
   const submitMutation = useToastMutation(
     (data: NewChapter) => {
+      // Temp solution to retain module information without having a way to edit modules in frontend yet.
+      data.course_module_id = initialData?.course_module_id ?? null
       if (newRecord) {
         return postNewChapter(data)
       }
@@ -62,7 +66,10 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("No id for chapter")
       }
-      return updateChapter(initialData?.id, data)
+      return updateChapter(initialData?.id, {
+        ...data,
+        course_module_id: initialData.course_module_id,
+      })
     },
     { notify: true, method: "POST" },
     { onSuccess: () => onSubmitForm() },
@@ -70,17 +77,19 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
 
   const deadlineRegister = register("deadline", { valueAsDate: true, required: false })
   const opensAtRegister = register("opens_at", { valueAsDate: true, required: false })
-
+  const chapterColorRegister = register("color", { required: false })
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
         submitMutation.mutate({
           course_id: courseId,
           name: data.name,
+          color: data.color,
           chapter_number: chapterNumber,
           front_page_id: null,
           opens_at: data.opens_at,
           deadline: data.deadline,
+          course_module_id: null,
         })
       })}
       className={css`
@@ -104,6 +113,23 @@ const NewChapterForm: React.FC<NewChapterFormProps> = ({
           disabled: !newRecord,
         })}
       />
+      <CheckboxFieldWrapper
+        initialChecked={!!getValues("color")}
+        fieldName={t("input-field-chapter-color")}
+        onUncheck={() => setValue("color", null)}
+      >
+        <TextField
+          className={css`
+            height: 45px;
+            padding: 0px 0px 0px 0px !important;
+          `}
+          error={errors["color"]?.message}
+          placeholder={t("input-field-chapter-color")}
+          label={t("input-field-chapter-color")}
+          register={chapterColorRegister}
+          type="color"
+        />
+      </CheckboxFieldWrapper>
       <CheckboxFieldWrapper
         initialChecked={!!getValues("opens_at")}
         fieldName={t("label-opens-at")}

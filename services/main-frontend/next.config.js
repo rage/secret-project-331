@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const generateNormalResponseHeaders =
   require("./src/shared-module/utils/responseHeaders").generateNormalResponseHeaders
+const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
@@ -11,9 +12,7 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
   async headers() {
     return [
       {
@@ -21,6 +20,31 @@ const config = {
         headers: normalResponseHeaders,
       },
     ]
+  },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      loader: "@svgr/webpack",
+      options: {
+        svgoConfig: svgoConfig,
+      },
+    })
+
+    return config
+  },
+  compiler: {
+    emotion: {
+      autoLabel: "always",
+      labelFormat: "[dirname]--[filename]--[local]",
+    },
+  },
+  experimental: {
+    modularizeImports: {
+      lodash: {
+        transform: "lodash/{{member}}",
+      },
+    },
   },
 }
 

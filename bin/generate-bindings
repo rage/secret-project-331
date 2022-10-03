@@ -29,13 +29,21 @@ run_command npx ts-auto-guard --export-all --paths ./shared-module/src/bindings.
 run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' shared-module/src/bindings.guard.ts
 run_command npx eslint --fix shared-module/src/bindings.ts shared-module/src/bindings.guard.ts
 
-if [ -f "./shared-module/src/iframe-protocol-types.guard.ts" ]; then
-  run_command rm ./shared-module/src/iframe-protocol-types.guard.ts
+if [ -f "./shared-module/src/exercise-service-protocol-types.guard.ts" ]; then
+  run_command rm ./shared-module/src/exercise-service-protocol-types.guard.ts
 fi
 
-run_command npx ts-auto-guard --export-all --paths ./shared-module/src/iframe-protocol-types.ts --project shared-module/tsconfig.json
-run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' shared-module/src/iframe-protocol-types.guard.ts
-run_command npx eslint --fix shared-module/src/iframe-protocol-types.guard.ts
+run_command npx ts-auto-guard --export-all --paths ./shared-module/src/exercise-service-protocol-types.ts --project shared-module/tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' shared-module/src/exercise-service-protocol-types.guard.ts
+run_command npx eslint --fix shared-module/src/exercise-service-protocol-types.guard.ts
+
+if [ -f "./services/tmc/src/tmc/generated.guard.ts" ]; then
+  run_command rm ./services/tmc/src/tmc/generated.guard.ts
+fi
+
+run_command npx ts-auto-guard --export-all --paths ./services/tmc/src/tmc/generated.d.ts --project ./services/tmc/tsconfig.json
+run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' ./services/tmc/src/tmc/generated.guard.ts
+run_command npx eslint --fix ./services/tmc/src/tmc/generated.guard.ts
 
 # Post-update for shared module
 

@@ -60,6 +60,7 @@ and corresponding Rust enum
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -101,6 +102,7 @@ SELECT * FROM organizations WHERE deleted_at IS NULL;
 ```
 
 Add it to file `explain.sql` with the added EXPLAIN block:
+
 ```sql
 EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
 SELECT * FROM organizations WHERE deleted_at IS NULL;
@@ -134,6 +136,45 @@ struct MyNewStruct {
 ```
 
 Not all of the traits can be derived for every struct. In those cases, it's fine to simply leave those out.
+
+## SQLx QueryBuilder
+
+QueryBuilder docs at https://docs.rs/sqlx/latest/sqlx/query_builder/struct.QueryBuilder.html
+
+SQLx querybuilder can be used to create more complex and dynamic SQL queries.
+
+```rs
+import sqlx::query_builder::QueryBuilder;
+
+// QueryBuilder is initiated with new() function, which takes 'init' sql statement.
+let sql = QueryBuilder::new("INSERT INTO exercises (id, name, course_id)");
+
+// Iterable of CmsExercises
+let pages: Vec<CmsExercise> = ...;
+
+// .push_values() takes iterable of objects of which values we want to include to sql query
+sql.push_values(pages.take(1000), |mut x, exercise| {
+    // (in https://docs.rs/sqlx/latest/sqlx/query_builder/struct.QueryBuilder.html#method.push_bind) Push a bind argument placeholder (? or $N for Postgres) and bind a value to it.
+    x.push_bind(exercise.id)
+     .push_bind(exercise.name)
+     .push_bind(exercise.course_id);
+});
+
+// Used to push sql fragment to a querybuilder
+sql.push(" ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id;");
+
+
+// .build() constructs executable sql statement that can be executed.
+let res: Vec<PgRow> = sql.build().fetch_all(conn).await?;
+```
+
+Resulting sql query is
+
+```sql
+INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id), (e2.id, e2.name, e2.course_id),... ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id
+```
+
+Most usable QueryBuilder is for bulk inserting or updating.
 
 ## Generating type bindings for frontend
 
@@ -263,7 +304,7 @@ https://user-images.githubusercontent.com/1922896/119937781-0ed77b80-bf94-11eb-8
 
 ### Writing unit tests that use the database
 
-Use the `headless_lms_actix::test_helper::Conn` helper struct. It can be initialized using `Conn::init`, after which the only method available for it is `Conn::begin`, which starts a transaction and returns a wrapper struct that can be used in place of `&mut PgConnection` by calling `AsMut::as_mut`. For example:
+Use the `headless_lms_server::test_helper::Conn` helper struct. It can be initialized using `Conn::init`, after which the only method available for it is `Conn::begin`, which starts a transaction and returns a wrapper struct that can be used in place of `&mut PgConnection` by calling `AsMut::as_mut`. For example:
 
 ```rust
 let mut conn = Conn::init().await;
@@ -304,4 +345,32 @@ To log a variable with its display formatting:
 
 ```rust
 error!(%response_body, "Grading request returned an unsuccesful status code");
+```
+
+To use a different variable name in the log message:
+
+```rust
+error!(body = ?response_body, "Grading request returned an unsuccesful status code");
+```
+
+## Async
+
+### Want to call an async function but one of the variables you want to pass to it is an Option
+
+In this example, we want to call the function `get_page` which takes an `Uuid` as the second argument. However, we want to pass `chapter.chapter_front_page_id` which is an `Option<Uuid>`. To get around the issue, we will call map on the `Option<Uuid>` to modify the value only when the option is not None. Then, since the get_page is an async function, and we cannot await inside the map we will return a Future from the closure and convert the result of the map to an `OptionFuture`, which allows us to await the result.
+
+```rust
+let page_option_future: OptionFuture<_> = chapter
+    .chapter_front_page_id
+    .map(|chapter_front_page_id| get_page(conn, chapter_front_page_id))
+    .into();
+let page = page_option_future.await.transpose()?; // The result is Option<Page>
+```
+
+Alternatively:
+
+```rust
+let page = OptionFuture::from(
+    chapter.chapter_front_page_id.map(|chapter_front_page_id| get_page(conn, chapter_front_page_id))
+).await.transpose()?; // The result is Option<Page>
 ```

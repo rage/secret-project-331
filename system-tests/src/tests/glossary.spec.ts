@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -22,11 +23,7 @@ test("test", async ({ page, headless }) => {
     page.click("text=Glossary course"),
   ])
 
-  // Click text=Default
-  await page.click("text=Default")
-
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Go to http://project-331.local/org/uh-cs/courses/glossary-course/glossary
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
@@ -84,16 +81,15 @@ test("test", async ({ page, headless }) => {
 
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
-
-  await page.evaluate(() => {
-    window.scrollTo(0, 538)
-  })
+  await page.locator(`div:text-is("Success")`).waitFor()
+  await page.locator("text=efgh").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
     snapshotName: "added-new-term",
-    waitForThisToBeVisibleAndStable: "text=Success",
+    waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
+    scrollToYCoordinate: 538,
   })
 
   // Click text=Edit
@@ -120,10 +116,11 @@ test("test", async ({ page, headless }) => {
     page,
     headless,
     snapshotName: "edited-term",
-    waitForThisToBeVisibleAndStable: "text=Success",
+    waitForThisToBeVisibleAndStable: `div:text-is("Success")`,
   })
 
   await page.goto("http://project-331.local/org/uh-cs/courses/glossary-course/glossary")
+  await page.locator("text=Give feedback").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     page,

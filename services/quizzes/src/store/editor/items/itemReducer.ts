@@ -5,6 +5,7 @@ import { createReducer } from "typesafe-actions"
 import { action, NormalizedQuizItem, Quiz } from "../../../../types/types"
 import { normalizedQuiz } from "../../../schemas"
 import {
+  createdDuplicateItem,
   createdNewItem,
   createdNewOption,
   createdNewQuiz,
@@ -25,8 +26,8 @@ import {
   editedItemMaxWords,
   editedItemMinWords,
   editedItemSuccessMessage,
+  editedMultipleChoiceMultipleOptionsGradingPolicy,
   editedQuizItemBody,
-  editedQuizItemFeedbackDisplayPolicy,
   editedQuizItemOptionCells,
   editedQuizItemTitle,
   editedScaleMaxValue,
@@ -37,6 +38,7 @@ import {
   toggledAllAnswersCorrect,
   toggledMultiOptions,
   toggledSharedOptionFeedbackMessage,
+  toggledShuffleOptions,
 } from "./itemAction"
 
 export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem }, action>({})
@@ -121,9 +123,16 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
     })
   })
 
-  .handleAction(editedQuizItemFeedbackDisplayPolicy, (state, action) => {
+  .handleAction(toggledShuffleOptions, (state, action) => {
     return produce(state, (draftState) => {
-      draftState[action.payload.itemId].feedbackDisplayPolicy = action.payload.newPolicy
+      draftState[action.payload.itemId].shuffleOptions = action.payload.shuffleOptions
+    })
+  })
+
+  .handleAction(editedMultipleChoiceMultipleOptionsGradingPolicy, (state, action) => {
+    return produce(state, (draftState) => {
+      draftState[action.payload.itemId].multipleChoiceMultipleOptionsGradingPolicy =
+        action.payload.multipleChoiceMultipleOptionsGradingPolicy
     })
   })
 
@@ -153,8 +162,44 @@ export const itemReducer = createReducer<{ [itemId: string]: NormalizedQuizItem 
         optionCells: null,
         allAnswersCorrect: false,
         direction: "column",
-        feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem",
         timelineItems: [],
+        shuffleOptions: false,
+        multipleChoiceMultipleOptionsGradingPolicy: "default",
+      }
+      draftState[action.payload.itemId] = newItem
+    })
+  })
+
+  .handleAction(createdDuplicateItem, (state, action) => {
+    return produce(state, (draftState) => {
+      const oldItem = action.payload.storeItem
+      const newItem: NormalizedQuizItem = {
+        id: action.payload.itemId,
+        quizId: action.payload.quizId,
+        type: oldItem.type,
+        title: oldItem.title,
+        body: oldItem.body,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        successMessage: oldItem.successMessage,
+        failureMessage: oldItem.failureMessage,
+        formatRegex: oldItem.formatRegex,
+        validityRegex: oldItem.validityRegex,
+        maxValue: oldItem.maxValue,
+        minValue: oldItem.minValue,
+        maxWords: oldItem.maxWords,
+        minWords: oldItem.minWords,
+        multi: oldItem.multi,
+        order: Object.keys(state).length,
+        usesSharedOptionFeedbackMessage: oldItem.usesSharedOptionFeedbackMessage,
+        sharedOptionFeedbackMessage: oldItem.sharedOptionFeedbackMessage,
+        options: oldItem.options,
+        optionCells: oldItem.optionCells,
+        allAnswersCorrect: oldItem.allAnswersCorrect,
+        direction: oldItem.direction,
+        timelineItems: oldItem.timelineItems,
+        shuffleOptions: oldItem.shuffleOptions ?? false,
+        multipleChoiceMultipleOptionsGradingPolicy: "default",
       }
       draftState[action.payload.itemId] = newItem
     })

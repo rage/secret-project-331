@@ -7,8 +7,15 @@ import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
+import LanguageSelection from "../shared-module/components/LanguageSelection"
 import LoginControls from "../shared-module/components/LoginControls"
-import { Menu, NavBar } from "../shared-module/components/Navigation/NavBar"
+import {
+  Menu,
+  NavBar,
+  NavContainer,
+  NavItem,
+  NavItems,
+} from "../shared-module/components/Navigation/NavBar"
 import SkipLink from "../shared-module/components/SkipLink"
 import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
@@ -16,6 +23,7 @@ import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/consta
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
+const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
@@ -24,7 +32,6 @@ type LayoutProps = {
   faqUrl?: string
   title?: string
   licenseUrl?: string
-  returnToPath?: string
 }
 
 const DynamicToaster = dynamic(
@@ -32,19 +39,14 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<LayoutProps> = ({
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
   // faqUrl,
   licenseUrl,
-  returnToPath,
 }) => {
   const router = useRouter()
-  // eslint-disable-next-line i18next/no-literal-string
-  const returnPath = `/login?return_to=${encodeURIComponent(
-    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-  )}`
 
   const { t } = useTranslation()
 
@@ -69,8 +71,15 @@ const Layout: React.FC<LayoutProps> = ({
           // Return to path can be override per page
           // returnToPath={returnToPath ?? returnPath}
         >
+          <NavContainer>
+            <NavItems>
+              <NavItem>
+                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+              </NavItem>
+            </NavItems>
+          </NavContainer>
           <Menu>
-            <LoginControls returnToPath={returnToPath ?? returnPath} />
+            <LoginControls currentPagePath={router.asPath} />
           </Menu>
         </NavBar>
         {/* Do not touch flex */}

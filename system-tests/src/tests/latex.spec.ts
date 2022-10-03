@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
-import expectPath from "../utils/expect"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -34,10 +35,10 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
     page.click("[aria-label=\"Manage course 'Latex course'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
   // Click text=Add new chapter
   await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
 
@@ -139,17 +140,17 @@ test("latex-block renders", async ({ headless, page }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Mathematics and Statistics"),
   ])
-  expectPath(page, "/org/uh-mathstat")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat")
   // Click text=Latex course
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/courses/latex-course' }*/),
     page.click("text=Latex course"),
   ])
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
   // Click text=Chapter 1: first page
   await Promise.all([page.waitForNavigation(), page.click("text=first page")])
-  expectPath(page, "org/uh-mathstat/courses/latex-course/chapter-1")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
     page,

@@ -1,12 +1,16 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import { parseText } from "../../../util/textParsing"
 
-const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
+const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = ({
+  data,
+}) => {
   const {
     ordered,
     values,
@@ -22,6 +26,8 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
     textColor,
     // type,
   } = data.attributes
+
+  const { terms } = useContext(GlossaryContext)
 
   const LIST_ITEM_CLASS = css`
     ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
@@ -40,7 +46,9 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
         {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(values) }}
+        dangerouslySetInnerHTML={{
+          __html: parseText(values, terms).parsedText,
+        }}
       />
     )
   } else {
@@ -48,7 +56,9 @@ const ListBlock: React.FC<BlockRendererProps<ListAttributes>> = ({ data }) => {
       <ul
         className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
-        dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(values) }}
+        dangerouslySetInnerHTML={{
+          __html: parseText(values, terms).parsedText,
+        }}
       />
     )
   }

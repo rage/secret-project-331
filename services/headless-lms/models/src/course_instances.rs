@@ -1,6 +1,12 @@
 use std::collections::HashMap;
 
-use crate::{chapters, chapters::DatabaseChapter, exercises, prelude::*, users::User};
+use crate::{
+    chapters,
+    chapters::DatabaseChapter,
+    exercises,
+    prelude::*,
+    users::{self, User},
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -299,25 +305,12 @@ pub async fn get_points(
         }
     }
 
-    let users: HashMap<Uuid, User> = sqlx::query_as!(
-        User,
-        "
-SELECT *
-FROM users
-WHERE id IN (
-    SELECT user_id
-    FROM course_instance_enrollments
-    WHERE course_instance_id = $1
-      AND deleted_at IS NULL
-  )
-",
-        instance_id
-    )
-    .fetch_all(&mut *conn)
-    .await?
-    .into_iter()
-    .map(|u| (u.id, u))
-    .collect();
+    let users: HashMap<Uuid, User> =
+        users::get_users_by_course_instance_enrollment(conn, instance_id)
+            .await?
+            .into_iter()
+            .map(|u| (u.id, u))
+            .collect();
     let mut chapter_points_given = HashMap::<Uuid, f32>::new();
     let states = sqlx::query!(
         "

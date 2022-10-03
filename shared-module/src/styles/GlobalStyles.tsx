@@ -6,6 +6,7 @@ import cssReset from "./cssReset"
 
 import { headingFont, monospaceFont, primaryFont, typography } from "."
 
+import "@fontsource/raleway"
 import "@fontsource/josefin-sans"
 import "@fontsource/josefin-sans/100.css"
 import "@fontsource/josefin-sans/200.css"
@@ -21,6 +22,7 @@ const globalCss = css`
   html, body {
     font-family: ${primaryFont};
     font-size: ${defaultFontSizePx}px;
+    overflow-x: hidden;
   }
   h1,
   h2,
@@ -78,6 +80,6 @@ injectGlobal`
 ${globalCss}
 `
 
-const GlobalStyles: React.FC = () => null
+const GlobalStyles: React.FC<React.PropsWithChildren<React.PropsWithChildren<unknown>>> = () => null
 
 export default GlobalStyles

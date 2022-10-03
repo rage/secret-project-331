@@ -1,9 +1,11 @@
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 use models::{
     pending_roles::{self, PendingRole},
-    roles::{self, RoleDomain, RoleInfo, RoleUser, UserRole},
+    roles::{self, RoleDomain, RoleInfo, RoleUser},
     users,
 };
+
+use crate::domain::authorization::skip_authorize;
 
 async fn authorize_role_management(
     conn: &mut PgConnection,
@@ -11,7 +13,7 @@ async fn authorize_role_management(
     action: Act,
     user_id: Uuid,
 ) -> ControllerResult<()> {
-    match domain {
+    let token = match domain {
         RoleDomain::Global => {
             authorize(conn, action, Some(user_id), Res::GlobalPermissions).await?
         }
@@ -23,8 +25,9 @@ async fn authorize_role_management(
             authorize(conn, action, Some(user_id), Res::CourseInstance(id)).await?
         }
         RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
-    }
-    Ok(())
+    };
+
+    token.authorized_ok(())
 }
 
 /**
@@ -45,34 +48,11 @@ pub async fn set(
     )
     .await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email)
-        .await
-        .optional()?;
-    match user {
-        Some(user) => {
-            let _res = roles::insert(&mut conn, user.id, role_info.role, role_info.domain).await?;
-            Ok(HttpResponse::Ok().finish())
-        }
-        None => {
-            match role_info.role {
-                UserRole::Admin | UserRole::Teacher => return Ok(HttpResponse::NotFound().finish()),
-                UserRole::Reviewer
-                | UserRole::Assistant
-                | UserRole::CourseOrExamCreator
-                | UserRole::MaterialViewer => (),
-            };
-            match role_info.domain {
-                RoleDomain::Global | RoleDomain::Organization(_) | RoleDomain::Exam(_) => {
-                    Ok(HttpResponse::NotFound().finish())
-                }
-                RoleDomain::Course(_) | RoleDomain::CourseInstance(_) => {
-                    let _pending_role =
-                        pending_roles::insert(&mut conn, role_info.into_inner()).await?;
-                    Ok(HttpResponse::Ok().finish())
-                }
-            }
-        }
-    }
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
+
+    let token = skip_authorize()?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -92,10 +72,11 @@ pub async fn unset(
         user.id,
     )
     .await?;
+    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
+    roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
-    let user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::remove(&mut conn, user.id, role_info.role, role_info.domain).await?;
-    Ok(HttpResponse::Ok().finish())
+    let token = skip_authorize()?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,7 +117,11 @@ impl TryFrom<RoleQuery> for RoleDomain {
         } else if let Some(id) = exam_id {
             RoleDomain::Exam(id)
         } else {
-            return Err(ControllerError::BadRequest("Invalid query".to_string()));
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Invalid query".to_string(),
+                None,
+            ));
         };
         Ok(domain)
     }
@@ -157,7 +142,9 @@ pub async fn fetch(
     authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
 
     let roles = roles::get(&mut conn, domain).await?;
-    Ok(web::Json(roles))
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(roles))
 }
 
 /**
@@ -175,7 +162,8 @@ pub async fn fetch_pending(
     authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
 
     let roles = pending_roles::get_all(&mut conn, domain).await?;
-    Ok(web::Json(roles))
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(roles))
 }
 
 /**

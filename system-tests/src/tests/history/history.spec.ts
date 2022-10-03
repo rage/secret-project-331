@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-import expectPath from "../../utils/expect"
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "../../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -28,7 +29,7 @@ test("history test", async ({ page, headless }) => {
   // Click text=default
   await page.click("text=default")
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click a:has-text("CHAPTER 1The Basics")
   await Promise.all([
@@ -65,11 +66,11 @@ test("history test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   // Click text=Page One
   await Promise.all([
@@ -109,6 +110,10 @@ test("history test", async ({ page, headless }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   await (await frame.frameElement()).scrollIntoViewIfNeeded()
 
   // Click [placeholder="Option text"]
@@ -143,11 +148,11 @@ test("history test", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("[aria-label=\"Manage course 'Introduction to history'\"] svg"),
   ])
-  expectPath(page, "/manage/courses/[id]")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
   // Click text=Manage pages
   await Promise.all([page.waitForNavigation(), page.click("text=Pages")])
-  expectPath(page, "/manage/courses/[id]/pages")
+  await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
 
@@ -183,7 +188,7 @@ test("history test", async ({ page, headless }) => {
 */
   // Click [aria-label="Go to page 4"]
   await page.click('[aria-label="Go to page 4"]')
-  expectPath(page, "/manage/pages/[id]/history?page=4")
+  await expectUrlPathWithRandomUuid(page, "/manage/pages/[id]/history?page=4")
 
   /*
   const stableElement2 = await page.waitForSelector("text=core/paragraph")
@@ -247,7 +252,7 @@ test("history test", async ({ page, headless }) => {
     page.click("text=Restore"),
   ])
   await page.click("text=Page edit history") // deselect restore
-  await page.waitForSelector("[aria-label='page 1'][aria-current='true']")
+  await page.waitForSelector("[aria-label='Current page: 1']")
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({

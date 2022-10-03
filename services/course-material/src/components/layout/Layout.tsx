@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import PageContext from "../../contexts/PageContext"
 import Centered from "../../shared-module/components/Centering/Centered"
 import Footer from "../../shared-module/components/Footer"
+import LanguageSelection from "../../shared-module/components/LanguageSelection"
 import {
   Menu,
   NavBar,
@@ -22,13 +23,14 @@ import UserNavigationControls from "../navigation/UserNavigationControls"
 
 import ScrollIndicator from "./ScrollIndicator"
 
+const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
+
 interface LayoutProps {
   children: ReactNode
   navVariant?: "simple" | "complex"
   faqUrl?: string
   title?: string
   licenseUrl?: string
-  returnToPath?: string
   courseSlug?: string
   organizationSlug: string
 }
@@ -38,22 +40,18 @@ const DynamicToaster = dynamic(
   { ssr: false },
 )
 
-const Layout: React.FC<LayoutProps> = ({
+const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
   title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
   navVariant,
   // faqUrl,
   licenseUrl,
-  returnToPath,
   courseSlug,
   organizationSlug,
 }) => {
   const router = useRouter()
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
-  const returnPath = `/login?return_to=${encodeURIComponent(
-    process.env.NEXT_PUBLIC_BASE_PATH + router.asPath,
-  )}`
+
   const pageContext = useContext(PageContext)
 
   const courseId = pageContext?.pageData?.course_id
@@ -86,14 +84,16 @@ const Layout: React.FC<LayoutProps> = ({
                   />
                 </NavItem>
               )}
+              <NavItem>
+                <LanguageSelection placement={LANGUAGE_SELECTION_PLACEMENTPLACEMENT} />
+              </NavItem>
             </NavItems>
           </NavContainer>
           <Menu>
-            <UserNavigationControls returnToPath={returnToPath ?? returnPath} courseId={courseId} />
+            <UserNavigationControls currentPagePath={router.asPath} courseId={courseId} />
           </Menu>
         </NavBar>
 
-        {/* Do not touch flex */}
         <main id="maincontent">
           <Centered variant="narrow">{children}</Centered>
         </main>

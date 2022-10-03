@@ -1,7 +1,12 @@
 /* eslint-disable i18next/no-literal-string */
+import {
+  MutationFunction,
+  // eslint-disable-next-line no-restricted-imports
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult,
+} from "@tanstack/react-query"
 import toast, { ToastOptions } from "react-hot-toast"
-// eslint-disable-next-line no-restricted-imports
-import { MutationFunction, useMutation, UseMutationOptions, UseMutationResult } from "react-query"
 
 import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
@@ -34,7 +39,7 @@ export default function useToastMutation<
 >(
   mutationFn: MutationFunction<TData, TVariables>,
   notificationOptions: NotificationOptions,
-  mutationOptions?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn">,
+  mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
   let toastId = ""
   const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
@@ -71,7 +76,7 @@ export default function useToastMutation<
       }
       return undefined
     },
-    onSuccess: (data: TData, variables: TVariables, context: TContext) => {
+    onSuccess: (data: TData, variables: TVariables, context) => {
       if (notificationOptions.notify) {
         switch (notificationOptions.method) {
           case "PUT":
@@ -101,7 +106,7 @@ export default function useToastMutation<
         return mutationOptions.onSuccess(data, variables, context)
       }
     },
-    onError: (error: TError, variables: TVariables, context: TContext | undefined) => {
+    onError: (error: TError, variables: TVariables, context) => {
       if (notificationOptions.notify) {
         console.log({ error })
         let errorMessage = notificationOptions.errorMessage

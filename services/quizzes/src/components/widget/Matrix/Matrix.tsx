@@ -1,13 +1,15 @@
 import styled from "@emotion/styled"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { QuizItemComponentProps } from ".."
 import { QuizItemAnswer } from "../../../../types/types"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import MatrixCell from "./MatrixCell"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
+  margin-top: 1rem;
   background-color: grey;
   border-collapse: collapse;
   td {
@@ -38,18 +40,22 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
-  const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
-    const quizAnswers: string[][] = []
+  const matrixVariable = useMemo(() => {
+    const res = quizItemAnswerState?.optionCells
+    if (res !== null && res !== undefined && Array.isArray(res)) {
+      return res
+    }
+    // Initialize a new empty answer
+    const newAnswerMatrix: string[][] = []
     for (let i = 0; i < 6; i++) {
       const columnArray: string[] = []
       for (let j = 0; j < 6; j++) {
         columnArray.push("")
       }
-      quizAnswers.push(columnArray)
+      newAnswerMatrix.push(columnArray)
     }
-    return quizAnswers
-  })
-
+    return newAnswerMatrix
+  }, [quizItemAnswerState?.optionCells])
   const handleSizeChange = useCallback((matrix: string[][]) => {
     const sizeOfTheMatrix = [0, 0]
     for (let i = 0; i < 6; i++) {
@@ -83,7 +89,6 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
         }
       })
     })
-    setMatrixVariable(newMatrix)
     const tempMatrixActiveSize = handleSizeChange(newMatrix)
     let newOptionCells: string[][] = [[]]
     if (newMatrix) {
@@ -150,4 +155,4 @@ const Matrix: React.FunctionComponent<QuizItemComponentProps> = ({
   )
 }
 
-export default Matrix
+export default withErrorBoundary(Matrix)

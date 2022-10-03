@@ -6,8 +6,10 @@ import { useTranslation } from "react-i18next"
 import { QuizItemAnswer } from "../../../types/types"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
-import MarkdownText from "../MarkdownText"
+import { orderArrayWithId } from "../../util/randomizer"
+import ParsedText from "../ParsedText"
 
 import { QuizItemComponentProps } from "."
 
@@ -20,9 +22,10 @@ const optionButton = css`
   display: flex;
   flex: 1;
   justify-content: center;
-  margin: 0.3rem;
+  margin: 0.3rem 0.3rem 0.3rem 0;
   padding: 1rem;
   transition: background-color 0.2s;
+  text-align: left;
 `
 
 const optionButtonColumn = css`
@@ -46,6 +49,7 @@ export interface LeftBorderedDivProps {
 const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   quizItemAnswerState,
   quizItem,
+  user_information,
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
@@ -79,19 +83,26 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
     setQuizItemAnswerState(newItemAnswer)
   }
 
+  let quiz_options = quizItem.options
+  if (quizItem.shuffleOptions) {
+    quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
+  }
+
   return (
     <div
       className={css`
-        margin: 0.5rem;
+        margin: 0.7rem 0;
       `}
     >
       <div
         className={css`
-          font-size: ${quizTheme.quizTitleFontSize};
+          /* font-size: ${quizTheme.quizTitleFontSize}; */
           font-weight: bold;
+          font-family: "Raleway", sans-serif;
+          font-size: clamp(18px, 2vw, 20px) !important;
         `}
       >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
+        <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
       <p
         className={css`
@@ -100,7 +111,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
           margin: 0.5rem 0;
         `}
       >
-        {quizItem.body && <MarkdownText text={quizItem.body} />}
+        <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
       </p>
       <div
         className={css`
@@ -111,9 +122,8 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
             flex-direction: ${direction};
           }
         `}
-        role={quizItem.multi ? "group" : "radiogroup"}
       >
-        {quizItem.options.map((qo, i) => {
+        {quiz_options.map((qo) => {
           const selected = quizItemAnswerState?.optionAnswers?.includes(qo.id)
 
           return (
@@ -121,16 +131,14 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
               key={qo.id}
               value={qo.id}
               onClick={handleOptionSelect}
-              tabIndex={quizItem.multi ? 0 : i === 0 ? 0 : -1}
-              role={quizItem.multi ? "checkbox" : "radio"}
-              aria-checked={selected ?? false}
+              aria-pressed={selected ?? false}
               className={cx(
                 optionButton,
                 selected && optionButtonSelected,
                 direction === DIRECTION_COLUMN && optionButtonColumn,
               )}
             >
-              <MarkdownText text={qo.title || qo.body || ""} />
+              <ParsedText parseMarkdown parseLatex inline text={qo.title || qo.body || ""} />
             </button>
           )
         })}
@@ -151,4 +159,4 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   )
 }
 
-export default MultipleChoice
+export default withErrorBoundary(MultipleChoice)

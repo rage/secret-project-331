@@ -6,15 +6,20 @@ import {
   Course,
   CourseInstance,
   CourseMaterialExercise,
+  CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   ExamData,
   ExamEnrollment,
+  IsChapterFrontPage,
+  MaterialReference,
   NewFeedback,
+  NewMaterialReference,
   NewProposedPageEdits,
   OEmbedResponse,
   Page,
   PageChapterAndCourseInformation,
-  PageRoutingDataWithChapterStatus,
+  PageNavigationInformation,
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
@@ -26,18 +31,22 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserModuleCompletionStatus,
 } from "../shared-module/bindings"
 import {
   isChaptersWithStatus,
   isCourse,
   isCourseInstance,
   isCourseMaterialExercise,
+  isCourseMaterialPeerReviewData,
   isCoursePageWithUserData,
   isExamData,
+  isIsChapterFrontPage,
+  isMaterialReference,
   isOEmbedResponse,
   isPage,
   isPageChapterAndCourseInformation,
-  isPageRoutingDataWithChapterStatus,
+  isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
   isStudentExerciseSlideSubmissionResult,
@@ -46,6 +55,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserModuleCompletionStatus,
 } from "../shared-module/bindings.guard"
 import {
   isArray,
@@ -72,6 +82,13 @@ export const fetchOrganizationCourses = async (organizationId: string): Promise<
     responseType: "json",
   })
   return validateResponse(response, isArray(isCourse))
+}
+
+export const fetchTopLevelPages = async (courseId: string): Promise<Array<Page>> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/top-level-pages`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isArray(isPage))
 }
 
 export interface Block<T> {
@@ -170,9 +187,19 @@ export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>
 
 export const fetchUserCourseProgress = async (
   courseInstanceId: string,
-): Promise<UserCourseInstanceProgress> => {
+): Promise<UserCourseInstanceProgress[]> => {
   const response = await courseMaterialClient.get(`/course-instances/${courseInstanceId}/progress`)
-  return validateResponse(response, isUserCourseInstanceProgress)
+  return validateResponse(response, isArray(isUserCourseInstanceProgress))
+}
+
+export const fetchUserModuleCompletionStatuses = async (
+  courseInstanceId: string,
+): Promise<Array<UserModuleCompletionStatus>> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/module-completions`,
+    { responseType: "json" },
+  )
+  return validateResponse(response, isArray(isUserModuleCompletionStatus))
 }
 
 export const fetchUserChapterInstanceChapterProgress = async (
@@ -200,6 +227,15 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return validateResponse(response, isCourseMaterialExercise)
 }
 
+export const fetchPeerReviewDataByExerciseId = async (
+  id: string,
+): Promise<CourseMaterialPeerReviewData> => {
+  const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isCourseMaterialPeerReviewData)
+}
+
 export const fetchChaptersPagesWithExercises = async (
   chapterId: string,
 ): Promise<Array<PageWithExercises>> => {
@@ -209,11 +245,11 @@ export const fetchChaptersPagesWithExercises = async (
   return validateResponse(response, isArray(isPageWithExercises))
 }
 
-export const fetchNextPageRoutingData = async (
+export const fetchPageNavigationData = async (
   currentPageId: string,
-): Promise<PageRoutingDataWithChapterStatus | null> => {
-  const response = await courseMaterialClient.get(`/pages/${currentPageId}/next-page`)
-  return validateResponse(response, isUnion(isPageRoutingDataWithChapterStatus, isNull))
+): Promise<PageNavigationInformation> => {
+  const response = await courseMaterialClient.get(`/pages/${currentPageId}/page-navigation`)
+  return validateResponse(response, isPageNavigationInformation)
 }
 
 export const fetchPageChapterAndCourse = async (
@@ -299,6 +335,19 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
+export const postPeerReviewSubmission = async (
+  exerciseId: string,
+  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
+    responseType: "json",
+  })
+}
+
+export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+}
+
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
   const response = await courseMaterialClient.get(`/exams/${examId}/enrollment`)
   return response.data
@@ -341,4 +390,21 @@ export const fetchMentimeterEmbed = async (url: string): Promise<OEmbedResponse>
     { responseType: "json" },
   )
   return validateResponse(response, isOEmbedResponse)
+}
+
+export const fetchCourseReferences = async (courseId: string): Promise<MaterialReference[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/references`)
+  return validateResponse(response, isArray(isMaterialReference))
+}
+
+export const postNewReference = async (
+  courseId: string,
+  data: NewMaterialReference,
+): Promise<void> => {
+  await courseMaterialClient.post(`/courses/${courseId}/references`, data)
+}
+
+export const isPageChapterFrontPage = async (pageId: string): Promise<IsChapterFrontPage> => {
+  const response = await courseMaterialClient.get(`/pages/${pageId}/is-chapter-front-page`)
+  return validateResponse(response, isIsChapterFrontPage)
 }

@@ -9,7 +9,10 @@ use models::{
     pages::{self, NewPage},
 };
 
-use crate::controllers::{helpers::media::upload_image_for_organization, prelude::*};
+use crate::{
+    controllers::helpers::media::upload_image_for_organization,
+    domain::authorization::skip_authorize, prelude::*,
+};
 use actix_web::web::{self, Json};
 
 /**
@@ -28,7 +31,9 @@ async fn get_all_organizations(
         .into_iter()
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
-    Ok(web::Json(organizations))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(organizations))
 }
 
 /**
@@ -52,7 +57,9 @@ async fn get_organization_courses(
         *pagination,
     )
     .await?;
-    Ok(web::Json(courses))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(courses))
 }
 
 #[generated_doc]
@@ -64,7 +71,9 @@ async fn get_organization_course_count(
     let mut conn = pool.acquire().await?;
     let result =
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
-    Ok(Json(result))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(Json(result))
 }
 
 #[generated_doc]
@@ -81,7 +90,9 @@ async fn get_organization_active_courses(
         &pagination,
     )
     .await?;
-    Ok(Json(courses))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(Json(courses))
 }
 
 #[generated_doc]
@@ -96,7 +107,9 @@ async fn get_organization_active_courses_count(
         *request_organization_id,
     )
     .await?;
-    Ok(Json(result))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(Json(result))
 }
 
 /**
@@ -125,18 +138,25 @@ async fn set_organization_image(
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
         Res::Organization(organization.id),
     )
     .await?;
-    let organization_image =
-        upload_image_for_organization(request.headers(), payload, &organization, &file_store)
-            .await?
-            .to_string_lossy()
-            .to_string();
+    let organization_image = upload_image_for_organization(
+        request.headers(),
+        payload,
+        &organization,
+        &file_store,
+        user,
+        pool,
+    )
+    .await?
+    .data
+    .to_string_lossy()
+    .to_string();
     let updated_organization = models::organizations::update_organization_image_path(
         &mut conn,
         organization.id,
@@ -147,10 +167,18 @@ async fn set_organization_image(
     // Remove old image if one exists.
     if let Some(old_image_path) = organization.organization_image_path {
         let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
 
@@ -159,8 +187,7 @@ async fn set_organization_image(
         file_store.as_ref(),
         app_conf.as_ref(),
     );
-
-    Ok(web::Json(response))
+    token.authorized_ok(web::Json(response))
 }
 
 /**
@@ -183,7 +210,7 @@ async fn remove_organization_image(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let organization = models::organizations::get_organization(&mut conn, *organization_id).await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
@@ -192,16 +219,24 @@ async fn remove_organization_image(
     .await?;
     if let Some(organization_image_path) = organization.organization_image_path {
         let file = PathBuf::from_str(&organization_image_path).map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
         let _res =
             models::organizations::update_organization_image_path(&mut conn, organization.id, None)
                 .await?;
         file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::InternalServerError(original_error.to_string())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
         })?;
     }
-    Ok(web::Json(()))
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -220,7 +255,9 @@ async fn get_organization(
         models::organizations::get_organization(&mut conn, *organization_id).await?;
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
-    Ok(web::Json(organization))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(organization))
 }
 
 /**
@@ -234,7 +271,9 @@ async fn get_course_exams(
 ) -> ControllerResult<web::Json<Vec<CourseExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
-    Ok(web::Json(exams))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -248,7 +287,9 @@ async fn get_org_exams(
 ) -> ControllerResult<web::Json<Vec<OrgExam>>> {
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
-    Ok(web::Json(exams))
+
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -265,7 +306,7 @@ async fn create_exam(
     let mut tx = conn.begin().await?;
 
     let new_exam = payload.0;
-    authorize(
+    let token = authorize(
         &mut tx,
         Act::CreateCoursesOrExams,
         Some(user.id),
@@ -303,7 +344,8 @@ async fn create_exam(
     .await?;
 
     tx.commit().await?;
-    Ok(web::Json(()))
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**

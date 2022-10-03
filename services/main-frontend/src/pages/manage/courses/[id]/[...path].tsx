@@ -9,8 +9,10 @@ import CourseFeedback from "../../../../components/page-specific/manage/courses/
 import CourseGlossary from "../../../../components/page-specific/manage/courses/id/glossary/CourseGlossary"
 import CourseOverview from "../../../../components/page-specific/manage/courses/id/index/CourseOverview"
 import CourseLanguageVersionsPage from "../../../../components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"
+import CourseModules from "../../../../components/page-specific/manage/courses/id/pages/CourseModules"
 import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
+import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
@@ -34,10 +36,12 @@ interface CourseManagementPageProps {
 }
 
 const CourseManagementPageTabs: {
-  [key: string]: React.FC<CourseManagementPagesProps>
+  [key: string]: React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
 } = {
   overview: CourseOverview,
   pages: CoursePages,
+  modules: CourseModules,
+  references: References,
   feedback: CourseFeedback,
   "change-requests": CourseChangeRequests,
   exercises: CourseExercises,
@@ -48,7 +52,9 @@ const CourseManagementPageTabs: {
   stats: CourseStatsPage,
 }
 
-const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) => {
+const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
+  query,
+}) => {
   const courseId = query.id
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
@@ -65,6 +71,12 @@ const CourseManagementPage: React.FC<CourseManagementPageProps> = ({ query }) =>
         </TabLink>
         <TabLink url={"pages"} isActive={path === "pages"}>
           {t("link-pages")}
+        </TabLink>
+        <TabLink url={"modules"} isActive={path === "modules"}>
+          {t("link-modules")}
+        </TabLink>
+        <TabLink url={"references"} isActive={path === "references"}>
+          {t("references")}
         </TabLink>
         <TabLink
           url={"feedback"}

@@ -3,31 +3,45 @@ import { isEqual } from "lodash"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  IframeState,
+  MessageFromIframe,
+  SetLanguageMessage,
+  SetStateMessage,
+} from "../exercise-service-protocol-types"
+import {
+  isHeightChangedMessage,
+  isMessageFromIframe,
+} from "../exercise-service-protocol-types.guard"
 import useMessageChannel from "../hooks/useMessageChannel"
-import { CurrentStateMessage, IframeState, SetStateMessage } from "../iframe-protocol-types"
-import { isCurrentStateMessage, isHeightChangedMessage } from "../iframe-protocol-types.guard"
 
 import BreakFromCentered, { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
 
 interface MessageChannelIFrameProps {
   url: string
   postThisStateToIFrame: IframeState | null
-  onMessageFromIframe: (message: CurrentStateMessage, responsePort: MessagePort) => void
+  onMessageFromIframe: (message: MessageFromIframe, responsePort: MessagePort) => void
   breakFromCenteredProps?: BreakFromCenteredProps
   title: string
+  showBorders?: boolean
+  disableSandbox?: boolean
 }
 
 // const IFRAME_TITLE = "Exercise type specific content"
 
-const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
+const MessageChannelIFrame: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<MessageChannelIFrameProps>>
+> = ({
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
   breakFromCenteredProps,
   title,
+  showBorders = false,
+  disableSandbox = false,
 }) => {
-  const [showBorders] = useState(false)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const [lastThingPosted, setLastThingPosted] = useState<unknown>(null)
@@ -60,7 +74,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         console.info("Updating height")
         // eslint-disable-next-line i18next/no-literal-string
         iframeRef.current.height = Number(data.data).toString() + "px"
-      } else if (isCurrentStateMessage(data)) {
+      } else if (isMessageFromIframe(data)) {
         try {
           onMessageFromIframe(message.data, messageChannel.port1)
         } catch (e) {
@@ -81,9 +95,12 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       return
     }
     const temporaryEventHandler = (e: WindowEventMap["message"]) => {
-      // Verify the source of the message. Origin is always null because the IFrame is
+      // Verify the source of the message. Origin is always null if the IFrame is
       // sandboxed without allow-same-origin
-      if (e.origin !== "null" || e.source !== iframeRef.current?.contentWindow) {
+      if (
+        (!disableSandbox && e.origin !== "null") ||
+        e.source !== iframeRef.current?.contentWindow
+      ) {
         return
       }
       if (e.data !== "ready") {
@@ -93,10 +110,17 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       }
 
       if (iframeRef.current && iframeRef.current.contentWindow) {
-        // The iframe will use port 2 for communication
-        iframeRef.current.contentWindow.postMessage("communication-port", "*", [
-          messageChannel.port2,
-        ])
+        // eslint-disable-next-line i18next/no-literal-string
+        console.info("Parent posting message port to iframe")
+        try {
+          // The iframe will use port 2 for communication
+          iframeRef.current.contentWindow.postMessage("communication-port", "*", [
+            messageChannel.port2,
+          ])
+        } catch (e) {
+          // eslint-disable-next-line i18next/no-literal-string
+          console.error("Posting communication port to iframe failed", e)
+        }
       } else {
         console.error(
           // eslint-disable-next-line i18next/no-literal-string
@@ -109,7 +133,24 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
     return () => {
       removeEventListener("message", temporaryEventHandler)
     }
-  }, [messageChannel])
+  }, [disableSandbox, messageChannel])
+
+  // Keep the iframe informed of the current user interface language
+  useEffect(() => {
+    if (!messageChannel) {
+      return
+    }
+    const message: SetLanguageMessage = {
+      // eslint-disable-next-line i18next/no-literal-string
+      message: "set-language",
+      data: language,
+    }
+    // eslint-disable-next-line i18next/no-literal-string
+    console.groupCollapsed(`Parent posting set-language message to iframe (${language})`)
+    console.info(JSON.stringify(message, undefined, 2))
+    console.groupEnd()
+    messageChannel.port1.postMessage(message)
+  }, [language, messageChannel])
 
   useEffect(() => {
     if (
@@ -124,12 +165,14 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
       // eslint-disable-next-line i18next/no-literal-string
       message: "set-state",
     }
+
     // eslint-disable-next-line i18next/no-literal-string
     console.groupCollapsed(`Parent posting set-state message to iframe`)
     console.info(JSON.stringify(postData, undefined, 2))
     console.groupEnd()
     messageChannel.port1.postMessage(postData)
     setLastThingPosted(postThisStateToIFrame)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- lastThingPosted is only used to cancel reposting when postThisStateToIFrame has not changed. Adding it to the dependency array would cause an infinite loop.
   }, [messageChannel, postThisStateToIFrame])
 
@@ -158,7 +201,7 @@ const MessageChannelIFrame: React.FC<MessageChannelIFrameProps> = ({
         `}
       >
         <iframe
-          sandbox="allow-scripts allow-forms"
+          sandbox={disableSandbox ? undefined : "allow-scripts allow-forms"}
           className={css`
             overflow: hidden;
             width: 100%;

@@ -15,19 +15,19 @@ pub struct ExerciseServiceInfo {
     pub exercise_service_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub exercise_type_specific_user_interface_iframe: String,
+    pub user_interface_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
-    pub model_solution_path: String,
+    pub model_solution_spec_endpoint_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct PathInfo {
     pub exercise_service_id: Uuid,
-    pub exercise_type_specific_user_interface_iframe: String,
+    pub user_interface_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
-    pub model_solution_path: String,
+    pub model_solution_spec_endpoint_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -40,10 +40,10 @@ pub struct CourseMaterialExerciseServiceInfo {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,
-    pub exercise_type_specific_user_interface_iframe: String,
+    pub user_interface_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
-    pub model_solution_path: String,
+    pub model_solution_spec_endpoint_path: String,
 }
 
 pub async fn insert(
@@ -55,19 +55,19 @@ pub async fn insert(
         "
 INSERT INTO exercise_service_info (
     exercise_service_id,
-    exercise_type_specific_user_interface_iframe,
+    user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_path
+    model_solution_spec_endpoint_path
   )
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
-        exercise_service_info.exercise_type_specific_user_interface_iframe,
+        exercise_service_info.user_interface_iframe_path,
         exercise_service_info.grade_endpoint_path,
         exercise_service_info.public_spec_endpoint_path,
-        exercise_service_info.model_solution_path
+        exercise_service_info.model_solution_spec_endpoint_path
     )
     .fetch_one(conn)
     .await?;
@@ -100,8 +100,10 @@ pub async fn fetch_service_info(url: impl IntoUrl) -> ModelResult<ExerciseServic
         let response_url = res.url().to_string();
         let body = res.text().await?;
         warn!(url=?response_url, status=?status, body=?body, "Could not fetch service info.");
-        return Err(ModelError::Generic(
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
             "Could not fetch service info.".to_string(),
+            None,
         ));
     }
     let res = res.json::<ExerciseServiceInfoApi>().await?;
@@ -118,24 +120,24 @@ pub async fn upsert_service_info(
         r#"
 INSERT INTO exercise_service_info(
     exercise_service_id,
-    exercise_type_specific_user_interface_iframe,
+    user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_path
+    model_solution_spec_endpoint_path
   )
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT(exercise_service_id) DO UPDATE
-SET exercise_type_specific_user_interface_iframe = $2,
+SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
   public_spec_endpoint_path = $4,
-  model_solution_path = $5
+  model_solution_spec_endpoint_path = $5
 RETURNING *
     "#,
         exercise_service_id,
-        update.exercise_type_specific_user_interface_iframe,
+        update.user_interface_iframe_path,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
-        update.model_solution_path
+        update.model_solution_spec_endpoint_path
     )
     .fetch_one(conn)
     .await?;
@@ -219,8 +221,8 @@ pub async fn get_service_info_by_exercise_service(
         exercise_service_info
     } else {
         warn!("Could not find service info for {} ({}). This is rare and only should happen when a background worker has not had the opportunity to complete their fetching task yet. Trying the fetching here in this worker so that we can continue.", exercise_service.name, exercise_service.slug);
-        let fetched_service_info = fetch_and_upsert_service_info(conn, exercise_service).await?;
-        fetched_service_info
+
+        fetch_and_upsert_service_info(conn, exercise_service).await?
     };
     Ok(service_info)
 }
@@ -239,9 +241,14 @@ pub async fn get_course_material_service_info_by_exercise_type(
             // Need to convert relative url to absolute url because
             // otherwise the material won't be able to request the path
             // if the path is in a different domain
-            let mut url = Url::parse(&exercise_service.public_url)
-                .map_err(|original_err| ModelError::Generic(original_err.to_string()))?;
-            url.set_path(&o.exercise_type_specific_user_interface_iframe);
+            let mut url = Url::parse(&exercise_service.public_url).map_err(|original_err| {
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    original_err.to_string(),
+                    Some(original_err.into()),
+                )
+            })?;
+            url.set_path(&o.user_interface_iframe_path);
             url.set_query(None);
             url.set_fragment(None);
 

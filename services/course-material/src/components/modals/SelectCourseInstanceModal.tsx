@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
+import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
@@ -16,10 +16,9 @@ export interface CourseInstanceSelectModalProps {
   manualOpen?: boolean
 }
 
-const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
-  onClose,
-  manualOpen = false,
-}) => {
+const CourseInstanceSelectModal: React.FC<
+  React.PropsWithChildren<CourseInstanceSelectModalProps>
+> = ({ onClose, manualOpen = false }) => {
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const pageState = useContext(PageContext)
@@ -53,12 +52,22 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
       try {
         await postCourseInstanceEnrollment(instanceId)
         setOpen(false)
+        if (pageState.refetchPage) {
+          // eslint-disable-next-line i18next/no-literal-string
+          console.info("Refetching page because the course instance has changed")
+          pageState.refetchPage()
+        } else {
+          console.warn(
+            // eslint-disable-next-line i18next/no-literal-string
+            "No refetching the page because there's no refetchPage function in the page context.",
+          )
+        }
         onClose()
       } catch (e) {
         setSubmitError(e)
       }
     },
-    [onClose],
+    [onClose, pageState],
   )
 
   if (pageState.pageData?.course_id === null) {
@@ -72,31 +81,31 @@ const CourseInstanceSelectModal: React.FC<CourseInstanceSelectModalProps> = ({
   }
 
   return (
-    <Dialog open={open} onClose={handleSubmitAndClose} aria-labelledby="dialog-label">
+    <Dialog open={open} aria-labelledby="dialog-label" closeable={false}>
       <div
         className={css`
           margin: 1rem;
         `}
       >
-        {submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h1
+        {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
+        <h1 id="dialog-label">{t("title-select-course-instance-to-continue")}</h1>
+        <div
           className={css`
-            font-size: clamp(18px, 2vw, 20px);
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
           `}
-          id="dialog-label"
         >
-          {t("title-select-course-version-to-continue")}.
-        </h1>
+          {t("select-course-instance-explanation")}
+        </div>
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}
-        {(getCourseInstances.isLoading || getCourseInstances.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
         {getCourseInstances.isSuccess && (
           <SelectCourseInstanceForm
             courseInstances={getCourseInstances.data}
             onSubmitForm={handleSubmitAndClose}
+            initialSelectedInstanceId={pageState.instance?.id}
           />
         )}
       </div>

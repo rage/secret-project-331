@@ -4,7 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/blackArrow.svg"
-import { baseTheme, headingFont } from "../styles"
+import { baseTheme, headingFont, secondaryFont } from "../styles"
 
 const Wrapper = styled.div`
   border-radius: 10px;
@@ -15,13 +15,15 @@ const Wrapper = styled.div`
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
-  font-family: ${headingFont};
+  font-family: ${secondaryFont};
+  opacity: 0.6;
   margin: 0 1rem;
 `
 const StyledArrow = styled(ArrowSVGIcon)`
   opacity: 0.6;
 `
 
+// eslint-disable-next-line i18next/no-literal-string
 const ChapterParts = styled.div`
   position: relative;
   margin-left: 0em;
@@ -31,7 +33,7 @@ const ChapterParts = styled.div`
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;
-  background: #f1f1f1;
+  background: ${baseTheme.colors.clear[100]};
 
   ${({ selected }: PagesInChapterBoxExtraProps) =>
     selected &&
@@ -44,7 +46,7 @@ const ChapterParts = styled.div`
     }
   `}
   :hover {
-    background-color: #d8d8d8;
+    background-color: ${baseTheme.colors.clear[200]};
   }
 
   svg {
@@ -54,22 +56,15 @@ const ChapterParts = styled.div`
   }
 
   span {
+    font-family: ${headingFont};
+    font-weight: 600;
     vertical-align: top;
     font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
-    text-transform: uppercase;
   }
 `
-/*
-const chooseChapterValue = {
-  0: "I",
-  1: "II",
-  2: "III",
-  3: "IV",
-  4: "V",
-} */
 
 export interface PagesInChapterBoxExtraProps {
   variant: "text" | "link" | "readOnly"
@@ -82,7 +77,9 @@ export interface PagesInChapterBoxExtraProps {
 export type PagesInChapterBoxProps = React.HTMLAttributes<HTMLDivElement> &
   PagesInChapterBoxExtraProps
 
-const PagesInChapterBox: React.FC<PagesInChapterBoxProps> = (props) => {
+const PagesInChapterBox: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<PagesInChapterBoxProps>>
+> = (props) => {
   return (
     <Wrapper>
       <>

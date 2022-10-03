@@ -61,6 +61,8 @@ function handlePost(req: NextApiRequest, res: NextApiResponse) {
             return { id: t.correctEventId, name: t.correctEventName }
           }) || []
         ).sort((a, b) => a.name.localeCompare(b.name)),
+        shuffleOptions: i.shuffleOptions ?? false,
+        multipleChoiceMultipleOptionsGradingPolicy: "default",
       }
       return pi
     }),

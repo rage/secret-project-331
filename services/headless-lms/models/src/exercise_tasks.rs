@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use futures::TryStreamExt;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 use crate::{
-    exercise_service_info,
+    exercise_service_info, exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
@@ -14,16 +14,23 @@ use crate::{
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+/// Information necessary for the frontend to render an exercise task
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
+    pub exercise_service_slug: String,
     pub exercise_slide_id: Uuid,
     /**
     If none, the task is not completable at the moment because the service needs to
     be configured to the system.
     */
     pub exercise_iframe_url: Option<String>,
+    /**
+    Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
+    be configured to the system.
+    */
+    pub pseudonumous_user_id: Option<Uuid>,
     pub assignment: serde_json::Value,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
@@ -39,7 +46,6 @@ pub struct NewExerciseTask {
     pub assignment: Vec<GutenbergBlock>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub order_number: i32,
 }
@@ -56,7 +62,6 @@ pub struct ExerciseTask {
     pub deleted_at: Option<DateTime<Utc>>,
     pub public_spec: Option<serde_json::Value>,
     pub private_spec: Option<serde_json::Value>,
-    pub spec_file_id: Option<Uuid>,
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
     pub order_number: i32,
@@ -151,11 +156,11 @@ pub async fn get_exercise_task_by_id(
 
 pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
-    exercise_slide_id: &Uuid,
-    user_id: Option<&Uuid>,
+    exercise_slide_id: Uuid,
+    user_id: Option<Uuid>,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
-        get_exercise_tasks_by_exercise_slide_id(conn, exercise_slide_id).await?;
+        get_exercise_tasks_by_exercise_slide_id(conn, &exercise_slide_id).await?;
     let mut latest_submissions_by_task_id = if let Some(user_id) = user_id {
         exercise_task_submissions::get_users_latest_exercise_task_submissions_for_exercise_slide(
             conn,
@@ -171,15 +176,22 @@ pub async fn get_course_material_exercise_tasks(
         HashMap::new()
     };
 
+    let unique_exercise_service_slugs = exercise_tasks
+        .iter()
+        .cloned()
+        .map(|et| et.exercise_type)
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    let exercise_service_slug_to_service_and_info =
+        exercise_service_info::get_selected_exercise_services_by_type(
+            &mut *conn,
+            &unique_exercise_service_slugs,
+        )
+        .await?;
+
     let mut material_tasks = Vec::with_capacity(exercise_tasks.len());
     for exercise_task in exercise_tasks.into_iter() {
-        // This can be improved in the future so that the same info isn't fetched multiple times.
-        let exercise_iframe_url = exercise_service_info::get_service_info_by_exercise_type(
-            conn,
-            &exercise_task.exercise_type,
-        )
-        .await?
-        .exercise_type_specific_user_interface_iframe;
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
@@ -187,10 +199,27 @@ pub async fn get_course_material_exercise_tasks(
         } else {
             None
         };
+
+        let (exercise_service, service_info) = exercise_service_slug_to_service_and_info
+            .get(&exercise_task.exercise_type)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Exercise service not found".to_string(),
+                    None,
+                )
+            })?;
+        let mut exercise_iframe_url =
+            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
+        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
+
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,
+            exercise_service_slug: exercise_task.exercise_type,
             exercise_slide_id: exercise_task.exercise_slide_id,
-            exercise_iframe_url: Some(exercise_iframe_url),
+            exercise_iframe_url: Some(exercise_iframe_url.to_string()),
+            pseudonumous_user_id: user_id
+                .map(|uid| Uuid::new_v5(&service_info.exercise_service_id, uid.as_bytes())),
             assignment: exercise_task.assignment,
             public_spec: exercise_task.public_spec,
             model_solution_spec,
@@ -260,12 +289,9 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {
         if let Some(selected_exercise_slide_id) = user_exercise_state.selected_exercise_slide_id {
-            let exercise_tasks = get_course_material_exercise_tasks(
-                conn,
-                &selected_exercise_slide_id,
-                Some(&user_id),
-            )
-            .await?;
+            let exercise_tasks =
+                get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id))
+                    .await?;
             Some(CourseMaterialExerciseSlide {
                 id: selected_exercise_slide_id,
                 exercise_tasks,
@@ -319,12 +345,13 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
         };
 
     let exercise_tasks =
-        get_course_material_exercise_tasks(conn, &selected_exercise_slide_id, Some(&user_id))
-            .await?;
+        get_course_material_exercise_tasks(conn, selected_exercise_slide_id, Some(user_id)).await?;
     info!("got tasks");
     if exercise_tasks.is_empty() {
-        return Err(ModelError::PreconditionFailed(
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
             "Missing exercise definition.".to_string(),
+            None,
         ));
     }
 
@@ -392,4 +419,44 @@ WHERE et.id = $1;
     .fetch_one(conn)
     .await?;
     Ok(exercise_task.model_solution_spec)
+}
+
+pub async fn get_all_exercise_tas_by_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskGrading>> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT id,
+created_at,
+updated_at,
+exercise_task_submission_id,
+course_id,
+exam_id,
+exercise_id,
+exercise_task_id,
+grading_priority,
+score_given,
+grading_progress as "grading_progress: _",
+unscaled_score_given,
+unscaled_score_maximum,
+grading_started_at,
+grading_completed_at,
+feedback_json,
+feedback_text,
+deleted_at
+FROM exercise_task_gradings
+WHERE deleted_at IS NULL
+  AND exercise_task_submission_id IN (
+    SELECT id
+    FROM exercise_task_submissions
+    WHERE exercise_slide_submission_id = $1
+  )
+"#,
+        exercise_slide_submission_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
 }

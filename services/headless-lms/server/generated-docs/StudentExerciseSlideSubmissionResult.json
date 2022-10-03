@@ -2,7 +2,8 @@
   "exercise_status": {
     "score_given": null,
     "activity_progress": "InProgress",
-    "grading_progress": "NotReady"
+    "grading_progress": "NotReady",
+    "reviewing_stage": "NotStarted"
   },
   "exercise_task_submission_results": [
     {

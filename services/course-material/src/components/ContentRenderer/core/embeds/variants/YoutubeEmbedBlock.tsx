@@ -5,8 +5,9 @@ import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttribute
 import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
+import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
+export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   const { t } = useTranslation()
   const { url } = props
   let video = url?.split("v=")[1]
@@ -52,9 +53,8 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             margin-bottom: 1em;
             color: ${baseTheme.colors.grey[400]};
           `}
-        >
-          {props.caption}
-        </figcaption>
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(props.caption ?? "") }}
+        ></figcaption>
       </figure>
     </BreakFromCentered>
   )

@@ -13,6 +13,11 @@ pub struct UserExerciseSlideState {
     pub grading_progress: GradingProgress,
 }
 
+pub struct UserExerciseSlideStateGradingSummary {
+    pub score_given: Option<f32>,
+    pub grading_progress: GradingProgress,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
@@ -160,7 +165,7 @@ pub async fn get_or_insert_by_unique_index(
 pub async fn get_grading_summary_by_user_exercise_state_id(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,
-) -> ModelResult<(Option<f32>, GradingProgress)> {
+) -> ModelResult<UserExerciseSlideStateGradingSummary> {
     let res = sqlx::query!(
         r#"
 SELECT score_given,
@@ -182,7 +187,10 @@ WHERE user_exercise_state_id = $1
         .map(|x| x.grading_progress)
         .min()
         .unwrap_or(GradingProgress::NotReady);
-    Ok((total_score_given, least_significant_grading_progress))
+    Ok(UserExerciseSlideStateGradingSummary {
+        score_given: total_score_given,
+        grading_progress: least_significant_grading_progress,
+    })
 }
 
 pub async fn update(
@@ -250,10 +258,12 @@ mod tests {
                 .await
                 .unwrap();
 
-            let (score_given, grading_progress) =
-                get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
-                    .await
-                    .unwrap();
+            let UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .await
+                .unwrap();
             assert_eq!(score_given, None);
             assert_eq!(grading_progress, GradingProgress::NotReady);
         }
@@ -276,10 +286,12 @@ mod tests {
                 .await
                 .unwrap();
 
-            let (score_given, grading_progress) =
-                get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
-                    .await
-                    .unwrap();
+            let UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .await
+                .unwrap();
             assert!(f32_approx_eq(score_given.unwrap(), 1.0));
             assert_eq!(grading_progress, GradingProgress::NotReady);
         }
@@ -308,17 +320,27 @@ mod tests {
                 .await
                 .unwrap();
 
-            let (score_given, grading_progress) =
-                get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
-                    .await
-                    .unwrap();
+            let UserExerciseSlideStateGradingSummary {
+                score_given,
+                grading_progress,
+            } = get_grading_summary_by_user_exercise_state_id(tx.as_mut(), user_exercise_state_id)
+                .await
+                .unwrap();
             assert!(f32_approx_eq(score_given.unwrap(), 3.0));
             assert_eq!(grading_progress, GradingProgress::FullyGraded);
         }
 
         async fn create_test_data(tx: &mut Tx<'_>) -> ModelResult<(Uuid, Uuid, Uuid, Uuid)> {
-            insert_data!(tx: tx; :user, :org, :course, :instance);
-            let chapter_id = chapters::insert(tx.as_mut(), "chapter", course, 1).await?;
+            insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
+            let chapter_id = chapters::insert(
+                tx.as_mut(),
+                "chapter",
+                "#065853",
+                course,
+                1,
+                course_module.id,
+            )
+            .await?;
             let (page_id, _history) =
                 pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
             let exercise_id =

@@ -1,12 +1,13 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
 import Spinner from "../../../../shared-module/components/Spinner"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../shared-module/utils/constants"
 import { coursePageRoute } from "../../../../utils/routing"
 
 export interface PagesInChapterProps {
@@ -15,14 +16,14 @@ export interface PagesInChapterProps {
   courseSlug: string
 }
 
-const PagesInChapter: React.FC<PagesInChapterProps> = ({
+const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = ({
   chapterId,
   courseSlug,
   organizationSlug,
 }) => {
   const { t } = useTranslation()
   const getPagesInChapterExcludeFrontpage = useQuery(
-    `chapter-${chapterId}-pages-excluding-frontpage`,
+    [`chapter-${chapterId}-pages-excluding-frontpage`],
     () => fetchChaptersPagesExcludeFrontpage(chapterId),
   )
 
@@ -31,26 +32,27 @@ const PagesInChapter: React.FC<PagesInChapterProps> = ({
       <div>
         <div
           className={css`
-            margin: 7.5em 1em;
+            margin: 4em 0;
           `}
         >
           <h2
-            className={css`
-              font-size: 2.5rem;
-              font-weight: 400;
-              text-align: center;
-              color: #505050;
-              margin-bottom: 2rem;
-              text-transform: uppercase;
-            `}
+            className={cx(
+              INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+              css`
+                font-size: 2.5rem;
+                font-weight: 400;
+                text-align: center;
+                color: #1a2333;
+                margin-bottom: 2rem;
+              `,
+            )}
           >
             {t("table-of-contents")}
           </h2>
           {getPagesInChapterExcludeFrontpage.isError && (
             <ErrorBanner variant={"readOnly"} error={getPagesInChapterExcludeFrontpage.error} />
           )}
-          {(getPagesInChapterExcludeFrontpage.isLoading ||
-            getPagesInChapterExcludeFrontpage.isIdle) && <Spinner variant={"medium"} />}
+          {getPagesInChapterExcludeFrontpage.isLoading && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
               {getPagesInChapterExcludeFrontpage.data

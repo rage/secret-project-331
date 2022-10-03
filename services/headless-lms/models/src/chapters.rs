@@ -1,13 +1,14 @@
 use std::path::PathBuf;
 
 use crate::{
-    pages::{NewPage, Page, PageWithExercises},
+    course_modules,
+    pages::{NewPage, Page, PageMetadata, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
 };
 use headless_lms_utils::{
     document_schema_processor::GutenbergBlock, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals, ApplicationConfiguration,
+    numbers::option_f32_to_f32_two_decimals_with_none_as_zero, ApplicationConfiguration,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -17,6 +18,7 @@ pub struct DatabaseChapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_path: Option<String>,
@@ -25,6 +27,7 @@ pub struct DatabaseChapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -34,6 +37,7 @@ pub struct Chapter {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_image_url: Option<String>,
@@ -42,6 +46,7 @@ pub struct Chapter {
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
     pub copied_from: Option<Uuid>,
+    pub course_module_id: Uuid,
 }
 
 impl Chapter {
@@ -59,6 +64,7 @@ impl Chapter {
             created_at: chapter.created_at,
             updated_at: chapter.updated_at,
             name: chapter.name.clone(),
+            color: chapter.color.clone(),
             course_id: chapter.course_id,
             deleted_at: chapter.deleted_at,
             chapter_image_url,
@@ -67,6 +73,7 @@ impl Chapter {
             opens_at: chapter.opens_at,
             copied_from: chapter.copied_from,
             deadline: chapter.deadline,
+            course_module_id: chapter.course_module_id,
         }
     }
 }
@@ -102,37 +109,60 @@ pub struct ChapterPagesWithExercises {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub chapter_number: i32,
     pub front_page_id: Option<Uuid>,
     pub opens_at: Option<DateTime<Utc>>,
     pub deadline: Option<DateTime<Utc>>,
+    /// If undefined when creating a chapter, will use the course default one.
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    pub course_module_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
+    pub color: Option<String>,
     pub front_page_id: Option<Uuid>,
     pub deadline: Option<DateTime<Utc>>,
     pub opens_at: Option<DateTime<Utc>>,
+    /// CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+    pub course_module_id: Option<Uuid>,
+}
+
+pub struct ChapterInfo {
+    pub chapter_id: Uuid,
+    pub chapter_name: String,
+    pub chapter_front_page_id: Option<Uuid>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
     name: &str,
+    color: &str,
     course_id: Uuid,
     chapter_number: i32,
+    course_module_id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO chapters (name, course_id, chapter_number)
-VALUES ($1, $2, $3)
+INSERT INTO chapters (
+    name,
+    color,
+    course_id,
+    chapter_number,
+    course_module_id
+  )
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
 ",
         name,
+        color,
         course_id,
-        chapter_number
+        chapter_number,
+        course_module_id,
     )
     .fetch_one(conn)
     .await?;
@@ -221,7 +251,9 @@ pub async fn update_chapter(
 UPDATE chapters
 SET name = $2,
   deadline = $3,
-  opens_at = $4
+  opens_at = $4,
+  course_module_id = $5,
+  color = $6
 WHERE id = $1
 RETURNING *;
     "#,
@@ -229,6 +261,8 @@ RETURNING *;
         chapter_update.name,
         chapter_update.deadline,
         chapter_update.opens_at,
+        chapter_update.course_module_id,
+        chapter_update.color,
     )
     .fetch_one(conn)
     .await?;
@@ -262,6 +296,7 @@ pub struct ChapterWithStatus {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
+    pub color: Option<String>,
     pub course_id: Uuid,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chapter_number: i32,
@@ -269,7 +304,42 @@ pub struct ChapterWithStatus {
     pub opens_at: Option<DateTime<Utc>>,
     pub status: ChapterStatus,
     pub chapter_image_url: Option<String>,
+    pub course_module_id: Uuid,
 }
+
+impl ChapterWithStatus {
+    pub fn from_database_chapter_timestamp_and_image_url(
+        database_chapter: DatabaseChapter,
+        timestamp: DateTime<Utc>,
+        chapter_image_url: Option<String>,
+    ) -> Self {
+        let open = database_chapter
+            .opens_at
+            .map(|o| o <= timestamp)
+            .unwrap_or(true);
+        let status = if open {
+            ChapterStatus::Open
+        } else {
+            ChapterStatus::Closed
+        };
+        ChapterWithStatus {
+            id: database_chapter.id,
+            created_at: database_chapter.created_at,
+            updated_at: database_chapter.updated_at,
+            name: database_chapter.name,
+            color: database_chapter.color,
+            course_id: database_chapter.course_id,
+            deleted_at: database_chapter.deleted_at,
+            chapter_number: database_chapter.chapter_number,
+            front_page_id: database_chapter.front_page_id,
+            opens_at: database_chapter.opens_at,
+            status,
+            chapter_image_url,
+            course_module_id: database_chapter.course_module_id,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseInstanceChapterProgress {
@@ -290,6 +360,7 @@ SELECT id,
   created_at,
   updated_at,
   name,
+  color,
   course_id,
   deleted_at,
   chapter_image_path,
@@ -297,7 +368,8 @@ SELECT id,
   front_page_id,
   opens_at,
   copied_from,
-  deadline
+  deadline,
+  course_module_id
 FROM chapters
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -320,6 +392,7 @@ SELECT id,
   created_at,
   updated_at,
   name,
+  color,
   course_id,
   deleted_at,
   chapter_image_path,
@@ -327,7 +400,8 @@ SELECT id,
   front_page_id,
   opens_at,
   copied_from,
-  deadline
+  deadline,
+  course_module_id
 FROM chapters
 WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
   AND deleted_at IS NULL;
@@ -345,25 +419,41 @@ pub async fn insert_chapter(
     user: Uuid,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;
-
+    let course_module_id = if let Some(course_module_id) = chapter.course_module_id {
+        course_module_id
+    } else {
+        course_modules::get_default_by_course_id(&mut tx, chapter.course_id)
+            .await?
+            .id
+    };
     let chapter = sqlx::query_as!(
         DatabaseChapter,
         r#"
-INSERT INTO chapters(name, course_id, chapter_number, deadline, opens_at)
-VALUES($1, $2, $3, $4, $5)
+INSERT INTO chapters(
+    name,
+    color,
+    course_id,
+    chapter_number,
+    deadline,
+    opens_at,
+    course_module_id
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 "#,
         chapter.name,
+        chapter.color,
         chapter.course_id,
         chapter.chapter_number,
         chapter.deadline,
-        chapter.opens_at
+        chapter.opens_at,
+        course_module_id,
     )
     .fetch_one(&mut tx)
     .await?;
 
     let chapter_frontpage_content = serde_json::to_value(vec![
-        GutenbergBlock::hero_section("Insert chapter heading...", "Insert chapter subheading..."),
+        GutenbergBlock::hero_section(&chapter.name, ""),
         GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
         GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
@@ -447,7 +537,9 @@ pub async fn get_user_course_instance_chapter_progress(
             .await?;
 
     let result = UserCourseInstanceChapterProgress {
-        score_given: option_f32_to_f32_two_decimals(user_chapter_metrics.score_given),
+        score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+            user_chapter_metrics.score_given,
+        ),
         score_maximum,
         total_exercises: Some(exercise_ids.len())
             .map(TryInto::try_into)
@@ -458,4 +550,142 @@ pub async fn get_user_course_instance_chapter_progress(
             .transpose()?,
     };
     Ok(result)
+}
+
+pub async fn get_chapter_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<DatabaseChapter> {
+    let chapter = sqlx::query_as!(
+        DatabaseChapter,
+        "
+SELECT c.*
+FROM chapters c,
+  pages p
+WHERE c.id = p.chapter_id
+  AND p.id = $1;
+    ",
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter)
+}
+
+pub async fn get_chapter_info_by_page_metadata(
+    conn: &mut PgConnection,
+    current_page_metadata: &PageMetadata,
+) -> ModelResult<ChapterInfo> {
+    let chapter_page = sqlx::query_as!(
+        ChapterInfo,
+        "
+        SELECT
+            c.id as chapter_id,
+            c.name as chapter_name,
+            c.front_page_id as chapter_front_page_id
+        FROM chapters c
+        WHERE c.id = $1
+        AND c.course_id = $2
+            AND c.deleted_at IS NULL;
+        ",
+        current_page_metadata.chapter_id,
+        current_page_metadata.course_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(chapter_page)
+}
+
+pub async fn set_module(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE chapters
+SET course_module_id = $2
+WHERE id = $1
+",
+        chapter_id,
+        module_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_for_module(conn: &mut PgConnection, module_id: Uuid) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM chapters
+WHERE course_module_id = $1
+",
+        module_id
+    )
+    .map(|c| c.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod constraints {
+        use super::*;
+        use crate::{
+            courses::{self, NewCourse},
+            test_helper::*,
+        };
+
+        #[tokio::test]
+        async fn cannot_create_chapter_for_different_course_than_its_module() {
+            insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
+            let course_2 = courses::insert_course(
+                tx.as_mut(),
+                Uuid::new_v4(),
+                Uuid::new_v4(),
+                NewCourse {
+                    name: "".to_string(),
+                    slug: "course-2".to_string(),
+                    organization_id: org,
+                    language_code: "en-US".to_string(),
+                    teacher_in_charge_name: "Teacher".to_string(),
+                    teacher_in_charge_email: "teacher@example.com".to_string(),
+                    description: "".to_string(),
+                    is_draft: false,
+                    is_test_mode: false,
+                },
+                user,
+            )
+            .await
+            .unwrap()
+            .0
+            .id;
+            let chapter_result_2 = insert_chapter(
+                tx.as_mut(),
+                NewChapter {
+                    name: "Chapter of second course".to_string(),
+                    color: None,
+                    course_id: course_2,
+                    chapter_number: 0,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module.id),
+                },
+                user,
+            )
+            .await;
+            assert!(
+                chapter_result_2.is_err(),
+                "Expected chapter creation to fail when course module belongs to a different course."
+            );
+        }
+    }
 }

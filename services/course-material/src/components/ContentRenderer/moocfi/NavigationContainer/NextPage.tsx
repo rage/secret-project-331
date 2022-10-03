@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
-import { fetchNextPageRoutingData } from "../../../../services/backend"
+import { fetchPageNavigationData } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -17,7 +17,7 @@ export interface NextPageProps {
   organizationSlug: string
 }
 
-const NextPage: React.FC<NextPageProps> = ({
+const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
   currentPageId,
   organizationSlug,
@@ -25,18 +25,36 @@ const NextPage: React.FC<NextPageProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
-  const getNextPageRoutingData = useQuery(`pages-${currentPageId}-next-page`, () =>
-    fetchNextPageRoutingData(currentPageId),
+  const [nextPageChapterOpen, setnextPageChapterOpen] = React.useState(false)
+
+  const getPageRoutingData = useQuery(
+    [`pages-${chapterId}-page-routing-data`],
+    () => fetchPageNavigationData(currentPageId),
+    {
+      onSuccess: (data) => {
+        if (!data.next_page) {
+          return
+        }
+        if (data.next_page.chapter_opens_at === null) {
+          setnextPageChapterOpen(true)
+          return
+        }
+        const diffSeconds = differenceInSeconds(data.next_page.chapter_opens_at, now)
+        setnextPageChapterOpen(diffSeconds <= 0)
+      },
+    },
   )
 
-  if (getNextPageRoutingData.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getNextPageRoutingData.error} />
+  if (getPageRoutingData.isError) {
+    return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
-  if (getNextPageRoutingData.isLoading || getNextPageRoutingData.isIdle) {
+  if (getPageRoutingData.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
-  if (getNextPageRoutingData.data === null) {
+  const { chapter_front_page, next_page, previous_page } = getPageRoutingData.data
+
+  if (next_page === null) {
     // if data is null we have reached the end of the course material. i.e. no page or chapter found
     return (
       <NextSectionLink
@@ -48,30 +66,63 @@ const NextPage: React.FC<NextPageProps> = ({
     )
   }
 
-  const data = getNextPageRoutingData.data
-  const NUMERIC = "numeric"
-  const LONG = "long"
-  const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, data.url_path)
-  // Chapter front page NextSectionLink
-  if (data.chapter_front_page_id === currentPageId) {
+  if (previous_page === null) {
+    // if data is null, we are in the beginning of the course (chapter-1 frontpage precisely)
+    // eslint-disable-next-line i18next/no-literal-string
     return (
       <NextSectionLink
         title={t("start-studying")}
         subtitle={t("proceed-to-the-first-topic")}
-        nextTitle={data.title}
-        url={nextPageUrl}
+        nextTitle={next_page.title}
+        url={coursePageRoute(organizationSlug, courseSlug, next_page.url_path)}
       />
     )
   }
-  if (data.chapter_status === "open") {
-    if (chapterId !== data.chapter_id) {
+
+  const NUMERIC = "numeric"
+  const LONG = "long"
+  const nextPageUrl = coursePageRoute(organizationSlug, courseSlug, next_page.url_path)
+
+  const previousPageUrl = coursePageRoute(organizationSlug, courseSlug, previous_page.url_path)
+
+  if (chapter_front_page === null) {
+    // if data is null, we are in the chapter front-page
+    return (
+      <NextSectionLink
+        title={t("start-studying")}
+        subtitle={t("proceed-to-the-first-topic")}
+        nextTitle={next_page.title}
+        url={coursePageRoute(organizationSlug, courseSlug, next_page.url_path)}
+      />
+    )
+  }
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const chapterPageUrl = coursePageRoute(organizationSlug, courseSlug, chapter_front_page.url_path)
+
+  // Chapter front page NextSectionLink
+  if (next_page.chapter_front_page_id === currentPageId) {
+    return (
+      <NextSectionLink
+        title={t("start-studying")}
+        subtitle={t("proceed-to-the-first-topic")}
+        nextTitle={next_page.title}
+        url={nextPageUrl}
+        previous={previousPageUrl}
+      />
+    )
+  }
+  if (nextPageChapterOpen) {
+    if (chapterId !== next_page.chapter_id) {
       // End of chapter NextSectionLink
       return (
         <NextSectionLink
           title={t("impressive-reached-end-of-chapter")}
           subtitle={t("proceed-to-the-next-chapter")}
-          nextTitle={data.title}
+          nextTitle={next_page.title}
           url={nextPageUrl}
+          previous={previousPageUrl}
+          chapterFrontPageURL={chapterPageUrl}
         />
       )
     } else {
@@ -80,18 +131,20 @@ const NextPage: React.FC<NextPageProps> = ({
         <NextSectionLink
           title={t("reached-end-of-topic")}
           subtitle={t("proceed-to-next-topic")}
-          nextTitle={data.title}
+          nextTitle={next_page.title}
           url={nextPageUrl}
+          previous={previousPageUrl}
+          chapterFrontPageURL={chapterPageUrl}
         />
       )
     }
   } else {
     let closedUntil
-    if (data.chapter_opens_at) {
-      const diffSeconds = differenceInSeconds(data.chapter_opens_at, now)
+    if (next_page.chapter_opens_at) {
+      const diffSeconds = differenceInSeconds(next_page.chapter_opens_at, now)
       if (diffSeconds <= 0) {
         // eslint-disable-next-line i18next/no-literal-string
-        data.chapter_status = "open"
+        setnextPageChapterOpen(true)
         closedUntil = t("opens-now")
         // Insert confetti drop here.
       } else if (diffSeconds < 60 * 10) {
@@ -103,12 +156,12 @@ const NextPage: React.FC<NextPageProps> = ({
         })
         closedUntil = t("opens-in-time", { "relative-time": formatted })
       } else {
-        const date = data.chapter_opens_at.toLocaleString(i18n.language, {
+        const date = next_page.chapter_opens_at.toLocaleString(i18n.language, {
           year: NUMERIC,
           month: LONG,
           day: NUMERIC,
         })
-        const time = data.chapter_opens_at.toLocaleString(i18n.language, {
+        const time = next_page.chapter_opens_at.toLocaleString(i18n.language, {
           hour: NUMERIC,
           minute: NUMERIC,
         })
@@ -123,6 +176,8 @@ const NextPage: React.FC<NextPageProps> = ({
         title={t("impressive-reached-end-of-chapter")}
         subtitle={t("please-wait-until-next-chapter-opens")}
         nextTitle={closedUntil}
+        previous={previousPageUrl}
+        chapterFrontPageURL={chapterPageUrl}
       />
     )
   }

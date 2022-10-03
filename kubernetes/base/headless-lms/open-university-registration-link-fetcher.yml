@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: open-university-registration-link-fetcher
+  labels:
+    app: open-university-registration-link-fetcher
+    deploymentType: with-init-container-cronjob
+    needs-db: "job"
+spec:
+  schedule: "15 0 * * *"
+  startingDeadlineSeconds: 900
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1800
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: open-university-registration-link-fetcher
+              image: headless-lms
+              command:
+                [
+                  "cargo",
+                  "run",
+                  "--",
+                  "open-university-registration-link-fetcher",
+                ]
+              resources:
+                requests:
+                  memory: 100Mi
+                  cpu: 20m
+                limits:
+                  memory: 300Mi
+                  cpu: 200m
+              envFrom:
+                - secretRef:
+                    name: headless-lms-secrets
+          initContainers:
+            - name: headless-lms-wait-for-db
+              image: headless-lms
+              command:
+                - bash
+                - "-c"
+                - |
+                  echo Waiting for postgres to be available
+                  timeout 120 ./wait-for-db.sh
+                  ./wait-for-db-migrations.sh
+              resources:
+                requests:
+                  memory: 100Mi
+                  cpu: 20m
+                limits:
+                  memory: 300Mi
+                  cpu: 200m
+              envFrom:
+                - secretRef:
+                    name: headless-lms-secrets

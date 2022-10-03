@@ -8,13 +8,14 @@ import { primaryFont } from "../../styles/typography"
 
 interface TextFieldExtraProps {
   name?: string
-  type?: "email" | "password" | "text" | "number"
+  type?: "email" | "password" | "text" | "number" | "color"
   label?: string
+  labelStyle?: string
   hint?: string
   error?: string
   placeholder?: string
   required?: boolean
-  value?: string
+  value?: string | number
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void
   onChange?: (value: string, name?: string) => void
@@ -23,6 +24,8 @@ interface TextFieldExtraProps {
   id?: string
   defaultValue?: string
   register?: UseFormRegisterReturn
+  min?: number
+  step?: string
 }
 
 const ERRORCOLOR = "#F76D82"
@@ -31,6 +34,7 @@ const DEFAULTCOLOR = "#dedede"
 interface InputExtraProps {
   error?: string
   disabled?: boolean
+  colorField?: boolean
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -40,13 +44,13 @@ const Input = styled.input<InputExtraProps>`
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  padding: 10px 12px;
+  ${({ colorField }) => !colorField && "padding: 8px 10px 10px 10px;"}
   transition: ease-in-out, width 0.35s ease-in-out;
   outline: none;
   min-width: 20px;
   width: 100%;
   display: block;
-  font-size: 18px;
+  font-size: 17px;
 
   ${({ disabled }) => disabled && `cursor: not-allowed;`}
 
@@ -85,16 +89,19 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
       <label>
         {rest.label && (
           <div
-            className={css`
-              color: #333;
-              font-family: ${primaryFont};
-              font-weight: 500;
-              font-size: 14px;
-              display: inline-block;
-              margin-bottom: 2px;
-              ${disabled && `color: ${baseTheme.colors.grey[400]};`}
-              ${disabled && `cursor: not-allowed;`}
-            `}
+            className={cx(
+              css`
+                color: #333;
+                font-family: ${primaryFont};
+                font-weight: 500;
+                font-size: 14px;
+                display: inline-block;
+                margin-bottom: 2px;
+                ${disabled && `color: ${baseTheme.colors.grey[400]};`}
+                ${disabled && `cursor: not-allowed;`}
+              `,
+              rest.labelStyle,
+            )}
           >
             {rest.label}
           </div>
@@ -103,6 +110,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
           id={rest.id}
           name={rest.name}
           disabled={disabled}
+          colorField={rest.type === "color"}
           // eslint-disable-next-line i18next/no-literal-string
           aria-errormessage={`${rest.label}_error`}
           aria-invalid={rest.error !== undefined}
@@ -121,7 +129,7 @@ const TextField = ({ onChange, className, register, disabled, ...rest }: TextFie
                 visibility: hidden;
               `
         }
-        id={`${rest.label}_error`}
+        id={`${rest.id ?? rest.label}_error`}
         role="alert"
       >
         {rest.error}

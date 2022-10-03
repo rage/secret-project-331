@@ -1,13 +1,15 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../../../components/Layout"
 import ExerciseSubmissionList from "../../../../components/page-specific/manage/exercises/id/submissions/ExerciseSubmissionList"
 import { fetchExerciseSubmissions } from "../../../../services/backend/exercises"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../shared-module/components/Pagination"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
@@ -18,10 +20,13 @@ interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
+const SubmissionsPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getExerciseSubmissions = useQuery(`exercise-${query.id}-submissions`, () =>
-    fetchExerciseSubmissions(query.id),
+  const paginationInfo = usePaginationInfo()
+
+  const getExerciseSubmissions = useQuery(
+    [`exercise-submissions`, query.id, paginationInfo.page, paginationInfo.limit],
+    () => fetchExerciseSubmissions(query.id, paginationInfo.page, paginationInfo.limit),
   )
 
   return (
@@ -31,11 +36,15 @@ const SubmissionsPage: React.FC<SubmissionPageProps> = ({ query }) => {
         {getExerciseSubmissions.isError && (
           <ErrorBanner variant={"readOnly"} error={getExerciseSubmissions.error} />
         )}
-        {(getExerciseSubmissions.isLoading || getExerciseSubmissions.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getExerciseSubmissions.isLoading && <Spinner variant={"medium"} />}
         {getExerciseSubmissions.isSuccess && (
-          <ExerciseSubmissionList exerciseSubmissions={getExerciseSubmissions.data.data} />
+          <>
+            <ExerciseSubmissionList exerciseSubmissions={getExerciseSubmissions.data.data} />
+            <Pagination
+              totalPages={getExerciseSubmissions.data.total_pages}
+              paginationInfo={paginationInfo}
+            />
+          </>
         )}
       </div>
     </Layout>

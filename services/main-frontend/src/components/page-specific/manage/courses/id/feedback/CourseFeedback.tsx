@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -7,10 +8,13 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import TabLink from "../../../../../../shared-module/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import FeedbackList from "./FeedbackList"
 
-const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseFeedback: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const [read, setRead] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()
@@ -23,7 +27,16 @@ const CourseFeedback: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   return (
     <div>
-      <h3>{t("title-feedback")}</h3>
+      <h3
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
+        {t("title-feedback")}
+      </h3>
       <TabLinkNavigation>
         <TabLink
           isActive={!read}

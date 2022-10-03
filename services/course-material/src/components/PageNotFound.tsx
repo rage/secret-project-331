@@ -10,7 +10,11 @@ interface PageNotFoundProps {
   organizationSlug: string
 }
 
-const PageNotFound: React.FC<PageNotFoundProps> = ({ path, courseId, organizationSlug }) => {
+const PageNotFound: React.FC<React.PropsWithChildren<PageNotFoundProps>> = ({
+  path,
+  courseId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
   return (
     <>

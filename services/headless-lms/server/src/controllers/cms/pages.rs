@@ -2,11 +2,11 @@
 
 use models::{
     page_history::HistoryChangeReason,
-    pages::{CmsPageUpdate, ContentManagementPage, PageInfo},
+    pages::{CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation},
     CourseOrExamId,
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
@@ -21,10 +21,10 @@ async fn get_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page = models::pages::get_page_with_exercises(&mut conn, *page_id).await?;
-    Ok(web::Json(cms_page))
+    token.authorized_ok(web::Json(cms_page))
 }
 
 /**
@@ -39,10 +39,10 @@ async fn get_page_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<PageInfo>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page_info = models::pages::get_page_info(&mut conn, *page_id).await?;
-    Ok(web::Json(cms_page_info))
+    token.authorized_ok(web::Json(cms_page_info))
 }
 
 /**
@@ -77,7 +77,7 @@ async fn update_page(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let page_update = payload.0;
     let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
@@ -92,9 +92,24 @@ async fn update_page(
         is_exam_page,
     )
     .await?;
-    Ok(web::Json(saved))
+    token.authorized_ok(web::Json(saved))
 }
 
+/**
+GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_page_navigation(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<PageNavigationInformation>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize()?;
+    let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
 /**
 Add a route for each controller in this module.
 
@@ -105,5 +120,9 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{page_id}", web::get().to(get_page))
         .route("/{page_id}/info", web::get().to(get_page_info))
+        .route(
+            "/{page_id}/page-navigation",
+            web::get().to(get_page_navigation),
+        )
         .route("/{page_id}", web::put().to(update_page));
 }

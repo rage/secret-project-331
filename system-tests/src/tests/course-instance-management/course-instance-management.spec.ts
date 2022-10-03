@@ -67,7 +67,7 @@ test("test", async ({ page, headless }) => {
   await Promise.all([
     page.waitForNavigation(),
     page.click(
-      "text=Default Manage Manage emails Manage permissions View Points Export points >> a",
+      "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
     ),
   ])
   await expect(page).toHaveURL(
@@ -110,8 +110,12 @@ test("test", async ({ page, headless }) => {
 
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
-    for (const div of divs) {
-      if (div.children.length === 0 && div.textContent.includes("Instance is open and ends at")) {
+    for (const div of Array.from(divs)) {
+      if (
+        div.children.length === 0 &&
+        div.textContent &&
+        div.textContent.includes("Instance is open and ends at")
+      ) {
         div.innerHTML = "Instance is open and ends at yyyy-mm-ddThh:mm:ss.xxxZ"
       }
     }

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { primaryFont } from "../../styles/typography"
 import TextArea from "../InputFields/TextAreaField"
 
-import LinkertScale from "./LinkertScale"
+import LikertScale from "./LikertScale"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -36,9 +36,15 @@ const INSTRUCTION_TEXT = `Lorem Ipsum is simply dummy text of the printing and t
 been the industrys standard dummy text ever since the 1500s, when an unknown printer took
 a galley of type and scrambled.`
 
+const GENERAL_COMMENTS = "General comments"
+
+const EXAMPLE_QUESTION = "Example question"
+
 export type ReviewComponentProps = React.HTMLAttributes<HTMLDivElement>
 
-const Review: React.FC<ReviewComponentProps> = () => {
+const Review: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ReviewComponentProps>>
+> = () => {
   const { t } = useTranslation()
   return (
     <Wrapper>
@@ -47,9 +53,16 @@ const Review: React.FC<ReviewComponentProps> = () => {
         <p className="instruction-text">{INSTRUCTION_TEXT}</p>
       </StyledInstruction>
 
-      <span className="comment">{t("general-comment")}</span>
+      <span className="comment">{GENERAL_COMMENTS}</span>
       <TextArea placeholder={t("write-a-review")} onChange={() => null}></TextArea>
-      <LinkertScale />
+      <LikertScale
+        question={EXAMPLE_QUESTION}
+        answerRequired={false}
+        selectedOption={null}
+        setSelectedOption={function (_value: number | null): void {
+          // NOP
+        }}
+      />
     </Wrapper>
   )
 }

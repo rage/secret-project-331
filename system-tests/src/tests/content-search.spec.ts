@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
-import expectPath from "../utils/expect"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -16,16 +17,16 @@ test("content search", async ({ page, headless }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Introduction to Course Material
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-course-material' }*/),
-    page.click("text=Introduction to Course Material"),
+    page.click(`div:text-is("Introduction to Course Material")`),
   ])
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click a:has-text("CHAPTER 2User Experience")
   await Promise.all([
@@ -50,7 +51,7 @@ test("content search", async ({ page, headless }) => {
   await page.waitForSelector("text=Human-machine interface")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main"],
+    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
     headless,
     page,
     snapshotName: "search-content-with-short-prefix",
@@ -61,7 +62,7 @@ test("content search", async ({ page, headless }) => {
   // Click text=Human-machine interface
   await Promise.all([page.waitForNavigation(), page.click("text=Human-machine interface")])
 
-  expectPath(
+  await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-course-material/chapter-1/human-machine-interface",
   )
@@ -79,7 +80,7 @@ test("content search", async ({ page, headless }) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-one-main"],
+    axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
     page,
     headless,
     snapshotName: "search-content-with-two-words-not-just-after-each-other",
@@ -93,7 +94,7 @@ test("content search", async ({ page, headless }) => {
   await page.waitForSelector("text=banana cat enim")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["landmark-one-main"],
+    axeSkip: ["landmark-one-main", "page-has-heading-one"],
     page,
     headless,
     snapshotName: "search-continuous-phrases-ranked-higher-than-word-matches",

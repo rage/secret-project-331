@@ -14,4 +14,6 @@ type Vec<Exercise> = Array<{
   copied_from: string | null
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
+  needs_peer_review: boolean
+  use_course_default_peer_review_config: boolean
 }>

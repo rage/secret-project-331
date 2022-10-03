@@ -4,7 +4,7 @@ use models::{
     pages::{self, Page},
 };
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET /api/v0/course-material/exams/:id/enrollment
@@ -18,7 +18,8 @@ pub async fn enrollment(
 ) -> ControllerResult<web::Json<Option<ExamEnrollment>>> {
     let mut conn = pool.acquire().await?;
     let enrollment = exams::get_enrollment(&mut conn, *exam_id, user.id).await?;
-    Ok(web::Json(enrollment))
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    token.authorized_ok(web::Json(enrollment))
 }
 
 /**
@@ -38,20 +39,28 @@ pub async fn enroll(
     let now = Utc::now();
     if let Some(ends_at) = exam.ends_at {
         if ends_at < now {
-            return Err(ControllerError::Forbidden("Exam is over".to_string()));
+            return Err(ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Exam is over".to_string(),
+                None,
+            ));
         }
     }
 
     if let Some(starts_at) = exam.starts_at {
         if now > starts_at {
             exams::enroll(&mut conn, *exam_id, user.id).await?;
-            return Ok(web::Json(()));
+            // Anyone should be able to start an exam.
+            let token = skip_authorize()?;
+            return token.authorized_ok(web::Json(()));
         }
     }
 
     // no start time defined or it's still upcoming
-    Err(ControllerError::Forbidden(
+    Err(ControllerError::new(
+        ControllerErrorType::Forbidden,
         "Exam has not started yet".to_string(),
+        None,
     ))
 }
 
@@ -98,15 +107,19 @@ pub async fn fetch_exam_for_user(
     let starts_at = if let Some(starts_at) = exam.starts_at {
         starts_at
     } else {
-        return Err(ControllerError::Forbidden(
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
             "Cannot fetch exam that has no start time".to_string(),
+            None,
         ));
     };
     let ends_at = if let Some(ends_at) = exam.ends_at {
         ends_at
     } else {
-        return Err(ControllerError::Forbidden(
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
             "Cannot fetch exam that has no end time".to_string(),
+            None,
         ));
     };
 
@@ -114,7 +127,8 @@ pub async fn fetch_exam_for_user(
 
     if starts_at > Utc::now() {
         // exam has not started yet
-        return Ok(web::Json(ExamData {
+        let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+        return token.authorized_ok(web::Json(ExamData {
             id: exam.id,
             name: exam.name,
             instructions: exam.instructions,
@@ -126,28 +140,16 @@ pub async fn fetch_exam_for_user(
         }));
     }
 
-    let enrollment =
-        if let Some(enrollment) = exams::get_enrollment(&mut conn, *exam_id, user.id).await? {
-            // user has started the exam
-            if Utc::now() < ends_at
-                && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
-            {
-                // exam is still open but the student's time has expired
-                return Ok(web::Json(ExamData {
-                    id: exam.id,
-                    name: exam.name,
-                    instructions: exam.instructions,
-                    starts_at,
-                    ends_at,
-                    ended,
-                    time_minutes: exam.time_minutes,
-                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
-                }));
-            }
-            enrollment
-        } else {
-            // user has not started the exam
-            return Ok(web::Json(ExamData {
+    let enrollment = if let Some(enrollment) =
+        exams::get_enrollment(&mut conn, *exam_id, user.id).await?
+    {
+        // user has started the exam
+        if Utc::now() < ends_at
+            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+        {
+            // exam is still open but the student's time has expired
+            let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+            return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
                 instructions: exam.instructions,
@@ -155,13 +157,29 @@ pub async fn fetch_exam_for_user(
                 ends_at,
                 ended,
                 time_minutes: exam.time_minutes,
-                enrollment_data: ExamEnrollmentData::NotEnrolled,
+                enrollment_data: ExamEnrollmentData::StudentTimeUp,
             }));
-        };
+        }
+        enrollment
+    } else {
+        // user has not started the exam
+        let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+        return token.authorized_ok(web::Json(ExamData {
+            id: exam.id,
+            name: exam.name,
+            instructions: exam.instructions,
+            starts_at,
+            ends_at,
+            ended,
+            time_minutes: exam.time_minutes,
+            enrollment_data: ExamEnrollmentData::NotEnrolled,
+        }));
+    };
 
     let page = pages::get_page(&mut conn, exam.page_id).await?;
 
-    Ok(web::Json(ExamData {
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+    token.authorized_ok(web::Json(ExamData {
         id: exam.id,
         name: exam.name,
         instructions: exam.instructions,

@@ -15,6 +15,7 @@ const config: PlaywrightTestConfig = {
   reporter: [["line"]],
   // We like keeping retries to 0 because by disallowing retries we are forced to keep the tests stable. If were not forced to keep the tests stable, all tests would eventually become flaky. This would slow down test execution a lot and would be major pain. The only exception is when we're deploying master because we don't want flaky tests to randomly prevent urgent deploys.
   retries: process.env.GITHUB_REF === "refs/heads/master" ? 2 : 0,
+  // Please don't increase this. Instead, tag your slow test as slow: https://playwright.dev/docs/api/class-test#test-slow-1
   timeout: 100000,
   use: {
     navigationTimeout: 15000,
@@ -29,6 +30,11 @@ const config: PlaywrightTestConfig = {
       timezoneId: "Europe/Helsinki",
     },
   },
+}
+
+if (!config.use) {
+  // To make typescript happy
+  config.use = {}
 }
 
 if (process.env.SLOWMO) {

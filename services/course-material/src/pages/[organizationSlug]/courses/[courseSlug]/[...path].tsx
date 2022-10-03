@@ -1,13 +1,16 @@
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
-import { useQuery } from "react-query"
 
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
 import Layout from "../../../../components/layout/Layout"
 import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
-import PageContext, { CoursePageDispatch, defaultPageState } from "../../../../contexts/PageContext"
+import PageContext, {
+  CoursePageDispatch,
+  getDefaultPageState,
+} from "../../../../contexts/PageContext"
 import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
@@ -28,21 +31,25 @@ interface PagePageProps {
   query: SimplifiedUrlQuery<string>
 }
 
-const PagePage: React.FC<PagePageProps> = ({ query }) => {
+const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) => {
   const router = useRouter()
   const courseSlug = query.courseSlug
   const path = `/${useQueryParameter("path")}`
-
-  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, defaultPageState)
-  const getCoursePageByPath = useQuery(`course-page-${courseSlug}-${path}`, () =>
+  const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
     fetchCoursePageByPath(courseSlug, path),
+  )
+  const [pageState, pageStateDispatch] = useReducer(
+    pageStateReducer,
+    getDefaultPageState(async () => {
+      await getCoursePageByPath.refetch()
+    }),
   )
 
   useEffect(() => {
     if (getCoursePageByPath.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
-    } else if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+    } else if (getCoursePageByPath.isLoading) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     } else {
@@ -62,7 +69,6 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     getCoursePageByPath.data,
     getCoursePageByPath.error,
     getCoursePageByPath.isError,
-    getCoursePageByPath.isIdle,
     getCoursePageByPath.isLoading,
     getCoursePageByPath.isSuccess,
   ])
@@ -107,7 +113,7 @@ const PagePage: React.FC<PagePageProps> = ({ query }) => {
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isLoading || getCoursePageByPath.isIdle) {
+  if (getCoursePageByPath.isLoading) {
     return <Spinner variant={"small"} />
   }
 

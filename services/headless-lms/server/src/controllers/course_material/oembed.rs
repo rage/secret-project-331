@@ -1,4 +1,4 @@
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 use headless_lms_utils::url_to_oembed_endpoint::{
     mentimeter_oembed_response_builder, OEmbedRequest, OEmbedResponse,
@@ -10,10 +10,14 @@ GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
+    let mut conn = pool.acquire().await?;
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
-    Ok(web::Json(response))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(response))
 }
 
 /**

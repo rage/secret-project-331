@@ -9,9 +9,11 @@ pub mod course_instances;
 pub mod courses;
 pub mod email_templates;
 pub mod exams;
+pub mod exercise_services;
 pub mod gutenberg;
 pub mod organizations;
 pub mod pages;
+pub mod repository_exercises;
 
 use actix_web::web::{self, ServiceConfig};
 
@@ -23,5 +25,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/gutenberg").configure(gutenberg::_add_routes))
         .service(web::scope("/organizations").configure(organizations::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
-        .service(web::scope("/exams").configure(exams::_add_routes));
+        .service(web::scope("/exams").configure(exams::_add_routes))
+        .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
+        .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes));
 }

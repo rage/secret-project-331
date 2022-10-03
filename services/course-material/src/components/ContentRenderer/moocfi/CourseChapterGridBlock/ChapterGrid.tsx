@@ -1,7 +1,7 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
@@ -9,13 +9,12 @@ import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { cardMaxWidth } from "../../../../shared-module/styles/constants"
+import { headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
-import { withMultipleClassNames } from "../../../../shared-module/utils/styles"
 
-import ChapterGridCard from "./ChapterGridCard"
+import Grid from "./Grid"
 
 const COLORS_ARRAY = [
   "#215887",
@@ -31,10 +30,10 @@ const COLORS_ARRAY = [
   "#08457A",
 ]
 
-const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
+const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
-  const getChaptersInCourse = useQuery(`course-${courseId}-chapters`, () =>
+  const getChaptersInCourse = useQuery([`course-${courseId}-chapters`], () =>
     fetchChaptersInTheCourse(courseId),
   )
   const courseSlug = useQueryParameter("courseSlug")
@@ -42,12 +41,12 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
 
   return (
     <div
-      className={withMultipleClassNames([
+      className={cx(
         css`
-          padding: 4.5em 1em;
+          padding: 4em 1em;
         `,
         CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING,
-      ])}
+      )}
     >
       <h1
         className={css`
@@ -56,9 +55,8 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
           text-align: center;
           padding-bottom: 1em;
           line-height: 1.1;
-          font-size: clamp(2.5rem, 3vw, 3.5rem);
-          margin-bottom: 3rem;
-          text-transform: uppercase;
+          font-size: clamp(30px, 3vw, 3rem);
+          margin-bottom: 1rem;
         `}
       >
         {t("course-overview")}
@@ -66,65 +64,71 @@ const ChapterGrid: React.FC<{ courseId: string }> = ({ courseId }) => {
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}
-      {(getChaptersInCourse.isLoading || getChaptersInCourse.isIdle) && (
-        <Spinner variant={"medium"} />
-      )}
+      {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
       {getChaptersInCourse.isSuccess && (
-        <div
-          className={css`
-            @supports (display: grid) {
-              display: grid;
-              grid-gap: 50px;
-              max-width: 1075px;
-              margin: 0 auto;
-              grid-template-columns: 1fr;
-
-              ${respondToOrLarger.md} {
-                grid-template-columns: 1fr 1fr;
-                grid-gap: 40px;
-              }
-              ${respondToOrLarger.lg} {
-                grid-gap: 75px;
-              }
-            }
-          `}
-        >
-          {getChaptersInCourse.data.chapters
-            .sort((a, b) => a.chapter_number - b.chapter_number)
-            .map((chapter) => {
-              const randomNumber = stringToRandomNumber(chapter.id) % COLORS_ARRAY.length
+        <>
+          {getChaptersInCourse.data.modules
+            .sort((a, b) => a.order_number - b.order_number)
+            .map((module) => {
+              const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length
               const randomizedColor = COLORS_ARRAY[randomNumber]
               return (
-                <div
-                  className={css`
-                    max-width: calc(${cardMaxWidth}rem / 1.1);
-                    ${respondToOrLarger.md} {
-                      max-width: ${cardMaxWidth}rem;
-                    }
+                <div key={module.id}>
+                  {!module.is_default && (
+                    <>
+                      <hr
+                        className={css`
+                          border: dashed 2px;
+                          margin: 4rem 0rem 2rem 0rem;
+                          color: #d8dadc;
+                          width: 85vw;
+                          text-align: center;
+                          margin-left: auto;
+                          margin-right: auto;
 
-                    width: 100%;
-                    /* Basic styles for browsers without css grid support */
-                    margin: 0 auto;
-                    margin-bottom: 1rem;
-                    @supports (display: grid) {
-                      margin-bottom: 0;
-                    }
-                  `}
-                  key={chapter.id}
-                >
-                  <ChapterGridCard
-                    backgroundImage={chapter.chapter_image_url}
-                    bg={randomizedColor}
-                    now={now}
-                    chapter={chapter}
+                          ${respondToOrLarger.lg} {
+                            max-width: 1075px;
+                          }
+                        `}
+                      />
+                      <div
+                        className={css`
+                          margin: 1rem 1rem 0.3rem 1rem;
+                          text-transform: uppercase;
+                          font-size: 1rem;
+                          font-weight: bold;
+                          text-align: center;
+                          font-family: ${secondaryFont};
+                        `}
+                      >
+                        {t("additional-module")}
+                      </div>
+                      <div
+                        className={css`
+                          margin-bottom: 2rem;
+                          color: ${randomizedColor};
+                          font-weight: bold;
+                          font-size: 2rem;
+                          text-align: center;
+                          opacity: 0.8;
+                          font-family: ${headingFont};
+                        `}
+                      >
+                        {module.name}
+                      </div>
+                    </>
+                  )}
+                  <Grid
+                    chapters={module.chapters}
                     courseSlug={courseSlug}
+                    now={now}
                     organizationSlug={organizationSlug}
                     previewable={getChaptersInCourse.data.is_previewable}
                   />
                 </div>
               )
             })}
-        </div>
+        </>
       )}
     </div>
   )

@@ -61,6 +61,27 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       max_tries_per_slide: 72,
       limit_number_of_tries: true,
       deadline: null,
+      needs_peer_review: true,
+      peer_review_config: {
+        id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+        course_id: "",
+        exercise_id: "dd46fb67-d168-4554-b912-0018f812166d",
+        accepting_strategy: "AutomaticallyAcceptOrManualReviewByAverage",
+        accepting_threshold: 0.5,
+        peer_reviews_to_give: 1,
+        peer_reviews_to_receive: 1,
+      },
+      peer_review_questions: [
+        {
+          id: "f3c8eadd-75ca-409f-b1c6-31db65701930",
+          peer_review_config_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+          answer_required: true,
+          order_number: 0,
+          question: "how about...",
+          question_type: "Essay",
+        },
+      ],
+      use_course_default_peer_review_config: false,
     },
   ],
   exercise_slides: [
@@ -88,7 +109,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         },
       ],
       order_number: 0,
-      exercise_type: "quiz",
+      exercise_type: "quizzes",
       private_spec: {
         options: ["a", "b", "c"],
       },
@@ -106,6 +127,12 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   score_maximum: 5,
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
+  needs_peer_review: true,
+  peer_review_config:
+    '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","accepting_strategy":"AutomaticallyAcceptOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
+  peer_review_questions_config:
+    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay"}]',
+  use_course_default_peer_review: false,
 }
 
 // Doing this separately so that we get type errors when the type changes
@@ -117,7 +144,7 @@ const exampleUnnormalizedDocumentExerciseSlideAttributes: ExerciseSlideAttribute
 // Doing this separately so that we get type errors when the type changes
 const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes = {
   id: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
-  exercise_type: "quiz",
+  exercise_type: "quizzes",
   private_spec: '{"options":["a","b","c"]}',
   show_editor: false,
   order_number: 0,

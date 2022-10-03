@@ -2,10 +2,12 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../types/types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
+import { orderArrayWithId } from "../../util/randomizer"
 import MarkdownText from "../MarkdownText"
+import ParsedText from "../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -42,11 +44,14 @@ const gradingOptionCorrectAndSelected = css`
   color: ${quizTheme.gradingCorrectItemColor};
 `
 
-const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
+const MultipleChoiceSubmission: React.FC<
+  React.PropsWithChildren<QuizItemSubmissionComponentProps>
+> = ({
   public_quiz_item,
   quiz_item_model_solution,
   user_quiz_item_answer,
   quiz_item_feedback,
+  user_information,
 }) => {
   const { t } = useTranslation()
 
@@ -55,7 +60,11 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   const direction: "row" | "column" =
     public_quiz_item.direction === DIRECTION_COLUMN ? DIRECTION_COLUMN : DIRECTION_ROW
 
-  const feedbackDisplayPolicy = quiz_item_model_solution?.feedbackDisplayPolicy
+  let quiz_options = public_quiz_item.options
+  if (public_quiz_item.shuffleOptions) {
+    quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
+  }
+
   return (
     <div
       className={css`
@@ -66,9 +75,10 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
         className={css`
           font-size: ${quizTheme.quizTitleFontSize};
           font-weight: bold;
+          font-family: "Raleway", sans-serif;
         `}
       >
-        {public_quiz_item.title && <MarkdownText text={public_quiz_item.title} />}
+        <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
       </div>
       <p
         className={css`
@@ -89,11 +99,8 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
           }
         `}
       >
-        {public_quiz_item.options.map((qo) => {
+        {quiz_options.map((qo) => {
           const selectedAnswer = user_quiz_item_answer.optionAnswers?.includes(qo.id) ?? false
-          const submissionFeedback = quiz_item_model_solution?.options.find(
-            (option) => option.id === qo.id,
-          )
           const modelSolutionForThisOption =
             quiz_item_model_solution?.options.find((x) => x.id === qo.id) ?? null
           // If correctAnswer is null we don't know whether this option was correct or not
@@ -126,7 +133,7 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                       max-width: 50ch;
                     `}
                   >
-                    <MarkdownText text={qo.title || qo.body || ""} />
+                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
                   </div>
                   <div>
                     <div
@@ -143,10 +150,13 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
                   </div>
                 </div>
                 <RowSubmissionFeedback
-                  submissionFeedback={submissionFeedback}
-                  selectedAnswer={selectedAnswer}
-                  feedbackDisplayPolicy={feedbackDisplayPolicy}
-                ></RowSubmissionFeedback>
+                  correct={correctAnswer ?? false}
+                  feedback={
+                    selectedAnswer
+                      ? feedbackForThisOption?.option_feedback
+                      : modelSolutionForThisOption?.additionalCorrectnessExplanationOnModelSolution
+                  }
+                />
               </div>
             </>
           )
@@ -156,61 +166,31 @@ const MultipleChoiceSubmission: React.FC<QuizItemSubmissionComponentProps> = ({
   )
 }
 
-interface MultipleChoiceDirectionProps {
-  submissionFeedback: QuizItemOption | undefined
-  selectedAnswer: boolean
-  feedbackDisplayPolicy: "DisplayFeedbackOnQuizItem" | "DisplayFeedbackOnAllOptions" | undefined
+interface RowSubmissionFeedbackProps {
+  feedback: string | null | undefined
+  correct: boolean
 }
 
-const RowSubmissionFeedback: React.FC<MultipleChoiceDirectionProps> = ({
-  submissionFeedback,
-  selectedAnswer,
-  feedbackDisplayPolicy,
-}) => (
-  <div>
-    {feedbackDisplayPolicy === "DisplayFeedbackOnQuizItem" && submissionFeedback ? (
-      <>
-        {selectedAnswer ? (
-          <div
-            className={css`
-              margin-left: 0.5em;
-              display: flex;
-              border-left: ${submissionFeedback.correct
-                ? `6px solid #1F6964`
-                : `6px solid #A84835`};
-              box-sizing: border-box;
-              padding: 0.5rem 0px 0.5rem 0.5rem;
-              margin-bottom: 5px !important;
-            `}
-          >
-            <p>
-              {submissionFeedback.correct
-                ? submissionFeedback.successMessage
-                : submissionFeedback.failureMessage}
-            </p>
-          </div>
-        ) : null}
-      </>
-    ) : null}
-    {feedbackDisplayPolicy === "DisplayFeedbackOnAllOptions" && submissionFeedback ? (
-      <div
-        className={css`
-          margin-left: 0.5em;
-          display: flex;
-          border-left: ${submissionFeedback.correct ? `6px solid #1F6964` : `6px solid #A84835`};
-          box-sizing: border-box;
-          padding: 0.5rem 0px 0.5rem 0.5rem;
-          margin-bottom: 5px !important;
-        `}
-      >
-        <p>
-          {submissionFeedback.correct
-            ? submissionFeedback.successMessage
-            : submissionFeedback.failureMessage}
-        </p>
-      </div>
-    ) : null}
-  </div>
-)
+const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedbackProps>> = ({
+  feedback,
+  correct,
+}) => {
+  return feedback ? (
+    <div
+      className={css`
+        margin: 0 0.5rem 1rem;
+        display: flex;
+        border-left: ${correct
+          ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+          : `6px solid ${quizTheme.gradingWrongItemBackground}`};
+        box-sizing: border-box;
+        background: ${quizTheme.feedbackBackground};
+        padding: 0.5rem 0px 0.5rem 0.5rem;
+      `}
+    >
+      <p>{feedback}</p>
+    </div>
+  ) : null
+}
 
-export default MultipleChoiceSubmission
+export default withErrorBoundary(MultipleChoiceSubmission)

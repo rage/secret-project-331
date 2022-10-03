@@ -1,12 +1,16 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import { parseText } from "../../../util/textParsing"
 
-const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => {
+const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
+  data,
+}) => {
   const { t } = useTranslation()
   const {
     alt,
@@ -26,6 +30,8 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
     url,
     width,
   } = data.attributes
+
+  const { terms } = useContext(GlossaryContext)
 
   const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
     linkTarget && linkTarget.includes("_blank")
@@ -53,8 +59,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
       <Zoom>
         <figure
           className={css`
-            display: table;
-            ${align === "center" && `text-align: center; display: table; margin: 0 auto;`}
+            ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
             ${align !== "center" &&
             `float: ${align};
           margin-top: 3rem;
@@ -82,6 +87,7 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
                 width={width}
                 className={css`
                   max-width: 100%;
+                  height: auto;
                   margin: 1rem 0;
                   ${className === "is-style-rounded" && "border-radius: 9999px"}
                 `}
@@ -93,19 +99,20 @@ const ImageBlock: React.FC<BlockRendererProps<ImageAttributes>> = ({ data }) => 
               )}
             </a>
           </div>
-          <figcaption
-            className={css`
-              display: table-caption;
-              caption-side: bottom;
-              text-align: center;
-              font-size: 0.8125rem;
-              margin-top: 0.5rem;
-              margin-bottom: 0.8125rem;
-            `}
-            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption ?? "") }}
-          />
         </figure>
       </Zoom>
+      <figcaption
+        className={css`
+          caption-side: bottom;
+          text-align: center;
+          font-size: 0.8125rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.8125rem;
+        `}
+        dangerouslySetInnerHTML={{
+          __html: parseText(caption ?? "", terms).parsedText,
+        }}
+      />
     </div>
   )
 }

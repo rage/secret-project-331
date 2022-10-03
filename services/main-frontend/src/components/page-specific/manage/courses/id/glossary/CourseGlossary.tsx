@@ -1,6 +1,7 @@
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
@@ -11,8 +12,11 @@ import TextAreaField from "../../../../../../shared-module/components/InputField
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
-const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
 
   const [newTerm, setNewTerm] = useState("")
@@ -20,7 +24,7 @@ const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const [updatedTerm, setUpdatedTerm] = useState("")
   const [updatedDefinition, setUpdatedDefinition] = useState("")
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
-  const glossary = useQuery(`glossary-${courseId}`, () => fetchGlossary(courseId))
+  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
   const createMutation = useToastMutation(
     () => postNewTerm(courseId, newTerm, newDefinition),
     {
@@ -59,9 +63,18 @@ const CourseGlossary: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   return (
     <>
-      <h1>{t("manage-glossary")}</h1>
+      <h1
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.grey[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
+        {t("manage-glossary")}
+      </h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
-      {(glossary.isIdle || glossary.isLoading) && <Spinner variant={"medium"} />}
+      {glossary.isLoading && <Spinner variant={"medium"} />}
       <div>
         <TextField
           label={t("new-term")}

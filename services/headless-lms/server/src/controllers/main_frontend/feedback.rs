@@ -1,6 +1,6 @@
 use models::feedback;
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -16,10 +16,13 @@ pub async fn mark_as_read(
     feedback_id: web::Path<Uuid>,
     mark_as_read: web::Json<MarkAsRead>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     feedback::mark_as_read(&mut conn, *feedback_id, mark_as_read.into_inner().read).await?;
-    Ok(HttpResponse::Ok().finish())
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**

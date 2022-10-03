@@ -13,16 +13,16 @@ export default (
     return res.status(404).json({ message: "Not found" })
   }
 
-  return handlePost(req, res)
+  return handleGet(req, res)
 }
 
-const handlePost = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
+const handleGet = (_req: NextApiRequest, res: NextApiResponse<ExerciseServiceInfoApi>) => {
   const prefix = basePath()
   res.json({
     service_name: "Example exercise",
-    exercise_type_specific_user_interface_iframe: `${prefix}/iframe`,
+    user_interface_iframe_path: `${prefix}/iframe`,
     grade_endpoint_path: `${prefix}/api/grade`,
     public_spec_endpoint_path: `${prefix}/api/public-spec`,
-    model_solution_path: `${prefix}/api/model-solution`,
+    model_solution_spec_endpoint_path: `${prefix}/api/model-solution`,
   })
 }

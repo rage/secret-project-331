@@ -1,6 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -23,11 +24,15 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        border: 3px solid #bec3c7;
+        border-radius: 3px;
+        margin-bottom: 10px;
+        padding: 5px;
       `}
     >
       <div
         className={css`
-          flex: 2;
+          flex: 0.3;
           margin: 0.5rem;
           display: flex;
           justify-content: flex-end;
@@ -52,4 +57,4 @@ const Checkbox: React.FC<QuizItemComponentProps> = ({
   )
 }
 
-export default Checkbox
+export default withErrorBoundary(Checkbox)

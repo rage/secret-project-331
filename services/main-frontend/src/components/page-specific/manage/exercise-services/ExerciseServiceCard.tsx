@@ -5,15 +5,15 @@ import DoneIcon from "@mui/icons-material/Done"
 import EditIcon from "@mui/icons-material/Edit"
 import ErrorIcon from "@mui/icons-material/Error"
 import SaveIcon from "@mui/icons-material/Save"
-import { Box, Card, CardContent, CardHeader, IconButton } from "@mui/material"
+import { Card, CardContent, CardHeader, IconButton } from "@mui/material"
 import Dialog from "@mui/material/Dialog"
 import DialogActions from "@mui/material/DialogActions"
 import DialogContent from "@mui/material/DialogContent"
 import DialogContentText from "@mui/material/DialogContentText"
 import DialogTitle from "@mui/material/DialogTitle"
+import { QueryObserverResult } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { QueryObserverResult } from "react-query"
 
 import {
   deleteExerciseService,
@@ -40,7 +40,7 @@ enum UpdateStatus {
   "failed",
 }
 
-const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
+const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
   key,
   exerciseService,
   refetch,
@@ -117,7 +117,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
   }
 
   return (
-    <Box>
+    <div>
       <Card
         key={key}
         variant="outlined"
@@ -238,7 +238,7 @@ const ExerciseServiceCard: React.FC<ExerciseServiceCardProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   )
 }
 

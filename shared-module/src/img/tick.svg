@@ -1,8 +1,8 @@
 <svg id="tick-circle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ffffff">
   <g id="ick-circle-2" fill="#ffffff">
     <g id="tick-circle" fill="#ffffff">
-      <path id="Vector" d="M10,20A10,10,0,1,1,20,10,10.011,10.011,0,0,1,10,20ZM5.75,9.262a.744.744,0,0,0-.53.217.751.751,0,0,0,0,1.06l2.83,2.83a.75.75,0,0,0,1.06,0L14.78,7.7a.751.751,0,0,0,0-1.06.755.755,0,0,0-1.06,0L8.58,11.78l-2.3-2.3A.744.744,0,0,0,5.75,9.262Z" transform="translate(2 2)" fill="#37BC9B"/>
-      <path id="Vector-2" d="M24,0V24H0V0Z" transform="translate(24 24) rotate(180)" fill="none" opacity="0"/>
+      <path d="M10,20A10,10,0,1,1,20,10,10.011,10.011,0,0,1,10,20ZM5.75,9.262a.744.744,0,0,0-.53.217.751.751,0,0,0,0,1.06l2.83,2.83a.75.75,0,0,0,1.06,0L14.78,7.7a.751.751,0,0,0,0-1.06.755.755,0,0,0-1.06,0L8.58,11.78l-2.3-2.3A.744.744,0,0,0,5.75,9.262Z" transform="translate(2 2)" fill="#37BC9B" />
+      <path d="M24,0V24H0V0Z" transform="translate(24 24) rotate(180)" fill="none" opacity="0" />
     </g>
   </g>
 </svg>

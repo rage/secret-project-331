@@ -2,7 +2,7 @@
 
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
@@ -15,11 +15,12 @@ async fn delete_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let deleted =
         models::exercise_services::delete_exercise_service(&mut conn, *exercise_service_id).await?;
-    Ok(web::Json(deleted))
+
+    token.authorized_ok(web::Json(deleted))
 }
 
 /**
@@ -33,12 +34,13 @@ async fn add_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let exercise_service = payload.0;
     let created =
         models::exercise_services::insert_exercise_service(&mut conn, &exercise_service).await?;
-    Ok(web::Json(created))
+
+    token.authorized_ok(web::Json(created))
 }
 
 /**
@@ -54,7 +56,9 @@ async fn get_exercise_service_by_id(
     let mut conn = pool.acquire().await?;
     let exercise_service =
         models::exercise_services::get_exercise_service(&mut conn, *exercise_service_id).await?;
-    Ok(web::Json(exercise_service))
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::ExerciseService).await?;
+    token.authorized_ok(web::Json(exercise_service))
 }
 
 /**
@@ -68,7 +72,9 @@ async fn get_exercise_services(
 ) -> ControllerResult<web::Json<Vec<ExerciseService>>> {
     let mut conn = pool.acquire().await?;
     let exercise_services = models::exercise_services::get_exercise_services(&mut conn).await?;
-    Ok(web::Json(exercise_services))
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::ExerciseService).await?;
+    token.authorized_ok(web::Json(exercise_services))
 }
 
 /**
@@ -83,7 +89,7 @@ async fn update_exercise_service(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ExerciseService>> {
     let mut conn = pool.acquire().await?;
-    authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::ExerciseService).await?;
 
     let updated_exercise_service = payload.0;
     let updated_service = models::exercise_services::update_exercise_service(
@@ -92,7 +98,8 @@ async fn update_exercise_service(
         &updated_exercise_service,
     )
     .await?;
-    Ok(web::Json(updated_service))
+
+    token.authorized_ok(web::Json(updated_service))
 }
 
 /**

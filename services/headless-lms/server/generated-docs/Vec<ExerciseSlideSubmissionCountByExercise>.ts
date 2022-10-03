@@ -1,5 +1,5 @@
 type Vec<ExerciseSlideSubmissionCountByExercise> = Array<{
-  exercise_id: string | null
+  exercise_id: string
   count: number | null
-  exercise_name: string | null
+  exercise_name: string
 }>

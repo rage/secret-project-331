@@ -1,7 +1,9 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
@@ -26,7 +28,10 @@ const Scale: React.FC<QuizItemComponentProps> = ({
     <div
       className={css`
         display: flex;
+        padding: 10px;
         flex-direction: column;
+        margin-bottom: 10px;
+        background: white;
         ${respondToOrLarger.md} {
           flex-direction: row;
           flex-wrap: wrap;
@@ -38,6 +43,8 @@ const Scale: React.FC<QuizItemComponentProps> = ({
           flex: 5;
           margin: 0.5rem;
           text-align: center;
+          font-family: ${primaryFont};
+          font-size: 18px;
           ${respondToOrLarger.md} {
             text-align: left;
           }
@@ -82,4 +89,4 @@ const Scale: React.FC<QuizItemComponentProps> = ({
   )
 }
 
-export default Scale
+export default withErrorBoundary(Scale)

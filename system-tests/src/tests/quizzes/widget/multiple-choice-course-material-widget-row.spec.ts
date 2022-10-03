@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectCourseVariantIfPrompted } from "../../../utils/courseMaterialActions"
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -18,9 +18,9 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   // Click text=Advanced course instance managementNo description available
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator("text=Introduction to Course Material").click(),
+    page.locator(`div:text-is("Introduction to Course Material")`).click(),
   ])
-  await selectCourseVariantIfPrompted(page)
+  await selectCourseInstanceIfPrompted(page)
   await page.locator("text=User Experience").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",
@@ -49,11 +49,8 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -70,7 +67,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -82,10 +79,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 
@@ -118,11 +112,8 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -139,7 +130,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -151,10 +142,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 

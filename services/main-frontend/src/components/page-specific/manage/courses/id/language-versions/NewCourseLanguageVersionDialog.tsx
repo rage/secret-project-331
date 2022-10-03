@@ -13,13 +13,9 @@ interface NewCourseLanguageVersionDialogProps {
   onClose: () => void
 }
 
-const NewCourseLanguageVersionDialog: React.FC<NewCourseLanguageVersionDialogProps> = ({
-  showNewLanguageVersionForm,
-  courseName,
-  handleSubmit,
-  onClose,
-  organizationId,
-}) => {
+const NewCourseLanguageVersionDialog: React.FC<
+  React.PropsWithChildren<NewCourseLanguageVersionDialogProps>
+> = ({ showNewLanguageVersionForm, courseName, handleSubmit, onClose, organizationId }) => {
   const { t } = useTranslation()
   return (
     <Dialog open={showNewLanguageVersionForm} onClose={onClose}>

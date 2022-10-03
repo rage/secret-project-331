@@ -33,7 +33,7 @@ interface TableContentProps {
   item: NormalizedQuizItem
 }
 
-const TableContent: React.FC<TableContentProps> = ({ item }) => {
+const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ item }) => {
   const variables = useTypedSelector((state) => state.editor.itemVariables[item.id])
   const dispatch = useDispatch()
 

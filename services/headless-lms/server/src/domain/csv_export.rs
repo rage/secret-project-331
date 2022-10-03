@@ -1,24 +1,25 @@
+use anyhow::{Context, Result};
+use bytes::Bytes;
+use csv::Writer;
+use futures::{stream::FuturesUnordered, Stream, StreamExt, TryStreamExt};
+use headless_lms_models::{
+    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
+};
+use serde::Serialize;
+use sqlx::PgConnection;
 use std::{
     collections::HashMap,
     io,
     io::Write,
     sync::{Arc, Mutex},
 };
-
-use anyhow::{Context, Result};
-use bytes::Bytes;
-use csv::Writer;
-use futures::stream::FuturesUnordered;
-use headless_lms_models::{
-    chapters, course_instances, exercise_task_submissions, exercises, user_exercise_states,
-};
-use sqlx::PgConnection;
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
-use tokio_stream::StreamExt;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
 
-use crate::controllers::ControllerResult;
+use crate::prelude::*;
 
+use super::authorization::{AuthorizationToken, AuthorizedResponse};
 /// Convenience struct for creating CSV data.
 struct CsvWriter<W: Write> {
     csv_writer: Arc<Mutex<Writer<W>>>,
@@ -234,8 +235,8 @@ where
 
 pub struct CSVExportAdapter {
     pub sender: UnboundedSender<ControllerResult<Bytes>>,
+    pub authorization_token: AuthorizationToken,
 }
-
 impl Write for CSVExportAdapter {
     fn flush(&mut self) -> std::io::Result<()> {
         Ok(())
@@ -243,11 +244,78 @@ impl Write for CSVExportAdapter {
 
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         let bytes = Bytes::copy_from_slice(buf);
+        let token = self.authorization_token;
         self.sender
-            .send(Ok(bytes))
+            .send(token.authorized_ok(bytes))
             .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
         Ok(buf.len())
     }
+}
+
+/** Without this one, actix cannot stream our authorized streams as responses
+
+```ignore
+HttpResponse::Ok()
+    .append_header((
+        "Content-Disposition",
+        format!(
+            "attachment; filename=\"Exam: {} - Submissions {}.csv\"",
+            exam.name,
+            Utc::today().format("%Y-%m-%d")
+        ),
+    ))
+    .streaming(make_authorized_streamable(UnboundedReceiverStream::new(
+        receiver,
+    ))),
+```
+*/
+pub fn make_authorized_streamable(
+    stream: UnboundedReceiverStream<Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
+) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
+    stream.map(|item| item.map(|item2| item2.data))
+}
+
+/**
+  For streaming arrays of json objects.
+*/
+pub fn serializable_sqlx_result_stream_to_json_stream(
+    stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
+) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
+    let res_stream = stream.enumerate().map(|(n, item)| {
+        item.map(|item2| {
+            match serde_json::to_vec(&item2) {
+                Ok(mut v) => {
+                    // Only item index available, we don't know the length of the stream
+                    if n == 0 {
+                        // Start of array character to the beginning of the stream
+                        v.insert(0, b'[');
+                    } else {
+                        // Separator character before every item excluding the first item
+                        v.insert(0, b',');
+                    }
+                    Bytes::from(v)
+                }
+                Err(e) => {
+                    // Since we're already streaming a response, we have no way to change the status code of the response anymore.
+                    // Our best option at this point is to write the error to the response, hopefully causing the response to be invalid json.
+                    error!("Failed to serialize item: {}", e);
+                    Bytes::from(format!(
+                        "Streaming error: Failed to serialize item. Details: {:?}",
+                        e
+                    ))
+                }
+            }
+        })
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                original_error.to_string(),
+                Some(original_error.into()),
+            )
+        })
+    });
+    // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
+    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
 }
 
 #[cfg(test)]
@@ -263,7 +331,10 @@ mod test {
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
-        library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission},
+        library::grading::{
+            GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
+        },
+        user_exercise_states::ExerciseWithUserState,
         users,
     };
     use serde_json::Value;
@@ -271,14 +342,16 @@ mod test {
     use super::*;
     use crate::test_helper::*;
 
-    #[tokio::test]
+    #[actix_web::test]
     async fn exports() {
-        insert_data!(:tx, :user, :org, :course, :instance, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", course, 2).await.unwrap();
+        let c2 = chapters::insert(tx.as_mut(), "", "#065853", course, 2, course_module.id)
+            .await
+            .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
             .await
             .unwrap();
@@ -291,7 +364,6 @@ mod test {
                 assignment: vec![],
                 public_spec: Some(Value::Null),
                 private_spec: Some(Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(Value::Null),
                 order_number: 1,
             },
@@ -310,7 +382,6 @@ mod test {
                 assignment: vec![],
                 public_spec: Some(Value::Null),
                 private_spec: Some(Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(Value::Null),
                 order_number: 2,
             },
@@ -375,10 +446,11 @@ mod test {
             user_exercise_states::get_or_create_user_exercise_state(tx, u, ex, Some(ci), None)
                 .await
                 .unwrap();
-        headless_lms_models::library::grading::test_only_grade_user_submission_with_fixed_results(
+        let mut exercise_with_user_state =
+            ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
+        headless_lms_models::library::grading::grade_user_submission(
             tx,
-            &exercise,
-            user_exercise_state,
+            &mut exercise_with_user_state,
             StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
@@ -386,7 +458,7 @@ mod test {
                     data_json: Value::Null,
                 }],
             },
-            HashMap::from([(
+            GradingPolicy::Fixed(HashMap::from([(
                 et,
                 ExerciseTaskGradingResult {
                     feedback_json: None,
@@ -395,7 +467,7 @@ mod test {
                     score_given,
                     score_maximum: 100,
                 },
-            )]),
+            )])),
         )
         .await
         .unwrap();

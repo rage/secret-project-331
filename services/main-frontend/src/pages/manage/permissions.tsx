@@ -6,7 +6,7 @@ import Layout from "../../components/Layout"
 import { PermissionPage } from "../../components/PermissionPage"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
-const GlobalPermissions: React.FC<unknown> = () => {
+const GlobalPermissions: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
 
   return (

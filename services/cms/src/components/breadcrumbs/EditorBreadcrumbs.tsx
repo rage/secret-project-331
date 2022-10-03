@@ -8,11 +8,13 @@ import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
-const EditorBreadcrumbs: React.FC = () => {
+const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   const router = useRouter()
 
   const pageId = router.asPath.split("/")[2]
-  const data = usePageInfo(pageId)
+  const prefix = router.asPath.split("/")[1]
+
+  const data = usePageInfo(pageId, prefix)
 
   if (!data) {
     return (
@@ -26,7 +28,7 @@ const EditorBreadcrumbs: React.FC = () => {
     return <ErrorBanner variant={"readOnly"} error={data.error} />
   }
 
-  if (data.isLoading || data.isIdle) {
+  if (data.isLoading) {
     return <Spinner variant={"small"} />
   }
 

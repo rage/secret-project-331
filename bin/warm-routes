@@ -1,0 +1,60 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Why does this script exist?
+#
+# Next.JS builds pages on demand in the development mode. Just after starting the development server this causes inconvenient compilation delays when trying to use the application. This script makes requests to some of the most common pages in the project, so that they get precompiled and can be loaded faster.
+#
+# This script is called automatically from skaffold.yaml after bin/dev deploys.
+
+PIDS=()
+
+echo "Warming up routes by making parallel requests to some common endpoints..."
+echo "This makes sure these common routes get precompiled so that they will load a bit faster."
+echo "This script is ran automatically after skaffold deploys but you can rerun this by executing bin/warm-routes"
+echo ""
+
+
+function _warm_route_impl() {
+  sleep 0.1
+  OUTPUT=$(_do_curl "$1")
+  ROUNDS=0
+  # Pods intially return 502 straight away, so we need to wait for a bit. However, we also have a timeout in case there is a real internal server error
+  while [ "$OUTPUT" == "502" ] && [ $ROUNDS -lt 20 ]; do
+    sleep 0.5
+    OUTPUT=$(_do_curl "$1")
+    ROUNDS=$((ROUNDS + 1))
+  done
+  echo "Route warmed: $1"
+}
+
+function _do_curl() {
+  # max time here because starting the request is enough for warming the route and not having the max time would block Skaffold for extra 20-30 seconds while this completes because the initial Next.js compilation may take that long
+  curl --max-time 1 -s -o /dev/null -w "%{http_code}" "$1"
+}
+
+function warm_route() {
+  echo "Warming up route: $1"
+  # To warm up the routes in parallell
+  _warm_route_impl "$1" &
+  PIDS+=($!)
+}
+
+# Don't put too many routes here, it would take too many resources on lower spec machines once the server has started.
+warm_route "http://project-331.local/"
+warm_route "http://project-331.local/org/uh-cs"
+warm_route "http://project-331.local/org/uh-cs/courses/advanced-course-instance-management"
+warm_route "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4"
+warm_route "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/pages"
+warm_route "http://project-331.local/cms/pages/ff25bda5-075a-456f-89f4-74b040b716c6"
+warm_route "http://project-331.local/quizzes/iframe"
+warm_route "http://project-331.local/tmc/iframe"
+warm_route "http://project-331.local/example-exercise/iframe"
+echo ""
+
+# Wait for the the requests to finish
+# Note that skaffold would wait for the requests to finish even without this, so it's better to do this here anyway for consistency. The warm_route function is designed to return as soon as the warm up requests have started -- it does not wait for the compilation to finish to prevent this script blocking skaffold for too long.
+for PID in "${PIDS[@]}"; do
+  wait "$PID"
+done

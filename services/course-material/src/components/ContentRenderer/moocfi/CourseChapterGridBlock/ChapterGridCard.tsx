@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration } from "date-fns"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPageUrl } from "../../../../services/backend"
 import { ChapterWithStatus } from "../../../../shared-module/bindings"
@@ -11,9 +11,9 @@ import { coursePageRoute } from "../../../../utils/routing"
 
 interface ChapterProps {
   now: Date
+  bg: string
   chapter: ChapterWithStatus
   courseSlug: string
-  bg: string
   organizationSlug: string
   previewable: boolean
   backgroundImage?: string | null
@@ -23,17 +23,17 @@ const NUMERIC = "numeric"
 const LONG = "long"
 const OPEN = "open"
 
-const ChapterGridCard: React.FC<ChapterProps> = ({
+const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,
+  bg,
   chapter,
   courseSlug,
-  bg,
   organizationSlug,
   previewable,
   backgroundImage,
 }) => {
   const { i18n } = useTranslation()
-  const getChapterPageUrl = useQuery(`chapter-grid-chapter-${chapter.id}`, () => {
+  const getChapterPageUrl = useQuery([`chapter-grid-chapter-${chapter.id}`], () => {
     if (chapter.front_page_id) {
       return fetchPageUrl(chapter.front_page_id)
     } else {
@@ -45,7 +45,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
     return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
   }
 
-  if (getChapterPageUrl.isLoading || getChapterPageUrl.isIdle) {
+  if (getChapterPageUrl.isLoading) {
     return <Spinner variant={"small"} />
   }
 
@@ -92,7 +92,7 @@ const ChapterGridCard: React.FC<ChapterProps> = ({
       date={date}
       time={time}
       url={url}
-      bg={bg}
+      bg={chapter.color !== null ? chapter.color : bg}
       backgroundImage={backgroundImage}
     />
   )

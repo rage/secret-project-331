@@ -8,7 +8,9 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ExercisesInChapter from "./ExercisesInChapter"
 
-const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
+const ExerciseInChapterBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<unknown>>
+> = () => {
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
 
@@ -21,9 +23,6 @@ const ExerciseInChapterBlock: React.FC<BlockRendererProps<unknown>> = () => {
 
   if (!chapterId) {
     return <pre>{t("error-page-does-not-belong-to-chapter")}</pre>
-  }
-  if (!courseInstanceId) {
-    return <pre>{t("error-missing-course-instance-id")}</pre>
   }
 
   return (

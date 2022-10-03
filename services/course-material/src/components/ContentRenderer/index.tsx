@@ -35,6 +35,7 @@ import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./moocfi/CourseProgressBlock"
@@ -42,9 +43,14 @@ import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
+import HighlightBox from "./moocfi/HighglightBox"
 import InfoBox from "./moocfi/InfoBox"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
+import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
+import SponsorBlock from "./moocfi/SponsorBlock"
+import TableBox from "./moocfi/TableBox"
+import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 /** The props that this component receives */
 export interface ContentRendererProps {
@@ -103,19 +109,25 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // "core/rss": RssBlock, // TODO
 
   // moocfi
+  "moocfi/aside": AsideBlock,
+  "moocfi/chapter-progress": ChapterProgressBlock,
+  "moocfi/congratulations": CongratulationsBlock,
+  "moocfi/course-chapter-grid": CourseChapterGridBlock,
+  "moocfi/course-objective-section": CourseObjectiveSectionBlock,
+  "moocfi/course-progress": CourseProgressBlock,
   "moocfi/exercise": ExerciseBlock,
   "moocfi/exercises-in-chapter": ExerciseInChapterBlock,
-  "moocfi/pages-in-chapter": PagesInChapterBlock,
-  "moocfi/course-chapter-grid": CourseChapterGridBlock,
-  "moocfi/latex": LatexBlock,
-  "moocfi/aside": AsideBlock,
-  "moocfi/hero-section": HeroSectionBlock,
-  "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
-  "moocfi/course-progress": CourseProgressBlock,
-  "moocfi/course-objective-section": CourseObjectiveSectionBlock,
-  "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/glossary": GlossaryBlock,
+  "moocfi/hero-section": HeroSectionBlock,
   "moocfi/infobox": InfoBox,
+  "moocfi/landing-page-hero-section": LandingPageHeroSectionBlock,
+  "moocfi/latex": LatexBlock,
+  "moocfi/learning-objectives": LearningObjectiveBlock,
+  "moocfi/pages-in-chapter": PagesInChapterBlock,
+  "moocfi/sponsor": SponsorBlock,
+  "moocfi/highlightbox": HighlightBox,
+  "moocfi/tablebox": TableBox,
+  "moocfi/top-level-pages": TopLevelPageBlock,
 }
 
 const highlightedBlockStyles = css`
@@ -123,7 +135,7 @@ const highlightedBlockStyles = css`
   outline-offset: 10px;
 `
 
-const ContentRenderer: React.FC<ContentRendererProps> = (props) => {
+const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
   const highlightBlocks = useQueryParameter("highlight-blocks")
     .split(",")
     .filter((id) => id !== "")

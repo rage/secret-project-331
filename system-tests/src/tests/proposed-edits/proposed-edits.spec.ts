@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForFunction from "../../utils/waitForFunction"
 
@@ -8,6 +9,7 @@ test.use({
 })
 
 test("test", async ({ page, headless }) => {
+  test.slow()
   // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
@@ -27,7 +29,7 @@ test("test", async ({ page, headless }) => {
   await page.click('label:has-text("default")')
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click text=The Basics
   await Promise.all([
@@ -43,6 +45,10 @@ test("test", async ({ page, headless }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+
+  if (!frame) {
+    throw new Error("Coudl not find frame")
+  }
 
   await frame.waitForSelector("text=b")
 
@@ -193,6 +199,12 @@ test("test", async ({ page, headless }) => {
     page.waitForEvent("popup"),
     page.locator("text=Open page in new tab").first().click(),
   ])
+
+  // Wait for the exercise to load because otherwise it might mess up the screenshot
+  await page1
+    .frameLocator(`[title="Exercise 1, task 0 content"]`)
+    .locator(`button:text-is("a")`)
+    .waitFor()
 
   await page1.locator(`text=Like this!!!!!`).scrollIntoViewIfNeeded()
 

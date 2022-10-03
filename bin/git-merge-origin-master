@@ -2,5 +2,12 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
 run_command git fetch origin
-run_command git merge origin/master "$@"
+run_command git merge origin/master --no-edit "$@"
+
+run_command cd "$RELATIVE_PATH" || exit
+run_command npm run postinstall

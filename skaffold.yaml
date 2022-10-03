@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2beta12
+apiVersion: skaffold/v2beta27
 kind: Config
 build:
   tagPolicy:
@@ -57,6 +57,14 @@ build:
         manual:
           - src: "src/**/*"
             dest: "/app"
+    - image: tmc
+      context: services/tmc
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*"
+            dest: "/app"
 
   local:
     # Allow parallel builds
@@ -65,7 +73,12 @@ deploy:
   kustomize:
     paths:
       - kubernetes/dev
+    hooks:
+      after:
+        - host:
+            command: ["bash", "-c", "bin/warm-routes &"]
   kubeContext: minikube
+
 portForward:
   - resourceType: statefulset
     resourceName: postgres

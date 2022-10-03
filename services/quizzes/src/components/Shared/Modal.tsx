@@ -30,9 +30,9 @@ export const AdvancedBoxModalOpenClass = (clickYLocation: number | undefined) =>
   ${clickYLocation &&
   // eslint-disable-next-line i18next/no-literal-string
   `
-    position: fixed;
-    top: ${clickYLocation}px;
-  `}
+  position: fixed;
+  top: ${clickYLocation}px;
+`}
 `
 
 export const AdvancedBox = styled(Box)`

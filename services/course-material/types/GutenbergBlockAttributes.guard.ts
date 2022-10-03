@@ -11,6 +11,7 @@ import {
   BlockAttributes,
   ButtonAttributes,
   ButtonDeprecated10Attributes,
+  ButtonDeprecated11Attributes,
   ButtonDeprecated1Attributes,
   ButtonDeprecated2Attributes,
   ButtonDeprecated3Attributes,
@@ -47,6 +48,7 @@ import {
   ImageDeprecated2Attributes,
   ImageDeprecated3Attributes,
   ImageDeprecated4Attributes,
+  ImageDeprecated5Attributes,
   ListAttributes,
   ListDeprecated1Attributes,
   ParagraphAttributes,
@@ -62,10 +64,12 @@ import {
   PullquoteDeprecated3Attributes,
   PullquoteDeprecated4Attributes,
   PullquoteDeprecated5Attributes,
+  PullquoteDeprecated6Attributes,
   QuoteAttributes,
   QuoteDeprecated1Attributes,
   QuoteDeprecated2Attributes,
   QuoteDeprecated3Attributes,
+  QuoteDeprecated4Attributes,
   SeparatorAttributes,
   SeparatorDeprecated1Attributes,
   SpacerAttributes,
@@ -76,1577 +80,1769 @@ import {
   VerseDeprecated2Attributes,
 } from "./GutenbergBlockAttributes"
 
-export function isParagraphAttributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ParagraphAttributes {
+export function isParagraphAttributes(obj: unknown): obj is ParagraphAttributes {
+  const typedObj = obj as ParagraphAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
 export function isParagraphDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ParagraphDeprecated1Attributes {
+  const typedObj = obj as ParagraphDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customFontSize === "undefined" || typeof obj.customFontSize === "number") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customFontSize"] === "undefined" ||
+      typeof typedObj["customFontSize"] === "number") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isParagraphDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ParagraphDeprecated2Attributes {
+  const typedObj = obj as ParagraphDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customFontSize === "undefined" || typeof obj.customFontSize === "number") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customFontSize"] === "undefined" ||
+      typeof typedObj["customFontSize"] === "number") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isParagraphDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ParagraphDeprecated3Attributes {
+  const typedObj = obj as ParagraphDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customFontSize === "undefined" || typeof obj.customFontSize === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customFontSize"] === "undefined" ||
+      typeof typedObj["customFontSize"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isParagraphDeprecated4Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ParagraphDeprecated4Attributes {
+  const typedObj = obj as ParagraphDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "number") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "number") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isParagraphDeprecated5Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is ParagraphDeprecated5Attributes {
+  const typedObj = obj as ParagraphDeprecated5Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.dropCap === "boolean" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.direction === "undefined" || obj.direction === "ltr" || obj.direction === "rtl") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isImageAttributes(obj: any, _argumentName?: string): obj is ImageAttributes {
+export function isImageAttributes(obj: unknown): obj is ImageAttributes {
+  const typedObj = obj as ImageAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    typeof obj.alt === "string" &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    (typeof obj.sizeSlug === "undefined" || typeof obj.sizeSlug === "string") &&
-    typeof obj.linkDestination === "string" &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    typeof obj.blurDataUrl === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isImageDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ImageDeprecated1Attributes {
+export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecated1Attributes {
+  const typedObj = obj as ImageDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    typeof obj.alt === "string" &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    typeof obj.linkDestination === "string" &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.sizeSlug === "undefined" || typeof obj.sizeSlug === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    typeof obj.blurDataUrl === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isImageDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ImageDeprecated2Attributes {
+export function isImageDeprecated2Attributes(obj: unknown): obj is ImageDeprecated2Attributes {
+  const typedObj = obj as ImageDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    typeof obj.alt === "string" &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    typeof obj.linkDestination === "string" &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    typeof obj.blurDataUrl === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isImageDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ImageDeprecated3Attributes {
+export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecated3Attributes {
+  const typedObj = obj as ImageDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    typeof obj.alt === "string" &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    typeof obj.linkDestination === "string" &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    typeof obj.blurDataUrl === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isImageDeprecated4Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ImageDeprecated4Attributes {
+export function isImageDeprecated4Attributes(obj: unknown): obj is ImageDeprecated4Attributes {
+  const typedObj = obj as ImageDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    typeof obj.alt === "string" &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.linkClass === "undefined" || typeof obj.linkClass === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    typeof obj.linkDestination === "string" &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    typeof obj.blurDataUrl === "string"
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isHeadingAttributes(obj: any, _argumentName?: string): obj is HeadingAttributes {
+export function isImageDeprecated5Attributes(obj: unknown): obj is ImageDeprecated5Attributes {
+  const typedObj = obj as ImageDeprecated5Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.level === "number" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    typeof typedObj["alt"] === "string" &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["linkClass"] === "undefined" || typeof typedObj["linkClass"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
+    typeof typedObj["linkDestination"] === "string" &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    typeof typedObj["blurDataUrl"] === "string"
   )
 }
 
-export function isHeadingDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is HeadingDeprecated1Attributes {
+export function isHeadingAttributes(obj: unknown): obj is HeadingAttributes {
+  const typedObj = obj as HeadingAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.level === "number" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isHeadingDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is HeadingDeprecated2Attributes {
+export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDeprecated1Attributes {
+  const typedObj = obj as HeadingDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.level === "number" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isHeadingDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is HeadingDeprecated3Attributes {
+export function isHeadingDeprecated2Attributes(obj: unknown): obj is HeadingDeprecated2Attributes {
+  const typedObj = obj as HeadingDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.level === "number" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isHeadingDeprecated4Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is HeadingDeprecated4Attributes {
+export function isHeadingDeprecated3Attributes(obj: unknown): obj is HeadingDeprecated3Attributes {
+  const typedObj = obj as HeadingDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.content === "string" &&
-    typeof obj.level === "number" &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isListAttributes(obj: any, _argumentName?: string): obj is ListAttributes {
+export function isHeadingDeprecated4Attributes(obj: unknown): obj is HeadingDeprecated4Attributes {
+  const typedObj = obj as HeadingDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.ordered === "boolean" &&
-    typeof obj.values === "string" &&
-    (typeof obj.type === "undefined" || typeof obj.type === "string") &&
-    (typeof obj.start === "undefined" || typeof obj.start === "number") &&
-    (typeof obj.reversed === "undefined" || obj.reversed === false || obj.reversed === true) &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["level"] === "number" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isListDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ListDeprecated1Attributes {
+export function isListAttributes(obj: unknown): obj is ListAttributes {
+  const typedObj = obj as ListAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.ordered === "boolean" &&
-    typeof obj.values === "string" &&
-    (typeof obj.type === "undefined" || typeof obj.type === "string") &&
-    (typeof obj.start === "undefined" || typeof obj.start === "number") &&
-    (typeof obj.reversed === "undefined" || obj.reversed === false || obj.reversed === true) &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["ordered"] === "boolean" &&
+    typeof typedObj["values"] === "string" &&
+    (typeof typedObj["type"] === "undefined" || typeof typedObj["type"] === "string") &&
+    (typeof typedObj["start"] === "undefined" || typeof typedObj["start"] === "number") &&
+    (typeof typedObj["reversed"] === "undefined" ||
+      typedObj["reversed"] === false ||
+      typedObj["reversed"] === true) &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isQuoteAttributes(obj: any, _argumentName?: string): obj is QuoteAttributes {
+export function isListDeprecated1Attributes(obj: unknown): obj is ListDeprecated1Attributes {
+  const typedObj = obj as ListDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.value === "string" &&
-    typeof obj.citation === "string" &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["ordered"] === "boolean" &&
+    typeof typedObj["values"] === "string" &&
+    (typeof typedObj["type"] === "undefined" || typeof typedObj["type"] === "string") &&
+    (typeof typedObj["start"] === "undefined" || typeof typedObj["start"] === "number") &&
+    (typeof typedObj["reversed"] === "undefined" ||
+      typedObj["reversed"] === false ||
+      typedObj["reversed"] === true) &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isQuoteDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is QuoteDeprecated1Attributes {
+export function isQuoteAttributes(obj: unknown): obj is QuoteAttributes {
+  const typedObj = obj as QuoteAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.value === "string" &&
-    typeof obj.citation === "string" &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["value"] === "string" &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isQuoteDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is QuoteDeprecated2Attributes {
+export function isQuoteDeprecated1Attributes(obj: unknown): obj is QuoteDeprecated1Attributes {
+  const typedObj = obj as QuoteDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.value === "string" &&
-    typeof obj.citation === "string" &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.style === "number" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["value"] === "string" &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isQuoteDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is QuoteDeprecated3Attributes {
+export function isQuoteDeprecated2Attributes(obj: unknown): obj is QuoteDeprecated2Attributes {
+  const typedObj = obj as QuoteDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.value === "string" &&
-    typeof obj.citation === "string" &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string") &&
-    typeof obj.style === "number" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["value"] === "string" &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isAudioAttributes(obj: any, _argumentName?: string): obj is AudioAttributes {
+export function isQuoteDeprecated3Attributes(obj: unknown): obj is QuoteDeprecated3Attributes {
+  const typedObj = obj as QuoteDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.src === "undefined" || typeof obj.src === "string") &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.autoplay === "undefined" || obj.autoplay === false || obj.autoplay === true) &&
-    (typeof obj.loop === "undefined" || obj.loop === false || obj.loop === true) &&
-    (typeof obj.preload === "undefined" || typeof obj.preload === "string") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["value"] === "string" &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["style"] === "number" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isAudioDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is AudioDeprecated1Attributes {
+export function isQuoteDeprecated4Attributes(obj: unknown): obj is QuoteDeprecated4Attributes {
+  const typedObj = obj as QuoteDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.src === "undefined" || typeof obj.src === "string") &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.autoplay === "undefined" || obj.autoplay === false || obj.autoplay === true) &&
-    (typeof obj.loop === "undefined" || obj.loop === false || obj.loop === true) &&
-    (typeof obj.preload === "undefined" || typeof obj.preload === "string") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["value"] === "string" &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["style"] === "number" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonAttributes(obj: any, _argumentName?: string): obj is ButtonAttributes {
+export function isAudioAttributes(obj: unknown): obj is AudioAttributes {
+  const typedObj = obj as AudioAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["src"] === "undefined" || typeof typedObj["src"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["autoplay"] === "undefined" ||
+      typedObj["autoplay"] === false ||
+      typedObj["autoplay"] === true) &&
+    (typeof typedObj["loop"] === "undefined" ||
+      typedObj["loop"] === false ||
+      typedObj["loop"] === true) &&
+    (typeof typedObj["preload"] === "undefined" || typeof typedObj["preload"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isButtonDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated1Attributes {
+export function isAudioDeprecated1Attributes(obj: unknown): obj is AudioDeprecated1Attributes {
+  const typedObj = obj as AudioDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["src"] === "undefined" || typeof typedObj["src"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["autoplay"] === "undefined" ||
+      typedObj["autoplay"] === false ||
+      typedObj["autoplay"] === true) &&
+    (typeof typedObj["loop"] === "undefined" ||
+      typedObj["loop"] === false ||
+      typedObj["loop"] === true) &&
+    (typeof typedObj["preload"] === "undefined" || typeof typedObj["preload"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated2Attributes {
+export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
+  const typedObj = obj as ButtonAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isButtonDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated3Attributes {
+export function isButtonDeprecated1Attributes(obj: unknown): obj is ButtonDeprecated1Attributes {
+  const typedObj = obj as ButtonDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isButtonDeprecated4Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated4Attributes {
+export function isButtonDeprecated2Attributes(obj: unknown): obj is ButtonDeprecated2Attributes {
+  const typedObj = obj as ButtonDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isButtonDeprecated5Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated5Attributes {
+export function isButtonDeprecated3Attributes(obj: unknown): obj is ButtonDeprecated3Attributes {
+  const typedObj = obj as ButtonDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isButtonDeprecated6Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated6Attributes {
+export function isButtonDeprecated4Attributes(obj: unknown): obj is ButtonDeprecated4Attributes {
+  const typedObj = obj as ButtonDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.borderRadius === "undefined" || typeof obj.borderRadius === "number") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.customGradient === "undefined" || typeof obj.customGradient === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["borderRadius"] === "undefined" ||
+      typeof typedObj["borderRadius"] === "number") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonDeprecated7Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated7Attributes {
+export function isButtonDeprecated5Attributes(obj: unknown): obj is ButtonDeprecated5Attributes {
+  const typedObj = obj as ButtonDeprecated5Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    typeof obj.align === "string" &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.linkTarget === "undefined" || typeof obj.linkTarget === "string") &&
-    (typeof obj.rel === "undefined" || typeof obj.rel === "string") &&
-    (typeof obj.placeholder === "undefined" || typeof obj.placeholder === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["borderRadius"] === "undefined" ||
+      typeof typedObj["borderRadius"] === "number") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonDeprecated8Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated8Attributes {
+export function isButtonDeprecated6Attributes(obj: unknown): obj is ButtonDeprecated6Attributes {
+  const typedObj = obj as ButtonDeprecated6Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    typeof obj.align === "string" &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["borderRadius"] === "undefined" ||
+      typeof typedObj["borderRadius"] === "number") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonDeprecated9Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated9Attributes {
+export function isButtonDeprecated7Attributes(obj: unknown): obj is ButtonDeprecated7Attributes {
+  const typedObj = obj as ButtonDeprecated7Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.color === "undefined" || typeof obj.color === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    typeof obj.align === "string" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["borderRadius"] === "undefined" ||
+      typeof typedObj["borderRadius"] === "number") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["customGradient"] === "undefined" ||
+      typeof typedObj["customGradient"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonDeprecated10Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonDeprecated10Attributes {
+export function isButtonDeprecated8Attributes(obj: unknown): obj is ButtonDeprecated8Attributes {
+  const typedObj = obj as ButtonDeprecated8Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string") &&
-    (typeof obj.text === "undefined" || typeof obj.text === "string") &&
-    (typeof obj.color === "undefined" || typeof obj.color === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    typeof obj.align === "string" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    typeof typedObj["align"] === "string" &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    (typeof typedObj["rel"] === "undefined" || typeof typedObj["rel"] === "string") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonsAttributes(obj: any, _argumentName?: string): obj is ButtonsAttributes {
+export function isButtonDeprecated9Attributes(obj: unknown): obj is ButtonDeprecated9Attributes {
+  const typedObj = obj as ButtonDeprecated9Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.layout === "undefined" ||
-      (obj.layout !== null && typeof obj.layout === "object") ||
-      typeof obj.layout === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    typeof typedObj["align"] === "string" &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonsDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonsDeprecated1Attributes {
+export function isButtonDeprecated10Attributes(obj: unknown): obj is ButtonDeprecated10Attributes {
+  const typedObj = obj as ButtonDeprecated10Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.contentJustification === "undefined" ||
-      typeof obj.contentJustification === "string") &&
-    typeof obj.orientation === "string" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["color"] === "undefined" || typeof typedObj["color"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    typeof typedObj["align"] === "string" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isButtonsDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ButtonsDeprecated2Attributes {
+export function isButtonDeprecated11Attributes(obj: unknown): obj is ButtonDeprecated11Attributes {
+  const typedObj = obj as ButtonDeprecated11Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string") &&
+    (typeof typedObj["text"] === "undefined" || typeof typedObj["text"] === "string") &&
+    (typeof typedObj["color"] === "undefined" || typeof typedObj["color"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    typeof typedObj["align"] === "string" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isCodeAttributes(obj: any, _argumentName?: string): obj is CodeAttributes {
+export function isButtonsAttributes(obj: unknown): obj is ButtonsAttributes {
+  const typedObj = obj as ButtonsAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.content === "undefined" || typeof obj.content === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["layout"] === "undefined" ||
+      (typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
+      typeof typedObj["layout"] === "function")
   )
 }
 
-export function isColumnAttributes(obj: any, _argumentName?: string): obj is ColumnAttributes {
+export function isButtonsDeprecated1Attributes(obj: unknown): obj is ButtonsDeprecated1Attributes {
+  const typedObj = obj as ButtonsDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.verticalAlignment === "undefined" || typeof obj.verticalAlignment === "string") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "string") &&
-    (typeof obj.allowedBlocks === "undefined" || Array.isArray(obj.allowedBlocks)) &&
-    (typeof obj.templateLock === "undefined" ||
-      obj.templateLock === false ||
-      obj.templateLock === "all" ||
-      obj.templateLock === "insert") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.layout === "undefined" ||
-      (obj.layout !== null && typeof obj.layout === "object") ||
-      typeof obj.layout === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["contentJustification"] === "undefined" ||
+      typeof typedObj["contentJustification"] === "string") &&
+    typeof typedObj["orientation"] === "string" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isColumnDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ColumnDeprecated1Attributes {
+export function isButtonsDeprecated2Attributes(obj: unknown): obj is ButtonsDeprecated2Attributes {
+  const typedObj = obj as ButtonsDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.verticalAlignment === "undefined" || typeof obj.verticalAlignment === "string") &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isColumnsAttributes(obj: any, _argumentName?: string): obj is ColumnsAttributes {
+export function isCodeAttributes(obj: unknown): obj is CodeAttributes {
+  const typedObj = obj as CodeAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.verticalAlignment === "undefined" || typeof obj.verticalAlignment === "string") &&
-    typeof obj.isStackedOnMobile === "boolean" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function") &&
-    (typeof obj.layout === "undefined" ||
-      (obj.layout !== null && typeof obj.layout === "object") ||
-      typeof obj.layout === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isColumnsDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ColumnsDeprecated1Attributes {
+export function isColumnAttributes(obj: unknown): obj is ColumnAttributes {
+  const typedObj = obj as ColumnAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.verticalAlignment === "undefined" || typeof obj.verticalAlignment === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.customBackgroundColor === "undefined" ||
-      typeof obj.customBackgroundColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["verticalAlignment"] === "undefined" ||
+      typeof typedObj["verticalAlignment"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
+    (typeof typedObj["allowedBlocks"] === "undefined" ||
+      Array.isArray(typedObj["allowedBlocks"])) &&
+    (typeof typedObj["templateLock"] === "undefined" ||
+      typedObj["templateLock"] === false ||
+      typedObj["templateLock"] === "all" ||
+      typedObj["templateLock"] === "insert") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["layout"] === "undefined" ||
+      (typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
+      typeof typedObj["layout"] === "function")
   )
 }
 
-export function isColumnsDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ColumnsDeprecated2Attributes {
+export function isColumnDeprecated1Attributes(obj: unknown): obj is ColumnDeprecated1Attributes {
+  const typedObj = obj as ColumnDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.columns === "number" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["verticalAlignment"] === "undefined" ||
+      typeof typedObj["verticalAlignment"] === "string") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isColumnsDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is ColumnsDeprecated3Attributes {
+export function isColumnsAttributes(obj: unknown): obj is ColumnsAttributes {
+  const typedObj = obj as ColumnsAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.columns === "number" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["verticalAlignment"] === "undefined" ||
+      typeof typedObj["verticalAlignment"] === "string") &&
+    typeof typedObj["isStackedOnMobile"] === "boolean" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function") &&
+    (typeof typedObj["layout"] === "undefined" ||
+      (typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
+      typeof typedObj["layout"] === "function")
   )
 }
 
-export function isEmbedAttributes(obj: any, _argumentName?: string): obj is EmbedAttributes {
+export function isColumnsDeprecated1Attributes(obj: unknown): obj is ColumnsDeprecated1Attributes {
+  const typedObj = obj as ColumnsDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.type === "undefined" || typeof obj.type === "string") &&
-    (typeof obj.providerNameSlug === "undefined" || typeof obj.providerNameSlug === "string") &&
-    typeof obj.allowResponsive === "boolean" &&
-    typeof obj.responsive === "boolean" &&
-    typeof obj.previewable === "boolean" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["verticalAlignment"] === "undefined" ||
+      typeof typedObj["verticalAlignment"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isEmbedDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is EmbedDeprecated1Attributes {
+export function isColumnsDeprecated2Attributes(obj: unknown): obj is ColumnsDeprecated2Attributes {
+  const typedObj = obj as ColumnsDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.url === "undefined" || typeof obj.url === "string") &&
-    (typeof obj.caption === "undefined" || typeof obj.caption === "string") &&
-    (typeof obj.type === "undefined" || typeof obj.type === "string") &&
-    (typeof obj.providerNameSlug === "undefined" || typeof obj.providerNameSlug === "string") &&
-    typeof obj.allowResponsive === "boolean" &&
-    typeof obj.responsive === "boolean" &&
-    typeof obj.previewable === "boolean" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.height === "undefined" || typeof obj.height === "number") &&
-    (typeof obj.title === "undefined" || typeof obj.title === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["columns"] === "number" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isFileAttributes(obj: any, _argumentName?: string): obj is FileAttributes {
+export function isColumnsDeprecated3Attributes(obj: unknown): obj is ColumnsDeprecated3Attributes {
+  const typedObj = obj as ColumnsDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.fileId === "undefined" || typeof obj.fileId === "string") &&
-    (typeof obj.fileName === "undefined" || typeof obj.fileName === "string") &&
-    (typeof obj.textLinkHref === "undefined" || typeof obj.textLinkHref === "string") &&
-    (typeof obj.textLinkTarget === "undefined" || typeof obj.textLinkTarget === "string") &&
-    typeof obj.showDownloadButton === "boolean" &&
-    (typeof obj.downloadButtonText === "undefined" || typeof obj.downloadButtonText === "string") &&
-    (typeof obj.displayPreview === "undefined" ||
-      obj.displayPreview === false ||
-      obj.displayPreview === true) &&
-    typeof obj.previewHeight === "number" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["columns"] === "number" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isFileDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is FileDeprecated1Attributes {
+export function isEmbedAttributes(obj: unknown): obj is EmbedAttributes {
+  const typedObj = obj as EmbedAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.id === "undefined" || typeof obj.id === "number") &&
-    (typeof obj.href === "undefined" || typeof obj.href === "string") &&
-    (typeof obj.fileName === "undefined" || typeof obj.fileName === "string") &&
-    (typeof obj.textLinkHref === "undefined" || typeof obj.textLinkHref === "string") &&
-    (typeof obj.textLinkTarget === "undefined" || typeof obj.textLinkTarget === "string") &&
-    typeof obj.showDownloadButton === "boolean" &&
-    (typeof obj.downloadButtonText === "undefined" || typeof obj.downloadButtonText === "string") &&
-    (typeof obj.displayPreview === "undefined" ||
-      obj.displayPreview === false ||
-      obj.displayPreview === true) &&
-    typeof obj.previewHeight === "number" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["type"] === "undefined" || typeof typedObj["type"] === "string") &&
+    (typeof typedObj["providerNameSlug"] === "undefined" ||
+      typeof typedObj["providerNameSlug"] === "string") &&
+    typeof typedObj["allowResponsive"] === "boolean" &&
+    typeof typedObj["responsive"] === "boolean" &&
+    typeof typedObj["previewable"] === "boolean" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
   )
 }
 
-export function isHtmlAttributes(obj: any, _argumentName?: string): obj is HtmlAttributes {
+export function isEmbedDeprecated1Attributes(obj: unknown): obj is EmbedDeprecated1Attributes {
+  const typedObj = obj as EmbedDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.content === "undefined" || typeof obj.content === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
+    (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
+    (typeof typedObj["type"] === "undefined" || typeof typedObj["type"] === "string") &&
+    (typeof typedObj["providerNameSlug"] === "undefined" ||
+      typeof typedObj["providerNameSlug"] === "string") &&
+    typeof typedObj["allowResponsive"] === "boolean" &&
+    typeof typedObj["responsive"] === "boolean" &&
+    typeof typedObj["previewable"] === "boolean" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
+    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
   )
 }
 
-export function isPreformattedAttributes(
-  obj: any,
-  _argumentName?: string,
-): obj is PreformattedAttributes {
+export function isFileAttributes(obj: unknown): obj is FileAttributes {
+  const typedObj = obj as FileAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.content === "string" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["fileId"] === "undefined" || typeof typedObj["fileId"] === "string") &&
+    (typeof typedObj["fileName"] === "undefined" || typeof typedObj["fileName"] === "string") &&
+    (typeof typedObj["textLinkHref"] === "undefined" ||
+      typeof typedObj["textLinkHref"] === "string") &&
+    (typeof typedObj["textLinkTarget"] === "undefined" ||
+      typeof typedObj["textLinkTarget"] === "string") &&
+    typeof typedObj["showDownloadButton"] === "boolean" &&
+    (typeof typedObj["downloadButtonText"] === "undefined" ||
+      typeof typedObj["downloadButtonText"] === "string") &&
+    (typeof typedObj["displayPreview"] === "undefined" ||
+      typedObj["displayPreview"] === false ||
+      typedObj["displayPreview"] === true) &&
+    typeof typedObj["previewHeight"] === "number" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isPullquoteAttributes(
-  obj: any,
-  _argumentName?: string,
-): obj is PullquoteAttributes {
+export function isFileDeprecated1Attributes(obj: unknown): obj is FileDeprecated1Attributes {
+  const typedObj = obj as FileDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    typeof obj.citation === "string" &&
-    (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["fileName"] === "undefined" || typeof typedObj["fileName"] === "string") &&
+    (typeof typedObj["textLinkHref"] === "undefined" ||
+      typeof typedObj["textLinkHref"] === "string") &&
+    (typeof typedObj["textLinkTarget"] === "undefined" ||
+      typeof typedObj["textLinkTarget"] === "string") &&
+    typeof typedObj["showDownloadButton"] === "boolean" &&
+    (typeof typedObj["downloadButtonText"] === "undefined" ||
+      typeof typedObj["downloadButtonText"] === "string") &&
+    (typeof typedObj["displayPreview"] === "undefined" ||
+      typedObj["displayPreview"] === false ||
+      typedObj["displayPreview"] === true) &&
+    typeof typedObj["previewHeight"] === "number" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+  )
+}
+
+export function isHtmlAttributes(obj: unknown): obj is HtmlAttributes {
+  const typedObj = obj as HtmlAttributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function")
+  )
+}
+
+export function isPreformattedAttributes(obj: unknown): obj is PreformattedAttributes {
+  const typedObj = obj as PreformattedAttributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
+  )
+}
+
+export function isPullquoteAttributes(obj: unknown): obj is PullquoteAttributes {
+  const typedObj = obj as PullquoteAttributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
 export function isPullquoteDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PullquoteDeprecated1Attributes {
+  const typedObj = obj as PullquoteDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    typeof obj.citation === "string" &&
-    (typeof obj.mainColor === "undefined" || typeof obj.mainColor === "string") &&
-    (typeof obj.customMainColor === "undefined" || typeof obj.customMainColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isPullquoteDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PullquoteDeprecated2Attributes {
+  const typedObj = obj as PullquoteDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    typeof obj.citation === "string" &&
-    (typeof obj.mainColor === "undefined" || typeof obj.mainColor === "string") &&
-    (typeof obj.customMainColor === "undefined" || typeof obj.customMainColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.figureStyle === "undefined" ||
-      (obj.figureStyle !== null && typeof obj.figureStyle === "object") ||
-      typeof obj.figureStyle === "function") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["mainColor"] === "undefined" || typeof typedObj["mainColor"] === "string") &&
+    (typeof typedObj["customMainColor"] === "undefined" ||
+      typeof typedObj["customMainColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isPullquoteDeprecated3Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PullquoteDeprecated3Attributes {
+  const typedObj = obj as PullquoteDeprecated3Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    typeof obj.citation === "string" &&
-    (typeof obj.mainColor === "undefined" || typeof obj.mainColor === "string") &&
-    (typeof obj.customMainColor === "undefined" || typeof obj.customMainColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["mainColor"] === "undefined" || typeof typedObj["mainColor"] === "string") &&
+    (typeof typedObj["customMainColor"] === "undefined" ||
+      typeof typedObj["customMainColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["figureStyle"] === "undefined" ||
+      (typedObj["figureStyle"] !== null && typeof typedObj["figureStyle"] === "object") ||
+      typeof typedObj["figureStyle"] === "function") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isPullquoteDeprecated4Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PullquoteDeprecated4Attributes {
+  const typedObj = obj as PullquoteDeprecated4Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    typeof obj.citation === "string" &&
-    (typeof obj.mainColor === "undefined" || typeof obj.mainColor === "string") &&
-    (typeof obj.customMainColor === "undefined" || typeof obj.customMainColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["mainColor"] === "undefined" || typeof typedObj["mainColor"] === "string") &&
+    (typeof typedObj["customMainColor"] === "undefined" ||
+      typeof typedObj["customMainColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
 export function isPullquoteDeprecated5Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is PullquoteDeprecated5Attributes {
+  const typedObj = obj as PullquoteDeprecated5Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.value === "undefined" || typeof obj.value === "string") &&
-    (typeof obj.citation === "undefined" || typeof obj.citation === "string") &&
-    (typeof obj.mainColor === "undefined" || typeof obj.mainColor === "string") &&
-    (typeof obj.customMainColor === "undefined" || typeof obj.customMainColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.customTextColor === "undefined" || typeof obj.customTextColor === "string") &&
-    typeof obj.align === "string" &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    typeof typedObj["citation"] === "string" &&
+    (typeof typedObj["mainColor"] === "undefined" || typeof typedObj["mainColor"] === "string") &&
+    (typeof typedObj["customMainColor"] === "undefined" ||
+      typeof typedObj["customMainColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isBlockAttributes(obj: any, _argumentName?: string): obj is BlockAttributes {
+export function isPullquoteDeprecated6Attributes(
+  obj: unknown,
+): obj is PullquoteDeprecated6Attributes {
+  const typedObj = obj as PullquoteDeprecated6Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.ref === "undefined" || typeof obj.ref === "number") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
+    (typeof typedObj["citation"] === "undefined" || typeof typedObj["citation"] === "string") &&
+    (typeof typedObj["mainColor"] === "undefined" || typeof typedObj["mainColor"] === "string") &&
+    (typeof typedObj["customMainColor"] === "undefined" ||
+      typeof typedObj["customMainColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    typeof typedObj["align"] === "string" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isSeparatorAttributes(
-  obj: any,
-  _argumentName?: string,
-): obj is SeparatorAttributes {
+export function isBlockAttributes(obj: unknown): obj is BlockAttributes {
+  const typedObj = obj as BlockAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.opacity === "string" &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["ref"] === "undefined" || typeof typedObj["ref"] === "number") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function")
+  )
+}
+
+export function isSeparatorAttributes(obj: unknown): obj is SeparatorAttributes {
+  const typedObj = obj as SeparatorAttributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["opacity"] === "string" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
 export function isSeparatorDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
+  obj: unknown,
 ): obj is SeparatorDeprecated1Attributes {
+  const typedObj = obj as SeparatorDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.color === "undefined" || typeof obj.color === "string") &&
-    (typeof obj.customColor === "undefined" || typeof obj.customColor === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["color"] === "undefined" || typeof typedObj["color"] === "string") &&
+    (typeof typedObj["customColor"] === "undefined" ||
+      typeof typedObj["customColor"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isSpacerAttributes(obj: any, _argumentName?: string): obj is SpacerAttributes {
+export function isSpacerAttributes(obj: unknown): obj is SpacerAttributes {
+  const typedObj = obj as SpacerAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.height === "string" &&
-    (typeof obj.width === "undefined" || typeof obj.width === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["height"] === "string" &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isSpacerDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is SpacerDeprecated1Attributes {
+export function isSpacerDeprecated1Attributes(obj: unknown): obj is SpacerDeprecated1Attributes {
+  const typedObj = obj as SpacerDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.height === "number" &&
-    (typeof obj.width === "undefined" || typeof obj.width === "number") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["height"] === "number" &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 
-export function isTableAttributes(obj: any, _argumentName?: string): obj is TableAttributes {
+export function isTableAttributes(obj: unknown): obj is TableAttributes {
+  const typedObj = obj as TableAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.hasFixedLayout === "boolean" &&
-    typeof obj.caption === "string" &&
-    Array.isArray(obj.head) &&
-    obj.head.every((e: any) => isCells(e) as boolean) &&
-    Array.isArray(obj.body) &&
-    obj.body.every((e: any) => isCells(e) as boolean) &&
-    Array.isArray(obj.foot) &&
-    obj.foot.every((e: any) => isCells(e) as boolean) &&
-    (typeof obj.align === "undefined" ||
-      obj.align === "" ||
-      obj.align === "left" ||
-      obj.align === "center" ||
-      obj.align === "right" ||
-      obj.align === "wide" ||
-      obj.align === "full") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.borderColor === "undefined" || typeof obj.borderColor === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["hasFixedLayout"] === "boolean" &&
+    typeof typedObj["caption"] === "string" &&
+    Array.isArray(typedObj["head"]) &&
+    typedObj["head"].every((e: any) => isCells(e) as boolean) &&
+    Array.isArray(typedObj["body"]) &&
+    typedObj["body"].every((e: any) => isCells(e) as boolean) &&
+    Array.isArray(typedObj["foot"]) &&
+    typedObj["foot"].every((e: any) => isCells(e) as boolean) &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["borderColor"] === "undefined" ||
+      typeof typedObj["borderColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isCells(obj: any, _argumentName?: string): obj is Cells {
+export function isCells(obj: unknown): obj is Cells {
+  const typedObj = obj as Cells
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.cells === "undefined" ||
-      (Array.isArray(obj.cells) && obj.cells.every((e: any) => isCellAttributes(e) as boolean)))
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["cells"] === "undefined" ||
+      (Array.isArray(typedObj["cells"]) &&
+        typedObj["cells"].every((e: any) => isCellAttributes(e) as boolean)))
   )
 }
 
-export function isCellAttributes(obj: any, _argumentName?: string): obj is CellAttributes {
+export function isCellAttributes(obj: unknown): obj is CellAttributes {
+  const typedObj = obj as CellAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    (typeof obj.content === "undefined" || typeof obj.content === "string") &&
-    (typeof obj.tag === "undefined" || typeof obj.tag === "string") &&
-    (typeof obj.scope === "undefined" || typeof obj.scope === "string") &&
-    (typeof obj.align === "undefined" || typeof obj.align === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
+    (typeof typedObj["tag"] === "undefined" || typeof typedObj["tag"] === "string") &&
+    (typeof typedObj["scope"] === "undefined" || typeof typedObj["scope"] === "string") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string")
   )
 }
 
-export function isVerseAttributes(obj: any, _argumentName?: string): obj is VerseAttributes {
+export function isVerseAttributes(obj: unknown): obj is VerseAttributes {
+  const typedObj = obj as VerseAttributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.content === "string" &&
-    (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isVerseDeprecated1Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is VerseDeprecated1Attributes {
+export function isVerseDeprecated1Attributes(obj: unknown): obj is VerseDeprecated1Attributes {
+  const typedObj = obj as VerseDeprecated1Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.content === "string" &&
-    (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.anchor === "undefined" || typeof obj.anchor === "string") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string") &&
-    (typeof obj.backgroundColor === "undefined" || typeof obj.backgroundColor === "string") &&
-    (typeof obj.textColor === "undefined" || typeof obj.textColor === "string") &&
-    (typeof obj.gradient === "undefined" || typeof obj.gradient === "string") &&
-    (typeof obj.fontFamily === "undefined" || typeof obj.fontFamily === "string") &&
-    (typeof obj.fontSize === "undefined" || typeof obj.fontSize === "string") &&
-    (typeof obj.style === "undefined" ||
-      (obj.style !== null && typeof obj.style === "object") ||
-      typeof obj.style === "function")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
   )
 }
 
-export function isVerseDeprecated2Attributes(
-  obj: any,
-  _argumentName?: string,
-): obj is VerseDeprecated2Attributes {
+export function isVerseDeprecated2Attributes(obj: unknown): obj is VerseDeprecated2Attributes {
+  const typedObj = obj as VerseDeprecated2Attributes
   return (
-    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-    typeof obj.content === "string" &&
-    (typeof obj.textAlign === "undefined" || typeof obj.textAlign === "string") &&
-    (typeof obj.lock === "undefined" ||
-      (obj.lock !== null && typeof obj.lock === "object") ||
-      typeof obj.lock === "function") &&
-    (typeof obj.className === "undefined" || typeof obj.className === "string")
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }

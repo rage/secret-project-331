@@ -72,7 +72,7 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:
 ///
-/// tx, user, org, course, instance, chapter, page, exercise, slide, task
+/// tx, user, org, course, instance, course_module, chapter, page, exercise, slide, task
 ///
 /// Arguments can be given in either of two forms:
 ///
@@ -178,23 +178,28 @@ macro_rules! insert_data {
         .await
         .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; chapter: $chapter:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
+        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), $course, Some("extra module"), 999).await.unwrap();
+    };
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
         let $chapter = headless_lms_models::chapters::insert_chapter(
             $tx.as_mut(),
             headless_lms_models::chapters::NewChapter {
                 name: "chapter".to_string(),
+                color: None,
                 course_id: $course,
                 chapter_number: 1,
                 front_page_id: None,
                 deadline: None,
-                opens_at: None
+                opens_at: None,
+                course_module_id: Some($course_module.id),
             },
             $user
         )
         .await
         .unwrap().0.id;
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident; page: $page:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident; page: $page:ident) => {
         let $page = headless_lms_models::pages::insert_page(
             $tx.as_mut(),
             headless_lms_models::pages::NewPage {
@@ -215,19 +220,19 @@ macro_rules! insert_data {
         .await
         .unwrap().id;
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
         let $exercise =
         headless_lms_models::exercises::insert($tx.as_mut(), $course, "", $page, $chapter, 0)
             .await
             .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
         let $exercise_slide =
                headless_lms_models::exercise_slides::insert($tx.as_mut(), $exercise, 0)
                    .await
                    .unwrap();
     };
-    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
+    (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = headless_lms_models::exercise_tasks::insert(
             $tx.as_mut(),
             headless_lms_models::exercise_tasks::NewExerciseTask {
@@ -236,7 +241,6 @@ macro_rules! insert_data {
                 assignment: vec![],
                 public_spec: Some(serde_json::Value::Null),
                 private_spec: Some(serde_json::Value::Null),
-                spec_file_id: None,
                 model_solution_spec: Some(serde_json::Value::Null),
                 order_number: 0,
             }
@@ -261,6 +265,6 @@ pub use crate::insert_data;
 
 // checks that correct usage of the macro compiles
 async fn _test() {
-    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, chapter: c, :page, exercise: e, :slide, task: task);
+    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, :course_module, chapter: c, :page, exercise: e, :slide, task: task);
     println!("{task}")
 }

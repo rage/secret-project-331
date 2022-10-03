@@ -148,8 +148,8 @@ pub async fn find_by_upstream_id(
 // Only used for testing, not to use in production.
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
-    email: String,
-    password: String,
+    email: &str,
+    password: &str,
     application_configuration: &ApplicationConfiguration,
 ) -> ModelResult<User> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
@@ -167,7 +167,54 @@ pub async fn authenticate_test_user(
     } else if email == "creator@example.com" && password == "creator" {
         crate::users::get_by_email(conn, "creator@example.com").await?
     } else {
-        return Err(ModelError::Generic("Invalid email or password".to_string()));
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Invalid email or password".to_string(),
+            None,
+        ));
     };
     Ok(user)
+}
+
+/// Includes all users who have returned an exercise on a course course instance
+pub async fn get_all_user_ids_with_user_exercise_states_on_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT user_id
+FROM user_exercise_states
+WHERE course_instance_id = $1
+  AND deleted_at IS NULL
+        ",
+        course_instance_id
+    )
+    .map(|x| x.user_id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_users_by_course_instance_enrollment(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<User>> {
+    let res = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id IN (
+    SELECT user_id
+    FROM course_instance_enrollments
+    WHERE course_instance_id = $1
+      AND deleted_at IS NULL
+  )
+",
+        course_instance_id,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
 }

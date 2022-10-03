@@ -138,3 +138,5 @@ system-tests/src/states/
 
 # Super secret folders
 hidden/
+
+.idea

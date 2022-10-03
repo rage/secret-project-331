@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
-import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import { useTranslation } from "react-i18next"
+import { useEffect, useState } from "react"
 
 import { baseTheme, headingFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
@@ -11,7 +10,7 @@ import { ProgressBarExtraProps } from "."
 // eslint-disable-next-line i18next/no-literal-string
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
-  background: ${baseTheme.colors.green[100]};
+  background: ${baseTheme.colors.yellow[200]};
   border-radius: 100px;
   overflow: hidden;
   align-items: center;
@@ -27,23 +26,21 @@ const LinearProgress = styled.div<LinearProgressProps>`
 interface LinearProgressFillProps {
   percentage: number
   height: string
+  light?: boolean
 }
 interface LinearProgressProps {
   height: string
 }
-
-// eslint-disable-next-line i18next/no-literal-string
-const load = (percentage: number) => keyframes`
-  0% { width: 0; }
-  100% { width: ${percentage}%; }
-`
-
 // eslint-disable-next-line i18next/no-literal-string
 const LinearProgressFill = styled.div<LinearProgressFillProps>`
-  animation: ${(props: LinearProgressFillProps) => load(props.percentage)} 3s normal forwards;
   height: ${({ height }) => (height === "small" ? "16px" : "20px")};
-  width: 0;
-  background: ${baseTheme.colors.green[600]};
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: 1.5s ease-in-out;
+  width: ${(props) => props.percentage}%;
+  background: ${(props) =>
+    props.light ? baseTheme.colors.green[100] : baseTheme.colors.green[600]};
   justify-content: end;
 
   ${respondToOrLarger.sm} {
@@ -55,36 +52,46 @@ const Label = styled.div`
   min-width: 100%;
   font-weight: 500;
   margin-right: 1rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   text-align: center;
   padding-left: 10px;
 
   span:first-of-type {
     font-size: 0.8em;
-    font-weight: 400;
+    font-weight: 600;
     font-family: ${headingFont};
-    opacity: 0.9;
-    text-transform: uppercase;
+    color: #313947;
   }
   ${respondToOrLarger.sm} {
     span:first-of-type {
-      font-size: 1.2em;
+      font-size: 1.1em;
     }
   }
 `
 
-const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
+const ProgressBar: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ProgressBarExtraProps>>
+> = ({
   showAsPercentage = false,
-  exercisesAttempted = 10,
-  exercisesTotal = 30,
+  exercisesAttempted,
+  exercisesTotal,
   height = "medium",
-  label = true,
+  label,
+  required,
 }) => {
-  const { t } = useTranslation()
-  const done = exercisesAttempted ?? 0
-  const total = exercisesTotal ?? 0
-  const exerciseScaled = showAsPercentage && done !== 0 && total !== 0 ? (done / total) * 100 : 0
-  const percentage = Math.floor(exerciseScaled)
+  const ratio = (exercisesTotal ?? 0) > 0 ? (exercisesAttempted ?? 0) / (exercisesTotal ?? 0) : 0
+  const requiredRatio = (exercisesTotal ?? 0) > 0 ? (required ?? 0) / (exercisesTotal ?? 0) : 0
+
+  const percentage = ratio * 100
+  const requiredPercentage = requiredRatio * 100
+  // Make the progress bar animate from 0 when the page loads
+  const [visualPercentage, setVisualPercentage] = useState(0)
+  useEffect(() => {
+    setTimeout(() => {
+      setVisualPercentage(percentage)
+    }, 100)
+  }, [percentage])
+
   return (
     <>
       <div
@@ -99,17 +106,26 @@ const ProgresssBar: React.FC<ProgressBarExtraProps> = ({
           <Label>
             <span>
               {showAsPercentage
-                ? `${percentage}% ${t("exercises-attempted")}`
-                : `${done} / ${total} ${t("exercises-attempted")}`}
+                ? `${percentage}% ${label}`
+                : `${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${label}`}
             </span>
           </Label>
         )}
         <LinearProgress height={height}>
-          <LinearProgressFill percentage={percentage} height={height} />
+          <div
+            className={css`
+              width: 100%;
+              position: relative;
+              height: inherit;
+            `}
+          >
+            <LinearProgressFill light percentage={requiredPercentage} height={height} />
+            <LinearProgressFill percentage={visualPercentage} height={height} />
+          </div>
         </LinearProgress>
       </div>
     </>
   )
 }
 
-export default ProgresssBar
+export default ProgressBar

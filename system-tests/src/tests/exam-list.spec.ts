@@ -1,6 +1,6 @@
 import { test } from "@playwright/test"
 
-import expectPath from "../utils/expect"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
@@ -20,7 +20,7 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
 
   await page.click("text=Exams")
 
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
   await expectScreenshotsToMatchSnapshots({
     page,
     headless,
@@ -74,6 +74,4 @@ test("exam list renders, can create exam", async ({ headless, page }) => {
 
   // Click text=Submit
   await page.locator("text=Submit").click()
-
-  await page.click("text=Close")
 })

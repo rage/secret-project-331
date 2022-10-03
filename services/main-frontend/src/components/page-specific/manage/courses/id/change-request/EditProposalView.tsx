@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
+import { useQuery } from "@tanstack/react-query"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchPageInfo } from "../../../../../../services/backend/pages"
 import {
@@ -15,9 +15,9 @@ import {
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
-import HideTextInSystemTests from "../../../../../../shared-module/components/HideTextInSystemTests"
 import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
+import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { primaryFont, typography } from "../../../../../../shared-module/styles"
 import { pageRoute } from "../../../../../../shared-module/utils/routes"
@@ -39,12 +39,15 @@ export interface Props {
   ) => Promise<void>
 }
 
-const EditProposalView: React.FC<Props> = ({ proposal, handleProposal }) => {
+const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
+  proposal,
+  handleProposal,
+}) => {
   const { t } = useTranslation()
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery(`page-info-id-${proposal.page_id}`, () => {
+  const pageInfo = useQuery([`page-info-id-${proposal.page_id}`], () => {
     if (!proposal.page_id) {
       return null
     }

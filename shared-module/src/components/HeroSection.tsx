@@ -4,6 +4,7 @@ import React from "react"
 
 import { baseTheme, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../utils/constants"
 
 // eslint-disable-next-line i18next/no-literal-string
 const TextBox = styled.div`
@@ -21,7 +22,6 @@ const TextBox = styled.div`
     margin-bottom: 0.5rem;
     margin-top: 1.5rem;
     line-height: 1;
-    text-transform: uppercase;
   }
 
   span {
@@ -45,7 +45,7 @@ export interface HeroSectionProps {
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
 
-const HeroSection: React.FC<CardProps> = ({
+const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
   title,
   subtitle,
   backgroundImage,
@@ -53,6 +53,7 @@ const HeroSection: React.FC<CardProps> = ({
 }) => {
   return (
     <div
+      id="hero-section"
       className={css`
         background: ${baseTheme.colors.green[200]};
         width: 100%;
@@ -68,7 +69,7 @@ const HeroSection: React.FC<CardProps> = ({
       `}
     >
       <TextBox>
-        <h1>{title}</h1>
+        <h1 className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}>{title}</h1>
         <span>{subtitle}</span>
       </TextBox>
     </div>

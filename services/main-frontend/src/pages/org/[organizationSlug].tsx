@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import Layout from "../../components/Layout"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
@@ -9,7 +9,7 @@ import ExamList from "../../components/page-specific/org/organizationSlug/ExamLi
 import { fetchOrganizationBySlug } from "../../services/backend/organizations"
 import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import RenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import Spinner from "../../shared-module/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -20,9 +20,9 @@ interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">
 }
 
-const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
+const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const getOrganizationBySlug = useQuery(`organization-${query.organizationSlug}`, () =>
+  const getOrganizationBySlug = useQuery([`organization-${query.organizationSlug}`], () =>
     fetchOrganizationBySlug(query.organizationSlug),
   )
 
@@ -55,9 +55,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             )}
           </>
         )}
-        {(getOrganizationBySlug.isLoading || getOrganizationBySlug.isIdle) && (
-          <Spinner variant={"medium"} />
-        )}
+        {getOrganizationBySlug.isLoading && <Spinner variant={"medium"} />}
         {getOrganizationBySlug.isError && (
           <ErrorBanner variant={"readOnly"} error={getOrganizationBySlug.error} />
         )}
@@ -68,11 +66,10 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
             <CourseList
               organizationId={getOrganizationBySlug.data.id}
               organizationSlug={query.organizationSlug}
-              perPage={100}
             />
 
             {/* TODO: We should render ExamList once we can filter away exams etc. */}
-            <RenderIfPermissions
+            <OnlyRenderIfPermissions
               action={{ type: "create_courses_or_exams" }}
               resource={{ id: getOrganizationBySlug.data.id, type: "organization" }}
             >
@@ -81,7 +78,7 @@ const Organization: React.FC<OrganizationPageProps> = ({ query }) => {
                 organizationId={getOrganizationBySlug.data.id}
                 organizationSlug={query.organizationSlug}
               />
-            </RenderIfPermissions>
+            </OnlyRenderIfPermissions>
           </>
         )}
 

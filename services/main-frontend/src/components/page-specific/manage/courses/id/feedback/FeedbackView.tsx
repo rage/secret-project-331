@@ -7,8 +7,8 @@ import { markAsRead } from "../../../../../../services/backend/feedback"
 import { Feedback } from "../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../shared-module/components/Accordion"
 import Button from "../../../../../../shared-module/components/Button"
-import HideTextInSystemTests from "../../../../../../shared-module/components/HideTextInSystemTests"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
+import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { primaryFont, typography } from "../../../../../../shared-module/styles"
 
@@ -29,7 +29,10 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
-const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback, setRead }) => {
+const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
+  feedback,
+  setRead,
+}) => {
   const { t } = useTranslation()
 
   const markAsReadMutation = useToastMutation(

@@ -1,12 +1,11 @@
-import { Pagination } from "@mui/material"
-import { useRouter } from "next/router"
-import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { fetchFeedbackCount } from "../../../../../../services/backend/feedback"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Pagination from "../../../../../../shared-module/components/Pagination"
 import Spinner from "../../../../../../shared-module/components/Spinner"
+import usePaginationInfo from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import FeedbackPage from "./FeedbackPage"
 
@@ -16,19 +15,11 @@ interface Props {
   perPage: number
 }
 
-const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
+const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read, perPage }) => {
   const { t } = useTranslation()
-  const router = useRouter()
+  const paginationInfo = usePaginationInfo()
 
-  let initialPage: number
-  if (typeof router.query.page === "string") {
-    initialPage = parseInt(router.query.page)
-  } else {
-    initialPage = 1
-  }
-  const [page, setPage] = useState(initialPage)
-
-  const getFeedbackCount = useQuery(`feedback-count-${courseId}`, () =>
+  const getFeedbackCount = useQuery([`feedback-count-${courseId}`], () =>
     fetchFeedbackCount(courseId),
   )
 
@@ -36,7 +27,7 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
   }
 
-  if (getFeedbackCount.isLoading || getFeedbackCount.isIdle) {
+  if (getFeedbackCount.isLoading) {
     return <Spinner variant={"medium"} />
   }
 
@@ -45,27 +36,16 @@ const FeedbackList: React.FC<Props> = ({ courseId, read, perPage }) => {
     return <div>{t("no-feedback")}</div>
   }
   const pageCount = Math.ceil(items / perPage)
-  if (page > pageCount) {
-    setPage(pageCount)
-  }
-
   return (
     <div>
       <FeedbackPage
         courseId={courseId}
-        page={page}
+        page={paginationInfo.page}
         read={read}
         limit={perPage}
         onChange={getFeedbackCount.refetch}
       />
-      <Pagination
-        count={pageCount}
-        page={page}
-        onChange={(_, val) => {
-          router.replace({ query: { ...router.query, page: val } }, undefined, { shallow: true })
-          setPage(val)
-        }}
-      />
+      <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
     </div>
   )
 }

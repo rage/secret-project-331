@@ -5,18 +5,18 @@ import { useTranslation } from "react-i18next"
 
 import Layout from "../../components/Layout"
 import OrganizationsList from "../../components/page-specific/organizations/index/OrganizationsList"
-import RenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
+import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 const MANAGE_EXERCISE_SERVICES_HREF = "/manage/exercise-services"
 
-const Home: React.FC = () => {
+const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
     <Layout>
       <OrganizationsList />
 
-      <RenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <h1
           className={css`
             text-align: center;
@@ -41,7 +41,7 @@ const Home: React.FC = () => {
             </a>
           </Link>
         </div>
-      </RenderIfPermissions>
+      </OnlyRenderIfPermissions>
     </Layout>
   )
 }

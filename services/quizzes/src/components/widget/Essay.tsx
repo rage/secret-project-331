@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemAnswer } from "../../../types/types"
+import TextArea from "../../shared-module/components/InputFields/TextAreaField"
 import { wordCount } from "../../shared-module/utils/strings"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
 
@@ -13,20 +15,8 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
-  const [usersWordCount, setUsersWordCOunt] = useState<number>(0)
-
-  const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUsersWordCOunt(wordCount(event.target.value))
-    if (quizItemAnswerState) {
-      const newQuizItemAnswerState: QuizItemAnswer = {
-        ...quizItemAnswerState,
-        textData: event.target.value,
-        valid: quizItem.minWords ? wordCount(event.target.value) >= quizItem.minWords : false,
-      }
-      setQuizItemAnswerState(newQuizItemAnswerState)
-    }
-  }
-
+  const text = quizItemAnswerState?.textData ?? ""
+  const usersWordCount = useMemo(() => wordCount(text), [text])
   return (
     <div
       className={css`
@@ -37,7 +27,8 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       <div
         className={css`
           display: flex;
-          margin: 0.5rem;
+          margin: 0.5rem 0;
+          font-size: 20px;
         `}
       >
         {quizItem.title}
@@ -45,7 +36,8 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       <div
         className={css`
           display: flex;
-          margin: 0.5rem;
+          margin: 0.5rem 0;
+          font-size: 20px;
         `}
       >
         {quizItem.body}
@@ -53,39 +45,74 @@ const Essay: React.FunctionComponent<QuizItemComponentProps> = ({
       <div
         className={css`
           display: flex;
-          margin: 0.5rem;
+          margin: 0.5rem 0;
+          text-transform: uppercase;
+          color: #757575;
+          strong {
+            color: #333333;
+            margin: 0 5px;
+          }
         `}
       >
-        {t("min-words")}: {quizItem.minWords} | {t("max-words")}: {quizItem.maxWords}
+        {t("min-words")}: <strong>{quizItem.minWords}</strong> | {t("max-words")}:{" "}
+        <strong>{quizItem.maxWords}</strong>
       </div>
+
       <div
         className={css`
           display: flex;
-          margin: 0.5rem;
+          margin: 0.5rem 0;
         `}
       >
-        {t("word-count")}: {usersWordCount}
-      </div>
-      <div
-        className={css`
-          display: flex;
-          margin: 0.5rem;
-        `}
-      >
-        <textarea
-          onChange={handleTextChange}
+        <TextArea
+          onChange={(newValue) => {
+            if (quizItemAnswerState) {
+              let valid = true
+              if (quizItem.minWords && quizItem.minWords > wordCount(newValue)) {
+                valid = false
+              }
+              if (quizItem.maxWords && quizItem.maxWords < wordCount(newValue)) {
+                valid = false
+              }
+              const newQuizItemAnswerState: QuizItemAnswer = {
+                ...quizItemAnswerState,
+                textData: newValue,
+                valid: valid,
+              }
+              setQuizItemAnswerState(newQuizItemAnswerState)
+            }
+          }}
           placeholder={t("answer")}
+          aria-label={t("answer")}
+          rows={10}
+          autoResize
           className={css`
             width: 100%;
-            height: 200px;
-            resize: both;
+            textarea {
+              width: 100%;
+              height: 200px;
+              resize: vertical;
+            }
           `}
-        >
-          {quizItemAnswerState?.textData}
-        </textarea>
+          value={text}
+        />
+      </div>
+      <div
+        className={css`
+          display: flex;
+          margin: 0.5rem 0;
+          text-transform: uppercase;
+          color: #757575;
+          strong {
+            color: #333333;
+            margin: 0 5px;
+          }
+        `}
+      >
+        {t("word-count")}: <strong>{usersWordCount}</strong>
       </div>
     </div>
   )
 }
 
-export default Essay
+export default withErrorBoundary(Essay)

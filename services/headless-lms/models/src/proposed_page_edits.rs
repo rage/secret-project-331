@@ -54,7 +54,11 @@ pub async fn insert(
     edits: &NewProposedPageEdits,
 ) -> ModelResult<(Uuid, Vec<Uuid>)> {
     if edits.block_edits.is_empty() {
-        return Err(ModelError::Generic("No block edits".to_string()));
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
+            "No block edits".to_string(),
+            None,
+        ));
     }
 
     let mut tx = conn.begin().await?;
@@ -161,25 +165,32 @@ WHERE proposed_block_edits.deleted_at IS NULL
             .iter()
             .find(|b| b.client_id == r.block_id)
             .ok_or_else(|| {
-                ModelError::Generic(
+                ModelError::new(
+                    ModelErrorType::Generic,
                     "Failed to find the block which the proposal was for".to_string(),
+                    None,
                 )
             })?;
         let content = block
             .attributes
             .get(&r.block_attribute)
             .ok_or_else(|| {
-                ModelError::Generic(format!(
-                    "Missing expected attribute '{}' in edited block",
-                    r.block_attribute
-                ))
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    format!(
+                        "Missing expected attribute '{}' in edited block",
+                        r.block_attribute
+                    ),
+                    None,
+                )
             })?
             .as_str()
             .ok_or_else(|| {
-                ModelError::Generic(format!(
-                    "Attribute '{}' did not contain a string",
-                    r.block_attribute
-                ))
+                ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("Attribute '{}' did not contain a string", r.block_attribute),
+                    None,
+                )
             })?
             .to_string();
         let page_proposal_id = r.page_proposal_id;
@@ -213,7 +224,7 @@ WHERE proposed_block_edits.deleted_at IS NULL
             current_text: content.to_string(),
             changed_text: changed_text.to_string(),
             status: block_proposal_status,
-            original_text,
+            original_text: original_text.to_string(),
         });
     }
 
@@ -257,8 +268,10 @@ pub async fn process_proposal(
     author: Uuid,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {
-        return Err(ModelError::Generic(
+        return Err(ModelError::new(
+            ModelErrorType::Generic,
             "No block proposals to process".to_string(),
+            None,
         ));
     }
 
@@ -286,8 +299,10 @@ RETURNING block_id,
                     .iter_mut()
                     .find(|b| b.client_id == res.block_id)
                     .ok_or_else(|| {
-                        ModelError::Generic(
+                        ModelError::new(
+                            ModelErrorType::Generic,
                             "Failed to find the block which the proposal was for".to_string(),
+                            None,
                         )
                     })?;
                 let current_content =
@@ -295,18 +310,23 @@ RETURNING block_id,
                         .attributes
                         .get_mut(&res.block_attribute)
                         .ok_or_else(|| {
-                            ModelError::Generic(format!(
-                                "Edited block has no attribute {}",
-                                &res.block_attribute
-                            ))
+                            ModelError::new(
+                                ModelErrorType::Generic,
+                                format!("Edited block has no attribute {}", &res.block_attribute),
+                                None,
+                            )
                         })?;
                 if let Value::String(s) = current_content {
                     *s = contents;
                 } else {
-                    return Err(ModelError::Generic(format!(
-                        "Block attribute {} did not contain a string",
-                        res.block_attribute
-                    )));
+                    return Err(ModelError::new(
+                        ModelErrorType::Generic,
+                        format!(
+                            "Block attribute {} did not contain a string",
+                            res.block_attribute
+                        ),
+                        None,
+                    ));
                 }
             }
             BlockProposalAction::Reject => {
@@ -437,7 +457,7 @@ mod test {
 
     #[tokio::test]
     async fn typo_fix() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page);
         let block_id = init_content(
             tx.as_mut(),
             chapter,
@@ -486,7 +506,7 @@ mod test {
 
     #[tokio::test]
     async fn rejection() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :chapter, :page);
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page);
         let block_id = init_content(
             tx.as_mut(),
             chapter,

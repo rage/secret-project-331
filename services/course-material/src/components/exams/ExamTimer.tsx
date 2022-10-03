@@ -6,6 +6,7 @@ import { hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import HideTextInSystemTests from "../../shared-module/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 
@@ -13,7 +14,8 @@ const SHORT = "short"
 
 const InfoBoxLightGreenMedium = styled.div`
   align-items: center;
-  background-color: ${baseTheme.colors.green[500]};
+  background-color: ${baseTheme.colors.green[200]};
+  color: black;
   display: flex;
   flex: 2;
   flex-direction: column;
@@ -31,7 +33,8 @@ const InfoBoxLightGreenMedium = styled.div`
 const InfoBoxDarkGreenSmall = styled.div`
   padding: 0.5rem;
   flex: 1;
-  background-color: ${baseTheme.colors.green[200]};
+  background-color: ${baseTheme.colors.green[700]};
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +49,7 @@ export interface ExamTimerProps {
   secondsLeft: number
 }
 
-const ExamTimer: React.FC<ExamTimerProps> = ({
+const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
   endsAt,
   hour12,
   maxScore,
@@ -100,16 +103,25 @@ const ExamTimer: React.FC<ExamTimerProps> = ({
             margin: 0.5rem;
           `}
         />
-        <div>{t("started-at-time", { time: formatedStartedAt })}</div>
+        <div>
+          <HideTextInSystemTests
+            text={t("started-at-time", { time: formatedStartedAt })}
+            testPlaceholder={t("started-at-time", { time: "XX:XX PM" })}
+          />
+        </div>
       </InfoBoxLightGreenMedium>
-      <InfoBoxLightGreenMedium
-        className={css`
-          color: ${baseTheme.colors.green[100]};
-        `}
-      >
-        {t("ends-at-time", { time: formatedEndsAt })}
+      <InfoBoxLightGreenMedium>
+        <HideTextInSystemTests
+          text={t("ends-at-time", { time: formatedEndsAt })}
+          testPlaceholder={t("ends-at-time", { time: "XX:XX PM" })}
+        />
       </InfoBoxLightGreenMedium>
-      <InfoBoxDarkGreenSmall>{formatTimeLeft(secondsLeft)}</InfoBoxDarkGreenSmall>
+      <InfoBoxDarkGreenSmall>
+        <HideTextInSystemTests
+          text={formatTimeLeft(secondsLeft)}
+          testPlaceholder={formatTimeLeft(135)}
+        />
+      </InfoBoxDarkGreenSmall>
     </div>
   )
 }

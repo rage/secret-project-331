@@ -17,8 +17,10 @@ pub async fn insert(conn: &mut PgConnection, role_info: RoleInfo) -> ModelResult
         crate::roles::RoleDomain::Global
         | crate::roles::RoleDomain::Organization(_)
         | crate::roles::RoleDomain::Exam(_) => {
-            return Err(ModelError::InvalidRequest(
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
                 "Cannot use a pending role for a role this broad".to_string(),
+                None,
             ));
         }
 
@@ -27,8 +29,10 @@ pub async fn insert(conn: &mut PgConnection, role_info: RoleInfo) -> ModelResult
 
     match role_info.role {
         UserRole::Admin | UserRole::Teacher => {
-            return Err(ModelError::InvalidRequest(
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
                 "Cannot use a pending role with this much power".to_string(),
+                None,
             ))
         }
         UserRole::Reviewer

@@ -12,7 +12,9 @@ export interface DropdownMenuProps {
   items: (DropdownMenuItemType | null)[]
 }
 
-const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => {
+const DropdownMenu: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<DropdownMenuProps>>
+> = ({ items }) => {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
   return (
@@ -33,11 +35,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => {
           border: none;
           color: ${baseTheme.colors.grey[400]};
           cursor: pointer;
-          padding: 0 0.5rem;
-          margin: 0 0.5rem;
+          padding: 0 0.66em;
+          margin: 0 0.66em;
           &:hover {
             background-color: ${baseTheme.colors.clear[200]};
-            border-radius: 100px;
+            border-radius: 50px;
           }
         `}
         aria-label={expanded ? t("close") : t("dropdown-menu")}
@@ -55,6 +57,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => {
             border-radius: 4px;
             overflow: hidden;
             margin: 0;
+            font-size: 17px;
             position: absolute;
             top: 33px;
             left: 0;

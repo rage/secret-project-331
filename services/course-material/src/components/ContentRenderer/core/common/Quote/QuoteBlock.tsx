@@ -4,7 +4,9 @@ import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = ({ data }) => {
+const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttributes>>> = ({
+  data,
+}) => {
   const { citation, value, anchor, className, align } = data.attributes
 
   const justify = css`

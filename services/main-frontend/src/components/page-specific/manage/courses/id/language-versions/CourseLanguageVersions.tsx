@@ -1,6 +1,7 @@
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { useQuery } from "react-query"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse, postNewCourseTranslation } from "../../../../../../services/backend/courses"
@@ -9,22 +10,25 @@ import Button from "../../../../../../shared-module/components/Button"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import CourseLanguageVersionsList, {
   formatLanguageVersionsQueryKey,
 } from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
-const CourseLanguageVersionsPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
+const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
-  const getCourseQuery = useQuery(`course-${courseId}`, () => getCourse(courseId))
+  const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
 
   const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
     await postNewCourseTranslation(courseId, newCourse)
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries(formatLanguageVersionsQueryKey(courseId))
+    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(courseId)])
   }
 
   return (
@@ -42,7 +46,16 @@ const CourseLanguageVersionsPage: React.FC<CourseManagementPagesProps> = ({ cour
               onClose={() => setShowNewLanguageVersionForm(false)}
             />
           )}
-          <h2>{t("title-all-course-language-versions")}</h2>
+          <h2
+            className={css`
+              font-size: clamp(2rem, 3.6vh, 36px);
+              color: ${baseTheme.colors.grey[700]};
+              font-family: ${headingFont};
+              font-weight: bold;
+            `}
+          >
+            {t("title-all-course-language-versions")}
+          </h2>
           <CourseLanguageVersionsList courseId={courseId} />
           <Button
             size="medium"

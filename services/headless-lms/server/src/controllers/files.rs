@@ -2,14 +2,14 @@
 Handlers for HTTP requests to `/api/v0/files`.
 
 */
-
 use std::path::{Path, PathBuf};
 
+pub use crate::domain::authorization::AuthorizationToken;
+use crate::prelude::*;
 use actix_files::NamedFile;
+use futures::{StreamExt, TryStreamExt};
+use headless_lms_utils::file_store::file_utils;
 use tokio::fs::read;
-
-use crate::controllers::prelude::*;
-
 /**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -73,22 +73,32 @@ Result:
 The file.
 */
 #[instrument(skip(req))]
-async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
+async fn serve_upload(
+    req: HttpRequest,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
+    let mut conn = pool.acquire().await?;
     let base_folder = Path::new("uploads");
-    let relative_path: PathBuf = req
-        .match_info()
-        .query("tail")
-        .parse()
-        .map_err(|_e| ControllerError::BadRequest("Invalid file path".to_string()))?;
+    let relative_path = PathBuf::from(req.match_info().query("tail"));
     let path = base_folder.join(relative_path);
 
-    let named_file = NamedFile::open(path)
-        .map_err(|_e| ControllerError::NotFound("File not found".to_string()))?;
+    let named_file = NamedFile::open(path).map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::NotFound,
+            "File not found".to_string(),
+            None,
+        )
+    })?;
     let path = named_file.path();
-    let contents = read(path)
-        .await
-        .map_err(|_e| ControllerError::InternalServerError("Could not read file".to_string()))?;
+    let contents = read(path).await.map_err(|_e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Could not read file".to_string(),
+            None,
+        )
+    })?;
 
     let extension = path.extension().map(|o| o.to_string_lossy().to_string());
     let mut mime_type = None;
@@ -106,7 +116,50 @@ async fn serve_upload(req: HttpRequest) -> ControllerResult<HttpResponse> {
     if let Some(m) = mime_type {
         response.append_header(("content-type", m));
     }
-    Ok(response.body(contents))
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(response.body(contents))
+}
+
+/**
+POST `/api/v0/files/:exercise_service_slug`
+Used to upload data from exercise service iframes.
+
+# Returns
+The randomly generated path to the uploaded file.
+*/
+#[instrument(skip(data, file_store, pool, user))]
+#[generated_doc]
+async fn upload_from_exercise_service(
+    exercise_service_slug: web::Path<String>,
+    data: web::Payload,
+    file_store: web::Data<dyn FileStore>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<String>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+
+    // the playground uses the special "playground" slug to upload temporary files
+    if exercise_service_slug.as_ref() != "playground" {
+        // check that the given slug matches with a service
+        headless_lms_models::exercise_services::get_exercise_services(&mut conn)
+            .await?
+            .into_iter()
+            .find(|es| &es.slug == exercise_service_slug.as_ref())
+            .ok_or_else(|| anyhow::anyhow!("Unknown exercise service"))?;
+    }
+
+    let random_filename = file_utils::random_filename();
+    let path = format!("{exercise_service_slug}/{random_filename}");
+    file_store
+        .upload_stream(
+            Path::new(&path),
+            data.map_err(anyhow::Error::msg).boxed_local(),
+            "application/octet-stream",
+        )
+        .await?;
+
+    token.authorized_ok(web::Json(path))
 }
 
 /**
@@ -118,5 +171,9 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/uploads/{tail:.*}", web::get().to(serve_upload))
+        .route(
+            "/{exercise_service_slug}",
+            web::post().to(upload_from_exercise_service),
+        )
         .route("{tail:.*}", web::get().to(redirect_to_storage_service));
 }

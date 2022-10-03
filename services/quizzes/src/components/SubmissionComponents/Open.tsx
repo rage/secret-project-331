@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
 import TextField from "../../shared-module/components/InputFields/TextField"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../styles/QuizStyles"
 import MarkdownText from "../MarkdownText"
 
@@ -74,4 +75,4 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
   )
 }
 
-export default OpenFeedback
+export default withErrorBoundary(OpenFeedback)

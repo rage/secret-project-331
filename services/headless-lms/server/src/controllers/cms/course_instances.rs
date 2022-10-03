@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/course-instances`.
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id.
@@ -13,11 +13,19 @@ Request: `GET /api/v8/course-instances/e051ddb5-2128-4215-adda-ebd74a0ea46b`
 async fn get_organization_id(
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::CourseInstance(*course_instance_id),
+    )
+    .await?;
     let organization =
         models::course_instances::get_organization_id(&mut conn, *course_instance_id).await?;
-    Ok(web::Json(organization))
+    token.authorized_ok(web::Json(organization))
 }
 
 /**

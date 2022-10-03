@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 import waitForFunction from "../../../utils/waitForFunction"
 
@@ -17,10 +18,9 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   // Click text=Introduction to Course Material
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/advanced-course-instance-management' }*/),
-    page.locator("text=Introduction to Course Material").click(),
+    page.locator(`div:text-is("Introduction to Course Material")`).click(),
   ])
-  // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   await page.evaluate(() => {
     window.scrollBy(0, 1800)
@@ -53,11 +53,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -73,7 +70,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -85,10 +82,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 
@@ -121,11 +115,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -134,7 +125,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     axeSkip: ["color-contrast"],
     headless,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first answer"`,
+    waitForThisToBeVisibleAndStable: `text="Correct! This is indeed the first option"`,
     frame: frame2,
     page,
     clearNotifications: true,
@@ -142,7 +133,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -154,17 +145,14 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
-    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first answer"`,
+    waitForThisToBeVisibleAndStable: `text="Incorrect. This is not the first option"`,
     frame: frame2,
     page,
     clearNotifications: true,

@@ -54,7 +54,7 @@ export interface MatrixCellProps {
   matrixSize: number[]
 }
 
-const MatrixCell: React.FunctionComponent<MatrixCellProps> = ({
+const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProps>> = ({
   row,
   column,
   cellText,
@@ -107,7 +107,11 @@ interface BorderDivProps {
   matrixSize: number[]
 }
 
-const BorderDiv: React.FC<BorderDivProps> = ({ column, row, matrixSize }) => {
+const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
+  column,
+  row,
+  matrixSize,
+}) => {
   return (
     <>
       {column === 0 && row === 0 ? (

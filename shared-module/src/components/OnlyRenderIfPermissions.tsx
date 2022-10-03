@@ -1,5 +1,5 @@
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useQuery } from "react-query"
 
 import { Action, Resource } from "../bindings"
 import { authorize } from "../services/backend/auth"
@@ -9,12 +9,15 @@ interface ComponentProps {
   resource: Resource
 }
 
-const RenderIfPermissions: React.FC<ComponentProps> = ({ action, resource, children }) => {
+const OnlyRenderIfPermissions: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<ComponentProps>>
+> = ({ action, resource, children }) => {
   const data = useQuery(
-    `action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`,
+    [`action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`],
     () => {
       return authorize({ action, resource })
-    },
+    }, // 15 minutes
+    { cacheTime: 15 * 60 * 1000 },
   )
 
   if (data.isLoading || data.isError || !data.data) {
@@ -23,4 +26,4 @@ const RenderIfPermissions: React.FC<ComponentProps> = ({ action, resource, child
   return <>{children}</>
 }
 
-export default RenderIfPermissions
+export default OnlyRenderIfPermissions

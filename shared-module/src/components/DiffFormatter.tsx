@@ -20,11 +20,9 @@ interface DiffFormatterProps {
 /**
  * Formats the diff object from the diff npm package. Remember to wrap this inside a container like a div or a p.
  */
-const DiffFormatter: React.FC<DiffFormatterProps> = ({
-  changes,
-  dontShowAdded,
-  dontShowRemoved,
-}) => {
+const DiffFormatter: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<DiffFormatterProps>>
+> = ({ changes, dontShowAdded, dontShowRemoved }) => {
   const { t } = useTranslation()
 
   return (
@@ -36,6 +34,7 @@ const DiffFormatter: React.FC<DiffFormatterProps> = ({
           }
           return (
             <mark
+              key={JSON.stringify(change)}
               role="note"
               aria-label={t("added-text")}
               className={css`
@@ -52,6 +51,7 @@ const DiffFormatter: React.FC<DiffFormatterProps> = ({
           }
           return (
             <mark
+              key={JSON.stringify(change)}
               role="note"
               aria-label={t("removed-text")}
               className={css`
@@ -63,7 +63,7 @@ const DiffFormatter: React.FC<DiffFormatterProps> = ({
             </mark>
           )
         } else {
-          return <span>{change.value}</span>
+          return <span key={JSON.stringify(change)}>{change.value}</span>
         }
       })}
     </>

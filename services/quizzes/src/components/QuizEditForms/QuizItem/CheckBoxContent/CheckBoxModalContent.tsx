@@ -45,7 +45,9 @@ interface CheckBoxModalProps {
   itemId: string
 }
 
-export const CheckBoxModalContent: React.FC<CheckBoxModalProps> = ({ itemId }) => {
+export const CheckBoxModalContent: React.FC<React.PropsWithChildren<CheckBoxModalProps>> = ({
+  itemId,
+}) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const storeItem = useTypedSelector((state) => state.editor.items[itemId])

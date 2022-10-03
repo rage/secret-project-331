@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
-import expectPath from "../utils/expect"
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import expectUrlPathWithRandomUuid from "../utils/expect"
 import waitForFunction from "../utils/waitForFunction"
 
 test.use({
@@ -16,7 +17,7 @@ test("test", async ({ page }) => {
     page.waitForNavigation(),
     page.click("text=University of Helsinki, Department of Computer Science"),
   ])
-  expectPath(page, "/org/uh-cs")
+  await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
   // Click text=Add course
   await page.click(`button:text("Create")`)
@@ -149,6 +150,10 @@ test("test", async ({ page }) => {
     }),
   )
 
+  if (!frame) {
+    throw new Error("Could not find frame")
+  }
+
   // Click text=New
   await frame.click("text=New")
 
@@ -215,21 +220,24 @@ test("test", async ({ page }) => {
   ])
 
   // Click button:has-text("Continue")
-  await page.click('button:has-text("Continue")')
+  await selectCourseInstanceIfPrompted(page)
 
   // Click text=Chapter 1: The Levels of Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1' }*/),
     page.click("text=The Levels of Testing"),
   ])
-  expectPath(page, "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1")
+  await expectUrlPathWithRandomUuid(
+    page,
+    "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1",
+  )
 
   // Click text=System Testing
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing' }*/),
     await page.click("text=System Testing"),
   ])
-  expectPath(
+  await expectUrlPathWithRandomUuid(
     page,
     "/org/uh-cs/courses/introduction-to-system-level-testing/chapter-1/system-testing",
   )
@@ -239,6 +247,9 @@ test("test", async ({ page }) => {
       return f.url().startsWith("http://project-331.local/example-exercise/iframe")
     }),
   )
+  if (!frame2) {
+    throw new Error("Could not find frame2")
+  }
   await (await frame2.frameElement()).scrollIntoViewIfNeeded()
 
   // Click text=Automatically testing the whole system

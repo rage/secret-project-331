@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { headingFont, typography } from "../../styles"
+import { secondaryFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -38,8 +38,8 @@ const CardContentWrapper = styled.div`
   ${BackgroundStyles}
 
   h2 {
-    font-size: ${typography.h3};
-    font-weight: 700;
+    font-size: 2.7rem;
+    font-weight: 500;
     z-index: 20;
     line-height: 1em;
     color: #fff;
@@ -47,8 +47,8 @@ const CardContentWrapper = styled.div`
 
   span {
     color: #f5f6f7;
-    font-size: 1.2em;
-    /* opacity: 0.8; */
+    font-size: 1em;
+    opacity: 0.9;
     z-index: 20;
     font-weight: 500;
     width: 50%;
@@ -61,7 +61,14 @@ const CardContentWrapper = styled.div`
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
-const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, time, bg }) => {
+const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardProps>>> = ({
+  title,
+  chapterNumber,
+  open,
+  date,
+  time,
+  bg,
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -99,9 +106,9 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
         <div
           className={css`
             flex: 1 1 auto;
-            padding: 2rem;
+            padding: 2rem 2rem 3rem 2rem;
             ${respondToOrLarger.lg} {
-              padding: 3rem;
+              padding: 3rem 3rem 4rem 3rem;
             }
           `}
         >
@@ -120,7 +127,7 @@ const SimpleCard: React.FC<CardProps> = ({ title, chapterNumber, open, date, tim
               <span
                 className={css`
                   text-transform: uppercase;
-                  font-family: ${headingFont};
+                  font-family: ${secondaryFont};
                 `}
               >
                 {t("chapter-chapter-number", { number: chapterNumber })}

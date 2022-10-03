@@ -50,7 +50,7 @@ interface QuizItemProps {
   item: NormalizedQuizItem
 }
 
-const QuizItem: React.FC<QuizItemProps> = ({ item }) => {
+const QuizItem: React.FC<React.PropsWithChildren<QuizItemProps>> = ({ item }) => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
 
@@ -118,7 +118,11 @@ const contentBasedOnType = (type: string, item: NormalizedQuizItem, t: TFunction
       return <Timeline item={item} />
     }
     default: {
-      return <div>{t("unsupported")}</div>
+      return (
+        <div>
+          <>{t("unsupported")}</>
+        </div>
+      )
     }
   }
 }

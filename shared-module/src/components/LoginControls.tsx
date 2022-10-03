@@ -1,28 +1,25 @@
 import { ClassNamesArg, cx } from "@emotion/css"
-import styled from "@emotion/styled"
-import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "../contexts/LoginStateContext"
 import { logout } from "../services/backend/auth"
+import { useCurrentPagePathForReturnTo } from "../utils/redirectBackAfterLoginOrSignup"
 
 import Button from "./Button"
 import Spinner from "./Spinner"
 
-const StyledIcon = styled(FontAwesomeIcon)`
-  margin-right: 0.5rem;
-`
-
 export interface LoginControlsProps {
   styles?: ClassNamesArg[]
-  returnToPath?: string
+  currentPagePath: string
 }
 
-const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) => {
+const LoginControls: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<LoginControlsProps>>
+> = ({ styles, currentPagePath }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
+  const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
@@ -33,14 +30,14 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
     await loginStateContext.refresh()
   }
 
+  // eslint-disable-next-line i18next/no-literal-string
+  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}`
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}`
+
   return loginStateContext.signedIn ? (
     <>
-      <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          <StyledIcon icon={profileIcon} />
-          {t("email")}
-        </Button>
-      </li>
       <li className={cx(styles)}>
         <Button size="medium" variant="primary" onClick={submitLogout}>
           {t("log-out")}
@@ -50,12 +47,14 @@ const LoginControls: React.FC<LoginControlsProps> = ({ styles, returnToPath }) =
   ) : (
     <>
       <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          {t("create-new-account")}
-        </Button>
+        <a href={signUpPathWithReturnTo}>
+          <Button size="medium" variant="primary">
+            {t("create-new-account")}
+          </Button>
+        </a>
       </li>
       <li className={cx(styles)}>
-        <a href={returnToPath}>
+        <a href={loginPathWithReturnTo}>
           <Button size="medium" variant="primary">
             {t("log-in")}
           </Button>

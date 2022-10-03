@@ -1,26 +1,49 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useLayoutEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useSpring } from "react-spring"
 
-import { baseTheme, headingFont } from "../../styles"
+import { baseTheme, headingFont, secondaryFont } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/constants"
 
 import { CircularProgressExtraProps } from "."
 
-// eslint-disable-next-line i18next/no-literal-string
 const StyledSVG = styled.div`
   position: relative;
   width: 100%;
   text-align: center;
+  height: auto;
+
   svg {
     margin: 0 auto;
     width: 16rem;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
 
     ${respondToOrLarger.sm} {
       width: 25rem;
     }
+  }
+
+  svg circle {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #f1e4a9;
+    stroke-width: 20px;
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(0deg);
+    background: green;
+  }
+
+  svg circle:nth-child(2) {
+    stroke: #b4cdcb;
+  }
+
+  svg circle:nth-child(3) {
+    stroke: #1f6964;
   }
 
   p {
@@ -46,6 +69,7 @@ const StyledSVG = styled.div`
     text-transform: uppercase;
     font-weight: 600;
     opacity: 0.5;
+    font-family: ${secondaryFont};
 
     @media (max-width: 767.98px) {
       font-size: 1rem;
@@ -53,16 +77,25 @@ const StyledSVG = styled.div`
   }
 `
 const CircularProgress: React.FC<CircularProgressExtraProps> = ({
-  point = 10,
   label,
   given,
   max,
+  required,
 }) => {
   const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
 
   const givenScore = given ?? 0
   const maximum = max ?? 0
+
+  const radius = 160
+  const circumference = 2 * Math.PI * radius
+  const receivedPointsRatio = givenScore / maximum
+  const requiredForCompletionRatio = required && required > 0 && max && max > 0 ? required / max : 0
+
+  const receivedPointsStrokeDashOffset = (1 - receivedPointsRatio) * circumference
+  const requiredForCompletionStrokeDashOffset = (1 - requiredForCompletionRatio) * circumference
+
   useLayoutEffect(() => {
     const onScroll = () => {
       const scrollPosition = window.scrollY + window.innerHeight
@@ -76,18 +109,21 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
   }, [])
 
   useSpring({
-    number: !willAnimate ? 0 : point,
+    number: !willAnimate ? 0 : givenScore,
     config: { duration: 1000 },
   })
   return (
     <>
       <h2
-        className={css`
-          text-transform: uppercase;
-          padding-bottom: 10px;
-          font-weight: 500;
-          border-bottom: 2px solid #d8dbdd;
-        `}
+        className={cx(
+          INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+          css`
+            padding-bottom: 10px;
+            font-weight: 500;
+            border-bottom: 3px solid #d8dbdd;
+            color: #1a2333;
+          `,
+        )}
       >
         {label}
       </h2>
@@ -114,10 +150,26 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
               transform="translate(801 7718)"
               fill="#fff"
               stroke={`${baseTheme.colors.yellow[700]}`}
-              strokeWidth="4"
             >
-              <circle cx="160" cy="160" r="160" stroke="none" />
-              <circle cx="160" cy="160" r="158" fill="none" />
+              <circle cx="160" cy="160" r="160" />
+              <circle
+                cx={radius}
+                cy={radius}
+                r={radius}
+                className={css`
+                  stroke-dasharray: ${circumference} ${circumference * 2};
+                  stroke-dashoffset: ${requiredForCompletionStrokeDashOffset};
+                `}
+              />
+              <circle
+                cx={radius}
+                cy={radius}
+                r={radius}
+                className={css`
+                  stroke-dasharray: ${circumference} ${circumference * 2};
+                  stroke-dashoffset: ${receivedPointsStrokeDashOffset};
+                `}
+              />
             </g>
           </g>
         </svg>

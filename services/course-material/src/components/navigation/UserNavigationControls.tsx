@@ -1,7 +1,4 @@
 import { ClassNamesArg, cx } from "@emotion/css"
-import styled from "@emotion/styled"
-import { faUser as profileIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,26 +6,24 @@ import Button from "../../shared-module/components/Button"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
 import { logout } from "../../shared-module/services/backend/auth"
+import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
 import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
-
-const StyledIcon = styled(FontAwesomeIcon)`
-  margin-right: 0.5rem;
-`
 
 export interface UserNavigationControlsProps {
   styles?: ClassNamesArg[]
-  returnToPath?: string
+  currentPagePath: string
   courseId?: string | null
 }
 
-const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
+const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationControlsProps>> = ({
   styles,
-  returnToPath,
+  currentPagePath,
   courseId,
 }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
+  const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
@@ -38,6 +33,12 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
     await logout()
     await loginStateContext.refresh()
   }
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}`
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}`
 
   return loginStateContext.signedIn ? (
     <>
@@ -49,12 +50,6 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
           manualOpen={showSettings}
         />
       )}
-      <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          <StyledIcon icon={profileIcon} />
-          {t("email")}
-        </Button>
-      </li>
       {courseId && (
         <li>
           <Button
@@ -77,12 +72,14 @@ const UserNavigationControls: React.FC<UserNavigationControlsProps> = ({
   ) : (
     <>
       <li className={cx(styles)}>
-        <Button size="medium" variant="primary">
-          {t("create-new-account")}
-        </Button>
+        <a href={signUpPathWithReturnTo}>
+          <Button size="medium" variant="primary">
+            {t("create-new-account")}
+          </Button>
+        </a>
       </li>
       <li className={cx(styles)}>
-        <a href={returnToPath}>
+        <a href={loginPathWithReturnTo}>
           <Button size="medium" variant="primary">
             {t("log-in")}
           </Button>

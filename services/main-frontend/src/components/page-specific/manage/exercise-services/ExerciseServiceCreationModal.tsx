@@ -22,14 +22,9 @@ const SERVICE_PUBLIC_URL = "public_url"
 const SERVICE_INTERNAL_URL = "internal_url"
 const MAX_REPROCESSING_SUBMISSION_AT_ONCE = "max_reprocessing_submissions_at_once"
 
-const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> = ({
-  open,
-  handleClose,
-  exercise_service,
-  onChange,
-  onChangeName,
-  handleSubmit,
-}) => {
+const ExerciseServiceCreationModal: React.FC<
+  React.PropsWithChildren<ExerciseServiceCreationModelProps>
+> = ({ open, handleClose, exercise_service, onChange, onChangeName, handleSubmit }) => {
   const { t } = useTranslation()
   return (
     <Modal
@@ -78,7 +73,6 @@ const ExerciseServiceCreationModal: React.FC<ExerciseServiceCreationModelProps> 
             editing={true}
             onChange={onChange(SERVICE_INTERNAL_URL)}
             type={"text"}
-            error={!validURL(exercise_service.internal_url ?? "") ? t("error-title") : undefined}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}

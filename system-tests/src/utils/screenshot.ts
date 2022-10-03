@@ -17,10 +17,10 @@ const viewPorts = {
  *
  * The second argument passed to expect(screenshot).toMatchSnapshot(name[, options])
  */
-type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[1]
+type ToMatchSnapshotOptions = Parameters<ReturnType<typeof expect>["toMatchSnapshot"]>[0]
 
 interface ExpectScreenshotsToMatchSnapshotsProps {
-  headless: boolean
+  headless: boolean | undefined
   snapshotName: string
   waitForThisToBeVisibleAndStable?: string | ElementHandle | (string | ElementHandle)[]
   clearNotifications?: boolean
@@ -32,10 +32,14 @@ interface ExpectScreenshotsToMatchSnapshotsProps {
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip?: boolean | string[]
   skipMobile?: boolean
+  /** If defined, the page will scroll to this y coordinate before taking the screenshot */
+  scrollToYCoordinate?: number
+  /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
+  replaceSomePartsWithPlaceholders?: boolean
 }
 
 export default async function expectScreenshotsToMatchSnapshots({
-  headless,
+  headless = false,
   snapshotName,
   toMatchSnapshotOptions = { threshold: 0.3 },
   waitForThisToBeVisibleAndStable,
@@ -48,17 +52,24 @@ export default async function expectScreenshotsToMatchSnapshots({
   // keep false for new screenshots
   axeSkip = false,
   skipMobile = false,
+  scrollToYCoordinate,
+  replaceSomePartsWithPlaceholders = true,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  if (!page && !frame) {
-    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
-  }
   let pageObjectToUse = page
-  let visibilityWaitContainer: Page | Frame = page
+  let visibilityWaitContainer: Page | Frame
   let originalViewPort = page?.viewportSize()
   if (frame) {
     pageObjectToUse = frame.page()
     originalViewPort = pageObjectToUse.viewportSize()
     visibilityWaitContainer = frame
+  } else if (page) {
+    visibilityWaitContainer = page
+  } else {
+    throw new Error("No page or frame provided to expectScreenshotsToMatchSnapshots")
+  }
+
+  if (!pageObjectToUse) {
+    throw new Error("Could not determine pageObjectToUse")
   }
 
   // if frame is passed, then we take a screenshot of the frame istead of the page
@@ -69,16 +80,17 @@ export default async function expectScreenshotsToMatchSnapshots({
   }
 
   const elementHandle = await waitToBeVisible({
-    waitForThisToBeVisibleAndStable,
+    waitForThisToBeVisibleAndStable: waitForThisToBeVisibleAndStable || [],
     container: visibilityWaitContainer,
+    replaceSomePartsWithPlaceholders,
   })
 
   if (clearNotifications) {
-    await page.evaluate(() => {
-      for (const notif of document.querySelectorAll("#give-feedback-button")) {
+    await (page || pageObjectToUse).evaluate(() => {
+      for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
         notif.remove()
       }
-      for (const notif of document.querySelectorAll(".toast-notification")) {
+      for (const notif of Array.from(document.querySelectorAll(".toast-notification"))) {
         notif.remove()
       }
     })
@@ -97,6 +109,8 @@ export default async function expectScreenshotsToMatchSnapshots({
       headless,
       pageScreenshotOptions,
       axeSkip,
+      scrollToYCoordinate,
+      replaceSomePartsWithPlaceholders,
     })
   }
 
@@ -112,10 +126,14 @@ export default async function expectScreenshotsToMatchSnapshots({
     headless,
     pageScreenshotOptions,
     axeSkip,
+    scrollToYCoordinate,
+    replaceSomePartsWithPlaceholders,
   })
 
-  // always restore the original viewport
-  await pageObjectToUse.setViewportSize(originalViewPort)
+  if (originalViewPort) {
+    // always restore the original viewport
+    await pageObjectToUse.setViewportSize(originalViewPort)
+  }
 }
 
 interface SnapshotWithViewPortProps {
@@ -131,6 +149,8 @@ interface SnapshotWithViewPortProps {
   persistMousePosition?: boolean
   pageScreenshotOptions?: PageScreenshotOptions
   axeSkip: boolean | string[]
+  scrollToYCoordinate?: number
+  replaceSomePartsWithPlaceholders: boolean
 }
 
 async function snapshotWithViewPort({
@@ -146,25 +166,35 @@ async function snapshotWithViewPort({
   persistMousePosition,
   pageScreenshotOptions,
   axeSkip,
+  scrollToYCoordinate,
+  replaceSomePartsWithPlaceholders,
 }: SnapshotWithViewPortProps) {
   if (!persistMousePosition && page) {
     await page.mouse.move(0, 0)
   }
 
   let pageObjectToUse = page
-  let thingBeingScreenshotted: Page | ElementHandle<Node> = page
-  let thingBeingScreenshottedObject: Page | Frame = page
+  let thingBeingScreenshotted: Page | ElementHandle<Node> | undefined = page
+  let thingBeingScreenshottedObject: Page | Frame | undefined = page
   if (frame) {
     pageObjectToUse = frame.page()
     thingBeingScreenshotted = await frame.frameElement()
     if (elementId) {
-      thingBeingScreenshotted = await thingBeingScreenshotted.$(elementId)
+      thingBeingScreenshotted = (await thingBeingScreenshotted.$(elementId)) ?? undefined
     }
     thingBeingScreenshottedObject = frame
   }
-  if (elementId) {
-    thingBeingScreenshotted = await page.$(elementId)
+  if (!pageObjectToUse || !thingBeingScreenshottedObject || !thingBeingScreenshotted) {
+    throw new Error("Cannot get the the thing being screenshotted")
   }
+  if (elementId) {
+    const element = await pageObjectToUse.$(elementId)
+    if (!element) {
+      throw new Error("Could not find the element with id " + elementId)
+    }
+    thingBeingScreenshotted = element
+  }
+
   // typing caret sometimes blinks and fails screenshot tests
   const style = await thingBeingScreenshottedObject.addStyleTag({
     content: `
@@ -173,16 +203,31 @@ async function snapshotWithViewPort({
   }
 `,
   })
-  await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  if (replaceSomePartsWithPlaceholders) {
+    await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
+
   await pageObjectToUse.setViewportSize(viewPorts[viewPortName])
   await waitToBeStable({ waitForThisToBeStable })
   if (beforeScreenshot) {
     await pageObjectToUse.waitForTimeout(100)
     await beforeScreenshot()
-    // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-    await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+    if (replaceSomePartsWithPlaceholders) {
+      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
+      await pageObjectToUse.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+    }
+
     await pageObjectToUse.waitForTimeout(100)
     await waitToBeStable({ waitForThisToBeStable })
+  }
+
+  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
+  if (scrollToYCoordinate) {
+    await (page || pageObjectToUse).evaluate(async (coord) => {
+      window.scrollTo(0, coord)
+    }, scrollToYCoordinate)
+    // 100ms was not enough at the time of writing this
+    await pageObjectToUse.waitForTimeout(200)
   }
 
   const screenshotName = `${snapshotName}-${viewPortName}.png`
@@ -211,12 +256,15 @@ async function snapshotWithViewPort({
       console.error("Could not remove the style that hides the typing caret.")
     }
   })
-  await pageObjectToUse.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+  if (replaceSomePartsWithPlaceholders) {
+    await pageObjectToUse.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
 }
 
 interface WaitToBeVisibleProps {
   waitForThisToBeVisibleAndStable: string | ElementHandle | (string | ElementHandle)[]
   container: Page | Frame
+  replaceSomePartsWithPlaceholders: boolean
 }
 
 export async function takeScreenshotAndComparetoSnapshot(
@@ -234,7 +282,7 @@ export async function takeScreenshotAndComparetoSnapshot(
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
     )
-    await page.waitForTimeout(100)
+    await page.waitForTimeout(500)
     const screenshot = await thingBeingScreenshotted.screenshot(pageScreenshotOptions)
     expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   }
@@ -243,19 +291,27 @@ export async function takeScreenshotAndComparetoSnapshot(
 export async function waitToBeVisible({
   waitForThisToBeVisibleAndStable,
   container: page,
+  replaceSomePartsWithPlaceholders,
 }: WaitToBeVisibleProps): Promise<ElementHandle | ElementHandle[]> {
-  await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
-  let elementHandle: ElementHandle | ElementHandle[] = null
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  }
+  let elementHandle: ElementHandle | ElementHandle[]
   if (typeof waitForThisToBeVisibleAndStable == "string") {
     elementHandle = await page.waitForSelector(waitForThisToBeVisibleAndStable)
   } else if (Array.isArray(waitForThisToBeVisibleAndStable)) {
+    elementHandle = []
     for (const element of waitForThisToBeVisibleAndStable) {
-      // for some reason eslint mistakes recursion as an unsused variable
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      elementHandle = await waitToBeVisible({
+      const recursiveRes = await waitToBeVisible({
         waitForThisToBeVisibleAndStable: element,
         container: page,
+        replaceSomePartsWithPlaceholders,
       })
+      if (Array.isArray(recursiveRes)) {
+        elementHandle.push(...recursiveRes)
+      } else {
+        elementHandle.push(recursiveRes)
+      }
     }
   } else {
     elementHandle = waitForThisToBeVisibleAndStable

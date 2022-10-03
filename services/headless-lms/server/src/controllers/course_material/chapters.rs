@@ -2,7 +2,7 @@
 
 use models::pages::{Page, PageWithExercises};
 
-use crate::controllers::prelude::*;
+use crate::prelude::*;
 
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
@@ -15,7 +15,7 @@ async fn get_chapters_pages(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::View,
         auth.map(|u| u.id),
@@ -24,7 +24,7 @@ async fn get_chapters_pages(
     .await?;
 
     let chapter_pages: Vec<Page> = models::pages::chapter_pages(&mut conn, *chapter_id).await?;
-    Ok(web::Json(chapter_pages))
+    token.authorized_ok(web::Json(chapter_pages))
 }
 
 /**
@@ -38,7 +38,7 @@ async fn get_chapters_exercises(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::View,
         auth.map(|u| u.id),
@@ -48,7 +48,7 @@ async fn get_chapters_exercises(
 
     let chapter_pages_with_exercises =
         models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
-    Ok(web::Json(chapter_pages_with_exercises))
+    token.authorized_ok(web::Json(chapter_pages_with_exercises))
 }
 
 /**
@@ -62,7 +62,7 @@ async fn get_chapters_pages_without_main_frontpage(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    authorize(
+    let token = authorize(
         &mut conn,
         Act::View,
         auth.map(|u| u.id),
@@ -72,7 +72,7 @@ async fn get_chapters_pages_without_main_frontpage(
 
     let chapter_pages =
         models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *chapter_id).await?;
-    Ok(web::Json(chapter_pages))
+    token.authorized_ok(web::Json(chapter_pages))
 }
 
 /**

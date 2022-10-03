@@ -224,10 +224,14 @@ const StyledIcon = styled(FontAwesomeIcon)`
   color: ${baseTheme.colors.grey[700]};
 `
 
-const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
+const Navigation: React.FC<
+  React.PropsWithChildren<React.PropsWithChildren<NavigationProps>>
+> = () => {
   const { t } = useTranslation()
   const [clicked, setClicked] = useState(false)
   const callback = () => setClicked(!clicked)
+  // eslint-disable-next-line i18next/no-literal-string
+  const buttonId = "main-navigation-menu"
   return (
     <nav role="navigation" className={cx(navbarItems)}>
       <div className={cx(navbarLogo)}>
@@ -243,14 +247,14 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
         role="button"
         aria-label={t("open-menu")}
       >
-        <Hamburger isActive={clicked} toggleButton={callback} />
+        <Hamburger isActive={clicked} toggleButton={callback} buttonId={buttonId} />
       </div>
 
       <ol className={clicked ? cx(navMenu, active) : cx(navMenu)}>
         <li className={cx(navLinks)}>{t("courses")}</li>
         <li className={cx(navLinks)}>{t("modules")}</li>
         <li className={cx(navLinks)}>{t("email-templates")}</li>
-        <LoginControls styles={[navLinks, hide]} returnToPath={returnToPath} />
+        <LoginControls styles={[navLinks, hide]} currentPagePath="/" />
         <li className={cx(navLinks, hide)}>
           <Button variant="primary" size="medium">
             {t("translate")}
@@ -259,7 +263,7 @@ const Navigation: React.FC<NavigationProps> = ({ returnToPath }) => {
       </ol>
 
       <ol className={cx(secondaryLink)}>
-        <LoginControls styles={[secondaryLink]} returnToPath={returnToPath} />
+        <LoginControls styles={[secondaryLink]} currentPagePath="/" />
         <li>
           <Button variant="primary" size="medium">
             {t("translate")}

@@ -1,0 +1,66 @@
+{
+  "id": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
+  "body": "very hard",
+  "part": 4,
+  "items": [
+    {
+      "id": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+      "body": "",
+      "type": "multiple-choice",
+      "multi": false,
+      "order": 0,
+      "title": "Choose the first option",
+      "quizId": "783a7697-5e9e-41dc-90b5-c7fe1570bd3a",
+      "options": [
+        {
+          "id": "fd028533-6ea3-4b05-9354-5501ea7aac71",
+          "body": "This is first option",
+          "order": 1,
+          "title": null,
+          "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+          "correct": true,
+          "messageAfterSubmissionWhenSelected": "Correct! This is indeed the first option",
+          "additionalCorrectnessExplanationOnModelSolution": "Only first option can be correct because it is the first one."
+        },
+        {
+          "id": "7bfd34f7-a2a0-4c5d-8726-cbf627a77624",
+          "body": "This is second option",
+          "order": 1,
+          "title": null,
+          "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+          "correct": false,
+          "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first option",
+          "additionalCorrectnessExplanationOnModelSolution": "Second option can't be the right answer because it isn't the first one."
+        },
+        {
+          "id": "3e77aa66-739a-4a7a-8e2c-e775356a3b42",
+          "body": "This is third option",
+          "order": 1,
+          "title": null,
+          "quizItemId": "6100f2ad-55b3-455a-80bc-85a2977628c6",
+          "correct": false,
+          "messageAfterSubmissionWhenSelected": "Incorrect. This is not the first option",
+          "additionalCorrectnessExplanationOnModelSolution": "Third option can't be the right answer because it isn't the first one."
+        }
+      ],
+      "allAnswersCorrect": false,
+      "sharedOptionFeedbackMessage": null,
+      "usesSharedOptionFeedbackMessage": false
+    }
+  ],
+  "title": "Very good exercise",
+  "tries": 1,
+  "points": 3,
+  "section": 0,
+  "courseId": "d6b52ddc-6c34-4a59-9a59-7e8594441007",
+  "deadline": "2021-12-17T07:15:33.479Z",
+  "createdAt": "2021-12-17T07:15:33.479Z",
+  "updatedAt": "2021-12-17T07:15:33.479Z",
+  "autoReject": false,
+  "autoConfirm": true,
+  "triesLimited": true,
+  "submitMessage": "This is an extra submit message from the teacher.",
+  "excludedFromScore": true,
+  "grantPointsPolicy": "grant_whenever_possible",
+  "awardPointsEvenIfWrong": false
+}

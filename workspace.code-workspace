@@ -35,6 +35,10 @@
     {
       "name": "Quizzes",
       "path": "./services/quizzes"
+    },
+    {
+      "name": "TMC",
+      "path": "./services/tmc"
     }
   ],
   "settings": {
@@ -58,7 +62,7 @@
       "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
     "[rust]": {
-      "editor.defaultFormatter": "matklad.rust-analyzer"
+      "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
     // Exlcuding works only partially in multi-root workspaces because of this: https://github.com/microsoft/vscode/issues/40898
     "files.watcherExclude": {
@@ -84,7 +88,7 @@
     "stylelint.vscode-stylelint",
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
-    "matklad.rust-analyzer",
+    "rust-lang.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",
     "timonwong.shellcheck",
     "humao.rest-client",

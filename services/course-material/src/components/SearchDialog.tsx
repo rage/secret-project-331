@@ -1,17 +1,17 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faSearch } from "@fortawesome/free-solid-svg-icons"
+import { faXmark as closeIcon, faSearch } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Dialog, Paper } from "@mui/material"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
+// useDebounce from "usehooks-ts" doesn't seem to work
 import { useDebounce } from "use-debounce"
 
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
 import { PageSearchResult } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
-import DebugModal from "../shared-module/components/DebugModal"
+import Dialog from "../shared-module/components/Dialog"
 import { baseTheme } from "../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
@@ -21,24 +21,9 @@ export interface SearchDialogProps {
   organizationSlug: string
 }
 
-const StTextField = styled.input`
-  display: flex;
-  background: #ffffff;
-  width: 100%;
-  padding: 0 20px;
-  height: 70px;
-  box-shadow: 0px 8px 40px rgb(0 0 0 / 6%);
-  border-radius: 3px;
-  border: 0 !important;
-  outline: 0 !important;
-  &:focus {
-    outline: none;
-  }
-`
-
 const HeaderBar = styled.div`
   display: flex;
-  padding: 0.5rem;
+  padding: 1rem 0;
   align-items: center;
   h1 {
     font-size: 1.25rem;
@@ -56,7 +41,10 @@ const StyledIcon = css`
   }
 `
 
-const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug }) => {
+const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
+  courseId,
+  organizationSlug,
+}) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")
@@ -137,46 +125,69 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
         onClick={openModal}
         onKeyPress={openModalOnEnter}
       />
-      {/* eslint-disable-next-line i18next/no-literal-string */}
-      <Dialog
-        fullWidth={true}
-        open={open}
-        onClose={closeModal}
-        aria-labelledby="search-for-pages-button"
-      >
-        <Paper
+      <Dialog open={open} onClose={closeModal} noPadding aria-labelledby="search-for-pages-button">
+        <div
           className={css`
             overflow: hidden;
             width: 100%;
             min-height: 700px;
           `}
         >
-          <HeaderBar>
-            <h1>{t("search")}</h1>
-            <div
-              className={css`
-                flex-grow: 1;
-              `}
-            />
-            <DebugModal data={{ phraseSearchResults, wordSearchResults, combinedResults }} />
-            <Button size="medium" variant="secondary" onClick={closeModal}>
-              {t("close")}
-            </Button>
-          </HeaderBar>
           <div
             className={css`
               padding: 0 1rem;
             `}
           >
-            <StTextField
-              value={query}
-              onChange={(e) => {
-                setError(null)
-                setQuery(e.target.value)
-              }}
-              /* fullWidth */
-              placeholder={t("search-field-placeholder")}
-            />
+            <HeaderBar>
+              <FontAwesomeIcon
+                className={css`
+                  margin-right: -23px;
+                  z-index: 2;
+                  font-size: 22px;
+                  position: relative;
+                  right: -9px;
+                  color: ${baseTheme.colors.grey[400]};
+                `}
+                icon={faSearch}
+                aria-label={t("button-label-search-for-pages")}
+              />
+              <input
+                className={css`
+                  display: flex;
+                  background: #ffffff;
+                  width: 100%;
+                  padding-left: 45px;
+                  padding-right: 10px;
+                  height: 60px;
+                  box-shadow: 0px 8px 40px rgb(0 0 0 / 5%);
+                  border-radius: 3px;
+                  border: none;
+                  outline: 1px solid ${baseTheme.colors.grey[200]};
+                  margin-right: 0.5rem;
+
+                  &:focus {
+                    outline: 1px solid ${baseTheme.colors.blue[400]};
+                  }
+                `}
+                value={query}
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- This is a search bar that opens on the screen. This rule seems to be to prevent people from autofocusing in middle of a page which would skip important content such as headers. However, in this case we aren't skipping anything since the search bar is the thing that opens.
+                autoFocus
+                onChange={(e) => {
+                  setError(null)
+                  setQuery(e.target.value)
+                }}
+                /* fullWidth */
+                placeholder={t("search-field-placeholder")}
+              />
+              <Button
+                size="medium"
+                variant="secondary"
+                aria-label={t("close")}
+                onClick={closeModal}
+              >
+                <FontAwesomeIcon icon={closeIcon} />
+              </Button>
+            </HeaderBar>
             <div
               className={css`
                 margin-top: 1rem;
@@ -241,7 +252,7 @@ const SearchDialog: React.FC<SearchDialogProps> = ({ courseId, organizationSlug 
               }
             </div>
           </div>
-        </Paper>
+        </div>
       </Dialog>
     </>
   )

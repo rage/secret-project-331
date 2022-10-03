@@ -418,6 +418,10 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
 </pre><pre class="rust"><code><span class="doccomment">/*!
 Contains error and result types for all the controllers.
 */</span>
@@ -583,7 +587,11 @@ some_function_returning_an_error().map_err(|original_error| {
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">ControllerError</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;ControllerError&quot;</span>)
+        <span class="macro">write!</span>(
+            <span class="ident">f</span>,
+            <span class="string">&quot;ControllerError {:?} {:?}&quot;</span>,
+            <span class="self">self</span>.<span class="ident">error_type</span>, <span class="self">self</span>.<span class="ident">message</span>
+        )
     }
 }
 

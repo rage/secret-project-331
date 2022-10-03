@@ -96,6 +96,21 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
     <span class="ident">courses</span>::{<span class="self">self</span>, <span class="ident">NewCourse</span>},
@@ -104,6 +119,8 @@
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Pool</span>, <span class="ident">Postgres</span>};
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_courses::seed_sample_course</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::<span class="kw">super</span>::seed_users::SeedUsersResult</span>;
 
@@ -119,8 +136,8 @@
         <span class="ident">language_teacher_user_id</span>: <span class="kw">_</span>,
         <span class="ident">assistant_user_id</span>: <span class="kw">_</span>,
         <span class="ident">course_or_exam_creator_user_id</span>: <span class="kw">_</span>,
-        <span class="ident">student_user_id</span>: <span class="kw">_</span>,
-        <span class="ident">example_normal_user_ids</span>: <span class="kw">_</span>,
+        <span class="ident">student_user_id</span>,
+        <span class="ident">example_normal_user_ids</span>,
     } <span class="op">=</span> <span class="ident">seed_users_result</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -192,6 +209,19 @@
         <span class="ident">admin_user_id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">_introduction_to_citations</span> <span class="op">=</span> <span class="ident">seed_sample_course</span>(
+        <span class="kw-2">&amp;</span><span class="ident">db_pool</span>,
+        <span class="ident">uh_mathstat_id</span>,
+        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;049061ba-ac30-49f1-aa9d-b7566dc22b78&quot;</span>)<span class="question-mark">?</span>,
+        <span class="string">&quot;Introduction to citations&quot;</span>,
+        <span class="string">&quot;introduction-to-citations&quot;</span>,
+        <span class="ident">admin_user_id</span>,
+        <span class="ident">student_user_id</span>,
+        <span class="kw-2">&amp;</span><span class="ident">example_normal_user_ids</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
     <span class="prelude-val">Ok</span>(<span class="ident">uh_mathstat_id</span>)
 }
 </code></pre></div>

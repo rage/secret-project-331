@@ -593,6 +593,32 @@
 <span id="593">593</span>
 <span id="594">594</span>
 <span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">actix_http::Payload</span>;
@@ -695,6 +721,7 @@
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;snake_case&quot;</span>, <span class="ident">tag</span> <span class="op">=</span> <span class="string">&quot;type&quot;</span>, <span class="ident">content</span> <span class="op">=</span> <span class="string">&quot;variant&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Action</span> {
+    <span class="ident">ViewMaterial</span>,
     <span class="ident">View</span>,
     <span class="ident">Edit</span>,
     <span class="ident">Grade</span>,
@@ -788,8 +815,31 @@ async fn example_function(
 }
 ```
 */</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">skip_authorize</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">skip_authorize</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(<span class="ident">AuthorizationToken</span>(()))
+}
+
+<span class="doccomment">/**  Can be used to check whether user is allowed to view some course material
+
+*/</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize_access_to_course_material</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">models::courses::is_draft</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
+        <span class="kw">if</span> <span class="ident">user_id</span>.<span class="ident">is_none</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
+                <span class="ident">ControllerErrorType::Unauthorized</span>,
+                <span class="string">&quot;The course is not public&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="prelude-val">None</span>,
+            ));
+        }
+        <span class="ident">authorize</span>(<span class="ident">conn</span>, <span class="ident">Act::ViewMaterial</span>, <span class="ident">user_id</span>, <span class="ident">Res::Course</span>(<span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>
+    } <span class="kw">else</span> {
+        <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>
+    };
+    <span class="prelude-val">Ok</span>(<span class="ident">token</span>)
 }
 
 <span class="doccomment">/**
@@ -951,14 +1001,9 @@ token.authorized_ok(web::Json(cms_page_info))
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_course_permission</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">roles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Role</span>],
-    <span class="kw-2">mut</span> <span class="ident">action</span>: <span class="ident">Action</span>,
+    <span class="ident">action</span>: <span class="ident">Action</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AuthorizationToken</span>, <span class="ident">ControllerError</span><span class="op">&gt;</span> {
-    <span class="comment">// if trying to View a draft course, check for permission to Teach instead</span>
-    <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="ident">Action::View</span> <span class="op">&amp;&amp;</span> <span class="ident">models::courses::is_draft</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="ident">action</span> <span class="op">=</span> <span class="ident">Action::Teach</span>;
-    }
-
     <span class="comment">// check course role</span>
     <span class="kw">for</span> <span class="ident">role</span> <span class="kw">in</span> <span class="ident">roles</span> {
         <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_role_for_course</span>(<span class="ident">course_id</span>) <span class="op">&amp;&amp;</span> <span class="ident">has_permission</span>(<span class="ident">role</span>.<span class="ident">role</span>, <span class="ident">action</span>) {
@@ -1067,13 +1112,20 @@ token.authorized_ok(web::Json(cms_page_info))
                 <span class="op">|</span> <span class="ident">DeleteAnswer</span>
                 <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Teacher</span> <span class="op">|</span> <span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>)
                 <span class="op">|</span> <span class="ident">CreateCoursesOrExams</span>
+                <span class="op">|</span> <span class="ident">ViewMaterial</span>
         ),
         <span class="ident">Assistant</span> =&gt; <span class="macro">matches!</span>(
             <span class="ident">action</span>,
-            <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">DeleteAnswer</span> <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>) <span class="op">|</span> <span class="ident">Teach</span>
+            <span class="ident">View</span> <span class="op">|</span> <span class="ident">Edit</span>
+                <span class="op">|</span> <span class="ident">Grade</span>
+                <span class="op">|</span> <span class="ident">DeleteAnswer</span>
+                <span class="op">|</span> <span class="ident">EditRole</span>(<span class="ident">Assistant</span> <span class="op">|</span> <span class="ident">Reviewer</span>)
+                <span class="op">|</span> <span class="ident">Teach</span>
+                <span class="op">|</span> <span class="ident">ViewMaterial</span>
         ),
-        <span class="ident">Reviewer</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Grade</span>),
+        <span class="ident">Reviewer</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">View</span> <span class="op">|</span> <span class="ident">Grade</span> <span class="op">|</span> <span class="ident">ViewMaterial</span>),
         <span class="ident">CourseOrExamCreator</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">CreateCoursesOrExams</span>),
+        <span class="ident">MaterialViewer</span> =&gt; <span class="macro">matches!</span>(<span class="ident">action</span>, <span class="ident">ViewMaterial</span>),
     }
 }
 

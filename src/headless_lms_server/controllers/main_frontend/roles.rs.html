@@ -164,20 +164,29 @@
 <span id="164">164</span>
 <span id="165">165</span>
 <span id="166">166</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">models</span>::{
-    <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>, <span class="ident">RoleUser</span>, <span class="ident">UserRole</span>},
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">models</span>::{
+    <span class="ident">pending_roles</span>::{<span class="self">self</span>, <span class="ident">PendingRole</span>},
+    <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>, <span class="ident">RoleInfo</span>, <span class="ident">RoleUser</span>},
     <span class="ident">users</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">domain::authorization::skip_authorize</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoleInfo</span> {
-    <span class="kw">pub</span> <span class="ident">email</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">role</span>: <span class="ident">UserRole</span>,
-    <span class="kw">pub</span> <span class="ident">domain</span>: <span class="ident">RoleDomain</span>,
-}
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::domain::authorization::skip_authorize</span>;
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">authorize_role_management</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
@@ -303,6 +312,7 @@
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">query</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">RoleQuery</span><span class="op">&gt;</span>,
@@ -319,6 +329,25 @@
 }
 
 <span class="doccomment">/**
+ * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
+ */</span>
+<span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
+<span class="attribute">#[<span class="ident">generated_doc</span>]</span>
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_pending</span>(
+    <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
+    <span class="ident">query</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">RoleQuery</span><span class="op">&gt;</span>,
+    <span class="ident">user</span>: <span class="ident">AuthUser</span>,
+) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PendingRole</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">domain</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">into_inner</span>().<span class="ident">try_into</span>()<span class="question-mark">?</span>;
+    <span class="ident">authorize_role_management</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">domain</span>, <span class="ident">Act::Edit</span>, <span class="ident">user</span>.<span class="ident">id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let</span> <span class="ident">roles</span> <span class="op">=</span> <span class="ident">pending_roles::get_all</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">domain</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::AnyCourse</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">roles</span>))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -328,7 +357,8 @@ We add the routes by calling the route method instead of using the route annotat
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
     <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/add&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">set</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/remove&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">unset</span>))
-        .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">fetch</span>));
+        .<span class="ident">route</span>(<span class="string">&quot;&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">fetch</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/pending&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">fetch_pending</span>));
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

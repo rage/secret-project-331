@@ -9,6 +9,7 @@ pub enum UserRole {
     Teacher,
     Admin,
     CourseOrExamCreator,
+    MaterialViewer,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -58,14 +59,22 @@ pub enum RoleDomain {
     Exam(Uuid),
 }
 
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct RoleInfo {
+    pub email: String,
+    pub role: UserRole,
+    pub domain: RoleDomain,
+}
+
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleUser {
-    id: Uuid,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    email: String,
-    role: UserRole,
+    pub id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: String,
+    pub role: UserRole,
 }
 
 pub async fn get(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec<RoleUser>> {
@@ -82,6 +91,7 @@ SELECT users.id AS "id!",
 FROM users
   JOIN roles ON users.id = roles.user_id
 WHERE is_global = TRUE
+AND roles.deleted_at IS NULL
 "#,
             )
             .fetch_all(conn)
@@ -99,6 +109,7 @@ SELECT users.id,
 FROM users
   JOIN roles ON users.id = roles.user_id
 WHERE roles.organization_id = $1
+AND roles.deleted_at IS NULL
 "#,
                 id
             )
@@ -117,6 +128,7 @@ SELECT users.id,
 FROM users
   JOIN roles ON users.id = roles.user_id
 WHERE roles.course_id = $1
+AND roles.deleted_at IS NULL
 "#,
                 id
             )
@@ -135,6 +147,7 @@ SELECT users.id,
 FROM users
   JOIN roles ON users.id = roles.user_id
 WHERE roles.course_instance_id = $1
+AND roles.deleted_at IS NULL
 "#,
                 id
             )
@@ -153,6 +166,7 @@ SELECT users.id,
 FROM users
   JOIN roles ON users.id = roles.user_id
 WHERE roles.exam_id = $1
+AND roles.deleted_at IS NULL
 "#,
                 id
             )
@@ -258,7 +272,8 @@ pub async fn remove(
         RoleDomain::Global => {
             sqlx::query!(
                 "
-DELETE FROM roles
+UPDATE roles
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
 ",
@@ -271,7 +286,8 @@ WHERE user_id = $1
         RoleDomain::Organization(id) => {
             sqlx::query!(
                 "
-DELETE FROM roles
+UPDATE roles
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND organization_id = $3
@@ -286,7 +302,8 @@ WHERE user_id = $1
         RoleDomain::Course(id) => {
             sqlx::query!(
                 "
-DELETE FROM roles
+UPDATE roles
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND course_id = $3
@@ -301,7 +318,8 @@ WHERE user_id = $1
         RoleDomain::CourseInstance(id) => {
             sqlx::query!(
                 "
-DELETE FROM roles
+UPDATE roles
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND course_instance_id = $3
@@ -316,7 +334,8 @@ WHERE user_id = $1
         RoleDomain::Exam(id) => {
             sqlx::query!(
                 "
-DELETE FROM roles
+UPDATE roles
+SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND exam_id = $3
@@ -344,6 +363,7 @@ SELECT is_global,
   role AS "role: UserRole"
 FROM roles
 WHERE user_id = $1
+AND roles.deleted_at IS NULL
 "#,
         user_id
     )

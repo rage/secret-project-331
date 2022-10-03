@@ -3,7 +3,6 @@ import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
@@ -16,7 +15,6 @@ import {
   NavItem,
   NavItems,
 } from "../shared-module/components/Navigation/NavBar"
-import SkipLink from "../shared-module/components/SkipLink"
 import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
@@ -47,9 +45,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   licenseUrl,
 }) => {
   const router = useRouter()
-
-  const { t } = useTranslation()
-
   return (
     <>
       <Head>
@@ -64,7 +59,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <NavBar
           // faqUrl={faqUrl}
           variant={navVariant ?? "simple"}

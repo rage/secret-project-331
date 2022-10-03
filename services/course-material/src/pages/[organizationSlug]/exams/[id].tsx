@@ -184,6 +184,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
               timeMinutes={exam.data.time_minutes}
             >
               <div
+                id="maincontent"
                 className={css`
                   opacity: 80%;
                 `}

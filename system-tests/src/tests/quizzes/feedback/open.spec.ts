@@ -31,7 +31,7 @@ test("test quizzes open feedback", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), page.click("text=Page 4")])
+  await Promise.all([page.waitForNavigation(), page.click(`a:has-text("Page 4")`)])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-4",
   )

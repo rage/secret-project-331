@@ -112,7 +112,7 @@ impl std::error::Error for ModelError {
 
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ModelError")
+        write!(f, "ModelError {:?} {:?}", self.error_type, self.message)
     }
 }
 

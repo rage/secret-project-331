@@ -30,7 +30,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
     window.scrollBy(0, 500)
   })
   // Click text=Page 8
-  await page.locator("text=Page 5").first().click()
+  await page.locator(`a:has-text("Page 5")`).first().click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-5",
   )
@@ -93,7 +93,7 @@ test("multiple-choice course material row test", async ({ page, headless }) => {
   })
 
   // Click text=Page 6
-  await page.locator("text=Page 6").click()
+  await page.locator(`a:has-text("Page 6")`).click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-6",
   )

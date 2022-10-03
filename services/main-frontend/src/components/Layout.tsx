@@ -3,7 +3,6 @@ import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
-import { useTranslation } from "react-i18next"
 
 import Centered from "../shared-module/components/Centering/Centered"
 import Footer from "../shared-module/components/Footer"
@@ -16,7 +15,6 @@ import {
   NavItems,
 } from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
-import SkipLink from "../shared-module/components/SkipLink"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
@@ -40,7 +38,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   licenseUrl,
 }) => {
   const router = useRouter()
-  const { t } = useTranslation()
 
   return (
     <>
@@ -56,9 +53,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        {/* Skip to content*/}
-        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
-
         <NavBar
           // faqUrl={faqUrl}
           variant={navVariant ?? "simple"}

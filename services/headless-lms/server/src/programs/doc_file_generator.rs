@@ -66,11 +66,13 @@ use headless_lms_models::{
         PeerReviewConfig,
     },
     peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
+    pending_roles::PendingRole,
     playground_examples::PlaygroundExample,
     proposed_block_edits::{BlockProposal, ProposalStatus},
     proposed_page_edits::{PageProposal, ProposalCount},
     regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
     repository_exercises::RepositoryExercise,
+    roles::{RoleUser, UserRole},
     user_course_settings::UserCourseSettings,
     user_exercise_states::{
         ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -1379,6 +1381,25 @@ pub async fn main() -> anyhow::Result<()> {
                 })
             }],
         }
+    );
+    write_docs!(
+        Vec<RoleUser>,
+        vec![RoleUser {
+            id,
+            first_name: Some("Example".to_string()),
+            last_name: Some("User".to_string()),
+            email: "example@example.com".to_string(),
+            role: UserRole::MaterialViewer
+        }]
+    );
+    write_docs!(
+        Vec<PendingRole>,
+        vec![PendingRole {
+            id,
+            user_email: "example@example.com".to_string(),
+            role: UserRole::MaterialViewer,
+            expires_at: created_at
+        }]
     );
     Ok(())
 }

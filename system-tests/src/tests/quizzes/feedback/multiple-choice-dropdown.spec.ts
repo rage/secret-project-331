@@ -31,7 +31,7 @@ test("test quizzes multiple-choice-dropdown", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1",
   )
 
-  await Promise.all([page.waitForNavigation(), await page.click("text=Page 5")])
+  await Promise.all([page.waitForNavigation(), await page.click(`a:has-text("Page 5")`)])
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-5",
   )

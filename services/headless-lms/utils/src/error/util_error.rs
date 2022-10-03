@@ -103,7 +103,7 @@ impl std::error::Error for UtilError {
 
 impl Display for UtilError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "UtilError")
+        write!(f, "UtilError {:?} {:?}", self.error_type, self.message)
     }
 }
 

@@ -133,6 +133,7 @@ import {
   PeerReviewConfig,
   PeerReviewQuestion,
   PeerReviewQuestionType,
+  PendingRole,
   PlaygroundExample,
   PlaygroundExampleData,
   PointMap,
@@ -2082,7 +2083,29 @@ export function isUserRole(obj: unknown): obj is UserRole {
     typedObj === "Assistant" ||
     typedObj === "Teacher" ||
     typedObj === "Admin" ||
-    typedObj === "CourseOrExamCreator"
+    typedObj === "CourseOrExamCreator" ||
+    typedObj === "MaterialViewer"
+  )
+}
+
+export function isRoleInfo(obj: unknown): obj is RoleInfo {
+  const typedObj = obj as RoleInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["email"] === "string" &&
+    (isUserRole(typedObj["role"]) as boolean) &&
+    (isRoleDomain(typedObj["domain"]) as boolean)
+  )
+}
+
+export function isPendingRole(obj: unknown): obj is PendingRole {
+  const typedObj = obj as PendingRole
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_email"] === "string" &&
+    (isUserRole(typedObj["role"]) as boolean) &&
+    typedObj["expires_at"] instanceof Date
   )
 }
 
@@ -2298,16 +2321,6 @@ export function isRoleQuery(obj: unknown): obj is RoleQuery {
     (typeof typedObj["course_instance_id"] === "undefined" ||
       typeof typedObj["course_instance_id"] === "string") &&
     (typeof typedObj["exam_id"] === "undefined" || typeof typedObj["exam_id"] === "string")
-  )
-}
-
-export function isRoleInfo(obj: unknown): obj is RoleInfo {
-  const typedObj = obj as RoleInfo
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["email"] === "string" &&
-    (isUserRole(typedObj["role"]) as boolean) &&
-    (isRoleDomain(typedObj["domain"]) as boolean)
   )
 }
 

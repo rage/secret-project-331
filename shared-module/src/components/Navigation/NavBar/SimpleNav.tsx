@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
+import SkipLink from "../../SkipLink"
 
 import { NavigationProps } from "."
 
@@ -48,6 +49,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
 
   return (
     <nav role="navigation" className={cx(Navbar)} aria-label={t("navigation-menu")}>
+      <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
       <div className={cx(NavbarLogo)}>
         <a href="/" aria-label="Home page" role="button">
           <FontAwesomeIcon

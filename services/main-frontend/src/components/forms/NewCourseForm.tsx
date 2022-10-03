@@ -259,7 +259,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             value={AMERICAN_ENGLISH_LANGUAGE_CODE}
             // eslint-disable-next-line i18next/no-literal-string
             name="language-code"
-            onChange={(value) => handleLanguageSelectionChange(value)}
+            onChange={(_event) => handleLanguageSelectionChange(AMERICAN_ENGLISH_LANGUAGE_CODE)}
           />
         </FieldContainer>
         <FieldContainer>
@@ -269,7 +269,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             value={FINNISH_LANGUAGE_CODE}
             // eslint-disable-next-line i18next/no-literal-string
             name="language-code"
-            onChange={(value) => handleLanguageSelectionChange(value)}
+            onChange={(_event) => handleLanguageSelectionChange(FINNISH_LANGUAGE_CODE)}
           />
         </FieldContainer>
         <FieldContainer>
@@ -279,7 +279,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             value={SWEDISH_LANGUAGE_CODE}
             // eslint-disable-next-line i18next/no-literal-string
             name="language-code"
-            onChange={(value) => handleLanguageSelectionChange(value)}
+            onChange={(_event) => handleLanguageSelectionChange(SWEDISH_LANGUAGE_CODE)}
           />
         </FieldContainer>
         <FieldContainer>
@@ -290,7 +290,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
             value="other"
             // eslint-disable-next-line i18next/no-literal-string
             name="language-code"
-            onChange={(value) => handleLanguageSelectionChange(value)}
+            // eslint-disable-next-line i18next/no-literal-string
+            onChange={(_event) => handleLanguageSelectionChange("other")}
           />
         </FieldContainer>
 

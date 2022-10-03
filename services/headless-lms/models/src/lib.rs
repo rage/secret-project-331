@@ -39,6 +39,7 @@ pub mod peer_review_question_submissions;
 pub mod peer_review_questions;
 pub mod peer_review_queue_entries;
 pub mod peer_review_submissions;
+pub mod pending_roles;
 pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;

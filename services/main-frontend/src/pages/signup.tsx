@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
+import TextField from "../shared-module/components/InputFields/TextField"
 import LoginStateContext from "../shared-module/contexts/LoginStateContext"
 import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
@@ -27,14 +28,6 @@ interface FormFields {
   password: string
   password_confirmation: string
 }
-
-const ErrorMessage = styled.div`
-  color: #ed5565;
-  font-size: 14px;
-  margin-top: -10px;
-  margin-bottom: 10px;
-  padding: 0;
-`
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -76,39 +69,8 @@ const Wrapper = styled.div`
     padding: 0;
   }
 
-  input {
-    background: #fcfcfc;
-    border-width: 1.6px;
-    border-style: solid;
-    border-color: #bec3c7;
-    padding: 10px;
-    transition: ease-in-out, width 0.35s ease-in-out;
-    outline: none;
-    min-width: 20px;
-    width: 100%;
-    display: inline-block;
-    font-size: 18px;
-    margin-bottom: 14px;
-
-    &:focus,
-    &:active {
-      border-color: #55b3f5;
-    }
-
-    @media (max-width: 767.98px) {
-      padding: 10px 8px;
-    }
-  }
-
-  label {
-    display: inline-block;
-    font-size: 17px;
-    margin-bottom: 5px;
-  }
-
   input[type="submit"] {
     height: 60px;
-    margin-top: 24px;
     background: #46749b;
     color: #fff;
     font-weight: bold;
@@ -119,6 +81,8 @@ const Wrapper = styled.div`
     justify-content: center;
     align-items: center;
     border: none;
+    width: 100%;
+    margin: 1rem 0;
 
     &:hover {
       background: #215887;
@@ -148,7 +112,7 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
-  const { register, formState, watch, reset, handleSubmit } = useForm<FormFields>({
+  const { register, formState, watch, reset, handleSubmit, trigger } = useForm<FormFields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
@@ -164,6 +128,7 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   // eslint-disable-next-line i18next/no-literal-string
   const password = watch("password")
+  const passwordConfirmation = watch("password_confirmation")
 
   const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
     async (data) => {
@@ -198,6 +163,14 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
       router.push("/")
     }
   })
+
+  useEffect(() => {
+    // Make sure that password_confirmation is revalidated when the password changes.
+    if (password && password !== "" && passwordConfirmation && passwordConfirmation !== "") {
+      // eslint-disable-next-line i18next/no-literal-string
+      trigger("password_confirmation")
+    }
+  }, [password, passwordConfirmation, trigger])
 
   if (confirmEmailPageVisible) {
     return (
@@ -257,91 +230,71 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           })}
         >
           <fieldset disabled={isSubmitting}>
-            <div key="first_name">
-              <label htmlFor="first_name">{t("first-name")}</label>
-              <input
-                placeholder={t("enter-first-name")}
-                type="first_name"
-                {...register("first_name", {
-                  required: t("required-field"),
-                })}
-              />
-              {errors.first_name && (
-                // eslint-disable-next-line i18next/no-literal-string
-                <ErrorMessage>&#9888; {`${errors.first_name.message}`}</ErrorMessage>
-              )}
-            </div>
-            <div key="last_name">
-              <label htmlFor="last_name">{t("last-name")}</label>
-              <input
-                placeholder={t("enter-last-name")}
-                type="last_name"
-                {...register("last_name", {
-                  required: t("required-field"),
-                })}
-              />
-              {errors.last_name && (
-                // eslint-disable-next-line i18next/no-literal-string
-                <ErrorMessage>&#9888; {`${errors.last_name.message}`}</ErrorMessage>
-              )}
-            </div>
-            <div key="email">
-              <label htmlFor="email">{t("email")}</label>
-              <input
-                placeholder={t("enter-your-email")}
-                type="email"
-                {...register("email", {
-                  required: t("required-field"),
-                  validate: {
-                    isValidEmail: (value) =>
-                      value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
-                  },
-                })}
-              />
-              {errors.email && (
-                // eslint-disable-next-line i18next/no-literal-string
-                <ErrorMessage>&#9888; {`${errors.email.message}`}</ErrorMessage>
-              )}
-            </div>
-            <div key="password">
-              <label htmlFor="password">{t("password")}</label>
-              <input
-                placeholder={t("enter-your-password")}
-                type="password"
-                {...register("password", {
-                  required: t("required-field"),
-                  minLength: {
-                    value: 8,
-                    message: t("password-must-have-at-least-8-characters"),
-                  },
-                })}
-              />
-              {errors.password && (
-                // eslint-disable-next-line i18next/no-literal-string
-                <ErrorMessage>&#9888; {`${errors.password.message}`}</ErrorMessage>
-              )}
-            </div>
-            <div key="password_confirmation">
-              <label htmlFor="password_confirmation">{t("confirm-password")}</label>
-              <input
-                placeholder={t("confirm-your-password")}
-                type="password"
-                {...register("password_confirmation", {
-                  required: t("required-field"),
-                  minLength: {
-                    value: 8,
-                    message: t("password-must-have-at-least-8-characters"),
-                  },
-                  validate: {
-                    passwordMatch: (value) => value === password || t("passwords-dont-match"),
-                  },
-                })}
-              />
-              {errors.password_confirmation && (
-                // eslint-disable-next-line i18next/no-literal-string
-                <ErrorMessage>&#9888; {`${errors.password_confirmation.message}`}</ErrorMessage>
-              )}
-            </div>
+            <TextField
+              label={t("first-name")}
+              placeholder={t("enter-first-name")}
+              register={register("first_name", {
+                required: t("required-field"),
+              })}
+              required={true}
+              error={errors.first_name}
+            />
+
+            <TextField
+              label={t("last-name")}
+              placeholder={t("enter-last-name")}
+              register={register("last_name", {
+                required: t("required-field"),
+              })}
+              required={true}
+              error={errors.last_name}
+            />
+            <TextField
+              label={t("email")}
+              type="email"
+              placeholder={t("enter-your-email")}
+              register={register("email", {
+                required: t("required-field"),
+                validate: {
+                  isValidEmail: (value) =>
+                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                },
+              })}
+              required={true}
+              error={errors.email}
+            />
+            <TextField
+              label={t("password")}
+              type="password"
+              placeholder={t("enter-your-password")}
+              register={register("password", {
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+              })}
+              required={true}
+              error={errors.password}
+            />
+
+            <TextField
+              label={t("confirm-password")}
+              type="password"
+              placeholder={t("confirm-your-password")}
+              register={register("password_confirmation", {
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+                validate: {
+                  passwordMatch: (value) => value === password || t("passwords-dont-match"),
+                },
+              })}
+              required={true}
+              error={errors.password_confirmation}
+            />
           </fieldset>
           <input
             disabled={!isValid || createAccountMutation.isLoading}

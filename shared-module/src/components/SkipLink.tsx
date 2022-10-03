@@ -10,7 +10,8 @@ const SkipLink = styled.a`
   left: 50%;
   padding: 6px;
   position: absolute;
-  transform: translateY(-100%);
+  top: 3px;
+  transform: translateY(-150%);
   text-decoration: none;
   z-index: 100000;
 

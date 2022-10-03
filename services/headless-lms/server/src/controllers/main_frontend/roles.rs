@@ -1,17 +1,11 @@
+use crate::prelude::*;
 use models::{
-    roles::{self, RoleDomain, RoleUser, UserRole},
+    pending_roles::{self, PendingRole},
+    roles::{self, RoleDomain, RoleInfo, RoleUser},
     users,
 };
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
-
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct RoleInfo {
-    pub email: String,
-    pub role: UserRole,
-    pub domain: RoleDomain,
-}
+use crate::domain::authorization::skip_authorize;
 
 async fn authorize_role_management(
     conn: &mut PgConnection,
@@ -137,6 +131,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
+#[generated_doc]
 pub async fn fetch(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,
@@ -153,6 +148,25 @@ pub async fn fetch(
 }
 
 /**
+ * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
+ */
+#[instrument(skip(pool))]
+#[generated_doc]
+pub async fn fetch_pending(
+    pool: web::Data<PgPool>,
+    query: web::Query<RoleQuery>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PendingRole>>> {
+    let mut conn = pool.acquire().await?;
+    let domain = query.into_inner().try_into()?;
+    authorize_role_management(&mut conn, domain, Act::Edit, user.id).await?;
+
+    let roles = pending_roles::get_all(&mut conn, domain).await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::AnyCourse).await?;
+    token.authorized_ok(web::Json(roles))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -162,5 +176,6 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/add", web::post().to(set))
         .route("/remove", web::post().to(unset))
-        .route("", web::get().to(fetch));
+        .route("", web::get().to(fetch))
+        .route("/pending", web::get().to(fetch_pending));
 }

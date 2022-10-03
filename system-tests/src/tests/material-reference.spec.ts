@@ -8,25 +8,23 @@ test.use({
 })
 
 test("material reference tests", async ({ page, headless }) => {
-  // Go to http://project-331.local/
   await page.goto("http://project-331.local/")
 
-  // Click text=University of Helsinki, Department of Computer Science
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/org/uh-cs' }*/),
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.locator("text=University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
   // Click [aria-label="Manage course \'Introduction to everything\'"] svg
   await Promise.all([
     page.waitForNavigation(/*{ url: 'http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5' }*/),
-    page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click(),
+    page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click(),
   ])
 
   // Click a[role="tab"]:has-text("References")
   await page.locator('a[role="tab"]:has-text("References")').click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/references",
+    "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/references",
   )
 
   await expectScreenshotsToMatchSnapshots({
@@ -105,7 +103,7 @@ test("material reference tests", async ({ page, headless }) => {
   await page.locator("text=Pages").click()
 
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/pages",
+    "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/pages",
   )
 
   // Click text=Page One/chapter-1/page-1Edit page >> button >> nth=0
@@ -166,7 +164,7 @@ test("material reference tests", async ({ page, headless }) => {
   await page.waitForSelector(`text="Operation successful!"`)
 
   await page.goto(
-    "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-1",
+    "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations/chapter-1/page-1",
   )
 
   await selectCourseInstanceIfPrompted(page)

@@ -413,6 +413,7 @@
   "title-number-of-users-with-submissions-per-day": "Päivittäinen käyttäjien lukumäärä, jotka ovat palauttaneet jotakin",
   "title-page-edit-history": "Sivun muokkaushistoria",
   "title-page-id": "Sivu: {{ id }}",
+  "title-pending-roles": "Tulossa olevat roolit",
   "title-playground-exercise-iframe": "Leikkikenttä tehtävien IFrameille",
   "title-public-spec": "Public spec",
   "title-public-url": "Julkinen osoite",

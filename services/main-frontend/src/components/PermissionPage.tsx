@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { TFunction, useTranslation } from "react-i18next"
 
+import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import { RoleDomain, RoleQuery, RoleUser, UserRole } from "../shared-module/bindings"
 import Button from "../shared-module/components/Button"
@@ -87,6 +88,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
   const roleQuery = useQuery([`roles-${domain}`], () => fetchRoles(query))
+  const pendingRolesQuery = useQuery(`pending-roles-${domain}`, () => fetchPendingRoles(query))
   const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)
@@ -404,6 +406,22 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
       </div>
 
       {userList}
+      {pendingRolesQuery.data && pendingRolesQuery.data.length > 0 && (
+        <div
+          className={css`
+            margin-top: 2rem;
+          `}
+        >
+          <h3>{t("title-pending-roles")}</h3>
+          <ul>
+            {pendingRolesQuery.data.map((pendingRole) => (
+              <li key={pendingRole.id}>
+                {pendingRole.user_email} ({pendingRole.role})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </>
   )
 }

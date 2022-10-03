@@ -479,6 +479,7 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
         ),
         Reviewer => matches!(action, View | Grade),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
+        MaterialViewer => matches!(action, View),
     }
 }
 

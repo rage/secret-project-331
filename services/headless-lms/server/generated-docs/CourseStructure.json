@@ -57,6 +57,7 @@
       "created_at": "2021-12-31T22:00:00Z",
       "updated_at": "2021-12-31T22:00:00Z",
       "name": "The Basics",
+      "color": null,
       "course_id": "3c6ca496-17ac-445c-88c0-4ded2f2dbe58",
       "deleted_at": null,
       "chapter_image_url": null,

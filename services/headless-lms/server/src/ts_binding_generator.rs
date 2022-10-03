@@ -209,6 +209,9 @@ fn models(target: &mut File) {
         roles::RoleUser,
         roles::RoleDomain,
         roles::UserRole,
+        roles::RoleInfo,
+
+        pending_roles::PendingRole,
 
         user_course_settings::UserCourseSettings,
 
@@ -263,7 +266,6 @@ fn controllers(target: &mut File) {
             target,
 
             roles::RoleQuery,
-            roles::RoleInfo,
             exams::ExamCourseInfo,
             exercises::ExerciseSubmissions,
             exercises::AnswersRequiringAttention,

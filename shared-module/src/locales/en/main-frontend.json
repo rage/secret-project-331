@@ -413,6 +413,7 @@
   "title-number-of-users-with-submissions-per-day": "Number of users who have submitted something per day",
   "title-page-edit-history": "Page edit history",
   "title-page-id": "Page: {{ id }}",
+  "title-pending-roles": "Pending roles",
   "title-playground-exercise-iframe": "Playground for exercise IFrames",
   "title-public-spec": "Public spec",
   "title-public-url": "Public URL",

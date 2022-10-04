@@ -1,9 +1,13 @@
-use chrono::{Duration, Utc};
+use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
     courses::{self, NewCourse},
+    library::{
+        self,
+        progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
+    },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
 };
@@ -52,7 +56,11 @@ pub async fn seed_organization_uh_cs(
     info!("inserting uh-cs courses");
 
     // Seed courses in groups to improve performance. We cannot create a new task for each course because it is causing stack overflows in headless-lms entrypoint in seemingly unrelated code.
-    let ((cs_intro, automatic_completions_id, introduction_to_localizing), ..) = try_join!(
+    let (
+        (cs_intro, automatic_completions_id, introduction_to_localizing),
+        manual_completions_id,
+        ..,
+    ) = try_join!(
         run_parallelly(courses_group_1(
             db_pool.clone(),
             uh_cs_organization_id,
@@ -102,6 +110,26 @@ pub async fn seed_organization_uh_cs(
     .await?;
     open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
         .await?;
+
+    let manual_default_module =
+        course_modules::get_default_by_course_id(&mut conn, manual_completions_id).await?;
+    let manual_default_instance =
+        course_instances::get_default_by_course_id(&mut conn, manual_completions_id).await?;
+    library::progressing::add_manual_completions(
+        &mut conn,
+        admin_user_id,
+        &manual_default_instance,
+        &TeacherManualCompletionRequest {
+            course_module_id: manual_default_module.id,
+            new_completions: vec![TeacherManualCompletion {
+                user_id: *example_normal_user_ids.first().unwrap(),
+                grade: Some(4),
+                completion_date: Some(Utc.ymd(2022, 9, 1).and_hms(0, 0, 0)),
+            }],
+            skip_duplicate_completions: true,
+        },
+    )
+    .await?;
 
     roles::insert(
         &mut conn,
@@ -288,7 +316,7 @@ async fn courses_group_2(
     admin_user_id: Uuid,
     student_user_id: Uuid,
     example_normal_user_ids: Vec<Uuid>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Uuid> {
     seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
@@ -322,7 +350,7 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-    seed_sample_course(
+    let manual_completions = seed_sample_course(
         &db_pool,
         uh_cs_organization_id,
         Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
@@ -333,7 +361,7 @@ async fn courses_group_2(
         &example_normal_user_ids,
     )
     .await?;
-    Ok(())
+    Ok(manual_completions)
 }
 
 async fn courses_group_3(

@@ -180,6 +180,36 @@
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE course_id = (\n    SELECT course_id\n    FROM course_instances\n    WHERE id = $1\n  )\n  AND deleted_at IS NULL\nORDER BY order_number ASC\n"
   },
+  "023568fd160306c7579289594e619deb1b6dc53c694b5e6f166e992c5de970c6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Uuid",
+          "Timestamptz",
+          "Timestamptz",
+          "Varchar",
+          "Bool",
+          "Varchar",
+          "Int4",
+          "Bool",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_instance_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    completion_language,\n    eligible_for_ects,\n    email,\n    grade,\n    passed,\n    completion_granter_user_id\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13\n  )\nRETURNING id\n        "
+  },
   "03595bec90a8dbdc483f87cfd24779991dd94f07d43c0a5fe51c8ce4972516a2": {
     "describe": {
       "columns": [
@@ -3286,6 +3316,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -3304,7 +3339,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["UuidArray"]
@@ -6693,6 +6729,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -6711,7 +6752,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["Uuid"]
@@ -7109,6 +7151,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -7127,7 +7174,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["UuidArray"]
@@ -8350,6 +8398,120 @@
     },
     "query": "\nSELECT etg.grading_progress as \"grading_progress: GradingProgress\"\nFROM exercise_task_gradings etg\n  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id\nWHERE ets.exercise_slide_submission_id = $1\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\nLIMIT 1\n    "
   },
+  "760b3239a34d7d9c67aa58dba9d5469f5aeaf02419916a4eb4db8970529ca907": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "completion_date",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_language",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "eligible_for_ects",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "grade",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 14,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 15,
+          "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = $1\n  AND course_instance_id = $2\n  AND user_id = $3\n  AND completion_granter_user_id IS NULL\n  AND deleted_at IS NULL\n        "
+  },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
     "describe": {
       "columns": [
@@ -9179,6 +9341,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -9197,7 +9364,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid", "Uuid"]
@@ -11966,6 +12134,57 @@
     },
     "query": "\nINSERT INTO exercise_tasks (\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n"
   },
+  "a54dccecd05081f97834f4f8654132d47eeff79664ba79fee7ebbb5ad4368cbf": {
+    "describe": {
+      "columns": [
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 0,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 1,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "grade",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "registered!",
+          "ordinal": 6,
+          "type_info": "Bool"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 7,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [true, false, false, true, false, false, null, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.created_at,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\nWHERE completions.course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n        "
+  },
   "a670b7eda0b82b828d1dfb15b504fc15365649b5e69aa07eaa96cd3c9de0d302": {
     "describe": {
       "columns": [],
@@ -12748,6 +12967,77 @@
     },
     "query": "\nSELECT pages.id,\n  pages.created_at,\n  pages.updated_at,\n  pages.course_id,\n  pages.exam_id,\n  pages.chapter_id,\n  pages.url_path,\n  pages.title,\n  pages.deleted_at,\n  pages.content,\n  pages.order_number,\n  pages.copied_from\nFROM pages\nWHERE pages.course_id = $1\n  AND url_path = $2\n  AND pages.deleted_at IS NULL;\n        "
   },
+  "b27922e66ed8dd5b05c89d85f50c8b9fb2620fac9a78fe0f99d7372a60c6ccd3": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "starts_at",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "ends_at",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "name",
+          "ordinal": 7,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "description",
+          "ordinal": 8,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "support_email",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_name",
+          "ordinal": 10,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "teacher_in_charge_email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, true, true, true, true, true, false, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_instances\nWHERE course_id = $1\n  AND name IS NULL\n  AND deleted_at IS NULL\n    "
+  },
   "b358b51e902904c15f43a08b5452d4bc5362737b8ac87f5abdeaf810c53dc12a": {
     "describe": {
       "columns": [],
@@ -13237,6 +13527,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -13255,7 +13550,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["Uuid"]
@@ -14311,35 +14607,6 @@
     },
     "query": "\nUPDATE regradings\nSET error_message = $1\nWHERE id = $2\n"
   },
-  "c7daf8cc30d789c375e99d7f2c9f2b81f993d85dbd9d0e7642f7eb8fc068581c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": [
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Uuid",
-          "Timestamptz",
-          "Timestamptz",
-          "Varchar",
-          "Bool",
-          "Varchar",
-          "Int4",
-          "Bool"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_instance_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    completion_language,\n    eligible_for_ects,\n    email,\n    grade,\n    passed\n  )\nVALUES (\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12\n  )\nRETURNING id\n        "
-  },
   "c7f82dee6a7b89c0de8c1195e8dd7f3c0e909e140c3fb6b65692a95497022bf5": {
     "describe": {
       "columns": [],
@@ -14800,6 +15067,120 @@
       }
     },
     "query": "SELECT id AS page_id FROM pages WHERE exam_id = $1;"
+  },
+  "d0002830dc115e4fd039530ef6e3edf90c1b12f5b39eb6e8cceb524b1f6dfb1a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_module_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 6,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "completion_date",
+          "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_registration_attempt_date",
+          "ordinal": 8,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "completion_language",
+          "ordinal": 9,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "eligible_for_ects",
+          "ordinal": 10,
+          "type_info": "Bool"
+        },
+        {
+          "name": "email",
+          "ordinal": 11,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "grade",
+          "ordinal": 12,
+          "type_info": "Int4"
+        },
+        {
+          "name": "passed",
+          "ordinal": 13,
+          "type_info": "Bool"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 14,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "prerequisite_modules_completed",
+          "ordinal": 15,
+          "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = $1\n  AND course_instance_id = $2\n  AND user_id = $3\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n        "
   },
   "d0037081bdb7d84526483a12e5070037392d36867f011134e611cfab8753b6e3": {
     "describe": {
@@ -17213,6 +17594,11 @@
           "name": "prerequisite_modules_completed",
           "ordinal": 15,
           "type_info": "Bool"
+        },
+        {
+          "name": "completion_granter_user_id",
+          "ordinal": 16,
+          "type_info": "Uuid"
         }
       ],
       "nullable": [
@@ -17231,7 +17617,8 @@
         true,
         false,
         false,
-        false
+        false,
+        true
       ],
       "parameters": {
         "Left": ["Uuid", "Uuid"]

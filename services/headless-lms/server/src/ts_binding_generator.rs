@@ -54,6 +54,9 @@ fn models(target: &mut File) {
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
+
+        course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+
         course_modules::CourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,

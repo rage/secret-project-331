@@ -11,11 +11,11 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
-    course_modules, courses,
+    course_modules,
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary,
+    glossary, library,
     page_history::HistoryChangeReason,
     pages,
     pages::CmsPageUpdate,
@@ -56,14 +56,15 @@ pub async fn seed_sample_course(
         is_draft: false,
         is_test_mode: false,
     };
-    let (course, _front_page, default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        course_id,
-        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, _front_page, default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            course_id,
+            Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+            new_course,
+            admin,
+        )
+        .await?;
     course_instances::insert(
         &mut conn,
         NewCourseInstance {
@@ -1299,14 +1300,15 @@ pub async fn create_glossary_course(
         is_test_mode: false,
     };
 
-    let (course, _front_page, _default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        course_id,
-        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, _front_page, _default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            course_id,
+            Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+            new_course,
+            admin,
+        )
+        .await?;
 
     // Create course instance
     course_instances::insert(
@@ -1387,14 +1389,15 @@ pub async fn seed_cs_course_material(
         is_draft: false,
         is_test_mode: false,
     };
-    let (course, front_page, _default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
-        Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, front_page, _default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
+            Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
+            new_course,
+            admin,
+        )
+        .await?;
 
     // Exercises
     let (

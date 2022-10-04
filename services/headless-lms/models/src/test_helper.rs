@@ -159,7 +159,7 @@ macro_rules! insert_data {
             .take(8)
             .map(char::from)
             .collect::<String>();
-        let $course = $crate::courses::insert_course(
+        let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
             ::uuid::Uuid::new_v4(),
             ::uuid::Uuid::new_v4(),

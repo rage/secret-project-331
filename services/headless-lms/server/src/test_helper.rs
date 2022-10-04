@@ -140,7 +140,7 @@ macro_rules! insert_data {
             .take(8)
             .map(char::from)
             .collect::<String>();
-        let $course = headless_lms_models::courses::insert_course(
+        let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
             ::uuid::Uuid::new_v4(),
             ::uuid::Uuid::new_v4(),

@@ -3,7 +3,7 @@ use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
-    courses::{self, NewCourse},
+    courses::NewCourse,
     library::{
         self,
         progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
@@ -223,7 +223,7 @@ pub async fn seed_organization_uh_cs(
         is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
-        courses::insert_course(
+        library::content_management::create_new_course(
             &mut conn,
             Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
             Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,

@@ -13,6 +13,7 @@ use models::{
     exercises::Exercise,
     feedback::{self, Feedback, FeedbackCount},
     glossary::{Term, TermUpdate},
+    library,
     material_references::{MaterialReference, NewMaterialReference},
     pages::Page,
     peer_review_configs::PeerReviewConfig,
@@ -79,7 +80,7 @@ async fn post_new_course(
     .await?;
 
     let mut tx = conn.begin().await?;
-    let (course, ..) = models::courses::insert_course(
+    let (course, ..) = library::content_management::create_new_course(
         &mut tx,
         Uuid::new_v4(),
         Uuid::new_v4(),

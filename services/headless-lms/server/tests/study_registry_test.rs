@@ -129,25 +129,26 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     )
     .await
     .unwrap();
-    let (course, _, instance, course_module) = headless_lms_models::courses::insert_course(
-        conn,
-        Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
-        Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
-        NewCourse {
-            name: "course".to_string(),
-            slug: "slug".to_string(),
-            organization_id: org,
-            language_code: "en-US".to_string(),
-            teacher_in_charge_name: "Teacher".to_string(),
-            teacher_in_charge_email: "teacher@email.com".to_string(),
-            description: "".to_string(),
-            is_draft: false,
-            is_test_mode: false,
-        },
-        user_1,
-    )
-    .await
-    .unwrap();
+    let (course, _, instance, course_module) =
+        headless_lms_models::library::content_management::create_new_course(
+            conn,
+            Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
+            Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
+            NewCourse {
+                name: "course".to_string(),
+                slug: "slug".to_string(),
+                organization_id: org,
+                language_code: "en-US".to_string(),
+                teacher_in_charge_name: "Teacher".to_string(),
+                teacher_in_charge_email: "teacher@email.com".to_string(),
+                description: "".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+            },
+            user_1,
+        )
+        .await
+        .unwrap();
     let course_module_completion_id = headless_lms_models::course_module_completions::insert(
         conn,
         &NewCourseModuleCompletion {

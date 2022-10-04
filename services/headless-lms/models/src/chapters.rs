@@ -638,15 +638,12 @@ mod tests {
 
     mod constraints {
         use super::*;
-        use crate::{
-            courses::{self, NewCourse},
-            test_helper::*,
-        };
+        use crate::{courses::NewCourse, library, test_helper::*};
 
         #[tokio::test]
         async fn cannot_create_chapter_for_different_course_than_its_module() {
             insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
-            let course_2 = courses::insert_course(
+            let course_2 = library::content_management::create_new_course(
                 tx.as_mut(),
                 Uuid::new_v4(),
                 Uuid::new_v4(),

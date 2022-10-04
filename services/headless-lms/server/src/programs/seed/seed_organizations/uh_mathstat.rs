@@ -1,7 +1,7 @@
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
-    courses::{self, NewCourse},
-    organizations,
+    courses::NewCourse,
+    library, organizations,
 };
 use uuid::Uuid;
 
@@ -53,7 +53,7 @@ pub async fn seed_organization_uh_mathstat(
         _statistics_front_page,
         _statistics_default_course_instancem,
         _statistics_default_course_module,
-    ) = courses::insert_course(
+    ) = library::content_management::create_new_course(
         &mut conn,
         Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
         Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
@@ -88,7 +88,7 @@ pub async fn seed_organization_uh_mathstat(
         is_draft: true,
         is_test_mode: false,
     };
-    courses::insert_course(
+    library::content_management::create_new_course(
         &mut conn,
         Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
         Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,

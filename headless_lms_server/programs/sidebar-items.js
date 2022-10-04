@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["doc_file_generator",""],["email_deliver",""],["open_university_registration_link_fetcher",""],["peer_review_updater",""],["regrader",""],["seed",""],["service_info_fetcher",""],["start_server",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["doc_file_generator",""],["email_deliver",""],["open_university_registration_link_fetcher",""],["peer_review_updater",""],["regrader",""],["seed",""],["service_info_fetcher",""],["sorter","Manually sorts…"],["start_server",""]]};

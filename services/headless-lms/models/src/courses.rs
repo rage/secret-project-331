@@ -550,85 +550,6 @@ WHERE id = $1
     Ok(res.is_draft)
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::{course_language_groups, courses, test_helper::*};
-
-    #[tokio::test]
-    async fn validates_language_code_when_adding_a_course() {
-        insert_data!(:tx, user: _user, :org);
-        let course_language_group_id = course_language_groups::insert_with_id(
-            tx.as_mut(),
-            Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
-        )
-        .await
-        .unwrap();
-
-        // Valid language code allows course creation.
-        let mut new_course = NewCourse {
-            name: "".to_string(),
-            slug: "".to_string(),
-            organization_id: org,
-            language_code: "en-US".to_string(),
-            teacher_in_charge_name: "teacher".to_string(),
-            teacher_in_charge_email: "teacher@example.com".to_string(),
-            description: "description".to_string(),
-            is_draft: false,
-            is_test_mode: false,
-        };
-        let mut tx2 = tx.begin().await;
-        courses::insert(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            course_language_group_id,
-            &new_course,
-        )
-        .await
-        .unwrap();
-        tx2.rollback().await;
-
-        // Empty language code is not allowed.
-        new_course.language_code = "".to_string();
-        let mut tx2 = tx.begin().await;
-        courses::insert(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            course_language_group_id,
-            &new_course,
-        )
-        .await
-        .unwrap_err();
-        tx2.rollback().await;
-
-        // Wrong case language code is not allowed.
-        new_course.language_code = "en-us".to_string();
-        let mut tx2 = tx.begin().await;
-        let course_id = courses::insert(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            course_language_group_id,
-            &new_course,
-        )
-        .await;
-        assert!(course_id.is_err());
-        tx2.rollback().await;
-
-        // Underscore in locale is not allowed.
-        let mut tx2 = tx.begin().await;
-        new_course.language_code = "en_US".to_string();
-        let course_id = courses::insert(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            course_language_group_id,
-            &new_course,
-        )
-        .await;
-        assert!(course_id.is_err());
-        tx2.rollback().await;
-    }
-}
-
 pub async fn get_top_level_pages(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -661,4 +582,108 @@ WHERE p.chapter_id IS NULL
     .await?;
 
     Ok(pages)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{course_language_groups, courses, test_helper::*};
+
+    mod language_code_validation {
+        use super::*;
+
+        #[tokio::test]
+        async fn allows_valid_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert_with_id(
+                tx.as_mut(),
+                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en-US");
+            let res = courses::insert(
+                tx.as_mut(),
+                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_ok());
+        }
+
+        #[tokio::test]
+        async fn disallows_empty_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert_with_id(
+                tx.as_mut(),
+                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "");
+            let res = courses::insert(
+                tx.as_mut(),
+                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
+
+        #[tokio::test]
+        async fn disallows_wrong_case_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert_with_id(
+                tx.as_mut(),
+                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en-us");
+            let res = courses::insert(
+                tx.as_mut(),
+                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
+
+        #[tokio::test]
+        async fn disallows_underscore_in_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert_with_id(
+                tx.as_mut(),
+                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en_US");
+            let res = courses::insert(
+                tx.as_mut(),
+                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
+
+        fn create_new_course(organization_id: Uuid, language_code: &str) -> NewCourse {
+            NewCourse {
+                name: "".to_string(),
+                slug: "".to_string(),
+                organization_id,
+                language_code: language_code.to_string(),
+                teacher_in_charge_name: "teacher".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
+                description: "description".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+            }
+        }
+    }
 }

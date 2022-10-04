@@ -81,7 +81,7 @@ test.describe("admin", () => {
     // Check input[type="checkbox"]
     await page.check("input[label=Draft]")
     // Click input[name="language-code"]
-    await page.check("input[label=English]")
+    await page.check(`label:has-text("English")`)
     // Click div[role="dialog"] >> text=Create
     await page.click('div[role="dialog"] >> text=Create')
     // Click [aria-label="Manage\ course\ \'Advanced\ drafts\'"] svg

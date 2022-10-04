@@ -7,6 +7,8 @@ use uuid::Uuid;
 
 use sqlx::{Pool, Postgres};
 
+use crate::programs::seed::seed_courses::seed_sample_course;
+
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_organization_uh_mathstat(
@@ -21,8 +23,8 @@ pub async fn seed_organization_uh_mathstat(
         language_teacher_user_id: _,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
-        student_user_id: _,
-        example_normal_user_ids: _,
+        student_user_id,
+        example_normal_user_ids,
     } = seed_users_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -94,5 +96,18 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
     )
     .await?;
+
+    let _introduction_to_citations = seed_sample_course(
+        &db_pool,
+        uh_mathstat_id,
+        Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
+        "Introduction to citations",
+        "introduction-to-citations",
+        admin_user_id,
+        student_user_id,
+        &example_normal_user_ids,
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

@@ -86,6 +86,6 @@
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
-  "use-course-default-peer-review": "Use course default peer review",
+  "use-course-default-peer-review-config": "Use course default peer review config",
   "welcome-message-for-course": "Welcome message for course..."
 }

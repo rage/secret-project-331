@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
+import { GlossaryContext } from "../../../contexts/GlossaryContext"
 import { baseTheme, monospaceFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import { parseText } from "../util/textParsing"
 
 interface HighlightBoxAttributes {
   title: string
@@ -14,6 +16,7 @@ interface HighlightBoxAttributes {
 const HightlightBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HighlightBoxAttributes>>
 > = (props) => {
+  const { terms } = useContext(GlossaryContext)
   return (
     <>
       <div
@@ -41,10 +44,16 @@ const HightlightBlock: React.FC<
               font-weight: 700;
               font-family: ${monospaceFont};
             `}
-          >
-            {props.data.attributes.title}
-          </span>
-          <span>{props.data.attributes.content}</span>
+            dangerouslySetInnerHTML={{
+              __html: parseText(props.data.attributes.title, terms).parsedText,
+            }}
+          />
+
+          <span
+            dangerouslySetInnerHTML={{
+              __html: parseText(props.data.attributes.content, terms).parsedText,
+            }}
+          />
         </div>
       </div>
     </>

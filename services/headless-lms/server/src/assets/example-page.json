@@ -481,77 +481,38 @@
     "isValid": true,
     "name": "core/quote",
     "attributes": {
-      "citation": "Citation",
-      "value": "<p>Default Quote</p>"
+      "citation": "Citation"
     },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "3829fdc0-78f8-4625-abe5-03b4b75bcbf7",
-    "isValid": true,
-    "name": "core/quote",
-    "attributes": {
-      "citation": "Citation",
-      "className": "is-style-large",
-      "value": "<p>Large Quote</p>"
-    },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "b2df0917-192f-4523-b1e4-2e11e4813af1",
-    "isValid": true,
-    "name": "core/quote",
-    "attributes": {
-      "align": "center",
-      "citation": "Citation",
-      "value": "<p>Default Quote Middle</p>"
-    },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "ed6c8849-73bb-4d14-ab3e-9580a4e0b933",
-    "isValid": true,
-    "name": "core/quote",
-    "attributes": {
-      "align": "right",
-      "citation": "Citation",
-      "value": "<p>Default Quote Right</p>"
-    },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "dbe0fe99-b498-440e-b339-6eb7984d98fd",
-    "isValid": true,
-    "name": "core/quote",
-    "attributes": {
-      "align": "center",
-      "citation": "Add citation",
-      "className": "is-style-large",
-      "value": "<p>Large Quote Center</p>"
-    },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "7567f79d-ac55-4f1f-94d2-1c04b0c85440",
-    "isValid": true,
-    "name": "core/quote",
-    "attributes": {
-      "align": "right",
-      "citation": "Add citation",
-      "className": "is-style-large",
-      "value": "<p>Large Quote Right</p>"
-    },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "921c6a04-1a0e-4397-a40d-8cd737ef440a",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "Default Quote"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "2b0fbb1b-476f-46e0-afba-a4bba5baf05d",
     "isValid": true,
     "name": "core/quote",
     "attributes": {
-      "citation": "Add citation",
-      "value": "<p><strong>Bold <em>BoldItalic </em></strong><em>Italic </em><s>strikethrough</s><em><s> </s></em> <span class=\"has-inline-color has-vivid-purple-color\">text-color</span></p>"
+      "citation": "Nobody"
     },
-    "innerBlocks": []
+    "innerBlocks": [
+      {
+        "clientId": "921c6a04-1a0e-4397-a40d-8cd737ef440a",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Bold <em>BoldItalic </em></strong><em>Italic </em><s>strikethrough</s><em><s> </s></em> <span class=\"has-inline-color has-vivid-purple-color\">text-color</span>"
+        },
+        "innerBlocks": []
+      }
+    ]
   },
   {
     "clientId": "6e3672d3-e9bf-4c98-8d3a-db4a8986f2d7",

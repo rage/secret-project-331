@@ -3,16 +3,12 @@ import { css } from "@emotion/css"
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+import InnerBlocks from "../../../util/InnerBlocks"
 
-const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttributes>>> = ({
-  data,
-}) => {
-  const { citation, value, anchor, className, align } = data.attributes
-
-  const justify = css`
-    display: grid;
-    justify-content: center;
-  `
+const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttributes>>> = (
+  props,
+) => {
+  const { citation, value, anchor, className, align } = props.data.attributes
 
   const styleLeftDefault = css`
     padding: 0.5rem 2rem;
@@ -33,7 +29,7 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
   `
   if (className && className.includes("is-style-large")) {
     return (
-      <div className={justify}>
+      <>
         <blockquote
           className={css`
             margin-bottom: 1rem;
@@ -48,8 +44,10 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
               ${align && `text-align: ${align};`}
               font-style: italic;
             `}
-            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value) }}
-          />
+          >
+            {value && value}
+            <InnerBlocks parentBlockProps={props} />
+          </div>
           <cite
             className={css`
               text-align: right;
@@ -60,11 +58,11 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
             dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
           ></cite>
         </blockquote>
-      </div>
+      </>
     )
   } else {
     return (
-      <div className={justify}>
+      <>
         <blockquote
           className={css`
             ${((align && align === "left") || !align) && styleLeftDefault}
@@ -75,11 +73,10 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
           cite={citation}
           {...(anchor && { id: anchor })}
         >
-          <div
-            dangerouslySetInnerHTML={{
-              __html: sanitizeCourseMaterialHtml(value),
-            }}
-          />
+          <div>
+            {value && value}
+            <InnerBlocks parentBlockProps={props} />
+          </div>
           <cite
             className={css`
               font-style: normal;
@@ -88,7 +85,7 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
             dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
           ></cite>
         </blockquote>
-      </div>
+      </>
     )
   }
 }

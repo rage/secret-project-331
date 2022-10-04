@@ -1416,6 +1416,19 @@
 <span id="1416">1416</span>
 <span id="1417">1417</span>
 <span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1439,7 +1452,9 @@
     },
     <span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>,
     <span class="ident">course_instances</span>::{<span class="ident">ChapterScore</span>, <span class="ident">CourseInstance</span>, <span class="ident">Points</span>},
-    <span class="ident">course_module_completions</span>::{<span class="ident">StudyRegistryCompletion</span>, <span class="ident">StudyRegistryGrade</span>},
+    <span class="ident">course_module_completions</span>::{
+        <span class="ident">CourseModuleCompletionWithRegistrationInfo</span>, <span class="ident">StudyRegistryCompletion</span>, <span class="ident">StudyRegistryGrade</span>,
+    },
     <span class="ident">course_modules::CourseModule</span>,
     <span class="ident">courses</span>::{<span class="ident">Course</span>, <span class="ident">CourseCount</span>, <span class="ident">CourseStructure</span>},
     <span class="ident">email_templates::EmailTemplate</span>,
@@ -1468,7 +1483,7 @@
         },
         <span class="ident">progressing</span>::{
             <span class="ident">CompletionRegistrationLink</span>, <span class="ident">CourseInstanceCompletionSummary</span>, <span class="ident">UserCompletionInformation</span>,
-            <span class="ident">UserCourseModuleCompletion</span>, <span class="ident">UserModuleCompletionStatus</span>, <span class="ident">UserWithModuleCompletions</span>,
+            <span class="ident">UserModuleCompletionStatus</span>, <span class="ident">UserWithModuleCompletions</span>,
         },
     },
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
@@ -2152,6 +2167,21 @@
             <span class="ident">users</span>: <span class="macro">vec!</span>[<span class="ident">user</span>.<span class="ident">clone</span>()]
         }
     );
+    <span class="kw">let</span> <span class="ident">course_module_completion_with_registration_info</span> <span class="op">=</span>
+        <span class="ident">CourseModuleCompletionWithRegistrationInfo</span> {
+            <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
+            <span class="ident">created_at</span>,
+            <span class="ident">course_module_id</span>: <span class="ident">id</span>,
+            <span class="ident">grade</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
+            <span class="ident">passed</span>: <span class="bool-val">true</span>,
+            <span class="ident">prerequisite_modules_completed</span>: <span class="bool-val">true</span>,
+            <span class="ident">registered</span>: <span class="bool-val">false</span>,
+            <span class="ident">user_id</span>: <span class="ident">id</span>,
+        };
+    <span class="macro">write_docs!</span>(
+        <span class="ident">CourseModuleCompletionWithRegistrationInfo</span>,
+        <span class="ident">course_module_completion_with_registration_info</span>.<span class="ident">clone</span>()
+    );
     <span class="macro">write_docs!</span>(
         <span class="ident">CourseInstanceCompletionSummary</span>,
         <span class="ident">CourseInstanceCompletionSummary</span> {
@@ -2171,11 +2201,7 @@
                 <span class="ident">ects_credits</span>: <span class="prelude-val">None</span>,
             }],
             <span class="ident">users_with_course_module_completions</span>: <span class="macro">vec!</span>[<span class="ident">UserWithModuleCompletions</span> {
-                <span class="ident">completed_modules</span>: <span class="macro">vec!</span>[<span class="ident">UserCourseModuleCompletion</span> {
-                    <span class="ident">course_module_id</span>: <span class="ident">id</span>,
-                    <span class="ident">grade</span>: <span class="prelude-val">Some</span>(<span class="number">4</span>),
-                    <span class="ident">passed</span>: <span class="bool-val">true</span>,
-                }],
+                <span class="ident">completed_modules</span>: <span class="macro">vec!</span>[<span class="ident">course_module_completion_with_registration_info</span>],
                 <span class="ident">email</span>: <span class="string">&quot;student@example.com&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">first_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),
                 <span class="ident">last_name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Student&quot;</span>.<span class="ident">to_string</span>()),

@@ -349,57 +349,13 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/course-instances`.</span>
 
 <span class="kw">use</span> <span class="ident">bytes::Bytes</span>;
 <span class="kw">use</span> <span class="ident">chrono::Utc</span>;
 <span class="kw">use</span> <span class="ident">models</span>::{
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">CourseInstance</span>, <span class="ident">CourseInstanceForm</span>, <span class="ident">Points</span>},
-    <span class="ident">course_module_completions</span>::{<span class="self">self</span>, <span class="ident">NewCourseModuleCompletion</span>},
-    <span class="ident">course_modules</span>, <span class="ident">courses</span>,
+    <span class="ident">courses</span>,
     <span class="ident">email_templates</span>::{<span class="ident">EmailTemplate</span>, <span class="ident">EmailTemplateNew</span>},
     <span class="ident">library</span>::{
         <span class="self">self</span>,
@@ -408,7 +364,6 @@
             <span class="ident">TeacherManualCompletionRequest</span>,
         },
     },
-    <span class="ident">users</span>,
 };
 <span class="kw">use</span> <span class="ident">tokio_stream::wrappers::UnboundedReceiverStream</span>;
 
@@ -631,51 +586,10 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">course_module</span> <span class="op">=</span> <span class="ident">course_modules::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">data</span>.<span class="ident">course_module_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">course_module</span>.<span class="ident">course_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">instance</span>.<span class="ident">course_id</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ControllerError::new</span>(
-            <span class="ident">ControllerErrorType::BadRequest</span>,
-            <span class="string">&quot;Course module not part of the course.&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">None</span>,
-        ));
-    }
-    <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">instance</span>.<span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">completion</span> <span class="kw">in</span> <span class="ident">data</span>.<span class="ident">new_completions</span> {
-        <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">completion</span>.<span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">existing_completion</span> <span class="op">=</span>
-            <span class="ident">course_module_completions::get_by_course_module_instance_and_user_ids</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="ident">data</span>.<span class="ident">course_module_id</span>,
-                <span class="kw-2">*</span><span class="ident">course_instance_id</span>,
-                <span class="ident">completion</span>.<span class="ident">user_id</span>,
-            )
-            .<span class="kw">await</span>
-            .<span class="ident">optional</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">existing_completion</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">skip_duplicate_completions</span> {
-            <span class="ident">course_module_completions::insert</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span> {
-                    <span class="ident">course_id</span>: <span class="ident">instance</span>.<span class="ident">course_id</span>,
-                    <span class="ident">course_instance_id</span>: <span class="ident">instance</span>.<span class="ident">id</span>,
-                    <span class="ident">course_module_id</span>: <span class="ident">data</span>.<span class="ident">course_module_id</span>,
-                    <span class="ident">user_id</span>: <span class="ident">completion</span>.<span class="ident">user_id</span>,
-                    <span class="ident">completion_date</span>: <span class="ident">completion</span>.<span class="ident">completion_date</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">Utc::now</span>),
-                    <span class="ident">completion_registration_attempt_date</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">completion_language</span>: <span class="ident">course</span>.<span class="ident">language_code</span>.<span class="ident">clone</span>(),
-                    <span class="ident">eligible_for_ects</span>: <span class="bool-val">true</span>,
-                    <span class="ident">email</span>: <span class="ident">user</span>.<span class="ident">email</span>,
-                    <span class="ident">grade</span>: <span class="ident">completion</span>.<span class="ident">grade</span>,
-                    <span class="comment">// Should passed be false if grade == Some(0)?</span>
-                    <span class="ident">passed</span>: <span class="bool-val">true</span>,
-                },
-                <span class="prelude-val">None</span>,
-            )
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-        }
-    }
-    <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span>
+        <span class="ident">course_instances::get_course_instance</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_instance_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="ident">library::progressing::add_manual_completions</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">user</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">course_instance</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(()))
 }
 

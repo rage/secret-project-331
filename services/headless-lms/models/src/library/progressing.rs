@@ -369,7 +369,7 @@ pub async fn add_manual_completions(
                 course_instance.id,
             )
             .await?;
-        if module_completed || !manual_completion_request.skip_duplicate_completions {
+        if !module_completed || !manual_completion_request.skip_duplicate_completions {
             course_instance_enrollments::insert_enrollment_if_it_doesnt_exist(
                 &mut tx,
                 NewCourseInstanceEnrollment {

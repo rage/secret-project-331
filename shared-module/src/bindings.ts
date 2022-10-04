@@ -909,6 +909,7 @@ export interface Page {
   content: unknown
   order_number: number
   copied_from: string | null
+  unlisted: boolean
 }
 
 export interface PageChapterAndCourseInformation {
@@ -971,6 +972,7 @@ export interface PageWithExercises {
   content: unknown
   order_number: number
   copied_from: string | null
+  unlisted: boolean
   exercises: Array<Exercise>
 }
 

@@ -152,6 +152,7 @@ pub async fn main() -> anyhow::Result<()> {
         ]),
         order_number: 123,
         copied_from: None,
+        unlisted: false,
     };
     let course_instance = CourseInstance {
         id,
@@ -492,7 +493,8 @@ pub async fn main() -> anyhow::Result<()> {
                 deleted_at,
                 content: serde_json::json! {[]},
                 order_number: 123,
-                copied_from: None
+                copied_from: None,
+                unlisted: false,
             }
         ]
     );

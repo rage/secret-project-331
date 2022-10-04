@@ -46,6 +46,7 @@ pub struct Page {
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub unlisted: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -356,7 +357,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -383,7 +385,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL;
@@ -410,7 +413,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages
 WHERE id = $1;
 ",
@@ -466,7 +470,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.unlisted
 FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
@@ -539,7 +544,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.unlisted
 FROM url_redirections
   JOIN pages on pages.id = url_redirections.destination_page_id
 WHERE url_redirections.course_id = $1
@@ -685,7 +691,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.unlisted
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
@@ -891,7 +898,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.unlisted
         ",
         page_id,
         serde_json::to_value(parsed_content)?,
@@ -1025,7 +1033,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from;
+  copied_from,
+  unlisted
         ",
         new_content,
         page.id
@@ -1769,7 +1778,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.unlisted
           "#,
         new_page.course_id,
         new_page.exam_id,
@@ -1833,6 +1843,7 @@ RETURNING *;
         order_number: page.order_number,
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
+        unlisted: page.unlisted,
     })
 }
 
@@ -1858,7 +1869,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
           "#,
         page_id,
     )
@@ -1929,7 +1941,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2309,7 +2322,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
@@ -2340,7 +2354,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL

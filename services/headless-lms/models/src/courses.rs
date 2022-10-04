@@ -741,7 +741,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  unlisted
 FROM pages p
 WHERE p.chapter_id IS NULL
   AND p.deleted_at IS NULL

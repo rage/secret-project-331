@@ -8,4 +8,5 @@ pub mod peer_review_updater;
 pub mod regrader;
 pub mod seed;
 pub mod service_info_fetcher;
+pub mod sorter;
 pub mod start_server;

@@ -16,13 +16,14 @@ use headless_lms_models::{
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
     glossary, library,
+    library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
     pages,
     pages::CmsPageUpdate,
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections,
+    url_redirections, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
@@ -59,8 +60,13 @@ pub async fn seed_sample_course(
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
-            course_id,
-            Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id,
+                default_course_instance_id: Uuid::new_v5(
+                    &course_id,
+                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
+                ),
+            }),
             new_course,
             admin,
         )
@@ -1303,8 +1309,13 @@ pub async fn create_glossary_course(
     let (course, _front_page, _default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
-            course_id,
-            Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id,
+                default_course_instance_id: Uuid::new_v5(
+                    &course_id,
+                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
+                ),
+            }),
             new_course,
             admin,
         )
@@ -1392,8 +1403,12 @@ pub async fn seed_cs_course_material(
     let (course, front_page, _default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
-            Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
-            Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
+                default_course_instance_id: Uuid::parse_str(
+                    "8e6c35cd-43f2-4982-943b-11e3ffb1b2f8",
+                )?,
+            }),
             new_course,
             admin,
         )

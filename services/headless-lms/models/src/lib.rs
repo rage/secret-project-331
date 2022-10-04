@@ -68,6 +68,50 @@ use crate::prelude::*;
 #[macro_use]
 extern crate tracing;
 
+/// Helper struct to use with functions that insert data into the database.
+pub enum PKeyPolicy<T> {
+    /// Ids will be generated based on the associated data. Usually only used in
+    /// local test environments where reproducible database states are desired.
+    Fixed(T),
+    /// Ids will be generated on the database level. This should be the default
+    /// behavior.
+    Generate,
+}
+
+impl<T> PKeyPolicy<T> {
+    /// Gets reference to the fixed data, if there are any.
+    pub fn fixed(&self) -> Option<&T> {
+        match self {
+            PKeyPolicy::Fixed(t) => Some(t),
+            PKeyPolicy::Generate => None,
+        }
+    }
+
+    /// Maps `PKeyPolicy<T>` to `PKeyPolicy<U>` by applying a function to the contained value.
+    pub fn map<U, F>(self, f: F) -> PKeyPolicy<U>
+    where
+        F: FnOnce(T) -> U,
+    {
+        match self {
+            PKeyPolicy::Fixed(x) => PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate => PKeyPolicy::Generate,
+        }
+    }
+
+    /// Maps a reference of contained data in `Fixed(T)` to `PKeyPolicy<U>` by applying a function
+    /// to the contained value. This is useful whenever a referenced value can be used instead of
+    /// having to consume the original value.
+    pub fn map_ref<U, F>(&self, f: F) -> PKeyPolicy<U>
+    where
+        F: FnOnce(&T) -> U,
+    {
+        match self {
+            PKeyPolicy::Fixed(x) => PKeyPolicy::Fixed(f(x)),
+            PKeyPolicy::Generate => PKeyPolicy::Generate,
+        }
+    }
+}
+
 /// Many database tables are related to either a course or an exam
 #[derive(Clone, Copy)]
 pub enum CourseOrExamId {

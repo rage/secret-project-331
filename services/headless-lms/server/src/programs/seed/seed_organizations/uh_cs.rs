@@ -4,12 +4,14 @@ use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
     courses::NewCourse,
+    library::content_management::CreateNewCourseFixedIds,
     library::{
         self,
         progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
     },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
@@ -225,8 +227,12 @@ pub async fn seed_organization_uh_cs(
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(
             &mut conn,
-            Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
-            Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+                default_course_instance_id: Uuid::parse_str(
+                    "48399008-6523-43c5-8fd6-59ecc731a426",
+                )?,
+            }),
             new_course,
             admin_user_id,
         )

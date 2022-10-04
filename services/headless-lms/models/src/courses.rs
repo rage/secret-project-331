@@ -64,7 +64,7 @@ pub struct NewCourse {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    id: Uuid,
+    id: PKeyPolicy<Uuid>,
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
@@ -81,10 +81,20 @@ INSERT INTO courses(
     is_draft,
     is_test_mode
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES(
+    COALESCE($1, uuid_generate_v4()),
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9
+  )
 RETURNING id
         ",
-        id,
+        id.fixed(),
         new_course.name,
         new_course.description,
         new_course.slug,
@@ -604,7 +614,7 @@ mod test {
             let new_course = create_new_course(org, "en-US");
             let res = courses::insert(
                 tx.as_mut(),
-                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
             )
@@ -624,7 +634,7 @@ mod test {
             let new_course = create_new_course(org, "");
             let res = courses::insert(
                 tx.as_mut(),
-                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
             )
@@ -644,7 +654,7 @@ mod test {
             let new_course = create_new_course(org, "en-us");
             let res = courses::insert(
                 tx.as_mut(),
-                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
             )
@@ -664,7 +674,7 @@ mod test {
             let new_course = create_new_course(org, "en_US");
             let res = courses::insert(
                 tx.as_mut(),
-                Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
             )

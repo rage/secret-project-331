@@ -7,6 +7,8 @@ use headless_lms_models::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion, StudyRegistryCompletion,
     },
     courses::NewCourse,
+    library::content_management::CreateNewCourseFixedIds,
+    PKeyPolicy,
 };
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -132,8 +134,11 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     let (course, _, instance, course_module) =
         headless_lms_models::library::content_management::create_new_course(
             conn,
-            Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
-            Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3").unwrap(),
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("00265705-10fc-4514-b853-ebd4948501ab").unwrap(),
+                default_course_instance_id: Uuid::parse_str("8ec070e7-7905-4d4b-97f1-ab3ca0854bc3")
+                    .unwrap(),
+            }),
             NewCourse {
                 name: "course".to_string(),
                 slug: "slug".to_string(),

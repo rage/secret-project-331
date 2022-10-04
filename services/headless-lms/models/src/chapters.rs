@@ -645,8 +645,7 @@ mod tests {
             insert_data!(:tx, :user, :org, course: course_1, instance: _instance, :course_module);
             let course_2 = library::content_management::create_new_course(
                 tx.as_mut(),
-                Uuid::new_v4(),
-                Uuid::new_v4(),
+                PKeyPolicy::Generate,
                 NewCourse {
                     name: "".to_string(),
                     slug: "course-2".to_string(),

@@ -10,19 +10,30 @@ use crate::{
     prelude::*,
 };
 
+#[derive(Debug, Clone)]
+pub struct CreateNewCourseFixedIds {
+    pub course_id: Uuid,
+    pub default_course_instance_id: Uuid,
+}
+
 /// Creates a new course with a front page and default instances.
 pub async fn create_new_course(
     conn: &mut PgConnection,
-    id: Uuid,
-    default_instance_id: Uuid,
+    id_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
 
     let course_language_group_id = course_language_groups::insert(&mut tx).await?;
-    courses::insert(&mut tx, id, course_language_group_id, &new_course).await?;
-    let course = courses::get_course(&mut tx, id).await?;
+    let course_id = courses::insert(
+        &mut tx,
+        id_policy.map_ref(|x| x.course_id),
+        course_language_group_id,
+        &new_course,
+    )
+    .await?;
+    let course = courses::get_course(&mut tx, course_id).await?;
 
     // Create front page for course
     let course_front_page_content = serde_json::to_value(vec![
@@ -52,7 +63,11 @@ pub async fn create_new_course(
     let default_course_instance = crate::course_instances::insert(
         &mut tx,
         NewCourseInstance {
-            id: default_instance_id,
+            id: id_policy
+                .map_ref(|x| x.default_course_instance_id)
+                .fixed()
+                .cloned()
+                .unwrap_or_else(Uuid::new_v4),
             course_id: course.id,
             name: None,
             description: None,

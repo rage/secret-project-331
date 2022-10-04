@@ -161,8 +161,7 @@ macro_rules! insert_data {
             .collect::<String>();
         let $course = $crate::library::content_management::create_new_course(
             $tx.as_mut(),
-            ::uuid::Uuid::new_v4(),
-            ::uuid::Uuid::new_v4(),
+            $crate::PKeyPolicy::Generate,
             $crate::courses::NewCourse {
                 name: rs.clone(),
                 slug: rs.clone(),

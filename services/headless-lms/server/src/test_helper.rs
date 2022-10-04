@@ -142,8 +142,7 @@ macro_rules! insert_data {
             .collect::<String>();
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
-            ::uuid::Uuid::new_v4(),
-            ::uuid::Uuid::new_v4(),
+            headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),
                 slug: rs.clone(),

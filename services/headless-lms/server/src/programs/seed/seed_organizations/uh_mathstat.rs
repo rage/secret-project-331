@@ -1,7 +1,9 @@
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     courses::NewCourse,
-    library, organizations,
+    library,
+    library::content_management::CreateNewCourseFixedIds,
+    organizations, PKeyPolicy,
 };
 use uuid::Uuid;
 
@@ -55,8 +57,10 @@ pub async fn seed_organization_uh_mathstat(
         _statistics_default_course_module,
     ) = library::content_management::create_new_course(
         &mut conn,
-        Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
-        Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
+            default_course_instance_id: Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
+        }),
         new_course,
         admin_user_id,
     )
@@ -90,8 +94,10 @@ pub async fn seed_organization_uh_mathstat(
     };
     library::content_management::create_new_course(
         &mut conn,
-        Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
-        Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
+            default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
+        }),
         draft_course,
         admin_user_id,
     )

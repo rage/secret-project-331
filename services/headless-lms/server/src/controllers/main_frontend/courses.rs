@@ -82,8 +82,7 @@ async fn post_new_course(
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
         &mut tx,
-        Uuid::new_v4(),
-        Uuid::new_v4(),
+        PKeyPolicy::Generate,
         new_course,
         user.id,
     )

@@ -5843,22 +5843,6 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  accepting_strategy AS \"accepting_strategy: _\"\nFROM peer_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n        "
   },
-  "5598e72943c5ec4940f411f4299fd7082a51530757137421bad5938d9fc3a763": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
-      }
-    },
-    "query": "\nINSERT INTO courses(\n    id,\n    name,\n    description,\n    slug,\n    organization_id,\n    language_code,\n    course_language_group_id,\n    is_draft,\n    is_test_mode\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id\n        "
-  },
   "56769774cc71f5cdd7d676f792ec6b2ad296ed3c220fcd65cae452983e2bf326": {
     "describe": {
       "columns": [
@@ -6021,6 +6005,22 @@
       }
     },
     "query": "\nUPDATE proposed_page_edits\nSET pending = $1\nWHERE id = $2\n"
+  },
+  "5bf64e12e0ebd484a8aad0ee4db662b1de5006a8b372fe46ef36b3d041d71391": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO courses(\n    id,\n    name,\n    description,\n    slug,\n    organization_id,\n    language_code,\n    course_language_group_id,\n    is_draft,\n    is_test_mode\n  )\nVALUES(\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9\n  )\nRETURNING id\n        "
   },
   "5bff2d6b08b954b12c31a399396e4f855f055ac3994940b626d05fbd4b415c54": {
     "describe": {

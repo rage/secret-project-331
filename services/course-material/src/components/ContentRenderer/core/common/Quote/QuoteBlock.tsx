@@ -1,14 +1,16 @@
 import { css } from "@emotion/css"
+import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 import InnerBlocks from "../../../util/InnerBlocks"
+import { parseText } from "../../../util/textParsing"
 
-const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttributes>>> = (
-  props,
-) => {
+const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = (props) => {
   const { citation, value, anchor, className, align } = props.data.attributes
+  const { terms } = useContext(GlossaryContext)
 
   const styleLeftDefault = css`
     padding: 0.5rem 2rem;
@@ -74,7 +76,7 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
           {...(anchor && { id: anchor })}
         >
           <div>
-            {value && value}
+            {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
             <InnerBlocks parentBlockProps={props} />
           </div>
           <cite
@@ -82,8 +84,10 @@ const QuoteBlock: React.FC<React.PropsWithChildren<BlockRendererProps<QuoteAttri
               font-style: normal;
               font-size: 0.8125rem;
             `}
-            dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
-          ></cite>
+            dangerouslySetInnerHTML={{
+              __html: parseText(citation, terms).parsedText,
+            }}
+          />
         </blockquote>
       </>
     )

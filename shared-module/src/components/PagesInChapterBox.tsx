@@ -6,10 +6,15 @@ import React from "react"
 import ArrowSVGIcon from "../img/blackArrow.svg"
 import { baseTheme, headingFont, secondaryFont } from "../styles"
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
+
+  .chapter-part-arrow {
+    visibility: hidden;
+  }
 `
 
 const PageNumberBox = styled.div`
@@ -27,26 +32,34 @@ const StyledArrow = styled(ArrowSVGIcon)`
 const ChapterParts = styled.div`
   position: relative;
   margin-left: 0em;
-  padding: 0.6em 1em;
+  padding: 0.8em 1em;
   list-style-type: none;
   color: ${baseTheme.colors.grey[700]};
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;
-  background: ${baseTheme.colors.clear[100]};
+  background: rgb(242, 245, 247);
 
   ${({ selected }: PagesInChapterBoxExtraProps) =>
     selected &&
     `
     background-color: #D8D8D8;
-    font-weight: 600;
+    font-weight: 500;
+
+    .chapter-part-arrow {
+      visibility: visible;
+    }
 
     :hover {
-      background-color: #D8D8D8 !important;
+      background-color: rgb(235, 239, 242) !important;
     }
   `}
   :hover {
-    background-color: ${baseTheme.colors.clear[200]};
+    background-color: rgb(235, 239, 242);
+
+    .chapter-part-arrow {
+      visibility: visible;
+    }
   }
 
   svg {
@@ -57,7 +70,7 @@ const ChapterParts = styled.div`
 
   span {
     font-family: ${headingFont};
-    font-weight: 600;
+    font-weight: 500;
     vertical-align: top;
     font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
@@ -100,7 +113,7 @@ const PagesInChapterBox: React.FC<
                 <span>{props.chapterIndex}</span>
               </PageNumberBox>
               <span>{props.chapterTitle}</span>
-              <StyledArrow role="presentation" alt="" width="20" />
+              <StyledArrow className="chapter-part-arrow" role="presentation" alt="" width="20" />
             </ChapterParts>
           </a>
         </Link>

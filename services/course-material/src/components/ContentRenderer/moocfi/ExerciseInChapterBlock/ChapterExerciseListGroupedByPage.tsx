@@ -78,7 +78,8 @@ const ChapterExerciseListGroupedByPage: React.FC<
                         page.url_path,
                         e.id,
                       )}
-                      bg={index % 2 !== 0 ? baseTheme.colors.blue[100] : baseTheme.colors.blue[200]}
+                      // eslint-disable-next-line i18next/no-literal-string
+                      bg={"rgb(242, 245, 247)"}
                       exerciseIndex={e.order_number}
                       exerciseTitle={e.name}
                       scoreMaximum={e.score_maximum}

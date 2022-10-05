@@ -15,7 +15,7 @@ export interface CourseProgressProps {
 }
 
 const Wrapper = styled.div`
-  background-color: #f5f6f7;
+  background-color: rgba(242, 245, 247, 0.8);
   margin: 3px 0 6px 0;
   padding: 0;
 
@@ -24,7 +24,7 @@ const Wrapper = styled.div`
   }
 `
 const TotalWrapper = styled.div`
-  background-color: #f5f6f7;
+  background-color: rgb(242, 245, 247);
   margin: 3px 0 3px 0;
   padding: 0.8rem 3rem 1.5rem 3rem;
 `
@@ -46,6 +46,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
           font-size: 2.5rem;
           font-weight: 350;
           margin: 1rem;
+          font-weight: 500;
           text-align: center;
         `}
       >

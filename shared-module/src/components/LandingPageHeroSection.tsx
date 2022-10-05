@@ -50,7 +50,6 @@ const TextBox = styled.div`
     font-weight: 600;
     font-size: 22px;
     line-height: 40px;
-    /* or 182% */
 
     text-align: center;
 
@@ -61,6 +60,7 @@ const TextBox = styled.div`
   button {
     margin-top: 2rem;
     text-align: center;
+    font-weight: 700;
   }
 `
 
@@ -90,9 +90,7 @@ const LandingPageHeroSection: React.FC<
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
-        ${backgroundColor
-          ? `background-color: ${backgroundColor};`
-          : `background: ${baseTheme.colors.clear[100]};`}
+        ${backgroundColor && `background-color: ${backgroundColor};`}
         ${backgroundImage &&
         `background-image: url(${backgroundImage});
         background-repeat: no-repeat;

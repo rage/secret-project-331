@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { secondaryFont } from "../../styles"
+import { headingFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -35,6 +35,7 @@ const CardContentWrapper = styled.div`
   text-align: left;
   flex-direction: column;
   word-break: break-all;
+  position: relative;
   ${BackgroundStyles}
 
   h2 {
@@ -68,8 +69,10 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
   date,
   time,
   bg,
+  backgroundImage,
 }) => {
   const { t } = useTranslation()
+  const BackgroundImage = backgroundImage
 
   return (
     <div
@@ -83,6 +86,17 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
       `}
     >
       <CardContentWrapper bg={bg}>
+        {backgroundImage && (
+          <BackgroundImage
+            className={css`
+              position: absolute;
+              z-index: 99;
+              left: 50%;
+              top: 50%;
+              transform: translate(-50%, -50%);
+            `}
+          />
+        )}
         <CardOpensTextOverlay open={open} date={date} time={time} />
         {open && (
           <div
@@ -127,7 +141,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
               <span
                 className={css`
                   text-transform: uppercase;
-                  font-family: ${secondaryFont};
+                  font-family: ${headingFont};
                 `}
               >
                 {t("chapter-chapter-number", { number: chapterNumber })}

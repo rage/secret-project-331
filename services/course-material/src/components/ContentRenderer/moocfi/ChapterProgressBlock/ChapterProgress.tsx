@@ -38,7 +38,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
             text-align: center;
             padding: 2em 0;
             margin: 5em auto;
-            background: ${baseTheme.colors.clear[100]};
+            background: rgba(242, 245, 247, 0.8);
           `}
         >
           {/* TODO: Verify how it looks when score_given is a floating number */}

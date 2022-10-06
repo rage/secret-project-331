@@ -8,7 +8,6 @@ import ExerciseBox from "../../../../shared-module/components/ExerciseList/Exerc
 import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { baseTheme } from "../../../../shared-module/styles"
 import { assertNotNullOrUndefined } from "../../../../shared-module/utils/nullability"
 import { coursePageSectionRoute } from "../../../../utils/routing"
 

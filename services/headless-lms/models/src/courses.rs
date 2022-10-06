@@ -82,7 +82,7 @@ INSERT INTO courses(
     is_test_mode
   )
 VALUES(
-    COALESCE($1, uuid_generate_v4()),
+    $1,
     $2,
     $3,
     $4,
@@ -94,7 +94,7 @@ VALUES(
   )
 RETURNING id
         ",
-        id.fixed(),
+        id.into_uuid(),
         new_course.name,
         new_course.description,
         new_course.slug,

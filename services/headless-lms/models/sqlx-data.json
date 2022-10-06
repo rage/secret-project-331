@@ -3127,6 +3127,22 @@
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE course_id = $1\n  AND deleted_at IS NULL\n"
   },
+  "31935ca7a5eb235ff25de151ade3680cd9381921f3017f3413c61875548dc92b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO courses(\n    id,\n    name,\n    description,\n    slug,\n    organization_id,\n    language_code,\n    course_language_group_id,\n    is_draft,\n    is_test_mode\n  )\nVALUES(\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9\n  )\nRETURNING id\n        "
+  },
   "329cf5dca3c8476a324195c324a241980814f362d33c55cc938e9caa71bbf3a8": {
     "describe": {
       "columns": [
@@ -6005,22 +6021,6 @@
       }
     },
     "query": "\nUPDATE proposed_page_edits\nSET pending = $1\nWHERE id = $2\n"
-  },
-  "5bf64e12e0ebd484a8aad0ee4db662b1de5006a8b372fe46ef36b3d041d71391": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Varchar", "Text", "Varchar", "Uuid", "Varchar", "Uuid", "Bool", "Bool"]
-      }
-    },
-    "query": "\nINSERT INTO courses(\n    id,\n    name,\n    description,\n    slug,\n    organization_id,\n    language_code,\n    course_language_group_id,\n    is_draft,\n    is_test_mode\n  )\nVALUES(\n    COALESCE($1, uuid_generate_v4()),\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9\n  )\nRETURNING id\n        "
   },
   "5bff2d6b08b954b12c31a399396e4f855f055ac3994940b626d05fbd4b415c54": {
     "describe": {

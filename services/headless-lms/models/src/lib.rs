@@ -112,6 +112,16 @@ impl<T> PKeyPolicy<T> {
     }
 }
 
+impl PKeyPolicy<Uuid> {
+    /// Maps into the contained `Uuid` value or generates a new one.
+    pub fn into_uuid(self) -> Uuid {
+        match self {
+            PKeyPolicy::Fixed(uuid) => uuid,
+            PKeyPolicy::Generate => Uuid::new_v4(),
+        }
+    }
+}
+
 /// Many database tables are related to either a course or an exam
 #[derive(Clone, Copy)]
 pub enum CourseOrExamId {

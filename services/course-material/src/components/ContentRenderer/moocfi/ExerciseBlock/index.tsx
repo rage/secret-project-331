@@ -252,7 +252,7 @@ const ExerciseBlock: React.FC<
               >
                 <div
                   className={css`
-                    font-weight: 700;
+                    font-weight: 500;
                     font-size: 19px;
                     line-height: 19px;
                   `}

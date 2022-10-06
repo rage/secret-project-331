@@ -34,7 +34,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     window.scrollBy(0, 500)
   })
   // Click text=Page 3 >> nth=0
-  await page.locator("text=Page 3").first().click()
+  await page.locator(`a:has-text("Page 3")`).first().click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-3",
   )
@@ -53,11 +53,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -73,7 +70,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -85,10 +82,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 
@@ -102,7 +96,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
   })
 
   // Click text=Page 4
-  await page.locator("text=Page 4").click()
+  await page.locator(`a:has-text("Page 4")`).click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2/page-4",
   )
@@ -121,11 +115,8 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     page,
     clearNotifications: true,
   })
-  // Click button[role="radio"]:has-text("This is first option")
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is first option")')
-    .click()
+  // Click button:has-text("This is first option")
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
   // Click text=Submit
   await page.locator("text=Submit").click()
@@ -142,7 +133,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
 
   // Click text=try again
   await page.locator("text=try again").click()
-  // Click button[role="radio"]:has-text("This is second option")
+  // Click button:has-text("This is second option")
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -154,10 +145,7 @@ test("multiple-choice course material column test", async ({ page, headless }) =
     clearNotifications: true,
   })
 
-  await page
-    .frameLocator("iframe")
-    .locator('button[role="radio"]:has-text("This is second option")')
-    .click()
+  await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
   // Click text=Submit
   await page.locator("text=Submit").click()
 

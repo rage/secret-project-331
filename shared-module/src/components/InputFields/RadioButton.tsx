@@ -5,16 +5,10 @@ import { baseTheme, primaryFont } from "../../styles"
 
 interface RadioFieldExtraProps {
   label: string
-  checked?: boolean
-  value?: string
-  name?: string
-  /* onBlur?: (name?: string) => void */
-  onChange: (value: string, name?: string) => void
-  className?: string
 }
 
 // eslint-disable-next-line i18next/no-literal-string
-const label = css`
+const labelClass = css`
   /* font-family: system-ui, sans-serif; */
   font-family: ${primaryFont};
   font-size: 16px;
@@ -22,7 +16,6 @@ const label = css`
   line-height: 1;
   display: grid;
   grid-template-columns: 1em auto;
-  justify-content: center;
   gap: 0.5em;
 
   input[type="radio"] {
@@ -61,25 +54,26 @@ const label = css`
   }
 `
 
-export type RadioFieldProps = React.HTMLAttributes<HTMLInputElement> & RadioFieldExtraProps
+export type RadioFieldProps = React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> &
+  RadioFieldExtraProps
 
-const RadioField = ({ onChange, className, ...rest }: RadioFieldExtraProps) => {
+const RadioField = ({ onChange, className, label, ...rest }: RadioFieldProps) => {
   return (
     <div
       className={cx(
         css`
           margin-bottom: 1rem;
+          margin-top: 1rem;
         `,
         className,
       )}
     >
-      <label className={cx(label)}>
-        <input
-          type="radio"
-          onChange={({ target: { value, name } }) => onChange(value, name)}
-          {...rest}
-        />
-        <span>{rest.label}</span>
+      <label className={cx(labelClass)}>
+        <input type="radio" onChange={(event) => onChange && onChange(event)} {...rest} />
+        <span>{label}</span>
       </label>
     </div>
   )

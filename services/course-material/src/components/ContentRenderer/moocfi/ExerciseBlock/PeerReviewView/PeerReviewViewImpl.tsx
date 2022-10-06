@@ -197,6 +197,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                 .sort((a, b) => a.order_number - b.order_number)
                 .map((course_material_exercise_task) => (
                   <ExerciseTaskIframe
+                    exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                     key={course_material_exercise_task.id}
                     postThisStateToIFrame={{
                       // eslint-disable-next-line i18next/no-literal-string

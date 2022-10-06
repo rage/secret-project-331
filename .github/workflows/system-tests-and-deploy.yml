@@ -112,7 +112,7 @@ jobs:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: |
           echo Authenticating to Google Cloud
-          echo $GCLOUD_SERVICE_KEY | python -m base64 -d > /tmp/key.json
+          echo "$GCLOUD_SERVICE_KEY" | python -m base64 -d > /tmp/key.json
           gcloud auth activate-service-account --key-file=/tmp/key.json
           if gcloud auth configure-docker -q; then
               echo "Authenticated to Google Cloud..."

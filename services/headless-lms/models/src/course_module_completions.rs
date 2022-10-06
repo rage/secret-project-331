@@ -23,6 +23,22 @@ pub struct CourseModuleCompletion {
     pub grade: Option<i32>,
     pub passed: bool,
     pub prerequisite_modules_completed: bool,
+    pub completion_granter_user_id: Option<Uuid>,
+}
+
+#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+pub enum CourseModuleCompletionGranter {
+    Automatic,
+    User(Uuid),
+}
+
+impl CourseModuleCompletionGranter {
+    fn to_database_field(&self) -> Option<Uuid> {
+        match self {
+            CourseModuleCompletionGranter::Automatic => None,
+            CourseModuleCompletionGranter::User(user_id) => Some(*user_id),
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -44,6 +60,7 @@ pub struct NewCourseModuleCompletion {
 pub async fn insert(
     conn: &mut PgConnection,
     new_course_module_completion: &NewCourseModuleCompletion,
+    completion_granter: CourseModuleCompletionGranter,
     test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -60,7 +77,8 @@ INSERT INTO course_module_completions (
     eligible_for_ects,
     email,
     grade,
-    passed
+    passed,
+    completion_granter_user_id
   )
 VALUES (
     COALESCE($1, uuid_generate_v4()),
@@ -74,7 +92,8 @@ VALUES (
     $9,
     $10,
     $11,
-    $12
+    $12,
+    $13
   )
 RETURNING id
         ",
@@ -90,6 +109,7 @@ RETURNING id
         new_course_module_completion.email,
         new_course_module_completion.grade,
         new_course_module_completion.passed,
+        completion_granter.to_database_field(),
     )
     .fetch_one(conn)
     .await?;
@@ -162,9 +182,61 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModuleCompletionWithRegistrationInfo {
+    /// When the student has attempted to register the completion.
+    pub completion_registration_attempt_date: Option<DateTime<Utc>>,
+    /// ID of the course module.
+    pub course_module_id: Uuid,
+    /// When the record was created
+    pub created_at: DateTime<Utc>,
+    /// Grade that the student received for the completion.
+    pub grade: Option<i32>,
+    /// Whether or not the student is eligible for credit for the completion.
+    pub passed: bool,
+    /// Whether or not the student is qualified for credit based on other modules in the course.
+    pub prerequisite_modules_completed: bool,
+    /// Whether or not the completion has been registered to a study registry.
+    pub registered: bool,
+    /// ID of the user for the completion.
+    pub user_id: Uuid,
+}
+
+/// Gets summaries for all completions on the given course instance.
+pub async fn get_all_with_registration_information_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletionWithRegistrationInfo>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletionWithRegistrationInfo,
+        r#"
+SELECT completions.completion_registration_attempt_date,
+  completions.course_module_id,
+  completions.created_at,
+  completions.grade,
+  completions.passed,
+  completions.prerequisite_modules_completed,
+  (registered.id IS NOT NULL) AS "registered!",
+  completions.user_id
+FROM course_module_completions completions
+  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
+    completions.id = registered.course_module_completion_id
+  )
+WHERE completions.course_instance_id = $1
+  AND completions.deleted_at IS NULL
+  AND registered.deleted_at IS NULL
+        "#,
+        course_instance_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_by_course_instance_and_user_ids(
+pub async fn get_all_by_course_instance_and_user_ids(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
@@ -186,7 +258,33 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
-pub async fn get_by_course_module_instance_and_user_ids(
+pub async fn get_all_by_course_module_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND course_instance_id = $2
+  AND user_id = $3
+  AND deleted_at IS NULL
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets latest created completion for the given user on the specified course instance.
+pub async fn get_latest_by_course_module_instance_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,
     course_instance_id: Uuid,
@@ -200,6 +298,37 @@ FROM course_module_completions
 WHERE course_module_id = $1
   AND course_instance_id = $2
   AND user_id = $3
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+        ",
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets automatically granted course module completion for the given user on the specified course
+/// instance. This entry is quaranteed to be unique in database by the index
+/// `course_module_automatic_completion_uniqueness`.
+pub async fn get_automatic_completion_by_course_module_instance_and_user_ids(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE course_module_id = $1
+  AND course_instance_id = $2
+  AND user_id = $3
+  AND completion_granter_user_id IS NULL
   AND deleted_at IS NULL
         ",
         course_module_id,
@@ -247,6 +376,24 @@ WHERE id = $2 AND deleted_at IS NULL
     .execute(conn)
     .await?;
     Ok(res.rows_affected() > 0)
+}
+
+/// Checks whether the user has any completions for the given course module on the specified
+/// course instance.
+pub async fn user_has_completed_course_module_on_instance(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<bool> {
+    let res = get_all_by_course_module_instance_and_user_ids(
+        conn,
+        course_module_id,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
+    Ok(!res.is_empty())
 }
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.

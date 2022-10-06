@@ -26,7 +26,10 @@ use models::{
     user_course_settings::UserCourseSettings,
 };
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{
+    domain::authorization::{authorize_access_to_course_material, skip_authorize},
+    prelude::*,
+};
 
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
@@ -78,11 +81,16 @@ async fn get_course_page_by_path(
     )
     .await?;
 
-    let token = authorize(
+    let token = authorize_access_to_course_material(
         &mut conn,
-        Act::View,
         user.map(|u| u.id),
-        Res::Page(page_with_user_data.page.id),
+        page_with_user_data.page.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::NotFound,
+                "Course not found".to_string(),
+                None,
+            )
+        })?,
     )
     .await?;
 

@@ -1,13 +1,13 @@
 import styled from "@emotion/styled"
-import { FormControlLabel, Radio, RadioGroup } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseInstance } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
+import RadioButton from "../../shared-module/components/InputFields/RadioButton"
 
 const FieldContainer = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `
 
 interface NewCourseFormProps {
@@ -16,7 +16,7 @@ interface NewCourseFormProps {
   initialSelectedInstanceId?: string
 }
 
-const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
+const SelectCourseInstanceForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   courseInstances,
   onSubmitForm,
   initialSelectedInstanceId,
@@ -34,17 +34,22 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
 
   return (
     <div>
-      <FieldContainer>
-        <RadioGroup value={instance} onChange={(e) => setInstance(e.target.value)}>
-          {courseInstances.map((x) => (
-            <FormControlLabel
-              control={<Radio />}
-              key={x.id}
-              label={x.name || t("default-course-instance-name")}
-              value={x.id}
-            />
-          ))}
-        </RadioGroup>
+      <FieldContainer
+        role="radiogroup"
+        aria-label={t("label-course-instance")}
+        // eslint-disable-next-line i18next/no-literal-string
+        aria-required="true"
+      >
+        {courseInstances.map((x) => (
+          <RadioButton
+            key={x.id}
+            label={x.name || t("default-course-instance-name")}
+            onChange={(_event) => setInstance(x.id)}
+            defaultChecked={instance === x.id}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="select-course-instance"
+          />
+        ))}
       </FieldContainer>
       <div>
         <Button size="medium" variant="primary" onClick={enrollOnCourse} disabled={!instance}>
@@ -67,4 +72,4 @@ function figureOutInitialValue(
   }
 }
 
-export default NewCourseForm
+export default SelectCourseInstanceForm

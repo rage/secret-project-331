@@ -31,7 +31,7 @@ const Wrapper = styled.div`
   .top {
     width: 100%;
     height: 2px;
-    top: 1%;
+    top: 0.5%;
     background: #cecfd3;
   }
 

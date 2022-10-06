@@ -3,7 +3,7 @@ import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { animated, useSpring } from "react-spring"
 
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
+import { headingFont } from "../../../../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
 
 // This should be replaced once the issues with the shared module one are resolved.

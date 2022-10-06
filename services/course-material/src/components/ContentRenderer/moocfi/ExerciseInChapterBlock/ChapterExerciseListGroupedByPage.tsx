@@ -62,7 +62,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
           <>
             <PageBox pageTitle={page.title} />
             <div>
-              {page.exercises.map((e, index) => {
+              {page.exercises.map((e) => {
                 let userPoints = null
 
                 if (loginStateContext.signedIn) {

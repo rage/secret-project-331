@@ -21,7 +21,6 @@ const CircleBox = styled.div`
   height: 60px;
   margin: 0.2rem !important;
   display: inline-block;
-  dislay: relative;
   padding: 0;
   .progress {
     position: absolute;

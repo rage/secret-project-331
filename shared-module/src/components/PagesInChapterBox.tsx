@@ -54,10 +54,6 @@ const ChapterParts = styled.div`
   `}
   :hover {
     background-color: rgb(235, 239, 242);
-
-    .chapter-part-arrow {
-      visibility: visible;
-    }
   }
 
   svg {

@@ -59,6 +59,19 @@ const CardContentWrapper = styled.div`
     word-break: normal;
   }
 `
+export const StyledSVG = (Image: any) => {
+  return (
+    <Image
+      className={css`
+        position: absolute;
+        z-index: 99;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      `}
+    />
+  )
+}
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
@@ -72,7 +85,6 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
   backgroundImage,
 }) => {
   const { t } = useTranslation()
-  const BackgroundImage = backgroundImage
 
   return (
     <div
@@ -86,17 +98,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
       `}
     >
       <CardContentWrapper bg={bg}>
-        {backgroundImage && (
-          <BackgroundImage
-            className={css`
-              position: absolute;
-              z-index: 99;
-              left: 50%;
-              top: 50%;
-              transform: translate(-50%, -50%);
-            `}
-          />
-        )}
+        {backgroundImage && StyledSVG(backgroundImage)}
         <CardOpensTextOverlay open={open} date={date} time={time} />
         {open && (
           <div

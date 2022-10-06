@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
+import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, headingFont } from "../../shared-module/styles"
+import { headingFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [
@@ -15,7 +15,7 @@ const ALLOWED_NESTED_BLOCKS = [
   "core/quote",
 ]
 
-const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
+const LANDING_PAGE_COPY_TEXT_TEMPLATE: Template[] = [
   [
     "core/columns",
     { isStackedOnMobile: true },
@@ -30,7 +30,7 @@ const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
               placeholder: "About this course",
               level: 3,
               textAlign: "left",
-              anchor: "objective-1",
+              anchor: "about-this-course",
             },
           ],
           ["core/paragraph", { placeholder: "Insert text...", align: "left" }],
@@ -59,7 +59,7 @@ const LandingPageCopyTextEditor: React.FC<
         </div>
         <InnerBlocks
           allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={COURSE_OBJECTIVE_SECTION_TEMPLATE}
+          template={LANDING_PAGE_COPY_TEXT_TEMPLATE}
         />
       </div>
     </BlockWrapper>

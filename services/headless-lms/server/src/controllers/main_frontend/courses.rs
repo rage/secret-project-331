@@ -614,7 +614,6 @@ async fn new_course_instance(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let form = form.into_inner();
     let new = NewCourseInstance {
-        id: Uuid::new_v4(),
         course_id: *course_id,
         name: form.name.as_deref(),
         description: form.description.as_deref(),
@@ -624,7 +623,7 @@ async fn new_course_instance(
         opening_time: form.opening_time,
         closing_time: form.closing_time,
     };
-    let ci = models::course_instances::insert(&mut conn, new).await?;
+    let ci = models::course_instances::insert(&mut conn, PKeyPolicy::Generate, new).await?;
 
     token.authorized_ok(web::Json(ci.id))
 }

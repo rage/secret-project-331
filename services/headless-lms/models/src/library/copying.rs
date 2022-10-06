@@ -131,8 +131,8 @@ WHERE id = $2;
     // Create default instance for copied course.
     course_instances::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         NewCourseInstance {
-            id: Uuid::new_v4(),
             course_id: copied_course.id,
             name: None,
             description: None,

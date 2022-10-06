@@ -73,8 +73,11 @@ pub async fn seed_sample_course(
         .await?;
     course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::new_v5(
+            &course_id,
+            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
+        )),
         NewCourseInstance {
-            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
             course_id: course.id,
             name: Some("non-default instance"),
             description: Some("this is a non-default instance"),
@@ -1364,8 +1367,11 @@ pub async fn create_glossary_course(
     // Create course instance
     course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::new_v5(
+            &course_id,
+            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
+        )),
         NewCourseInstance {
-            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
             course_id: course.id,
             name: Some("non-default instance"),
             description: Some("this is a non-default instance"),

@@ -20,7 +20,7 @@ pub struct CreateNewCourseFixedIds {
 /// Creates a new course with a front page and default instances.
 pub async fn create_new_course(
     conn: &mut PgConnection,
-    id_policy: PKeyPolicy<CreateNewCourseFixedIds>,
+    pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
@@ -29,7 +29,7 @@ pub async fn create_new_course(
     let course_language_group_id = course_language_groups::insert(&mut tx).await?;
     let course_id = courses::insert(
         &mut tx,
-        id_policy.map_ref(|x| x.course_id),
+        pkey_policy.map_ref(|x| x.course_id),
         course_language_group_id,
         &new_course,
     )
@@ -63,12 +63,8 @@ pub async fn create_new_course(
     // Create default course instance
     let default_course_instance = crate::course_instances::insert(
         &mut tx,
+        pkey_policy.map_ref(|x| x.default_course_instance_id),
         NewCourseInstance {
-            id: id_policy
-                .map_ref(|x| x.default_course_instance_id)
-                .fixed()
-                .cloned()
-                .unwrap_or_else(Uuid::new_v4),
             course_id: course.id,
             name: None,
             description: None,

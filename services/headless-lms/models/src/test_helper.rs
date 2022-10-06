@@ -181,8 +181,8 @@ macro_rules! insert_data {
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident; instance: $instance:ident) => {
         let $instance = $crate::course_instances::insert(
             $tx.as_mut(),
+            $crate::PKeyPolicy::Generate,
             $crate::course_instances::NewCourseInstance {
-                id: ::uuid::Uuid::new_v4(),
                 course_id: $course,
                 name: Some("instance"),
                 description: Some("instance"),

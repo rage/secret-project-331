@@ -162,8 +162,8 @@ macro_rules! insert_data {
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident; instance: $instance:ident) => {
         let $instance = headless_lms_models::course_instances::insert(
             $tx.as_mut(),
+            headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::course_instances::NewCourseInstance {
-                id: ::uuid::Uuid::new_v4(),
                 course_id: $course,
                 name: Some("instance"),
                 description: Some("instance"),

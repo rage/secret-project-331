@@ -239,8 +239,8 @@ pub async fn seed_organization_uh_cs(
         .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),
         NewCourseInstance {
-            id: Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?,
             course_id: cs_course.id,
             name: Some("non-default instance"),
             description: Some("this is another non-default instance"),

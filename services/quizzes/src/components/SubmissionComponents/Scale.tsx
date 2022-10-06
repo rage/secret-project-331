@@ -6,25 +6,16 @@ import { respondToOrLarger } from "../../shared-module/styles/respond"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import MarkdownText from "../MarkdownText"
 
-import { QuizItemComponentProps } from "."
+import { QuizItemSubmissionComponentProps } from "."
 
-const Scale: React.FC<QuizItemComponentProps> = ({
-  quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
+const Scale: React.FC<QuizItemSubmissionComponentProps> = ({
+  public_quiz_item,
+  user_quiz_item_answer,
 }) => {
-  const minValue = quizItem.minValue ?? 1
-  const maxValue = quizItem.maxValue ?? 7
+  const minValue = public_quiz_item.minValue ?? 1
+  const maxValue = public_quiz_item.maxValue ?? 7
   const radioIdentifier = useId()
   const radioLabelId = useId()
-
-  const handleOptionSelect = (option: string) => {
-    if (!quizItemAnswerState) {
-      return
-    }
-
-    setQuizItemAnswerState({ ...quizItemAnswerState, optionAnswers: [option], valid: true })
-  }
 
   return (
     <div
@@ -42,7 +33,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
         }
       `}
     >
-      {quizItem.title && (
+      {public_quiz_item.title && (
         <div
           id={radioLabelId}
           className={css`
@@ -56,7 +47,7 @@ const Scale: React.FC<QuizItemComponentProps> = ({
             }
           `}
         >
-          <MarkdownText text={quizItem.title} />
+          <MarkdownText text={public_quiz_item.title} />
         </div>
       )}
       <div
@@ -87,8 +78,8 @@ const Scale: React.FC<QuizItemComponentProps> = ({
                   type="radio"
                   key={value}
                   value={value}
-                  checked={quizItemAnswerState?.optionAnswers?.includes(value)}
-                  onClick={(e) => handleOptionSelect(e.currentTarget.value)}
+                  checked={user_quiz_item_answer?.optionAnswers?.includes(value)}
+                  disabled
                 />
               </label>
             </div>

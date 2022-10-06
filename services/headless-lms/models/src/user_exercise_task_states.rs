@@ -274,7 +274,8 @@ mod tests {
         use serde_json::Value;
 
         use crate::{
-            chapters, exercise_slides,
+            chapters::{self, NewChapter},
+            exercise_slides,
             exercise_tasks::{self, NewExerciseTask},
             exercises, pages, user_exercise_slide_states, user_exercise_states,
         };
@@ -414,11 +415,17 @@ mod tests {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),
-                "chapter",
-                "#065853",
-                course,
-                1,
-                course_module.id,
+                PKeyPolicy::Generate,
+                &NewChapter {
+                    name: "chapter".to_string(),
+                    color: Some("#065853".to_string()),
+                    course_id: course,
+                    chapter_number: 1,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module.id),
+                },
             )
             .await?;
             let (page_id, _history) =

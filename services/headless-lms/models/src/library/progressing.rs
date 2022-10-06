@@ -653,9 +653,10 @@ mod tests {
 
     mod grant_automatic_completion_if_eligible {
         use crate::{
-            chapters::{self, NewChapter},
+            chapters::NewChapter,
             course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
             exercises::{self, ActivityProgress, GradingProgress},
+            library::content_management,
             user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
         };
 
@@ -775,9 +776,10 @@ mod tests {
             let course_module_2 = course_modules::insert(tx.as_mut(), course, Some("Module 2"), 1)
                 .await
                 .unwrap();
-            let (chapter_2, page2) = chapters::insert_chapter(
+            let (chapter_2, page2) = content_management::create_new_chapter(
                 tx.as_mut(),
-                NewChapter {
+                PKeyPolicy::Generate,
+                &NewChapter {
                     name: "chapter 2".to_string(),
                     color: None,
                     course_id: course,

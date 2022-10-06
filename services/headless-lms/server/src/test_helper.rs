@@ -181,9 +181,10 @@ macro_rules! insert_data {
         let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), $course, Some("extra module"), 999).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
-        let $chapter = headless_lms_models::chapters::insert_chapter(
+        let $chapter = headless_lms_models::library::content_management::create_new_chapter(
             $tx.as_mut(),
-            headless_lms_models::chapters::NewChapter {
+            headless_lms_models::PKeyPolicy::Generate,
+            &headless_lms_models::chapters::NewChapter {
                 name: "chapter".to_string(),
                 color: None,
                 course_id: $course,

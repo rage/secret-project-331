@@ -2,13 +2,13 @@ use std::path::PathBuf;
 
 use crate::{
     course_modules,
-    pages::{NewPage, Page, PageMetadata, PageWithExercises},
+    pages::{PageMetadata, PageWithExercises},
     prelude::*,
     user_exercise_states::get_user_course_instance_chapter_metrics,
 };
 use headless_lms_utils::{
-    document_schema_processor::GutenbergBlock, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals_with_none_as_zero, ApplicationConfiguration,
+    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
+    ApplicationConfiguration,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -140,28 +140,43 @@ pub struct ChapterInfo {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    name: &str,
-    color: &str,
-    course_id: Uuid,
-    chapter_number: i32,
-    course_module_id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
+    new_chapter: &NewChapter,
 ) -> ModelResult<Uuid> {
+    // Refactor notice: At the moment frontend can optionally decide which module the new chapter
+    // belongs to. However, chapters should be grouped in a way that all chapters in the same
+    // module have consecutive order numbers. Hence this issue should be resolved first. Ideally
+    // this bit was not needed at all.
+    // ---------- ----------
+    let course_module_id = if let Some(course_module_id) = new_chapter.course_module_id {
+        course_module_id
+    } else {
+        let module = course_modules::get_default_by_course_id(conn, new_chapter.course_id).await?;
+        module.id
+    };
+    // ---------- ----------
     let res = sqlx::query!(
-        "
-INSERT INTO chapters (
+        r"
+INSERT INTO chapters(
+    id,
     name,
     color,
     course_id,
     chapter_number,
+    deadline,
+    opens_at,
     course_module_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-",
-        name,
-        color,
-        course_id,
-        chapter_number,
+        ",
+        pkey_policy.into_uuid(),
+        new_chapter.name,
+        new_chapter.color,
+        new_chapter.course_id,
+        new_chapter.chapter_number,
+        new_chapter.deadline,
+        new_chapter.opens_at,
         course_module_id,
     )
     .fetch_one(conn)
@@ -413,70 +428,6 @@ WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
     Ok(chapters)
 }
 
-pub async fn insert_chapter(
-    conn: &mut PgConnection,
-    chapter: NewChapter,
-    user: Uuid,
-) -> ModelResult<(DatabaseChapter, Page)> {
-    let mut tx = conn.begin().await?;
-    let course_module_id = if let Some(course_module_id) = chapter.course_module_id {
-        course_module_id
-    } else {
-        course_modules::get_default_by_course_id(&mut tx, chapter.course_id)
-            .await?
-            .id
-    };
-    let chapter = sqlx::query_as!(
-        DatabaseChapter,
-        r#"
-INSERT INTO chapters(
-    name,
-    color,
-    course_id,
-    chapter_number,
-    deadline,
-    opens_at,
-    course_module_id
-  )
-VALUES($1, $2, $3, $4, $5, $6, $7)
-RETURNING *;
-"#,
-        chapter.name,
-        chapter.color,
-        chapter.course_id,
-        chapter.chapter_number,
-        chapter.deadline,
-        chapter.opens_at,
-        course_module_id,
-    )
-    .fetch_one(&mut tx)
-    .await?;
-
-    let chapter_frontpage_content = serde_json::to_value(vec![
-        GutenbergBlock::hero_section(&chapter.name, ""),
-        GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
-    ])?;
-    let chapter_frontpage = NewPage {
-        chapter_id: Some(chapter.id),
-        content: chapter_frontpage_content,
-        course_id: Some(chapter.course_id),
-        exam_id: None,
-        front_page_of_chapter_id: Some(chapter.id),
-        title: chapter.name.clone(),
-        url_path: format!("/chapter-{}", chapter.chapter_number),
-        exercises: vec![],
-        exercise_slides: vec![],
-        exercise_tasks: vec![],
-        content_search_language: None,
-    };
-    let page = crate::pages::insert_page(&mut tx, chapter_frontpage, user).await?;
-
-    tx.commit().await?;
-    Ok((chapter, page))
-}
-
 pub async fn delete_chapter(
     conn: &mut PgConnection,
     chapter_id: Uuid,
@@ -663,9 +614,10 @@ mod tests {
             .unwrap()
             .0
             .id;
-            let chapter_result_2 = insert_chapter(
+            let chapter_result_2 = insert(
                 tx.as_mut(),
-                NewChapter {
+                PKeyPolicy::Generate,
+                &NewChapter {
                     name: "Chapter of second course".to_string(),
                     color: None,
                     course_id: course_2,
@@ -675,7 +627,6 @@ mod tests {
                     deadline: None,
                     course_module_id: Some(course_module.id),
                 },
-                user,
             )
             .await;
             assert!(

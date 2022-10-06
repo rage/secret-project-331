@@ -99,8 +99,13 @@ pub async fn seed_sample_course(
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
         course_module_id: Some(default_module.id),
     };
-    let (chapter_1, _front_page_1) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
@@ -112,8 +117,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_2, _front_page_2) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_2, _front_page_2) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_2.id,
@@ -130,8 +140,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_3, _front_page_3) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_3, _front_page_3) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_3.id,
@@ -148,8 +163,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_4, _front_page_4) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_4, _front_page_4) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_4.id,
@@ -170,8 +190,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(second_module.id),
     };
-    let (_m1_chapter_1, _m1c1_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m1_chapter_1, _m1c1_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 6,
         course_id: course.id,
@@ -182,8 +207,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(second_module.id),
     };
-    let (_m1_chapter_2, _m1c2_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m1_chapter_2, _m1c2_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     let module = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 2).await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
@@ -195,8 +225,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(module.id),
     };
-    let (_m2_chapter_1, _m2c1_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m2_chapter_1, _m2c1_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 8,
         course_id: course.id,
@@ -207,8 +242,13 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(module.id),
     };
-    let (_m2_chapter_2, _m2c2_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m2_chapter_2, _m2c2_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
 
     let (_page, _) = pages::insert_course_page(
         &mut conn,
@@ -1349,7 +1389,13 @@ pub async fn create_glossary_course(
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
         course_module_id: Some(default_module.id),
     };
-    let (chapter, _front_page) = chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter, _front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter.id, Utc::now()).await?;
 
     // Create page
@@ -1711,8 +1757,13 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_1, front_page_ch_1) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_1, front_page_ch_1) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
 
     pages::update_page(
@@ -1859,8 +1910,13 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_2, front_page_ch_2) =
-        chapters::insert_chapter(&mut conn, new_chapter_2, admin).await?;
+    let (chapter_2, front_page_ch_2) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter_2,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_2.id, Utc::now()).await?;
 
     pages::update_page(

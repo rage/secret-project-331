@@ -8633,22 +8633,6 @@
     },
     "query": "\n        SELECT\n        us_state.id,\n        us_state.user_id,\n        us_state.exercise_id,\n        us_state.score_given,\n        us_state.grading_progress as \"grading_progress: _\",\n        t_submission.data_json,\n        s_submission.created_at,\n        s_submission.updated_at,\n        s_submission.deleted_at,\n        s_submission.id AS submission_id\n    FROM user_exercise_states AS us_state\n    JOIN exercise_task_submissions AS t_submission\n        ON us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    JOIN exercise_slide_submissions AS s_submission\n            ON t_submission.exercise_slide_submission_id =\n                s_submission.id\n    WHERE us_state.selected_exercise_slide_id =\n            t_submission.exercise_slide_id\n    AND us_state.user_id = s_submission.user_id\n    AND us_state.exercise_id = $1\n    AND us_state.reviewing_stage = 'waiting_for_manual_grading'\n    AND us_state.deleted_at IS NULL\n    ORDER BY t_submission.updated_at\n    LIMIT $2 OFFSET $3;"
   },
-  "78056b68548f3b972cdef2af5916a9d2dcd57e2473946d77e6739afa650f802c": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Uuid", "Int4", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO chapters (\n    name,\n    color,\n    course_id,\n    chapter_number,\n    course_module_id\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n"
-  },
   "78a6905e84ce0cdd8ac41e9fb923260b69f24e946cfe2efdad7ab15084f1658c": {
     "describe": {
       "columns": [
@@ -11690,6 +11674,22 @@
       }
     },
     "query": "\nINSERT INTO peer_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        "
+  },
+  "9f2d190d47dfc1e28d110f543072751bdefbede1ae4c1ae0e4d2d29a28f9bae1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Varchar", "Varchar", "Uuid", "Int4", "Timestamptz", "Timestamptz", "Uuid"]
+      }
+    },
+    "query": "\nINSERT INTO chapters(\n    id,\n    name,\n    color,\n    course_id,\n    chapter_number,\n    deadline,\n    opens_at,\n    course_module_id\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING id\n        "
   },
   "9f31d0d3d1943980f58b78597e60339681c9f451b85a34d67c8bc64ba71c790d": {
     "describe": {
@@ -16396,102 +16396,6 @@
       }
     },
     "query": "\n    UPDATE chapters\n    SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)\n    WHERE course_id = $1\n        AND front_page_id IS NOT NULL;\n            "
-  },
-  "e411ed2f27e032eb93a93c7ebbb3018434a76b9441cb6e6bf456f9de718b883d": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "name",
-          "ordinal": 1,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "course_id",
-          "ordinal": 2,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "chapter_number",
-          "ordinal": 3,
-          "type_info": "Int4"
-        },
-        {
-          "name": "created_at",
-          "ordinal": 4,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated_at",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "deleted_at",
-          "ordinal": 6,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "front_page_id",
-          "ordinal": 7,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "opens_at",
-          "ordinal": 8,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "chapter_image_path",
-          "ordinal": 9,
-          "type_info": "Varchar"
-        },
-        {
-          "name": "copied_from",
-          "ordinal": 10,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "deadline",
-          "ordinal": 11,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "course_module_id",
-          "ordinal": 12,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "color",
-          "ordinal": 13,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true
-      ],
-      "parameters": {
-        "Left": ["Varchar", "Varchar", "Uuid", "Int4", "Timestamptz", "Timestamptz", "Uuid"]
-      }
-    },
-    "query": "\nINSERT INTO chapters(\n    name,\n    color,\n    course_id,\n    chapter_number,\n    deadline,\n    opens_at,\n    course_module_id\n  )\nVALUES($1, $2, $3, $4, $5, $6, $7)\nRETURNING *;\n"
   },
   "e4e5ef6ef0bbf4a234110b8dc2616b1a0483f511e0c6b9b04b9d7440486c3e07": {
     "describe": {

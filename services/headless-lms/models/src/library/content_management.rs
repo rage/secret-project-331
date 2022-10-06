@@ -1,11 +1,12 @@
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 use crate::{
+    chapters::{self, DatabaseChapter, NewChapter},
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
     course_modules::CourseModule,
     courses::{self, Course, NewCourse},
-    pages::{NewPage, Page},
+    pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
 };
@@ -121,4 +122,38 @@ pub async fn create_new_course(
 
     tx.commit().await?;
     Ok((course, page, default_course_instance, default_module))
+}
+
+/// Creates a new chapter with a front page.
+pub async fn create_new_chapter(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<(Uuid, Uuid)>,
+    new_chapter: &NewChapter,
+    user: Uuid,
+) -> ModelResult<(DatabaseChapter, Page)> {
+    let mut tx = conn.begin().await?;
+    let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
+    let chapter = chapters::get_chapter(&mut tx, chapter_id).await?;
+    let chapter_frontpage_content = serde_json::to_value(vec![
+        GutenbergBlock::hero_section(&chapter.name, ""),
+        GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/chapter-progress".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+    ])?;
+    let chapter_frontpage = NewPage {
+        chapter_id: Some(chapter.id),
+        content: chapter_frontpage_content,
+        course_id: Some(chapter.course_id),
+        exam_id: None,
+        front_page_of_chapter_id: Some(chapter.id),
+        title: chapter.name.clone(),
+        url_path: format!("/chapter-{}", chapter.chapter_number),
+        exercises: vec![],
+        exercise_slides: vec![],
+        exercise_tasks: vec![],
+        content_search_language: None,
+    };
+    let page = pages::insert_page(&mut tx, chapter_frontpage, user).await?;
+    tx.commit().await?;
+    Ok((chapter, page))
 }

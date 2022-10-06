@@ -239,7 +239,10 @@ mod tests {
     mod get_grading_summary_by_user_exercise_state_id {
         use headless_lms_utils::numbers::f32_approx_eq;
 
-        use crate::{chapters, exercise_slides, exercises, pages, user_exercise_states};
+        use crate::{
+            chapters::{self, NewChapter},
+            exercise_slides, exercises, pages, user_exercise_states,
+        };
 
         use super::*;
 
@@ -334,11 +337,17 @@ mod tests {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),
-                "chapter",
-                "#065853",
-                course,
-                1,
-                course_module.id,
+                PKeyPolicy::Generate,
+                &NewChapter {
+                    name: "chapter".to_string(),
+                    color: Some("#065853".to_string()),
+                    course_id: course,
+                    chapter_number: 1,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module.id),
+                },
             )
             .await?;
             let (page_id, _history) =

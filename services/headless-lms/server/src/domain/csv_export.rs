@@ -337,6 +337,7 @@ mod test {
         user_exercise_states::ExerciseWithUserState,
         users,
     };
+    use models::chapters::NewChapter;
     use serde_json::Value;
 
     use super::*;
@@ -349,9 +350,22 @@ mod test {
         let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", "#065853", course, 2, course_module.id)
-            .await
-            .unwrap();
+        let c2 = chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewChapter {
+                name: "".to_string(),
+                color: Some("#065853".to_string()),
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
         let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
             .await
             .unwrap();

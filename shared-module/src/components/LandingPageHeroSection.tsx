@@ -4,7 +4,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import DefaultSVG from "../img/hero-default-bg-image.svg"
-import { baseTheme } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
 import Button from "./Button"

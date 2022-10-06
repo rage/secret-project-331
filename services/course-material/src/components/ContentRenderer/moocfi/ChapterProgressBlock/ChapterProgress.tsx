@@ -7,7 +7,6 @@ import { fetchUserChapterInstanceChapterProgress } from "../../../../services/ba
 import Progress from "../../../../shared-module/components/CourseProgress"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
-import { baseTheme } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 interface ChapterProgressProps {

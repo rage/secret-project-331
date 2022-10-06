@@ -8,7 +8,7 @@ use crate::{
     course_instances::{CourseInstance, NewCourseInstance},
     course_language_groups,
     course_modules::CourseModule,
-    pages::{course_pages, NewPage, Page},
+    pages::{get_all_by_course_id_and_visibility, NewPage, Page, PageVisibility},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
 };
@@ -234,6 +234,7 @@ pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResu
     Ok(organization_id)
 }
 
+/// Gets full course structure including all the pages.
 pub async fn get_course_structure(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -241,7 +242,7 @@ pub async fn get_course_structure(
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
-    let pages = course_pages(conn, course_id).await?;
+    let pages = get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id)
         .await?
         .iter()
@@ -721,39 +722,4 @@ mod test {
         assert!(course_id.is_err());
         tx2.rollback().await;
     }
-}
-
-pub async fn get_top_level_pages(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
-        Page,
-        "
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from,
-  unlisted
-FROM pages p
-WHERE p.chapter_id IS NULL
-  AND p.deleted_at IS NULL
-  AND course_id = $1
-  AND p.url_path != '/'
-  ORDER BY order_number DESC;
-    ",
-        course_id
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(pages)
 }

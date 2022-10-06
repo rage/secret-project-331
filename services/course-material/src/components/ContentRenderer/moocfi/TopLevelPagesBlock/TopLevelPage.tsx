@@ -24,7 +24,9 @@ const Wrapper = styled.div`
 const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ courseId }) => {
   const { t } = useTranslation()
   const getTopLevelPages = useQuery([`courses-${courseId}-top-level-pages`], () =>
-    fetchTopLevelPages(courseId),
+    fetchTopLevelPages(courseId).then((pages) =>
+      pages.filter((x) => x.url_path !== "/").sort((a, b) => b.order_number - a.order_number),
+    ),
   )
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")

@@ -1,6 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course_material/chapters`.
 
-use models::pages::{Page, PageWithExercises};
+use models::pages::{Page, PageVisibility, PageWithExercises};
 
 use crate::prelude::*;
 
@@ -9,7 +9,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_chapters_pages(
+async fn get_public_chapter_pages(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     auth: Option<AuthUser>,
@@ -22,8 +22,12 @@ async fn get_chapters_pages(
         Res::Chapter(*chapter_id),
     )
     .await?;
-
-    let chapter_pages: Vec<Page> = models::pages::chapter_pages(&mut conn, *chapter_id).await?;
+    let chapter_pages: Vec<Page> = models::pages::get_course_pages_by_chapter_id_and_visibility(
+        &mut conn,
+        *chapter_id,
+        PageVisibility::Public,
+    )
+    .await?;
     token.authorized_ok(web::Json(chapter_pages))
 }
 
@@ -69,9 +73,16 @@ async fn get_chapters_pages_without_main_frontpage(
         Res::Chapter(*chapter_id),
     )
     .await?;
-
-    let chapter_pages =
-        models::pages::get_chapters_pages_exclude_main_frontpage(&mut conn, *chapter_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let chapter_pages = models::pages::get_course_pages_by_chapter_id_and_visibility(
+        &mut conn,
+        *chapter_id,
+        PageVisibility::Public,
+    )
+    .await?
+    .into_iter()
+    .filter(|x| x.chapter_id != Some(chapter.id))
+    .collect();
     token.authorized_ok(web::Json(chapter_pages))
 }
 
@@ -83,13 +94,16 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{chapter_id}/pages", web::get().to(get_chapters_pages))
-        .route(
-            "/{chapter_id}/exercises",
-            web::get().to(get_chapters_exercises),
-        )
-        .route(
-            "/{chapter_id}/pages-exclude-mainfrontpage",
-            web::get().to(get_chapters_pages_without_main_frontpage),
-        );
+    cfg.route(
+        "/{chapter_id}/pages",
+        web::get().to(get_public_chapter_pages),
+    )
+    .route(
+        "/{chapter_id}/exercises",
+        web::get().to(get_chapters_exercises),
+    )
+    .route(
+        "/{chapter_id}/pages-exclude-mainfrontpage",
+        web::get().to(get_chapters_pages_without_main_frontpage),
+    );
 }

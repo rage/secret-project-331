@@ -342,8 +342,25 @@ WHERE id = $1
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
+pub enum PageVisibility {
+    Any,
+    Public,
+    Unlisted,
+}
+
+/// Gets all pages that belong to the given course that match the visibility filter.
+pub async fn get_all_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    // Hacky way to test visibility based on the idea that null != anything in SQL.
+    let inverse_visibility_filter = match page_visibility {
+        PageVisibility::Any => None,
+        PageVisibility::Public => Some(true),
+        PageVisibility::Unlisted => Some(false),
+    };
+    let res = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -361,17 +378,72 @@ SELECT id,
   unlisted
 FROM pages
 WHERE course_id = $1
-  AND deleted_at IS NULL;
+  AND unlisted <> $2
+  AND deleted_at IS NULL
+    ",
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets all pages that belong to the given course but not in any chapter.
+pub async fn get_course_top_level_pages_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    // Hacky way to test visibility based on the idea that null != anything in SQL.
+    let inverse_visibility_filter = match page_visibility {
+        PageVisibility::Any => None,
+        PageVisibility::Public => Some(true),
+        PageVisibility::Unlisted => Some(false),
+    };
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  unlisted
+FROM pages p
+WHERE course_id = $1
+  AND unlisted <> $2
+  AND p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
         ",
-        course_id
+        course_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
+/// Gets all pages that belong to the given chapter that match the visibility filter.
+pub async fn get_course_pages_by_chapter_id_and_visibility(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    // Hacky way to test visibility based on the idea that null != anything in SQL.
+    let inverse_visibility_filter = match page_visibility {
+        PageVisibility::Any => None,
+        PageVisibility::Public => Some(true),
+        PageVisibility::Unlisted => Some(false),
+    };
+    let res = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -389,13 +461,15 @@ SELECT id,
   unlisted
 FROM pages
 WHERE chapter_id = $1
-  AND deleted_at IS NULL;
-        ",
-        chapter_id
+  AND unlisted <> $2
+  AND deleted_at IS NULL
+    ",
+        chapter_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
-    Ok(pages)
+    Ok(res)
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
@@ -676,6 +750,7 @@ pub async fn get_page_with_exercises(
     })
 }
 
+/// Gets the page that belongs to the given exam. For exams, the page visibility is ignored.
 pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
     let res = sqlx::query_as!(
         Page,
@@ -2336,43 +2411,6 @@ WHERE p.chapter_id = $1
     Ok(pages)
 }
 
-pub async fn get_chapters_pages_exclude_main_frontpage(
-    conn: &mut PgConnection,
-    chapter_id: Uuid,
-) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
-        Page,
-        "
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from,
-  unlisted
-FROM pages p
-WHERE p.chapter_id = $1
-  AND p.deleted_at IS NULL
-  AND p.id NOT IN (
-    SELECT front_page_id
-    FROM chapters c
-    WHERE c.front_page_id = p.id
-  );
-    ",
-        chapter_id
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(pages)
-}
-
 /**
 Returns search results for a phrase i.e. looks for matches where the words come up right after each other
 */
@@ -2644,7 +2682,8 @@ pub async fn reorder_pages(
     pages: &[Page],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_pages = course_pages(conn, course_id).await?;
+    let db_pages =
+        get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     for page in pages {

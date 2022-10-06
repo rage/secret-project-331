@@ -15,6 +15,31 @@ const ALLOWED_NESTED_BLOCKS = [
   "core/quote",
 ]
 
+const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [
+  [
+    "core/columns",
+    { isStackedOnMobile: true },
+    [
+      [
+        "core/column",
+        {},
+        [
+          [
+            "core/heading",
+            {
+              placeholder: "About this course",
+              level: 3,
+              textAlign: "left",
+              anchor: "objective-1",
+            },
+          ],
+          ["core/paragraph", { placeholder: "Insert text...", align: "left" }],
+        ],
+      ],
+    ],
+  ],
+]
+
 const LandingPageCopyTextEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
 > = ({ clientId }) => {
@@ -32,10 +57,9 @@ const LandingPageCopyTextEditor: React.FC<
         >
           <h4>{t("landing-page-copy-text")}</h4>
         </div>
-        <InnerBlocks 
+        <InnerBlocks
           allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          // eslint-disable-next-line i18next/no-literal-string
-          templateLock="all"
+          template={COURSE_OBJECTIVE_SECTION_TEMPLATE}
         />
       </div>
     </BlockWrapper>

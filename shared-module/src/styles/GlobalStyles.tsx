@@ -28,6 +28,7 @@ const globalCss = css`
 
   html, body {
     font-family: ${primaryFont};
+    font-weight: 400;
     font-size: ${defaultFontSizePx}px;
     overflow-x: hidden;
   }

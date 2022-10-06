@@ -45,14 +45,13 @@ import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
 import InfoBox from "./moocfi/InfoBox"
+import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import SponsorBlock from "./moocfi/SponsorBlock"
 import TableBox from "./moocfi/TableBox"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
-import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
-
 
 /** The props that this component receives */
 export interface ContentRendererProps {
@@ -130,7 +129,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/highlightbox": HighlightBox,
   "moocfi/tablebox": TableBox,
   "moocfi/top-level-pages": TopLevelPageBlock,
-  "moocfi/landing-page-copy-text": LandingPageCopyTextBlock
+  "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
 }
 
 const highlightedBlockStyles = css`

@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
@@ -7,7 +8,7 @@ import { respondToOrLarger } from "../../styles/respond"
 interface StyledObjectiveProps {
   index: number
 }
-// eslint-disable-next-line i18next/no-literal-string
+
 const Wrapper = styled.div`
   width: 100%;
   border-radius: 1px;
@@ -57,7 +58,6 @@ const TextBox = styled.div`
 const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   min-height: 100%;
-  // eslint-disable-next-line i18next/no-literal-string
   background: ${({ index }) => index === 1 && `#1a2333`};
   position: relative;
   overflow: hidden;

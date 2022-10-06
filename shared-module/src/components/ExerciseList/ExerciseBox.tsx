@@ -42,7 +42,7 @@ const ImageBox = styled.div`
     text-align: center;
     display: flex;
     align-content: center;
-    padding-top: 8px;
+    padding-top: 7px;
   }
 
   p {

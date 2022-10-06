@@ -11,7 +11,7 @@ const BannerWrapper = styled.div`
   display: grid;
   justify-content: center;
   align-items: center;
-  background: #040d21;
+  background: #f9f9f9;
   margin-top: 5rem;
 
   .svgwrapper {
@@ -56,7 +56,8 @@ const Text = styled.div`
   margin-bottom: 10px;
 
   div {
-    color: #b0bec8;
+    color: #1a2333;
+    opacity: 0.7;
   }
 `
 // eslint-disable-next-line i18next/no-literal-string

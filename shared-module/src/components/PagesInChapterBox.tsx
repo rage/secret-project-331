@@ -23,9 +23,7 @@ const PageNumberBox = styled.div`
   font-family: ${secondaryFont};
   opacity: 0.6;
   margin: 0 1rem;
-`
-const StyledArrow = styled(ArrowSVGIcon)`
-  opacity: 0.6;
+  top: -3px;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -65,7 +63,7 @@ const ChapterParts = styled.div`
   svg {
     position: absolute;
     right: 30px;
-    top: 30%;
+    top: 40%;
   }
 
   span {
@@ -113,7 +111,7 @@ const PagesInChapterBox: React.FC<
                 <span>{props.chapterIndex}</span>
               </PageNumberBox>
               <span>{props.chapterTitle}</span>
-              <StyledArrow className="chapter-part-arrow" role="presentation" alt="" width="20" />
+              <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="20" />
             </ChapterParts>
           </a>
         </Link>

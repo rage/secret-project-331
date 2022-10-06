@@ -7,6 +7,9 @@ import produce from "immer"
 import { useContext, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
@@ -27,7 +30,7 @@ import Spinner from "../../../../shared-module/components/Spinner"
 import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, secondaryFont } from "../../../../shared-module/styles"
+import { baseTheme, secondaryFont, headingFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
@@ -223,22 +226,24 @@ const ExerciseBlock: React.FC<
                 color: white;
               `}
             >
-              <HelpIcon
-                className={css`
-                  height: 3.5rem !important;
-                  width: 3rem !important;
-                  margin-right: 0.5rem;
-                `}
-              />{" "}
+            <FontAwesomeIcon icon={infoIcon} 
+              className={css`
+              height: 2rem !important;
+              width: 2rem !important;
+              margin-right: 0.8rem;
+              background: #063157;
+              padding: 0.5rem;
+              border-radius: 50px;
+            `}
+            />
               <h2
                 className={css`
-                  font-size: 2rem;
-                  font-weight: 400;
-                  font-family: ${secondaryFont} !important;
+                  font-size: 1.7rem;
+                  font-weight: 500;
+                  font-family: ${headingFont} !important;
                   overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;
-                  padding-top: 6px;
                 `}
               >
                 {getCourseMaterialExercise.data.exercise.name}

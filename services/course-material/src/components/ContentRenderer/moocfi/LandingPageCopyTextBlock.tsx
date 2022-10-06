@@ -15,7 +15,6 @@ const Wrapper = styled.div`
   h2 {
     font-weight: 700 !important;
     color: ${baseTheme.colors.green[600]} !important;
-    padding-bottom: 1.5rem;
     padding: 1.5rem 1.5rem 0 2rem;
   }
 

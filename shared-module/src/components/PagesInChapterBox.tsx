@@ -59,7 +59,7 @@ const ChapterParts = styled.div`
   svg {
     position: absolute;
     right: 30px;
-    top: 40%;
+    top: 37%;
   }
 
   span {
@@ -99,6 +99,12 @@ const PagesInChapterBox: React.FC<
               &:focus-visible {
                 outline: 2px solid ${baseTheme.colors.green[500]};
                 outline-offset: 2px;
+              }
+
+              :hover {
+                .chapter-part-arrow {
+                  visibility: visible;
+                }
               }
             `}
           >

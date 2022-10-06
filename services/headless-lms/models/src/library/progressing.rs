@@ -84,6 +84,7 @@ async fn create_automatic_course_module_completion_if_eligible(
             let user = users::get_by_id(conn, user_id).await?;
             let _completion_id = course_module_completions::insert(
                 conn,
+                PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
                     course_id: course_module.course_id,
                     course_instance_id,
@@ -98,7 +99,6 @@ async fn create_automatic_course_module_completion_if_eligible(
                     passed: true,
                 },
                 CourseModuleCompletionGranter::Automatic,
-                None,
             )
             .await?;
             info!("Created a completion");
@@ -381,6 +381,7 @@ pub async fn add_manual_completions(
             .await?;
             course_module_completions::insert(
                 &mut tx,
+                PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
                     course_id: course_instance.course_id,
                     course_instance_id: course_instance.id,
@@ -396,7 +397,6 @@ pub async fn add_manual_completions(
                     passed: true,
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
-                None,
             )
             .await?;
             update_module_completion_prerequisite_statuses_for_user(
@@ -773,9 +773,15 @@ mod tests {
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
                 .unwrap();
-            let course_module_2 = course_modules::insert(tx.as_mut(), course, Some("Module 2"), 1)
-                .await
-                .unwrap();
+            let course_module_2 = course_modules::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
+                Some("Module 2"),
+                1,
+            )
+            .await
+            .unwrap();
             let (chapter_2, page2) = content_management::create_new_chapter(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -793,9 +799,17 @@ mod tests {
             )
             .await
             .unwrap();
-            let exercise_2 = exercises::insert(tx.as_mut(), course, "", page2.id, chapter_2.id, 0)
-                .await
-                .unwrap();
+            let exercise_2 = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
+                "",
+                page2.id,
+                chapter_2.id,
+                0,
+            )
+            .await
+            .unwrap();
             let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
                 tx.as_mut(),
                 user,

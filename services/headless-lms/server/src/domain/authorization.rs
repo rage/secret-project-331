@@ -543,10 +543,16 @@ mod test {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
 
-        let user = users::insert(tx.as_mut(), "auth@example.com", None, None)
-            .await
-            .unwrap();
-        let org = organizations::insert(tx.as_mut(), "auth", "auth", "auth", Uuid::new_v4())
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "auth@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let org = organizations::insert(tx.as_mut(), PKeyPolicy::Generate, "auth", "auth", "auth")
             .await
             .unwrap();
 

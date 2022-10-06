@@ -149,6 +149,7 @@ pub struct ExerciseStatus {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     name: &str,
     page_id: Uuid,
@@ -157,10 +158,18 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO exercises (course_id, name, page_id, chapter_id, order_number)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO exercises (
+    id,
+    course_id,
+    name,
+    page_id,
+    chapter_id,
+    order_number
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         course_id,
         name,
         page_id,

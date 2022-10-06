@@ -48,10 +48,10 @@ pub async fn seed_organization_uh_cs(
 
     let uh_cs_organization_id = organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?),
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
         "Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.",
-        Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
 

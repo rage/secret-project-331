@@ -527,7 +527,7 @@ pub async fn feedback(
     let mut tx = conn.begin().await?;
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
+        let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }
     tx.commit().await?;
@@ -549,6 +549,7 @@ async fn propose_edit(
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
     let (id, _) = proposed_page_edits::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         course.id,
         user.map(|u| u.id),
         &edits.into_inner(),

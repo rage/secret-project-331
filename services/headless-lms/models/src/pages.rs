@@ -240,6 +240,7 @@ RETURNING id
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
         title,
         &PageHistoryContent {
@@ -289,6 +290,7 @@ RETURNING id
 
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
@@ -1070,6 +1072,7 @@ RETURNING id,
     };
     crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_id,
         &page_update.title,
         &history_content,
@@ -2886,6 +2889,7 @@ mod test {
 
         let new_exam_id = crate::exams::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             &NewExam {
                 name: "name".to_string(),
                 starts_at: None,
@@ -2893,7 +2897,6 @@ mod test {
                 time_minutes: 120,
                 organization_id: org,
             },
-            None,
         )
         .await
         .unwrap();

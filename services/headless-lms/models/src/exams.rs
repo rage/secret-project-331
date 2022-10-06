@@ -120,8 +120,8 @@ pub struct ExamInstructionsUpdate {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     exam: &NewExam,
-    seed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -134,10 +134,10 @@ INSERT INTO exams (
     time_minutes,
     organization_id
   )
-VALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-",
-        seed_id,
+        ",
+        pkey_policy.into_uuid(),
         exam.name,
         serde_json::Value::Array(vec![]),
         exam.starts_at,

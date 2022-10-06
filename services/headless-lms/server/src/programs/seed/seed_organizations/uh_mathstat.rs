@@ -33,10 +33,10 @@ pub async fn seed_organization_uh_mathstat(
 
     let uh_mathstat_id = organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?),
         "University of Helsinki, Department of Mathematics and Statistics",
         "uh-mathstat",
         "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
-        Uuid::parse_str("269d28b2-a517-4572-9955-3ed5cecc69bd")?,
     )
     .await?;
     let new_course = NewCourse {

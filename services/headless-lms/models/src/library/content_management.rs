@@ -26,7 +26,8 @@ pub async fn create_new_course(
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
 
-    let course_language_group_id = course_language_groups::insert(&mut tx).await?;
+    let course_language_group_id =
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?;
     let course_id = courses::insert(
         &mut tx,
         pkey_policy.map_ref(|x| x.course_id),
@@ -78,11 +79,12 @@ pub async fn create_new_course(
     .await?;
 
     // Create default course module
-    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
+    let default_module =
+        crate::course_modules::insert(&mut tx, PKeyPolicy::Generate, course.id, None, 0).await?;
 
     // Create course default peer review config
     let peer_review_config_id =
-        crate::peer_review_configs::insert(&mut tx, course.id, None).await?;
+        crate::peer_review_configs::insert(&mut tx, PKeyPolicy::Generate, course.id, None).await?;
 
     // Create peer review questions for default peer review config
     crate::peer_review_questions::upsert_multiple_peer_review_questions(

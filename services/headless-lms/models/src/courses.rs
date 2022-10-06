@@ -64,7 +64,7 @@ pub struct NewCourse {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    id: PKeyPolicy<Uuid>,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
@@ -94,7 +94,7 @@ VALUES(
   )
 RETURNING id
         ",
-        id.into_uuid(),
+        pkey_policy.into_uuid(),
         new_course.name,
         new_course.description,
         new_course.slug,
@@ -605,9 +605,9 @@ mod test {
         #[tokio::test]
         async fn allows_valid_language_code() {
             insert_data!(:tx, user: _user, :org);
-            let course_language_group_id = course_language_groups::insert_with_id(
+            let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
-                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
             )
             .await
             .unwrap();
@@ -625,9 +625,9 @@ mod test {
         #[tokio::test]
         async fn disallows_empty_language_code() {
             insert_data!(:tx, user: _user, :org);
-            let course_language_group_id = course_language_groups::insert_with_id(
+            let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
-                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
             )
             .await
             .unwrap();
@@ -645,9 +645,9 @@ mod test {
         #[tokio::test]
         async fn disallows_wrong_case_language_code() {
             insert_data!(:tx, user: _user, :org);
-            let course_language_group_id = course_language_groups::insert_with_id(
+            let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
-                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
             )
             .await
             .unwrap();
@@ -665,9 +665,9 @@ mod test {
         #[tokio::test]
         async fn disallows_underscore_in_language_code() {
             insert_data!(:tx, user: _user, :org);
-            let course_language_group_id = course_language_groups::insert_with_id(
+            let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
-                Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
             )
             .await
             .unwrap();

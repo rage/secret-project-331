@@ -40,9 +40,9 @@ async fn gets_and_registers_completions() {
     // With header and database entry
     headless_lms_models::study_registry_registrars::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("9d5aa77c-1c8c-4333-a3d2-1f328b9da87a").unwrap()),
         "Integration test",
         "integration-test-intentionally-public",
-        Some(Uuid::parse_str("9d5aa77c-1c8c-4333-a3d2-1f328b9da87a").unwrap()),
     )
     .await
     .unwrap();
@@ -104,30 +104,30 @@ async fn gets_and_registers_completions() {
 }
 
 async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, Uuid) {
-    let user_1 = headless_lms_models::users::insert_with_id(
+    let user_1 = headless_lms_models::users::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap()),
         "user@example.com",
         None,
         None,
-        Uuid::parse_str("2d9aa7a9-cd01-40ca-b2d1-007e5302226c").unwrap(),
     )
     .await
     .unwrap();
-    let user_2 = headless_lms_models::users::insert_with_id(
+    let user_2 = headless_lms_models::users::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("934c6121-6e60-472f-b806-d0af058b8ce9").unwrap()),
         "user2@example.com",
         None,
         None,
-        Uuid::parse_str("934c6121-6e60-472f-b806-d0af058b8ce9").unwrap(),
     )
     .await
     .unwrap();
     let org = headless_lms_models::organizations::insert(
         conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("c0938ae7-9f5d-4646-b3ba-900068f72ba4").unwrap()),
         "",
         "stream-org",
         "",
-        Uuid::parse_str("c0938ae7-9f5d-4646-b3ba-900068f72ba4").unwrap(),
     )
     .await
     .unwrap();
@@ -156,6 +156,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
         .unwrap();
     let course_module_completion_id = headless_lms_models::course_module_completions::insert(
         conn,
+        PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
@@ -170,7 +171,6 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             passed: true,
         },
         CourseModuleCompletionGranter::Automatic,
-        None,
     )
     .await
     .unwrap();
@@ -183,6 +183,7 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
     .unwrap();
     let course_module_completion_2_id = headless_lms_models::course_module_completions::insert(
         conn,
+        PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
             course_id: course.id,
             course_instance_id: instance.id,
@@ -197,7 +198,6 @@ async fn insert_data(conn: &mut PgConnection) -> (Uuid, Uuid, Uuid, Uuid, Uuid, 
             passed: true,
         },
         CourseModuleCompletionGranter::Automatic,
-        None,
     )
     .await
     .unwrap();

@@ -181,8 +181,14 @@ pub async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let second_module =
-        course_modules::insert(&mut conn, course.id, Some("Another module"), 1).await?;
+    let second_module = course_modules::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some("Another module"),
+        1,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -217,7 +223,14 @@ pub async fn seed_sample_course(
         admin,
     )
     .await?;
-    let module = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 2).await?;
+    let module = course_modules::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some("Bonus module"),
+        2,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -400,7 +413,14 @@ pub async fn seed_sample_course(
     )
     .await?;
 
-    url_redirections::insert(&mut conn, page2_id, "/old-url", course.id).await?;
+    url_redirections::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        page2_id,
+        "/old-url",
+        course.id,
+    )
+    .await?;
 
     let (
         quizzes_exercise_block_1,
@@ -1234,7 +1254,14 @@ pub async fn seed_sample_course(
         }],
         page_id: page_3,
     };
-    let feedback = feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
+    let feedback = feedback::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        Some(student),
+        course.id,
+        new_feedback,
+    )
+    .await?;
     feedback::mark_as_read(&mut conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
@@ -1258,9 +1285,17 @@ pub async fn seed_sample_course(
         ],
         page_id: page_3,
     };
-    feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
     feedback::insert(
         &mut conn,
+        PKeyPolicy::Generate,
+        Some(student),
+        course.id,
+        new_feedback,
+    )
+    .await?;
+    feedback::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
         None,
         course.id,
         NewFeedback {
@@ -1277,6 +1312,7 @@ pub async fn seed_sample_course(
     .await?;
     feedback::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         None,
         course.id,
         NewFeedback {
@@ -1299,7 +1335,14 @@ pub async fn seed_sample_course(
             changed_text: "So bg, that we need many, many paragraphs.".to_string(),
         }],
     };
-    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some(student),
+        &edits,
+    )
+    .await?;
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![
@@ -1317,7 +1360,14 @@ pub async fn seed_sample_course(
             },
         ],
     };
-    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some(student),
+        &edits,
+    )
+    .await?;
 
     // acronyms
     glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;

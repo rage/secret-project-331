@@ -69,6 +69,7 @@ WHERE id = $1
     Ok(res)
 }
 
+// TODO: Merge with the other insert, but need to resolve different parameters.
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     submission_data: &SubmissionData,
@@ -98,6 +99,7 @@ RETURNING id
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     exercise_slide_submission_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -106,14 +108,16 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_submissions (
+    id,
     exercise_slide_submission_id,
     exercise_slide_id,
     exercise_task_id,
     data_json
   )
-  VALUES ($1, $2, $3, $4)
+  VALUES ($1, $2, $3, $4, $5)
   RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         exercise_slide_submission_id,
         exercise_slide_id,
         exercise_task_id,

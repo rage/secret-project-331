@@ -10,6 +10,7 @@ pub struct ExerciseTaskRegradingSubmission {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     regrading_id: Uuid,
     exercise_task_submission_id: Uuid,
     grading_before_regrading_id: Uuid,
@@ -17,13 +18,15 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_regrading_submissions (
+    id,
     regrading_id,
     exercise_task_submission_id,
     grading_before_regrading
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         regrading_id,
         exercise_task_submission_id,
         grading_before_regrading_id

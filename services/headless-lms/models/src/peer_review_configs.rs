@@ -65,48 +65,19 @@ pub enum PeerReviewAcceptingStrategy {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_review_configs (course_id, exercise_id)
-VALUES ($1, $2)
+INSERT INTO peer_review_configs (id, course_id, exercise_id)
+VALUES ($1, $2, $3)
 RETURNING id
         ",
+        pkey_policy.into_uuid(),
         course_id,
         exercise_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-    course_id: Uuid,
-    exercise_id: Option<Uuid>,
-    peer_reviews_to_give: i32,
-    peer_reviews_to_receive: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO peer_review_configs (
-    id,
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-        ",
-        id,
-        course_id,
-        exercise_id,
-        peer_reviews_to_give,
-        peer_reviews_to_receive,
     )
     .fetch_one(conn)
     .await?;
@@ -448,7 +419,7 @@ mod tests {
     async fn only_one_default_peer_review_per_course() {
         insert_data!(:tx, :user, :org, :course);
 
-        let peer_review_1 = insert(tx.as_mut(), course, None).await;
+        let peer_review_1 = insert(tx.as_mut(), PKeyPolicy::Generate, course, None).await;
         assert!(peer_review_1.is_err());
     }
 }

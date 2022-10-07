@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -13,7 +13,9 @@ test("test", async ({ page }) => {
     .locator('textarea[name="exerciseTaskSubmissionIds"]')
     .fill(" 9815985c-5123-5dbb-90a2-87b3693cc381")
   await page.locator('button:has-text("Create")').click()
-  await page.locator("text=regrading_started_at").waitFor()
+  await page.locator("text=Operation successful!").waitFor()
+  await page.locator("text=/ 1 Submissions regraded").waitFor()
+  expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
 
   const firstRegradingPageUrl = page.url()
 

@@ -762,6 +762,23 @@ pub async fn seed_sample_course(
         Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
+    let (
+        quizzes_exercise_block_7,
+        quizzes_exercise_7,
+        quizzes_exercise_slide_7,
+        quizzes_exercise_task_7,
+    ) = quizzes_exercise(
+        "Scale".to_string(),
+        Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
+        Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
+        Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
+        Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
+        Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
+        false,
+        serde_json::from_str(include_str!("../../assets/scale.json"))?,
+        Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
+    );
+
     let page_3 = create_page(
         &mut conn,
         course.id,
@@ -872,6 +889,29 @@ pub async fn seed_sample_course(
                     Uuid::new_v5(&course.id, b"891de1ca-f3a9-506f-a268-3477ea4fdd27")
                 ),
                 quizzes_exercise_block_5,
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/scale".to_string(),
+            title: "scale".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_7],
+            exercise_slides: vec![quizzes_exercise_slide_7],
+            exercise_tasks: vec![quizzes_exercise_task_7],
+            content: serde_json::json!([
+                paragraph(
+                    "The page for the scale execise.",
+                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4")
+                ),
+                quizzes_exercise_block_7
             ]),
         },
     )

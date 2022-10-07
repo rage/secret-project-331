@@ -67,24 +67,15 @@ pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
     exercise_id: Option<Uuid>,
-    peer_reviews_to_give: i32,
-    peer_reviews_to_receive: i32,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_review_configs (
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive
-  )
-VALUES ($1, $2, $3, $4)
+INSERT INTO peer_review_configs (course_id, exercise_id)
+VALUES ($1, $2)
 RETURNING id
         ",
         course_id,
         exercise_id,
-        peer_reviews_to_give,
-        peer_reviews_to_receive,
     )
     .fetch_one(conn)
     .await?;
@@ -485,7 +476,7 @@ mod tests {
     async fn only_one_default_peer_review_per_course() {
         insert_data!(:tx, :user, :org, :course);
 
-        let peer_review_1 = insert(tx.as_mut(), course, None, 3, 2).await;
+        let peer_review_1 = insert(tx.as_mut(), course, None).await;
         assert!(peer_review_1.is_err());
     }
 }

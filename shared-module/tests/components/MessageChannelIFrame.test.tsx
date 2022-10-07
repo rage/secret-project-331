@@ -30,6 +30,7 @@ test("It renders", async () => {
         postThisStateToIFrame={{
           view_type: "answer-exercise",
           exercise_task_id: "2c75563d-4129-49dd-9515-e55e006f875d",
+          user_information: { pseudonymous_id: "id", signed_in: false },
           data: { public_spec: {}, previous_submission: null },
         }}
         onMessageFromIframe={(message, responsePort) => {

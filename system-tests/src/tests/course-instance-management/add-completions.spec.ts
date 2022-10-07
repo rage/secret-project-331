@@ -50,9 +50,9 @@ test("test", async ({ headless, page }) => {
   // Click text=Check
   await page.locator("text=Check").click()
 
-  // Click div[role="button"]:has-text("Users receiving a completion for the first time (4)")
+  // Click div[role="button"]:has-text("Users receiving a completion for the first time (3)")
   await page
-    .locator('div[role="button"]:has-text("Users receiving a completion for the first time (4)")')
+    .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
   await expectScreenshotsToMatchSnapshots({

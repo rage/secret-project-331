@@ -27,8 +27,8 @@ fn domain(target: &mut File) {
     export! {
         target,
 
-        authorization::ActionOnResource,
         authorization::Action,
+        authorization::ActionOnResource,
         authorization::Resource,
         error::ErrorData,
         error::ErrorResponse,
@@ -41,64 +41,64 @@ fn models(target: &mut File) {
     export! {
         target,
 
-        glossary::Term,
-        glossary::TermUpdate,
-
         chapters::Chapter,
-        chapters::DatabaseChapter,
         chapters::ChapterStatus,
         chapters::ChapterUpdate,
         chapters::ChapterWithStatus,
+        chapters::DatabaseChapter,
         chapters::NewChapter,
         chapters::UserCourseInstanceChapterProgress,
-
         course_instance_enrollments::CourseInstanceEnrollment,
-
         course_instances::ChapterScore,
         course_instances::CourseInstance,
         course_instances::CourseInstanceForm,
         course_instances::PointMap,
         course_instances::Points,
 
+        course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+
         course_modules::CourseModule,
         course_modules::ModifiedModule,
         course_modules::ModuleUpdates,
         course_modules::NewModule,
-
         courses::Course,
+        courses::CourseCount,
         courses::CourseStructure,
         courses::CourseUpdate,
         courses::NewCourse,
-        courses::CourseCount,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
         email_templates::EmailTemplateUpdate,
-
         exams::CourseExam,
         exams::Exam,
         exams::ExamEnrollment,
-        exams::NewExam,
-        exams::OrgExam,
         exams::ExamInstructions,
         exams::ExamInstructionsUpdate,
-
+        exams::NewExam,
+        exams::OrgExam,
         exercise_repositories::ExerciseRepository,
         exercise_repositories::ExerciseRepositoryStatus,
-
         exercise_service_info::CourseMaterialExerciseServiceInfo,
         exercise_service_info::ExerciseServiceInfoApi,
-
         exercise_services::ExerciseService,
-        exercise_services::ExerciseServiceNewOrUpdate,
         exercise_services::ExerciseServiceIframeRenderingInfo,
-
+        exercise_services::ExerciseServiceNewOrUpdate,
+        exercise_slide_submissions::AnswerRequiringAttention,
+        exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
+        exercise_slide_submissions::ExerciseSlideSubmission,
+        exercise_slide_submissions::ExerciseSlideSubmissionCount,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
+        exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
+        exercise_slide_submissions::ExerciseSlideSubmissionInfo,
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
-
+        exercise_task_gradings::ExerciseTaskGrading,
+        exercise_task_gradings::ExerciseTaskGradingResult,
+        exercise_task_gradings::UserPointsUpdateStrategy,
+        exercise_task_submissions::ExerciseTaskSubmission,
         exercise_tasks::CourseMaterialExerciseTask,
         exercise_tasks::ExerciseTask,
-
         exercises::ActivityProgress,
         exercises::CourseMaterialExercise,
         exercises::Exercise,
@@ -110,16 +110,17 @@ fn models(target: &mut File) {
         feedback::FeedbackCount,
         feedback::NewFeedback,
 
+        glossary::Term,
+        glossary::TermUpdate,
+
         library::grading::StudentExerciseSlideSubmission,
         library::grading::StudentExerciseSlideSubmissionResult,
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
-
         library::peer_reviewing::CourseMaterialPeerReviewData,
         library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
-
         library::progressing::CompletionRegistrationLink,
         library::progressing::CourseInstanceCompletionSummary,
         library::progressing::ManualCompletionPreview,
@@ -136,9 +137,8 @@ fn models(target: &mut File) {
 
         organizations::Organization,
 
-        page_history::PageHistory,
         page_history::HistoryChangeReason,
-
+        page_history::PageHistory,
         pages::CmsPageExercise,
         pages::CmsPageExerciseSlide,
         pages::CmsPageExerciseTask,
@@ -147,75 +147,55 @@ fn models(target: &mut File) {
         pages::CoursePageWithUserData,
         pages::ExerciseWithExerciseTasks,
         pages::HistoryRestoreData,
+        pages::IsChapterFrontPage,
+        pages::NewPage,
         pages::Page,
+        pages::PageChapterAndCourseInformation,
         pages::PageInfo,
+        pages::PageNavigationInformation,
+        pages::PageRoutingData,
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
-        pages::NewPage,
-        pages::PageChapterAndCourseInformation,
-        pages::IsChapterFrontPage,
-        pages::PageRoutingData,
-        pages::PageNavigationInformation,
-
-        peer_review_configs::PeerReviewConfig,
-        peer_review_configs::PeerReviewAcceptingStrategy,
         peer_review_configs::CmsPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfiguration,
-
+        peer_review_configs::PeerReviewAcceptingStrategy,
+        peer_review_configs::PeerReviewConfig,
         peer_review_questions::CmsPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,
         peer_review_questions::PeerReviewQuestionType,
-
+        pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
-
         proposed_block_edits::BlockProposal,
         proposed_block_edits::BlockProposalAction,
         proposed_block_edits::BlockProposalInfo,
         proposed_block_edits::NewProposedBlockEdit,
         proposed_block_edits::ProposalStatus,
-
         proposed_page_edits::EditProposalInfo,
         proposed_page_edits::NewProposedPageEdits,
         proposed_page_edits::PageProposal,
         proposed_page_edits::ProposalCount,
 
-        repository_exercises::RepositoryExercise,
-
-        regradings::Regrading,
         regradings::NewRegrading,
+        regradings::Regrading,
         regradings::RegradingInfo,
         regradings::RegradingSubmissionInfo,
-
-        exercise_slide_submissions::ExerciseSlideSubmission,
-        exercise_slide_submissions::ExerciseSlideSubmissionCount,
-        exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
-        exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
-        exercise_slide_submissions::ExerciseSlideSubmissionInfo,
-        exercise_slide_submissions::ExerciseAnswersInCourseRequiringAttentionCount,
-        exercise_slide_submissions::AnswerRequiringAttention,
-
-        teacher_grading_decisions::TeacherGradingDecision,
-        teacher_grading_decisions::TeacherDecisionType,
-        teacher_grading_decisions::NewTeacherGradingDecision,
-
-        exercise_task_gradings::ExerciseTaskGrading,
-        exercise_task_gradings::ExerciseTaskGradingResult,
-        exercise_task_gradings::UserPointsUpdateStrategy,
-
-        exercise_task_submissions::ExerciseTaskSubmission,
-
-        roles::RoleUser,
+        repository_exercises::RepositoryExercise,
         roles::RoleDomain,
+        roles::RoleInfo,
+        roles::RoleUser,
         roles::UserRole,
 
-        user_course_settings::UserCourseSettings,
+        teacher_grading_decisions::NewTeacherGradingDecision,
+        teacher_grading_decisions::TeacherDecisionType,
+        teacher_grading_decisions::TeacherGradingDecision,
 
-        user_exercise_states::UserCourseInstanceChapterExerciseProgress,
-        user_exercise_states::UserCourseInstanceProgress,
+        user_course_settings::UserCourseSettings,
         user_exercise_states::ExerciseUserCounts,
         user_exercise_states::ReviewingStage,
+        user_exercise_states::UserCourseInstanceChapterExerciseProgress,
+        user_exercise_states::UserCourseInstanceProgress,
         user_exercise_states::UserExerciseState,
         users::User,
     };
@@ -238,8 +218,8 @@ fn controllers(target: &mut File) {
             target,
 
             CreateAccountDetails,
-            UserInfo,
             Login,
+            UserInfo,
         };
     }
 
@@ -262,16 +242,15 @@ fn controllers(target: &mut File) {
         export! {
             target,
 
-            roles::RoleQuery,
-            roles::RoleInfo,
-            exams::ExamCourseInfo,
-            exercises::ExerciseSubmissions,
-            exercises::AnswersRequiringAttention,
-            exercises::AnswerRequiringAttentionWithTasks,
-            exercise_repositories::NewExerciseRepository,
-            feedback::MarkAsRead,
             courses::GetFeedbackQuery,
+            exams::ExamCourseInfo,
+            exercise_repositories::NewExerciseRepository,
+            exercises::AnswerRequiringAttentionWithTasks,
+            exercises::AnswersRequiringAttention,
+            exercises::ExerciseSubmissions,
+            feedback::MarkAsRead,
             proposed_edits::GetEditProposalsQuery,
+            roles::RoleQuery,
         };
     }
 }

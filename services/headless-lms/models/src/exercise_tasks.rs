@@ -19,6 +19,7 @@ use crate::{
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
+    pub exercise_service_slug: String,
     pub exercise_slide_id: Uuid,
     /**
     If none, the task is not completable at the moment because the service needs to
@@ -214,6 +215,7 @@ pub async fn get_course_material_exercise_tasks(
 
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,
+            exercise_service_slug: exercise_task.exercise_type,
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url.to_string()),
             pseudonumous_user_id: user_id

@@ -167,13 +167,13 @@ const Forum = () => {
             label="show name"
             value={t("show")}
             checked={visibility === "show"}
-            onChange={(value) => setVisibility(value)}
+            onChange={(_event) => setVisibility("show")}
           />
           <RadioButton
             name="visibility"
             label="hide name"
             value={t("hide")}
-            onChange={(value) => setVisibility(value)}
+            onChange={(_event) => setVisibility("hide")}
             checked={visibility === "hide"}
           />
         </RadioSection>

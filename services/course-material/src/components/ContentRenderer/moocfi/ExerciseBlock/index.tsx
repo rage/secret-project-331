@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import HelpIcon from "@mui/icons-material/Help"
+import { faQuestion as infoIcon } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import CheckIcon from "humbleicons/icons/check.svg"
 import produce from "immer"
-import { useContext, useReducer, useState } from "react"
+import { useContext, useId, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
@@ -63,6 +64,7 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
+  const exerciseTitleId = useId()
   const [allowStartPeerReview, setAllowStartPeerReview] = useState(true)
   const [answers, setAnswers] = useState<Map<string, { valid: boolean; data: unknown }>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
@@ -203,7 +205,9 @@ const ExerciseBlock: React.FC<
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
   return (
     <BreakFromCentered sidebar={false}>
-      <div
+      {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
+      for screenreader users */}
+      <section
         className={css`
           width: 100%;
           background: #fafafa;
@@ -211,6 +215,7 @@ const ExerciseBlock: React.FC<
           padding-bottom: 1rem;
         `}
         id={getExerciseBlockBeginningScrollingId(id)}
+        aria-labelledby={exerciseTitleId}
       >
         <div>
           <Centered variant="narrow">
@@ -224,25 +229,44 @@ const ExerciseBlock: React.FC<
                 color: white;
               `}
             >
-              <HelpIcon
+              <FontAwesomeIcon
+                icon={infoIcon}
                 className={css`
-                  height: 3.5rem !important;
-                  width: 3rem !important;
-                  margin-right: 0.5rem;
+                  height: 2rem !important;
+                  width: 2rem !important;
+                  margin-right: 0.8rem;
+                  background: #063157;
+                  padding: 0.5rem;
+                  border-radius: 50px;
                 `}
-              />{" "}
+              />
               <h2
+                id={exerciseTitleId}
                 className={css`
-                  font-size: 1.8rem;
-                  font-weight: 600;
+                  font-size: 1.7rem;
+                  font-weight: 500;
                   font-family: ${headingFont} !important;
                   overflow: hidden;
                   text-overflow: ellipsis;
                   white-space: nowrap;
-                  padding-top: 6px;
                 `}
               >
-                {getCourseMaterialExercise.data.exercise.name}
+                <div
+                  className={css`
+                    font-weight: 500;
+                    font-size: 19px;
+                    line-height: 19px;
+                  `}
+                >
+                  {t("label-exercise")}:
+                </div>
+                <div
+                  className={css`
+                    line-height: 31px;
+                  `}
+                >
+                  {getCourseMaterialExercise.data.exercise.name}
+                </div>
               </h2>
               <div
                 className={css`
@@ -494,7 +518,7 @@ const ExerciseBlock: React.FC<
             )}
           </div>
         </Centered>
-      </div>
+      </section>
     </BreakFromCentered>
   )
 }

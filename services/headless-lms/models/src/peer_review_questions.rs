@@ -60,17 +60,15 @@ INSERT INTO peer_review_questions (
     peer_review_config_id,
     order_number,
     question,
-    question_type,
-    answer_required
+    question_type
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
         ",
         new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
-        new_peer_review_question.answer_required,
     )
     .fetch_one(conn)
     .await?;
@@ -89,10 +87,9 @@ INSERT INTO peer_review_questions (
     peer_review_config_id,
     order_number,
     question,
-    question_type,
-    answer_required
+    question_type
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
         ",
         id,
@@ -100,7 +97,6 @@ RETURNING id;
         new_peer_review_question.order_number,
         new_peer_review_question.question,
         new_peer_review_question.question_type as PeerReviewQuestionType,
-        new_peer_review_question.answer_required,
     )
     .fetch_one(conn)
     .await?;

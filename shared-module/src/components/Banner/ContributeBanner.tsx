@@ -11,7 +11,7 @@ const BannerWrapper = styled.div`
   display: grid;
   justify-content: center;
   align-items: center;
-  background: #f9f9f9;
+  background: #f6f8fa;
   margin-top: 5rem;
 
   .svgwrapper {
@@ -44,7 +44,7 @@ const Content = styled.div`
     text-align: center;
     margin-bottom: 5px !important;
 
-    background: -webkit-linear-gradient(-70deg, #a2facf 0%, #64acff 100%);
+    background: -webkit-linear-gradient(-70deg, #2188ff 0%, #804eda 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

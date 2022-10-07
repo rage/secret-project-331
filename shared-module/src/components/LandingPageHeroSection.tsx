@@ -94,6 +94,10 @@ const LandingPageHeroSection: React.FC<
         `background-image: url(${backgroundImage});
         background-repeat: no-repeat;
         background-position: center center;`}
+        background-size: cover;
+        ${respondToOrLarger.xxxxl} {
+          background-size: auto;
+        }
       `}
     >
       {backgroundImage === undefined && <StyledSVG />}

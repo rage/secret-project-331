@@ -339,6 +339,7 @@ SELECT user_id,
   score_given
 FROM user_exercise_states
 WHERE course_instance_id = $1
+AND deleted_at IS NULL
 ORDER BY user_id ASC
 ",
         instance_id,

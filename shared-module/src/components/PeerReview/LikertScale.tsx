@@ -117,11 +117,11 @@ const LikertScale: React.FC<React.PropsWithChildren<React.PropsWithChildren<Like
       <Likerts>
         {arr.map((option, n) => (
           <Likert
-            key={n}
+            key={n + 1}
             onClick={() => {
-              setSelectedOption(n)
+              setSelectedOption(n + 1)
             }}
-            active={selectedOption === n}
+            active={selectedOption === n + 1}
           >
             {option.image}
             <p className="likert-scale-text">{option.text}</p>

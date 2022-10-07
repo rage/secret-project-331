@@ -15,8 +15,8 @@ import MultipleChoiceSubmission from "./SubmissionComponents/MultipleChoice"
 import MultipleChoiceClickableFeedback from "./SubmissionComponents/MultipleChoiceClickable"
 import MultipleChoiceDropdownFeedback from "./SubmissionComponents/MultipleChoiceDropdown"
 import OpenFeedback from "./SubmissionComponents/Open"
+import ScaleSubmissionViewComponent from "./SubmissionComponents/Scale"
 import Timeline from "./SubmissionComponents/Timeline"
-import UnsupportedSubmissionViewComponent from "./SubmissionComponents/Unsupported"
 
 interface SubmissionProps {
   user_answer: QuizAnswer
@@ -54,7 +54,7 @@ const mapTypeToComponent: { [key: string]: QuizItemSubmissionComponentDescriptor
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   scale: {
-    component: UnsupportedSubmissionViewComponent,
+    component: ScaleSubmissionViewComponent,
     shouldDisplayCorrectnessMessageAfterAnswer: false,
   },
   open: { component: OpenFeedback, shouldDisplayCorrectnessMessageAfterAnswer: true },

@@ -62,9 +62,7 @@ const OrganizationImageWidget: React.FC<
             {t("button-text-remove")}
           </Button>
         </>
-      ) : (
-        <div>{t("no-organization-image")}</div>
-      )}
+      ) : null}
       <UploadImageForm onSubmit={handleSubmit} />
     </div>
   )

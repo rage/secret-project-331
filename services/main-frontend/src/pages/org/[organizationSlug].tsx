@@ -50,9 +50,6 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
                 alt={t("image-alt-what-to-display-on-organization")}
               />
             )}
-            {!getOrganizationBySlug.data.organization_image_url && (
-              <div>{t("no-organization-image")}</div>
-            )}
           </>
         )}
         {getOrganizationBySlug.isLoading && <Spinner variant={"medium"} />}

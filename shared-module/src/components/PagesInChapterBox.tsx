@@ -32,7 +32,7 @@ const ChapterParts = styled.div`
   margin-left: 0em;
   padding: 0.8em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: rgb(17, 24, 36);
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;

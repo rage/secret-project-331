@@ -163,6 +163,7 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">course_instance_enrollments::CourseInstanceEnrollment</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
@@ -200,7 +201,8 @@ WHERE id = $2
   AND deleted_at IS NULL ON CONFLICT (user_id, course_language_group_id) DO
 UPDATE
 SET current_course_id = $2,
-  current_course_instance_id = $3
+  current_course_instance_id = $3,
+  deleted_at = NULL
 RETURNING *;
         &quot;</span>,
         <span class="ident">course_instance_enrollment</span>.<span class="ident">user_id</span>,

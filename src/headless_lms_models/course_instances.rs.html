@@ -494,6 +494,7 @@
 <span id="494">494</span>
 <span id="495">495</span>
 <span id="496">496</span>
+<span id="497">497</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -835,6 +836,7 @@ SELECT user_id,
   score_given
 FROM user_exercise_states
 WHERE course_instance_id = $1
+AND deleted_at IS NULL
 ORDER BY user_id ASC
 &quot;</span>,
         <span class="ident">instance_id</span>,

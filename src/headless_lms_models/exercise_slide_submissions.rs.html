@@ -697,6 +697,7 @@
 <span id="697">697</span>
 <span id="698">698</span>
 <span id="699">699</span>
+<span id="700">700</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
@@ -1200,6 +1201,7 @@ ORDER BY date;
                 exercises.chapter_id
             FROM exercises
             WHERE exercises.course_id = $1
+            AND exercises.deleted_at IS NULL
             GROUP BY exercises.id;&quot;#</span>,
         <span class="ident">course_id</span>,
     )

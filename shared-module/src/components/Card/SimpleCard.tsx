@@ -34,7 +34,7 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
-  word-break: break-all;
+  overflow-wrap: break-word;
   position: relative;
   ${BackgroundStyles}
 
@@ -54,9 +54,6 @@ const CardContentWrapper = styled.div`
     font-weight: 500;
     width: 50%;
     line-height: 3em;
-  }
-  ${respondToOrLarger.lg} {
-    word-break: normal;
   }
 `
 export const StyledSVG = (Image: any) => {

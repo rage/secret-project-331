@@ -57,14 +57,14 @@ const Text = styled.div`
 
   div {
     color: #1a2333;
-    opacity: 0.7;
+    opacity: 0.8;
   }
 `
 // eslint-disable-next-line i18next/no-literal-string
 const StyledLink = styled.a`
   font-family: ${headingFont};
   font-size: 20px;
-  color: #44827e;
+  color: #1f6964;
   text-decoration: none;
 
   span {

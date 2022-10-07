@@ -66,6 +66,10 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         `background-image: url(${backgroundImage});
         background-repeat: no-repeat;
         background-position: center center;`}
+        background-size: auto;
+        ${respondToOrLarger.xxxxxl} {
+          background-size: contain;
+        }
       `}
     >
       <TextBox>

@@ -501,6 +501,7 @@ pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
                 exercises.chapter_id
             FROM exercises
             WHERE exercises.course_id = $1
+            AND exercises.deleted_at IS NULL
             GROUP BY exercises.id;"#,
         course_id,
     )

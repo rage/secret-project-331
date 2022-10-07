@@ -14,6 +14,8 @@ const Wrapper = styled.div`
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding: 3rem;
+  margin: 0 auto;
+  max-width: 2000px;
 
   h2 {
     z-index: 20;

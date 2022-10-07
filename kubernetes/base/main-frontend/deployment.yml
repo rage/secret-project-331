@@ -19,7 +19,6 @@ metadata:
   labels:
     app: main-frontend
     deploymentType: without-init-container
-    needsTitle: "yes"
 spec:
   replicas: 1
   selector:

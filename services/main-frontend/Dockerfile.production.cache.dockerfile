@@ -17,5 +17,6 @@ COPY --chown=node . /app
 RUN npm run postinstall
 
 ENV NEXT_PUBLIC_BASE_PATH=""
+ENV NEXT_PUBLIC_SITE_TITLE="MOOC.fi courses"
 
 RUN npm run build

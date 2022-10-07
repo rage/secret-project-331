@@ -19,7 +19,6 @@ metadata:
   labels:
     app: cms
     deploymentType: without-init-container
-    needsTitle: "yes"
 spec:
   replicas: 1
   selector:

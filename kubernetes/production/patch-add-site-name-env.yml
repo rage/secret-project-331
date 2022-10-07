@@ -1,5 +1,0 @@
-- op: add
-  path: "/spec/template/spec/containers/0/env/1"
-  value:
-    name: NEXT_PUBLIC_SITE_TITLE
-    value: "MOOC.fi courses"

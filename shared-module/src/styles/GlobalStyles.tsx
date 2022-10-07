@@ -6,7 +6,14 @@ import cssReset from "./cssReset"
 
 import { headingFont, monospaceFont, primaryFont, typography } from "."
 
-import "@fontsource/raleway"
+import "@fontsource/raleway/100.css"
+import "@fontsource/raleway/200.css"
+import "@fontsource/raleway/300.css"
+import "@fontsource/raleway/400.css"
+import "@fontsource/raleway/500.css"
+import "@fontsource/raleway/600.css"
+import "@fontsource/raleway/700.css"
+import "@fontsource/raleway/800.css"
 import "@fontsource/josefin-sans"
 import "@fontsource/josefin-sans/100.css"
 import "@fontsource/josefin-sans/200.css"
@@ -21,6 +28,7 @@ const globalCss = css`
 
   html, body {
     font-family: ${primaryFont};
+    font-weight: 400;
     font-size: ${defaultFontSizePx}px;
     overflow-x: hidden;
   }
@@ -31,6 +39,7 @@ const globalCss = css`
   h5,
   h6 {
     font-family: ${headingFont};
+    font-weight: 400;
   }
   h1 {
     font-size: ${typography.h3};

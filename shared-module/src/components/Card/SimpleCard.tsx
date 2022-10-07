@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CardSVG from "../../img/cardNext.svg"
-import { secondaryFont } from "../../styles"
+import { headingFont } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
 import { respondToOrLarger } from "../../styles/respond"
 
@@ -35,6 +35,7 @@ const CardContentWrapper = styled.div`
   text-align: left;
   flex-direction: column;
   word-break: break-all;
+  position: relative;
   ${BackgroundStyles}
 
   h2 {
@@ -58,6 +59,19 @@ const CardContentWrapper = styled.div`
     word-break: normal;
   }
 `
+export const StyledSVG = (Image: any) => {
+  return (
+    <Image
+      className={css`
+        position: absolute;
+        z-index: 99;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      `}
+    />
+  )
+}
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & CardExtraProps
 
@@ -68,6 +82,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
   date,
   time,
   bg,
+  backgroundImage,
 }) => {
   const { t } = useTranslation()
 
@@ -83,6 +98,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
       `}
     >
       <CardContentWrapper bg={bg}>
+        {backgroundImage && StyledSVG(backgroundImage)}
         <CardOpensTextOverlay open={open} date={date} time={time} />
         {open && (
           <div
@@ -127,7 +143,7 @@ const SimpleCard: React.FC<React.PropsWithChildren<React.PropsWithChildren<CardP
               <span
                 className={css`
                   text-transform: uppercase;
-                  font-family: ${secondaryFont};
+                  font-family: ${headingFont};
                 `}
               >
                 {t("chapter-chapter-number", { number: chapterNumber })}

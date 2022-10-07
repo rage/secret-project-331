@@ -18,7 +18,6 @@ const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   display: grid;
-  background: #ebedee;
   grid-template-rows: 1fr;
   padding: 1rem;
   color: #231f20;

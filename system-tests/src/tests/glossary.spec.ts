@@ -82,7 +82,7 @@ test("test", async ({ page, headless }) => {
   // Click button:text-is("Save")
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.locator(`div:text-is("Success")`).waitFor()
-  // The save button reloads the data in the background and that might meke the added-new-term screenshot unstable without the reload.
+  // The save button reloads the data in the background and that might make the added-new-term screenshot unstable without the reload.
   await page.reload()
   await page.locator("text=efgh").waitFor()
 

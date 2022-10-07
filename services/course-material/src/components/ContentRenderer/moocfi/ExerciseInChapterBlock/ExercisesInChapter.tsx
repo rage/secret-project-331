@@ -38,7 +38,8 @@ const ExercisesInChapter: React.FC<
             margin-bottom: 2rem;
             font-family: ${headingFont};
             color: #1a2333;
-            font-size: 2rem;
+            font-weight: 500;
+            font-size: 2.2rem;
           `,
         )}
       >

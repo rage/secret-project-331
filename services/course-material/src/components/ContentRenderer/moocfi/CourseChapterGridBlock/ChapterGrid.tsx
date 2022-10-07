@@ -96,7 +96,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
                           margin: 1rem 1rem 0.3rem 1rem;
                           text-transform: uppercase;
                           font-size: 1rem;
-                          font-weight: bold;
+                          font-weight: 500;
                           text-align: center;
                           font-family: ${secondaryFont};
                         `}
@@ -107,7 +107,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
                         className={css`
                           margin-bottom: 2rem;
                           color: ${randomizedColor};
-                          font-weight: bold;
+                          font-weight: 600;
                           font-size: 2rem;
                           text-align: center;
                           opacity: 0.8;

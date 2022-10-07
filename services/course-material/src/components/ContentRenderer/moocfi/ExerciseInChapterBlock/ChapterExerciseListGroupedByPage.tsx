@@ -8,7 +8,6 @@ import ExerciseBox from "../../../../shared-module/components/ExerciseList/Exerc
 import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
 import Spinner from "../../../../shared-module/components/Spinner"
 import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { baseTheme } from "../../../../shared-module/styles"
 import { assertNotNullOrUndefined } from "../../../../shared-module/utils/nullability"
 import { coursePageSectionRoute } from "../../../../utils/routing"
 
@@ -63,7 +62,7 @@ const ChapterExerciseListGroupedByPage: React.FC<
           <>
             <PageBox pageTitle={page.title} />
             <div>
-              {page.exercises.map((e, index) => {
+              {page.exercises.map((e) => {
                 let userPoints = null
 
                 if (loginStateContext.signedIn) {
@@ -78,7 +77,8 @@ const ChapterExerciseListGroupedByPage: React.FC<
                         page.url_path,
                         e.id,
                       )}
-                      bg={index % 2 !== 0 ? baseTheme.colors.blue[100] : baseTheme.colors.blue[200]}
+                      // eslint-disable-next-line i18next/no-literal-string
+                      bg={"rgb(242, 245, 247)"}
                       exerciseIndex={e.order_number}
                       exerciseTitle={e.name}
                       scoreMaximum={e.score_maximum}

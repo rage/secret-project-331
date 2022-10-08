@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next"
 
 import { headingFont, typography } from "../../styles"
 import { cardMaxWidth } from "../../styles/constants"
-import { respondToOrLarger } from "../../styles/respond"
 
 import CardOpensTextOverlay from "./CardOpenTextOverlay"
 
@@ -29,7 +28,7 @@ const CardContentWrapper = styled.div`
   height: 100%;
   text-align: left;
   flex-direction: column;
-  word-break: break-all;
+  overflow-wrap: break-word;
   ${BackgroundStyles}
 
   h2 {
@@ -50,9 +49,6 @@ const CardContentWrapper = styled.div`
     line-height: 3em;
     background-color: #f9f9f9;
     padding: 0.2rem 0.2rem 0.1rem;
-  }
-  ${respondToOrLarger.lg} {
-    word-break: normal;
   }
 `
 

@@ -38,7 +38,7 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
         ${gradient && `background: ${colorMapper(gradient)};`}
         ${textColor && `color: ${colorMapper(textColor)};`}
         ${verticalAlignment && getAlignSelf(verticalAlignment)}
-        word-break: break-word;
+        overflow-wrap: break-word;
         flex-grow: 1;
         ${respondToOrLarger.md} {
           ${width && `max-width: ${width};`}

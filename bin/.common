@@ -31,6 +31,7 @@ function ensure_program_in_path() {
 }
 
 function ensure_common_programs_in_path() {
+  ensure_program_in_path bc
   ensure_program_in_path jq
   ensure_program_in_path find
   ensure_program_in_path sponge

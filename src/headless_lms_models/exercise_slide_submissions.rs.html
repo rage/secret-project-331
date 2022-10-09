@@ -698,6 +698,11 @@
 <span id="698">698</span>
 <span id="699">699</span>
 <span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
@@ -1066,6 +1071,7 @@ WHERE id = $1
 SELECT COUNT(*) as count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">exercise_id</span>,
     )
@@ -1117,6 +1123,7 @@ LIMIT $2 OFFSET $3
 SELECT DATE(created_at) date, count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
           &quot;#</span>,
@@ -1137,6 +1144,7 @@ ORDER BY date;
 SELECT DATE(created_at) date, count(DISTINCT user_id)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
           &quot;#</span>,
@@ -1298,6 +1306,7 @@ SELECT date_part(&#39;isodow&#39;, created_at)::integer isodow,
   count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY isodow,
   &quot;hour&quot;
 ORDER BY isodow,
@@ -1322,6 +1331,7 @@ SELECT counts.*, exercises.name exercise_name
         SELECT exercise_id, count(*)::integer count
         FROM exercise_slide_submissions
         WHERE course_id = $1
+        AND deleted_at IS NULL
         GROUP BY exercise_id
     ) counts
     JOIN exercises ON (counts.exercise_id = exercises.id);

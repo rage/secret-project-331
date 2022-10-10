@@ -1290,6 +1290,7 @@ dependencies = [
  "chrono",
  "cloud-storage",
  "diff",
+ "doc-macro",
  "flate2",
  "futures",
  "indexmap",

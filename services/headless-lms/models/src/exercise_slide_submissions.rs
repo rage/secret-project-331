@@ -366,6 +366,7 @@ pub async fn exercise_slide_submission_count(
 SELECT COUNT(*) as count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
+AND deleted_at IS NULL
 ",
         exercise_id,
     )
@@ -417,6 +418,7 @@ pub async fn get_course_daily_slide_submission_counts(
 SELECT DATE(created_at) date, count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
           "#,
@@ -437,6 +439,7 @@ pub async fn get_course_daily_user_counts_with_submissions(
 SELECT DATE(created_at) date, count(DISTINCT user_id)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY date
 ORDER BY date;
           "#,
@@ -501,6 +504,7 @@ pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
                 exercises.chapter_id
             FROM exercises
             WHERE exercises.course_id = $1
+            AND exercises.deleted_at IS NULL
             GROUP BY exercises.id;"#,
         course_id,
     )
@@ -597,6 +601,7 @@ SELECT date_part('isodow', created_at)::integer isodow,
   count(*)::integer
 FROM exercise_slide_submissions
 WHERE course_id = $1
+AND deleted_at IS NULL
 GROUP BY isodow,
   "hour"
 ORDER BY isodow,
@@ -621,6 +626,7 @@ SELECT counts.*, exercises.name exercise_name
         SELECT exercise_id, count(*)::integer count
         FROM exercise_slide_submissions
         WHERE course_id = $1
+        AND deleted_at IS NULL
         GROUP BY exercise_id
     ) counts
     JOIN exercises ON (counts.exercise_id = exercises.id);

@@ -17,11 +17,10 @@ export type CircularProgressBarProps = React.HTMLAttributes<HTMLDivElement> &
 
 // eslint-disable-next-line i18next/no-literal-string
 const CircleBox = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   margin: 0.2rem !important;
   display: inline-block;
-  position: relative;
   padding: 0;
   .progress {
     position: absolute;
@@ -32,30 +31,32 @@ const CircleBox = styled.div`
 
   .progress-circle {
     transform: rotate(-90deg);
-    margin-top: 0px;
   }
 
   .progress-circle-bg {
     fill: none;
-    stroke: #fff;
-    stroke-width: 4px;
+    stroke: ${baseTheme.colors.green[200]};
+    stroke-width: 7px;
+    stroke-linecap: round;
   }
   .progress-circle-value {
     fill: none;
-    stroke: ${baseTheme.colors.blue[600]};
-    stroke-width: 4px;
-    stroke-dasharray: 100 100;
-    stroke-dashoffset: ${({ point }: CircleBoxProps) => 100 - point * 100};
+    stroke: ${baseTheme.colors.green[600]};
+    stroke-width: 7px;
+    stroke-linecap: round;
+    stroke-dasharray: 131 131;
+    stroke-dashoffset: ${({ point }: CircleBoxProps) => 131 - point * 131};
     transition: stroke-dashoffset 0.7s ease-in-out;
   }
   .progress-text {
     position: absolute;
-    top: 17px;
-    left: 36px;
+    top: 20px;
+    left: 21px;
     font-size: 12px;
     font-family: ${headingFont};
   }
 `
+// To get the appropriate stroke-dasharray; It is 2 * PI * radius = 131
 
 const CircularProgressBar: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<CircularProgressBarProps>>
@@ -64,18 +65,13 @@ const CircularProgressBar: React.FC<
   return (
     <CircleBox point={complete}>
       <div className="progress">
-        <svg
-          className="progress-circle"
-          width="74px"
-          height="80px"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle className="progress-circle-bg" cx="50" cy="50" r="15.9155"></circle>
+        <svg className="progress-circle" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+          <circle className="progress-circle-bg" cx="50%" cy="50%" r="20.9155"></circle>
           <circle
             className="progress-circle-value update-value"
-            cx="50"
-            cy="50"
-            r="15.9155"
+            cx="50%"
+            cy="50%"
+            r="20.9155"
           ></circle>
         </svg>
         <div className="progress-text" data-progress="50">

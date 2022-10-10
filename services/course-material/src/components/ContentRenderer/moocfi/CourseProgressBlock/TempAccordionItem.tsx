@@ -3,7 +3,7 @@ import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { animated, useSpring } from "react-spring"
 
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
+import { headingFont } from "../../../../shared-module/styles"
 import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
 
 // This should be replaced once the issues with the shared module one are resolved.
@@ -26,7 +26,7 @@ const TempAccordion: React.FC<
         role="button"
         tabIndex={0}
         className={css`
-          background-color: ${baseTheme.colors.clear[100]};
+          background-color: rgb(242, 245, 247);
           font-family: ${headingFont};
           margin-bottom: ${open ? "3px" : "6px"};
           cursor: pointer;
@@ -36,7 +36,7 @@ const TempAccordion: React.FC<
           padding: 1rem 2rem;
 
           &:hover {
-            background: ${baseTheme.colors.clear[200]};
+            background: rgb(235, 239, 242);
           }
         `}
       >

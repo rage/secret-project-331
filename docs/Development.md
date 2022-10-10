@@ -17,7 +17,10 @@
    - Add ~/bin/ to PATH
    - Run Kustomize installation script in the folder
 5. Install Docker: https://docs.docker.com/engine/install/
+   - You may want to check out [moving docker data root to another drive with more space](#moving-docker-data-root-to-another-drive-with-more-space).
 6. Install Postgresql: http://postgresguide.com/setup/install.html
+7. Install `bc`, `find`, `jq`, `rsync` and `sponge` with your package manager.
+   - On Arch Linux, `sponge` is included in the `moretools` package.
 
 You may also need stern and kubectx.
 
@@ -30,12 +33,6 @@ You don't need these if you don't intend to change the headless-lms.
 3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
 4. Install `pkg-config`
 
-### Set up the TMC CLI for the TMC exercise service
-
-```sh
-bin/download-tmc-langs
-```
-
 ### Setting up minikube
 
 Start minikube:
@@ -44,34 +41,19 @@ Start minikube:
 bin/minikube-start
 ```
 
-#### Moving docker data root to another drive with more space
-
-1. `sudo systemctl stop docker`
-2. `sudo vim /etc/docker/daemon.json` -
-   with content:
-   {
-   "data-root": "/home/username/docker"
-   }
-3. `mkdir /home/$USER/docker`
-4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
-5. `sudo mv /var/lib/docker /var/lib/docker.old`
-6. `sudo systemctl start docker`
-   - Ensure all works fine by running: `docker run --rm hello-world`
-7. `sudo rm -rf /var/lib/docker.old` (cleanup)
-
-> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
-
 #### Using Node Version Manager
 
-This project expects is configured for at least major node version 14. You can use Node Version Manager to manage multiple node versions on your system.
+This project expects is configured for at least major node version 16. You can use Node Version Manager to manage multiple node versions on your system.
 
 1. Run `command -v nvm`. If it prints `nvm`, you are already have it installed and can probably skip to step 4.
 2. Remove existing installation of node with `sudo apt-get remove nodejs` if you have one.
 3. [Install nvm](https://github.com/nvm-sh/nvm#installing-and-updating) and refresh your terminal.
-4. `nvm install 14` to download the latest `14.x` version.
-5. `nvm alias default 14` to set `14.x` version as the default version when running node commands.
+4. `nvm install 16` to download the latest `16.x` version.
+5. `nvm alias default 16` to set `16.x` version as the default version when running node commands.
 
 ### Starting the development cluster
+
+Before running the project, please run `npm ci` in the project root. Then make sure that TMC-Langs is downloaded by running `bin/download-tmc-langs`. Otherwise the build won't succeed.
 
 In the root of the repo, run: `bin/dev`. This script will start the development cluster with skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
@@ -97,7 +79,28 @@ ip-from-previous-command	project-331.local
 
 You can find the hosts file in Linux from `/etc/hosts`.
 
-After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
+After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Note that there won't be any data to be shown yet. To seed the database with development data, you can run `bin/seed`.
+
+Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
+
+### Optional steps
+
+#### Moving docker data root to another drive with more space
+
+> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space.
+
+1. `sudo systemctl stop docker`
+2. `sudo vim /etc/docker/daemon.json` -
+   with content:
+   {
+   "data-root": "/home/username/docker"
+   }
+3. `mkdir /home/$USER/docker`
+4. `sudo rsync -aP /var/lib/docker /home/$USER/docker` (optional)
+5. `sudo mv /var/lib/docker /var/lib/docker.old`
+6. `sudo systemctl start docker`
+   - Ensure all works fine by running: `docker run --rm hello-world`
+7. `sudo rm -rf /var/lib/docker.old` (cleanup)
 
 ## Setting up development environment on Windows 10
 

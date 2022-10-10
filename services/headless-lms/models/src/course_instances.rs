@@ -123,6 +123,26 @@ WHERE id = $1
     Ok(course_instance)
 }
 
+pub async fn get_default_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseInstance> {
+    let res = sqlx::query_as!(
+        CourseInstance,
+        "
+SELECT *
+FROM course_instances
+WHERE course_id = $1
+  AND name IS NULL
+  AND deleted_at IS NULL
+    ",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_organization_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -319,6 +339,7 @@ SELECT user_id,
   score_given
 FROM user_exercise_states
 WHERE course_instance_id = $1
+AND deleted_at IS NULL
 ORDER BY user_id ASC
 ",
         instance_id,

@@ -5,6 +5,7 @@ mod example;
 
 use chrono::{TimeZone, Utc};
 use example::Example;
+use headless_lms_models::course_module_completions::CourseModuleCompletionWithRegistrationInfo;
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
 use std::{collections::HashMap, fs};
@@ -1200,6 +1201,16 @@ fn models() {
             expires_at,
         }
     );
+    doc!(CourseModuleCompletionWithRegistrationInfo {
+        completion_registration_attempt_date: None,
+        course_module_id,
+        created_at,
+        grade: Some(4),
+        passed: true,
+        prerequisite_modules_completed: true,
+        registered: false,
+        user_id,
+    });
 }
 
 fn utils() {

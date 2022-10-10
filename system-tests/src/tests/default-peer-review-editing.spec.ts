@@ -26,13 +26,13 @@ test("default peer review editing", async ({ page, headless }) => {
   await page.locator("text=Add peer review").check()
   // Click text=Use course global peer reviewCourse default peer review config >> div >> nth=1
   await page
-    .locator("text=Use course default peer reviewCourse default peer review config >> div")
+    .locator("text=Use course default peer review configCourse default peer review config >> div")
     .nth(1)
     .click()
   // Click text=Course default peer review config
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
-    page.locator("text=Course default peer review config").click(),
+    page.locator(`a:has-text("Course default peer review config")`).click(),
   ])
 
   await expectScreenshotsToMatchSnapshots({

@@ -75,7 +75,7 @@ const CourseUsersCountsByExercise: React.FC<
             >{`${t("chapter")} ${data[0].chapter_number}`}</h3>
           </div>
           <Echarts
-            height={data.length > 2 ? data.length * 100 : 200}
+            height={Math.max(data.length > 2 ? data.length * 100 : (data.length + 1) * 100, 230)}
             options={{
               tooltip: {
                 // eslint-disable-next-line i18next/no-literal-string

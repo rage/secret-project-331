@@ -10,8 +10,6 @@ license = "Apache-2.0"
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
-doc-macro = { path = "../doc-macro" }
-
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { version = "1.19.2", features = ["fs", "io-util"] }
 # Additional utilities for working with Tokio.

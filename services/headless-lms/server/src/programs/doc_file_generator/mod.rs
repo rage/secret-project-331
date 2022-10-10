@@ -13,12 +13,28 @@ use std::{collections::HashMap, fs};
 use ts_rs::TS;
 use uuid::Uuid;
 
-// Helper function to avoid typing out Example::example
+// Helper function to avoid typing out Example::example()
 fn ex<T: Example>() -> T {
     Example::example()
 }
 
-// Writes the example docs for the given type using its Example impl.
+// Writes doc files.
+// Can be used with struct/enum literals optionally prepended with T, Opt and/or Vec to generate an Example impl for that type and write docs using that impl.
+// Fields that have types that implement Example can be left out to use their Example impl, for example
+// `doc!(SomeType { id });` uses the Example impl for id's type (probably Uuid).
+// ```
+// doc!(
+//     T,
+//     Vec,
+//     AnotherType {
+//         id,
+//         name: "Some name".to_string()
+//         some_type,
+//     }
+// )
+// ```
+// The type above can then use the SomeType example for its some_type field, while writing doc files for both AnotherType and Vec<AnotherType>.
+// If you just want to generate and Example impl but don't want to write docs, you can use the example! macro.
 macro_rules! doc {
     (T, Opt, Vec, $($t:tt)*) => {
         example!($($t)*);

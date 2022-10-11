@@ -37,6 +37,7 @@ import {
   EmbedDeprecated1Attributes,
   FileAttributes,
   FileDeprecated1Attributes,
+  FileDeprecated2Attributes,
   HeadingAttributes,
   HeadingDeprecated1Attributes,
   HeadingDeprecated2Attributes,
@@ -51,12 +52,14 @@ import {
   ImageDeprecated5Attributes,
   ListAttributes,
   ListDeprecated1Attributes,
+  ListDeprecated2Attributes,
   ParagraphAttributes,
   ParagraphDeprecated1Attributes,
   ParagraphDeprecated2Attributes,
   ParagraphDeprecated3Attributes,
   ParagraphDeprecated4Attributes,
   ParagraphDeprecated5Attributes,
+  ParagraphDeprecated6Attributes,
   PreformattedAttributes,
   PullquoteAttributes,
   PullquoteDeprecated1Attributes,
@@ -195,7 +198,6 @@ export function isParagraphDeprecated3Attributes(
       typeof typedObj["customBackgroundColor"] === "string") &&
     (typeof typedObj["customFontSize"] === "undefined" ||
       typeof typedObj["customFontSize"] === "number") &&
-    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
       typeof typedObj["lock"] === "function") &&
@@ -217,10 +219,17 @@ export function isParagraphDeprecated4Attributes(
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["backgroundColor"] === "undefined" ||
       typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "number") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
     (typeof typedObj["direction"] === "undefined" ||
       typedObj["direction"] === "ltr" ||
       typedObj["direction"] === "rtl") &&
+    (typeof typedObj["customTextColor"] === "undefined" ||
+      typeof typedObj["customTextColor"] === "string") &&
+    (typeof typedObj["customBackgroundColor"] === "undefined" ||
+      typeof typedObj["customBackgroundColor"] === "string") &&
+    (typeof typedObj["customFontSize"] === "undefined" ||
+      typeof typedObj["customFontSize"] === "number") &&
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||
       (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
       typeof typedObj["lock"] === "function") &&
@@ -232,6 +241,31 @@ export function isParagraphDeprecated5Attributes(
   obj: unknown,
 ): obj is ParagraphDeprecated5Attributes {
   const typedObj = obj as ParagraphDeprecated5Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    typeof typedObj["dropCap"] === "boolean" &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "number") &&
+    (typeof typedObj["direction"] === "undefined" ||
+      typedObj["direction"] === "ltr" ||
+      typedObj["direction"] === "rtl") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+  )
+}
+
+export function isParagraphDeprecated6Attributes(
+  obj: unknown,
+): obj is ParagraphDeprecated6Attributes {
+  const typedObj = obj as ParagraphDeprecated6Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
@@ -602,6 +636,36 @@ export function isListDeprecated1Attributes(obj: unknown): obj is ListDeprecated
   )
 }
 
+export function isListDeprecated2Attributes(obj: unknown): obj is ListDeprecated2Attributes {
+  const typedObj = obj as ListDeprecated2Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["ordered"] === "boolean" &&
+    typeof typedObj["values"] === "string" &&
+    (typeof typedObj["type"] === "undefined" || typeof typedObj["type"] === "string") &&
+    (typeof typedObj["start"] === "undefined" || typeof typedObj["start"] === "number") &&
+    (typeof typedObj["reversed"] === "undefined" ||
+      typedObj["reversed"] === false ||
+      typedObj["reversed"] === true) &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["backgroundColor"] === "undefined" ||
+      typeof typedObj["backgroundColor"] === "string") &&
+    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
+    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
+    (typeof typedObj["style"] === "undefined" ||
+      (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
+      typeof typedObj["style"] === "function")
+  )
+}
+
 export function isQuoteAttributes(obj: unknown): obj is QuoteAttributes {
   const typedObj = obj as QuoteAttributes
   return (
@@ -618,6 +682,7 @@ export function isQuoteAttributes(obj: unknown): obj is QuoteAttributes {
       typeof typedObj["backgroundColor"] === "string") &&
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
     (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
@@ -1133,6 +1198,8 @@ export function isButtonsAttributes(obj: unknown): obj is ButtonsAttributes {
       typeof typedObj["lock"] === "function") &&
     (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
     (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
+    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
       typeof typedObj["style"] === "function") &&
@@ -1222,7 +1289,8 @@ export function isColumnAttributes(obj: unknown): obj is ColumnAttributes {
     (typeof typedObj["templateLock"] === "undefined" ||
       typedObj["templateLock"] === false ||
       typedObj["templateLock"] === "all" ||
-      typedObj["templateLock"] === "insert") &&
+      typedObj["templateLock"] === "insert" ||
+      typedObj["templateLock"] === "contentOnly") &&
     (typeof typedObj["lock"] === "undefined" ||
       (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
       typeof typedObj["lock"] === "function") &&
@@ -1424,6 +1492,40 @@ export function isFileAttributes(obj: unknown): obj is FileAttributes {
 
 export function isFileDeprecated1Attributes(obj: unknown): obj is FileDeprecated1Attributes {
   const typedObj = obj as FileDeprecated1Attributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
+    (typeof typedObj["fileId"] === "undefined" || typeof typedObj["fileId"] === "string") &&
+    (typeof typedObj["fileName"] === "undefined" || typeof typedObj["fileName"] === "string") &&
+    (typeof typedObj["textLinkHref"] === "undefined" ||
+      typeof typedObj["textLinkHref"] === "string") &&
+    (typeof typedObj["textLinkTarget"] === "undefined" ||
+      typeof typedObj["textLinkTarget"] === "string") &&
+    typeof typedObj["showDownloadButton"] === "boolean" &&
+    (typeof typedObj["downloadButtonText"] === "undefined" ||
+      typeof typedObj["downloadButtonText"] === "string") &&
+    (typeof typedObj["displayPreview"] === "undefined" ||
+      typedObj["displayPreview"] === false ||
+      typedObj["displayPreview"] === true) &&
+    typeof typedObj["previewHeight"] === "number" &&
+    (typeof typedObj["align"] === "undefined" ||
+      typedObj["align"] === "" ||
+      typedObj["align"] === "left" ||
+      typedObj["align"] === "center" ||
+      typedObj["align"] === "right" ||
+      typedObj["align"] === "wide" ||
+      typedObj["align"] === "full") &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
+  )
+}
+
+export function isFileDeprecated2Attributes(obj: unknown): obj is FileDeprecated2Attributes {
+  const typedObj = obj as FileDeprecated2Attributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
@@ -1760,6 +1862,7 @@ export function isTableAttributes(obj: unknown): obj is TableAttributes {
       typeof typedObj["backgroundColor"] === "string") &&
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
+    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
     (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
     (typeof typedObj["style"] === "undefined" ||
       (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||

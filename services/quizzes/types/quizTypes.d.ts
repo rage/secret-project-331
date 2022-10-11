@@ -1,5 +1,19 @@
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
+
+export interface QuizItemOption {
+  id: string
+  quizItemId?: string
+  order: number
+  correct: boolean
+  createdAt: Date
+  updatedAt: Date
+  title: string
+  body: string | null
+  messageAfterSubmissionWhenSelected: null | string
+  additionalCorrectnessExplanationOnModelSolution: null | string
+}
+
 export interface PrivateSpecQuiz {
   version: "2"
   id: string

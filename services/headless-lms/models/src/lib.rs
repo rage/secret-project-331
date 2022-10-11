@@ -68,7 +68,70 @@ use crate::prelude::*;
 #[macro_use]
 extern crate tracing;
 
-/// Helper struct to use with functions that insert data into the database.
+/**
+Helper struct to use with functions that insert data into the database.
+
+## Examples
+
+### Usage when inserting to a database
+
+By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum can be used with
+SQLX queries while letting the caller dictate how the primary key should be decided.
+
+```no_run
+async fn insert(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "INSER INTO foos (id) VALUES ($1) RETURNING id",
+        pkey_policy.into_uuid(),
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+// Insert using generated id.
+let foo_1_id = insert(conn, PKeyPolicy::Generate).await.unwrap();
+
+// Insert using fixed id.
+let uuid = Uuid::parse_str("8fce44cf-738e-4fc9-8d8e-47c350fd3a7f").unwrap());
+let foo_2_id = insert(conn, PKeyPolicy::Fixed(uuid)).await.unwrap();
+assert_eq!(foo_2_id, uuid);
+```
+
+### Usage in a higher-order function.
+
+When `PKeyPolicy` is used with a higher-order function, an arbitrary struct can be provided
+instead. The data can be mapped further by calling the `.map()` or `.map_ref()` methods.
+
+```no_run
+struct FooBar {
+    foo: Uuid,
+    bar: Uuid,
+}
+
+async fn multiple_inserts(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<FooBar>,
+) -> ModelResult<()> {
+    foos::insert(conn, pkey_policy.map_ref(|x| x.foo)).await?;
+    bars::insert(conn, pkey_policy.map_ref(|x| x.bar)).await?;
+    Ok(())
+}
+
+// Insert using generated ids.
+assert!(multiple_inserts(conn, PKeyPolicy::Generate).await.is_ok());
+
+// Insert using fixed ids.
+let foobar = FooBar {
+    foo: Uuid::parse_str("52760668-cc9d-4144-9226-d2aacb83bea9").unwrap(),
+    bar: Uuid::parse_str("ce9bd0cd-0e66-4522-a1b4-52a9347a115c").unwrap(),
+};
+assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
+```
+*/
 pub enum PKeyPolicy<T> {
     /// Ids will be generated based on the associated data. Usually only used in
     /// local test environments where reproducible database states are desired.

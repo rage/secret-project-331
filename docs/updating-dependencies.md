@@ -64,12 +64,9 @@ Run the following commands in the root of the repo:
 bin/extract-gutenberg-types
 ```
 
-Open a different terminal in the background and open there `bin/dev-only-db`. Wait with `bin/pods` until the new postgres pod is ready before proceeding.
-
-Then, without closing the `bin/dev-only-db`, run in another terminal:
+Then, assuming you still have the `bin/dev-only-db` open in another terminal, run:
 
 ```bash
-bin/sqlx-database-reset
 bin/generate-bindings
 bin/generate-doc-files
 ```

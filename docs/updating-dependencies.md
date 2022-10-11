@@ -40,7 +40,7 @@ Make sure you have [cargo-edit](https://github.com/killercup/cargo-edit) install
 
 ```bash
 cd services/headless-lms
-cargo upgrade --workspace
+cargo upgrade --incompatible allow --pinned allow
 cargo update
 ```
 

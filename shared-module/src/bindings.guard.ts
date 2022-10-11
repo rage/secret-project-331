@@ -135,7 +135,6 @@ import {
   PeerReviewAcceptingStrategy,
   PeerReviewConfig,
   PeerReviewQuestion,
-  PeerReviewQuestionSubmission,
   PeerReviewQuestionType,
   PendingRole,
   PlaygroundExample,

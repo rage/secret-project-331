@@ -72,3 +72,28 @@ function fail_minikube_version() {
   echo "Please run bin/minikube-delete and after that upgrade minikube to its latest version."
   exit 255
 }
+
+function check_sqlx_cli_version() {
+  # just to be sure
+  MINIMUM_ACCEPTABLE_VERSION="0.6.2"
+  ensure_program_in_path cargo
+  ensure_program_in_path cargo-sqlx
+  SQLX=$(cargo sqlx --version | grep -oP '\d+\.\d+\.\d+')
+  SQLX_VERSION_MAJOR=$(echo "$SQLX" | cut -d . -f 1)
+  SQLX_VERSION_MINOR=$(echo "$SQLX" | cut -d . -f 2)
+  SQLX_VERSION_PATCH=$(echo "$SQLX" | cut -d . -f 3)
+  if [ "$SQLX_VERSION_MAJOR" -lt "0" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+  if [ "$SQLX_VERSION_MAJOR" -lt "1" ] && [ "$SQLX_VERSION_MINOR" -lt "6" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+  if [ "$SQLX_VERSION_MAJOR" -lt "1" ] && [ "$SQLX_VERSION_MINOR" -lt "7" ] && [ "$SQLX_VERSION_PATCH" -lt "2" ]; then
+    fail_sqlx_cli_version "$SQLX" "$MINIMUM_ACCEPTABLE_VERSION"
+  fi
+}
+
+function fail_sqlx_cli_version() {
+  echo "Your sqlx-cli needs to be updated. Minimum acceptable version: $2, installed: $1. Please run: cargo install sqlx-cli --force"
+  exit 255
+}

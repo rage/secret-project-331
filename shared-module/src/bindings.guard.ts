@@ -98,6 +98,7 @@ import {
   HistoryChangeReason,
   HistoryRestoreData,
   IsChapterFrontPage,
+  isPeerReviewQuestionSubmission,
   Login,
   ManualCompletionPreview,
   ManualCompletionPreviewUser,

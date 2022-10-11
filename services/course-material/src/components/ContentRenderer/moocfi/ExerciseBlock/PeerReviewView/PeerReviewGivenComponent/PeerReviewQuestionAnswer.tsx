@@ -11,7 +11,7 @@ import Essay from "./Essay"
 import Likert from "./Likert"
 interface ReviewProps {
   orderNumber: number
-  review: PeerReviewQuestionSubmission
+  review: PeerReviewQuestionSubmission[]
   questions: PeerReviewQuestion[]
 }
 
@@ -31,20 +31,23 @@ const PeerReviewQuestionAnswer: React.FunctionComponent<ReviewProps> = ({
   questions,
 }) => {
   const { t } = useTranslation()
-  const { id, number_data, text_data, peer_review_question_id } = review
-
-  const questionIndex = questions.findIndex((q) => q.id === peer_review_question_id)
-  const question = questions[questionIndex].question
+  // const { id, number_data, text_data, peer_review_question_id } = review
 
   return (
     <Wrapper>
       <Heading>{`${t("peer-review")} #${orderNumber + 1}`}</Heading>
-      {text_data && (
-        <Essay key={id} question={question} content={text_data} index={orderNumber + 1} />
-      )}
-      {number_data !== null && (
-        <Likert key={id} question={question} content={number_data} index={orderNumber + 1} />
-      )}
+      {review?.map(({ id, number_data, text_data, peer_review_question_id }, index) => {
+        const questionIndex = questions.findIndex((q) => q.id === peer_review_question_id)
+        const question = questions[questionIndex].question
+        return (
+          <>
+            {text_data && <Essay key={id} question={question} content={text_data} index={index} />}
+            {number_data !== null && (
+              <Likert key={id} question={question} content={number_data} index={index} />
+            )}
+          </>
+        )
+      })}
     </Wrapper>
   )
 }

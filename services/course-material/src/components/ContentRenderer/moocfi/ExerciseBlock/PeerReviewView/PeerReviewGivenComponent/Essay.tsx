@@ -10,6 +10,7 @@ const Wrapper = styled.div`
     color: #215887;
     line-height: 1.4;
     margin-bottom: 0.8rem;
+    font-weight: 500;
   }
 
   span {

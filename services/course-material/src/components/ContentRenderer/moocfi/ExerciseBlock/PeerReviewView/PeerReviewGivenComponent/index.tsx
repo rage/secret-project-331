@@ -1,6 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { groupBy, mapValues } from "lodash"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -132,31 +133,25 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     questions = peer_review_questions
   }
 
+  const groupByPeerReviewSubmissionId = mapValues(
+    groupBy(result, (review) => review.peer_review_submission_id),
+  )
+
   return (
     <Wrapper>
       <details>
         <summary>
           {t("peer-review-received-from-other-student")}
-          <Notification>
-            {[
-              ...new Set(
-                getPeerReviewReceived.data?.peer_review_question_submissions.map(
-                  (o) => o.peer_review_submission_id,
-                ),
-              ),
-            ].length ?? "0"}
-          </Notification>
+          <Notification>{Object.keys(groupByPeerReviewSubmissionId).length ?? "0"}</Notification>
         </summary>
-        {result &&
-          questions &&
-          result?.map((item, index) => (
-            <PeerReviewQuestionAnswer
-              orderNumber={index}
-              key={index}
-              review={item}
-              questions={questions}
-            />
-          ))}
+        {Object.values(groupByPeerReviewSubmissionId).map((item, index) => (
+          <PeerReviewQuestionAnswer
+            orderNumber={index}
+            key={index}
+            review={item}
+            questions={questions}
+          />
+        ))}
       </details>
     </Wrapper>
   )

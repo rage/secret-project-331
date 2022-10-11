@@ -73,16 +73,11 @@ async fn get_chapters_pages_without_main_frontpage(
         Res::Chapter(*chapter_id),
     )
     .await?;
-    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
-    let chapter_pages = models::pages::get_course_pages_by_chapter_id_and_visibility(
-        &mut conn,
-        *chapter_id,
-        PageVisibility::Public,
-    )
-    .await?
-    .into_iter()
-    .filter(|x| x.chapter_id != Some(chapter.id))
-    .collect();
+    let chapter_pages =
+        models::pages::get_chapters_visible_pages_exclude_main_frontpage(&mut conn, *chapter_id)
+            .await?
+            .into_iter()
+            .collect();
     token.authorized_ok(web::Json(chapter_pages))
 }
 

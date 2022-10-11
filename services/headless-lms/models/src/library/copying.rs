@@ -781,6 +781,7 @@ mod tests {
                 .into_iter()
                 .map(|page| (page.id, page))
                 .collect();
+            assert_eq!(original_pages_by_id.len(), 3);
             let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
                 tx.as_mut(),
                 copied_course.id,

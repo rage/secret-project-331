@@ -348,18 +348,51 @@ pub enum PageVisibility {
     Unlisted,
 }
 
+impl PageVisibility {
+    /// Hacky way to implement a nullable boolean filter. Based on the idea that
+    /// `null IS DISTINCT FROM anything` in PostgreSQL.
+    ///
+    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// // Evaluates to "unlisted <> NULL"
+    /// let visibility = PageVisibility::Any;
+    /// sqlx::query!(
+    ///     "SELECT * FROM pages WHERE unlisted IS DISTINCT FROM $1",
+    ///     visibility.inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await
+    /// .unwrap();
+    ///
+    /// // Evaluates to "unlisted <> true"
+    /// let visibility = PageVisibility::Public;
+    /// sqlx::query!(
+    ///     "SELECT * FROM pages WHERE unlisted IS DISTINCT FROM $1",
+    ///     visibility.inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await
+    /// .unwrap();
+    /// ```
+    fn get_inverse_visibility_filter(&self) -> Option<bool> {
+        match self {
+            PageVisibility::Any => None,
+            PageVisibility::Public => Some(true),
+            PageVisibility::Unlisted => Some(false),
+        }
+    }
+}
+
 /// Gets all pages that belong to the given course that match the visibility filter.
 pub async fn get_all_by_course_id_and_visibility(
     conn: &mut PgConnection,
     course_id: Uuid,
     page_visibility: PageVisibility,
 ) -> ModelResult<Vec<Page>> {
-    // Hacky way to test visibility based on the idea that null != anything in SQL.
-    let inverse_visibility_filter = match page_visibility {
-        PageVisibility::Any => None,
-        PageVisibility::Public => Some(true),
-        PageVisibility::Unlisted => Some(false),
-    };
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let res = sqlx::query_as!(
         Page,
         "
@@ -378,7 +411,7 @@ SELECT id,
   unlisted
 FROM pages
 WHERE course_id = $1
-  AND unlisted <> $2
+  AND unlisted IS DISTINCT FROM $2
   AND deleted_at IS NULL
     ",
         course_id,
@@ -395,12 +428,7 @@ pub async fn get_course_top_level_pages_by_course_id_and_visibility(
     course_id: Uuid,
     page_visibility: PageVisibility,
 ) -> ModelResult<Vec<Page>> {
-    // Hacky way to test visibility based on the idea that null != anything in SQL.
-    let inverse_visibility_filter = match page_visibility {
-        PageVisibility::Any => None,
-        PageVisibility::Public => Some(true),
-        PageVisibility::Unlisted => Some(false),
-    };
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -419,7 +447,7 @@ SELECT id,
   unlisted
 FROM pages p
 WHERE course_id = $1
-  AND unlisted <> $2
+  AND unlisted IS DISTINCT FROM $2
   AND p.chapter_id IS NULL
   AND p.deleted_at IS NULL
         ",
@@ -437,12 +465,7 @@ pub async fn get_course_pages_by_chapter_id_and_visibility(
     chapter_id: Uuid,
     page_visibility: PageVisibility,
 ) -> ModelResult<Vec<Page>> {
-    // Hacky way to test visibility based on the idea that null != anything in SQL.
-    let inverse_visibility_filter = match page_visibility {
-        PageVisibility::Any => None,
-        PageVisibility::Public => Some(true),
-        PageVisibility::Unlisted => Some(false),
-    };
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let res = sqlx::query_as!(
         Page,
         "
@@ -461,7 +484,7 @@ SELECT id,
   unlisted
 FROM pages
 WHERE chapter_id = $1
-  AND unlisted <> $2
+  AND unlisted IS DISTINCT FROM $2
   AND deleted_at IS NULL
     ",
         chapter_id,
@@ -2408,6 +2431,43 @@ WHERE p.chapter_id = $1
     .fetch_all(conn)
     .await?;
 
+    Ok(pages)
+}
+
+pub async fn get_chapters_visible_pages_exclude_main_frontpage(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  unlisted
+FROM pages p
+WHERE p.chapter_id = $1
+  AND p.deleted_at IS NULL
+  AND p.unlisted IS FALSE
+  AND p.id NOT IN (
+    SELECT front_page_id
+    FROM chapters c
+    WHERE c.front_page_id = p.id
+  );
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(pages)
 }
 

@@ -106,6 +106,7 @@
   "quiz-item-type-not-supported": "Tämä tehtävätyyppi ei ole vielä tuettu",
   "quiz-item-type-not-unsupported-title": "Tehtävätyyppi, jota ei vielä tueta",
   "shuffled-checkbox-message": "Shuffle options",
+  "shuffle-option-description": "Esitä vaihtoehdot satunnaisessa järjestyksessä",
   "submit-message": "Viesti palautuksessa",
   "success-message": "Oikean vastauksen viesti",
   "title": "Otsikko",
@@ -119,5 +120,9 @@
   "word-count": "Sanamäärä",
   "your-answer-was-correct": "Vastauksesi oli oikein.",
   "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
-  "your-answer-was-partially-correct": "Vastauksesi oli osittain oikein."
+  "your-answer-was-partially-correct": "Vastauksesi oli osittain oikein.",
+  "advanced-options": "Lisäasetukset",
+  "feedback-message": "Palauteviesti",
+  "layout-options": "Tehtävien asettelu",
+  "layout-options-description": "Valitse tapa, jolla tehtävät asetellaan näkyviin"
 }

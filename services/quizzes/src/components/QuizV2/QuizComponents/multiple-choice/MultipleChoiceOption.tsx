@@ -2,6 +2,7 @@ import styled from '@emotion/styled'
 import { faAngleDown, faAngleUp, faX } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { QuizItemOption } from '../../../../../types/quizTypes'
 import { primaryFont } from '../../../../shared-module/styles'
 import MessageModel from '../common/MessageModal'
@@ -73,6 +74,8 @@ interface MultipleChoiceOption {
 const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
   const [visible, setVisible] = useState(true)
 
+  const { t } = useTranslation()
+
   const handleClick = () => {
     setVisible(!visible)
   }
@@ -86,7 +89,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
 
         <OptionButtonGroup>
           {
-            option.correct && <CorrectTag> correct </CorrectTag>
+            option.correct && <CorrectTag> {t("label-correct")} </CorrectTag>
           }
           <ExpandOptionButton onClick={handleClick} icon={visible ? faAngleDown : faAngleUp}/>
           <DeleteOptionButton icon={faX}/>
@@ -94,7 +97,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
       </OptionCard>
       { !visible &&
         <MultipleChoiceMessageModalContainer>
-          <MessageModel title={"Success message"} description={option.messageAfterSubmissionWhenSelected ?? ""}/>
+          <MessageModel title={t("success-message")} description={option.messageAfterSubmissionWhenSelected ?? ""}/>
         </MultipleChoiceMessageModalContainer>
       }
     </>

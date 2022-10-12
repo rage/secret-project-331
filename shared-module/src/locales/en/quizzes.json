@@ -118,5 +118,10 @@
   "switch-to-original-mode": "Switch to original mode",
   "your-answer-was-correct": "Your answer was correct.",
   "your-answer-was-not-correct": "Your answer was not correct.",
-  "your-answer-was-partially-correct": "Your answer was partially correct."
+  "your-answer-was-partially-correct": "Your answer was partially correct.",
+  "advanced-options": "Advanced options",
+  "feedback-message": "Feedback message",
+  "layout-options": "Layout options",
+  "shuffle-option-description": "Present choices in random order",
+  "layout-options-description": "Choose the direction the quiz item options will be used to lay out in widget"
 }

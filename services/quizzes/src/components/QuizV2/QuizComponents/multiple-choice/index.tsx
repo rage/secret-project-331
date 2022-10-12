@@ -1,3 +1,5 @@
+/* eslint-disable i18next/no-literal-string */
+/* Temporary fix */
 import styled from '@emotion/styled'
 import React from 'react'
 import { PrivateSpecQuizItemMultiplechoice } from '../../../../../types/quizTypes'
@@ -10,6 +12,7 @@ import CheckBox from '../../../../shared-module/components/InputFields/CheckBox'
 import ToggleCard from '../common/ToggleCard'
 import Accordion from '../../../../shared-module/components/Accordion'
 import RadioButton from '../../../../shared-module/components/InputFields/RadioButton'
+import { useTranslation } from 'react-i18next'
 
 interface MultipleChoiceEditorProps {
   quizItem: PrivateSpecQuizItemMultiplechoice
@@ -44,7 +47,7 @@ const OptionCheckBoxContainer = styled.div`
   width: 15vh;
   display: inline;
   margin-left: 20px;
-
+  padding: 0px 8px;
 `
 
 const OptionCreationWrapper = styled.div`
@@ -54,9 +57,7 @@ const OptionCreationWrapper = styled.div`
   }
   display: flex;
   flex-direction: row;
-  gap: 16px;
   align-items: center;
-  background-color: #E8E8E8;
   margin-bottom: 8px;
   height: 45px;
   margin-top: 16px;
@@ -88,32 +89,43 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
 
 
 const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem }) => {
+
+  const { t } = useTranslation()
+
   return (
     <EditorCard title={"MULTIPLE-CHOICE"}>
-      <TextField value={quizItem.title} label={"Title"} name={"title"}/>
-      <OptionTitle> Options </OptionTitle>
+      <TextField
+        value={quizItem.title}
+        label={t("title")}
+        name={t("title")}
+      />
+      <OptionTitle> { t("title-options") } </OptionTitle>
       <OptionDescription>
         Add multiple options to this question
       </OptionDescription>
       <OptionCardContainer>
         { quizItem.options.map(option => (
-          <MultipleChoiceOption option={option}/>
+          <MultipleChoiceOption key={option.id} option={option}/>
         ))}
       </OptionCardContainer>
 
+      {/* New multiple choice option input */}
       <OptionCreationContainer>
           <OptionCreationWrapper>
             <OptionNameContainer>
-              <TextField label={"Option name"} placeholder={"Option name"}/>
+              <TextField
+                label={t("option-title")}
+                placeholder={t("option-title")}
+              />
             </OptionNameContainer>
             <OptionCheckBoxContainer>
-              <CheckBox label={"Correct"}/>
+              <CheckBox label={t("label-correct")}/>
             </OptionCheckBoxContainer>
           </OptionCreationWrapper>
 
-          <TextField label={"Success message"} placeholder={"Success message"}/>
+          <TextField label={t("success-message")} placeholder={t("success-message")}/>
           <Button variant="primary" size={'medium'}>
-            Add options
+            { t("add-option") }
           </Button>
       </OptionCreationContainer>
 
@@ -121,25 +133,32 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
       <br/>
       <Accordion  variant='detail' title='Advanced options'>
         <details>
-          <summary>Advanced options </summary>
+          <summary> { t("advanced-options") }  </summary>
           <AdvancedOptionsContainer>
-            <OptionTitle> Layout options </OptionTitle>
+            <OptionTitle> { t("layout-options")} </OptionTitle>
             <OptionDescription>
-              Choose the direction the quiz item options will be used to lay out in widget
+              { t("layout-options-description") }
             </OptionDescription>
             <MultipleChoiceLayoutChoiceContainer
               role="radiogroup"
             >
-                  <RadioButton checked={quizItem.direction == 'row'} label='Row'/>
-                  <RadioButton checked={quizItem.direction == 'column'} label='Column'/>
+                  <RadioButton checked={quizItem.direction == 'row'} label={t("row")}/>
+                  <RadioButton checked={quizItem.direction == 'column'} label={t("column")}/>
             </MultipleChoiceLayoutChoiceContainer>
             <OptionTitle> Answering options </OptionTitle>
-            <ToggleCard title={"Allow selecting multiple options"} description={"All answers correct (no matter what one answers is correct)"} state={quizItem.allowSelectingMultipleOptions}/>
-            <ToggleCard title={"No wrong answers"} description={"All answers correct (no matter what one asnwers it is correct)"} state={quizItem.allowSelectingMultipleOptions}/>
-            <ToggleCard title={"Shuffle options"} description={"Present choices in random order"} state={quizItem.shuffleOptions}/>
-            <OptionTitle> Feedback message </OptionTitle>
-            <TextField label={"Success message"}/>
-            <TextField label={"Failure message"}/>
+            <ToggleCard
+              title={t("allow-selecting-multiple-options")}
+              description={"All answers correct (no matter what one answers is correct)"}
+              state={quizItem.allowSelectingMultipleOptions}
+            />
+            <ToggleCard
+              title={t("shuffled-checkbox-message")}
+              description={"Present choices in random order"}
+              state={quizItem.shuffleOptions}
+            />
+            <OptionTitle> {t("feedback-message")} </OptionTitle>
+            <TextField label={t("success-message")}/>
+            <TextField label={t("failure-message")}/>
 
           </AdvancedOptionsContainer>
         </details>

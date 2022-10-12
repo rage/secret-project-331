@@ -323,6 +323,7 @@ mod test {
             score_maximum: 100,
             feedback_text: None,
             feedback_json: None,
+            set_user_variables: Some(HashMap::new()),
         };
         let original_grading = create_initial_submission(
             tx.as_mut(),
@@ -418,6 +419,7 @@ mod test {
             score_maximum: 100,
             feedback_text: None,
             feedback_json: None,
+            set_user_variables: Some(HashMap::new()),
         };
         let original_grading = create_initial_submission(
             tx.as_mut(),
@@ -494,6 +496,7 @@ mod test {
             score_maximum: 100,
             feedback_text: None,
             feedback_json: None,
+            set_user_variables: Some(HashMap::new()),
         };
 
         let task_1 = models::exercise_tasks::insert(
@@ -676,6 +679,7 @@ mod test {
                     score_maximum: 100,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: Some(HashMap::new()),
                 },
             )]),
         )
@@ -690,6 +694,7 @@ mod test {
                     score_maximum: 100,
                     feedback_text: None,
                     feedback_json: None,
+                    set_user_variables: Some(HashMap::new()),
                 })
                 .unwrap(),
             )
@@ -763,6 +768,7 @@ mod test {
             score_maximum: 100,
             feedback_text: None,
             feedback_json: None,
+            set_user_variables: Some(HashMap::new()),
         };
         let original_grading = create_initial_submission(
             tx.as_mut(),

@@ -75,6 +75,7 @@ use headless_lms_models::{
     regradings::{Regrading, RegradingInfo, RegradingSubmissionInfo},
     repository_exercises::RepositoryExercise,
     roles::{RoleUser, UserRole},
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings::UserCourseSettings,
     user_exercise_states::{
         ReviewingStage, UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress,
@@ -353,6 +354,7 @@ pub async fn main() -> anyhow::Result<()> {
         submission: exercise_task_submission.clone(),
         grading: Some(grading.clone()),
         model_solution_spec: None,
+        exercise_task_exercise_service_slug: "quizzes".to_string(),
     };
     let exercise_slide_submission_result = StudentExerciseSlideSubmissionResult {
         exercise_task_submission_results: vec![submission_result.clone()],
@@ -362,6 +364,20 @@ pub async fn main() -> anyhow::Result<()> {
             grading_progress: GradingProgress::NotReady,
             reviewing_stage: headless_lms_models::user_exercise_states::ReviewingStage::NotStarted,
         }),
+        user_course_instance_exercise_service_variables: vec![
+            UserCourseInstanceExerciseServiceVariable {
+                id,
+                created_at,
+                updated_at,
+                deleted_at,
+                exercise_service_slug: "quizzes".to_string(),
+                user_id: id,
+                course_instance_id: Some(id),
+                exam_id: None,
+                variable_key: "dog-name".to_string(),
+                variable_value: serde_json::Value::String("Dog".to_string()),
+            },
+        ],
     };
     let organization = Organization {
         id,
@@ -689,7 +705,21 @@ pub async fn main() -> anyhow::Result<()> {
                 accepting_threshold: 3.0,
                 accepting_strategy:
                     PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage
-            })
+            }),
+            user_course_instance_exercise_service_variables: vec![
+                UserCourseInstanceExerciseServiceVariable {
+                    id,
+                    created_at,
+                    updated_at,
+                    deleted_at,
+                    exercise_service_slug: "quizzes".to_string(),
+                    user_id: id,
+                    course_instance_id: Some(id),
+                    exam_id: None,
+                    variable_key: "dog-name".to_string(),
+                    variable_value: serde_json::Value::String("Dog".to_string())
+                }
+            ]
         }
     );
     write_docs!(

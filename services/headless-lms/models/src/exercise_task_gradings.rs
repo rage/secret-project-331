@@ -12,6 +12,7 @@ use crate::{
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, GradingProgress},
     prelude::*,
+    user_exercise_states::UserExerciseState,
     CourseOrExamId,
 };
 
@@ -52,6 +53,7 @@ pub struct ExerciseTaskGradingResult {
     pub score_maximum: i32,
     pub feedback_text: Option<String>,
     pub feedback_json: Option<serde_json::Value>,
+    pub set_user_variables: Option<HashMap<String, serde_json::Value>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
@@ -305,14 +307,26 @@ pub async fn grade_submission(
     exercise_task: &ExerciseTask,
     exercise: &Exercise,
     grading: &ExerciseTaskGrading,
+    user_exercise_state: &UserExerciseState,
 ) -> ModelResult<ExerciseTaskGrading> {
     let exercise_service_info =
         get_service_info_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let exercise_service =
         get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
-    let obj = send_grading_request(grade_url, exercise_task, submission).await?;
-    let updated_grading = update_grading(conn, grading, &obj, exercise).await?;
+    let exercise_task_grading_result =
+        send_grading_request(grade_url, exercise_task, submission).await?;
+    let mut tx = conn.begin().await?;
+    let updated_grading =
+        update_grading(&mut tx, grading, &exercise_task_grading_result, exercise).await?;
+    crate::user_course_instance_exercise_service_variables::insert_after_exercise_task_graded(
+        &mut tx,
+        &exercise_task_grading_result.set_user_variables,
+        exercise_task,
+        user_exercise_state,
+    )
+    .await?;
+    tx.commit().await?;
     Ok(updated_grading)
 }
 

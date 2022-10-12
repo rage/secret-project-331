@@ -33,5 +33,6 @@
     "feedback_text": null,
     "deleted_at": null
   },
-  "model_solution_spec": null
+  "model_solution_spec": null,
+  "exercise_task_exercise_service_slug": "quizzes"
 }

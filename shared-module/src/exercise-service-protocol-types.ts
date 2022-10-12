@@ -56,11 +56,15 @@ export type UserInformation = {
   signed_in: boolean
 }
 
+export type UserVariablesMap = { [key: string]: unknown }
+
 export type IframeState =
   | {
       view_type: "answer-exercise"
       exercise_task_id: string
       user_information: UserInformation
+      /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
+      user_variables: UserVariablesMap
       data: {
         public_spec: unknown
         previous_submission: unknown | null
@@ -70,6 +74,8 @@ export type IframeState =
       view_type: "view-submission"
       exercise_task_id: string
       user_information: UserInformation
+      /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
+      user_variables: UserVariablesMap
       data: {
         grading: ExerciseTaskGradingResult | null
         user_answer: unknown
@@ -81,6 +87,8 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
+      /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
+      user_variables: UserVariablesMap
       data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
     }
 

@@ -1,0 +1,1 @@
+DROP TABLE user_course_instance_exercise_service_variables;

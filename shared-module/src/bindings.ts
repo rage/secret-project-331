@@ -581,6 +581,7 @@ export interface CourseMaterialExercise {
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
   peer_review_config: PeerReviewConfig | null
+  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface Exercise {
@@ -663,6 +664,7 @@ export interface StudentExerciseSlideSubmission {
 export interface StudentExerciseSlideSubmissionResult {
   exercise_status: ExerciseStatus | null
   exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
+  user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface StudentExerciseTaskSubmission {
@@ -674,6 +676,7 @@ export interface StudentExerciseTaskSubmissionResult {
   submission: ExerciseTaskSubmission
   grading: ExerciseTaskGrading | null
   model_solution_spec: unknown | null
+  exercise_task_exercise_service_slug: string
 }
 
 export interface CourseMaterialPeerReviewData {
@@ -1268,6 +1271,19 @@ export interface User {
   deleted_at: Date | null
   upstream_id: number | null
   email: string
+}
+
+export interface UserCourseInstanceExerciseServiceVariable {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  exercise_service_slug: string
+  user_id: string
+  course_instance_id: string | null
+  exam_id: string | null
+  variable_key: string
+  variable_value: unknown
 }
 
 export interface UploadResult {

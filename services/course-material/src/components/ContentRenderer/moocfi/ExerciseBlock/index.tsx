@@ -89,7 +89,7 @@ const ExerciseBlock: React.FC<
       }
       dispatch({
         type: "exerciseDownloaded",
-        payload: data.current_exercise_slide.exercise_tasks,
+        payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
     },
@@ -124,7 +124,7 @@ const ExerciseBlock: React.FC<
       }
       dispatch({
         type: "tryAgain",
-        payload: data.current_exercise_slide.exercise_tasks,
+        payload: data,
         signedIn: Boolean(loginState.signedIn),
       })
       postSubmissionMutation.reset()

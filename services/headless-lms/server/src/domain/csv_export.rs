@@ -466,6 +466,7 @@ mod test {
                     grading_progress: GradingProgress::FullyGraded,
                     score_given,
                     score_maximum: 100,
+                    set_user_variables: Some(HashMap::new()),
                 },
             )])),
         )

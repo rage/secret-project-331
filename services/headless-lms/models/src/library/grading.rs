@@ -13,8 +13,11 @@ use crate::{
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     prelude::*,
     regradings,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{self, ExerciseWithUserState, UserExerciseState},
+    user_exercise_states::{
+        self, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
+    },
     user_exercise_task_states,
 };
 
@@ -33,6 +36,8 @@ pub struct StudentExerciseSlideSubmission {
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
+    pub user_course_instance_exercise_service_variables:
+        Vec<UserCourseInstanceExerciseServiceVariable>,
 }
 
 impl StudentExerciseSlideSubmissionResult {
@@ -68,6 +73,7 @@ pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
     pub grading: Option<ExerciseTaskGrading>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub exercise_task_exercise_service_slug: String,
 }
 
 #[derive(Debug)]
@@ -232,9 +238,10 @@ pub async fn grade_user_submission(
         user_exercise_slide_submission,
     )
     .await?;
+    let user_exercise_state = exercise_with_user_state.user_exercise_state();
     let user_exercise_slide_state = user_exercise_slide_states::get_or_insert_by_unique_index(
         &mut tx,
-        exercise_with_user_state.user_exercise_state().id,
+        user_exercise_state.id,
         exercise_slide_submission.exercise_slide_id,
     )
     .await?;
@@ -247,6 +254,7 @@ pub async fn grade_user_submission(
                     &task_submission,
                     exercise_with_user_state.exercise(),
                     user_exercise_slide_state.id,
+                    user_exercise_state,
                 )
                 .await?;
                 results.push(submission);
@@ -285,6 +293,14 @@ pub async fn grade_user_submission(
         exercise_slide_submission.user_points_update_strategy,
     )
     .await?;
+
+    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(
+        user_exercise_state.course_instance_id,
+        user_exercise_state.exam_id,
+    )?;
+
+    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_instance_or_exam_id).await?;
+
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
             score_given: user_exercise_state.score_given,
@@ -293,6 +309,7 @@ pub async fn grade_user_submission(
             reviewing_stage: user_exercise_state.reviewing_stage,
         }),
         exercise_task_submission_results: results,
+        user_course_instance_exercise_service_variables,
     };
     exercise_with_user_state.set_user_exercise_state(user_exercise_state)?;
     tx.commit().await?;
@@ -304,6 +321,7 @@ async fn grade_user_submission_task(
     submission: &ExerciseTaskSubmission,
     exercise: &Exercise,
     user_exercise_slide_state_id: Uuid,
+    user_exercise_state: &UserExerciseState,
 ) -> ModelResult<StudentExerciseTaskSubmissionResult> {
     let grading = exercise_task_gradings::new_grading(conn, exercise, submission).await?;
     let updated_submission =
@@ -316,6 +334,7 @@ async fn grade_user_submission_task(
         &exercise_task,
         exercise,
         &grading,
+        user_exercise_state,
     )
     .await?;
     user_exercise_task_states::upsert_with_grading(conn, user_exercise_slide_state_id, &grading)
@@ -330,6 +349,7 @@ async fn grade_user_submission_task(
         submission: updated_submission,
         grading: Some(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 
@@ -351,16 +371,15 @@ async fn create_fixed_grading_for_submission_task(
         &updated_grading,
     )
     .await?;
-    let model_solution_spec = exercise_tasks::get_exercise_task_model_solution_spec_by_id(
-        conn,
-        submission.exercise_task_id,
-    )
-    .await?;
+    let exercise_task =
+        exercise_tasks::get_exercise_task_by_id(conn, submission.exercise_task_id).await?;
+    let model_solution_spec = exercise_task.model_solution_spec;
 
     Ok(StudentExerciseTaskSubmissionResult {
         submission: updated_submission,
         grading: Some(grading),
         model_solution_spec,
+        exercise_task_exercise_service_slug: exercise_task.exercise_type,
     })
 }
 

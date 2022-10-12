@@ -87,8 +87,6 @@ export type IframeState =
       view_type: "exercise-editor"
       exercise_task_id: string
       user_information: UserInformation
-      /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
-      user_variables: UserVariablesMap
       data: { private_spec: unknown; repository_exercise?: RepositoryExercise }
     }
 

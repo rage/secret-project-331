@@ -34,8 +34,8 @@ SELECT *
 FROM user_course_instance_exercise_service_variables
 WHERE deleted_at IS NULL
   AND user_id = $1
-  AND course_instance_id = $2
-  AND exam_id = $3;
+  AND (course_instance_id = $2 OR course_instance_id IS NULL)
+  AND (exam_id = $3 OR exam_id IS NULL);
     "#,
         user_id,
         course_instance_id,
@@ -54,35 +54,62 @@ pub(crate) async fn insert_after_exercise_task_graded(
 ) -> ModelResult<()> {
     if let Some(set_user_variables) = set_user_variables {
         for (k, v) in set_user_variables {
-            sqlx::query!(
-                r#"
-INSERT INTO user_course_instance_exercise_service_variables (
-    exercise_service_slug,
-    user_id,
-    course_instance_id,
-    exam_id,
-    variable_key,
-    variable_value
-  )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (
-    variable_key,
-    user_id,
-    course_instance_id,
-    exam_id,
-    exercise_service_slug
-  ) WHERE deleted_at IS NULL DO
-UPDATE
-SET variable_value = $6;
-"#,
-                exercise_task.exercise_type,
-                user_exercise_state.user_id,
-                user_exercise_state.course_instance_id,
-                user_exercise_state.exam_id,
-                k,
-                v
-            )
-            .execute(&mut *conn)
-            .await?;
+            // We have two unique indexes that require different on conflict handlers
+            if let Some(course_instance_id) = user_exercise_state.course_instance_id {
+                sqlx::query!(
+                    r#"
+    INSERT INTO user_course_instance_exercise_service_variables (
+        exercise_service_slug,
+        user_id,
+        course_instance_id,
+        variable_key,
+        variable_value
+      )
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (
+        variable_key,
+        user_id,
+        course_instance_id,
+        exercise_service_slug
+      ) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL DO
+    UPDATE
+    SET variable_value = $5;
+    "#,
+                    exercise_task.exercise_type,
+                    user_exercise_state.user_id,
+                    course_instance_id,
+                    k,
+                    v
+                )
+                .execute(&mut *conn)
+                .await?;
+            } else {
+                sqlx::query!(
+                    r#"
+    INSERT INTO user_course_instance_exercise_service_variables (
+        exercise_service_slug,
+        user_id,
+        exam_id,
+        variable_key,
+        variable_value
+      )
+    VALUES ($1, $2, $3, $4, $5) ON CONFLICT (
+        variable_key,
+        user_id,
+        exam_id,
+        exercise_service_slug
+      ) WHERE deleted_at IS NULL AND exam_id IS NOT NULL DO
+    UPDATE
+    SET variable_value = $5;
+    "#,
+                    exercise_task.exercise_type,
+                    user_exercise_state.user_id,
+                    user_exercise_state.exam_id,
+                    k,
+                    v
+                )
+                .execute(&mut *conn)
+                .await?;
+            }
         }
         Ok(())
     } else {

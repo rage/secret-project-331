@@ -212,7 +212,7 @@ pub async fn seed_sample_course(
     let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
     let hidden_page = welcome_page
         .followed_by("/hidden", "Hidden Page")
-        .set_unlisted(true)
+        .set_hidden(true)
         .set_content(vec![GutenbergBlock::paragraph(
             "You found the secret of the project 331!",
         )]);

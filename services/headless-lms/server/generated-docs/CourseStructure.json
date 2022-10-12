@@ -49,7 +49,7 @@
       ],
       "order_number": 123,
       "copied_from": null,
-      "unlisted": false
+      "hidden": false
     }
   ],
   "chapters": [

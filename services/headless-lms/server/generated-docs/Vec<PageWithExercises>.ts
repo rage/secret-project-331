@@ -11,6 +11,6 @@ type Vec<PageWithExercises> = Array<{
   content: unknown
   order_number: number
   copied_from: string | null
-  unlisted: boolean
+  hidden: boolean
   exercises: Array<Exercise>
 }>

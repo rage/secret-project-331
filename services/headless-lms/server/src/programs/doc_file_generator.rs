@@ -152,7 +152,7 @@ pub async fn main() -> anyhow::Result<()> {
         ]),
         order_number: 123,
         copied_from: None,
-        unlisted: false,
+        hidden: false,
     };
     let course_instance = CourseInstance {
         id,
@@ -494,7 +494,7 @@ pub async fn main() -> anyhow::Result<()> {
                 content: serde_json::json! {[]},
                 order_number: 123,
                 copied_from: None,
-                unlisted: false,
+                hidden: false,
             }
         ]
     );

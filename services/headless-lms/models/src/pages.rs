@@ -46,7 +46,7 @@ pub struct Page {
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
-    pub unlisted: bool,
+    pub hidden: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -216,7 +216,7 @@ pub struct NewCoursePage<'a> {
     pub course_id: Uuid,
     pub order_number: i32,
     pub title: &'a str,
-    pub unlisted: bool,
+    pub hidden: bool,
     pub url_path: &'a str,
 }
 
@@ -228,7 +228,7 @@ impl<'a> NewCoursePage<'a> {
             course_id,
             order_number,
             title,
-            unlisted: false,
+            hidden: false,
             url_path,
         }
     }
@@ -244,9 +244,9 @@ impl<'a> NewCoursePage<'a> {
         self
     }
 
-    /// Sets the unlisted status of this page.
-    pub fn set_unlisted(mut self, unlisted: bool) -> Self {
-        self.unlisted = unlisted;
+    /// Sets the hidden status of this page.
+    pub fn set_hidden(mut self, hidden: bool) -> Self {
+        self.hidden = hidden;
         self
     }
 }
@@ -265,7 +265,7 @@ INSERT INTO pages (
     url_path,
     title,
     order_number,
-    unlisted
+    hidden
   )
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
@@ -275,7 +275,7 @@ RETURNING id
         new_course_page.url_path,
         new_course_page.title,
         new_course_page.order_number,
-        new_course_page.unlisted,
+        new_course_page.hidden,
     )
     .fetch_one(&mut tx)
     .await?;
@@ -385,7 +385,7 @@ WHERE id = $1
 pub enum PageVisibility {
     Any,
     Public,
-    Unlisted,
+    Hidden,
 }
 
 impl PageVisibility {
@@ -397,20 +397,20 @@ impl PageVisibility {
     /// # Examples
     ///
     /// ```no_run
-    /// // Evaluates to "unlisted <> NULL"
+    /// // Evaluates to "hidden <> NULL"
     /// let visibility = PageVisibility::Any;
     /// sqlx::query!(
-    ///     "SELECT * FROM pages WHERE unlisted IS DISTINCT FROM $1",
+    ///     "SELECT * FROM pages WHERE hidden IS DISTINCT FROM $1",
     ///     visibility.inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
     /// .await
     /// .unwrap();
     ///
-    /// // Evaluates to "unlisted <> true"
+    /// // Evaluates to "hidden <> true"
     /// let visibility = PageVisibility::Public;
     /// sqlx::query!(
-    ///     "SELECT * FROM pages WHERE unlisted IS DISTINCT FROM $1",
+    ///     "SELECT * FROM pages WHERE hidden IS DISTINCT FROM $1",
     ///     visibility.inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
@@ -421,7 +421,7 @@ impl PageVisibility {
         match self {
             PageVisibility::Any => None,
             PageVisibility::Public => Some(true),
-            PageVisibility::Unlisted => Some(false),
+            PageVisibility::Hidden => Some(false),
         }
     }
 }
@@ -448,10 +448,10 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages
 WHERE course_id = $1
-  AND unlisted IS DISTINCT FROM $2
+  AND hidden IS DISTINCT FROM $2
   AND deleted_at IS NULL
     ",
         course_id,
@@ -484,10 +484,10 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages p
 WHERE course_id = $1
-  AND unlisted IS DISTINCT FROM $2
+  AND hidden IS DISTINCT FROM $2
   AND p.chapter_id IS NULL
   AND p.deleted_at IS NULL
         ",
@@ -521,10 +521,10 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages
 WHERE chapter_id = $1
-  AND unlisted IS DISTINCT FROM $2
+  AND hidden IS DISTINCT FROM $2
   AND deleted_at IS NULL
     ",
         chapter_id,
@@ -551,7 +551,7 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages
 WHERE id = $1;
 ",
@@ -608,7 +608,7 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.unlisted
+  pages.hidden
 FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
@@ -682,7 +682,7 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.unlisted
+  pages.hidden
 FROM url_redirections
   JOIN pages on pages.id = url_redirections.destination_page_id
 WHERE url_redirections.course_id = $1
@@ -830,7 +830,7 @@ SELECT pages.id,
   pages.content,
   pages.order_number,
   pages.copied_from,
-  pages.unlisted
+  pages.hidden
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
@@ -1037,7 +1037,7 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  pages.unlisted
+  pages.hidden
         ",
         page_id,
         serde_json::to_value(parsed_content)?,
@@ -1172,7 +1172,7 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
         ",
         new_content,
         page.id
@@ -1917,7 +1917,7 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  pages.unlisted
+  pages.hidden
           "#,
         new_page.course_id,
         new_page.exam_id,
@@ -1981,7 +1981,7 @@ RETURNING *;
         order_number: page.order_number,
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
-        unlisted: page.unlisted,
+        hidden: page.hidden,
     })
 }
 
@@ -2008,7 +2008,7 @@ RETURNING id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
           "#,
         page_id,
     )
@@ -2080,7 +2080,7 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2461,7 +2461,7 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
@@ -2493,11 +2493,11 @@ SELECT id,
   content,
   order_number,
   copied_from,
-  unlisted
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
-  AND p.unlisted IS FALSE
+  AND p.hidden IS FALSE
   AND p.id NOT IN (
     SELECT front_page_id
     FROM chapters c

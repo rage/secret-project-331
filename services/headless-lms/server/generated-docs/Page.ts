@@ -11,5 +11,5 @@ type Page = {
   content: unknown
   order_number: number
   copied_from: string | null
-  unlisted: boolean
+  hidden: boolean
 }

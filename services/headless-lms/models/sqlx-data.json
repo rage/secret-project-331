@@ -8569,6 +8569,22 @@
     },
     "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = $1\n  AND course_instance_id = $2\n  AND user_id = $3\n  AND completion_granter_user_id IS NULL\n  AND deleted_at IS NULL\n        "
   },
+  "7665fe9972eb6ec4b142ef06aecb91d2904566280fbfd57dc4c3cc23666bd146": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        }
+      ],
+      "nullable": [false],
+      "parameters": {
+        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4", "Bool"]
+      }
+    },
+    "query": "\nINSERT INTO pages (\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number,\n    unlisted\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n"
+  },
   "76ce92c1173e95b850a803ae754c1a94af1c02eb4e5e553df48901d90eb6e923": {
     "describe": {
       "columns": [
@@ -16462,22 +16478,6 @@
       }
     },
     "query": "\nSELECT p.id as page_id,\n  p.order_number as order_number,\n  p.course_id as course_id,\n  p.exam_id as exam_id,\n  c.id as \"chapter_id?\",\n  c.chapter_number as \"chapter_number?\"\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.id = $1;\n"
-  },
-  "db64bea6f7dc10dd47f4c41c5efa78c95cf5b6d97fcfcefda66847c20861ac56": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        }
-      ],
-      "nullable": [false],
-      "parameters": {
-        "Left": ["Uuid", "Jsonb", "Varchar", "Varchar", "Int4"]
-      }
-    },
-    "query": "\nINSERT INTO pages (\n    course_id,\n    content,\n    url_path,\n    title,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n"
   },
   "dc6a94949ce20d11fa55e247dc706fdc88018bf1ba528487fcd0ef02f5c40ca7": {
     "describe": {

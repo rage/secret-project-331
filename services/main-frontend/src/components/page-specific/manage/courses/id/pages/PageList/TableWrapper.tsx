@@ -32,6 +32,7 @@ const TableWrapper: React.FC<React.PropsWithChildren<unknown>> = ({ children }) 
         <tr>
           <td>{t("label-title")}</td>
           <td>{t("label-url-path")}</td>
+          <td>{t("label-hidden")}</td>
           <td aria-label={t("label-actions")}></td>
         </tr>
       </thead>

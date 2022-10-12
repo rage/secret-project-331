@@ -17,8 +17,8 @@ use headless_lms_models::{
     feedback::{FeedbackBlock, NewFeedback},
     glossary,
     page_history::HistoryChangeReason,
-    pages,
     pages::CmsPageUpdate,
+    pages::{self, NewCoursePage},
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
@@ -203,15 +203,20 @@ pub async fn seed_sample_course(
     let (_m2_chapter_2, _m2c2_front_page) =
         chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
 
-    let (_page, _) = pages::insert_course_page(
-        &mut conn,
+    let welcome_page = NewCoursePage::new(
         course.id,
+        1,
         "/welcome",
         "Welcome to Introduction to Everything",
-        1,
-        admin,
-    )
-    .await?;
+    );
+    let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
+    let hidden_page = welcome_page
+        .followed_by("/hidden", "Hidden Page")
+        .set_unlisted(true)
+        .set_content(vec![GutenbergBlock::paragraph(
+            "You found the secret of the project 331!",
+        )]);
+    let (_page, _) = pages::insert_course_page(&mut conn, &hidden_page, admin).await?;
 
     info!("sample exercises");
     let block_id_1 = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
@@ -1679,8 +1684,12 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    let (_page, _history) =
-        pages::insert_course_page(&mut conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let (_page, _history) = pages::insert_course_page(
+        &mut conn,
+        &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
+        admin,
+    )
+    .await?;
 
     // Chapter-1
     let new_chapter = NewChapter {

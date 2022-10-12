@@ -210,12 +210,50 @@ pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewCoursePage<'a> {
+    pub content: Vec<GutenbergBlock>,
+    pub course_id: Uuid,
+    pub order_number: i32,
+    pub title: &'a str,
+    pub unlisted: bool,
+    pub url_path: &'a str,
+}
+
+impl<'a> NewCoursePage<'a> {
+    /// Creates `NewCoursePage` with provided values that is public by default.
+    pub fn new(course_id: Uuid, order_number: i32, url_path: &'a str, title: &'a str) -> Self {
+        Self {
+            content: Default::default(),
+            course_id,
+            order_number,
+            title,
+            unlisted: false,
+            url_path,
+        }
+    }
+
+    /// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
+    pub fn followed_by(&self, url_path: &'a str, title: &'a str) -> Self {
+        Self::new(self.course_id, self.order_number + 1, url_path, title)
+    }
+
+    /// Sets the content of this page.
+    pub fn set_content(mut self, content: Vec<GutenbergBlock>) -> Self {
+        self.content = content;
+        self
+    }
+
+    /// Sets the unlisted status of this page.
+    pub fn set_unlisted(mut self, unlisted: bool) -> Self {
+        self.unlisted = unlisted;
+        self
+    }
+}
+
 pub async fn insert_course_page(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    url_path: &str,
-    title: &str,
-    order_number: i32,
+    new_course_page: &NewCoursePage<'_>,
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
     let mut tx = conn.begin().await?;
@@ -226,23 +264,25 @@ INSERT INTO pages (
     content,
     url_path,
     title,
-    order_number
+    order_number,
+    unlisted
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        course_id,
-        serde_json::Value::Array(vec![]),
-        url_path,
-        title,
-        order_number
+        new_course_page.course_id,
+        serde_json::to_value(new_course_page.content.clone())?,
+        new_course_page.url_path,
+        new_course_page.title,
+        new_course_page.order_number,
+        new_course_page.unlisted,
     )
     .fetch_one(&mut tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
         page_res.id,
-        title,
+        new_course_page.title,
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
             exercises: vec![],

@@ -239,7 +239,11 @@ mod tests {
     mod get_grading_summary_by_user_exercise_state_id {
         use headless_lms_utils::numbers::f32_approx_eq;
 
-        use crate::{chapters, exercise_slides, exercises, pages, user_exercise_states};
+        use crate::{
+            chapters, exercise_slides, exercises,
+            pages::{self, NewCoursePage},
+            user_exercise_states,
+        };
 
         use super::*;
 
@@ -341,8 +345,12 @@ mod tests {
                 course_module.id,
             )
             .await?;
-            let (page_id, _history) =
-                pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
+            let (page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                &NewCoursePage::new(course, 1, "/test", "test"),
+                user,
+            )
+            .await?;
             let exercise_id =
                 exercises::insert(tx.as_mut(), course, "course", page_id, chapter_id, 1).await?;
             let slide_1 = exercise_slides::insert(tx.as_mut(), exercise_id, 1).await?;

@@ -41,6 +41,16 @@ pub struct GutenbergBlock {
 }
 
 impl GutenbergBlock {
+    pub fn paragraph(paragraph: &str) -> Self {
+        Self::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! {
+              "content": paragraph.to_string(),
+              "dropCap": false
+            },
+        )
+    }
+
     pub fn empty_block_from_name(name: String) -> Self {
         GutenbergBlock {
             client_id: Uuid::new_v4(),

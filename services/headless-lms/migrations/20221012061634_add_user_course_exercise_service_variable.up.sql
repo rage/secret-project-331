@@ -25,4 +25,7 @@ COMMENT ON COLUMN user_course_instance_exercise_service_variables.exam_id IS 'Th
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.variable_key IS 'Key used to set or to access the variable.';
 COMMENT ON COLUMN user_course_instance_exercise_service_variables.variable_value IS 'The thing being stored.';
 
-CREATE UNIQUE INDEX no_duplicate_keys ON user_course_instance_exercise_service_variables (variable_key, user_id, course_instance_id, exam_id, exercise_service_slug) WHERE deleted_at IS NULL;
+-- We don't have this yet in postgres 14: https://blog.rustprooflabs.com/2022/07/postgres-15-unique-improvement-with-null
+-- Either exam id or course instance id is always null, enforced with a constraint.
+CREATE UNIQUE INDEX no_duplicate_keys_instance ON user_course_instance_exercise_service_variables (variable_key, user_id, course_instance_id, exercise_service_slug) WHERE deleted_at IS NULL AND course_instance_id IS NOT NULL;
+CREATE UNIQUE INDEX no_duplicate_keys_exam ON user_course_instance_exercise_service_variables (variable_key, user_id, exam_id, exercise_service_slug) WHERE deleted_at IS NULL AND exam_id IS NOT NULL;

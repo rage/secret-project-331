@@ -28,7 +28,13 @@ function useExerciseServiceParentConnection(onMessage: (messageData: unknown) =>
 
           console.info(JSON.stringify(message.data, undefined, 2))
           const data = message.data
-          onMessage(data)
+          try {
+            onMessage(data)
+          } catch (e) {
+            // eslint-disable-next-line i18next/no-literal-string
+            console.error(`Iframe onMessage handler crashed`, e)
+          }
+
           console.groupEnd()
         }
       }

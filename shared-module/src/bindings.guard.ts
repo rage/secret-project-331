@@ -1012,7 +1012,14 @@ export function isExerciseTaskGradingResult(obj: unknown): obj is ExerciseTaskGr
     (isGradingProgress(typedObj["grading_progress"]) as boolean) &&
     typeof typedObj["score_given"] === "number" &&
     typeof typedObj["score_maximum"] === "number" &&
-    (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string")
+    (typedObj["feedback_text"] === null || typeof typedObj["feedback_text"] === "string") &&
+    (typedObj["set_user_variables"] === null ||
+      (((typedObj["set_user_variables"] !== null &&
+        typeof typedObj["set_user_variables"] === "object") ||
+        typeof typedObj["set_user_variables"] === "function") &&
+        Object.entries<any>(typedObj["set_user_variables"]).every(
+          ([key, _value]) => typeof key === "string",
+        )))
   )
 }
 

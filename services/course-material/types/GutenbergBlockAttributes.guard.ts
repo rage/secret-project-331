@@ -53,6 +53,7 @@ import {
   ListAttributes,
   ListDeprecated1Attributes,
   ListDeprecated2Attributes,
+  ListItemAttributes,
   ParagraphAttributes,
   ParagraphDeprecated1Attributes,
   ParagraphDeprecated2Attributes,
@@ -663,6 +664,20 @@ export function isListDeprecated2Attributes(obj: unknown): obj is ListDeprecated
     (typeof typedObj["style"] === "undefined" ||
       (typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
       typeof typedObj["style"] === "function")
+  )
+}
+
+export function isListItemAttributes(obj: unknown): obj is ListItemAttributes {
+  const typedObj = obj as ListItemAttributes
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["placeholder"] === "undefined" ||
+      typeof typedObj["placeholder"] === "string") &&
+    typeof typedObj["content"] === "string" &&
+    (typeof typedObj["lock"] === "undefined" ||
+      (typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
+      typeof typedObj["lock"] === "function") &&
+    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string")
   )
 }
 

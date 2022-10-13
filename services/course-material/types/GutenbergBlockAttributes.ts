@@ -494,6 +494,15 @@ export interface ListDeprecated2Attributes {
   }
 }
 
+export interface ListItemAttributes {
+  placeholder?: string
+  content: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+}
+
 export interface QuoteAttributes {
   value: string
   citation: string

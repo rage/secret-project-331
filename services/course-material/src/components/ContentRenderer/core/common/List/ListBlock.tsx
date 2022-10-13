@@ -6,11 +6,12 @@ import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
-const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = ({
-  data,
-}) => {
+const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = (
+  props,
+) => {
   const {
     ordered,
     values,
@@ -25,7 +26,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     // style,
     textColor,
     // type,
-  } = data.attributes
+  } = props.data.attributes
 
   const { terms } = useContext(GlossaryContext)
 
@@ -39,6 +40,14 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     overflow-wrap: break-word;
   `
 
+  const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
+  let dangerouslySetInnerHTML = undefined
+  if (!usesNewFormat) {
+    dangerouslySetInnerHTML = {
+      __html: parseText(values, terms).parsedText,
+    }
+  }
+
   if (ordered) {
     return (
       <ol
@@ -46,20 +55,20 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
         {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
-        dangerouslySetInnerHTML={{
-          __html: parseText(values, terms).parsedText,
-        }}
-      />
+        dangerouslySetInnerHTML={dangerouslySetInnerHTML}
+      >
+        {usesNewFormat && <InnerBlocks parentBlockProps={props} />}
+      </ol>
     )
   } else {
     return (
       <ul
         className={LIST_ITEM_CLASS}
         {...(anchor && { id: anchor })}
-        dangerouslySetInnerHTML={{
-          __html: parseText(values, terms).parsedText,
-        }}
-      />
+        dangerouslySetInnerHTML={dangerouslySetInnerHTML}
+      >
+        {usesNewFormat && <InnerBlocks parentBlockProps={props} />}
+      </ul>
     )
   }
 }

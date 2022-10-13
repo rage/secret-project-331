@@ -223,6 +223,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
       className={css`
         padding-top: 1rem;
         --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;
+
+        /** A browser extension inserts these on some machines and they break the list block editor **/
+        pwa-container-wrapper {
+          display: none;
+        }
       `}
     >
       <ShortcutProvider>

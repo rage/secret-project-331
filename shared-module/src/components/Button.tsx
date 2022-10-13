@@ -27,7 +27,6 @@ export const BASE_BUTTON_STYLES = `
   text-decoration: none;
   text-align: center;
   justify-content: center;
-  word-break: break-word;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   transition: all 150ms linear;
@@ -63,9 +62,7 @@ export const BASE_BUTTON_STYLES = `
     text-decoration: none;
   }
 
-  ${respondToOrLarger.xs} {
-    word-break: unset;
-  }
+
   ${respondToOrLarger.sm} {
     white-space: nowrap;
   }

@@ -113,6 +113,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             background: #f9f9f9;
             grid-template-areas: "select";
             align-items: center;
+            margin-left: 0.5rem;
           `}
         >
           <option

@@ -1,7 +1,7 @@
 import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { groupBy, mapValues } from "lodash"
+import { groupBy } from "lodash"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -133,8 +133,9 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     questions = peer_review_questions
   }
 
-  const groupByPeerReviewSubmissionId = mapValues(
-    groupBy(result, (review) => review.peer_review_submission_id),
+  const groupByPeerReviewSubmissionId = groupBy(
+    result,
+    (review) => review.peer_review_submission_id,
   )
 
   return (

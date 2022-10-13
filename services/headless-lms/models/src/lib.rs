@@ -79,26 +79,32 @@ By calling `.into_uuid()` function implemented by `PKeyPolicy<Uuid>`, this enum 
 SQLX queries while letting the caller dictate how the primary key should be decided.
 
 ```no_run
+# use headless_lms_models::{ModelResult, PKeyPolicy};
+# use uuid::Uuid;
+# use sqlx::PgConnection;
 async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
-        "INSER INTO foos (id) VALUES ($1) RETURNING id",
+        "INSERT INTO organizations (id) VALUES ($1) RETURNING id",
         pkey_policy.into_uuid(),
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.id)
 }
 
+# async fn random_function(conn: &mut PgConnection) -> ModelResult<()> {
 // Insert using generated id.
 let foo_1_id = insert(conn, PKeyPolicy::Generate).await.unwrap();
 
 // Insert using fixed id.
-let uuid = Uuid::parse_str("8fce44cf-738e-4fc9-8d8e-47c350fd3a7f").unwrap());
+let uuid = Uuid::parse_str("8fce44cf-738e-4fc9-8d8e-47c350fd3a7f").unwrap();
 let foo_2_id = insert(conn, PKeyPolicy::Fixed(uuid)).await.unwrap();
 assert_eq!(foo_2_id, uuid);
+# Ok(())
+# }
 ```
 
 ### Usage in a higher-order function.
@@ -107,6 +113,26 @@ When `PKeyPolicy` is used with a higher-order function, an arbitrary struct can 
 instead. The data can be mapped further by calling the `.map()` or `.map_ref()` methods.
 
 ```no_run
+# use headless_lms_models::{ModelResult, PKeyPolicy};
+# use uuid::Uuid;
+# use sqlx::PgConnection;
+# mod foos {
+#   use headless_lms_models::{ModelResult, PKeyPolicy};
+#   use uuid::Uuid;
+#   use sqlx::PgConnection;
+#   pub async fn insert(conn: &mut PgConnection, pkey_policy: PKeyPolicy<Uuid>) -> ModelResult<()> {
+#       Ok(())
+#   }
+# }
+# mod bars {
+#   use headless_lms_models::{ModelResult, PKeyPolicy};
+#   use uuid::Uuid;
+#   use sqlx::PgConnection;
+#   pub async fn insert(conn: &mut PgConnection, pkey_policy: PKeyPolicy<Uuid>) -> ModelResult<()> {
+#       Ok(())
+#   }
+# }
+
 struct FooBar {
     foo: Uuid,
     bar: Uuid,
@@ -121,6 +147,7 @@ async fn multiple_inserts(
     Ok(())
 }
 
+# async fn some_function(conn: &mut PgConnection) {
 // Insert using generated ids.
 assert!(multiple_inserts(conn, PKeyPolicy::Generate).await.is_ok());
 
@@ -130,6 +157,7 @@ let foobar = FooBar {
     bar: Uuid::parse_str("ce9bd0cd-0e66-4522-a1b4-52a9347a115c").unwrap(),
 };
 assert!(multiple_inserts(conn, PKeyPolicy::Fixed(foobar)).await.is_ok());
+# }
 ```
 */
 pub enum PKeyPolicy<T> {

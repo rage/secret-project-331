@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PreformattedAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import { monospaceFont } from "../../../../shared-module/styles"
 import colorMapper from "../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../styles/fontSizeMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
@@ -18,7 +19,7 @@ const PreformattedBlock: React.FC<
         ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
         ${gradient && `background-color: ${colorMapper(gradient)};`}
         white-space: pre-wrap;
-        padding: 1.25em 2.375em !important;
+        font-family: ${monospaceFont};
         overflow-wrap: break-word;
       `}
       {...(anchor && { id: anchor })}

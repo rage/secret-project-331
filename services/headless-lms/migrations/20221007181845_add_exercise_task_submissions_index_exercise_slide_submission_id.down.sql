@@ -1,0 +1,1 @@
+DROP INDEX exercise_task_submissions_exercise_slide_submission_id_idx;

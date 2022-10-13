@@ -1401,6 +1401,32 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\nFROM pages\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\n        "
   },
+  "158633e7670cf155cedada52d8da51d9a51fac5558c95bc5b4157ab76571e300": {
+    "describe": {
+      "columns": [
+        {
+          "name": "isodow",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "hour",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "count",
+          "ordinal": 2,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [null, null, null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT date_part('isodow', created_at)::integer isodow,\n  date_part('hour', created_at)::integer \"hour\",\n  count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nAND deleted_at IS NULL\nGROUP BY isodow,\n  \"hour\"\nORDER BY isodow,\n  hour;\n          "
+  },
   "17a169b73b18097f58673f55f404032b00da8d5fc54b35567a4ef226f022111e": {
     "describe": {
       "columns": [
@@ -1647,27 +1673,6 @@
       }
     },
     "query": "\nSELECT *\nFROM exercises\nWHERE id = $1\n"
-  },
-  "19b82b88fdc09a5b8f4f3c197771eb838c846beb80b27f27e69eb1f5f69e9e16": {
-    "describe": {
-      "columns": [
-        {
-          "name": "date",
-          "ordinal": 0,
-          "type_info": "Date"
-        },
-        {
-          "name": "count",
-          "ordinal": 1,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [null, null],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          "
   },
   "1a466519782c720ea49eb0fc4fb4986acd32e545f81103d39dd9d1e3e682af02": {
     "describe": {
@@ -2728,6 +2733,27 @@
       }
     },
     "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\n  LEFT JOIN exercises ON (ues.exercise_id = exercises.id)\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\nWHERE chapters.course_module_id = $1\n  AND ues.course_instance_id = $2\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $3\n  AND ues.deleted_at IS NULL\n        "
+  },
+  "277f650443860fecadfe5183d6ce94c8544f1284c8253c8a7fda75c637465c89": {
+    "describe": {
+      "columns": [
+        {
+          "name": "date",
+          "ordinal": 0,
+          "type_info": "Date"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [null, null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DATE(created_at) date, count(DISTINCT user_id)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nAND deleted_at IS NULL\nGROUP BY date\nORDER BY date;\n          "
   },
   "2a8d2052e1e241693b19cfc230ea0e1e087f74820b5344b333b2dbe5b3071b89": {
     "describe": {
@@ -4272,22 +4298,6 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  exercise_task_submission_id,\n  course_id,\n  exam_id,\n  exercise_id,\n  exercise_task_id,\n  grading_priority,\n  score_given,\n  grading_progress as \"grading_progress: _\",\n  unscaled_score_given,\n  unscaled_score_maximum,\n  grading_started_at,\n  grading_completed_at,\n  feedback_json,\n  feedback_text,\n  deleted_at\nFROM exercise_task_gradings\nWHERE deleted_at IS NULL\n  AND id IN (\n    SELECT etrs.grading_before_regrading\n    FROM exercise_task_regrading_submissions etrs\n    WHERE etrs.deleted_at IS NULL\n      AND etrs.regrading_id = $1\n    UNION\n    SELECT etrs.grading_after_regrading\n    FROM exercise_task_regrading_submissions etrs\n    WHERE etrs.grading_after_regrading IS NOT NULL\n      AND etrs.deleted_at IS NULL\n      AND etrs.regrading_id = $1\n  );\n    "
   },
-  "42bb90fd049adc897da8bdd2b82ab5b13af558433fae08261cecd5facb0c2f4f": {
-    "describe": {
-      "columns": [
-        {
-          "name": "count",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [null],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n"
-  },
   "436363568885b8b7f969a542eea4f9796871c9f2a319023c5a0f12e7613a88d1": {
     "describe": {
       "columns": [],
@@ -5211,32 +5221,6 @@
     },
     "query": "\nUPDATE pages\nSET content = $2,\n  url_path = $3,\n  title = $4,\n  chapter_id = $5\nWHERE id = $1\nRETURNING id,\n  created_at,\n  updated_at,\n  course_id,\n  exam_id,\n  chapter_id,\n  url_path,\n  title,\n  deleted_at,\n  content,\n  order_number,\n  copied_from\n        "
   },
-  "4c7587a63fa11311dbe3b3466599276be54d129f90ce6721b7ae33c08156b83b": {
-    "describe": {
-      "columns": [
-        {
-          "name": "isodow",
-          "ordinal": 0,
-          "type_info": "Int4"
-        },
-        {
-          "name": "hour",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "count",
-          "ordinal": 2,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [null, null, null],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT date_part('isodow', created_at)::integer isodow,\n  date_part('hour', created_at)::integer \"hour\",\n  count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY isodow,\n  \"hour\"\nORDER BY isodow,\n  hour;\n          "
-  },
   "4c8deb63a67f9626f7f8c82f88241ba6e7802693940d26952c4579943b450ac2": {
     "describe": {
       "columns": [
@@ -5883,6 +5867,27 @@
     },
     "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE exercise_id = $1\n  AND user_id <> $2\n  AND receiving_peer_reviews_exercise_slide_submission_id <> ALL($3)\n  AND deleted_at IS NULL\nORDER BY peer_review_priority DESC\nLIMIT $4\n            "
   },
+  "572ec9f648f001d9bcd63d8c58f4456b8baa53284c15b0415ab0cdc59dc11b0e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "date",
+          "ordinal": 0,
+          "type_info": "Date"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [null, null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT DATE(created_at) date, count(*)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nAND deleted_at IS NULL\nGROUP BY date\nORDER BY date;\n          "
+  },
   "576035aeb9e877869815eabed2f331073438c344f65a06022c74c23592c51dd6": {
     "describe": {
       "columns": [
@@ -6308,6 +6313,22 @@
       }
     },
     "query": "\nINSERT INTO organizations (id, name, slug, description)\nVALUES ($1, $2, $3, $4)\nRETURNING id\n"
+  },
+  "5e9d24bbd4a73c6bbaf6e8a8bf197723df5bfeba3b355567d65235a7844b9422": {
+    "describe": {
+      "columns": [
+        {
+          "name": "count",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [null],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\nAND deleted_at IS NULL\n"
   },
   "5fd89014ad25b81efa0488da0d6cb6cbe52793878ebb1d5a3a3d97432c858c4c": {
     "describe": {
@@ -15550,27 +15571,6 @@
     },
     "query": "\nupdate email_deliveries\nset sent = TRUE\nwhere id = $1;\n    "
   },
-  "d48d9b81b38a4343e78f69da6a5d6ab468c847703eeb822c0dee49da773c6885": {
-    "describe": {
-      "columns": [
-        {
-          "name": "date",
-          "ordinal": 0,
-          "type_info": "Date"
-        },
-        {
-          "name": "count",
-          "ordinal": 1,
-          "type_info": "Int4"
-        }
-      ],
-      "nullable": [null, null],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT DATE(created_at) date, count(DISTINCT user_id)::integer\nFROM exercise_slide_submissions\nWHERE course_id = $1\nGROUP BY date\nORDER BY date;\n          "
-  },
   "d565b3ca168a0beb24ee0a58c078fd031a52cd26a807c348bdb3fac1849bd456": {
     "describe": {
       "columns": [
@@ -15586,6 +15586,32 @@
       }
     },
     "query": "\nSELECT organizations.id\nFROM pages\n  LEFT OUTER JOIN courses ON courses.id = pages.course_id\n  LEFT OUTER JOIN exams ON exams.id = pages.exam_id\n  JOIN organizations ON organizations.id = courses.organization_id\n  OR organizations.id = exams.organization_id\nWHERE pages.id = $1\n"
+  },
+  "d58e2d1cf5e3252d1a09ca0d5763474e1831b093d7c24b6d938485ddb6a561a9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "exercise_id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "count",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "exercise_name",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, null, false],
+      "parameters": {
+        "Left": ["Uuid"]
+      }
+    },
+    "query": "\nSELECT counts.*, exercises.name exercise_name\n    FROM (\n        SELECT exercise_id, count(*)::integer count\n        FROM exercise_slide_submissions\n        WHERE course_id = $1\n        AND deleted_at IS NULL\n        GROUP BY exercise_id\n    ) counts\n    JOIN exercises ON (counts.exercise_id = exercises.id);\n          "
   },
   "d5e8f94a3f8fe2b9acbd2beccb38d03d4c6e7d1f0f5c4c0cfb642da2422445a9": {
     "describe": {
@@ -16929,32 +16955,6 @@
       }
     },
     "query": "\nINSERT INTO exercise_slides (id, exercise_id, order_number)\nVALUES ($1, $2, $3) ON CONFLICT (id) DO\nUPDATE\nSET exercise_id = $2,\n  order_number = $3,\n  deleted_at = NULL\nRETURNING id,\n  exercise_id,\n  order_number;\n            "
-  },
-  "e5e90260825ef39797acd231ed10db86eb9dbaf18d7eb6a2d5004971e5de2a23": {
-    "describe": {
-      "columns": [
-        {
-          "name": "exercise_id",
-          "ordinal": 0,
-          "type_info": "Uuid"
-        },
-        {
-          "name": "count",
-          "ordinal": 1,
-          "type_info": "Int4"
-        },
-        {
-          "name": "exercise_name",
-          "ordinal": 2,
-          "type_info": "Varchar"
-        }
-      ],
-      "nullable": [false, null, false],
-      "parameters": {
-        "Left": ["Uuid"]
-      }
-    },
-    "query": "\nSELECT counts.*, exercises.name exercise_name\n    FROM (\n        SELECT exercise_id, count(*)::integer count\n        FROM exercise_slide_submissions\n        WHERE course_id = $1\n        GROUP BY exercise_id\n    ) counts\n    JOIN exercises ON (counts.exercise_id = exercises.id);\n          "
   },
   "e62bffcde1e4aef11334336becb1e1cea58e38c6b49c63bb5276211defb341b0": {
     "describe": {

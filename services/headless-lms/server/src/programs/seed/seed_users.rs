@@ -57,12 +57,39 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         Uuid::parse_str("c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9")?,
     )
     .await?;
-    let student_user_id = users::insert_with_id(
+    let _student_user_id = users::insert_with_id(
         &mut conn,
         "user@example.com",
         Some("User"),
         Some("Example"),
         Uuid::parse_str("849b8d32-d5f8-4994-9d21-5aa6259585b1")?,
+    )
+    .await?;
+
+    let _student_user_id = users::insert_with_id(
+        &mut conn,
+        "student1@example.com",
+        Some("User"),
+        Some("1"),
+        Uuid::parse_str("02364d40-2aac-4763-8a06-2381fd298d79")?,
+    )
+    .await?;
+
+    let _student_user_id = users::insert_with_id(
+        &mut conn,
+        "student2@example.com",
+        Some("User"),
+        Some("2"),
+        Uuid::parse_str("d7d6246c-45a8-4ff4-bf4d-31dedfaac159")?,
+    )
+    .await?;
+
+    let student_user_id = users::insert_with_id(
+        &mut conn,
+        "student3@example.com",
+        Some("User"),
+        Some("3"),
+        Uuid::parse_str("6b9b61f2-012a-4dc2-9e35-5da81cd3936b")?,
     )
     .await?;
 

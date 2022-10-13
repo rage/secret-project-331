@@ -17,7 +17,76 @@ pub struct CourseModule {
     pub automatic_completion: bool,
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
+    /// If set, use this link rather than the default one when registering course completions.
+    pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<i32>,
+}
+
+impl CourseModule {
+    pub fn new(id: Uuid, course_id: Uuid) -> Self {
+        Self {
+            id,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            name: None,
+            course_id,
+            order_number: 0,
+            copied_from: None,
+            uh_course_code: None,
+            automatic_completion: false,
+            automatic_completion_number_of_exercises_attempted_treshold: None,
+            automatic_completion_number_of_points_treshold: None,
+            completion_registration_link_override: None,
+            ects_credits: None,
+        }
+    }
+    pub fn set_timestamps(
+        mut self,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+        deleted_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        self.created_at = created_at;
+        self.updated_at = updated_at;
+        self.deleted_at = deleted_at;
+        self
+    }
+
+    /// order_number == 0 in and only if name == None
+    pub fn set_name_and_order_number(mut self, name: Option<String>, order_number: i32) -> Self {
+        self.name = name;
+        self.order_number = order_number;
+        self
+    }
+
+    pub fn set_completion_policy(
+        mut self,
+        automatic_completion_policy: &AutomaticCompletionPolicy,
+    ) -> Self {
+        let (automatic_completion, exercises_treshold, points_treshold) =
+            automatic_completion_policy.to_database_fields();
+        self.automatic_completion = automatic_completion;
+        self.automatic_completion_number_of_exercises_attempted_treshold = exercises_treshold;
+        self.automatic_completion_number_of_points_treshold = points_treshold;
+        self
+    }
+
+    pub fn set_registration_info(
+        mut self,
+        uh_course_code: Option<String>,
+        ects_credits: Option<i32>,
+        completion_registration_link_override: Option<String>,
+    ) -> Self {
+        self.uh_course_code = uh_course_code;
+        self.ects_credits = ects_credits;
+        self.completion_registration_link_override = completion_registration_link_override;
+        self
+    }
+
+    pub fn is_default_module(&self) -> bool {
+        self.name.is_none()
+    }
 }
 
 pub struct AutomaticCompletionRequirements {
@@ -26,12 +95,6 @@ pub struct AutomaticCompletionRequirements {
     pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     pub automatic_completion_number_of_points_treshold: Option<i32>,
     pub ects_credits: Option<i32>,
-}
-
-impl CourseModule {
-    pub fn is_default_module(&self) -> bool {
-        self.name.is_none()
-    }
 }
 
 pub async fn insert(
@@ -276,20 +339,26 @@ pub enum AutomaticCompletionPolicy {
     NoAutomaticCompletion,
 }
 
-pub async fn update_automatic_completion_status(
-    conn: &mut PgConnection,
-    id: Uuid,
-    automatic_completion_policy: &AutomaticCompletionPolicy,
-) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold) =
-        match automatic_completion_policy {
+impl AutomaticCompletionPolicy {
+    fn to_database_fields(&self) -> (bool, Option<i32>, Option<i32>) {
+        match self {
             AutomaticCompletionPolicy::AutomaticCompletion(criteria) => (
                 true,
                 criteria.number_of_exercises_attempted_treshold,
                 criteria.number_of_points_treshold,
             ),
             AutomaticCompletionPolicy::NoAutomaticCompletion => (false, None, None),
-        };
+        }
+    }
+}
+
+pub async fn update_automatic_completion_status(
+    conn: &mut PgConnection,
+    id: Uuid,
+    automatic_completion_policy: &AutomaticCompletionPolicy,
+) -> ModelResult<CourseModule> {
+    let (automatic_completion, exercises_treshold, points_treshold) =
+        automatic_completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModule,
         "

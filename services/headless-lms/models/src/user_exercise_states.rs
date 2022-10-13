@@ -1072,22 +1072,14 @@ mod tests {
 
     #[test]
     fn merges_course_modules_with_metrics() {
+        let timestamp = Utc.ymd(2022, 6, 22).and_hms(0, 0, 0);
         let module_id = Uuid::parse_str("9e831ecc-9751-42f1-ae7e-9b2f06e523e8").unwrap();
-        let course_modules = vec![CourseModule {
-            created_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
-            updated_at: Utc.ymd(2022, 6, 22).and_hms(0, 0, 0),
-            deleted_at: None,
-            id: module_id,
-            name: None,
-            order_number: 0,
-            course_id: Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
-            copied_from: None,
-            uh_course_code: None,
-            ects_credits: Some(5),
-            automatic_completion: false,
-            automatic_completion_number_of_exercises_attempted_treshold: None,
-            automatic_completion_number_of_points_treshold: None,
-        }];
+        let course_modules = vec![CourseModule::new(
+            module_id,
+            Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
+        )
+        .set_timestamps(timestamp, timestamp, None)
+        .set_registration_info(None, Some(5), None)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

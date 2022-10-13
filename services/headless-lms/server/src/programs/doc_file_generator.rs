@@ -767,6 +767,7 @@ pub async fn main() -> anyhow::Result<()> {
                 automatic_completion: false,
                 automatic_completion_number_of_exercises_attempted_treshold: None,
                 automatic_completion_number_of_points_treshold: None,
+                completion_registration_link_override: None,
                 ects_credits: None,
             }],
             users_with_course_module_completions: vec![UserWithModuleCompletions {

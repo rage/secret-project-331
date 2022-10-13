@@ -1185,6 +1185,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -1198,6 +1203,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -4081,6 +4087,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -4094,6 +4105,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -4868,6 +4880,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -4881,6 +4898,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -5582,6 +5600,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -5595,6 +5618,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -15250,6 +15274,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -15263,6 +15292,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -16865,6 +16895,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -16878,6 +16913,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -17400,6 +17436,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -17413,6 +17454,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -18715,6 +18757,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -18728,6 +18775,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true

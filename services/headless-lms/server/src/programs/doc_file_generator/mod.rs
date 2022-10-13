@@ -1,95 +1,114 @@
-//! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
-//!
-//! This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
-//!
-//! To make this process more convenient, two macros are provided:
-//! - example! (proc macro defined in the doc_macros crate)
-//! - doc! (declarative macro defined in this file)
-//!
-//! ## example!
-//! Accepts a struct or enum literal, such as
-//! ```
-//! example!(SomeStruct {
-//!     first_field,
-//!     second_field: 1234,
-//! })
-//! ```
-//! and implements the Example trait for the given type:
-//! ```
-//! impl Example for SomeStruct {
-//!     fn example() -> Self {
-//!         Self {
-//!             first_field: Example::example(),
-//!             second_field: 1234,
-//!         }
-//!     }
-//! }
-//! ```
-//! As can be seen in the code above, you can leave out the value of any field to use its Example implementation.
-//!
-//! The Example trait is used for the doc! macro as explained below.
-//!
-//! ## doc!
-//! Writes the JSON and TypeScript files used for API endpoint docs.
-//!
-//! This macro can be used in two primary ways:
-//! - With a struct/enum literal
-//! - With a type and expression
-//!
-//! With a struct/enum literal, the doc! macro generates an Example implementation for the type using the example! macro
-//! and then uses it to write the JSON docs. (The TypeScript definition is generated with the `ts_rs::TS` trait)
-//! ```
-//! doc!(SomeStruct {
-//!     first_field,
-//!     second_field: 1234,
-//! })
-//! ```
-//! In addition to the `impl Example for SomeStruct`, it will serialize `<SomeStruct as Example>::example()` to JSON and write it to generated-docs/SomeStruct.json,
-//! as well as `<SomeStruct as TS>::inline()` to generated-docs/SomeStruct.ts.
-//!
-//! Note that because it uses the example! macro, you can leave out values for fields the same way.
-//!
-//! The struct/enum literal can be prepended with T, Opt, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
-//! Note that they must be in the order T, Opt, Vec, though you can leave any (or all) of them out.
-//!
-//! For example,
-//! ```
-//! doc!(
-//!     T,
-//!     Vec,
-//!     SomeStruct {
-//!         first_field,
-//!         second_field: 1234,
-//!     }
-//! )
-//! ```
-//! will create docs for SomeStruct and Vec<SomeStruct>.
-//!
-//! With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
-//! ```
-//! doc!(
-//!     Vec<SomeStruct>,
-//!     vec![
-//!         SomeStruct {
-//!             first_field: ex(),
-//!             second_field: 2,
-//!         },
-//!         SomeStruct {
-//!             first_field: 3,
-//!             second_field: 4,
-//!         },
-//!     ]
-//! );
-//! ```
-//! Note that since this method doesn't use the example! macro, leaving out field values is an error. If we want to use the Example trait here, we need to explicitly call Example::example()
-//! or the ex() function which is just a shortcut for Example::example().
-//!
-//! This method is mainly useful for external/std types. For example, we cannot write Uuid as a struct literal because it has private fields, or bool because it's a primitive type.
+/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
+
+This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
+
+To make this process more convenient, two macros are provided:
+- example! (proc macro defined in the doc_macros crate)
+- doc! (declarative macro defined in this file)
+
+## example!
+Accepts a struct or enum literal, such as
+```no_run
+# use headless_lms_server::doc;
+# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use doc_macro::example;
+# struct SomeStruct { first_field: u32, second_field: u32 }
+example!(SomeStruct {
+    first_field,
+    second_field: 1234,
+});
+```
+and implements the Example trait for the given type:
+```
+# use headless_lms_server::programs::doc_file_generator::example::Example;
+# struct SomeStruct { first_field: u32, second_field: u32 }
+impl Example for SomeStruct {
+    fn example() -> Self {
+        Self {
+            first_field: Example::example(),
+            second_field: 1234,
+        }
+    }
+}
+```
+As can be seen in the code above, you can leave out the value of any field to use its Example implementation.
+
+The Example trait is used for the doc! macro as explained below.
+
+## doc!
+Writes the JSON and TypeScript files used for API endpoint docs.
+
+This macro can be used in two primary ways:
+- With a struct/enum literal
+- With a type and expression
+
+With a struct/enum literal, the doc! macro generates an Example implementation for the type using the example! macro
+and then uses it to write the JSON docs. (The TypeScript definition is generated with the `ts_rs::TS` trait)
+```no_run
+# use headless_lms_server::doc;
+# use headless_lms_server::programs::doc_file_generator::example::Example;
+# #[derive(serde::Serialize)]
+# struct SomeStruct { first_field: u32, second_field: u32 }
+doc!(SomeStruct {
+    first_field,
+    second_field: 1234,
+});
+```
+In addition to the `impl Example for SomeStruct`, it will serialize `<SomeStruct as Example>::example()` to JSON and write it to generated-docs/SomeStruct.json,
+as well as `<SomeStruct as TS>::inline()` to generated-docs/SomeStruct.ts.
+
+Note that because it uses the example! macro, you can leave out values for fields the same way.
+
+The struct/enum literal can be prepended with T, Opt, or Vec, in order to generate docs for the given type (T), Option of the given type (Opt), or Vec of the given type (Vec).
+Note that they must be in the order T, Opt, Vec, though you can leave any (or all) of them out.
+
+For example,
+```no_run
+# use headless_lms_server::doc;
+# use headless_lms_server::programs::doc_file_generator::example::Example;
+# #[derive(serde::Serialize)]
+# struct SomeStruct { first_field: u32, second_field: u32 }
+doc!(
+    T,
+    Vec,
+    SomeStruct {
+        first_field,
+        second_field: 1234,
+    }
+);
+```
+will create docs for SomeStruct and Vec<SomeStruct>.
+
+With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
+```no_run
+# use headless_lms_server::doc;
+# use headless_lms_server::programs::doc_file_generator::example::Example;
+# #[derive(serde::Serialize)]
+# struct SomeStruct { first_field: u32, second_field: u32 }
+doc!(
+    Vec<SomeStruct>,
+    vec![
+        SomeStruct {
+            first_field: Example::example(),
+            second_field: 2,
+        },
+        SomeStruct {
+            first_field: 3,
+            second_field: 4,
+        },
+    ]
+);
+```
+Note that since this method doesn't use the example! macro, leaving out field values is an error. If we want to use the Example trait here, we need to explicitly call Example::example()
+or the ex() function which is just a shortcut for Example::example().
+
+This method is mainly useful for external/std types. For example, we cannot write Uuid as a struct literal because it has private fields, or bool because it's a primitive type.
+*/
 
 #![allow(clippy::redundant_clone)]
 #![allow(unused_imports)]
 
-mod example;
+pub mod example;
 
 use chrono::{TimeZone, Utc};
 use example::Example;
@@ -107,38 +126,39 @@ fn ex<T: Example>() -> T {
 }
 
 // Writes doc files. See the module documentation for more info.
+#[macro_export]
 macro_rules! doc {
     (T, Opt, Vec, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
         doc!(@inner Opt, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
     (Opt, Vec, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner Opt, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
     (T, Opt, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
         doc!(@inner Opt, $($t)*);
     };
     (T, Vec, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
         doc!(@inner Vec, $($t)*);
     };
     (T, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner T, $($t)*);
     };
     (Opt, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner Opt, $($t)*);
     };
     (Vec, $($t:tt)*) => {
-        example!($($t)*);
+        ::doc_macro::example!($($t)*);
         doc!(@inner Vec, $($t)*);
     };
     // enum literal
@@ -171,7 +191,7 @@ macro_rules! doc {
             stringify!($t),
             ".json"
         );
-        write_json(json_path, expr);
+        $crate::programs::doc_file_generator::write_json(json_path, expr);
 
         #[cfg(feature = "ts_rs")]
         {
@@ -182,7 +202,7 @@ macro_rules! doc {
                 ".ts"
             );
 
-            write_ts::<$t>(ts_path, stringify!($t));
+            $crate::programs::doc_file_generator::write_ts::<$t>(ts_path, stringify!($t));
         }
     }};
     // shortcut for doc!(T, ...)
@@ -223,7 +243,7 @@ pub async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn write_json<T: Serialize>(path: &str, value: T) {
+pub fn write_json<T: Serialize>(path: &str, value: T) {
     let mut file = std::fs::File::create(path).unwrap();
     let formatter = PrettyFormatter::with_indent(b"    ");
     let mut serializer = Serializer::with_formatter(&mut file, formatter);
@@ -231,7 +251,7 @@ fn write_json<T: Serialize>(path: &str, value: T) {
 }
 
 #[cfg(feature = "ts_rs")]
-fn write_ts<T: TS>(path: &str, type_name: &str) {
+pub fn write_ts<T: TS>(path: &str, type_name: &str) {
     let contents = format!("type {} = {}", type_name, T::inline());
     std::fs::write(path, contents).unwrap();
 }

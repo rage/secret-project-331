@@ -630,16 +630,21 @@ pub async fn get_completion_registration_link_and_save_attempt(
         Utc::now(),
     )
     .await?;
-    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Course module doesn't have an assossiated University of Helsinki course code."
-                .to_string(),
-            None,
-        )
-    })?;
-    let registration_link =
-        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?;
+    let registration_link = match course_module.completion_registration_link_override.as_ref() {
+        Some(link_override) => link_override.clone(),
+        None => {
+            let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Course module doesn't have an assossiated University of Helsinki course code."
+                        .to_string(),
+                    None,
+                )
+            })?;
+            open_university_registration_links::get_link_by_course_code(conn, &uh_course_code)
+                .await?
+        }
+    };
     Ok(CompletionRegistrationLink {
         url: registration_link,
     })

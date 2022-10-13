@@ -142,7 +142,7 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
     <Wrapper>
       <details>
         <summary>
-          {t("peer-review-received-from-other-student")}
+          {t("peer-reviews-received-from-other-student")}
           <Notification>{Object.keys(groupByPeerReviewSubmissionId).length ?? "0"}</Notification>
         </summary>
         {Object.values(groupByPeerReviewSubmissionId).map((item, index) => (

@@ -396,26 +396,32 @@ impl PageVisibility {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore
+    /// # use headless_lms_models::{ModelResult, pages::PageVisibility};
+    /// # use sqlx::PgConnection;
+    /// # async fn random_function_1(conn: &mut PgConnection) -> ModelResult<()> {
     /// // Evaluates to "hidden <> NULL"
     /// let visibility = PageVisibility::Any;
     /// sqlx::query!(
-    ///     "SELECT * FROM pages WHERE hidden IS DISTINCT FROM $1",
-    ///     visibility.inverse_visibility_filter(),
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
-    /// .await
-    /// .unwrap();
+    /// .await?;
+    /// # Ok(())
+    /// # }
     ///
+    /// # async fn random_function_2(conn: &mut PgConnection) -> ModelResult<()> {
     /// // Evaluates to "hidden <> true"
     /// let visibility = PageVisibility::Public;
     /// sqlx::query!(
-    ///     "SELECT * FROM pages WHERE hidden IS DISTINCT FROM $1",
-    ///     visibility.inverse_visibility_filter(),
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
     /// )
     /// .fetch_all(conn)
-    /// .await
-    /// .unwrap();
+    /// .await?;
+    /// # Ok(())
+    /// # }
     /// ```
     fn get_inverse_visibility_filter(&self) -> Option<bool> {
         match self {

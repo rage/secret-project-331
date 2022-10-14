@@ -10,7 +10,6 @@ import "@wordpress/block-library/build-style/style.css"
 import "@wordpress/block-library/build-style/theme.css"
 import "@wordpress/block-library/build-style/editor.css"
 import "@wordpress/format-library/build-style/style.css"
-
 import { css } from "@emotion/css"
 import {
   BlockEditorKeyboardShortcuts,
@@ -47,6 +46,7 @@ import React, { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
+import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
 import SelectField from "../../shared-module/components/InputFields/SelectField"
@@ -62,6 +62,7 @@ import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenberg
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
+import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -91,6 +92,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   setNeedToRunMigrationsAndValidations,
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
+  useDisableBrowserDefaultDragFileBehavior()
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
@@ -335,7 +337,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 <div className="editor-styles-wrapper">
                   {/* @ts-ignore: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
-                  <BlockEditorKeyboardShortcuts />
+                  <CommonKeyboardShortcuts />
                   <WritingFlow>
                     <ObserveTyping>
                       <BlockList />

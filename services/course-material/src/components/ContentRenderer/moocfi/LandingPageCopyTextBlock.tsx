@@ -59,9 +59,15 @@ const Wrapper = styled.div`
     margin-left: 1.5rem;
   }
 
+  li::marker {
+    content: "⚈  ";
+    font-size: 1rem;
+    color: ${baseTheme.colors.green[600]};
+  }
+
   h3 {
     font-weight: 700 !important;
-    padding: 1.5rem 1.5rem 0 2rem;
+    padding: 1rem 1rem 0 2rem;
     color: ${baseTheme.colors.green[700]};
   }
 `

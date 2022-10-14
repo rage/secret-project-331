@@ -19,11 +19,11 @@ import { ModuleView } from "./CourseModules"
 interface Props {
   module: ModuleView
   chapters: Array<number>
-  onSubmitForm: (id: string, fields: Fields) => void
+  onSubmitForm: (id: string, fields: EditCourseModuleFormFields) => void
   onDeleteModule: (id: string) => void
 }
 
-interface Fields {
+export interface EditCourseModuleFormFields {
   name: string | null
   starts: number
   ends: number
@@ -32,9 +32,11 @@ interface Fields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  override_completion_link: boolean
+  completion_registration_link_override: string
 }
 
-const makeDefaultValues = (module: ModuleView, chapters: number[]) => {
+const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
     name: module.name,
     starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
@@ -46,6 +48,8 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]) => {
       Number(module.automatic_completion_number_of_points_treshold) ?? null,
     automatic_completion_number_of_exercises_attempted_treshold:
       Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+    override_completion_link: module.completion_registration_link_override !== null,
+    completion_registration_link_override: module.completion_registration_link_override ?? "",
   }
 }
 
@@ -63,7 +67,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     formState: { errors, isValid, isSubmitting },
     reset,
     watch,
-  } = useForm<Fields>({
+  } = useForm<EditCourseModuleFormFields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: makeDefaultValues(module, chapters),
@@ -72,12 +76,13 @@ const EditCourseModuleForm: React.FC<Props> = ({
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
 
-  const onSubmitFormWrapper = (fields: Fields) => {
+  const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
     onSubmitForm(module.id, fields)
   }
 
   const isChecked = watch("automatic_completion")
+  const overrideLink = watch("override_completion_link")
 
   return (
     <form
@@ -227,6 +232,28 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 disabled: !isChecked,
               })}
               error={errors["name"]?.message}
+            />
+            <Checkbox
+              label={t("override-completion-registration-link")}
+              register={register("override_completion_link")}
+              className={css`
+                margin-top: 24px;
+                label {
+                  color: #fff !important;
+                }
+              `}
+            />
+            <TextField
+              label={t("completion-registration-link")}
+              placeholder={t("completion-registration-link")}
+              labelStyle={css`
+                color: #fff;
+              `}
+              register={register("completion_registration_link_override", {
+                disabled: !overrideLink,
+                minLength: 10,
+              })}
+              error={errors["completion_registration_link_override"]?.message}
             />
           </div>
         ) : (

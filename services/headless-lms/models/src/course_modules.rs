@@ -413,6 +413,7 @@ pub struct NewModule {
     automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_registration_link_override: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -426,6 +427,7 @@ pub struct ModifiedModule {
     automatic_completion: Option<bool>,
     automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
     automatic_completion_number_of_points_treshold: Option<i32>,
+    completion_registration_link_override: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -465,6 +467,7 @@ pub async fn update(
     name: Option<&str>,
     order_number: i32,
     completion_requirements: AutomaticCompletionRequirements,
+    completion_registration_link_override: Option<String>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -475,7 +478,8 @@ SET name = COALESCE($1, name),
   ects_credits = $5,
   automatic_completion = $6,
   automatic_completion_number_of_exercises_attempted_treshold = $7,
-  automatic_completion_number_of_points_treshold = $8
+  automatic_completion_number_of_points_treshold = $8,
+  completion_registration_link_override = $9
 WHERE id = $3
 ",
         name,
@@ -485,7 +489,8 @@ WHERE id = $3
         completion_requirements.ects_credits,
         completion_requirements.automatic_completion,
         completion_requirements.automatic_completion_number_of_exercises_attempted_treshold,
-        completion_requirements.automatic_completion_number_of_points_treshold
+        completion_requirements.automatic_completion_number_of_points_treshold,
+        completion_registration_link_override,
     )
     .execute(conn)
     .await?;
@@ -544,6 +549,7 @@ pub async fn update_modules(
                 .automatic_completion_number_of_exercises_attempted_treshold,
             automatic_completion_number_of_points_treshold: new
                 .automatic_completion_number_of_points_treshold,
+            completion_registration_link_override: module.completion_registration_link_override,
         })
     }
     // update modified and new modules
@@ -562,6 +568,7 @@ pub async fn update_modules(
                 automatic_completion_number_of_points_treshold: module
                     .automatic_completion_number_of_points_treshold,
             },
+            module.completion_registration_link_override,
         )
         .await?;
     }

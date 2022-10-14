@@ -13,13 +13,16 @@ const Wrapper = styled.div`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding: 3rem;
+  padding: 1.5rem;
   margin: 0 auto;
   max-width: 2000px;
 
+  ${respondToOrLarger.md} {
+    padding: 3rem;
+  }
+
   h2 {
     z-index: 20;
-    font-size: 3.5rem;
     font-size: clamp(30px, 3vw, 3rem);
     font-style: normal;
     font-weight: 600;

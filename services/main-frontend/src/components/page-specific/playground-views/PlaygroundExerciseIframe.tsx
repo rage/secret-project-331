@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
+  IframeState,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
@@ -57,16 +58,18 @@ const PlaygroundExerciseIframe: React.FC<
       <MessageChannelIFrame
         key={iframeKey}
         url={url}
-        postThisStateToIFrame={{
-          // eslint-disable-next-line i18next/no-literal-string
-          view_type: "answer-exercise",
-          exercise_task_id: EXAMPLE_UUID,
-          user_information: userInformation,
-          data: {
-            public_spec: publicSpecQuery.data,
-            previous_submission: userAnswer,
-          },
-        }}
+        postThisStateToIFrame={
+          {
+            // eslint-disable-next-line i18next/no-literal-string
+            view_type: "answer-exercise",
+            exercise_task_id: EXAMPLE_UUID,
+            user_information: userInformation,
+            data: {
+              public_spec: publicSpecQuery.data,
+              previous_submission: userAnswer,
+            },
+          } as IframeState
+        }
         onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {
             if (msg.message === "current-state") {

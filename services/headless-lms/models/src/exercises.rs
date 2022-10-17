@@ -3,7 +3,7 @@ use crate::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
-    peer_review_configs::PeerReviewConfig,
+    peer_review_configs::CourseMaterialPeerReviewConfig,
     prelude::*,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
@@ -55,7 +55,7 @@ pub struct CourseMaterialExercise {
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
-    pub peer_review_config: Option<PeerReviewConfig>,
+    pub peer_review_config: Option<CourseMaterialPeerReviewConfig>,
 }
 
 impl CourseMaterialExercise {
@@ -366,9 +366,18 @@ pub async fn get_course_material_exercise(
 
     let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
         (true, Some(course_id)) => {
-            crate::peer_review_configs::get_by_exercise_or_course_id(conn, &exercise, course_id)
-                .await
-                .optional()?
+            let prc = crate::peer_review_configs::get_by_exercise_or_course_id(
+                conn, &exercise, course_id,
+            )
+            .await
+            .optional()?;
+            prc.map(|prc| CourseMaterialPeerReviewConfig {
+                id: prc.id,
+                course_id: prc.course_id,
+                exercise_id: prc.exercise_id,
+                peer_reviews_to_give: prc.peer_reviews_to_give,
+                peer_reviews_to_receive: prc.peer_reviews_to_receive,
+            })
         }
         _ => None,
     };

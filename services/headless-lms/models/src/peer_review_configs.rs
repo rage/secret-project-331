@@ -24,6 +24,17 @@ pub struct PeerReviewConfig {
     pub accepting_strategy: PeerReviewAcceptingStrategy,
 }
 
+/// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialPeerReviewConfig {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub exercise_id: Option<Uuid>,
+    pub peer_reviews_to_give: i32,
+    pub peer_reviews_to_receive: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewConfig {

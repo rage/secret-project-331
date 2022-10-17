@@ -90,6 +90,7 @@ pub async fn delete_for_repository(
 UPDATE repository_exercises
 SET deleted_at = now()
 WHERE repository_id = $1
+AND deleted_at IS NULL
 RETURNING id
 ",
         repository
@@ -161,6 +162,7 @@ pub async fn delete_from_repository(
 UPDATE repository_exercises
 SET deleted_at = now()
 WHERE repository_id = $1
+AND deleted_at IS NULL
 ",
         repository_id
     )

@@ -470,3 +470,23 @@ RETURNING *
 
     Ok(res)
 }
+
+pub async fn delete_by_receiving_peer_reviews_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+UPDATE peer_review_queue_entries
+SET deleted_at = now()
+WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
+AND deleted_at is NULL
+    ",
+        receiving_peer_reviews_exercise_slide_submission_id
+    )
+    .execute(&mut *conn)
+    .await?;
+
+    Ok(())
+}

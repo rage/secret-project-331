@@ -496,7 +496,7 @@ RETURNING *;
     .await?;
     // We'll also delete all the pages and exercises so that they don't conflict with future chapters
     sqlx::query!(
-        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1;",
+        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;",
         chapter_id
     )
     .execute(&mut tx)

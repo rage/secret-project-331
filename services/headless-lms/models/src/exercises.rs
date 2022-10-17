@@ -366,7 +366,7 @@ pub async fn get_course_material_exercise(
 
     let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
         (true, Some(course_id)) => {
-            crate::peer_review_configs::get_by_exercise_or_course_id(conn, exercise.id, course_id)
+            crate::peer_review_configs::get_by_exercise_or_course_id(conn, &exercise, course_id)
                 .await
                 .optional()?
         }

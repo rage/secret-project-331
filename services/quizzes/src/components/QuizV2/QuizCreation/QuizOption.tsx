@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
-import { QuizItemType } from "../../../../types/quizTypes"
 
+import { QuizItemType } from "../../../../types/quizTypes"
 import { headingFont } from "../../../shared-module/styles"
 import { createdNewItem } from "../../../store/editor/editorActions"
 import { useTypedSelector } from "../../../store/store"
@@ -30,7 +30,9 @@ const QuizCard = styled.div<QuizCardProps>`
   background-color: #f5f6f7;
   padding: 16px;
   margin: 5px;
-  ${(props) => Boolean(props.disabled) && `
+  ${(props) =>
+    Boolean(props.disabled) &&
+    `
   pointer-events: none;
   opacity: 0.4;
   `}
@@ -53,11 +55,10 @@ const QuizCardDescription = styled.div`
   color: #767b85;
 `
 
-
 const QuizItemOption: React.FC<QuizOptionProps> = ({ quizOption }) => {
   const { t } = useTranslation()
 
-  const {type, name, description, disabled} = quizOption
+  const { type, name, description, disabled } = quizOption
 
   const dispatch = useDispatch()
   const quizId = useTypedSelector((state) => state.editor.quizId)
@@ -67,7 +68,12 @@ const QuizItemOption: React.FC<QuizOptionProps> = ({ quizOption }) => {
   }
 
   return (
-    <QuizCard disabled={disabled} onClick={createQuizItem} role="button" id={`quiz-option-card-${type}`}>
+    <QuizCard
+      disabled={disabled}
+      onClick={createQuizItem}
+      role="button"
+      id={`quiz-option-card-${type}`}
+    >
       <QuizCardTitle>
         <Trans t={t}>{name}</Trans>
       </QuizCardTitle>

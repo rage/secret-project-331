@@ -1,6 +1,7 @@
-import styled from '@emotion/styled'
-import React from 'react'
-import { primaryFont } from '../../../../shared-module/styles'
+import styled from "@emotion/styled"
+import React from "react"
+
+import { primaryFont } from "../../../../shared-module/styles"
 
 interface ToggleCardProps {
   state: boolean
@@ -13,8 +14,8 @@ interface ToggleSwitchProps {
 }
 
 const ToggleCardContainer = styled.div`
-  background-color: #FAFAFA;
-  border: 2px solid #E0E0E0;
+  background-color: #fafafa;
+  border: 2px solid #e0e0e0;
   border-radius: 4px;
   padding: 16px;
   display: flex;
@@ -34,12 +35,11 @@ const ToggleCardTitle = styled.div`
   color: #333333;
 `
 
-
 const ToggleCardDescription = styled.div`
   font-size: 15px;
   font-weight: light;
   font-family: ${primaryFont};
-  color: #989CA3;
+  color: #989ca3;
 `
 
 const ToggleButton = styled.label`
@@ -60,7 +60,6 @@ const ToggleButton = styled.label`
   }
 `
 
-
 const ToggleButtonInput = styled.input`
   opacity: 0;
   width: 0;
@@ -68,7 +67,6 @@ const ToggleButtonInput = styled.input`
   :checked {
     background-color: green;
   }
-
 `
 
 const ToggleButtonSlider = styled.span`
@@ -79,7 +77,7 @@ const ToggleButtonSlider = styled.span`
   right: 0;
   bottom: 0;
   border-radius: 6px;
-  background-color: #292D32;
+  background-color: #292d32;
 
   ::before {
     position: absolute;
@@ -90,31 +88,25 @@ const ToggleButtonSlider = styled.span`
     bottom: 5px;
     border-radius: 25%;
     background-color: white;
-    transition: .2s;
+    transition: 0.2s;
   }
 `
 
 const RectangularSwitch: React.FC<ToggleSwitchProps> = ({ checked }) => (
   <ToggleButton>
-    <ToggleButtonInput checked={checked} type="checkbox"/>
-    <ToggleButtonSlider/>
+    <ToggleButtonInput checked={checked} type="checkbox" />
+    <ToggleButtonSlider />
   </ToggleButton>
 )
 
-const ToggleCard: React.FC<ToggleCardProps> = ({
-  title, description, state
-}) => {
+const ToggleCard: React.FC<ToggleCardProps> = ({ title, description, state }) => {
   return (
     <ToggleCardContainer>
       <ToggleCardDetails>
-        <ToggleCardTitle>
-          { title }
-        </ToggleCardTitle>
-        <ToggleCardDescription>
-          { description }
-        </ToggleCardDescription>
+        <ToggleCardTitle>{title}</ToggleCardTitle>
+        <ToggleCardDescription>{description}</ToggleCardDescription>
       </ToggleCardDetails>
-      <RectangularSwitch checked={state}/>
+      <RectangularSwitch checked={state} />
     </ToggleCardContainer>
   )
 }

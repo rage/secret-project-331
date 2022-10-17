@@ -1,6 +1,5 @@
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
-
 export interface QuizItemOption {
   id: string
   quizItemId?: string

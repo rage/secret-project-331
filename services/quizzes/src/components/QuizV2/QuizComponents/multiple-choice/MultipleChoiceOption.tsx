@@ -1,20 +1,20 @@
-import styled from '@emotion/styled'
-import { faAngleDown, faAngleUp, faX } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { QuizItemOption } from '../../../../../types/quizTypes'
-import { primaryFont } from '../../../../shared-module/styles'
-import MessageModel from '../common/MessageModal'
+import styled from "@emotion/styled"
+import { faAngleDown, faAngleUp, faX } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { QuizItemOption } from "../../../../../types/quizTypes"
+import { primaryFont } from "../../../../shared-module/styles"
+import MessageModel from "../common/MessageModal"
 
 const OptionCard = styled.div`
   height: 50px;
   width: 100%;
-  background-color: #F7F8F9;
+  background-color: #f7f8f9;
   display: flex;
   align-items: center;
 `
-
 
 const OptionButtonGroup = styled.div`
   display: flex;
@@ -30,13 +30,13 @@ const ChoiceTitle = styled.div`
 const CorrectTag = styled.div`
   height: 24px;
   padding: 0 10px;
-  background-color: #DAE6E5;
+  background-color: #dae6e5;
   font-size: 14px;
   border-radius: 26px;
   margin: 8px;
   font-weight: bold;
   align-self: center;
-  color: #44827E;
+  color: #44827e;
   font-family: ${primaryFont};
 `
 
@@ -46,7 +46,7 @@ const ExpandOptionButton = styled(FontAwesomeIcon)`
   width: 16px;
   padding: 16px;
   cursor: pointer;
-  color: #6D757B;
+  color: #6d757b;
   :hover {
     background-color: #bcc0c4;
   }
@@ -57,8 +57,8 @@ const DeleteOptionButton = styled(FontAwesomeIcon)`
   width: 16px;
   padding: 16px;
   cursor: pointer;
-  background-color: #C4C9CD;
-  color: #333D45;
+  background-color: #c4c9cd;
+  color: #333d45;
   :hover {
     background-color: #aaafb3;
   }
@@ -83,25 +83,23 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOption> = ({ option }) => {
   return (
     <>
       <OptionCard>
-        <ChoiceTitle>
-          { option.title }
-        </ChoiceTitle>
+        <ChoiceTitle>{option.title}</ChoiceTitle>
 
         <OptionButtonGroup>
-          {
-            option.correct && <CorrectTag> {t("label-correct")} </CorrectTag>
-          }
-          <ExpandOptionButton onClick={handleClick} icon={visible ? faAngleDown : faAngleUp}/>
-          <DeleteOptionButton icon={faX}/>
+          {option.correct && <CorrectTag> {t("label-correct")} </CorrectTag>}
+          <ExpandOptionButton onClick={handleClick} icon={visible ? faAngleDown : faAngleUp} />
+          <DeleteOptionButton icon={faX} />
         </OptionButtonGroup>
       </OptionCard>
-      { !visible &&
+      {!visible && (
         <MultipleChoiceMessageModalContainer>
-          <MessageModel title={t("success-message")} description={option.messageAfterSubmissionWhenSelected ?? ""}/>
+          <MessageModel
+            title={t("success-message")}
+            description={option.messageAfterSubmissionWhenSelected ?? ""}
+          />
         </MultipleChoiceMessageModalContainer>
-      }
+      )}
     </>
-
   )
 }
 export default MultipleChoiceOption

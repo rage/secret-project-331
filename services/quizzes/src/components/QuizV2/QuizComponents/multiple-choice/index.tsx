@@ -1,18 +1,20 @@
 /* eslint-disable i18next/no-literal-string */
 /* Temporary fix */
-import styled from '@emotion/styled'
-import React from 'react'
-import { PrivateSpecQuizItemMultiplechoice } from '../../../../../types/quizTypes'
-import TextField from '../../../../shared-module/components/InputFields/TextField'
-import EditorCard from '../common/EditorCard'
-import { primaryFont } from '../../../../shared-module/styles'
-import MultipleChoiceOption from './MultipleChoiceOption'
-import Button from '../../../../shared-module/components/Button'
-import CheckBox from '../../../../shared-module/components/InputFields/CheckBox'
-import ToggleCard from '../common/ToggleCard'
-import Accordion from '../../../../shared-module/components/Accordion'
-import RadioButton from '../../../../shared-module/components/InputFields/RadioButton'
-import { useTranslation } from 'react-i18next'
+import styled from "@emotion/styled"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { PrivateSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes"
+import Accordion from "../../../../shared-module/components/Accordion"
+import Button from "../../../../shared-module/components/Button"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import RadioButton from "../../../../shared-module/components/InputFields/RadioButton"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
+import { primaryFont } from "../../../../shared-module/styles"
+import EditorCard from "../common/EditorCard"
+import ToggleCard from "../common/ToggleCard"
+
+import MultipleChoiceOption from "./MultipleChoiceOption"
 
 interface MultipleChoiceEditorProps {
   quizItem: PrivateSpecQuizItemMultiplechoice
@@ -41,7 +43,6 @@ const OptionNameContainer = styled.div`
   display: inline;
   position: relative;
   top: -10px;
-
 `
 const OptionCheckBoxContainer = styled.div`
   width: 15vh;
@@ -64,7 +65,7 @@ const OptionCreationWrapper = styled.div`
 `
 
 const OptionCreationContainer = styled.div`
-  background-color: #FBFBFB;
+  background-color: #fbfbfb;
   border: 1px solid #e2e4e6;
   width: 100%;
   margin-top: 28px;
@@ -87,63 +88,48 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
   margin-bottom: 16px;
 `
 
-
 const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem }) => {
-
   const { t } = useTranslation()
 
   return (
     <EditorCard title={"MULTIPLE-CHOICE"}>
-      <TextField
-        value={quizItem.title}
-        label={t("title")}
-        name={t("title")}
-      />
-      <OptionTitle> { t("title-options") } </OptionTitle>
-      <OptionDescription>
-        Add multiple options to this question
-      </OptionDescription>
+      <TextField value={quizItem.title} label={t("title")} name={t("title")} />
+      <OptionTitle> {t("title-options")} </OptionTitle>
+      <OptionDescription>Add multiple options to this question</OptionDescription>
       <OptionCardContainer>
-        { quizItem.options.map(option => (
-          <MultipleChoiceOption key={option.id} option={option}/>
+        {quizItem.options.map((option) => (
+          <MultipleChoiceOption key={option.id} option={option} />
         ))}
       </OptionCardContainer>
 
       {/* New multiple choice option input */}
       <OptionCreationContainer>
-          <OptionCreationWrapper>
-            <OptionNameContainer>
-              <TextField
-                label={t("option-title")}
-                placeholder={t("option-title")}
-              />
-            </OptionNameContainer>
-            <OptionCheckBoxContainer>
-              <CheckBox label={t("label-correct")}/>
-            </OptionCheckBoxContainer>
-          </OptionCreationWrapper>
+        <OptionCreationWrapper>
+          <OptionNameContainer>
+            <TextField label={t("option-title")} placeholder={t("option-title")} />
+          </OptionNameContainer>
+          <OptionCheckBoxContainer>
+            <CheckBox label={t("label-correct")} />
+          </OptionCheckBoxContainer>
+        </OptionCreationWrapper>
 
-          <TextField label={t("success-message")} placeholder={t("success-message")}/>
-          <Button variant="primary" size={'medium'}>
-            { t("add-option") }
-          </Button>
+        <TextField label={t("success-message")} placeholder={t("success-message")} />
+        <Button variant="primary" size={"medium"}>
+          {t("add-option")}
+        </Button>
       </OptionCreationContainer>
 
       {/* Advanced options */}
-      <br/>
-      <Accordion  variant='detail' title='Advanced options'>
+      <br />
+      <Accordion variant="detail" title="Advanced options">
         <details>
-          <summary> { t("advanced-options") }  </summary>
+          <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
-            <OptionTitle> { t("layout-options")} </OptionTitle>
-            <OptionDescription>
-              { t("layout-options-description") }
-            </OptionDescription>
-            <MultipleChoiceLayoutChoiceContainer
-              role="radiogroup"
-            >
-                  <RadioButton checked={quizItem.direction == 'row'} label={t("row")}/>
-                  <RadioButton checked={quizItem.direction == 'column'} label={t("column")}/>
+            <OptionTitle> {t("layout-options")} </OptionTitle>
+            <OptionDescription>{t("layout-options-description")}</OptionDescription>
+            <MultipleChoiceLayoutChoiceContainer role="radiogroup">
+              <RadioButton checked={quizItem.direction == "row"} label={t("row")} />
+              <RadioButton checked={quizItem.direction == "column"} label={t("column")} />
             </MultipleChoiceLayoutChoiceContainer>
             <OptionTitle> Answering options </OptionTitle>
             <ToggleCard
@@ -157,9 +143,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
               state={quizItem.shuffleOptions}
             />
             <OptionTitle> {t("feedback-message")} </OptionTitle>
-            <TextField label={t("success-message")}/>
-            <TextField label={t("failure-message")}/>
-
+            <TextField label={t("success-message")} />
+            <TextField label={t("failure-message")} />
           </AdvancedOptionsContainer>
         </details>
       </Accordion>

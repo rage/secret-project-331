@@ -1,6 +1,7 @@
-import { PrivateSpecQuizItem } from '../../../../types/quizTypes'
-import MultipleChoiceEditor from './multiple-choice'
-import UnsupportedExercise from './unsupported'
+import { PrivateSpecQuizItem } from "../../../../types/quizTypes"
+
+import MultipleChoiceEditor from "./multiple-choice"
+import UnsupportedExercise from "./unsupported"
 
 interface QuizEditor {
   quizItem: PrivateSpecQuizItem
@@ -9,9 +10,9 @@ interface QuizEditor {
 const QuizEditor: React.FC<QuizEditor> = ({ quizItem }) => {
   switch (quizItem.type) {
     case "multiple-choice":
-      return <MultipleChoiceEditor quizItem={quizItem}/>
+      return <MultipleChoiceEditor quizItem={quizItem} />
     default:
-      return <UnsupportedExercise/>
+      return <UnsupportedExercise />
   }
 }
 

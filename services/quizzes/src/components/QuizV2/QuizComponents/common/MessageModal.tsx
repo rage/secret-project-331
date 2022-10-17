@@ -1,5 +1,5 @@
-import styled from '@emotion/styled'
-import React from 'react'
+import styled from "@emotion/styled"
+import React from "react"
 
 interface MessageModelProps {
   title: string
@@ -9,12 +9,12 @@ interface MessageModelProps {
 const MessageModalContainer = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: #F7F8F9;
+  background-color: #f7f8f9;
 `
 
 const MessageModalTitle = styled.div`
-  background-color: #DAE6E5;
-  color: #44827E;
+  background-color: #dae6e5;
+  color: #44827e;
   font-size: 17px;
   font-weight: bold;
   width: 100%;
@@ -23,23 +23,16 @@ const MessageModalTitle = styled.div`
 `
 
 const MessageModalDescription = styled.div`
-  color: #535A66;
+  color: #535a66;
   padding: 16px;
   height: 60px;
 `
 
-const MessageModel: React.FC<MessageModelProps> = ({
-  title,
-  description
-}) => {
+const MessageModel: React.FC<MessageModelProps> = ({ title, description }) => {
   return (
     <MessageModalContainer>
-      <MessageModalTitle>
-        { title }
-      </MessageModalTitle>
-      <MessageModalDescription>
-        { description }
-      </MessageModalDescription>
+      <MessageModalTitle>{title}</MessageModalTitle>
+      <MessageModalDescription>{description}</MessageModalDescription>
     </MessageModalContainer>
   )
 }

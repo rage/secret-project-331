@@ -1,7 +1,7 @@
-import React from 'react'
 import styled from "@emotion/styled"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUp, faArrowDown } from "@fortawesome/free-solid-svg-icons"
+import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import React from "react"
 
 interface EditorCardProps {
   title: string
@@ -28,7 +28,7 @@ const EditorSection = styled.div`
 const CircleButton = styled(FontAwesomeIcon)`
   border: 1px solid #e3e3e3;
   height: 12px;
-  width:  12px;
+  width: 12px;
   padding: 4px;
   display: inline;
   border-radius: 50%;
@@ -48,15 +48,11 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({ childr
   return (
     <EditorWrapper>
       <EditorSection>
-        <EditorTitle>
-          { title }
-        </EditorTitle>
+        <EditorTitle>{title}</EditorTitle>
         <CircleButton icon={faArrowUp} />
         <CircleButton icon={faArrowDown} />
       </EditorSection>
-      <EditorContent>
-        { children }
-      </EditorContent>
+      <EditorContent>{children}</EditorContent>
     </EditorWrapper>
   )
 }

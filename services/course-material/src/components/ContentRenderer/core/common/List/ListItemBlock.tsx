@@ -3,6 +3,7 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { ListItemAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 
@@ -21,7 +22,9 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
   )
 }
 
-// @ts-expect-error: Custom property. This block cannot be rendered with a wrapper div because it's only used inside ul elements and ul elements are not allowed to contain div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
-ListItemBlock.dontRenderWrapperDivIllDoItMySelf = true
+const ListItemBlockWithErrorBoundary = withErrorBoundary(ListItemBlock)
 
-export default ListItemBlock
+// @ts-expect-error: Custom property. This block cannot be rendered with a wrapper div because it's only used inside ul elements and ul elements are not allowed to contain div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
+ListItemBlockWithErrorBoundary.dontRenderWrapperDivIllDoItMySelf = true
+
+export default ListItemBlockWithErrorBoundary

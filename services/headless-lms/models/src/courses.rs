@@ -109,7 +109,8 @@ SELECT id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
 FROM courses
-WHERE course_language_group_id = $1;
+WHERE course_language_group_id = $1
+AND deleted_at IS NULL
         ",
         course.course_language_group_id,
     )
@@ -646,6 +647,40 @@ WHERE id = $1
     Ok(res.is_draft)
 }
 
+pub async fn get_top_level_pages(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Page>> {
+    let pages = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from
+FROM pages p
+WHERE p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
+  AND course_id = $1
+  AND p.url_path != '/'
+  ORDER BY order_number DESC;
+    ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -721,38 +756,4 @@ mod test {
         assert!(course_id.is_err());
         tx2.rollback().await;
     }
-}
-
-pub async fn get_top_level_pages(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
-        Page,
-        "
-SELECT id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from
-FROM pages p
-WHERE p.chapter_id IS NULL
-  AND p.deleted_at IS NULL
-  AND course_id = $1
-  AND p.url_path != '/'
-  ORDER BY order_number DESC;
-    ",
-        course_id
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(pages)
 }

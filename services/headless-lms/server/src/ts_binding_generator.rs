@@ -157,6 +157,7 @@ fn models(target: &mut File) {
         pages::PageSearchRequest,
         pages::PageSearchResult,
         pages::PageWithExercises,
+        peer_review_configs::CourseMaterialPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfig,
         peer_review_configs::CmsPeerReviewConfiguration,
         peer_review_configs::PeerReviewAcceptingStrategy,

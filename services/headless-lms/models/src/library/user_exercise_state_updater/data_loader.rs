@@ -182,7 +182,6 @@ async fn load_peer_review_information(
                 peer_review_config: load_peer_review_config(
                     conn,
                     peer_review_config,
-                    loaded_user_exercise_state,
                     loaded_exercise,
                 )
                 .await?,
@@ -198,7 +197,6 @@ async fn load_peer_review_information(
 async fn load_peer_review_config(
     conn: &mut PgConnection,
     already_loaded_peer_review_config: Option<crate::peer_review_configs::PeerReviewConfig>,
-    loaded_user_exercise_state: &UserExerciseState,
     loaded_exercise: &Exercise,
 ) -> ModelResult<PeerReviewConfig> {
     if let Some(prc) = already_loaded_peer_review_config {
@@ -208,7 +206,7 @@ async fn load_peer_review_config(
         info!("Loading peer review config");
         Ok(peer_review_configs::get_by_exercise_or_course_id(
             conn,
-            loaded_user_exercise_state.exercise_id,
+            loaded_exercise,
             loaded_exercise.course_id.ok_or_else(|| {
                 ModelError::new(
                     ModelErrorType::InvalidRequest,

@@ -1,5 +1,5 @@
 import KaTex from "katex"
-import * as ReactDOMServer from "react-dom/server"
+import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
 import { Term } from "../../../shared-module/bindings"
@@ -33,7 +33,7 @@ const convertToLatex = (data: string) => {
 }
 
 const generateToolTip = (term: Term) => {
-  return ReactDOMServer.renderToString(<Tooltip term={term} />)
+  return renderToString(<Tooltip term={term} />)
 }
 
 const parseGlossary = (data: string, glossary: Term[]): string => {

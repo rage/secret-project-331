@@ -41,7 +41,7 @@ const LanguageOption: React.FC<LanguageOptionProps> = ({ label, onClick }) => {
           text-align: left;
 
           :hover {
-            color: ${baseTheme.colors.green[700]} !imporant;
+            color: ${baseTheme.colors.green[700]};
             filter: brightness(92%) contrast(110%);
           }
 

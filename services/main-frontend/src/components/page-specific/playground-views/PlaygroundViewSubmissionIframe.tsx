@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import axios from "axios"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"

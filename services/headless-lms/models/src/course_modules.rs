@@ -180,6 +180,8 @@ FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
+AND chapters.deleted_at IS NULL
+AND course_modules.deleted_at IS NULL
         ",
         exercise_id,
     )

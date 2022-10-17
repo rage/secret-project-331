@@ -206,6 +206,7 @@ pub async fn delete_peer_review_questions_by_peer_review_config_ids(
 UPDATE peer_review_questions
 SET deleted_at = now()
 WHERE peer_review_config_id = ANY ($1)
+AND deleted_at IS NULL
 RETURNING id;
     ",
         peer_review_config_ids

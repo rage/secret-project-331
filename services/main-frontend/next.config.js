@@ -28,6 +28,7 @@ const config = {
       loader: "@svgr/webpack",
       options: {
         svgoConfig: svgoConfig,
+        svgProps: { role: "presentation" },
       },
     })
 
@@ -36,7 +37,8 @@ const config = {
   compiler: {
     emotion: {
       autoLabel: "always",
-      labelFormat: "[dirname]--[filename]--[local]",
+      // https://github.com/vercel/next.js/issues/40091
+      // labelFormat: "[dirname]--[filename]--[local]",
     },
   },
   experimental: {

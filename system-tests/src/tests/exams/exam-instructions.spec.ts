@@ -49,10 +49,23 @@ test("test", async ({ page, headless }) => {
   // Click text=List
   await page.click("text=List")
   // Press Enter
-  await page.click('[aria-label="Block\\:\\ List"]')
-  await page.type('[aria-label="Block\\:\\ List"]', "One")
-  await page.press('[aria-label="Block\\:\\ List"]', "Enter")
-  await page.type('[aria-label="Block\\:\\ List"]', "Two")
+  await page
+    .locator('[aria-label="Block\\:\\ List item"]')
+    .locator(`[aria-label="List text"]`)
+    .click()
+  await page
+    .locator('[aria-label="Block\\:\\ List item"]')
+    .locator(`[aria-label="List text"]`)
+    .type("One")
+  await page
+    .locator('[aria-label="Block\\:\\ List item"]')
+    .locator(`[aria-label="List text"]`)
+    .press("Enter")
+  await page
+    .locator('[aria-label="Block\\:\\ List item"]')
+    .nth(1)
+    .locator(`[aria-label="List text"]`)
+    .type("Two")
   // Click button:text-is("Save")
   await page.locator(`button:text-is("Save")`).click()
   // Go to http://project-331.local/org/uh-cs

@@ -6,6 +6,7 @@ import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/Gutenb
 import { Block } from "../../../../services/backend"
 import { NewProposedBlockEdit } from "../../../../shared-module/bindings"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
@@ -84,4 +85,4 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
   )
 }
 
-export default ColumnsBlock
+export default withErrorBoundary(ColumnsBlock)

@@ -112,6 +112,7 @@ pub async fn get_exercise_service_by_exercise_type(
 SELECT *
 FROM exercise_services
 WHERE slug = $1
+AND deleted_at IS NULL
   "#,
         exercise_type
     )

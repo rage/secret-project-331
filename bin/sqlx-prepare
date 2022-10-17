@@ -4,6 +4,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+check_sqlx_cli_version
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../services/headless-lms/models"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
@@ -14,7 +16,7 @@ ENV_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$ENV_PATH")
 if [ ! -f "$ENV_RELATIVE_PATH" ]; then
   echo "$ENV_RELATIVE_PATH does not exist. sqlx-prepare won't work without this file, you can copy .env.example as a template"
   exit 1
-fi 
+fi
 
 run_command cd "$RELATIVE_PATH" || exit
 

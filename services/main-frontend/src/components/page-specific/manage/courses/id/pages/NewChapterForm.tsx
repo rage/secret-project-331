@@ -47,7 +47,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
     mode: "onChange",
     defaultValues: {
       name: "",
-      color: "#065853",
+      color: null,
       chapter_number: chapterNumber,
       opens_at: null,
       deadline: null,

@@ -470,7 +470,9 @@ pub async fn answer_requiring_attention_count(
     AND us_state.user_id = s_submission.user_id
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = 'waiting_for_manual_grading'
-    AND us_state.deleted_at IS NULL;"#,
+    AND us_state.deleted_at IS NULL
+    AND s_submission.deleted_at IS NULL
+    AND t_submission.deleted_at IS NULL"#,
         exercise_id,
     )
     .fetch_one(conn)
@@ -578,6 +580,9 @@ pub async fn get_all_answers_requiring_attention(
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = 'waiting_for_manual_grading'
     AND us_state.deleted_at IS NULL
+    AND us_state.deleted_at IS NULL
+    AND s_submission.deleted_at IS NULL
+    AND t_submission.deleted_at IS NULL
     ORDER BY t_submission.updated_at
     LIMIT $2 OFFSET $3;"#,
         exercise_id,

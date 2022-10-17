@@ -5,6 +5,7 @@ export const supportedCoreBlocks: string[] = [
   "core/image",
   "core/heading",
   "core/list",
+  "core/list-item",
   "core/quote",
   "core/audio",
   "core/code",
@@ -47,6 +48,7 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/image",
   "core/heading",
   "core/list",
+  "core/list-item",
   "core/table",
 ]
 
@@ -55,5 +57,6 @@ export const allowedExamInstructionsCoreBlocks: string[] = [
   "core/image",
   "core/heading",
   "core/list",
+  "core/list-item",
   "core/table",
 ]

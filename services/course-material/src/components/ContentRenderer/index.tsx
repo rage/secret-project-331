@@ -19,6 +19,7 @@ import FileBlock from "./core/common/File/FileBlock"
 import HeadingBlock from "./core/common/Heading/HeadingBlock"
 import ImageBlock from "./core/common/Image/ImageBlock"
 import ListBlock from "./core/common/List/ListBlock"
+import ListItemBlock from "./core/common/List/ListItemBlock"
 import ParagraphBlock from "./core/common/Paragraph"
 import QuoteBlock from "./core/common/Quote/QuoteBlock"
 import EmbedBlock from "./core/embeds/EmbedBlock"
@@ -60,6 +61,8 @@ export interface ContentRendererProps {
   selectedBlockId: string | null
   setEdits: React.Dispatch<React.SetStateAction<Map<string, NewProposedBlockEdit>>>
   isExam: boolean
+  /// This wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
+  dontAddWrapperDivMeantForMostOutermostContentRenderer?: boolean
 }
 
 /**
@@ -70,6 +73,7 @@ export interface ContentRendererProps {
 export type BlockRendererProps<T> = {
   data: Block<T>
   id: string
+  wrapperClassName?: string
 } & Omit<ContentRendererProps, "data">
 
 const LatexBlock = dynamic(() => import("./moocfi/LatexBlock"))
@@ -84,6 +88,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "core/heading": HeadingBlock,
   "core/image": ImageBlock,
   "core/list": ListBlock,
+  "core/list-item": ListItemBlock,
   "core/paragraph": ParagraphBlock,
   "core/quote": QuoteBlock,
 
@@ -188,24 +193,37 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     }
   })
 
-  return (
-    <div
-      className={css`
-        font-size: 20px;
-      `}
-    >
+  const content = (
+    <>
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
+        const wrapperClassName = cx(
+          courseMaterialBlockClass,
+          (isHighlighted && highlightedBlockStyles) ?? undefined,
+        )
+
+        // In some cases we cannot use the wrapper div to get the correct HTML.
+        // Those blocks can opt out of the wrapper div but they MUST render the same class names as the wrapper div
+        // so that the features that depend on those class names don't break.
+        // This is done by setting "className={props.wrapperClassName} id={props.id}" on the outermost returned element in the block
+        if (Component.dontRenderWrapperDivIllDoItMySelf === true) {
+          return (
+            <Component
+              key={block.clientId}
+              id={block.clientId}
+              data={block}
+              editing={props.editing}
+              selectedBlockId={props.selectedBlockId}
+              setEdits={props.setEdits}
+              isExam={props.isExam}
+              wrapperClassName={wrapperClassName}
+            />
+          )
+        }
+
         return (
-          <div
-            key={block.clientId}
-            id={block.clientId}
-            className={cx(
-              courseMaterialBlockClass,
-              (isHighlighted && highlightedBlockStyles) ?? undefined,
-            )}
-          >
+          <div key={block.clientId} id={block.clientId} className={wrapperClassName}>
             <Component
               id={block.clientId}
               data={block}
@@ -213,10 +231,24 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               selectedBlockId={props.selectedBlockId}
               setEdits={props.setEdits}
               isExam={props.isExam}
+              wrapperClassName={wrapperClassName}
             />
           </div>
         )
       })}
+    </>
+  )
+
+  if (props.dontAddWrapperDivMeantForMostOutermostContentRenderer) {
+    return content
+  }
+  return (
+    <div
+      className={css`
+        font-size: 20px;
+      `}
+    >
+      {content}
     </div>
   )
 }

@@ -36,7 +36,7 @@ const PeerReviewProgress: React.FC<
           variant="bar"
           exercisesTotal={total}
           exercisesAttempted={attempt}
-          showAsPercentage={true}
+          showAsPercentage={false}
           height="small"
           label={t("peer-reviews-given")}
         />

@@ -4,6 +4,7 @@
 // Internal modules, not public to make sure someone does not accidentally import them and mess things up.
 mod data_loader;
 mod state_deriver;
+mod validation;
 
 use crate::{
     course_modules,

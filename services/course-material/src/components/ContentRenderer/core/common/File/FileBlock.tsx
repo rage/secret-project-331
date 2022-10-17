@@ -5,6 +5,7 @@ import { BlockRendererProps } from "../../.."
 import { FileAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
 import ExternalLinkSVG from "../../../../../shared-module/img/external-link.svg"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttributes>>> = ({
   data,
@@ -58,4 +59,4 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
   )
 }
 
-export default FileBlock
+export default withErrorBoundary(FileBlock)

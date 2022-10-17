@@ -7,6 +7,7 @@ import {
   ButtonsAttributes,
 } from "../../../../../../types/GutenbergBlockAttributes"
 import Button from "../../../../../shared-module/components/Button"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 
@@ -134,4 +135,4 @@ const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsA
   )
 }
 
-export default ButtonsBlock
+export default withErrorBoundary(ButtonsBlock)

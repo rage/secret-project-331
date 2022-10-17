@@ -25,6 +25,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
     align,
     className,
     gradient,
+    fontFamily,
     // style,
     textColor,
   } = data.attributes
@@ -53,6 +54,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
           ${gradient && `background: ${colorMapper(gradient)};`}
           ${align !== "center" && `float: ${align};`}
           ${align === "center" && "margin: 0 auto;"}
+          ${fontFamily && `font-family: ${fontFamily};`}
           color: ${colorMapper(textColor)};
           border-collapse: collapse;
           ${!align && "width: 100%;"}

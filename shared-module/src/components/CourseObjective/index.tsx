@@ -1,18 +1,21 @@
+/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import Circle from "../../img/card-bg-circle.svg"
-import Star from "../../img/card-bg-star.svg"
-import Zigzag from "../../img/card-bg-zigzag.svg"
 import { respondToOrLarger } from "../../styles/respond"
 
-// eslint-disable-next-line i18next/no-literal-string
+interface StyledObjectiveProps {
+  index: number
+}
+
 const Wrapper = styled.div`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   padding: 3rem;
+  margin: 0 auto;
+  max-width: 2000px;
 
   h2 {
     z-index: 20;
@@ -25,8 +28,6 @@ const Wrapper = styled.div`
     line-height: 1.1;
   }
 `
-
-const SVG = [Star, Circle, Zigzag, Zigzag, Star, Circle]
 
 const TextBox = styled.div`
   display: grid;
@@ -56,13 +57,16 @@ const TextBox = styled.div`
     }
   }
 `
-const Objective = styled.div`
+const Objective = styled.div<StyledObjectiveProps>`
   width: 100%;
   min-height: 100%;
-  background: #f5f6f7;
+  background: ${({ index }) => index === 1 && `#1a2333`};
   position: relative;
   overflow: hidden;
   display: grid;
+  border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
+  border-radius: 8px;
+  color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {
     margin: auto 2rem 2rem 2rem;
@@ -102,7 +106,6 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
       <TextBox>
         {data &&
           data.map((item: { innerBlocks: any; clientId: string | null }, index: number) => {
-            const BackgroundSVG = SVG[index]
             const innerBlocks = item.innerBlocks
             const isList = innerBlocks[0].name === "core/list"
             let list
@@ -116,8 +119,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
             }
 
             return isList ? (
-              <Objective key={item.clientId}>
-                <BackgroundSVG />
+              <Objective key={item.clientId} index={index}>
                 {list?.map((childHtml) => (
                   <span className="list" key={childHtml}>
                     {childHtml}
@@ -125,8 +127,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<React.PropsWithChildren<
                 ))}
               </Objective>
             ) : (
-              <Objective key={item.clientId}>
-                <BackgroundSVG />
+              <Objective key={item.clientId} index={index}>
                 {innerBlocks && innerBlocks[0].name === "core/heading" && (
                   <h2
                     className={css`

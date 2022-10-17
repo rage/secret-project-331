@@ -53,7 +53,7 @@ const SponsorLogo = styled.div<StyledSponsor>`
   justify-content: center;
   align-items: center;
   margin-bottom: 50px;
-  opacity: 0.9;
+  opacity: 0.6;
 
   img {
     max-width: 100%;

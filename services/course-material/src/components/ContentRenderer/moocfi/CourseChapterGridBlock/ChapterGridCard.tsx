@@ -7,6 +7,12 @@ import { ChapterWithStatus } from "../../../../shared-module/bindings"
 import Card from "../../../../shared-module/components/Card"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
+import Circle from "../../../../shared-module/img/card-defualt-bg/circle.svg"
+import Cross from "../../../../shared-module/img/card-defualt-bg/cross.svg"
+import DotCircle from "../../../../shared-module/img/card-defualt-bg/dot-circle.svg"
+import Equal from "../../../../shared-module/img/card-defualt-bg/equal.svg"
+import Intersection from "../../../../shared-module/img/card-defualt-bg/intersection.svg"
+import Triangle from "../../../../shared-module/img/card-defualt-bg/triangle.svg"
 import { coursePageRoute } from "../../../../utils/routing"
 
 interface ChapterProps {
@@ -22,6 +28,8 @@ interface ChapterProps {
 const NUMERIC = "numeric"
 const LONG = "long"
 const OPEN = "open"
+
+const arr: string[] = [Triangle, Equal, Circle, Intersection, Triangle, Cross, DotCircle, Circle]
 
 const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,
@@ -93,7 +101,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       time={time}
       url={url}
       bg={chapter.color !== null ? chapter.color : bg}
-      backgroundImage={backgroundImage}
+      backgroundImage={backgroundImage ? backgroundImage : arr[chapter.chapter_number - 1]}
     />
   )
 }

@@ -120,6 +120,7 @@ SELECT re.id,
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE repository_id = $1
+AND re.deleted_at IS NULL
 ",
         repository
     )
@@ -145,6 +146,8 @@ er.id AS repository_id,
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE er.course_id = $1
+AND re.deleted_at IS NULL
+and er.deleted_at IS NULL
 ",
         course
     )

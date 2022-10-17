@@ -380,7 +380,8 @@ FROM peer_review_queue_entries
 WHERE course_instance_id = $1
   AND received_enough_peer_reviews = FALSE
   AND removed_from_queue_for_unusual_reason = FALSE
-  AND created_at < $2;
+  AND created_at < $2
+  AND deleted_at IS NULL
     ",
         course_instance_id,
         timestamp

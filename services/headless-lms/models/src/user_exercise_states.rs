@@ -628,6 +628,7 @@ FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
+  AND deleted_at IS NULL
 ",
         user_id,
         exercise_id,
@@ -644,6 +645,7 @@ SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $5)
+  AND deleted_at IS NULL
     ",
             user_id,
             exercise_id,

@@ -68,6 +68,7 @@ SELECT id,
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
+AND deleted_at IS NULL
 ",
         id
     )
@@ -347,6 +348,7 @@ SELECT user_id,
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
+  AND deleted_at IS NULL
 ",
         exam_id,
         user_id

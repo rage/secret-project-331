@@ -68,7 +68,7 @@ const Objective = styled.div<StyledObjectiveProps>`
   overflow: hidden;
   display: grid;
   border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
-  border-radius: 8px;
+  border-radius: 4px;
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {

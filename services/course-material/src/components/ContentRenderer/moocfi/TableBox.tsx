@@ -6,11 +6,20 @@ import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styl
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
-const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = (props) => {
+interface TableBoxAttributes {
+  width: string
+}
+
+const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttributes>>> = (
+  props,
+) => {
+  const width = props.data.attributes?.width
   return (
     <div
       className={css`
         margin: 1rem 0;
+        width: ${width ? `${width}px` : "100%"};
+        margin: 0 auto;
       `}
     >
       <div
@@ -55,7 +64,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             background-color: ${baseTheme.colors.green[100]};
             align-items: center;
             padding: 10px;
-            color: ${baseTheme.colors.green[600]};
+            color: ${baseTheme.colors.green[700]};
             font-family: ${primaryFont};
             font-size: 18px;
             font-weight: 500;

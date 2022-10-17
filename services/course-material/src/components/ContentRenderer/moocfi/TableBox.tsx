@@ -17,9 +17,8 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
   return (
     <div
       className={css`
-        margin: 1rem 0;
         width: ${width ? `${width}px` : "100%"};
-        margin: 0 auto;
+        margin: 1rem auto;
       `}
     >
       <div

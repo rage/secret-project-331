@@ -11,7 +11,13 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes"
-import { NormalizedQuizItem, Quiz, QuizItem } from "../../types/types"
+import {
+  NormalizedQuizItem,
+  NormalizedQuizItemOption,
+  Quiz,
+  QuizItem,
+  QuizItemOption,
+} from "../../types/types"
 
 /**
  * Check if the quiz version is old.
@@ -21,6 +27,26 @@ import { NormalizedQuizItem, Quiz, QuizItem } from "../../types/types"
  */
 export const isOldQuiz = (quiz: Quiz | PrivateSpecQuiz) => {
   return !Object.prototype.hasOwnProperty.call(quiz, "version")
+}
+
+export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
+  quizOptions: NormalizedQuizItemOption[],
+) => {
+  const result: QuizItemOption[] = quizOptions.map((item) => ({
+    id: item.id,
+    quizItemId: item.quizItemId,
+    order: item.order,
+    correct: item.correct,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    title: item.title,
+    body: item.body,
+    messageAfterSubmissionWhenSelected: item.messageAfterSubmissionWhenSelected,
+    additionalCorrectnessExplanationOnModelSolution:
+      item.additionalCorrectnessExplanationOnModelSolution,
+  }))
+
+  return result
 }
 
 export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
@@ -99,8 +125,8 @@ export const migrateQuizItem = (quizItem: QuizItem | NormalizedQuizItem) => {
         body: quizItem.body,
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
-        maxLabel: quizItem.maxLabel,
-        minLabel: quizItem.minLabel,
+        maxLabel: (<QuizItem>quizItem).maxLabel ? (<QuizItem>quizItem).maxLabel : "?",
+        minLabel: (<QuizItem>quizItem).minLabel ? (<QuizItem>quizItem).minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
       } as PrivateSpecQuizItemScale

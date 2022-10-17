@@ -7,8 +7,12 @@ import { useTranslation } from "react-i18next"
 import { NormalizedQuizItem } from "../../../../types/types"
 import Button from "../../../shared-module/components/Button"
 import { useTypedSelector } from "../../../store/store"
-import { migrateQuizItem } from "../../../util/quizMigration"
+import {
+  convertNormalizedQuizItemOptionsToQuizItemOptions,
+  migrateQuizItem,
+} from "../../../util/quizMigration"
 import QuizEditor from "../QuizComponents/QuizEditor"
+
 import QuizItemOption, { QuizOption } from "./QuizOption"
 
 interface QuizOptionProps {
@@ -16,60 +20,59 @@ interface QuizOptionProps {
 }
 
 const QUIZ_COMPONENTS: QuizOptionProps = {
-  "essay": {
-    "type": "essay",
-    "name": "quiz-essay-name",
-    "description": "quiz-essay-description",
-    "disabled": true
+  essay: {
+    type: "essay",
+    name: "quiz-essay-name",
+    description: "quiz-essay-description",
+    disabled: true,
   },
   "multiple-choice": {
-    "type": "multiple-choice",
-    "name": "quiz-multiple-choice-name",
-    "description": "quiz-multiple-choice-description",
-    "disabled": false
+    type: "multiple-choice",
+    name: "quiz-multiple-choice-name",
+    description: "quiz-multiple-choice-description",
+    disabled: false,
   },
-  "scale": {
-    "type": "scale",
-    "name": "quiz-scale-name",
-    "description": "quiz-scale-description",
-    "disabled": true
+  scale: {
+    type: "scale",
+    name: "quiz-scale-name",
+    description: "quiz-scale-description",
+    disabled: true,
   },
-  "checkbox": {
-    "type": "checkbox",
-    "name": "quiz-checkbox-name",
-    "description": "quiz-checkbox-description",
-    "disabled": true
+  checkbox: {
+    type: "checkbox",
+    name: "quiz-checkbox-name",
+    description: "quiz-checkbox-description",
+    disabled: true,
   },
   "closed-ended-question": {
-    "type": "closed-ended-question",
-    "name": "quiz-open-name",
-    "description": "quiz-open-description",
-    "disabled": true
+    type: "closed-ended-question",
+    name: "quiz-open-name",
+    description: "quiz-open-description",
+    disabled: true,
   },
-  "matrix": {
-    "type": "matrix",
-    "name": "quiz-matrix-name",
-    "description": "quiz-matrix-description",
-    "disabled": true
+  matrix: {
+    type: "matrix",
+    name: "quiz-matrix-name",
+    description: "quiz-matrix-description",
+    disabled: true,
   },
-  "timeline": {
-    "type": "timeline",
-    "name": "quiz-timeline-name",
-    "description": "quiz-timeline-description",
-    "disabled": true
+  timeline: {
+    type: "timeline",
+    name: "quiz-timeline-name",
+    description: "quiz-timeline-description",
+    disabled: true,
   },
   "choose-n": {
-    "type": "choose-n",
-    "name": "quiz-clickable-multiple-choice-name",
-    "description": "quiz-multiple-choice-description",
-    "disabled": true
+    type: "choose-n",
+    name: "quiz-clickable-multiple-choice-name",
+    description: "quiz-multiple-choice-description",
+    disabled: true,
   },
   // "multiple-choice-dropdown": {
   //   name: "quiz-multiple-choice-dropdown-name",
   //   description: "quiz-multiple-choice-dropdown-description",
   // }
 }
-
 
 const AddQuizItemWrapper = styled.div`
   display: flex;
@@ -103,7 +106,7 @@ const QuizItemSelection: React.FC = () => {
       <h3>{t("add-new-quiz-item")}</h3>
       <TypeContainer>
         {Object.keys(QUIZ_COMPONENTS).map((type, _) => (
-          <QuizItemOption quizOption={QUIZ_COMPONENTS[type]} />
+          <QuizItemOption key={type} quizOption={QUIZ_COMPONENTS[type]} />
         ))}
       </TypeContainer>
     </AddQuizItemWrapper>
@@ -155,8 +158,7 @@ const QuizDuplicationMenu: React.FC<AddQuizItemProps> = () => {
             `}
             onClick={() => {
               // TODO: implement
-              }
-            }
+            }}
           >
             {t("create-quiz-item-duplicate")}
           </Button>
@@ -204,12 +206,12 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
       {storeItems.map((oldQuiz) => {
         const quiz = migrateQuizItem(oldQuiz)
         if (quiz.type == "multiple-choice") {
-          const quizOptions = quiz.options.map(itemId => storeOptions[itemId])
-          quiz.options = quizOptions
+          const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
+          quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
         }
         return (
           <div key={quiz.id}>
-            <QuizEditor quizItem={quiz}/>
+            <QuizEditor quizItem={quiz} />
             <Divider variant="fullWidth" />
           </div>
         )
@@ -219,4 +221,3 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 export default QuizItems
-

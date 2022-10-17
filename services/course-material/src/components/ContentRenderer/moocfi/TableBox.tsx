@@ -3,6 +3,7 @@ import React from "react"
 
 import { BlockRendererProps } from ".."
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
@@ -17,8 +18,11 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
   return (
     <div
       className={css`
-        width: ${width ? `${width}px` : "100%"};
+        width: 100%;
         margin: 1rem auto;
+
+        ${respondToOrLarger.md} {
+          width: ${width ? `${width}px` : "100%"};
       `}
     >
       <div

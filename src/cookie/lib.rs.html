@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.0/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cookie/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/cookie-0.16.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cookie/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cookie/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1400,6 +1400,26 @@
 <span id="1400">1400</span>
 <span id="1401">1401</span>
 <span id="1402">1402</span>
+<span id="1403">1403</span>
+<span id="1404">1404</span>
+<span id="1405">1405</span>
+<span id="1406">1406</span>
+<span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
 </pre><pre class="rust"><code><span class="doccomment">//! HTTP cookie parsing and cookie jar management.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This crates provides the [`Cookie`] type, representing an HTTP cookie, and</span>
@@ -1494,8 +1514,6 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>, <span class="ident">deprecated</span>)]</span>
 <span class="kw">use</span> <span class="ident">std::ascii::AsciiExt</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">AsciiSet</span>, <span class="ident">percent_encode</span> <span class="kw">as</span> <span class="ident">encode</span>};
 <span class="kw">use</span> <span class="ident">time</span>::{<span class="ident">Duration</span>, <span class="ident">OffsetDateTime</span>, <span class="ident">UtcOffset</span>, <span class="ident">macros::datetime</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parse::parse_cookie</span>;
@@ -2510,28 +2528,50 @@ assert_eq!(&amp;c.stripped().encoded().to_string(), &quot;key%3F=value&quot;);
     }
 }
 
-<span class="doccomment">/// https://url.spec.whatwg.org/#fragment-percent-encode-set</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">FRAGMENT_ENCODE_SET</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">percent_encoding::CONTROLS</span>.<span class="ident">add</span>(<span class="string">b&#39; &#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&quot;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&lt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;&gt;&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;`&#39;</span>);
+<span class="kw">mod</span> <span class="ident">encoding</span> {
+    <span class="kw">use</span> <span class="ident">percent_encoding</span>::{<span class="ident">AsciiSet</span>, <span class="ident">CONTROLS</span>};
 
-<span class="doccomment">/// https://url.spec.whatwg.org/#path-percent-encode-set</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">PATH_ENCODE_SET</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">FRAGMENT_ENCODE_SET</span>.<span class="ident">add</span>(<span class="string">b&#39;#&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;?&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;{&#39;</span>).<span class="ident">add</span>(<span class="string">b&#39;}&#39;</span>);
+    <span class="doccomment">/// https://url.spec.whatwg.org/#fragment-percent-encode-set</span>
+    <span class="kw">const</span> <span class="ident">FRAGMENT</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">CONTROLS</span>
+        .<span class="ident">add</span>(<span class="string">b&#39; &#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;&quot;&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;&lt;&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;&gt;&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;`&#39;</span>);
 
-<span class="doccomment">/// https://url.spec.whatwg.org/#userinfo-percent-encode-set</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
-<span class="kw">const</span> <span class="ident">USERINFO_ENCODE_SET</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PATH_ENCODE_SET</span>
-    .<span class="ident">add</span>(<span class="string">b&#39;/&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;:&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;;&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;=&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;@&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;[&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;\\&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;]&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;^&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;|&#39;</span>)
-    .<span class="ident">add</span>(<span class="string">b&#39;%&#39;</span>);
+    <span class="doccomment">/// https://url.spec.whatwg.org/#path-percent-encode-set</span>
+    <span class="kw">const</span> <span class="ident">PATH</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">FRAGMENT</span>
+        .<span class="ident">add</span>(<span class="string">b&#39;#&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;?&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;{&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;}&#39;</span>);
+
+    <span class="doccomment">/// https://url.spec.whatwg.org/#userinfo-percent-encode-set</span>
+    <span class="kw">const</span> <span class="ident">USERINFO</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PATH</span>
+        .<span class="ident">add</span>(<span class="string">b&#39;/&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;:&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;;&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;=&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;@&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;[&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;\\&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;]&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;^&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;|&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;%&#39;</span>);
+
+    <span class="doccomment">/// https://www.rfc-editor.org/rfc/rfc6265#section-4.1.1 + &#39;(&#39;, &#39;)&#39;</span>
+    <span class="kw">const</span> <span class="ident">COOKIE</span>: <span class="kw-2">&amp;</span><span class="ident">AsciiSet</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">USERINFO</span>
+        .<span class="ident">add</span>(<span class="string">b&#39;(&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;)&#39;</span>)
+        .<span class="ident">add</span>(<span class="string">b&#39;,&#39;</span>);
+
+    <span class="doccomment">/// Percent-encode a cookie name or value with the proper encoding set.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="ident">percent_encoding::percent_encode</span>(<span class="ident">string</span>.<span class="ident">as_bytes</span>(), <span class="ident">COOKIE</span>)
+    }
+}
 
 <span class="doccomment">/// Wrapper around `Cookie` whose `Display` implementation either</span>
 <span class="doccomment">/// percent-encodes the cookie&#39;s name and value, skips displaying the cookie&#39;s</span>
@@ -2566,8 +2606,8 @@ assert_eq!(&amp;c.encoded().stripped().to_string(), &quot;my%20name=this%3B%20va
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">encode</span> {
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">encode</span>(<span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">name</span>().<span class="ident">as_bytes</span>(), <span class="ident">USERINFO_ENCODE_SET</span>);
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">encode</span>(<span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>(), <span class="ident">USERINFO_ENCODE_SET</span>);
+                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">encoding::encode</span>(<span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">name</span>());
+                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">encoding::encode</span>(<span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">value</span>());
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="ident">name</span>, <span class="ident">value</span>)<span class="question-mark">?</span>;
             } <span class="kw">else</span> {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}={}&quot;</span>, <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">name</span>(), <span class="self">self</span>.<span class="ident">cookie</span>.<span class="ident">value</span>())<span class="question-mark">?</span>;
@@ -2794,12 +2834,12 @@ assert_eq!(&amp;c.encoded().stripped().to_string(), &quot;my%20name=this%3B%20va
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;percent-encode&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">format_encoded</span>() {
-        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>).<span class="ident">finish</span>();
+        <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="string">&quot;foo !%?=&quot;</span>, <span class="string">&quot;bar;;, a&quot;</span>).<span class="ident">finish</span>();
         <span class="kw">let</span> <span class="ident">cookie_str</span> <span class="op">=</span> <span class="ident">cookie</span>.<span class="ident">encoded</span>().<span class="ident">to_string</span>();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie_str</span>, <span class="string">&quot;foo%20!%3F%3D=bar%3B%3B%20a&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span><span class="ident">cookie_str</span>, <span class="string">&quot;foo%20!%25%3F%3D=bar%3B%3B%2C%20a&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">cookie</span> <span class="op">=</span> <span class="ident">Cookie::parse_encoded</span>(<span class="ident">cookie_str</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">cookie</span>.<span class="ident">name_value</span>(), (<span class="string">&quot;foo !?=&quot;</span>, <span class="string">&quot;bar;; a&quot;</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">cookie</span>.<span class="ident">name_value</span>(), (<span class="string">&quot;foo !%?=&quot;</span>, <span class="string">&quot;bar;;, a&quot;</span>));
     }
 }
 </code></pre></div>

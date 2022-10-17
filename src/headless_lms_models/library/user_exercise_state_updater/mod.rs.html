@@ -159,12 +159,14 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Always update the user_exercise_state table though this module</span>
 <span class="doccomment">//!</span>
 
 <span class="comment">// Internal modules, not public to make sure someone does not accidentally import them and mess things up.</span>
 <span class="kw">mod</span> <span class="ident">data_loader</span>;
 <span class="kw">mod</span> <span class="ident">state_deriver</span>;
+<span class="kw">mod</span> <span class="ident">validation</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">course_modules</span>,

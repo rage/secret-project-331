@@ -12,7 +12,7 @@ to understand why this is the case and how to correctly construct scope/prefix d
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">web</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>};
 
 <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App::new</span>().<span class="ident">service</span>(
-    <span class="ident">web::scope</span>(<span class="string">&quot;/{project_id}/&quot;</span>)
+    <span class="ident">web::scope</span>(<span class="string">&quot;/{project_id}&quot;</span>)
         .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/path1&quot;</span>).<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> { <span class="string">&quot;OK&quot;</span> }))
         .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/path2&quot;</span>).<span class="ident">route</span>(<span class="ident">web::get</span>().<span class="ident">to</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">HttpResponse::Ok</span>())))
         .<span class="ident">service</span>(<span class="ident">web::resource</span>(<span class="string">&quot;/path3&quot;</span>).<span class="ident">route</span>(<span class="ident">web::head</span>().<span class="ident">to</span>(<span class="ident">HttpResponse::MethodNotAllowed</span>)))

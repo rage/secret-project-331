@@ -689,6 +689,8 @@
 <span id="689">689</span>
 <span id="690">690</span>
 <span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -1187,7 +1189,7 @@ RETURNING *;
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// We&#39;ll also delete all the pages and exercises so that they don&#39;t conflict with future chapters</span>
     <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;UPDATE pages SET deleted_at = now() WHERE chapter_id = $1;&quot;</span>,
+        <span class="string">&quot;UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;&quot;</span>,
         <span class="ident">chapter_id</span>
     )
     .<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>)
@@ -1254,7 +1256,8 @@ SELECT c.*
 FROM chapters c,
   pages p
 WHERE c.id = p.chapter_id
-  AND p.id = $1;
+  AND p.id = $1
+  AND c.deleted_at IS NULL
     &quot;</span>,
         <span class="ident">page_id</span>
     )
@@ -1314,6 +1317,7 @@ WHERE id = $1
 SELECT id
 FROM chapters
 WHERE course_module_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">module_id</span>
     )

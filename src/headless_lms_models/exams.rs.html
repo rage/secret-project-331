@@ -413,6 +413,8 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono::Duration</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">courses::Course</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
@@ -483,6 +485,7 @@ SELECT id,
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">id</span>
     )
@@ -762,6 +765,7 @@ SELECT user_id,
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
+  AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">exam_id</span>,
         <span class="ident">user_id</span>

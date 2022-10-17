@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.1/src/runtime/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.21.2/src/runtime/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../tokio/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../tokio/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -964,6 +964,61 @@
 <span id="964">964</span>
 <span id="965">965</span>
 <span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
+<span id="997">997</span>
+<span id="998">998</span>
+<span id="999">999</span>
+<span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::handle::Handle</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">blocking</span>, <span class="ident">driver</span>, <span class="ident">Callback</span>, <span class="ident">Runtime</span>, <span class="ident">Spawner</span>};
 
@@ -1050,6 +1105,11 @@
 
     <span class="doccomment">/// How many ticks before yielding to the driver for timer and I/O events?</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">event_interval</span>: <span class="ident">u32</span>,
+
+    <span class="doccomment">/// When true, the multi-threade scheduler LIFO slot should not be used.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This option should only be exposed as unstable.</span>
+    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">disable_lifo_slot</span>: <span class="ident">bool</span>,
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="ident">unhandled_panic</span>: <span class="ident">UnhandledPanic</span>,
@@ -1140,7 +1200,7 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Kind</span> {
     <span class="ident">CurrentThread</span>,
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>, <span class="ident">not</span>(<span class="ident">tokio_wasi</span>)))]</span>
     <span class="ident">MultiThread</span>,
 }
 
@@ -1163,14 +1223,16 @@
         <span class="ident">Builder::new</span>(<span class="ident">Kind::CurrentThread</span>, <span class="number">31</span>, <span class="ident">EVENT_INTERVAL</span>)
     }
 
-    <span class="doccomment">/// Returns a new builder with the multi thread scheduler selected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Configuration methods can be chained on the return value.</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_multi_thread</span>() -&gt; <span class="ident">Builder</span> {
-        <span class="comment">// The number `61` is fairly arbitrary. I believe this value was copied from golang.</span>
-        <span class="ident">Builder::new</span>(<span class="ident">Kind::MultiThread</span>, <span class="number">61</span>, <span class="number">61</span>)
+    <span class="macro">cfg_not_wasi!</span> {
+        <span class="doccomment">/// Returns a new builder with the multi thread scheduler selected.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Configuration methods can be chained on the return value.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)))]</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_multi_thread</span>() -&gt; <span class="ident">Builder</span> {
+            <span class="comment">// The number `61` is fairly arbitrary. I believe this value was copied from golang.</span>
+            <span class="ident">Builder::new</span>(<span class="ident">Kind::MultiThread</span>, <span class="number">61</span>, <span class="number">61</span>)
+        }
     }
 
     <span class="doccomment">/// Returns a new runtime builder initialized with default configuration</span>
@@ -1216,6 +1278,8 @@
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
             <span class="ident">unhandled_panic</span>: <span class="ident">UnhandledPanic::Ignore</span>,
+
+            <span class="ident">disable_lifo_slot</span>: <span class="bool-val">false</span>,
         }
     }
 
@@ -1236,7 +1300,11 @@
     <span class="doccomment">///     .unwrap();</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;process&quot;</span>, <span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signal&quot;</span>)))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
+            <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;net&quot;</span>,
+            <span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;process&quot;</span>),
+            <span class="ident">all</span>(<span class="ident">unix</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;signal&quot;</span>)
+        ))]</span>
         <span class="self">self</span>.<span class="ident">enable_io</span>();
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;time&quot;</span>)]</span>
         <span class="self">self</span>.<span class="ident">enable_time</span>();
@@ -1253,11 +1321,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The default value is the number of cores available to the system.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When using the `current_thread` runtime this method will panic, since</span>
-    <span class="doccomment">/// those variants do not allow setting worker thread counts.</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// When using the `current_thread` runtime this method has no effect.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1582,8 +1646,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">Kind::CurrentThread</span> =&gt; <span class="self">self</span>.<span class="ident">build_basic_runtime</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
+            <span class="ident">Kind::CurrentThread</span> =&gt; <span class="self">self</span>.<span class="ident">build_current_thread_runtime</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>, <span class="ident">not</span>(<span class="ident">tokio_wasi</span>)))]</span>
             <span class="ident">Kind::MultiThread</span> =&gt; <span class="self">self</span>.<span class="ident">build_threaded_runtime</span>(),
         }
     }
@@ -1592,7 +1656,7 @@
         <span class="ident">driver::Cfg</span> {
             <span class="ident">enable_pause_time</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
                 <span class="ident">Kind::CurrentThread</span> =&gt; <span class="bool-val">true</span>,
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>)]</span>
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rt-multi-thread&quot;</span>, <span class="ident">not</span>(<span class="ident">tokio_wasi</span>)))]</span>
                 <span class="ident">Kind::MultiThread</span> =&gt; <span class="bool-val">false</span>,
             },
             <span class="ident">enable_io</span>: <span class="self">self</span>.<span class="ident">enable_io</span>,
@@ -1702,7 +1766,7 @@
         <span class="doccomment">/// * `UnhandledPanic::ShutdownRuntime` will force the runtime to</span>
         <span class="doccomment">///   shutdown immediately when a spawned task panics even if that</span>
         <span class="doccomment">///   task&#39;s `JoinHandle` has not been dropped. All other spawned tasks</span>
-        <span class="doccomment">///   will immediatetly terminate and further calls to</span>
+        <span class="doccomment">///   will immediately terminate and further calls to</span>
         <span class="doccomment">///   [`Runtime::block_on`] will panic.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// # Unstable</span>
@@ -1745,11 +1809,51 @@
             <span class="self">self</span>.<span class="ident">unhandled_panic</span> <span class="op">=</span> <span class="ident">behavior</span>;
             <span class="self">self</span>
         }
+
+        <span class="doccomment">/// Disables the LIFO task scheduler heuristic.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The multi-threaded scheduler includes a heuristic for optimizing</span>
+        <span class="doccomment">/// message-passing patterns. This heuristic results in the **last**</span>
+        <span class="doccomment">/// scheduled task being polled first.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// To implement this heuristic, each worker thread has a slot which</span>
+        <span class="doccomment">/// holds the task that should be polled next. However, this slot cannot</span>
+        <span class="doccomment">/// be stolen by other worker threads, which can result in lower total</span>
+        <span class="doccomment">/// throughput when tasks tend to have longer poll times.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This configuration option will disable this heuristic resulting in</span>
+        <span class="doccomment">/// all scheduled tasks being pushed into the worker-local queue, which</span>
+        <span class="doccomment">/// is stealable.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Consider trying this option when the task &quot;scheduled&quot; time is high</span>
+        <span class="doccomment">/// but the runtime is underutilized. Use tokio-rs/tokio-metrics to</span>
+        <span class="doccomment">/// collect this data.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Unstable</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This configuration option is considered a workaround for the LIFO</span>
+        <span class="doccomment">/// slot not being stealable. When the slot becomes stealable, we will</span>
+        <span class="doccomment">/// revisit whther or not this option is necessary. See</span>
+        <span class="doccomment">/// tokio-rs/tokio#4941.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// # Examples</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">/// use tokio::runtime;</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// let rt = runtime::Builder::new_multi_thread()</span>
+        <span class="doccomment">///     .disable_lifo_slot()</span>
+        <span class="doccomment">///     .build()</span>
+        <span class="doccomment">///     .unwrap();</span>
+        <span class="doccomment">/// ```</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_lifo_slot</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+            <span class="self">self</span>.<span class="ident">disable_lifo_slot</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="self">self</span>
+        }
     }
 
-    <span class="kw">fn</span> <span class="ident">build_basic_runtime</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime::basic_scheduler::Config</span>;
-        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">BasicScheduler</span>, <span class="ident">HandleInner</span>, <span class="ident">Kind</span>};
+    <span class="kw">fn</span> <span class="ident">build_current_thread_runtime</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">Config</span>, <span class="ident">CurrentThread</span>, <span class="ident">HandleInner</span>, <span class="ident">Kind</span>};
 
         <span class="kw">let</span> (<span class="ident">driver</span>, <span class="ident">resources</span>) <span class="op">=</span> <span class="ident">driver::Driver::new</span>(<span class="self">self</span>.<span class="ident">get_cfg</span>())<span class="question-mark">?</span>;
 
@@ -1769,7 +1873,7 @@
         <span class="comment">// there are no futures ready to do something, it&#39;ll let the timer or</span>
         <span class="comment">// the reactor to generate some new stimuli for the futures to continue</span>
         <span class="comment">// in their life.</span>
-        <span class="kw">let</span> <span class="ident">scheduler</span> <span class="op">=</span> <span class="ident">BasicScheduler::new</span>(
+        <span class="kw">let</span> <span class="ident">scheduler</span> <span class="op">=</span> <span class="ident">CurrentThread::new</span>(
             <span class="ident">driver</span>,
             <span class="ident">handle_inner</span>,
             <span class="ident">Config</span> {
@@ -1779,9 +1883,10 @@
                 <span class="ident">event_interval</span>: <span class="self">self</span>.<span class="ident">event_interval</span>,
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
                 <span class="ident">unhandled_panic</span>: <span class="self">self</span>.<span class="ident">unhandled_panic</span>.<span class="ident">clone</span>(),
+                <span class="ident">disable_lifo_slot</span>: <span class="self">self</span>.<span class="ident">disable_lifo_slot</span>,
             },
         );
-        <span class="kw">let</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">Spawner::Basic</span>(<span class="ident">scheduler</span>.<span class="ident">spawner</span>().<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">Spawner::CurrentThread</span>(<span class="ident">scheduler</span>.<span class="ident">spawner</span>().<span class="ident">clone</span>());
 
         <span class="prelude-val">Ok</span>(<span class="ident">Runtime</span> {
             <span class="ident">kind</span>: <span class="ident">Kind::CurrentThread</span>(<span class="ident">scheduler</span>),
@@ -1867,7 +1972,7 @@
     <span class="kw">impl</span> <span class="ident">Builder</span> {
         <span class="kw">fn</span> <span class="ident">build_threaded_runtime</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Runtime</span><span class="op">&gt;</span> {
             <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::loom::sys::num_cpus</span>;
-            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">HandleInner</span>, <span class="ident">Kind</span>, <span class="ident">ThreadPool</span>};
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::runtime</span>::{<span class="ident">Config</span>, <span class="ident">HandleInner</span>, <span class="ident">Kind</span>, <span class="ident">MultiThread</span>};
 
             <span class="kw">let</span> <span class="ident">core_threads</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">worker_threads</span>.<span class="ident">unwrap_or_else</span>(<span class="ident">num_cpus</span>);
 
@@ -1886,16 +1991,21 @@
                 <span class="ident">blocking_spawner</span>,
             };
 
-            <span class="kw">let</span> (<span class="ident">scheduler</span>, <span class="ident">launch</span>) <span class="op">=</span> <span class="ident">ThreadPool::new</span>(
+            <span class="kw">let</span> (<span class="ident">scheduler</span>, <span class="ident">launch</span>) <span class="op">=</span> <span class="ident">MultiThread::new</span>(
                 <span class="ident">core_threads</span>,
                 <span class="ident">driver</span>,
                 <span class="ident">handle_inner</span>,
-                <span class="self">self</span>.<span class="ident">before_park</span>.<span class="ident">clone</span>(),
-                <span class="self">self</span>.<span class="ident">after_unpark</span>.<span class="ident">clone</span>(),
-                <span class="self">self</span>.<span class="ident">global_queue_interval</span>,
-                <span class="self">self</span>.<span class="ident">event_interval</span>,
+                <span class="ident">Config</span> {
+                    <span class="ident">before_park</span>: <span class="self">self</span>.<span class="ident">before_park</span>.<span class="ident">clone</span>(),
+                    <span class="ident">after_unpark</span>: <span class="self">self</span>.<span class="ident">after_unpark</span>.<span class="ident">clone</span>(),
+                    <span class="ident">global_queue_interval</span>: <span class="self">self</span>.<span class="ident">global_queue_interval</span>,
+                    <span class="ident">event_interval</span>: <span class="self">self</span>.<span class="ident">event_interval</span>,
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">tokio_unstable</span>)]</span>
+                    <span class="ident">unhandled_panic</span>: <span class="self">self</span>.<span class="ident">unhandled_panic</span>.<span class="ident">clone</span>(),
+                    <span class="ident">disable_lifo_slot</span>: <span class="self">self</span>.<span class="ident">disable_lifo_slot</span>,
+                },
             );
-            <span class="kw">let</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">Spawner::ThreadPool</span>(<span class="ident">scheduler</span>.<span class="ident">spawner</span>().<span class="ident">clone</span>());
+            <span class="kw">let</span> <span class="ident">spawner</span> <span class="op">=</span> <span class="ident">Spawner::MultiThread</span>(<span class="ident">scheduler</span>.<span class="ident">spawner</span>().<span class="ident">clone</span>());
 
             <span class="comment">// Create the runtime handle</span>
             <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">Handle</span> { <span class="ident">spawner</span> };
@@ -1905,7 +2015,7 @@
             <span class="ident">launch</span>.<span class="ident">launch</span>();
 
             <span class="prelude-val">Ok</span>(<span class="ident">Runtime</span> {
-                <span class="ident">kind</span>: <span class="ident">Kind::ThreadPool</span>(<span class="ident">scheduler</span>),
+                <span class="ident">kind</span>: <span class="ident">Kind::MultiThread</span>(<span class="ident">scheduler</span>),
                 <span class="ident">handle</span>,
                 <span class="ident">blocking_pool</span>,
             })

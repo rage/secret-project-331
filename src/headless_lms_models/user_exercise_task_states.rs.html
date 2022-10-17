@@ -601,6 +601,7 @@
 <span id="601">601</span>
 <span id="602">602</span>
 <span id="603">603</span>
+<span id="604">604</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
@@ -766,6 +767,7 @@ UPDATE user_exercise_task_states
 SET deleted_at = now()
 WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
+  AND deleted_at IS NULL
     &quot;</span>,
         <span class="ident">exercise_task_id</span>,
         <span class="ident">user_exercise_slide_state_id</span>,

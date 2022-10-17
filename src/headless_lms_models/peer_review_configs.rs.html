@@ -452,8 +452,22 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">exercises</span>,
+    <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">Exercise</span>},
     <span class="ident">library</span>::{<span class="self">self</span>, <span class="ident">peer_reviewing::CourseMaterialPeerReviewData</span>},
     <span class="ident">peer_review_questions</span>::{
         <span class="ident">delete_peer_review_questions_by_peer_review_config_ids</span>,
@@ -476,6 +490,17 @@
     <span class="kw">pub</span> <span class="ident">peer_reviews_to_receive</span>: <span class="ident">i32</span>,
     <span class="kw">pub</span> <span class="ident">accepting_threshold</span>: <span class="ident">f32</span>,
     <span class="kw">pub</span> <span class="ident">accepting_strategy</span>: <span class="ident">PeerReviewAcceptingStrategy</span>,
+}
+
+<span class="doccomment">/// Like `PeerReviewConfig` but only the fields it&#39;s fine to show to all users.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>, <span class="ident">derive</span>(<span class="ident">TS</span>))]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CourseMaterialPeerReviewConfig</span> {
+    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
+    <span class="kw">pub</span> <span class="ident">exercise_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">peer_reviews_to_give</span>: <span class="ident">i32</span>,
+    <span class="kw">pub</span> <span class="ident">peer_reviews_to_receive</span>: <span class="ident">i32</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -636,21 +661,23 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
+<span class="doccomment">/// Returns the correct peer review config depending on `exercise.use_course_default_peer_review_config`.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_or_course_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+    <span class="ident">exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">try_to_get_by_exercise_id</span>(<span class="ident">conn</span>, <span class="ident">exercise_id</span>).<span class="kw">await</span><span class="question-mark">?</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">peer_review</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">peer_review</span>),
-        <span class="prelude-val">None</span> =&gt; <span class="ident">get_default_for_course_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span>,
+    <span class="kw">if</span> <span class="ident">exercise</span>.<span class="ident">use_course_default_peer_review_config</span> {
+        <span class="ident">get_default_for_course_by_course_id</span>(<span class="ident">conn</span>, <span class="ident">course_id</span>).<span class="kw">await</span>
+    } <span class="kw">else</span> {
+        <span class="ident">get_by_exercise_id</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>).<span class="kw">await</span>
     }
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">try_to_get_by_exercise_id</span>(
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
         <span class="ident">PeerReviewConfig</span>,
         <span class="string">r#&quot;
@@ -670,7 +697,7 @@ WHERE exercise_id = $1
         &quot;#</span>,
         <span class="ident">exercise_id</span>
     )
-    .<span class="ident">fetch_optional</span>(<span class="ident">conn</span>)
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
@@ -808,6 +835,7 @@ where p.id = $1
 UPDATE peer_review_configs
 SET deleted_at = now()
 WHERE exercise_id = ANY ($1)
+AND deleted_at IS NULL
 RETURNING id;
     &quot;</span>,
         <span class="ident">exercise_ids</span>

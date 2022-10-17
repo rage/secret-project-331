@@ -297,6 +297,7 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Postgres</span>, <span class="ident">QueryBuilder</span>, <span class="ident">Row</span>};
@@ -505,6 +506,7 @@ where p.id = $1
 UPDATE peer_review_questions
 SET deleted_at = now()
 WHERE peer_review_config_id = ANY ($1)
+AND deleted_at IS NULL
 RETURNING id;
     &quot;</span>,
         <span class="ident">peer_review_config_ids</span>

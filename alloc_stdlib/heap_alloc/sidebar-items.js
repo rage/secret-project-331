@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["HeapAlloc",""],["HeapPrealloc",""],["WrapBox",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["HeapAlloc",""],["HeapPrealloc",""],["WrapBox",""]],"type":[["HeapAllocUninitialized",""]]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/migrate/migrator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/migrate/migrator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>migrator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sqlx_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -206,6 +206,29 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::acquire::Acquire</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::migrate</span>::{<span class="ident">AppliedMigration</span>, <span class="ident">Migrate</span>, <span class="ident">MigrateError</span>, <span class="ident">Migration</span>, <span class="ident">MigrationSource</span>};
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -217,6 +240,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Migrator</span> {
     <span class="kw">pub</span> <span class="ident">migrations</span>: <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, [<span class="ident">Migration</span>]<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">ignore_missing</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">locking</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">validate_applied_migrations</span>(
@@ -264,12 +288,26 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">migrations</span>: <span class="ident">Cow::Owned</span>(<span class="ident">source</span>.<span class="ident">resolve</span>().<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="ident">MigrateError::Source</span>)<span class="question-mark">?</span>),
             <span class="ident">ignore_missing</span>: <span class="bool-val">false</span>,
+            <span class="ident">locking</span>: <span class="bool-val">true</span>,
         })
     }
 
-    <span class="doccomment">/// Specify should ignore applied migrations that missing in the resolved migrations.</span>
+    <span class="doccomment">/// Specify whether applied migrations that are missing from the resolved migrations should be ignored.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_ignore_missing</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ignore_missing</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">ignore_missing</span> <span class="op">=</span> <span class="ident">ignore_missing</span>;
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Specify whether or not to lock database during migration. Defaults to `true`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ### Warning</span>
+    <span class="doccomment">/// Disabling locking can lead to errors or data loss if multiple clients attempt to apply migrations simultaneously</span>
+    <span class="doccomment">/// without some sort of mutual exclusion.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This should only be used if the database does not support locking, e.g. CockroachDB which talks the Postgres</span>
+    <span class="doccomment">/// protocol but does not support advisory locks used by SQLx&#39;s migrations support for Postgres.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_locking</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">locking</span>: <span class="ident">bool</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">locking</span> <span class="op">=</span> <span class="ident">locking</span>;
         <span class="self">self</span>
     }
 
@@ -311,7 +349,9 @@
         <span class="ident">C</span>: <span class="ident">Migrate</span>,
     {
         <span class="comment">// lock the database for exclusive access by the migrator</span>
-        <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
+            <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="comment">// creates [_migrations] table only if needed</span>
         <span class="comment">// eventually this will likely migrate previous versions of the table</span>
@@ -349,7 +389,9 @@
 
         <span class="comment">// unlock the migrator to allow other migrators to run</span>
         <span class="comment">// but do nothing as we already migrated</span>
-        <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
+            <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -378,7 +420,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">migrator</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="comment">// lock the database for exclusive access by the migrator</span>
-        <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
+            <span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="comment">// creates [_migrations] table only if needed</span>
         <span class="comment">// eventually this will likely migrate previous versions of the table</span>
@@ -409,7 +453,9 @@
 
         <span class="comment">// unlock the migrator to allow other migrators to run</span>
         <span class="comment">// but do nothing as we already migrated</span>
-        <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">locking</span> {
+            <span class="ident">conn</span>.<span class="ident">unlock</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+        }
 
         <span class="prelude-val">Ok</span>(())
     }

@@ -1120,6 +1120,9 @@
 <span id="1120">1120</span>
 <span id="1121">1121</span>
 <span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -1589,6 +1592,7 @@ FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
+  AND deleted_at IS NULL
 &quot;#</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
@@ -1749,6 +1753,7 @@ FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $4)
+  AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">user_id</span>,
         <span class="ident">exercise_id</span>,
@@ -1765,6 +1770,7 @@ SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_instance_id = $3 OR exam_id = $5)
+  AND deleted_at IS NULL
     &quot;</span>,
             <span class="ident">user_id</span>,
             <span class="ident">exercise_id</span>,

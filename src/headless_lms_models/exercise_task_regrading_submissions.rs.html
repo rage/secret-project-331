@@ -95,6 +95,7 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseTaskRegradingSubmission</span> {
@@ -166,6 +167,7 @@ SELECT id,
   regrading_id
 FROM exercise_task_regrading_submissions
 WHERE regrading_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">regrading_id</span>
     )

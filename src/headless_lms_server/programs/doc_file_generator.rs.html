@@ -1423,12 +1423,6 @@
 <span id="1423">1423</span>
 <span id="1424">1424</span>
 <span id="1425">1425</span>
-<span id="1426">1426</span>
-<span id="1427">1427</span>
-<span id="1428">1428</span>
-<span id="1429">1429</span>
-<span id="1430">1430</span>
-<span id="1431">1431</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1495,8 +1489,8 @@
         <span class="ident">PageInfo</span>, <span class="ident">PageNavigationInformation</span>, <span class="ident">PageRoutingData</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageWithExercises</span>,
     },
     <span class="ident">peer_review_configs</span>::{
-        <span class="ident">CmsPeerReviewConfig</span>, <span class="ident">CmsPeerReviewConfiguration</span>, <span class="ident">PeerReviewAcceptingStrategy</span>,
-        <span class="ident">PeerReviewConfig</span>,
+        <span class="ident">CmsPeerReviewConfig</span>, <span class="ident">CmsPeerReviewConfiguration</span>, <span class="ident">CourseMaterialPeerReviewConfig</span>,
+        <span class="ident">PeerReviewAcceptingStrategy</span>, <span class="ident">PeerReviewConfig</span>,
     },
     <span class="ident">peer_review_questions</span>::{<span class="ident">CmsPeerReviewQuestion</span>, <span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
     <span class="ident">pending_roles::PendingRole</span>,
@@ -2108,18 +2102,12 @@
                     <span class="number">4_i64</span>
                 )
             ]),
-            <span class="ident">peer_review_config</span>: <span class="prelude-val">Some</span>(<span class="ident">PeerReviewConfig</span> {
+            <span class="ident">peer_review_config</span>: <span class="prelude-val">Some</span>(<span class="ident">CourseMaterialPeerReviewConfig</span> {
                 <span class="ident">id</span>,
-                <span class="ident">created_at</span>,
-                <span class="ident">updated_at</span>,
-                <span class="ident">deleted_at</span>,
                 <span class="ident">course_id</span>: <span class="ident">id</span>,
                 <span class="ident">exercise_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
                 <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
-                <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>,
-                <span class="ident">accepting_threshold</span>: <span class="number">3.0</span>,
-                <span class="ident">accepting_strategy</span>:
-                    <span class="ident">PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage</span>
+                <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>
             })
         }
     );

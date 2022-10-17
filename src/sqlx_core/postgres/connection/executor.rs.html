@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.1/src/postgres/connection/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/sqlx-core-0.6.2/src/postgres/connection/executor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../sqlx_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../sqlx_core/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -434,6 +434,26 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::describe::Describe</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error::Error</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::executor</span>::{<span class="ident">Execute</span>, <span class="ident">Executor</span>};
@@ -570,7 +590,6 @@
                 <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::PortalSuspended</span> =&gt; {
                     <span class="comment">// there was an open portal</span>
                     <span class="comment">// this can happen if the last time a statement was used it was not fully executed</span>
-                    <span class="comment">// such as in [fetch_one]</span>
                 }
 
                 <span class="ident">message</span> <span class="kw">if</span> <span class="ident">message</span>.<span class="ident">format</span> <span class="op">==</span> <span class="ident">MessageFormat::CloseComplete</span> =&gt; {
@@ -655,8 +674,7 @@
             <span class="comment">// patch holes created during encoding</span>
             <span class="ident">arguments</span>.<span class="ident">apply_patches</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">metadata</span>.<span class="ident">parameters</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="comment">// apply patches use fetch_optional thaht may produce `PortalSuspended` message,</span>
-            <span class="comment">// consume messages til `ReadyForQuery` before bind and execute</span>
+            <span class="comment">// consume messages till `ReadyForQuery` before bind and execute</span>
             <span class="self">self</span>.<span class="ident">wait_until_ready</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="comment">// bind to attach the arguments to the statement and create a portal</span>
@@ -675,6 +693,16 @@
                 <span class="ident">portal</span>: <span class="prelude-val">None</span>,
                 <span class="ident">limit</span>: <span class="ident">limit</span>.<span class="ident">into</span>(),
             });
+            <span class="comment">// From https://www.postgresql.org/docs/current/protocol-flow.html:</span>
+            <span class="comment">//</span>
+            <span class="comment">// &quot;An unnamed portal is destroyed at the end of the transaction, or as</span>
+            <span class="comment">// soon as the next Bind statement specifying the unnamed portal as</span>
+            <span class="comment">// destination is issued. (Note that a simple Query message also</span>
+            <span class="comment">// destroys the unnamed portal.&quot;</span>
+
+            <span class="comment">// we ask the database server to close the unnamed portal and free the associated resources</span>
+            <span class="comment">// earlier - after the execution of the current query.</span>
+            <span class="self">self</span>.<span class="ident">stream</span>.<span class="ident">write</span>(<span class="ident">message::Close::Portal</span>(<span class="prelude-val">None</span>));
 
             <span class="comment">// finally, [Sync] asks postgres to process the messages that we sent and respond with</span>
             <span class="comment">// a [ReadyForQuery] message when it&#39;s completely done. Theoretically, we could send</span>
@@ -707,10 +735,17 @@
                     <span class="ident">MessageFormat::BindComplete</span>
                     <span class="op">|</span> <span class="ident">MessageFormat::ParseComplete</span>
                     <span class="op">|</span> <span class="ident">MessageFormat::ParameterDescription</span>
-                    <span class="op">|</span> <span class="ident">MessageFormat::NoData</span> =&gt; {
+                    <span class="op">|</span> <span class="ident">MessageFormat::NoData</span>
+                    <span class="comment">// unnamed portal has been closed</span>
+                    <span class="op">|</span> <span class="ident">MessageFormat::CloseComplete</span>
+                    =&gt; {
                         <span class="comment">// harmless messages to ignore</span>
                     }
 
+                    <span class="comment">// &quot;Execute phase is always terminated by the appearance of</span>
+                    <span class="comment">// exactly one of these messages: CommandComplete,</span>
+                    <span class="comment">// EmptyQueryResponse (if the portal was created from an</span>
+                    <span class="comment">// empty query string), ErrorResponse, or PortalSuspended&quot;</span>
                     <span class="ident">MessageFormat::CommandComplete</span> =&gt; {
                         <span class="comment">// a SQL command completed normally</span>
                         <span class="kw">let</span> <span class="ident">cc</span>: <span class="ident">CommandComplete</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">decode</span>()<span class="question-mark">?</span>;
@@ -725,6 +760,11 @@
                     <span class="ident">MessageFormat::EmptyQueryResponse</span> =&gt; {
                         <span class="comment">// empty query string passed to an unprepared execute</span>
                     }
+
+                    <span class="comment">// Message::ErrorResponse is handled in self.stream.recv()</span>
+
+                    <span class="comment">// incomplete query execution has finished</span>
+                    <span class="ident">MessageFormat::PortalSuspended</span> =&gt; {}
 
                     <span class="ident">MessageFormat::RowDescription</span> =&gt; {
                         <span class="comment">// indicates that a *new* set of rows are about to be returned</span>

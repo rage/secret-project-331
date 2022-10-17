@@ -20,7 +20,7 @@ will simply be a unit struct (e.g. <code>struct HttpDecoder</code>).</p>
 <p>For some underlying data-sources, namely files and FIFOs,
 it’s possible to temporarily read 0 bytes by reaching EOF.</p>
 <p>In these cases <code>decode_eof</code> will be called until it signals
-fullfillment of all closing frames by returning <code>Ok(None)</code>.
+fulfillment of all closing frames by returning <code>Ok(None)</code>.
 After that, repeated attempts to read from the <a href="../tokio_util/codec/framed/struct.Framed.html"><code>Framed</code></a> or <a href="../tokio_util/codec/framed_read/struct.FramedRead.html"><code>FramedRead</code></a>
 will not invoke <code>decode</code> or <code>decode_eof</code> again, until data can be read
 during a retry.</p>

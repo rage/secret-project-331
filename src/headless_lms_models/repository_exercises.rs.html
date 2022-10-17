@@ -168,6 +168,11 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;ts_rs&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
@@ -260,6 +265,7 @@ WHERE id = $3
 UPDATE repository_exercises
 SET deleted_at = now()
 WHERE repository_id = $1
+AND deleted_at IS NULL
 RETURNING id
 &quot;</span>,
         <span class="ident">repository</span>
@@ -289,6 +295,7 @@ SELECT re.id,
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE repository_id = $1
+AND re.deleted_at IS NULL
 &quot;</span>,
         <span class="ident">repository</span>
     )
@@ -314,6 +321,8 @@ er.id AS repository_id,
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE er.course_id = $1
+AND re.deleted_at IS NULL
+and er.deleted_at IS NULL
 &quot;</span>,
         <span class="ident">course</span>
     )
@@ -331,6 +340,7 @@ WHERE er.course_id = $1
 UPDATE repository_exercises
 SET deleted_at = now()
 WHERE repository_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">repository_id</span>
     )

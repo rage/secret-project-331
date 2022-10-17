@@ -29,7 +29,7 @@ type parameter for this trait).</p>
 <p>Thanks to Rust’s type system, Actix Web can infer the function parameter types. During the
 extraction step, the parameter types are described as a tuple type, <a href="trait.FromRequest.html#tymethod.from_request"><code>from_request</code></a> is run on
 that tuple, and the <code>Handler::call</code> implementation for that particular function arity
-destructures the tuple into it’s component types and calls your handler function with them.</p>
+destructures the tuple into its component types and calls your handler function with them.</p>
 <p>In pseudo-code the process looks something like this:</p>
 
 <div class='information'><div class='tooltip ignore'>ⓘ</div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore"><code><span class="kw">async</span> <span class="kw">fn</span> <span class="ident">my_handler</span>(<span class="ident">body</span>: <span class="ident">String</span>, <span class="ident">state</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">MyState</span><span class="op">&gt;</span>) -&gt; <span class="kw">impl</span> <span class="ident">Responder</span> {

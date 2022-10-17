@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.41/src/ssl/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../openssl/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.42/src/ssl/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../openssl/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -3791,6 +3791,121 @@
 <span id="3791">3791</span>
 <span id="3792">3792</span>
 <span id="3793">3793</span>
+<span id="3794">3794</span>
+<span id="3795">3795</span>
+<span id="3796">3796</span>
+<span id="3797">3797</span>
+<span id="3798">3798</span>
+<span id="3799">3799</span>
+<span id="3800">3800</span>
+<span id="3801">3801</span>
+<span id="3802">3802</span>
+<span id="3803">3803</span>
+<span id="3804">3804</span>
+<span id="3805">3805</span>
+<span id="3806">3806</span>
+<span id="3807">3807</span>
+<span id="3808">3808</span>
+<span id="3809">3809</span>
+<span id="3810">3810</span>
+<span id="3811">3811</span>
+<span id="3812">3812</span>
+<span id="3813">3813</span>
+<span id="3814">3814</span>
+<span id="3815">3815</span>
+<span id="3816">3816</span>
+<span id="3817">3817</span>
+<span id="3818">3818</span>
+<span id="3819">3819</span>
+<span id="3820">3820</span>
+<span id="3821">3821</span>
+<span id="3822">3822</span>
+<span id="3823">3823</span>
+<span id="3824">3824</span>
+<span id="3825">3825</span>
+<span id="3826">3826</span>
+<span id="3827">3827</span>
+<span id="3828">3828</span>
+<span id="3829">3829</span>
+<span id="3830">3830</span>
+<span id="3831">3831</span>
+<span id="3832">3832</span>
+<span id="3833">3833</span>
+<span id="3834">3834</span>
+<span id="3835">3835</span>
+<span id="3836">3836</span>
+<span id="3837">3837</span>
+<span id="3838">3838</span>
+<span id="3839">3839</span>
+<span id="3840">3840</span>
+<span id="3841">3841</span>
+<span id="3842">3842</span>
+<span id="3843">3843</span>
+<span id="3844">3844</span>
+<span id="3845">3845</span>
+<span id="3846">3846</span>
+<span id="3847">3847</span>
+<span id="3848">3848</span>
+<span id="3849">3849</span>
+<span id="3850">3850</span>
+<span id="3851">3851</span>
+<span id="3852">3852</span>
+<span id="3853">3853</span>
+<span id="3854">3854</span>
+<span id="3855">3855</span>
+<span id="3856">3856</span>
+<span id="3857">3857</span>
+<span id="3858">3858</span>
+<span id="3859">3859</span>
+<span id="3860">3860</span>
+<span id="3861">3861</span>
+<span id="3862">3862</span>
+<span id="3863">3863</span>
+<span id="3864">3864</span>
+<span id="3865">3865</span>
+<span id="3866">3866</span>
+<span id="3867">3867</span>
+<span id="3868">3868</span>
+<span id="3869">3869</span>
+<span id="3870">3870</span>
+<span id="3871">3871</span>
+<span id="3872">3872</span>
+<span id="3873">3873</span>
+<span id="3874">3874</span>
+<span id="3875">3875</span>
+<span id="3876">3876</span>
+<span id="3877">3877</span>
+<span id="3878">3878</span>
+<span id="3879">3879</span>
+<span id="3880">3880</span>
+<span id="3881">3881</span>
+<span id="3882">3882</span>
+<span id="3883">3883</span>
+<span id="3884">3884</span>
+<span id="3885">3885</span>
+<span id="3886">3886</span>
+<span id="3887">3887</span>
+<span id="3888">3888</span>
+<span id="3889">3889</span>
+<span id="3890">3890</span>
+<span id="3891">3891</span>
+<span id="3892">3892</span>
+<span id="3893">3893</span>
+<span id="3894">3894</span>
+<span id="3895">3895</span>
+<span id="3896">3896</span>
+<span id="3897">3897</span>
+<span id="3898">3898</span>
+<span id="3899">3899</span>
+<span id="3900">3900</span>
+<span id="3901">3901</span>
+<span id="3902">3902</span>
+<span id="3903">3903</span>
+<span id="3904">3904</span>
+<span id="3905">3905</span>
+<span id="3906">3906</span>
+<span id="3907">3907</span>
+<span id="3908">3908</span>
 </pre><pre class="rust"><code><span class="doccomment">//! SSL/TLS support.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! `SslConnector` and `SslAcceptor` should be used in most cases - they handle</span>
@@ -3927,6 +4042,8 @@
 <span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span> {
         <span class="kw">type</span> <span class="ident">SslOptionsRepr</span> <span class="op">=</span> <span class="ident">u64</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span> {
+        <span class="kw">type</span> <span class="ident">SslOptionsRepr</span> <span class="op">=</span> <span class="ident">u32</span>;
     } <span class="kw">else</span> {
         <span class="kw">type</span> <span class="ident">SslOptionsRepr</span> <span class="op">=</span> <span class="ident">libc::c_ulong</span>;
     }
@@ -3936,88 +4053,92 @@
     <span class="doccomment">/// Options controlling the behavior of an `SslContext`.</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslOptions</span>: <span class="ident">SslOptionsRepr</span> {
         <span class="doccomment">/// Disables a countermeasure against an SSLv3/TLSv1.0 vulnerability affecting CBC ciphers.</span>
-        <span class="kw">const</span> <span class="ident">DONT_INSERT_EMPTY_FRAGMENTS</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS</span>;
+        <span class="kw">const</span> <span class="ident">DONT_INSERT_EMPTY_FRAGMENTS</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// A &quot;reasonable default&quot; set of options which enables compatibility flags.</span>
-        <span class="kw">const</span> <span class="ident">ALL</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_ALL</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+        <span class="kw">const</span> <span class="ident">ALL</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_ALL</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Do not query the MTU.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Only affects DTLS connections.</span>
-        <span class="kw">const</span> <span class="ident">NO_QUERY_MTU</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_QUERY_MTU</span>;
+        <span class="kw">const</span> <span class="ident">NO_QUERY_MTU</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_QUERY_MTU</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Enables Cookie Exchange as described in [RFC 4347 Section 4.2.1].</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Only affects DTLS connections.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// [RFC 4347 Section 4.2.1]: https://tools.ietf.org/html/rfc4347#section-4.2.1</span>
-        <span class="kw">const</span> <span class="ident">COOKIE_EXCHANGE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_COOKIE_EXCHANGE</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+        <span class="kw">const</span> <span class="ident">COOKIE_EXCHANGE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_COOKIE_EXCHANGE</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of session tickets for session resumption.</span>
-        <span class="kw">const</span> <span class="ident">NO_TICKET</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TICKET</span>;
+        <span class="kw">const</span> <span class="ident">NO_TICKET</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TICKET</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Always start a new session when performing a renegotiation on the server side.</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
         <span class="kw">const</span> <span class="ident">NO_SESSION_RESUMPTION_ON_RENEGOTIATION</span> <span class="op">=</span>
-            <span class="ident">ffi::SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION</span>;
+            <span class="ident">ffi::SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of TLS compression.</span>
-        <span class="kw">const</span> <span class="ident">NO_COMPRESSION</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_COMPRESSION</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+        <span class="kw">const</span> <span class="ident">NO_COMPRESSION</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_COMPRESSION</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Allow legacy insecure renegotiation with servers or clients that do not support secure</span>
         <span class="doccomment">/// renegotiation.</span>
         <span class="kw">const</span> <span class="ident">ALLOW_UNSAFE_LEGACY_RENEGOTIATION</span> <span class="op">=</span>
-            <span class="ident">ffi::SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION</span>;
+            <span class="ident">ffi::SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Creates a new key for each session when using ECDHE.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// This is always enabled in OpenSSL 1.1.0.</span>
-        <span class="kw">const</span> <span class="ident">SINGLE_ECDH_USE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_SINGLE_ECDH_USE</span>;
+        <span class="kw">const</span> <span class="ident">SINGLE_ECDH_USE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_SINGLE_ECDH_USE</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Creates a new key for each session when using DHE.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// This is always enabled in OpenSSL 1.1.0.</span>
-        <span class="kw">const</span> <span class="ident">SINGLE_DH_USE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_SINGLE_DH_USE</span>;
+        <span class="kw">const</span> <span class="ident">SINGLE_DH_USE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_SINGLE_DH_USE</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Use the server&#39;s preferences rather than the client&#39;s when selecting a cipher.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// This has no effect on the client side.</span>
-        <span class="kw">const</span> <span class="ident">CIPHER_SERVER_PREFERENCE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_CIPHER_SERVER_PREFERENCE</span>;
+        <span class="kw">const</span> <span class="ident">CIPHER_SERVER_PREFERENCE</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_CIPHER_SERVER_PREFERENCE</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables version rollback attach detection.</span>
-        <span class="kw">const</span> <span class="ident">TLS_ROLLBACK_BUG</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_TLS_ROLLBACK_BUG</span>;
+        <span class="kw">const</span> <span class="ident">TLS_ROLLBACK_BUG</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_TLS_ROLLBACK_BUG</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of SSLv2.</span>
-        <span class="kw">const</span> <span class="ident">NO_SSLV2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSLv2</span>;
+        <span class="kw">const</span> <span class="ident">NO_SSLV2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSLv2</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of SSLv3.</span>
-        <span class="kw">const</span> <span class="ident">NO_SSLV3</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSLv3</span>;
+        <span class="kw">const</span> <span class="ident">NO_SSLV3</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSLv3</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of TLSv1.0.</span>
-        <span class="kw">const</span> <span class="ident">NO_TLSV1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1</span>;
+        <span class="kw">const</span> <span class="ident">NO_TLSV1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of TLSv1.1.</span>
-        <span class="kw">const</span> <span class="ident">NO_TLSV1_1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_1</span>;
+        <span class="kw">const</span> <span class="ident">NO_TLSV1_1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_1</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of TLSv1.2.</span>
-        <span class="kw">const</span> <span class="ident">NO_TLSV1_2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_2</span>;
+        <span class="kw">const</span> <span class="ident">NO_TLSV1_2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_2</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of TLSv1.3.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Requires OpenSSL 1.1.1 or LibreSSL 3.4.0 or newer.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl111</span>, <span class="ident">libressl340</span>))]</span>
-        <span class="kw">const</span> <span class="ident">NO_TLSV1_3</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_3</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl111</span>, <span class="ident">libressl340</span>))]</span>
+        <span class="kw">const</span> <span class="ident">NO_TLSV1_3</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_TLSv1_3</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of DTLSv1.0</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Requires OpenSSL 1.0.2 or LibreSSL 3.3.2 or newer.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>, <span class="ident">libressl332</span>))]</span>
-        <span class="kw">const</span> <span class="ident">NO_DTLSV1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_DTLSv1</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl102</span>, <span class="ident">ossl110</span>, <span class="ident">libressl332</span>))]</span>
+        <span class="kw">const</span> <span class="ident">NO_DTLSV1</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_DTLSv1</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of DTLSv1.2.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Requires OpenSSL 1.0.2 or LibreSSL 3.3.2 or newer.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>, <span class="ident">libressl332</span>))]</span>
-        <span class="kw">const</span> <span class="ident">NO_DTLSV1_2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_DTLSv1_2</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl102</span>, <span class="ident">ossl110</span>, <span class="ident">libressl332</span>))]</span>
+        <span class="kw">const</span> <span class="ident">NO_DTLSV1_2</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_DTLSv1_2</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disables the use of all (D)TLS protocol versions.</span>
         <span class="doccomment">///</span>
@@ -4035,26 +4156,40 @@
         <span class="doccomment">/// let options = SslOptions::NO_SSL_MASK &amp; !SslOptions::NO_TLSV1_2;</span>
         <span class="doccomment">/// ```</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl102</span>, <span class="ident">ossl110</span>))]</span>
-        <span class="kw">const</span> <span class="ident">NO_SSL_MASK</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSL_MASK</span>;
+        <span class="kw">const</span> <span class="ident">NO_SSL_MASK</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_SSL_MASK</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Disallow all renegotiation in TLSv1.2 and earlier.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Requires OpenSSL 1.1.0h or newer.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl110h</span>)]</span>
-        <span class="kw">const</span> <span class="ident">NO_RENEGOTIATION</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_RENEGOTIATION</span>;
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110h</span>))]</span>
+        <span class="kw">const</span> <span class="ident">NO_RENEGOTIATION</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_NO_RENEGOTIATION</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
 
         <span class="doccomment">/// Enable TLSv1.3 Compatibility mode.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Requires OpenSSL 1.1.1 or newer. This is on by default in 1.1.1, but a future version</span>
         <span class="doccomment">/// may have this disabled by default.</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl111</span>)]</span>
-        <span class="kw">const</span> <span class="ident">ENABLE_MIDDLEBOX_COMPAT</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_ENABLE_MIDDLEBOX_COMPAT</span>;
+        <span class="kw">const</span> <span class="ident">ENABLE_MIDDLEBOX_COMPAT</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_ENABLE_MIDDLEBOX_COMPAT</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
+
+        <span class="doccomment">/// Prioritize ChaCha ciphers when preferred by clients.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Temporarily reprioritize ChaCha20-Poly1305 ciphers to the top of the server cipher list</span>
+        <span class="doccomment">/// if a ChaCha20-Poly1305 cipher is at the top of the client cipher list. This helps those</span>
+        <span class="doccomment">/// clients (e.g. mobile) use ChaCha20-Poly1305 if that cipher is anywhere in the server</span>
+        <span class="doccomment">/// cipher list; but still allows other clients to use AES and other ciphers.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Requires enable [`SslOptions::CIPHER_SERVER_PREFERENCE`].</span>
+        <span class="doccomment">/// Requires OpenSSL 1.1.1 or newer.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// [`SslOptions::CIPHER_SERVER_PREFERENCE`]: struct.SslOptions.html#associatedconstant.CIPHER_SERVER_PREFERENCE</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl111</span>)]</span>
+        <span class="kw">const</span> <span class="ident">PRIORITIZE_CHACHA</span> <span class="op">=</span> <span class="ident">ffi::SSL_OP_PRIORITIZE_CHACHA</span> <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
     }
 }
 
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Options controlling the behavior of an `SslContext`.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslMode</span>: <span class="ident">c_long</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslMode</span>: <span class="ident">SslBitType</span> {
         <span class="doccomment">/// Enables &quot;short writes&quot;.</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// Normally, a write in OpenSSL will always write out all of the requested data, even if it</span>
@@ -4171,9 +4306,19 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+<span class="kw">type</span> <span class="ident">SslBitType</span> <span class="op">=</span> <span class="ident">c_int</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+<span class="kw">type</span> <span class="ident">SslBitType</span> <span class="op">=</span> <span class="ident">c_long</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+<span class="kw">type</span> <span class="ident">SslTimeTy</span> <span class="op">=</span> <span class="ident">u64</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+<span class="kw">type</span> <span class="ident">SslTimeTy</span> <span class="op">=</span> <span class="ident">c_long</span>;
+
 <span class="macro">bitflags!</span> {
     <span class="doccomment">/// Options controlling the behavior of session caching.</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslSessionCacheMode</span>: <span class="ident">c_long</span> {
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SslSessionCacheMode</span>: <span class="ident">SslBitType</span> {
         <span class="doccomment">/// No session caching for the client or server takes place.</span>
         <span class="kw">const</span> <span class="ident">OFF</span> <span class="op">=</span> <span class="ident">ffi::SSL_SESS_CACHE_OFF</span>;
 
@@ -4321,7 +4466,7 @@
     <span class="ident">_argp</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
 ) {
     <span class="kw">if</span> <span class="op">!</span><span class="ident">ptr</span>.<span class="ident">is_null</span>() {
-        <span class="ident">Box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::from_raw</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>);
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="ident">::from_raw</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">T</span>);
     }
 }
 
@@ -4407,6 +4552,20 @@
     <span class="doccomment">/// Requires OpenSSL 1.1.1 or LibreSSL 3.4.0 or newer.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl111</span>, <span class="ident">libressl340</span>))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TLS1_3</span>: <span class="ident">SslVersion</span> <span class="op">=</span> <span class="ident">SslVersion</span>(<span class="ident">ffi::TLS1_3_VERSION</span>);
+}
+
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span> {
+        <span class="kw">type</span> <span class="ident">SslCacheTy</span> <span class="op">=</span> <span class="ident">i64</span>;
+        <span class="kw">type</span> <span class="ident">SslCacheSize</span> <span class="op">=</span> <span class="ident">libc::c_ulong</span>;
+        <span class="kw">type</span> <span class="ident">MtuTy</span> <span class="op">=</span> <span class="ident">u32</span>;
+        <span class="kw">type</span> <span class="ident">SizeTy</span> <span class="op">=</span> <span class="ident">usize</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">type</span> <span class="ident">SslCacheTy</span> <span class="op">=</span> <span class="ident">i64</span>;
+        <span class="kw">type</span> <span class="ident">SslCacheSize</span> <span class="op">=</span> <span class="ident">c_long</span>;
+        <span class="kw">type</span> <span class="ident">MtuTy</span> <span class="op">=</span> <span class="ident">c_long</span>;
+        <span class="kw">type</span> <span class="ident">SizeTy</span> <span class="op">=</span> <span class="ident">u32</span>;
+    }
 }
 
 <span class="doccomment">/// A standard implementation of protocol selection for Application Layer Protocol Negotiation</span>
@@ -4515,7 +4674,9 @@
             <span class="comment">// still stored in ex data to manage the lifetime.</span>
             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">set_ex_data_inner</span>(<span class="ident">SslContext::cached_ex_index</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(), <span class="ident">callback</span>);
             <span class="ident">ffi::SSL_CTX_set_tlsext_servername_arg</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">arg</span>);
-
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="ident">ffi::SSL_CTX_set_tlsext_servername_callback</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="prelude-val">Some</span>(<span class="ident">raw_sni</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
             <span class="ident">ffi::SSL_CTX_set_tlsext_servername_callback__fixed_rust</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
                 <span class="prelude-val">Some</span>(<span class="ident">raw_sni</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>),
@@ -4566,7 +4727,7 @@
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_set_read_ahead</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_read_ahead</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">read_ahead</span>: <span class="ident">bool</span>) {
         <span class="kw">unsafe</span> {
-            <span class="ident">ffi::SSL_CTX_set_read_ahead</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">read_ahead</span> <span class="kw">as</span> <span class="ident">c_long</span>);
+            <span class="ident">ffi::SSL_CTX_set_read_ahead</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">read_ahead</span> <span class="kw">as</span> <span class="ident">SslBitType</span>);
         }
     }
 
@@ -4574,7 +4735,7 @@
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_set_mode</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mode</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">SslMode</span>) -&gt; <span class="ident">SslMode</span> {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">ffi::SSL_CTX_set_mode</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">mode</span>.<span class="ident">bits</span>());
+            <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="ident">ffi::SSL_CTX_set_mode</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">mode</span>.<span class="ident">bits</span>() <span class="kw">as</span> <span class="ident">MtuTy</span>) <span class="kw">as</span> <span class="ident">SslBitType</span>;
             <span class="ident">SslMode</span> { <span class="ident">bits</span> }
         }
     }
@@ -4598,7 +4759,11 @@
     {
         <span class="kw">unsafe</span> {
             <span class="self">self</span>.<span class="ident">set_ex_data</span>(<span class="ident">SslContext::cached_ex_index</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(), <span class="ident">callback</span>);
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
             <span class="ident">ffi::SSL_CTX_set_tmp_dh_callback__fixed_rust</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="prelude-val">Some</span>(<span class="ident">raw_tmp_dh</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="ident">ffi::SSL_CTX_set_tmp_dh_callback</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="prelude-val">Some</span>(<span class="ident">raw_tmp_dh</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>));
         }
     }
 
@@ -4688,7 +4853,7 @@
             <span class="ident">cvt</span>(<span class="ident">ffi::SSL_CTX_set_session_id_context</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
                 <span class="ident">sid_ctx</span>.<span class="ident">as_ptr</span>(),
-                <span class="ident">sid_ctx</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">c_uint</span>,
+                <span class="ident">sid_ctx</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">SizeTy</span>,
             ))
             .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
         }
@@ -4841,21 +5006,23 @@
     <span class="doccomment">/// `clear_options` for that.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_set_options</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_options</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">option</span>: <span class="ident">SslOptions</span>) -&gt; <span class="ident">SslOptions</span> {
-        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_set_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">option</span>.<span class="ident">bits</span>()) };
+        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_set_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">option</span>.<span class="ident">bits</span>()) } <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
         <span class="ident">SslOptions</span> { <span class="ident">bits</span> }
     }
 
     <span class="doccomment">/// Returns the options used by the context.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_get_options</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SslOptions</span> {
-        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_get_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) };
+        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_get_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) } <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
         <span class="ident">SslOptions</span> { <span class="ident">bits</span> }
     }
 
     <span class="doccomment">/// Clears the options used by the context, returning the old set.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_clear_options</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_options</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">option</span>: <span class="ident">SslOptions</span>) -&gt; <span class="ident">SslOptions</span> {
-        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_clear_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">option</span>.<span class="ident">bits</span>()) };
+        <span class="kw">let</span> <span class="ident">bits</span> <span class="op">=</span>
+            <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_clear_options</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">option</span>.<span class="ident">bits</span>()) } <span class="kw">as</span> <span class="ident">SslOptionsRepr</span>;
         <span class="ident">SslOptions</span> { <span class="ident">bits</span> }
     }
 
@@ -5257,6 +5424,7 @@
     <span class="doccomment">/// The callback will be called with the SSL context and a slice into which the cookie</span>
     <span class="doccomment">/// should be written. The callback should return the number of bytes written.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_set_cookie_generate_cb</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cookie_generate_cb</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>)
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">SslRef</span>, <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Send</span>,
@@ -5272,6 +5440,7 @@
     <span class="doccomment">/// The callback will be called with the SSL context and the cookie supplied by the</span>
     <span class="doccomment">/// client. It should return true if and only if the cookie is valid.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_set_cookie_verify_cb</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cookie_verify_cb</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">callback</span>: <span class="ident">F</span>)
     <span class="kw">where</span>
         <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">SslRef</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Send</span>,
@@ -5396,7 +5565,9 @@
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_sess_set_cache_size</span>)]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::useless_conversion</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_session_cache_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">i32</span>) -&gt; <span class="ident">i64</span> {
-        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_sess_set_cache_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">size</span>.<span class="ident">into</span>()).<span class="ident">into</span>() }
+        <span class="kw">unsafe</span> {
+            <span class="ident">ffi::SSL_CTX_sess_set_cache_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">size</span> <span class="kw">as</span> <span class="ident">SslCacheSize</span>) <span class="kw">as</span> <span class="ident">SslCacheTy</span>
+        }
     }
 
     <span class="doccomment">/// Sets the context&#39;s supported signature algorithms.</span>
@@ -5487,6 +5658,9 @@
     {
         <span class="kw">unsafe</span> {
             <span class="ident">ffi::init</span>();
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">cvt_n</span>(<span class="ident">get_new_idx</span>(<span class="prelude-val">Some</span>(<span class="ident">free_data_box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)))<span class="question-mark">?</span>;
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
             <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">cvt_n</span>(<span class="ident">get_new_idx</span>(<span class="ident">free_data_box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">Index::from_raw</span>(<span class="ident">idx</span>))
         }
@@ -5603,7 +5777,7 @@
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_CTX_sess_get_cache_size</span>)]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::useless_conversion</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">session_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i64</span> {
-        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_sess_get_cache_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">into</span>() }
+        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_CTX_sess_get_cache_size</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) <span class="kw">as</span> <span class="ident">i64</span> }
     }
 
     <span class="doccomment">/// Returns the verify mode that was set on this context from [`SslContextBuilder::set_verify`].</span>
@@ -5838,8 +6012,8 @@
     <span class="doccomment">/// Returns the time at which the session was established, in seconds since the Unix epoch.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_SESSION_get_time</span>)]</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::useless_conversion</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i64</span> {
-        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_SESSION_get_time</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">into</span>() }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SslTimeTy</span> {
+        <span class="kw">unsafe</span> { <span class="ident">ffi::SSL_SESSION_get_time</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>()) }
     }
 
     <span class="doccomment">/// Returns the sessions timeout, in seconds.</span>
@@ -5907,6 +6081,9 @@
     {
         <span class="kw">unsafe</span> {
             <span class="ident">ffi::init</span>();
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">cvt_n</span>(<span class="ident">get_new_ssl_idx</span>(<span class="prelude-val">Some</span>(<span class="ident">free_data_box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)))<span class="question-mark">?</span>;
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
             <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">cvt_n</span>(<span class="ident">get_new_ssl_idx</span>(<span class="ident">free_data_box</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>))<span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">Index::from_raw</span>(<span class="ident">idx</span>))
         }
@@ -6077,6 +6254,9 @@
         <span class="kw">unsafe</span> {
             <span class="comment">// this needs to be in an Arc since the callback can register a new callback!</span>
             <span class="self">self</span>.<span class="ident">set_ex_data</span>(<span class="ident">Ssl::cached_ex_index</span>(), <span class="ident">Arc::new</span>(<span class="ident">callback</span>));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="ident">ffi::SSL_set_tmp_dh_callback</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="prelude-val">Some</span>(<span class="ident">raw_tmp_dh_ssl</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
             <span class="ident">ffi::SSL_set_tmp_dh_callback__fixed_rust</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="prelude-val">Some</span>(<span class="ident">raw_tmp_dh_ssl</span>::<span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>));
         }
     }
@@ -6563,6 +6743,7 @@
 
     <span class="doccomment">/// Returns the server&#39;s OCSP response, if present.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_get_tlsext_status_ocsp_resp</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ocsp_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
@@ -6578,6 +6759,7 @@
 
     <span class="doccomment">/// Sets the OCSP response to be returned to the client.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_set_tlsext_status_oscp_resp</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_ocsp_status</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">response</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
         <span class="kw">unsafe</span> {
             <span class="macro">assert!</span>(<span class="ident">response</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">c_int::max_value</span>() <span class="kw">as</span> <span class="ident">usize</span>);
@@ -6798,7 +6980,37 @@
     <span class="doccomment">/// Sets the MTU used for DTLS connections.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_set_mtu</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_mtu</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mtu</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">cvt</span>(<span class="ident">ffi::SSL_set_mtu</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">mtu</span> <span class="kw">as</span> <span class="ident">c_long</span>) <span class="kw">as</span> <span class="ident">c_int</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()) }
+        <span class="kw">unsafe</span> { <span class="ident">cvt</span>(<span class="ident">ffi::SSL_set_mtu</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">mtu</span> <span class="kw">as</span> <span class="ident">MtuTy</span>) <span class="kw">as</span> <span class="ident">c_int</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()) }
+    }
+
+    <span class="doccomment">/// Returns the PSK identity hint used during connection setup.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// May return `None` if no PSK identity hint was used during the connection setup.</span>
+    <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_get_psk_identity_hint</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">psk_identity_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::SSL_get_psk_identity_hint</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
+            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
+                <span class="prelude-val">None</span>
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">CStr::from_ptr</span>(<span class="ident">ptr</span>).<span class="ident">to_bytes</span>())
+            }
+        }
+    }
+
+    <span class="doccomment">/// Returns the PSK identity used during connection setup.</span>
+    <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">SSL_get_psk_identity</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_PSK&quot;</span>))]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">psk_identity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ffi::SSL_get_psk_identity</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>());
+            <span class="kw">if</span> <span class="ident">ptr</span>.<span class="ident">is_null</span>() {
+                <span class="prelude-val">None</span>
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">CStr::from_ptr</span>(<span class="ident">ptr</span>).<span class="ident">to_bytes</span>())
+            }
+        }
     }
 }
 
@@ -7470,7 +7682,7 @@
 }
 
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">SSL_CTX_up_ref</span>, <span class="ident">SSL_SESSION_get_master_key</span>, <span class="ident">SSL_SESSION_up_ref</span>, <span class="ident">SSL_is_server</span>};
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
@@ -7528,7 +7740,7 @@
     }
 }
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl291</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110</span>, <span class="ident">libressl291</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">TLS_method</span>, <span class="ident">DTLS_method</span>, <span class="ident">TLS_client_method</span>, <span class="ident">TLS_server_method</span>};
     } <span class="kw">else</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{
@@ -7567,20 +7779,38 @@
             <span class="comment">// hack around https://rt.openssl.org/Ticket/Display.html?id=3710&amp;user=guest&amp;pass=guest</span>
             <span class="kw">static</span> <span class="ident">ONCE</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
             <span class="ident">ONCE</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+                <span class="macro">cfg_if!</span> {
+                    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span> {
+                        <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+                    } <span class="kw">else</span> {
+                        <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+                    }
+                }
             });
 
-            <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">f</span>))
+            <span class="macro">cfg_if!</span> {
+                <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span> {
+                    <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">f</span>))
+                } <span class="kw">else</span> {
+                    <span class="ident">ffi::SSL_CTX_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="ident">f</span>)
+                }
+            }
         }
 
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_new_ssl_idx</span>(<span class="ident">f</span>: <span class="ident">ffi::CRYPTO_EX_free</span>) -&gt; <span class="ident">c_int</span> {
             <span class="comment">// hack around https://rt.openssl.org/Ticket/Display.html?id=3710&amp;user=guest&amp;pass=guest</span>
             <span class="kw">static</span> <span class="ident">ONCE</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">Once::new</span>();
             <span class="ident">ONCE</span>.<span class="ident">call_once</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
                 <span class="ident">ffi::SSL_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+                <span class="ident">ffi::SSL_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
             });
 
-            <span class="ident">ffi::SSL_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">f</span>))
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+            <span class="kw">return</span> <span class="ident">ffi::SSL_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">f</span>));
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="kw">return</span> <span class="ident">ffi::SSL_get_ex_new_index</span>(<span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="ident">f</span>);
         }
     }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-0.1.36/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tracing/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tracing/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-0.1.37/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tracing/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tracing/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tracing/index.html">
                         <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -1109,6 +1109,12 @@
 <span id="1107">1107</span>
 <span id="1108">1108</span>
 <span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A scoped, structured logging and diagnostics system.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Overview</span>
@@ -1838,6 +1844,8 @@
 <span class="doccomment">//!    in [bunyan] format, enriched with timing information.</span>
 <span class="doccomment">//!  - [`tracing-wasm`] provides a `Subscriber`/`Layer` implementation that reports</span>
 <span class="doccomment">//!    events and spans via browser `console.log` and [User Timing API (`window.performance`)].</span>
+<span class="doccomment">//!  - [`tracing-web`] provides a layer implementation of level-aware logging of events</span>
+<span class="doccomment">//!    to web browsers&#39; `console.*` and span events to the [User Timing API (`window.performance`)].</span>
 <span class="doccomment">//!  - [`tide-tracing`] provides a [tide] middleware to trace all incoming requests and responses.</span>
 <span class="doccomment">//!  - [`test-log`] takes care of initializing `tracing` for tests, based on</span>
 <span class="doccomment">//!    environment variables with an `env_logger` compatible syntax.</span>
@@ -1855,6 +1863,7 @@
 <span class="doccomment">//!    grouping together logs from the same spans during writing.</span>
 <span class="doccomment">//!  - [`tracing-loki`] provides a layer for shipping logs to [Grafana Loki].</span>
 <span class="doccomment">//!  - [`tracing-logfmt`] provides a layer that formats events and spans into the logfmt format.</span>
+<span class="doccomment">//!  - [`reqwest-tracing`] provides a middleware to trace [`reqwest`] HTTP requests.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! If you&#39;re the maintainer of a `tracing` ecosystem crate not listed above,</span>
 <span class="doccomment">//! please let us know! We&#39;d love to add your project to the list!</span>
@@ -1872,6 +1881,7 @@
 <span class="doccomment">//! [`tracing-bunyan-formatter`]: https://crates.io/crates/tracing-bunyan-formatter</span>
 <span class="doccomment">//! [bunyan]: https://github.com/trentm/node-bunyan</span>
 <span class="doccomment">//! [`tracing-wasm`]: https://docs.rs/tracing-wasm</span>
+<span class="doccomment">//! [`tracing-web`]: https://docs.rs/tracing-web</span>
 <span class="doccomment">//! [User Timing API (`window.performance`)]: https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API</span>
 <span class="doccomment">//! [`tide-tracing`]: https://crates.io/crates/tide-tracing</span>
 <span class="doccomment">//! [tide]: https://crates.io/crates/tide</span>
@@ -1892,6 +1902,8 @@
 <span class="doccomment">//! [`tracing-loki`]: https://crates.io/crates/tracing-loki</span>
 <span class="doccomment">//! [Grafana Loki]: https://grafana.com/oss/loki/</span>
 <span class="doccomment">//! [`tracing-logfmt`]: https://crates.io/crates/tracing-logfmt</span>
+<span class="doccomment">//! [`reqwest-tracing`]: https://crates.io/crates/reqwest-tracing</span>
+<span class="doccomment">//! [`reqwest`]: https://crates.io/crates/reqwest</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
 <span class="doccomment">//!     &lt;strong&gt;Note&lt;/strong&gt;: Some of these ecosystem crates are currently</span>
@@ -1922,7 +1934,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//!   ```toml</span>
 <span class="doccomment">//!   [dependencies]</span>
-<span class="doccomment">//!   tracing = { version = &quot;0.1.36&quot;, default-features = false }</span>
+<span class="doccomment">//!   tracing = { version = &quot;0.1.37&quot;, default-features = false }</span>
 <span class="doccomment">//!   ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! &lt;pre class=&quot;ignore&quot; style=&quot;white-space:normal;font:inherit;&quot;&gt;</span>
@@ -2005,7 +2017,7 @@
 <span class="doccomment">//! [flags]: #crate-feature-flags</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">feature</span>(<span class="ident">doc_cfg</span>), <span class="ident">deny</span>(<span class="ident">rustdoc::broken_intra_doc_links</span>))]</span>
-<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing/0.1.36&quot;</span>)]</span>
+<span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/tracing/0.1.37&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(
     <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png&quot;</span>,
     <span class="ident">issue_tracker_base_url</span> <span class="op">=</span> <span class="string">&quot;https://github.com/tokio-rs/tracing/issues/&quot;</span>

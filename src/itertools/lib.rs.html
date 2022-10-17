@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/itertools-0.10.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../itertools/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../itertools/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../itertools/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/itertools-0.10.5/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../itertools/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../itertools/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../itertools/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -3606,6 +3606,182 @@
 <span id="3606">3606</span>
 <span id="3607">3607</span>
 <span id="3608">3608</span>
+<span id="3609">3609</span>
+<span id="3610">3610</span>
+<span id="3611">3611</span>
+<span id="3612">3612</span>
+<span id="3613">3613</span>
+<span id="3614">3614</span>
+<span id="3615">3615</span>
+<span id="3616">3616</span>
+<span id="3617">3617</span>
+<span id="3618">3618</span>
+<span id="3619">3619</span>
+<span id="3620">3620</span>
+<span id="3621">3621</span>
+<span id="3622">3622</span>
+<span id="3623">3623</span>
+<span id="3624">3624</span>
+<span id="3625">3625</span>
+<span id="3626">3626</span>
+<span id="3627">3627</span>
+<span id="3628">3628</span>
+<span id="3629">3629</span>
+<span id="3630">3630</span>
+<span id="3631">3631</span>
+<span id="3632">3632</span>
+<span id="3633">3633</span>
+<span id="3634">3634</span>
+<span id="3635">3635</span>
+<span id="3636">3636</span>
+<span id="3637">3637</span>
+<span id="3638">3638</span>
+<span id="3639">3639</span>
+<span id="3640">3640</span>
+<span id="3641">3641</span>
+<span id="3642">3642</span>
+<span id="3643">3643</span>
+<span id="3644">3644</span>
+<span id="3645">3645</span>
+<span id="3646">3646</span>
+<span id="3647">3647</span>
+<span id="3648">3648</span>
+<span id="3649">3649</span>
+<span id="3650">3650</span>
+<span id="3651">3651</span>
+<span id="3652">3652</span>
+<span id="3653">3653</span>
+<span id="3654">3654</span>
+<span id="3655">3655</span>
+<span id="3656">3656</span>
+<span id="3657">3657</span>
+<span id="3658">3658</span>
+<span id="3659">3659</span>
+<span id="3660">3660</span>
+<span id="3661">3661</span>
+<span id="3662">3662</span>
+<span id="3663">3663</span>
+<span id="3664">3664</span>
+<span id="3665">3665</span>
+<span id="3666">3666</span>
+<span id="3667">3667</span>
+<span id="3668">3668</span>
+<span id="3669">3669</span>
+<span id="3670">3670</span>
+<span id="3671">3671</span>
+<span id="3672">3672</span>
+<span id="3673">3673</span>
+<span id="3674">3674</span>
+<span id="3675">3675</span>
+<span id="3676">3676</span>
+<span id="3677">3677</span>
+<span id="3678">3678</span>
+<span id="3679">3679</span>
+<span id="3680">3680</span>
+<span id="3681">3681</span>
+<span id="3682">3682</span>
+<span id="3683">3683</span>
+<span id="3684">3684</span>
+<span id="3685">3685</span>
+<span id="3686">3686</span>
+<span id="3687">3687</span>
+<span id="3688">3688</span>
+<span id="3689">3689</span>
+<span id="3690">3690</span>
+<span id="3691">3691</span>
+<span id="3692">3692</span>
+<span id="3693">3693</span>
+<span id="3694">3694</span>
+<span id="3695">3695</span>
+<span id="3696">3696</span>
+<span id="3697">3697</span>
+<span id="3698">3698</span>
+<span id="3699">3699</span>
+<span id="3700">3700</span>
+<span id="3701">3701</span>
+<span id="3702">3702</span>
+<span id="3703">3703</span>
+<span id="3704">3704</span>
+<span id="3705">3705</span>
+<span id="3706">3706</span>
+<span id="3707">3707</span>
+<span id="3708">3708</span>
+<span id="3709">3709</span>
+<span id="3710">3710</span>
+<span id="3711">3711</span>
+<span id="3712">3712</span>
+<span id="3713">3713</span>
+<span id="3714">3714</span>
+<span id="3715">3715</span>
+<span id="3716">3716</span>
+<span id="3717">3717</span>
+<span id="3718">3718</span>
+<span id="3719">3719</span>
+<span id="3720">3720</span>
+<span id="3721">3721</span>
+<span id="3722">3722</span>
+<span id="3723">3723</span>
+<span id="3724">3724</span>
+<span id="3725">3725</span>
+<span id="3726">3726</span>
+<span id="3727">3727</span>
+<span id="3728">3728</span>
+<span id="3729">3729</span>
+<span id="3730">3730</span>
+<span id="3731">3731</span>
+<span id="3732">3732</span>
+<span id="3733">3733</span>
+<span id="3734">3734</span>
+<span id="3735">3735</span>
+<span id="3736">3736</span>
+<span id="3737">3737</span>
+<span id="3738">3738</span>
+<span id="3739">3739</span>
+<span id="3740">3740</span>
+<span id="3741">3741</span>
+<span id="3742">3742</span>
+<span id="3743">3743</span>
+<span id="3744">3744</span>
+<span id="3745">3745</span>
+<span id="3746">3746</span>
+<span id="3747">3747</span>
+<span id="3748">3748</span>
+<span id="3749">3749</span>
+<span id="3750">3750</span>
+<span id="3751">3751</span>
+<span id="3752">3752</span>
+<span id="3753">3753</span>
+<span id="3754">3754</span>
+<span id="3755">3755</span>
+<span id="3756">3756</span>
+<span id="3757">3757</span>
+<span id="3758">3758</span>
+<span id="3759">3759</span>
+<span id="3760">3760</span>
+<span id="3761">3761</span>
+<span id="3762">3762</span>
+<span id="3763">3763</span>
+<span id="3764">3764</span>
+<span id="3765">3765</span>
+<span id="3766">3766</span>
+<span id="3767">3767</span>
+<span id="3768">3768</span>
+<span id="3769">3769</span>
+<span id="3770">3770</span>
+<span id="3771">3771</span>
+<span id="3772">3772</span>
+<span id="3773">3773</span>
+<span id="3774">3774</span>
+<span id="3775">3775</span>
+<span id="3776">3776</span>
+<span id="3777">3777</span>
+<span id="3778">3778</span>
+<span id="3779">3779</span>
+<span id="3780">3780</span>
+<span id="3781">3781</span>
+<span id="3782">3782</span>
+<span id="3783">3783</span>
+<span id="3784">3784</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#![<span class="ident">crate_name</span><span class="op">=</span><span class="string">&quot;itertools&quot;</span>]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>), <span class="ident">no_std</span>)]</span>
@@ -3805,6 +3981,8 @@
 <span class="kw">mod</span> <span class="ident">exactly_one_err</span>;
 <span class="kw">mod</span> <span class="ident">diff</span>;
 <span class="kw">mod</span> <span class="ident">flatten_ok</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">extrema_set</span>;
 <span class="kw">mod</span> <span class="ident">format</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">grouping_map</span>;
@@ -3995,7 +4173,7 @@
 <span class="doccomment">/// let with_macro:  Chain&lt;Chain&lt;Once&lt;_&gt;, Take&lt;Repeat&lt;_&gt;&gt;&gt;, slice::Iter&lt;_&gt;&gt; =</span>
 <span class="doccomment">///     chain![once(&amp;0), repeat(&amp;1).take(2), &amp;[2, 3, 5],];</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// // ...is equivalant to this:</span>
+<span class="doccomment">/// // ...is equivalent to this:</span>
 <span class="doccomment">/// let with_method: Chain&lt;Chain&lt;Once&lt;_&gt;, Take&lt;Repeat&lt;_&gt;&gt;&gt;, slice::Iter&lt;_&gt;&gt; =</span>
 <span class="doccomment">///     once(&amp;0)</span>
 <span class="doccomment">///         .chain(repeat(&amp;1).take(2))</span>
@@ -4386,7 +4564,7 @@
     <span class="doccomment">/// the original iterator.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// **Note:** If the iterator is clonable, prefer using that instead</span>
-    <span class="doccomment">/// of using this method. It is likely to be more efficient.</span>
+    <span class="doccomment">/// of using this method. Cloning is likely to be more efficient.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Iterator element type is `Self::Item`.</span>
     <span class="doccomment">///</span>
@@ -4512,7 +4690,7 @@
     <span class="doccomment">/// a series of `Result::Ok` values. `Result::Err` values are unchanged.</span>
     <span class="doccomment">/// </span>
     <span class="doccomment">/// This is useful when you have some common error type for your crate and</span>
-    <span class="doccomment">/// need to propogate it upwards, but the `Result::Ok` case needs to be flattened.</span>
+    <span class="doccomment">/// need to propagate it upwards, but the `Result::Ok` case needs to be flattened.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use itertools::Itertools;</span>
@@ -4521,7 +4699,7 @@
     <span class="doccomment">/// let it = input.iter().cloned().flatten_ok();</span>
     <span class="doccomment">/// itertools::assert_equal(it.clone(), vec![Ok(0), Ok(1), Err(false), Ok(2), Ok(3)]);</span>
     <span class="doccomment">/// </span>
-    <span class="doccomment">/// // This can also be used to propogate errors when collecting.</span>
+    <span class="doccomment">/// // This can also be used to propagate errors when collecting.</span>
     <span class="doccomment">/// let output_result: Result&lt;Vec&lt;i32&gt;, bool&gt; = it.collect();</span>
     <span class="doccomment">/// assert_eq!(output_result, Err(false));</span>
     <span class="doccomment">/// ```</span>
@@ -4717,7 +4895,7 @@
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_alloc&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">multi_cartesian_product</span>(<span class="self">self</span>) -&gt; <span class="ident">MultiProduct</span><span class="op">&lt;</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span> <span class="kw">as</span> <span class="ident">IntoIterator</span><span class="op">&gt;</span><span class="ident">::IntoIter</span><span class="op">&gt;</span>
-        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Iterator</span> <span class="op">+</span> <span class="ident">Sized</span>,
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>,
               <span class="ident"><span class="self">Self</span>::Item</span>: <span class="ident">IntoIterator</span>,
               <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span> <span class="kw">as</span> <span class="ident">IntoIterator</span><span class="op">&gt;</span><span class="ident">::IntoIter</span>: <span class="ident">Clone</span>,
               <span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span> <span class="kw">as</span> <span class="ident">IntoIterator</span><span class="op">&gt;</span><span class="ident">::Item</span>: <span class="ident">Clone</span>
@@ -5354,12 +5532,10 @@
     <span class="kw">fn</span> <span class="ident">find_position</span><span class="op">&lt;</span><span class="ident">P</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">pred</span>: <span class="ident">P</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident"><span class="self">Self</span>::Item</span>)<span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>) -&gt; <span class="ident">bool</span>
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">index</span> <span class="op">=</span> <span class="number">0usize</span>;
-        <span class="kw">for</span> <span class="ident">elt</span> <span class="kw">in</span> <span class="self">self</span> {
+        <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">elt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">enumerate</span>() {
             <span class="kw">if</span> <span class="ident">pred</span>(<span class="kw-2">&amp;</span><span class="ident">elt</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">index</span>, <span class="ident">elt</span>));
             }
-            <span class="ident">index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
         <span class="prelude-val">None</span>
     }
@@ -5403,7 +5579,7 @@
         <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">predicate</span>(<span class="kw-2">&amp;</span><span class="ident">first</span>) {
             <span class="ident">first</span>
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">predicate</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>)).<span class="ident">unwrap_or</span>(<span class="ident">first</span>)
+            <span class="self">self</span>.<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">predicate</span>(<span class="ident">x</span>)).<span class="ident">unwrap_or</span>(<span class="ident">first</span>)
         })
     }
     <span class="doccomment">/// Returns `true` if the given item is present in this iterator.</span>
@@ -5561,7 +5737,7 @@
         <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident"><span class="self">Self</span>::Item</span>),
               <span class="self">Self</span>: <span class="ident">Sized</span>,
     {
-        <span class="self">self</span>.<span class="ident">for_each</span>(<span class="ident">f</span>)
+        <span class="self">self</span>.<span class="ident">for_each</span>(<span class="ident">f</span>);
     }
 
     <span class="doccomment">/// Combine all an iterator&#39;s elements into one element by using [`Extend`].</span>
@@ -5879,7 +6055,7 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Which, for non-associative functions, will typically produce a different</span>
-    <span class="doccomment">/// result than the linear call tree used by `fold1`:</span>
+    <span class="doccomment">/// result than the linear call tree used by [`Iterator::reduce`]:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```text</span>
     <span class="doccomment">/// 1 2 3 4 5 6 7</span>
@@ -5887,7 +6063,7 @@
     <span class="doccomment">/// └─f─f─f─f─f─f</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// If `f` is associative, prefer the normal `fold1` instead.</span>
+    <span class="doccomment">/// If `f` is associative, prefer the normal [`Iterator::reduce`] instead.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// use itertools::Itertools;</span>
@@ -6300,7 +6476,6 @@
     <span class="doccomment">/// itertools::assert_equal(oldest_people_first,</span>
     <span class="doccomment">///                         vec![&quot;Jill&quot;, &quot;Jack&quot;, &quot;Jane&quot;, &quot;John&quot;]);</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_alloc&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">sorted_by_cached_key</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident">VecIntoIter</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -6508,6 +6683,194 @@
               <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">V</span>) -&gt; <span class="ident">K</span>
     {
         <span class="ident">grouping_map::new</span>(<span class="ident">grouping_map::MapForGrouping::new</span>(<span class="self">self</span>, <span class="ident">key_mapper</span>))
+    }
+
+    <span class="doccomment">/// Return all minimum elements of an iterator.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [i32; 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set(), Vec::&lt;&amp;i32&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set(), vec![&amp;1]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1, 2, 3, 4, 5];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set(), vec![&amp;1]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1, 1, 1, 1];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set(), vec![&amp;1, &amp;1, &amp;1, &amp;1]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">min_set</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident"><span class="self">Self</span>::Item</span>: <span class="ident">Ord</span>
+    {
+        <span class="ident">extrema_set::min_set_impl</span>(<span class="self">self</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> (), <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">cmp</span>(<span class="ident">y</span>))
+    }
+
+    <span class="doccomment">/// Return all minimum elements of an iterator, as determined by</span>
+    <span class="doccomment">/// the specified function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use std::cmp::Ordering;</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [(i32, i32); 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by(|_, _| Ordering::Equal), Vec::&lt;&amp;(i32, i32)&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by(|&amp;&amp;(k1,_), &amp;&amp;(k2, _)| k1.cmp(&amp;k2)), vec![&amp;(1, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (2, 2), (3, 9), (4, 8), (5, 9)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by(|&amp;&amp;(_,k1), &amp;&amp;(_,k2)| k1.cmp(&amp;k2)), vec![&amp;(1, 2), &amp;(2, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (1, 3), (1, 4), (1, 5)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by(|&amp;&amp;(k1,_), &amp;&amp;(k2, _)| k1.cmp(&amp;k2)), vec![&amp;(1, 2), &amp;(1, 3), &amp;(1, 4), &amp;(1, 5)]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">min_set_by</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">compare</span>: <span class="ident">F</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>) -&gt; <span class="ident">Ordering</span>
+    {
+        <span class="ident">extrema_set::min_set_impl</span>(
+            <span class="self">self</span>,
+            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> (),
+            <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">compare</span>(<span class="ident">x</span>, <span class="ident">y</span>)
+        )
+    }
+
+    <span class="doccomment">/// Return all minimum elements of an iterator, as determined by</span>
+    <span class="doccomment">/// the specified function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [(i32, i32); 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by_key(|_| ()), Vec::&lt;&amp;(i32, i32)&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by_key(|&amp;&amp;(k,_)| k), vec![&amp;(1, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (2, 2), (3, 9), (4, 8), (5, 9)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by_key(|&amp;&amp;(_, k)| k), vec![&amp;(1, 2), &amp;(2, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (1, 3), (1, 4), (1, 5)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().min_set_by_key(|&amp;&amp;(k, _)| k), vec![&amp;(1, 2), &amp;(1, 3), &amp;(1, 4), &amp;(1, 5)]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">min_set_by_key</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">key</span>: <span class="ident">F</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident">K</span>: <span class="ident">Ord</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>) -&gt; <span class="ident">K</span>
+    {
+        <span class="ident">extrema_set::min_set_impl</span>(<span class="self">self</span>, <span class="ident">key</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">kx</span>, <span class="ident">ky</span><span class="op">|</span> <span class="ident">kx</span>.<span class="ident">cmp</span>(<span class="ident">ky</span>))
+    }
+
+    <span class="doccomment">/// Return all maximum elements of an iterator.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [i32; 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set(), Vec::&lt;&amp;i32&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set(), vec![&amp;1]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1, 2, 3, 4, 5];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set(), vec![&amp;5]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [1, 1, 1, 1];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set(), vec![&amp;1, &amp;1, &amp;1, &amp;1]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">max_set</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident"><span class="self">Self</span>::Item</span>: <span class="ident">Ord</span>
+    {
+        <span class="ident">extrema_set::max_set_impl</span>(<span class="self">self</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> (), <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">cmp</span>(<span class="ident">y</span>))
+    }
+
+    <span class="doccomment">/// Return all maximum elements of an iterator, as determined by</span>
+    <span class="doccomment">/// the specified function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use std::cmp::Ordering;</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [(i32, i32); 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by(|_, _| Ordering::Equal), Vec::&lt;&amp;(i32, i32)&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by(|&amp;&amp;(k1,_), &amp;&amp;(k2, _)| k1.cmp(&amp;k2)), vec![&amp;(1, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (2, 2), (3, 9), (4, 8), (5, 9)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by(|&amp;&amp;(_,k1), &amp;&amp;(_,k2)| k1.cmp(&amp;k2)), vec![&amp;(3, 9), &amp;(5, 9)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (1, 3), (1, 4), (1, 5)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by(|&amp;&amp;(k1,_), &amp;&amp;(k2, _)| k1.cmp(&amp;k2)), vec![&amp;(1, 2), &amp;(1, 3), &amp;(1, 4), &amp;(1, 5)]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">max_set_by</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">compare</span>: <span class="ident">F</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>) -&gt; <span class="ident">Ordering</span>
+    {
+        <span class="ident">extrema_set::max_set_impl</span>(
+            <span class="self">self</span>,
+            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> (),
+            <span class="op">|</span><span class="ident">x</span>, <span class="ident">y</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">compare</span>(<span class="ident">x</span>, <span class="ident">y</span>)
+        )
+    }
+
+    <span class="doccomment">/// Return all minimum elements of an iterator, as determined by</span>
+    <span class="doccomment">/// the specified function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use itertools::Itertools;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a: [(i32, i32); 0] = [];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by_key(|_| ()), Vec::&lt;&amp;(i32, i32)&gt;::new());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by_key(|&amp;&amp;(k,_)| k), vec![&amp;(1, 2)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (2, 2), (3, 9), (4, 8), (5, 9)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by_key(|&amp;&amp;(_, k)| k), vec![&amp;(3, 9), &amp;(5, 9)]);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let a = [(1, 2), (1, 3), (1, 4), (1, 5)];</span>
+    <span class="doccomment">/// assert_eq!(a.iter().max_set_by_key(|&amp;&amp;(k, _)| k), vec![&amp;(1, 2), &amp;(1, 3), &amp;(1, 4), &amp;(1, 5)]);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The elements can be floats but no particular result is guaranteed</span>
+    <span class="doccomment">/// if an element is NaN.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;use_std&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">max_set_by_key</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">F</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">key</span>: <span class="ident">F</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>
+        <span class="kw">where</span> <span class="self">Self</span>: <span class="ident">Sized</span>, <span class="ident">K</span>: <span class="ident">Ord</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Item</span>) -&gt; <span class="ident">K</span>
+    {
+        <span class="ident">extrema_set::max_set_impl</span>(<span class="self">self</span>, <span class="ident">key</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">kx</span>, <span class="ident">ky</span><span class="op">|</span> <span class="ident">kx</span>.<span class="ident">cmp</span>(<span class="ident">ky</span>))
     }
 
     <span class="doccomment">/// Return the minimum and maximum elements in the iterator.</span>
@@ -6765,7 +7128,7 @@
     <span class="doccomment">///    be equal to `ypos`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// On an iterator of length `n`, `position_minmax` does `1.5 * n`</span>
-    <span class="doccomment">/// comparisons, and so is faster than calling `positon_min` and</span>
+    <span class="doccomment">/// comparisons, and so is faster than calling `position_min` and</span>
     <span class="doccomment">/// `position_max` separately which does `2 * n` comparisons.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// For the minimum, if several elements are equally minimum, the</span>
@@ -7086,8 +7449,7 @@
 <span class="doccomment">/// (elements pairwise equal and sequences of the same length),</span>
 <span class="doccomment">/// `false` otherwise.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This is an [`IntoIterator`] enabled function that is similar to the standard</span>
-<span class="doccomment">/// library method [`Iterator::eq`].</span>
+<span class="doccomment">/// [`IntoIterator`] enabled version of [`Iterator::eq`].</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// assert!(itertools::equal(vec![1, 2, 3], 1..4));</span>
@@ -7098,17 +7460,7 @@
           <span class="ident">J</span>: <span class="ident">IntoIterator</span>,
           <span class="ident">I::Item</span>: <span class="ident">PartialEq</span><span class="op">&lt;</span><span class="ident">J::Item</span><span class="op">&gt;</span>
 {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ia</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">into_iter</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ib</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">into_iter</span>();
-    <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="ident">ia</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">ib</span>.<span class="ident">next</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">y</span>) =&gt; <span class="kw">if</span> <span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">y</span> { <span class="kw">return</span> <span class="bool-val">false</span>; },
-                <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="bool-val">false</span>,
-            },
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">ib</span>.<span class="ident">next</span>().<span class="ident">is_none</span>()
-        }
-    }
+    <span class="ident">a</span>.<span class="ident">into_iter</span>().<span class="ident">eq</span>(<span class="ident">b</span>)
 }
 
 <span class="doccomment">/// Assert that two iterables produce equal sequences, with the same</span>

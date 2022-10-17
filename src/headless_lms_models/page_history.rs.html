@@ -144,6 +144,8 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde_json::Value</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -264,6 +266,7 @@ SELECT id,
   author_user_id
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 ORDER BY created_at DESC, id
 LIMIT $2
 OFFSET $3
@@ -283,6 +286,7 @@ OFFSET $3
 SELECT COUNT(*) AS count
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 &quot;</span>,
         <span class="ident">page_id</span>
     )

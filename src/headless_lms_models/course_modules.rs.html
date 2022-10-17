@@ -506,6 +506,8 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">chapters</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
@@ -688,6 +690,8 @@ FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
+AND chapters.deleted_at IS NULL
+AND course_modules.deleted_at IS NULL
         &quot;</span>,
         <span class="ident">exercise_id</span>,
     )

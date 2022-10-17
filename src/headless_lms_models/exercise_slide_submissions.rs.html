@@ -703,6 +703,11 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">chrono::NaiveDate</span>;
@@ -1175,7 +1180,9 @@ ORDER BY date;
     AND us_state.user_id = s_submission.user_id
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = &#39;waiting_for_manual_grading&#39;
-    AND us_state.deleted_at IS NULL;&quot;#</span>,
+    AND us_state.deleted_at IS NULL
+    AND s_submission.deleted_at IS NULL
+    AND t_submission.deleted_at IS NULL&quot;#</span>,
         <span class="ident">exercise_id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
@@ -1283,6 +1290,9 @@ LIMIT $2 OFFSET $3
     AND us_state.exercise_id = $1
     AND us_state.reviewing_stage = &#39;waiting_for_manual_grading&#39;
     AND us_state.deleted_at IS NULL
+    AND us_state.deleted_at IS NULL
+    AND s_submission.deleted_at IS NULL
+    AND t_submission.deleted_at IS NULL
     ORDER BY t_submission.updated_at
     LIMIT $2 OFFSET $3;&quot;#</span>,
         <span class="ident">exercise_id</span>,

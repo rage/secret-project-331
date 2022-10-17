@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/digest-0.10.3/src/core_api/ct_variable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ct_variable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../digest/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../digest/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/digest-0.10.5/src/core_api/ct_variable.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ct_variable.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../digest/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../digest/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../digest/index.html">
                         <img src="https://raw.githubusercontent.com/RustCrypto/media/6ee8e381/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -167,6 +167,43 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">AlgorithmName</span>, <span class="ident">Buffer</span>, <span class="ident">BufferKindUser</span>, <span class="ident">FixedOutputCore</span>, <span class="ident">Reset</span>, <span class="ident">TruncSide</span>, <span class="ident">UpdateCore</span>,
     <span class="ident">VariableOutputCore</span>,
@@ -174,6 +211,8 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::HashMarker</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mac&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::MacMarker</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;oid&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">const_oid</span>::{<span class="ident">AssociatedOid</span>, <span class="ident">ObjectIdentifier</span>};
 <span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">fmt</span>, <span class="ident">marker::PhantomData</span>};
 <span class="kw">use</span> <span class="ident">crypto_common</span>::{
     <span class="ident">generic_array</span>::{<span class="ident">ArrayLength</span>, <span class="ident">GenericArray</span>},
@@ -181,10 +220,15 @@
     <span class="ident">Block</span>, <span class="ident">BlockSizeUser</span>, <span class="ident">OutputSizeUser</span>,
 };
 
+<span class="doccomment">/// Dummy type used with [`CtVariableCoreWrapper`] in cases when</span>
+<span class="doccomment">/// resulting hash does not have a known OID.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NoOid</span>;
+
 <span class="doccomment">/// Wrapper around [`VariableOutputCore`] which selects output size</span>
 <span class="doccomment">/// at compile time.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span> <span class="op">=</span> <span class="ident">NoOid</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -193,10 +237,10 @@
     <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
 {
     <span class="ident">inner</span>: <span class="ident">T</span>,
-    <span class="ident">_out</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">OutSize</span><span class="op">&gt;</span>,
+    <span class="ident">_out</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span>(<span class="ident">OutSize</span>, <span class="ident">O</span>)<span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">HashMarker</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">HashMarker</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span> <span class="op">+</span> <span class="ident">HashMarker</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -207,7 +251,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mac&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">MacMarker</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">MacMarker</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span> <span class="op">+</span> <span class="ident">MacMarker</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -217,7 +261,7 @@
 {
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">BlockSizeUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -228,7 +272,7 @@
     <span class="kw">type</span> <span class="ident">BlockSize</span> <span class="op">=</span> <span class="ident">T::BlockSize</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">UpdateCore</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">UpdateCore</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -242,7 +286,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">OutputSizeUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">OutputSizeUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -253,7 +297,7 @@
     <span class="kw">type</span> <span class="ident">OutputSize</span> <span class="op">=</span> <span class="ident">OutSize</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">BufferKindUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">BufferKindUser</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -264,7 +308,7 @@
     <span class="kw">type</span> <span class="ident">BufferKind</span> <span class="op">=</span> <span class="ident">T::BufferKind</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">FixedOutputCore</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">FixedOutputCore</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
@@ -289,7 +333,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -306,7 +350,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">Reset</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">Reset</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -320,7 +364,7 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span> <span class="ident">AlgorithmName</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">AlgorithmName</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">T</span>: <span class="ident">VariableOutputCore</span> <span class="op">+</span> <span class="ident">AlgorithmName</span>,
     <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
@@ -333,6 +377,36 @@
         <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;_&quot;</span>)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">OutSize::USIZE</span>)
     }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;oid&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">docsrs</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;oid&quot;</span>)))]</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="ident">AssociatedOid</span> <span class="kw">for</span> <span class="ident">CtVariableCoreWrapper</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">OutSize</span>, <span class="ident">O</span><span class="op">&gt;</span>
+<span class="kw">where</span>
+    <span class="ident">T</span>: <span class="ident">VariableOutputCore</span>,
+    <span class="ident">O</span>: <span class="ident">AssociatedOid</span>,
+    <span class="ident">OutSize</span>: <span class="ident">ArrayLength</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">IsLessOrEqual</span><span class="op">&lt;</span><span class="ident">T::OutputSize</span><span class="op">&gt;</span>,
+    <span class="ident">LeEq</span><span class="op">&lt;</span><span class="ident">OutSize</span>, <span class="ident">T::OutputSize</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+    <span class="ident">T::BlockSize</span>: <span class="ident">IsLess</span><span class="op">&lt;</span><span class="ident">U256</span><span class="op">&gt;</span>,
+    <span class="ident">Le</span><span class="op">&lt;</span><span class="ident">T::BlockSize</span>, <span class="ident">U256</span><span class="op">&gt;</span>: <span class="ident">NonZero</span>,
+{
+    <span class="kw">const</span> <span class="ident">OID</span>: <span class="ident">ObjectIdentifier</span> <span class="op">=</span> <span class="ident">O::OID</span>;
+}
+
+<span class="doccomment">/// Implement dummy type with hidden docs which is used to &quot;carry&quot; hasher</span>
+<span class="doccomment">/// OID for [`CtVariableCoreWrapper`].</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">impl_oid_carrier</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">oid</span>:<span class="ident">literal</span>) =&gt; {
+        <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Hash</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>;
+
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;oid&quot;</span>)]</span>
+        <span class="kw">impl</span> <span class="ident">AssociatedOid</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+            <span class="kw">const</span> <span class="ident">OID</span>: <span class="ident">ObjectIdentifier</span> <span class="op">=</span> <span class="ident">ObjectIdentifier::new_unwrap</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">oid</span>);
+        }
+    };
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="digest" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

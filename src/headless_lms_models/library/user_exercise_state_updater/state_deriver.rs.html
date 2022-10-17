@@ -762,10 +762,15 @@
 <span id="762">762</span>
 <span id="763">763</span>
 <span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_to_two_decimals</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercises</span>::{<span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
+    <span class="ident">library::user_exercise_state_updater::validation::validate_input</span>,
     <span class="ident">peer_review_configs::PeerReviewAcceptingStrategy</span>,
     <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
@@ -784,6 +789,9 @@
     <span class="ident">input_data</span>: <span class="ident">UserExerciseStateUpdateRequiredData</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">UserExerciseStateUpdate</span><span class="op">&gt;</span> {
     <span class="macro">info!</span>(<span class="string">&quot;Deriving new user_exercise_state&quot;</span>);
+
+    <span class="ident">validate_input</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>)<span class="question-mark">?</span>;
+
     <span class="kw">let</span> <span class="ident">peer_review_opinion</span> <span class="op">=</span> <span class="ident">get_peer_review_opinion</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>);
     <span class="kw">let</span> <span class="ident">new_reviewing_stage</span> <span class="op">=</span> <span class="ident">derive_new_reviewing_stage</span>(<span class="kw-2">&amp;</span><span class="ident">input_data</span>, <span class="kw-2">&amp;</span><span class="ident">peer_review_opinion</span>);
     <span class="kw">let</span> <span class="ident">reviewing_stage_changed</span> <span class="op">=</span>

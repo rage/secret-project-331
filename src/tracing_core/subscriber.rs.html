@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-core-0.1.29/src/subscriber.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>subscriber.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tracing_core/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tracing_core/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-core-0.1.30/src/subscriber.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>subscriber.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../tracing_core/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../tracing_core/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../tracing_core/index.html">
                         <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -849,8 +849,29 @@
 <span id="847">847</span>
 <span id="848">848</span>
 <span id="849">849</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Subscribers collect and record trace data.</span>
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">span</span>, <span class="ident">Event</span>, <span class="ident">LevelFilter</span>, <span class="ident">Metadata</span>};
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Collectors collect and record trace data.</span>
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">span</span>, <span class="ident">Dispatch</span>, <span class="ident">Event</span>, <span class="ident">LevelFilter</span>, <span class="ident">Metadata</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stdlib</span>::{
     <span class="ident">any</span>::{<span class="ident">Any</span>, <span class="ident">TypeId</span>},
@@ -932,7 +953,28 @@
 <span class="doccomment">/// [`event`]: Subscriber::event</span>
 <span class="doccomment">/// [`event_enabled`]: Subscriber::event_enabled</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Subscriber</span>: <span class="lifetime">&#39;static</span> {
-    <span class="comment">// === Span registry methods ==============================================</span>
+    <span class="doccomment">/// Invoked when this subscriber becomes a [`Dispatch`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Avoiding Memory Leaks</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// `Subscriber`s should not store their own [`Dispatch`]. Because the</span>
+    <span class="doccomment">/// `Dispatch` owns the `Subscriber`, storing the `Dispatch` within the</span>
+    <span class="doccomment">/// `Subscriber` will create a reference count cycle, preventing the `Dispatch`</span>
+    <span class="doccomment">/// from ever being dropped.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Instead, when it is necessary to store a cyclical reference to the</span>
+    <span class="doccomment">/// `Dispatch` within a `Subscriber`, use [`Dispatch::downgrade`] to convert a</span>
+    <span class="doccomment">/// `Dispatch` into a [`WeakDispatch`]. This type is analogous to</span>
+    <span class="doccomment">/// [`std::sync::Weak`], and does not create a reference count cycle. A</span>
+    <span class="doccomment">/// [`WeakDispatch`] can be stored within a `Subscriber` without causing a</span>
+    <span class="doccomment">/// memory leak, and can be [upgraded] into a `Dispatch` temporarily when</span>
+    <span class="doccomment">/// the `Dispatch` must be accessed by the `Subscriber`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`WeakDispatch`]: crate::dispatcher::WeakDispatch</span>
+    <span class="doccomment">/// [upgraded]: crate::dispatcher::WeakDispatch::upgrade</span>
+    <span class="kw">fn</span> <span class="ident">on_register_dispatch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">subscriber</span>: <span class="kw-2">&amp;</span><span class="ident">Dispatch</span>) {
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">subscriber</span>;
+    }
 
     <span class="doccomment">/// Registers a new [callsite] with this subscriber, returning whether or not</span>
     <span class="doccomment">/// the subscriber is interested in being notified about the callsite.</span>

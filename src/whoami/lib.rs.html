@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.1/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
-                    <img src="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../whoami/index.html">
-                        <img src="https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/whoami-1.2.3/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../whoami/index.html"><div class="logo-container">
+                    <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../whoami/index.html">
+                        <img src="https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -286,13 +286,38 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
-</pre><pre class="rust"><code><span class="comment">// WhoAmI</span>
-<span class="comment">// Copyright © 2017-2021 Jeron Aldaron Lau.</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright © 2017-2022 The WhoAmI Contributors.</span>
 <span class="comment">//</span>
 <span class="comment">// Licensed under any of:</span>
-<span class="comment">//  - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)</span>
-<span class="comment">//  - MIT License (https://mit-license.org/)</span>
-<span class="comment">//  - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)</span>
+<span class="comment">// - Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)</span>
+<span class="comment">// - Boost Software License, Version 1.0 (https://www.boost.org/LICENSE_1_0.txt)</span>
+<span class="comment">// - MIT License (https://mit-license.org/)</span>
 <span class="comment">// At your choosing (See accompanying files LICENSE_APACHE_2_0.txt,</span>
 <span class="comment">// LICENSE_MIT.txt and LICENSE_BOOST_1_0.txt).</span>
 <span class="comment">//</span>
@@ -312,63 +337,71 @@
 <span class="doccomment">//! fn main() {</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;User&#39;s Name            whoami::realname():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::realname()</span>
+<span class="doccomment">//!         whoami::realname(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;User&#39;s Username        whoami::username():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::username()</span>
+<span class="doccomment">//!         whoami::username(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;User&#39;s Language        whoami::lang():        {:?}&quot;,</span>
-<span class="doccomment">//!         whoami::lang().collect::&lt;Vec&lt;String&gt;&gt;()</span>
+<span class="doccomment">//!         whoami::lang().collect::&lt;Vec&lt;String&gt;&gt;(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;Device&#39;s Pretty Name   whoami::devicename():  {}&quot;,</span>
-<span class="doccomment">//!         whoami::devicename()</span>
+<span class="doccomment">//!         whoami::devicename(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;Device&#39;s Hostname      whoami::hostname():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::hostname()</span>
+<span class="doccomment">//!         whoami::hostname(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;Device&#39;s Platform      whoami::platform():    {}&quot;,</span>
-<span class="doccomment">//!         whoami::platform()</span>
+<span class="doccomment">//!         whoami::platform(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;Device&#39;s OS Distro     whoami::distro():      {}&quot;,</span>
-<span class="doccomment">//!         whoami::distro()</span>
+<span class="doccomment">//!         whoami::distro(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!     println!(</span>
 <span class="doccomment">//!         &quot;Device&#39;s Desktop Env.  whoami::desktop_env(): {}&quot;,</span>
-<span class="doccomment">//!         whoami::desktop_env()</span>
+<span class="doccomment">//!         whoami::desktop_env(),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#![<span class="ident">doc</span>(
-    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg&quot;</span>,
-    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/libcala/whoami/main/res/icon.svg&quot;</span>
+    <span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;</span>,
+    <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;https://raw.githubusercontent.com/ardaku/whoami/stable/res/icon.svg&quot;</span>
 )]</span>
 
 <span class="kw">use</span> <span class="ident">std::ffi::OsString</span>;
 
 <span class="doccomment">/// Which Desktop Environment</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>)]</span>
 <span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DesktopEnv</span> {
+    <span class="doccomment">/// Popular GTK-based desktop environment on Linux</span>
     <span class="ident">Gnome</span>,
     <span class="doccomment">/// One of the desktop environments for a specific version of Windows</span>
     <span class="ident">Windows</span>,
+    <span class="doccomment">/// Linux desktop environment optimized for low resource requirements</span>
     <span class="ident">Lxde</span>,
+    <span class="doccomment">/// Stacking window manager for X Windows on Linux</span>
     <span class="ident">Openbox</span>,
+    <span class="doccomment">/// Desktop environment for Linux, BSD and Illumos</span>
     <span class="ident">Mate</span>,
+    <span class="doccomment">/// Lightweight desktop enivornment for unix-like operating systems</span>
     <span class="ident">Xfce</span>,
+    <span class="doccomment">/// KDE Plasma desktop enviroment</span>
+    <span class="comment">// FIXME: Rename to &#39;Plasma&#39; in whoami 2.0.0</span>
     <span class="ident">Kde</span>,
+    <span class="doccomment">/// Default desktop environment on Linux Mint</span>
     <span class="ident">Cinnamon</span>,
+    <span class="doccomment">/// Tiling window manager for Linux</span>
     <span class="ident">I3</span>,
-    <span class="doccomment">/// Default desktop environment for MacOS</span>
+    <span class="doccomment">/// Desktop environment for MacOS</span>
     <span class="ident">Aqua</span>,
     <span class="doccomment">/// Desktop environment for iOS</span>
     <span class="ident">Ios</span>,
@@ -429,8 +462,7 @@
     <span class="ident">Linux</span>,
     <span class="ident">Bsd</span>,
     <span class="ident">Windows</span>,
-    <span class="comment">// For now, maybe deprecate and add `Mac`?</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::upper_case_acronyms</span>)]</span>
+    <span class="comment">// FIXME: Non-standard casing; Rename to &#39;Mac&#39; rather than &#39;MacOs&#39; in whoami 2.0.0</span>
     <span class="ident">MacOS</span>,
     <span class="ident">Ios</span>,
     <span class="ident">Android</span>,
@@ -483,53 +515,73 @@
 <span class="kw">use</span> <span class="ident"><span class="self">self</span>::unix</span> <span class="kw">as</span> <span class="ident">native</span>;
 
 <span class="doccomment">/// Get the user&#39;s username.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// On unix-systems this differs from `realname()` most notably in that spaces</span>
+<span class="doccomment">/// are not allowed.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::username</span>()
 }
 
 <span class="doccomment">/// Get the user&#39;s username.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// On unix-systems this differs from `realname()` most notably in that spaces</span>
+<span class="doccomment">/// are not allowed.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::username_os</span>()
 }
 
-<span class="doccomment">/// Get the user&#39;s real name.</span>
+<span class="doccomment">/// Get the user&#39;s real (full) name.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::realname</span>()
 }
 
-<span class="doccomment">/// Get the user&#39;s real name.</span>
+<span class="doccomment">/// Get the user&#39;s real (full) name.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">realname_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::realname_os</span>()
 }
 
-<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;), used to identify device</span>
-<span class="doccomment">/// for bluetooth pairing.</span>
+<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Often used to identify device for bluetooth pairing.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename</span>() -&gt; <span class="ident">String</span> {
     <span class="ident">native::devicename</span>()
 }
 
-<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;), used to identify device</span>
-<span class="doccomment">/// for bluetooth pairing.</span>
+<span class="doccomment">/// Get the device name (also known as &quot;Pretty Name&quot;).</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Often used to identify device for bluetooth pairing.</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">devicename_os</span>() -&gt; <span class="ident">OsString</span> {
     <span class="ident">native::devicename_os</span>()
 }
 
 <span class="doccomment">/// Get the host device&#39;s hostname.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies</span>
+<span class="doccomment">/// to `devicename()` when targeting Windows.  Since the hostname is</span>
+<span class="doccomment">/// case-insensitive, this method normalizes to lowercase (unlike</span>
+<span class="doccomment">/// `devicename()`).</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">native::hostname</span>()
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hostname</span> <span class="op">=</span> <span class="ident">native::hostname</span>();
+    <span class="ident">hostname</span>.<span class="ident">make_ascii_lowercase</span>();
+    <span class="ident">hostname</span>
 }
 
 <span class="doccomment">/// Get the host device&#39;s hostname.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Limited to a-z (case insensitve), 0-9, and dashes.  This limit also applies</span>
+<span class="doccomment">/// to `devicename()` when targeting Windows.  Since the hostname is</span>
+<span class="doccomment">/// case-insensitive, this method normalizes to lowercase (unlike</span>
+<span class="doccomment">/// `devicename()`).</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hostname_os</span>() -&gt; <span class="ident">OsString</span> {
-    <span class="ident">native::hostname_os</span>()
+    <span class="ident">hostname</span>().<span class="ident">into</span>()
 }
 
 <span class="doccomment">/// Get the name of the operating system distribution and (possibly) version.</span>

@@ -270,6 +270,7 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
+<span id="273">273</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -384,6 +385,7 @@ WHERE id = $1
 SELECT *
 FROM exercise_services
 WHERE slug = $1
+AND deleted_at IS NULL
   &quot;#</span>,
         <span class="ident">exercise_type</span>
     )

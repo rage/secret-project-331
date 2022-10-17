@@ -313,8 +313,6 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_slide_submissions::ExerciseSlideSubmission</span>,
     <span class="ident">exercises::Exercise</span>,
@@ -499,7 +497,6 @@
                 <span class="ident">peer_review_config</span>: <span class="ident">load_peer_review_config</span>(
                     <span class="ident">conn</span>,
                     <span class="ident">peer_review_config</span>,
-                    <span class="ident">loaded_user_exercise_state</span>,
                     <span class="ident">loaded_exercise</span>,
                 )
                 .<span class="kw">await</span><span class="question-mark">?</span>,
@@ -515,7 +512,6 @@
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_peer_review_config</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">already_loaded_peer_review_config</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::peer_review_configs::PeerReviewConfig</span><span class="op">&gt;</span>,
-    <span class="ident">loaded_user_exercise_state</span>: <span class="kw-2">&amp;</span><span class="ident">UserExerciseState</span>,
     <span class="ident">loaded_exercise</span>: <span class="kw-2">&amp;</span><span class="ident">Exercise</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prc</span>) <span class="op">=</span> <span class="ident">already_loaded_peer_review_config</span> {
@@ -525,7 +521,7 @@
         <span class="macro">info!</span>(<span class="string">&quot;Loading peer review config&quot;</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">peer_review_configs::get_by_exercise_or_course_id</span>(
             <span class="ident">conn</span>,
-            <span class="ident">loaded_user_exercise_state</span>.<span class="ident">exercise_id</span>,
+            <span class="ident">loaded_exercise</span>,
             <span class="ident">loaded_exercise</span>.<span class="ident">course_id</span>.<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                 <span class="ident">ModelError::new</span>(
                     <span class="ident">ModelErrorType::InvalidRequest</span>,

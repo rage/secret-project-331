@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-1.1.2/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/uuid-1.2.1/src/builder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container"><img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../uuid/index.html"><div class="logo-container">
                     <img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../uuid/index.html">
                         <img src="https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -813,6 +813,98 @@
 <span id="811">811</span>
 <span id="812">812</span>
 <span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright 2013-2014 The Rust Project Developers.</span>
 <span class="comment">// Copyright 2018 The Uuid Project Developers.</span>
 <span class="comment">//</span>
@@ -828,17 +920,21 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [`Uuid`]: ../struct.Uuid.html</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">Bytes</span>, <span class="ident">Uuid</span>, <span class="ident">Variant</span>, <span class="ident">Version</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">timestamp</span>, <span class="ident">Bytes</span>, <span class="ident">Uuid</span>, <span class="ident">Variant</span>, <span class="ident">Version</span>};
 
-<span class="doccomment">/// A builder struct for creating a UUID.</span>
+<span class="doccomment">/// A builder for creating a UUID.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This type is useful if you need to mutate individual fields of a [`Uuid`]</span>
 <span class="doccomment">/// while constructing it. Since the [`Uuid`] type is `Copy`, it doesn&#39;t offer</span>
 <span class="doccomment">/// any methods to mutate in place. They live on the `Builder` instead.</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// The `Builder` type also always exposes APIs to construct [`Uuid`]s for any</span>
+<span class="doccomment">/// version without needing crate features or additional dependencies. It&#39;s a</span>
+<span class="doccomment">/// lower-level API than the methods on [`Uuid`].</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// Creating a v4 UUID from externally generated bytes:</span>
+<span class="doccomment">/// Creating a version 4 UUID from externally generated random bytes:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use uuid::{Builder, Version, Variant};</span>
@@ -858,12 +954,14 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Builder</span>(<span class="ident">Uuid</span>);
 
 <span class="kw">impl</span> <span class="ident">Uuid</span> {
-    <span class="doccomment">/// The &#39;nil UUID&#39;.</span>
+    <span class="doccomment">/// The &#39;nil UUID&#39; (all zeros).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The nil UUID is a special form of UUID that is specified to have all</span>
-    <span class="doccomment">/// 128 bits set to zero, as defined in [IETF RFC 4122 Section 4.1.7][RFC].</span>
+    <span class="doccomment">/// 128 bits set to zero.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// [RFC]: https://tools.ietf.org/html/rfc4122.html#section-4.1.7</span>
+    <span class="doccomment">/// # References</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * [Nil UUID in RFC4122](https://tools.ietf.org/html/rfc4122.html#section-4.1.7)</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -880,6 +978,33 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">nil</span>() -&gt; <span class="self">Self</span> {
         <span class="ident">Uuid::from_bytes</span>([<span class="number">0</span>; <span class="number">16</span>])
+    }
+
+    <span class="doccomment">/// The &#39;max UUID&#39; (all ones).</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The max UUID is a special form of UUID that is specified to have all</span>
+    <span class="doccomment">/// 128 bits set to one.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # References</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * [Max UUID in Draft RFC: New UUID Formats, Version 4](https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format-04#section-5.4)</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Basic usage:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use uuid::Uuid;</span>
+    <span class="doccomment">/// let uuid = Uuid::max();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///     &quot;ffffffff-ffff-ffff-ffff-ffffffffffff&quot;,</span>
+    <span class="doccomment">///     uuid.hyphenated().to_string(),</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">uuid_unstable</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">max</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident">Uuid::from_bytes</span>([<span class="number">0xFF</span>; <span class="number">16</span>])
     }
 
     <span class="doccomment">/// Creates a UUID from four field values.</span>
@@ -932,6 +1057,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Basic usage:</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let d1 = 0xa1a2a3a4;</span>
@@ -946,12 +1073,7 @@
     <span class="doccomment">///     uuid.hyphenated().to_string(),</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_fields_le</span>(
-        <span class="ident">d1</span>: <span class="ident">u32</span>,
-        <span class="ident">d2</span>: <span class="ident">u16</span>,
-        <span class="ident">d3</span>: <span class="ident">u16</span>,
-        <span class="ident">d4</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">8</span>],
-    ) -&gt; <span class="ident">Uuid</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_fields_le</span>(<span class="ident">d1</span>: <span class="ident">u32</span>, <span class="ident">d2</span>: <span class="ident">u16</span>, <span class="ident">d3</span>: <span class="ident">u16</span>, <span class="ident">d4</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">8</span>]) -&gt; <span class="ident">Uuid</span> {
         <span class="ident">Uuid::from_bytes</span>([
             <span class="ident">d1</span> <span class="kw">as</span> <span class="ident">u8</span>,
             (<span class="ident">d1</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">u8</span>,
@@ -1103,7 +1225,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1144,7 +1266,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1179,7 +1301,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1210,7 +1332,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1230,8 +1352,8 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_bytes_le</span>(<span class="ident">b</span>: <span class="ident">Bytes</span>) -&gt; <span class="ident">Uuid</span> {
         <span class="ident">Uuid</span>([
-            <span class="ident">b</span>[<span class="number">3</span>], <span class="ident">b</span>[<span class="number">2</span>], <span class="ident">b</span>[<span class="number">1</span>], <span class="ident">b</span>[<span class="number">0</span>], <span class="ident">b</span>[<span class="number">5</span>], <span class="ident">b</span>[<span class="number">4</span>], <span class="ident">b</span>[<span class="number">7</span>], <span class="ident">b</span>[<span class="number">6</span>], <span class="ident">b</span>[<span class="number">8</span>], <span class="ident">b</span>[<span class="number">9</span>], <span class="ident">b</span>[<span class="number">10</span>],
-            <span class="ident">b</span>[<span class="number">11</span>], <span class="ident">b</span>[<span class="number">12</span>], <span class="ident">b</span>[<span class="number">13</span>], <span class="ident">b</span>[<span class="number">14</span>], <span class="ident">b</span>[<span class="number">15</span>],
+            <span class="ident">b</span>[<span class="number">3</span>], <span class="ident">b</span>[<span class="number">2</span>], <span class="ident">b</span>[<span class="number">1</span>], <span class="ident">b</span>[<span class="number">0</span>], <span class="ident">b</span>[<span class="number">5</span>], <span class="ident">b</span>[<span class="number">4</span>], <span class="ident">b</span>[<span class="number">7</span>], <span class="ident">b</span>[<span class="number">6</span>], <span class="ident">b</span>[<span class="number">8</span>], <span class="ident">b</span>[<span class="number">9</span>], <span class="ident">b</span>[<span class="number">10</span>], <span class="ident">b</span>[<span class="number">11</span>], <span class="ident">b</span>[<span class="number">12</span>], <span class="ident">b</span>[<span class="number">13</span>],
+            <span class="ident">b</span>[<span class="number">14</span>], <span class="ident">b</span>[<span class="number">15</span>],
         ])
     }
 
@@ -1242,7 +1364,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::Uuid;</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1311,7 +1433,7 @@
     <span class="doccomment">/// Basic usage:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// # use uuid::{Builder, Uuid};</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
@@ -1333,11 +1455,22 @@
         <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes_le</span>(<span class="ident">b</span>))
     }
 
-    <span class="doccomment">/// Creates a `Builder` using the supplied random bytes.</span>
+    <span class="doccomment">/// Creates a `Builder` for a version 1 UUID using the supplied timestamp and node ID.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_rfc4122_timestamp</span>(<span class="ident">ticks</span>: <span class="ident">u64</span>, <span class="ident">counter</span>: <span class="ident">u16</span>, <span class="ident">node_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">6</span>]) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">timestamp::encode_rfc4122_timestamp</span>(<span class="ident">ticks</span>, <span class="ident">counter</span>, <span class="ident">node_id</span>))
+    }
+
+    <span class="doccomment">/// Creates a `Builder` for a version 3 UUID using the supplied MD5 hashed bytes.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_md5_bytes</span>(<span class="ident">md5_bytes</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">md5_bytes</span>))
+            .<span class="ident">with_variant</span>(<span class="ident">Variant::RFC4122</span>)
+            .<span class="ident">with_version</span>(<span class="ident">Version::Md5</span>)
+    }
+
+    <span class="doccomment">/// Creates a `Builder` for a version 4 UUID using the supplied random bytes.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method can be useful in environments where the `v4` feature isn&#39;t</span>
-    <span class="doccomment">/// available. This method will take care of setting the appropriate</span>
-    <span class="doccomment">/// version and variant fields.</span>
+    <span class="doccomment">/// This method assumes the bytes are already sufficiently random, it will only</span>
+    <span class="doccomment">/// set the appropriate bits for the UUID version and variant.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1353,24 +1486,80 @@
     <span class="doccomment">/// assert_eq!(Some(Version::Random), uuid.get_version());</span>
     <span class="doccomment">/// assert_eq!(Variant::RFC4122, uuid.get_variant());</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_random_bytes</span>(<span class="ident">b</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">b</span>))
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_random_bytes</span>(<span class="ident">random_bytes</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">random_bytes</span>))
             .<span class="ident">with_variant</span>(<span class="ident">Variant::RFC4122</span>)
             .<span class="ident">with_version</span>(<span class="ident">Version::Random</span>)
     }
 
-    <span class="doccomment">/// Creates a `Builder` using the supplied MD5 hashed bytes.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_md5_bytes</span>(<span class="ident">b</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">b</span>))
-            .<span class="ident">with_variant</span>(<span class="ident">Variant::RFC4122</span>)
-            .<span class="ident">with_version</span>(<span class="ident">Version::Md5</span>)
-    }
-
-    <span class="doccomment">/// Creates a `Builder` using the supplied SHA1 hashed bytes.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_sha1_bytes</span>(<span class="ident">b</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">b</span>))
+    <span class="doccomment">/// Creates a `Builder` for a version 5 UUID using the supplied SHA-1 hashed bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method assumes the bytes are already a SHA-1 hash, it will only set the appropriate</span>
+    <span class="doccomment">/// bits for the UUID version and variant.</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_sha1_bytes</span>(<span class="ident">sha1_bytes</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">Uuid::from_bytes</span>(<span class="ident">sha1_bytes</span>))
             .<span class="ident">with_variant</span>(<span class="ident">Variant::RFC4122</span>)
             .<span class="ident">with_version</span>(<span class="ident">Version::Sha1</span>)
+    }
+
+    <span class="doccomment">/// Creates a `Builder` for a version 6 UUID using the supplied timestamp and node ID.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method will encode the ticks, counter, and node ID in a sortable UUID.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">uuid_unstable</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_sorted_rfc4122_timestamp</span>(
+        <span class="ident">ticks</span>: <span class="ident">u64</span>,
+        <span class="ident">counter</span>: <span class="ident">u16</span>,
+        <span class="ident">node_id</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">6</span>],
+    ) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">timestamp::encode_sorted_rfc4122_timestamp</span>(
+            <span class="ident">ticks</span>, <span class="ident">counter</span>, <span class="ident">node_id</span>,
+        ))
+    }
+
+    <span class="doccomment">/// Creates a `Builder` for a version 7 UUID using the supplied Unix timestamp and random bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method assumes the bytes are already sufficiently random.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Creating a UUID using the current system timestamp:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// # use std::convert::TryInto;</span>
+    <span class="doccomment">/// use std::time::{Duration, SystemTime};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # use uuid::{Builder, Uuid, Variant, Version, Timestamp, NoContext};</span>
+    <span class="doccomment">/// # let rng = || [</span>
+    <span class="doccomment">/// #     70, 235, 208, 238, 14, 109, 67, 201, 185, 13</span>
+    <span class="doccomment">/// # ];</span>
+    <span class="doccomment">/// let ts = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let random_bytes = rng();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let uuid = Builder::from_unix_timestamp_millis(ts.as_millis().try_into()?, &amp;random_bytes).into_uuid();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(Some(Version::SortRand), uuid.get_version());</span>
+    <span class="doccomment">/// assert_eq!(Variant::RFC4122, uuid.get_variant());</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">uuid_unstable</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_unix_timestamp_millis</span>(<span class="ident">millis</span>: <span class="ident">u64</span>, <span class="ident">random_bytes</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">10</span>]) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder</span>(<span class="ident">timestamp::encode_unix_timestamp_millis</span>(
+            <span class="ident">millis</span>,
+            <span class="ident">random_bytes</span>,
+        ))
+    }
+
+    <span class="doccomment">/// Creates a `Builder` for a version 8 UUID using the supplied user-defined bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This method won&#39;t interpret the given bytes in any way, except to set the appropriate</span>
+    <span class="doccomment">/// bits for the UUID version and variant.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">uuid_unstable</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_custom_bytes</span>(<span class="ident">custom_bytes</span>: <span class="ident">Bytes</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Builder::from_bytes</span>(<span class="ident">custom_bytes</span>)
+            .<span class="ident">with_variant</span>(<span class="ident">Variant::RFC4122</span>)
+            .<span class="ident">with_version</span>(<span class="ident">Version::Custom</span>)
     }
 
     <span class="doccomment">/// Creates a `Builder` using the supplied bytes.</span>
@@ -1385,7 +1574,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use uuid::Builder;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
     <span class="doccomment">///     0xb1, 0xb2,</span>
@@ -1420,7 +1609,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">/// # use uuid::Builder;</span>
-    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), uuid::Error&gt; {</span>
     <span class="doccomment">/// let bytes = [</span>
     <span class="doccomment">///     0xa1, 0xa2, 0xa3, 0xa4,</span>
     <span class="doccomment">///     0xb1, 0xb2,</span>
@@ -1485,12 +1674,7 @@
     <span class="doccomment">///     &quot;a4a3a2a1-b2b1-c2c1-d1d2-d3d4d5d6d7d8&quot;</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_fields_le</span>(
-        <span class="ident">d1</span>: <span class="ident">u32</span>,
-        <span class="ident">d2</span>: <span class="ident">u16</span>,
-        <span class="ident">d3</span>: <span class="ident">u16</span>,
-        <span class="ident">d4</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">8</span>],
-    ) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">from_fields_le</span>(<span class="ident">d1</span>: <span class="ident">u32</span>, <span class="ident">d2</span>: <span class="ident">u16</span>, <span class="ident">d3</span>: <span class="ident">u16</span>, <span class="ident">d4</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">8</span>]) -&gt; <span class="self">Self</span> {
         <span class="ident">Builder</span>(<span class="ident">Uuid::from_fields_le</span>(<span class="ident">d1</span>, <span class="ident">d2</span>, <span class="ident">d3</span>, <span class="ident">d4</span>))
     }
 

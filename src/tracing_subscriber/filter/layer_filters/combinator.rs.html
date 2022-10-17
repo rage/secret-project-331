@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-subscriber-0.3.15/src/filter/layer_filters/combinator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tracing_subscriber/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tracing_subscriber/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/tracing-subscriber-0.3.16/src/filter/layer_filters/combinator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>combinator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../tracing_subscriber/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../tracing_subscriber/index.html"><div class="logo-container">
                     <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../tracing_subscriber/index.html">
                         <img src="https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -469,6 +469,79 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Filter combinators</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">Context</span>, <span class="ident">Filter</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">fmt</span>, <span class="ident">marker::PhantomData</span>};
@@ -511,11 +584,11 @@
 <span class="doccomment">/// If the wrapped filter would enable a span or event, it will be disabled. If</span>
 <span class="doccomment">/// it would disable a span or event, that span or event will be enabled.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This type is typically returned by the [`FilterExt::or`] method. See that</span>
+<span class="doccomment">/// This type is typically returned by the [`FilterExt::not`] method. See that</span>
 <span class="doccomment">/// method&#39;s documentation for details.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [`Filter`]: crate::layer::Filter</span>
-<span class="doccomment">/// [`FilterExt::or`]: crate::filter::FilterExt::or</span>
+<span class="doccomment">/// [`FilterExt::not`]: crate::filter::FilterExt::not</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Not</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> {
     <span class="ident">a</span>: <span class="ident">A</span>,
     <span class="ident">_s</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="ident">S</span>)<span class="op">&gt;</span>,
@@ -606,6 +679,11 @@
     <span class="kw">fn</span> <span class="ident">max_level_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LevelFilter</span><span class="op">&gt;</span> {
         <span class="comment">// If either hint is `None`, return `None`. Otherwise, return the most restrictive.</span>
         <span class="ident">cmp::min</span>(<span class="self">self</span>.<span class="ident">a</span>.<span class="ident">max_level_hint</span>(), <span class="self">self</span>.<span class="ident">b</span>.<span class="ident">max_level_hint</span>())
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">event_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">tracing_core::Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">a</span>.<span class="ident">event_enabled</span>(<span class="ident">event</span>, <span class="ident">cx</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">b</span>.<span class="ident">event_enabled</span>(<span class="ident">event</span>, <span class="ident">cx</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
@@ -796,6 +874,11 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">event_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">tracing_core::Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">a</span>.<span class="ident">event_enabled</span>(<span class="ident">event</span>, <span class="ident">cx</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">b</span>.<span class="ident">event_enabled</span>(<span class="ident">event</span>, <span class="ident">cx</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">on_new_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attrs</span>: <span class="kw-2">&amp;</span><span class="ident">Attributes</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">Id</span>, <span class="ident">ctx</span>: <span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">a</span>.<span class="ident">on_new_span</span>(<span class="ident">attrs</span>, <span class="ident">id</span>, <span class="ident">ctx</span>.<span class="ident">clone</span>());
         <span class="self">self</span>.<span class="ident">b</span>.<span class="ident">on_new_span</span>(<span class="ident">attrs</span>, <span class="ident">id</span>, <span class="ident">ctx</span>)
@@ -864,7 +947,62 @@
     <span class="doccomment">/// If the wrapped filter would enable a span or event, it will be disabled. If</span>
     <span class="doccomment">/// it would disable a span or event, that span or event will be enabled.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// This inverts the values returned by the [`enabled`] and [`callsite_enabled`]</span>
+    <span class="doccomment">/// methods on the wrapped filter; it does *not* invert [`event_enabled`], as</span>
+    <span class="doccomment">/// filters which do not implement filtering on event field values will return</span>
+    <span class="doccomment">/// the default `true` even for events that their [`enabled`] method disables.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Consider a normal filter defined as:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore (pseudo-code)</span>
+    <span class="doccomment">/// // for spans</span>
+    <span class="doccomment">/// match callsite_enabled() {</span>
+    <span class="doccomment">///     ALWAYS =&gt; on_span(),</span>
+    <span class="doccomment">///     SOMETIMES =&gt; if enabled() { on_span() },</span>
+    <span class="doccomment">///     NEVER =&gt; (),</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// // for events</span>
+    <span class="doccomment">/// match callsite_enabled() {</span>
+    <span class="doccomment">///    ALWAYS =&gt; on_event(),</span>
+    <span class="doccomment">///    SOMETIMES =&gt; if enabled() &amp;&amp; event_enabled() { on_event() },</span>
+    <span class="doccomment">///    NEVER =&gt; (),</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// and an inverted filter defined as:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```ignore (pseudo-code)</span>
+    <span class="doccomment">/// // for spans</span>
+    <span class="doccomment">/// match callsite_enabled() {</span>
+    <span class="doccomment">///     ALWAYS =&gt; (),</span>
+    <span class="doccomment">///     SOMETIMES =&gt; if !enabled() { on_span() },</span>
+    <span class="doccomment">///     NEVER =&gt; on_span(),</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// // for events</span>
+    <span class="doccomment">/// match callsite_enabled() {</span>
+    <span class="doccomment">///     ALWAYS =&gt; (),</span>
+    <span class="doccomment">///     SOMETIMES =&gt; if !enabled() { on_event() },</span>
+    <span class="doccomment">///     NEVER =&gt; on_event(),</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A proper inversion would do `!(enabled() &amp;&amp; event_enabled())` (or</span>
+    <span class="doccomment">/// `!enabled() || !event_enabled()`), but because of the implicit `&amp;&amp;`</span>
+    <span class="doccomment">/// relation between `enabled` and `event_enabled`, it is difficult to</span>
+    <span class="doccomment">/// short circuit and not call the wrapped `event_enabled`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A combinator which remembers the result of `enabled` in order to call</span>
+    <span class="doccomment">/// `event_enabled` only when `enabled() == true` is possible, but requires</span>
+    <span class="doccomment">/// additional thread-local mutable state to support a very niche use case.</span>
+    <span class="comment">//</span>
+    <span class="comment">//  Also, it&#39;d mean the wrapped layer&#39;s `enabled()` always gets called and</span>
+    <span class="comment">//  globally applied to events where it doesn&#39;t today, since we can&#39;t know</span>
+    <span class="comment">//  what `event_enabled` will say until we have the event to call it with.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// [`Filter`]: crate::layer::Filter</span>
+    <span class="doccomment">/// [`enabled`]: crate::layer::Filter::enabled</span>
+    <span class="doccomment">/// [`event_enabled`]: crate::layer::Filter::event_enabled</span>
+    <span class="doccomment">/// [`callsite_enabled`]: crate::layer::Filter::callsite_enabled</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">a</span>: <span class="ident">A</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> { <span class="ident">a</span>, <span class="ident">_s</span>: <span class="ident">PhantomData</span> }
     }
@@ -890,6 +1028,14 @@
     <span class="kw">fn</span> <span class="ident">max_level_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LevelFilter</span><span class="op">&gt;</span> {
         <span class="comment">// TODO(eliza): figure this out???</span>
         <span class="prelude-val">None</span>
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">event_enabled</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">tracing_core::Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">cx</span>: <span class="kw-2">&amp;</span><span class="ident">Context</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// Never disable based on event_enabled; we &quot;disabled&quot; it in `enabled`,</span>
+        <span class="comment">// so the `not` has already been applied and filtered this not out.</span>
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> (<span class="ident">event</span>, <span class="ident">cx</span>);
+        <span class="bool-val">true</span>
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-session-0.7.1/src/middleware.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>middleware.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_session/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_session/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-session-0.7.2/src/middleware.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>middleware.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_session/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_session/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_session/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -463,6 +463,7 @@
 <span id="461">461</span>
 <span id="462">462</span>
 <span id="463">463</span>
+<span id="464">464</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">convert::TryInto</span>, <span class="ident">fmt</span>, <span class="ident">future::Future</span>, <span class="ident">pin::Pin</span>, <span class="ident">rc::Rc</span>};
 
 <span class="kw">use</span> <span class="ident">actix_utils::future</span>::{<span class="ident">ready</span>, <span class="ident">Ready</span>};
@@ -500,6 +501,16 @@
 <span class="doccomment">///   [`SessionStore`]);</span>
 <span class="doccomment">/// - a secret key, to sign or encrypt the content of client-side session cookie.</span>
 <span class="doccomment">///</span>
+<span class="doccomment">/// # How did we choose defaults?</span>
+<span class="doccomment">/// You should not regret adding `actix-session` to your dependencies and going to production using</span>
+<span class="doccomment">/// the default configuration. That is why, when in doubt, we opt to use the most secure option for</span>
+<span class="doccomment">/// each configuration parameter.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// We expose knobs to change the default to suit your needs—i.e., if you know what you are doing,</span>
+<span class="doccomment">/// we will not stop you. But being a subject-matter expert should not be a requirement to deploy</span>
+<span class="doccomment">/// reasonably secure implementation of sessions.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```no_run</span>
 <span class="doccomment">/// use actix_web::{web, App, HttpServer, HttpResponse, Error};</span>
 <span class="doccomment">/// use actix_session::{Session, SessionMiddleware, storage::RedisActorSessionStore};</span>
@@ -568,16 +579,6 @@
 <span class="doccomment">///         .await</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ## How did we choose defaults?</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You should not regret adding `actix-session` to your dependencies and going to production using</span>
-<span class="doccomment">/// the default configuration. That is why, when in doubt, we opt to use the most secure option for</span>
-<span class="doccomment">/// each configuration parameter.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// We expose knobs to change the default to suit your needs—i.e., if you know what you are doing,</span>
-<span class="doccomment">/// we will not stop you. But being a subject-matter expert should not be a requirement to deploy</span>
-<span class="doccomment">/// reasonably secure implementation of sessions.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SessionMiddleware</span><span class="op">&lt;</span><span class="ident">Store</span>: <span class="ident">SessionStore</span><span class="op">&gt;</span> {
     <span class="ident">storage_backend</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Store</span><span class="op">&gt;</span>,
@@ -590,7 +591,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// To create a new instance of [`SessionMiddleware`] you need to provide:</span>
     <span class="doccomment">/// - an instance of the session storage backend you wish to use (i.e. an implementation of</span>
-    <span class="doccomment">///   [`SessionStore]);</span>
+    <span class="doccomment">///   [`SessionStore`]);</span>
     <span class="doccomment">/// - a secret key, to sign or encrypt the content of client-side session cookie.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">store</span>: <span class="ident">Store</span>, <span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::builder</span>(<span class="ident">store</span>, <span class="ident">key</span>).<span class="ident">build</span>()
@@ -600,7 +601,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// It takes as input the two required inputs to create a new instance of [`SessionMiddleware`]:</span>
     <span class="doccomment">/// - an instance of the session storage backend you wish to use (i.e. an implementation of</span>
-    <span class="doccomment">///   [`SessionStore]);</span>
+    <span class="doccomment">///   [`SessionStore`]);</span>
     <span class="doccomment">/// - a secret key, to sign or encrypt the content of client-side session cookie.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>(<span class="ident">store</span>: <span class="ident">Store</span>, <span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">SessionMiddlewareBuilder</span><span class="op">&lt;</span><span class="ident">Store</span><span class="op">&gt;</span> {
         <span class="ident">SessionMiddlewareBuilder::new</span>(<span class="ident">store</span>, <span class="ident">config::default_configuration</span>(<span class="ident">key</span>))
@@ -909,7 +910,8 @@
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">anyhow::Error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">removal_cookie</span> <span class="op">=</span> <span class="ident">Cookie::build</span>(<span class="ident">config</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="string">&quot;&quot;</span>)
         .<span class="ident">path</span>(<span class="ident">config</span>.<span class="ident">path</span>.<span class="ident">clone</span>())
-        .<span class="ident">http_only</span>(<span class="ident">config</span>.<span class="ident">http_only</span>);
+        .<span class="ident">http_only</span>(<span class="ident">config</span>.<span class="ident">http_only</span>)
+        .<span class="ident">same_site</span>(<span class="ident">config</span>.<span class="ident">same_site</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">removal_cookie</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">domain</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">domain</span> {
         <span class="ident">removal_cookie</span>.<span class="ident">domain</span>(<span class="ident">domain</span>)

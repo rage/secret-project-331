@@ -51,8 +51,14 @@
 <p>Requires the <code>ipnetwork</code> Cargo feature flag.</p>
 <div><table><thead><tr><th>Rust type</th><th>Postgres type(s)</th></tr></thead><tbody>
 <tr><td><code>ipnetwork::IpNetwork</code></td><td>INET, CIDR</td></tr>
+<tr><td><code>std::net::IpAddr</code></td><td>INET, CIDR</td></tr>
 </tbody></table>
-</div><h4 id="mac_address"><a href="#mac_address"><code>mac_address</code></a></h4>
+</div>
+<p>Note that because <code>IpAddr</code> does not support network prefixes, it is an error to attempt to decode
+an <code>IpAddr</code> from a <code>INET</code> or <code>CIDR</code> value with a network prefix smaller than the address’ full width:
+<code>/32</code> for IPv4 addresses and <code>/128</code> for IPv6 addresses.</p>
+<p><code>IpNetwork</code> does not have this limitation.</p>
+<h4 id="mac_address"><a href="#mac_address"><code>mac_address</code></a></h4>
 <p>Requires the <code>mac_address</code> Cargo feature flag.</p>
 <div><table><thead><tr><th>Rust type</th><th>Postgres type(s)</th></tr></thead><tbody>
 <tr><td><code>mac_address::MacAddress</code></td><td>MACADDR</td></tr>

@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.7.5/src/soft/fixslice64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fixslice64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container">
-                    <img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../aes/index.html">
-                        <img src="https://raw.githubusercontent.com/RustCrypto/meta/master/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/aes-0.8.1/src/soft/fixslice64.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fixslice64.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" href="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container"><img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../aes/index.html"><div class="logo-container">
+                    <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../aes/index.html">
+                        <img src="https://raw.githubusercontent.com/RustCrypto/media/26acc39f/logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1534,12 +1534,6 @@
 <span id="1532">1532</span>
 <span id="1533">1533</span>
 <span id="1534">1534</span>
-<span id="1535">1535</span>
-<span id="1536">1536</span>
-<span id="1537">1537</span>
-<span id="1538">1538</span>
-<span id="1539">1539</span>
-<span id="1540">1540</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Fixsliced implementations of AES-128, AES-192 and AES-256 (64-bit)</span>
 <span class="doccomment">//! adapted from the C implementation.</span>
 <span class="doccomment">//!</span>
@@ -1558,13 +1552,12 @@
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::unreadable_literal</span>)]</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Block</span>;
-<span class="kw">use</span> <span class="ident">cipher</span>::{
-    <span class="ident">consts</span>::{<span class="ident">U16</span>, <span class="ident">U24</span>, <span class="ident">U32</span>},
-    <span class="ident">generic_array::GenericArray</span>,
-};
+<span class="kw">use</span> <span class="ident">cipher</span>::{<span class="ident">consts::U4</span>, <span class="ident">generic_array::GenericArray</span>};
 
 <span class="doccomment">/// AES block batch size for this implementation</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FIXSLICE_BLOCKS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">FixsliceBlocks</span> <span class="op">=</span> <span class="ident">U4</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">BatchBlocks</span> <span class="op">=</span> <span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">Block</span>, <span class="ident">FixsliceBlocks</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// AES-128 round keys</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">FixsliceKeys128</span> <span class="op">=</span> [<span class="ident">u64</span>; <span class="number">88</span>];
@@ -1579,7 +1572,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type</span> <span class="ident">State</span> <span class="op">=</span> [<span class="ident">u64</span>; <span class="number">8</span>];
 
 <span class="doccomment">/// Fully bitsliced AES-128 key schedule to match the fully-fixsliced representation.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U16</span><span class="op">&gt;</span>) -&gt; <span class="ident">FixsliceKeys128</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">16</span>]) -&gt; <span class="ident">FixsliceKeys128</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rkeys</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">88</span>];
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[..<span class="number">8</span>], <span class="ident">key</span>, <span class="ident">key</span>, <span class="ident">key</span>, <span class="ident">key</span>);
@@ -1605,13 +1598,13 @@
     }
 
     <span class="comment">// Adjust to match fixslicing format</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">8</span>..<span class="number">88</span>).<span class="ident">step_by</span>(<span class="number">16</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[<span class="ident">i</span>..(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)]);
         }
     }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">8</span>..<span class="number">72</span>).<span class="ident">step_by</span>(<span class="number">32</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[<span class="ident">i</span>..(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)]);
@@ -1630,7 +1623,7 @@
 }
 
 <span class="doccomment">/// Fully bitsliced AES-192 key schedule to match the fully-fixsliced representation.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U24</span><span class="op">&gt;</span>) -&gt; <span class="ident">FixsliceKeys192</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">24</span>]) -&gt; <span class="ident">FixsliceKeys192</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rkeys</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">104</span>];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">8</span>];
 
@@ -1711,13 +1704,13 @@
     }
 
     <span class="comment">// Adjust to match fixslicing format</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">8</span>..<span class="number">104</span>).<span class="ident">step_by</span>(<span class="number">16</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[<span class="ident">i</span>..(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)]);
         }
     }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="number">96</span>).<span class="ident">step_by</span>(<span class="number">32</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)..(<span class="ident">i</span> <span class="op">+</span> <span class="number">16</span>)]);
@@ -1735,7 +1728,7 @@
 }
 
 <span class="doccomment">/// Fully bitsliced AES-256 key schedule to match the fully-fixsliced representation.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">GenericArray</span><span class="op">&lt;</span><span class="ident">u8</span>, <span class="ident">U32</span><span class="op">&gt;</span>) -&gt; <span class="ident">FixsliceKeys256</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_key_schedule</span>(<span class="ident">key</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>; <span class="number">32</span>]) -&gt; <span class="ident">FixsliceKeys256</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rkeys</span> <span class="op">=</span> [<span class="number">0u64</span>; <span class="number">120</span>];
 
     <span class="ident">bitslice</span>(
@@ -1781,13 +1774,13 @@
     }
 
     <span class="comment">// Adjust to match fixslicing format</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">8</span>..<span class="number">120</span>).<span class="ident">step_by</span>(<span class="number">16</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[<span class="ident">i</span>..(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)]);
         }
     }
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">8</span>..<span class="number">104</span>).<span class="ident">step_by</span>(<span class="number">32</span>) {
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rkeys</span>[<span class="ident">i</span>..(<span class="ident">i</span> <span class="op">+</span> <span class="number">8</span>)]);
@@ -1808,8 +1801,7 @@
 <span class="doccomment">/// Fully-fixsliced AES-128 decryption (the InvShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Decrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys128</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys128</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -1817,14 +1809,14 @@
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="number">80</span>..]);
     <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="ident">inv_shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rk_off</span> <span class="op">=</span> <span class="number">72</span>;
     <span class="kw">loop</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">inv_shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
@@ -1843,7 +1835,7 @@
         <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         <span class="ident">rk_off</span> <span class="op">-</span><span class="op">=</span> <span class="number">8</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
             <span class="ident">inv_mix_columns_3</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -1859,14 +1851,13 @@
 
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[..<span class="number">8</span>]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Fully-fixsliced AES-128 encryption (the ShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Encrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys128</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes128_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys128</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -1880,7 +1871,7 @@
         <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
         <span class="ident">rk_off</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
@@ -1889,7 +1880,7 @@
             <span class="kw">break</span>;
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">mix_columns_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -1908,7 +1899,7 @@
         <span class="ident">rk_off</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="ident">shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     }
@@ -1916,14 +1907,13 @@
     <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="number">80</span>..]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Fully-fixsliced AES-192 decryption (the InvShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Decrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys192</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys192</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -1933,11 +1923,11 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rk_off</span> <span class="op">=</span> <span class="number">88</span>;
     <span class="kw">loop</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">inv_shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
             <span class="ident">inv_mix_columns_3</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -1967,14 +1957,13 @@
 
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[..<span class="number">8</span>]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Fully-fixsliced AES-192 encryption (the ShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Encrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys192</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes192_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys192</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -1988,11 +1977,11 @@
         <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
         <span class="ident">rk_off</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">mix_columns_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -2018,14 +2007,13 @@
     <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="number">96</span>..]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Fully-fixsliced AES-256 decryption (the InvShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Decrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys256</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_decrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys256</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -2033,14 +2021,14 @@
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="number">112</span>..]);
     <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="ident">inv_shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rk_off</span> <span class="op">=</span> <span class="number">104</span>;
     <span class="kw">loop</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">inv_shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
@@ -2059,7 +2047,7 @@
         <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         <span class="ident">rk_off</span> <span class="op">-</span><span class="op">=</span> <span class="number">8</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
             <span class="ident">inv_mix_columns_3</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -2075,14 +2063,13 @@
 
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[..<span class="number">8</span>]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Fully-fixsliced AES-256 encryption (the ShiftRows is completely omitted).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Encrypts four blocks in-place and in parallel.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys256</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">blocks</span>.<span class="ident">len</span>(), <span class="ident">FIXSLICE_BLOCKS</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">aes256_encrypt</span>(<span class="ident">rkeys</span>: <span class="kw-2">&amp;</span><span class="ident">FixsliceKeys256</span>, <span class="ident">blocks</span>: <span class="kw-2">&amp;</span><span class="ident">BatchBlocks</span>) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
 
     <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">blocks</span>[<span class="number">3</span>]);
@@ -2096,7 +2083,7 @@
         <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="ident">rk_off</span>..(<span class="ident">rk_off</span> <span class="op">+</span> <span class="number">8</span>)]);
         <span class="ident">rk_off</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">aes_compact</span>)]</span>
         {
             <span class="ident">shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         }
@@ -2105,7 +2092,7 @@
             <span class="kw">break</span>;
         }
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
         {
             <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">mix_columns_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -2124,7 +2111,7 @@
         <span class="ident">rk_off</span> <span class="op">+</span><span class="op">=</span> <span class="number">8</span>;
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
     {
         <span class="ident">shift_rows_2</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     }
@@ -2132,7 +2119,7 @@
     <span class="ident">sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
     <span class="ident">add_round_key</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">rkeys</span>[<span class="number">112</span>..]);
 
-    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">blocks</span>);
+    <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)
 }
 
 <span class="doccomment">/// Note that the 4 bitwise NOT (^= 0xffffffffffffffff) are accounted for here so that it is a true</span>
@@ -2644,7 +2631,7 @@
     <span class="ident">rotate_rows_and_columns_2_2</span>
 );
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
 <span class="macro">define_mix_columns!</span>(
     <span class="ident">mix_columns_2</span>,
     <span class="ident">inv_mix_columns_2</span>,
@@ -2652,7 +2639,7 @@
     <span class="ident">rotate_rows_2</span>
 );
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
 <span class="macro">define_mix_columns!</span>(
     <span class="ident">mix_columns_3</span>,
     <span class="ident">inv_mix_columns_3</span>,
@@ -2674,7 +2661,7 @@
 }
 
 <span class="doccomment">/// Applies ShiftRows once on an AES state (or key).</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;hazmat&quot;</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">fn</span> <span class="ident">shift_rows_1</span>(<span class="ident">state</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u64</span>]) {
     <span class="macro">debug_assert_eq!</span>(<span class="ident">state</span>.<span class="ident">len</span>(), <span class="number">8</span>);
@@ -2713,7 +2700,7 @@
     <span class="ident">shift_rows_2</span>(<span class="ident">state</span>);
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">fn</span> <span class="ident">inv_shift_rows_3</span>(<span class="ident">state</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u64</span>]) {
     <span class="ident">shift_rows_1</span>(<span class="ident">state</span>);
@@ -2816,9 +2803,8 @@
 }
 
 <span class="doccomment">/// Un-bitslice a 512-bit internal state into four 128-bit blocks of output.</span>
-<span class="kw">fn</span> <span class="ident">inv_bitslice</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u64</span>], <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">Block</span>]) {
+<span class="kw">fn</span> <span class="ident">inv_bitslice</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">u64</span>]) -&gt; <span class="ident">BatchBlocks</span> {
     <span class="macro">debug_assert_eq!</span>(<span class="ident">input</span>.<span class="ident">len</span>(), <span class="number">8</span>);
-    <span class="macro">debug_assert_eq!</span>(<span class="ident">output</span>.<span class="ident">len</span>(), <span class="number">4</span>);
 
     <span class="comment">// Unbitslicing is a bit index manipulation. 512 bits of data means each bit is positioned at</span>
     <span class="comment">// a 9-bit index. AES data is 4 blocks, each one a 4x4 column-major matrix of bytes, so the</span>
@@ -2875,6 +2861,7 @@
         <span class="ident">output</span>[<span class="number">0xb</span>] <span class="op">=</span> (<span class="ident">columns</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">0x38</span>) <span class="kw">as</span> <span class="ident">u8</span>;
     }
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">BatchBlocks::default</span>();
     <span class="comment">// Reorder by relabeling (note the order of output)</span>
     <span class="comment">//     c0 b1 b0 __ __ __ __ __ __ =&gt; b1 b0 c0 __ __ __ __ __ __</span>
     <span class="comment">// Reorder each block&#39;s bytes on output</span>
@@ -2890,6 +2877,7 @@
 
     <span class="comment">// Final AES bit index, as desired:</span>
     <span class="comment">//     b1 b0 c1 c0 r1 r0 p2 p1 p0</span>
+    <span class="ident">output</span>
 }
 
 <span class="doccomment">/// Copy 32-bytes within the provided slice to an 8-byte offset</span>
@@ -2946,7 +2934,7 @@
     (<span class="ident">ror</span>(<span class="ident">x</span>, <span class="ident">ror_distance</span>(<span class="number">0</span>, <span class="number">1</span>)) <span class="op">&amp;</span> <span class="number">0xf000f000f000f000</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
 <span class="kw">fn</span> <span class="ident">rotate_rows_and_columns_1_2</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u64</span> {
@@ -2954,7 +2942,7 @@
     (<span class="ident">ror</span>(<span class="ident">x</span>, <span class="ident">ror_distance</span>(<span class="number">0</span>, <span class="number">2</span>)) <span class="op">&amp;</span> <span class="number">0xff00ff00ff00ff00</span>)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;compact&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">aes_compact</span>))]</span>
 <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="attribute">#[<span class="ident">rustfmt::skip</span>]</span>
 <span class="kw">fn</span> <span class="ident">rotate_rows_and_columns_1_3</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">u64</span> {
@@ -2980,7 +2968,7 @@
         <span class="ident">bitslice</span>, <span class="ident">inv_bitslice</span>, <span class="ident">inv_mix_columns_0</span>, <span class="ident">inv_shift_rows_1</span>, <span class="ident">inv_sub_bytes</span>, <span class="ident">mix_columns_0</span>,
         <span class="ident">shift_rows_1</span>, <span class="ident">sub_bytes</span>, <span class="ident">sub_bytes_nots</span>, <span class="ident">State</span>,
     };
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">ParBlocks</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Block</span>, <span class="ident">Block8</span>};
 
     <span class="doccomment">/// XOR the `src` block into the `dst` block in-place.</span>
     <span class="kw">fn</span> <span class="ident">xor_in_place</span>(<span class="ident">dst</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) {
@@ -2998,9 +2986,7 @@
 
     <span class="doccomment">/// Perform an inverse bitslice operation, extracting a single block.</span>
     <span class="kw">fn</span> <span class="ident">inv_bitslice_block</span>(<span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span>, <span class="ident">state</span>: <span class="kw-2">&amp;</span><span class="ident">State</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> [<span class="ident">Block::default</span>(); <span class="number">4</span>];
-        <span class="ident">inv_bitslice</span>(<span class="ident">state</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>);
-        <span class="ident">block</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">out</span>[<span class="number">0</span>]);
+        <span class="ident">block</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">inv_bitslice</span>(<span class="ident">state</span>)[<span class="number">0</span>]);
     }
 
     <span class="doccomment">/// AES cipher (encrypt) round function.</span>
@@ -3017,7 +3003,7 @@
 
     <span class="doccomment">/// AES cipher (encrypt) round function: parallel version.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cipher_round_par</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ParBlocks</span>, <span class="ident">round_keys</span>: <span class="kw-2">&amp;</span><span class="ident">ParBlocks</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cipher_round_par</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block8</span>, <span class="ident">round_keys</span>: <span class="kw-2">&amp;</span><span class="ident">Block8</span>) {
         <span class="kw">for</span> (<span class="ident">chunk</span>, <span class="ident">keys</span>) <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">chunks_exact_mut</span>(<span class="number">4</span>).<span class="ident">zip</span>(<span class="ident">round_keys</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
             <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">3</span>]);
@@ -3025,9 +3011,10 @@
             <span class="ident">sub_bytes_nots</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">mix_columns_0</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
-            <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">chunk</span>);
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>);
 
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
+                <span class="ident">chunk</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>[<span class="ident">i</span>];
                 <span class="ident">xor_in_place</span>(<span class="kw-2">&amp;mut</span> <span class="ident">chunk</span>[<span class="ident">i</span>], <span class="kw-2">&amp;</span><span class="ident">keys</span>[<span class="ident">i</span>]);
             }
         }
@@ -3037,7 +3024,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">equiv_inv_cipher_round</span>(<span class="ident">block</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block</span>, <span class="ident">round_key</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
-        <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">block</span>, <span class="kw-2">&amp;</span><span class="ident">block</span>, <span class="kw-2">&amp;</span><span class="ident">block</span>, <span class="kw-2">&amp;</span><span class="ident">block</span>);
+        <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="ident">block</span>, <span class="ident">block</span>, <span class="ident">block</span>, <span class="ident">block</span>);
         <span class="ident">sub_bytes_nots</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
         <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
@@ -3048,7 +3035,7 @@
 
     <span class="doccomment">/// AES cipher (encrypt) round function: parallel version.</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">equiv_inv_cipher_round_par</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ParBlocks</span>, <span class="ident">round_keys</span>: <span class="kw-2">&amp;</span><span class="ident">ParBlocks</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">equiv_inv_cipher_round_par</span>(<span class="ident">blocks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Block8</span>, <span class="ident">round_keys</span>: <span class="kw-2">&amp;</span><span class="ident">Block8</span>) {
         <span class="kw">for</span> (<span class="ident">chunk</span>, <span class="ident">keys</span>) <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">chunks_exact_mut</span>(<span class="number">4</span>).<span class="ident">zip</span>(<span class="ident">round_keys</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>)) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::default</span>();
             <span class="ident">bitslice</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>, <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">0</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">1</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">2</span>], <span class="kw-2">&amp;</span><span class="ident">chunk</span>[<span class="number">3</span>]);
@@ -3056,9 +3043,10 @@
             <span class="ident">inv_sub_bytes</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">inv_shift_rows_1</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
             <span class="ident">inv_mix_columns_0</span>(<span class="kw-2">&amp;mut</span> <span class="ident">state</span>);
-            <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>, <span class="ident">chunk</span>);
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">inv_bitslice</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>);
 
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">4</span> {
+                <span class="ident">chunk</span>[<span class="ident">i</span>] <span class="op">=</span> <span class="ident">res</span>[<span class="ident">i</span>];
                 <span class="ident">xor_in_place</span>(<span class="kw-2">&amp;mut</span> <span class="ident">chunk</span>[<span class="ident">i</span>], <span class="kw-2">&amp;</span><span class="ident">keys</span>[<span class="ident">i</span>]);
             }
         }

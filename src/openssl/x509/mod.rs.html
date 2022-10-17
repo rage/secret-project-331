@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.41/src/x509/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../openssl/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.42/src/x509/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../openssl/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1678,6 +1678,50 @@
 <span id="1678">1678</span>
 <span id="1679">1679</span>
 <span id="1680">1680</span>
+<span id="1681">1681</span>
+<span id="1682">1682</span>
+<span id="1683">1683</span>
+<span id="1684">1684</span>
+<span id="1685">1685</span>
+<span id="1686">1686</span>
+<span id="1687">1687</span>
+<span id="1688">1688</span>
+<span id="1689">1689</span>
+<span id="1690">1690</span>
+<span id="1691">1691</span>
+<span id="1692">1692</span>
+<span id="1693">1693</span>
+<span id="1694">1694</span>
+<span id="1695">1695</span>
+<span id="1696">1696</span>
+<span id="1697">1697</span>
+<span id="1698">1698</span>
+<span id="1699">1699</span>
+<span id="1700">1700</span>
+<span id="1701">1701</span>
+<span id="1702">1702</span>
+<span id="1703">1703</span>
+<span id="1704">1704</span>
+<span id="1705">1705</span>
+<span id="1706">1706</span>
+<span id="1707">1707</span>
+<span id="1708">1708</span>
+<span id="1709">1709</span>
+<span id="1710">1710</span>
+<span id="1711">1711</span>
+<span id="1712">1712</span>
+<span id="1713">1713</span>
+<span id="1714">1714</span>
+<span id="1715">1715</span>
+<span id="1716">1716</span>
+<span id="1717">1717</span>
+<span id="1718">1718</span>
+<span id="1719">1719</span>
+<span id="1720">1720</span>
+<span id="1721">1721</span>
+<span id="1722">1722</span>
+<span id="1723">1723</span>
+<span id="1724">1724</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The standard defining the format of public key certificates.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! An `X509` certificate binds an identity to a public key, and is either</span>
@@ -1689,8 +1733,8 @@
 
 <span class="kw">use</span> <span class="ident">cfg_if::cfg_if</span>;
 <span class="kw">use</span> <span class="ident">foreign_types</span>::{<span class="ident">ForeignType</span>, <span class="ident">ForeignTypeRef</span>};
-<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_long</span>};
-<span class="kw">use</span> <span class="ident">std::cmp</span>;
+<span class="kw">use</span> <span class="ident">libc</span>::{<span class="ident">c_int</span>, <span class="ident">c_long</span>, <span class="ident">c_uint</span>};
+<span class="kw">use</span> <span class="ident">std::cmp</span>::{<span class="self">self</span>, <span class="ident">Ordering</span>};
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 <span class="kw">use</span> <span class="ident">std::ffi</span>::{<span class="ident">CStr</span>, <span class="ident">CString</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1908,7 +1952,7 @@
     <span class="doccomment">/// the X.509 standard should pass `2` to this method.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">X509_set_version</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_version</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">cvt</span>(<span class="ident">ffi::X509_set_version</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(), <span class="ident">version</span>.<span class="ident">into</span>())).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()) }
+        <span class="kw">unsafe</span> { <span class="ident">cvt</span>(<span class="ident">ffi::X509_set_version</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(), <span class="ident">version</span> <span class="kw">as</span> <span class="ident">c_long</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()) }
     }
 
     <span class="doccomment">/// Sets the serial number of the certificate.</span>
@@ -2049,6 +2093,11 @@
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">X509Ref</span>;
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+<span class="kw">type</span> <span class="ident">X509LenTy</span> <span class="op">=</span> <span class="ident">c_uint</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+<span class="kw">type</span> <span class="ident">X509LenTy</span> <span class="op">=</span> <span class="ident">c_int</span>;
+
 <span class="kw">impl</span> <span class="ident">X509Ref</span> {
     <span class="doccomment">/// Returns this certificate&#39;s subject name.</span>
     <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">X509_get_subject_name</span>)]</span>
@@ -2140,7 +2189,7 @@
                 <span class="ident">buf</span>: [<span class="number">0</span>; <span class="ident">ffi::EVP_MAX_MD_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>],
                 <span class="ident">len</span>: <span class="ident">ffi::EVP_MAX_MD_SIZE</span> <span class="kw">as</span> <span class="ident">usize</span>,
             };
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::EVP_MAX_MD_SIZE</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::EVP_MAX_MD_SIZE</span> <span class="kw">as</span> <span class="ident">c_uint</span>;
             <span class="ident">cvt</span>(<span class="ident">ffi::X509_digest</span>(
                 <span class="self">self</span>.<span class="ident">as_ptr</span>(),
                 <span class="ident">hash_type</span>.<span class="ident">as_ptr</span>(),
@@ -2353,7 +2402,7 @@
                     <span class="ident">ffi::PEM_read_bio_X509</span>(<span class="ident">bio</span>.<span class="ident">as_ptr</span>(), <span class="ident">ptr::null_mut</span>(), <span class="prelude-val">None</span>, <span class="ident">ptr::null_mut</span>());
                 <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_null</span>() {
                     <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">ffi::ERR_peek_last_error</span>();
-                    <span class="kw">if</span> <span class="ident">ffi::ERR_GET_LIB</span>(<span class="ident">err</span>) <span class="op">==</span> <span class="ident">ffi::ERR_LIB_PEM</span>
+                    <span class="kw">if</span> <span class="ident">ffi::ERR_GET_LIB</span>(<span class="ident">err</span>) <span class="kw">as</span> <span class="ident">X509LenTy</span> <span class="op">==</span> <span class="ident">ffi::ERR_LIB_PEM</span>
                         <span class="op">&amp;&amp;</span> <span class="ident">ffi::ERR_GET_REASON</span>(<span class="ident">err</span>) <span class="op">==</span> <span class="ident">ffi::PEM_R_NO_START_LINE</span>
                     {
                         <span class="ident">ffi::ERR_clear_error</span>();
@@ -2708,6 +2757,21 @@
         }
     }
 
+    <span class="doccomment">/// Compare two names, like [`Ord`] but it may fail.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// With OpenSSL versions from 3.0.0 this may return an error if the underlying `X509_NAME_cmp`</span>
+    <span class="doccomment">/// call fails.</span>
+    <span class="doccomment">/// For OpenSSL versions before 3.0.0 it will never return an error, but due to a bug it may</span>
+    <span class="doccomment">/// spuriously return `Ordering::Less` if the `X509_NAME_cmp` call fails.</span>
+    <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">X509_NAME_cmp</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">X509NameRef</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ordering</span>, <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">cmp</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ffi::X509_NAME_cmp</span>(<span class="self">self</span>.<span class="ident">as_ptr</span>(), <span class="ident">other</span>.<span class="ident">as_ptr</span>()) };
+        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">ossl300</span>) <span class="op">&amp;&amp;</span> <span class="ident">cmp</span> <span class="op">==</span> <span class="op">-</span><span class="number">2</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorStack::get</span>());
+        }
+        <span class="prelude-val">Ok</span>(<span class="ident">cmp</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>))
+    }
+
     <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate into a DER-encoded X509 name structure.</span>
         <span class="doccomment">///</span>
@@ -2827,7 +2891,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">///[`X509_REQ_set_version`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_REQ_set_version.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_version</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">version</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ErrorStack</span><span class="op">&gt;</span> {
-        <span class="kw">unsafe</span> { <span class="ident">cvt</span>(<span class="ident">ffi::X509_REQ_set_version</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(), <span class="ident">version</span>.<span class="ident">into</span>())).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()) }
+        <span class="kw">unsafe</span> {
+            <span class="ident">cvt</span>(<span class="ident">ffi::X509_REQ_set_version</span>(
+                <span class="self">self</span>.<span class="number">0</span>.<span class="ident">as_ptr</span>(),
+                <span class="ident">version</span> <span class="kw">as</span> <span class="ident">c_long</span>,
+            ))
+            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
+        }
     }
 
     <span class="doccomment">/// Set the issuer name.</span>
@@ -2984,6 +3054,13 @@
         <span class="ident">ffi::i2d_X509_REQ</span>
     }
 
+    <span class="macro">to_pem!</span> {
+        <span class="doccomment">/// Converts the request to human readable text.</span>
+        <span class="attribute">#[<span class="ident">corresponds</span>(<span class="ident">X509_Req_print</span>)]</span>
+        <span class="ident">to_text</span>,
+        <span class="ident">ffi::X509_REQ_print</span>
+    }
+
     <span class="doccomment">/// Returns the numerical value of the version field of the certificate request.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This corresponds to [`X509_REQ_get_version`]</span>
@@ -3119,8 +3196,13 @@
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ASN1_STRING_get0_data</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::ASN1_STRING_length</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span>.<span class="ident">ptr</span>;
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+            <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span>;
+
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ASN1_STRING_get0_data</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::ASN1_STRING_length</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
 
             <span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="ident">slice::from_raw_parts</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>);
             <span class="comment">// IA5Strings are stated to be ASCII (specifically IA5). Hopefully</span>
@@ -3151,9 +3233,13 @@
             <span class="kw">if</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">type_</span> <span class="op">!</span><span class="op">=</span> <span class="ident">ffi::GEN_IPADD</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+            <span class="kw">let</span> <span class="ident">d</span>: <span class="kw-2">*const</span> <span class="ident">ffi::ASN1_STRING</span> <span class="op">=</span> <span class="ident">std::mem::transmute</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span>);
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
+            <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span>;
 
-            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ASN1_STRING_get0_data</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::ASN1_STRING_length</span>((<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">as_ptr</span>()).<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ASN1_STRING_get0_data</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ffi::ASN1_STRING_length</span>(<span class="ident">d</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>);
 
             <span class="prelude-val">Some</span>(<span class="ident">slice::from_raw_parts</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">u8</span>, <span class="ident">len</span> <span class="kw">as</span> <span class="ident">usize</span>))
         }
@@ -3252,7 +3338,7 @@
 }
 
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">X509_getm_notAfter</span>, <span class="ident">X509_getm_notBefore</span>, <span class="ident">X509_up_ref</span>, <span class="ident">X509_get0_signature</span>};
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
@@ -3293,7 +3379,7 @@
 }
 
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl350</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110</span>, <span class="ident">libressl350</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{
             <span class="ident">X509_ALGOR_get0</span>, <span class="ident">ASN1_STRING_get0_data</span>, <span class="ident">X509_STORE_CTX_get0_chain</span>, <span class="ident">X509_set1_notAfter</span>,
             <span class="ident">X509_set1_notBefore</span>, <span class="ident">X509_REQ_get_version</span>, <span class="ident">X509_REQ_get_subject_name</span>,
@@ -3333,7 +3419,7 @@
 }
 
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl270</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">boringssl</span>, <span class="ident">libressl270</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi::X509_OBJECT_get0_X509</span>;
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
@@ -3350,6 +3436,8 @@
 <span class="macro">cfg_if!</span> {
     <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl350</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi::X509_OBJECT_free</span>;
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span> {
+        <span class="kw">use</span> <span class="ident">ffi::X509_OBJECT_free_contents</span> <span class="kw">as</span> <span class="ident">X509_OBJECT_free</span>;
     } <span class="kw">else</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
         <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">X509_OBJECT_free</span>(<span class="ident">x</span>: <span class="kw-2">*mut</span> <span class="ident">ffi::X509_OBJECT</span>) {

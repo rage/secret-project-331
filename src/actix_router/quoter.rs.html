@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-router-0.5.0/src/quoter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quoter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/actix-router-0.5.1/src/quoter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quoter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container"><img src="https://actix.rs/img/logo.png" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../actix_router/index.html"><div class="logo-container">
                     <img src="https://actix.rs/img/logo.png" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../actix_router/index.html">
                         <img src="https://actix.rs/img/logo.png" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
@@ -172,230 +172,97 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">GEN_DELIMS</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;:/?#[]@&quot;</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">SUB_DELIMS_WITHOUT_QS</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;!$&#39;()*,&quot;</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">SUB_DELIMS</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;!$&#39;()*,+?=;&quot;</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">RESERVED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;:/?#[]@!$&#39;()*,+?=;&quot;</span>;
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">const</span> <span class="ident">UNRESERVED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;abcdefghijklmnopqrstuvwxyz
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    1234567890
-    -._~&quot;</span>;
-
-<span class="kw">const</span> <span class="ident">ALLOWED</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;abcdefghijklmnopqrstuvwxyz
-    ABCDEFGHIJKLMNOPQRSTUVWXYZ
-    1234567890
-    -._~
-    !$&#39;()*,&quot;</span>;
-
-<span class="kw">const</span> <span class="ident">QS</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>] <span class="op">=</span> <span class="string">b&quot;+&amp;=;b&quot;</span>;
-
-<span class="doccomment">/// A quoter</span>
+</pre><pre class="rust"><code><span class="doccomment">/// Partial percent-decoding.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Performs percent-decoding on a slice but can selectively skip decoding certain sequences.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use actix_router::Quoter;</span>
+<span class="doccomment">/// // + is set as a protected character and will not be decoded...</span>
+<span class="doccomment">/// let q = Quoter::new(&amp;[], b&quot;+&quot;);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// // ...but the other encoded characters (like the hyphen below) will.</span>
+<span class="doccomment">/// assert_eq!(q.requote(b&quot;/a%2Db%2Bc&quot;).unwrap(), b&quot;/a-b%2Bc&quot;);</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quoter</span> {
-    <span class="doccomment">/// Simple bit-map of safe values in the 0-127 ASCII range.</span>
-    <span class="ident">safe_table</span>: [<span class="ident">u8</span>; <span class="number">16</span>],
-
     <span class="doccomment">/// Simple bit-map of protected values in the 0-127 ASCII range.</span>
-    <span class="ident">protected_table</span>: [<span class="ident">u8</span>; <span class="number">16</span>],
+    <span class="ident">protected_table</span>: <span class="ident">AsciiBitmap</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Quoter</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">safe</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">protected</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Quoter</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quoter</span> <span class="op">=</span> <span class="ident">Quoter</span> {
-            <span class="ident">safe_table</span>: [<span class="number">0</span>; <span class="number">16</span>],
-            <span class="ident">protected_table</span>: [<span class="number">0</span>; <span class="number">16</span>],
-        };
-
-        <span class="comment">// prepare safe table</span>
-        <span class="kw">for</span> <span class="ident">ch</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">128</span> {
-            <span class="kw">if</span> <span class="ident">ALLOWED</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ch</span>) {
-                <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">quoter</span>.<span class="ident">safe_table</span>, <span class="ident">ch</span>);
-            }
-
-            <span class="kw">if</span> <span class="ident">QS</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ch</span>) {
-                <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">quoter</span>.<span class="ident">safe_table</span>, <span class="ident">ch</span>);
-            }
-        }
-
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">ch</span> <span class="kw">in</span> <span class="ident">safe</span> {
-            <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">quoter</span>.<span class="ident">safe_table</span>, <span class="ident">ch</span>)
-        }
+    <span class="doccomment">/// Constructs a new `Quoter` instance given a set of protected ASCII bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The first argument is ignored but is kept for backward compatibility.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// Panics if any of the `protected` bytes are not in the 0-127 ASCII range.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">protected</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">Quoter</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">protected_table</span> <span class="op">=</span> <span class="ident">AsciiBitmap::default</span>();
 
         <span class="comment">// prepare protected table</span>
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">ch</span> <span class="kw">in</span> <span class="ident">protected</span> {
-            <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">quoter</span>.<span class="ident">safe_table</span>, <span class="ident">ch</span>);
-            <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="ident">quoter</span>.<span class="ident">protected_table</span>, <span class="ident">ch</span>);
+            <span class="ident">protected_table</span>.<span class="ident">set_bit</span>(<span class="ident">ch</span>);
         }
 
-        <span class="ident">quoter</span>
+        <span class="ident">Quoter</span> { <span class="ident">protected_table</span> }
     }
 
-    <span class="doccomment">/// Decodes safe percent-encoded sequences from `val`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` when no modification to the original byte string was required.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Non-ASCII bytes are accepted as valid input.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Behavior for invalid/incomplete percent-encoding sequences is unspecified and may include</span>
-    <span class="doccomment">/// removing the invalid sequence from the output or passing it as-is.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">requote</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_pct</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pct</span> <span class="op">=</span> [<span class="string">b&#39;%&#39;</span>, <span class="number">0</span>, <span class="number">0</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cloned</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">len</span>();
-
-        <span class="kw">while</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">len</span> {
-            <span class="kw">let</span> <span class="ident">ch</span> <span class="op">=</span> <span class="ident">val</span>[<span class="ident">idx</span>];
-
-            <span class="kw">if</span> <span class="ident">has_pct</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="ident">pct</span>[<span class="ident">has_pct</span>] <span class="op">=</span> <span class="ident">val</span>[<span class="ident">idx</span>];
-                <span class="ident">has_pct</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-
-                <span class="kw">if</span> <span class="ident">has_pct</span> <span class="op">==</span> <span class="number">3</span> {
-                    <span class="ident">has_pct</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">cloned</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span> <span class="ident">hex_pair_to_char</span>(<span class="ident">pct</span>[<span class="number">1</span>], <span class="ident">pct</span>[<span class="number">2</span>]) {
-                        <span class="kw">if</span> <span class="ident">ch</span> <span class="op">&lt;</span> <span class="number">128</span> {
-                            <span class="kw">if</span> <span class="ident">bit_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_table</span>, <span class="ident">ch</span>) {
-                                <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">pct</span>);
-                                <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                                <span class="kw">continue</span>;
-                            }
-
-                            <span class="kw">if</span> <span class="ident">bit_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">safe_table</span>, <span class="ident">ch</span>) {
-                                <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
-                                <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                                <span class="kw">continue</span>;
-                            }
-                        }
-
-                        <span class="ident">buf</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">buf</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">pct</span>[..]);
-                    }
+    <span class="doccomment">/// Decodes the next escape sequence, if any, and advances `val`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">decode_next</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;mut</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">u8</span>)<span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">val</span>.<span class="ident">len</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">prev</span>, [<span class="string">b&#39;%&#39;</span>, <span class="ident">p1</span>, <span class="ident">p2</span>, <span class="ident">rem</span> @ ..]) <span class="op">=</span> <span class="ident">val</span>.<span class="ident">split_at</span>(<span class="ident">i</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ch</span>) <span class="op">=</span> <span class="ident">hex_pair_to_char</span>(<span class="kw-2">*</span><span class="ident">p1</span>, <span class="kw-2">*</span><span class="ident">p2</span>)
+                    <span class="comment">// ignore protected ascii bytes</span>
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">ch</span><span class="op">|</span> <span class="op">!</span>(<span class="ident">ch</span> <span class="op">&lt;</span> <span class="number">128</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">protected_table</span>.<span class="ident">bit_at</span>(<span class="ident">ch</span>)))
+                {
+                    <span class="kw-2">*</span><span class="ident">val</span> <span class="op">=</span> <span class="ident">rem</span>;
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">prev</span>, <span class="ident">ch</span>));
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ch</span> <span class="op">==</span> <span class="string">b&#39;%&#39;</span> {
-                <span class="ident">has_pct</span> <span class="op">=</span> <span class="number">1</span>;
-
-                <span class="kw">if</span> <span class="ident">cloned</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">len</span>);
-                    <span class="ident">c</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>[..<span class="ident">idx</span>]);
-                    <span class="ident">cloned</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>);
-                }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">cloned</span>) <span class="op">=</span> <span class="ident">cloned</span> {
-                <span class="ident">cloned</span>.<span class="ident">push</span>(<span class="ident">ch</span>)
             }
-
-            <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="ident">cloned</span>
+        <span class="prelude-val">None</span>
+    }
+
+    <span class="doccomment">/// Partially percent-decodes the given bytes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Escape sequences of the protected set are *not* decoded.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns `None` when no modification to the original bytes was required.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Invalid/incomplete percent-encoding sequences are passed unmodified.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">requote</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining</span> <span class="op">=</span> <span class="ident">val</span>;
+
+        <span class="comment">// early return indicates that no percent-encoded sequences exist and we can skip allocation</span>
+        <span class="kw">let</span> (<span class="ident">pre</span>, <span class="ident">decoded_char</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_next</span>(<span class="kw-2">&amp;mut</span> <span class="ident">remaining</span>)<span class="question-mark">?</span>;
+
+        <span class="comment">// decoded output will always be shorter than the input</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoded</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="ident">::with_capacity</span>(<span class="ident">val</span>.<span class="ident">len</span>());
+
+        <span class="comment">// push first segment and decoded char</span>
+        <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">pre</span>);
+        <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">decoded_char</span>);
+
+        <span class="comment">// decode and push rest of segments and decoded chars</span>
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">prev</span>, <span class="ident">ch</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">decode_next</span>(<span class="kw-2">&amp;mut</span> <span class="ident">remaining</span>) {
+            <span class="comment">// this ugly conditional achieves +50% perf in cases where this is a tight loop.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">prev</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">prev</span>);
+            }
+            <span class="ident">decoded</span>.<span class="ident">push</span>(<span class="ident">ch</span>);
+        }
+
+        <span class="ident">decoded</span>.<span class="ident">extend_from_slice</span>(<span class="ident">remaining</span>);
+
+        <span class="prelude-val">Some</span>(<span class="ident">decoded</span>)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">requote_str_lossy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">requote</span>(<span class="ident">val</span>.<span class="ident">as_bytes</span>())
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">data</span><span class="op">|</span> <span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>).<span class="ident">into_owned</span>())
-    }
-}
-
-<span class="doccomment">/// Converts an ASCII character in the hex-encoded set (`0-9`, `A-F`, `a-f`) to its integer</span>
-<span class="doccomment">/// representation from `0x0`–`0xF`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// - `0x30 (&#39;0&#39;) =&gt; 0x0`</span>
-<span class="doccomment">/// - `0x39 (&#39;9&#39;) =&gt; 0x9`</span>
-<span class="doccomment">/// - `0x41 (&#39;a&#39;) =&gt; 0xA`</span>
-<span class="doccomment">/// - `0x61 (&#39;A&#39;) =&gt; 0xA`</span>
-<span class="doccomment">/// - `0x46 (&#39;f&#39;) =&gt; 0xF`</span>
-<span class="doccomment">/// - `0x66 (&#39;F&#39;) =&gt; 0xF`</span>
-<span class="kw">fn</span> <span class="ident">from_ascii_hex</span>(<span class="ident">v</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">v</span> {
-        <span class="string">b&#39;0&#39;</span>..<span class="op">=</span><span class="string">b&#39;9&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span> <span class="op">-</span> <span class="number">0x30</span>),      <span class="comment">// ord(&#39;0&#39;) == 0x30</span>
-        <span class="string">b&#39;A&#39;</span>..<span class="op">=</span><span class="string">b&#39;F&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span> <span class="op">-</span> <span class="number">0x41</span> <span class="op">+</span> <span class="number">10</span>), <span class="comment">// ord(&#39;A&#39;) == 0x41</span>
-        <span class="string">b&#39;a&#39;</span>..<span class="op">=</span><span class="string">b&#39;f&#39;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span> <span class="op">-</span> <span class="number">0x61</span> <span class="op">+</span> <span class="number">10</span>), <span class="comment">// ord(&#39;a&#39;) == 0x61</span>
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
     }
 }
 
@@ -406,27 +273,36 @@
 <span class="doccomment">/// - `0x33 (&#39;3&#39;), 0x30 (&#39;0&#39;) =&gt; 0x30 (&#39;0&#39;)`</span>
 <span class="doccomment">/// - `0x34 (&#39;4&#39;), 0x31 (&#39;1&#39;) =&gt; 0x41 (&#39;A&#39;)`</span>
 <span class="doccomment">/// - `0x36 (&#39;6&#39;), 0x31 (&#39;1&#39;) =&gt; 0x61 (&#39;a&#39;)`</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
 <span class="kw">fn</span> <span class="ident">hex_pair_to_char</span>(<span class="ident">d1</span>: <span class="ident">u8</span>, <span class="ident">d2</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">d_high</span>, <span class="ident">d_low</span>) <span class="op">=</span> (<span class="ident">from_ascii_hex</span>(<span class="ident">d1</span>)<span class="question-mark">?</span>, <span class="ident">from_ascii_hex</span>(<span class="ident">d2</span>)<span class="question-mark">?</span>);
+    <span class="kw">let</span> <span class="ident">d_high</span> <span class="op">=</span> <span class="ident">char::from</span>(<span class="ident">d1</span>).<span class="ident">to_digit</span>(<span class="number">16</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">d_low</span> <span class="op">=</span> <span class="ident">char::from</span>(<span class="ident">d2</span>).<span class="ident">to_digit</span>(<span class="number">16</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// left shift high nibble by 4 bits</span>
-    <span class="prelude-val">Some</span>(<span class="ident">d_high</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span> <span class="op">|</span> <span class="ident">d_low</span>)
+    <span class="prelude-val">Some</span>((<span class="ident">d_high</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">4</span> <span class="op">|</span> (<span class="ident">d_low</span> <span class="kw">as</span> <span class="ident">u8</span>))
 }
 
-<span class="doccomment">/// Sets bit in given bit-map to 1=true.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
-<span class="kw">fn</span> <span class="ident">set_bit</span>(<span class="ident">array</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">u8</span>], <span class="ident">ch</span>: <span class="ident">u8</span>) {
-    <span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">|</span><span class="op">=</span> <span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">struct</span> <span class="ident">AsciiBitmap</span> {
+    <span class="ident">array</span>: [<span class="ident">u8</span>; <span class="number">16</span>],
 }
 
-<span class="doccomment">/// Returns true if bit to true in given bit-map.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Panics</span>
-<span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
-<span class="kw">fn</span> <span class="ident">bit_at</span>(<span class="ident">array</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">ch</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">&amp;</span> (<span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
+<span class="kw">impl</span> <span class="ident">AsciiBitmap</span> {
+    <span class="doccomment">/// Sets bit in given bit-map to 1=true.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
+    <span class="kw">fn</span> <span class="ident">set_bit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) {
+        <span class="self">self</span>.<span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">|</span><span class="op">=</span> <span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)
+    }
+
+    <span class="doccomment">/// Returns true if bit to true in given bit-map.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">/// Panics if `ch` index is out of bounds.</span>
+    <span class="kw">fn</span> <span class="ident">bit_at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ch</span>: <span class="ident">u8</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">array</span>[(<span class="ident">ch</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">3</span>) <span class="kw">as</span> <span class="ident">usize</span>] <span class="op">&amp;</span> (<span class="number">0b1</span> <span class="op">&lt;</span><span class="op">&lt;</span> (<span class="ident">ch</span> <span class="op">&amp;</span> <span class="number">0b111</span>)) <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -434,36 +310,15 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">hex_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">hex</span> <span class="op">=</span> <span class="string">b&quot;0123456789abcdefABCDEF&quot;</span>;
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">256</span> {
-            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u8</span>;
-            <span class="kw">if</span> <span class="ident">hex</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>) {
-                <span class="macro">assert!</span>(<span class="ident">from_ascii_hex</span>(<span class="ident">c</span>).<span class="ident">is_some</span>())
-            } <span class="kw">else</span> {
-                <span class="macro">assert!</span>(<span class="ident">from_ascii_hex</span>(<span class="ident">c</span>).<span class="ident">is_none</span>())
-            }
-        }
-
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> [
-            <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>,
-        ];
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">hex</span>.<span class="ident">len</span>() {
-            <span class="macro">assert_eq!</span>(<span class="ident">from_ascii_hex</span>(<span class="ident">hex</span>[<span class="ident">i</span>]).<span class="ident">unwrap</span>(), <span class="ident">expected</span>[<span class="ident">i</span>]);
-        }
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">custom_quoter</span>() {
         <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;&quot;</span>, <span class="string">b&quot;+&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%25c&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%c&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Bc&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%2Bc&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Bc&quot;</span>), <span class="prelude-val">None</span>);
 
         <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%25b%2Bc&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%b+c&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2fb&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%2fb&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Fb&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%2Fb&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2fb&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2Fb&quot;</span>), <span class="prelude-val">None</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%0Ab&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a\nb&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%FE\xffb&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a\xfe\xffb&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a\xfe\xffb&quot;</span>), <span class="prelude-val">None</span>);
@@ -479,7 +334,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">invalid_sequences</span>() {
         <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Quoter::new</span>(<span class="string">b&quot;%+&quot;</span>, <span class="string">b&quot;/&quot;</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2x%2X%%&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a%2x%2X&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%2x%2X%%&quot;</span>), <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="ident">q</span>.<span class="ident">requote</span>(<span class="string">b&quot;/a%20%2X%%&quot;</span>).<span class="ident">unwrap</span>(), <span class="string">b&quot;/a %2X%%&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

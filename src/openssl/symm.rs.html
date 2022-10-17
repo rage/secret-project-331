@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.41/src/symm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>symm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/github.com-1ecc6299db9ec823/openssl-0.10.42/src/symm.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>symm.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../openssl/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../openssl/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1588,6 +1588,48 @@
 <span id="1588">1588</span>
 <span id="1589">1589</span>
 <span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
+<span id="1615">1615</span>
+<span id="1616">1616</span>
+<span id="1617">1617</span>
+<span id="1618">1618</span>
+<span id="1619">1619</span>
+<span id="1620">1620</span>
+<span id="1621">1621</span>
+<span id="1622">1622</span>
+<span id="1623">1623</span>
+<span id="1624">1624</span>
+<span id="1625">1625</span>
+<span id="1626">1626</span>
+<span id="1627">1627</span>
+<span id="1628">1628</span>
+<span id="1629">1629</span>
+<span id="1630">1630</span>
+<span id="1631">1631</span>
+<span id="1632">1632</span>
 </pre><pre class="rust"><code><span class="doccomment">//! High level interface to certain symmetric ciphers.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Examples</span>
@@ -1695,6 +1737,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_cbc</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_128_xts</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_xts</span>()) }
     }
@@ -1703,6 +1746,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_ctr</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_128_cfb1</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_cfb1</span>()) }
     }
@@ -1711,6 +1755,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_cfb128</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_128_cfb8</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_cfb8</span>()) }
     }
@@ -1719,6 +1764,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_gcm</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_128_ccm</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_128_ccm</span>()) }
     }
@@ -1745,6 +1791,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_ctr</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_192_cfb1</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_cfb1</span>()) }
     }
@@ -1753,6 +1800,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_cfb128</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_192_cfb8</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_cfb8</span>()) }
     }
@@ -1761,6 +1809,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_gcm</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_192_ccm</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_192_ccm</span>()) }
     }
@@ -1783,6 +1832,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_cbc</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_256_xts</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_xts</span>()) }
     }
@@ -1791,6 +1841,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_ctr</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_256_cfb1</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_cfb1</span>()) }
     }
@@ -1799,6 +1850,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_cfb128</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_256_cfb8</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_cfb8</span>()) }
     }
@@ -1807,6 +1859,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_gcm</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aes_256_ccm</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_aes_256_ccm</span>()) }
     }
@@ -1831,12 +1884,12 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_bf_ecb</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_BF&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bf_cfb64</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_bf_cfb64</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_BF&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_BF&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bf_ofb</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_bf_ofb</span>()) }
     }
@@ -1857,6 +1910,7 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_des_ede3_cbc</span>()) }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">des_ede3_cfb64</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_des_ede3_cfb64</span>()) }
     }
@@ -1877,22 +1931,22 @@
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_chacha20_poly1305</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_cbc</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_cbc</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_cfb128</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_cfb128</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_ecb</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_ecb</span>()) }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_ofb</span>() -&gt; <span class="ident">Cipher</span> {
         <span class="kw">unsafe</span> { <span class="ident">Cipher</span>(<span class="ident">ffi::EVP_seed_ofb</span>()) }
     }
@@ -1967,9 +2021,15 @@
     }
 
     <span class="doccomment">/// Determines whether the cipher is using CCM mode</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">is_ccm</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// NOTE: OpenSSL returns pointers to static structs, which makes this work as expected</span>
         <span class="self">self</span> <span class="op">==</span> <span class="ident">Cipher::aes_128_ccm</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">Cipher::aes_256_ccm</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">boringssl</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">is_ccm</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="bool-val">false</span>
     }
 
     <span class="doccomment">/// Determines whether the cipher is using OCB mode</span>
@@ -2347,23 +2407,23 @@
 }
 
 <span class="macro">cfg_if!</span> {
-    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">ossl110</span>, <span class="ident">libressl273</span>))]</span> {
         <span class="kw">use</span> <span class="ident">ffi</span>::{<span class="ident">EVP_CIPHER_block_size</span>, <span class="ident">EVP_CIPHER_iv_length</span>, <span class="ident">EVP_CIPHER_key_length</span>};
     } <span class="kw">else</span> {
-        <span class="kw">use</span> <span class="ident">libc::c_int</span>;
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::LenType</span>;
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_iv_length</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">c_int</span> {
+        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_iv_length</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">LenType</span> {
             (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">iv_len</span>
         }
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_block_size</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">c_int</span> {
+        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_block_size</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">LenType</span> {
             (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">block_size</span>
         }
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
-        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_key_length</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">c_int</span> {
+        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">EVP_CIPHER_key_length</span>(<span class="ident">ptr</span>: <span class="kw-2">*const</span> <span class="ident">ffi::EVP_CIPHER</span>) -&gt; <span class="ident">LenType</span> {
             (<span class="kw-2">*</span><span class="ident">ptr</span>).<span class="ident">key_len</span>
         }
     }
@@ -2493,6 +2553,7 @@
         }
     }
 
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">cipher_test_nopad</span>(<span class="ident">ciphertype</span>: <span class="ident"><span class="kw">super</span>::Cipher</span>, <span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ct</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">iv</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Vec::from_hex</span>(<span class="ident">pt</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">Vec::from_hex</span>(<span class="ident">ct</span>).<span class="ident">unwrap</span>();
@@ -2538,6 +2599,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_xts</span>() {
         <span class="comment">// Test case 174 from</span>
         <span class="comment">// http://csrc.nist.gov/groups/STM/cavp/documents/aes/XTSTestVectors.zip</span>
@@ -2565,6 +2627,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes128_cfb1</span>() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf</span>
 
@@ -2577,6 +2640,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes128_cfb128</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;6bc1bee22e409f96e93d7e117393172a&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;3b3fd92eb72dad20333449f8e83cfb4a&quot;</span>;
@@ -2587,6 +2651,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes128_cfb8</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;3b79424c9c0dd436bace9e0ed4586a4f32b9&quot;</span>;
@@ -2621,6 +2686,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes192_cfb1</span>() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf</span>
 
@@ -2633,6 +2699,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes192_cfb128</span>() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf</span>
 
@@ -2645,6 +2712,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes192_cfb8</span>() {
         <span class="comment">// Lifted from http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf</span>
 
@@ -2669,6 +2737,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_cfb1</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;6bc1&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;9029&quot;</span>;
@@ -2679,6 +2748,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_cfb128</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;6bc1bee22e409f96e93d7e117393172a&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;dc7e84bfda79164b7ecd8486985d3860&quot;</span>;
@@ -2689,6 +2759,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_cfb8</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;6bc1bee22e409f96e93d7e117393172aae2d&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;dc1f1a8520a64db55fcc8ac554844e889700&quot;</span>;
@@ -2711,6 +2782,8 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">ossl300</span>, <span class="ident">ignore</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_bf_cbc</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -2726,6 +2799,8 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">ossl300</span>, <span class="ident">ignore</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_bf_ecb</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -2739,6 +2814,8 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">ossl300</span>, <span class="ident">ignore</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_bf_cfb64</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -2752,6 +2829,8 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">ossl300</span>, <span class="ident">ignore</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_bf_ofb</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -2811,6 +2890,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_des_ede3_cfb64</span>() {
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="string">&quot;2b1773784b5889dc788477367daa98ad&quot;</span>;
         <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="string">&quot;6f2867cfefda048a4046ef7e556c7132&quot;</span>;
@@ -2857,6 +2937,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes128_ccm</span>() {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;3ee186594f110fb788a8bf8aa8be5d4a&quot;</span>;
         <span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="string">&quot;44f705d52acf27b7f17196aa9b&quot;</span>;
@@ -2893,6 +2974,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes128_ccm_verify_fail</span>() {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;3ee186594f110fb788a8bf8aa8be5d4a&quot;</span>;
         <span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="string">&quot;44f705d52acf27b7f17196aa9b&quot;</span>;
@@ -2913,6 +2995,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_ccm</span>() {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d&quot;</span>;
         <span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="string">&quot;dde2a362ce81b2b6913abc3095&quot;</span>;
@@ -2949,6 +3032,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">boringssl</span>))]</span>
     <span class="kw">fn</span> <span class="ident">test_aes256_ccm_verify_fail</span>() {
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="string">&quot;7f4af6765cad1d511db07e33aaafd57646ec279db629048aa6770af24849aa0d&quot;</span>;
         <span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="string">&quot;dde2a362ce81b2b6913abc3095&quot;</span>;
@@ -3081,7 +3165,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_seed_cbc</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -3095,7 +3179,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_seed_cfb128</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -3109,7 +3193,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_seed_ecb</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();
@@ -3123,7 +3207,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>))]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">boringssl</span>, <span class="ident">osslconf</span> <span class="op">=</span> <span class="string">&quot;OPENSSL_NO_SEED&quot;</span>, <span class="ident">ossl300</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">test_seed_ofb</span>() {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">ossl300</span>)]</span>
         <span class="kw">let</span> <span class="ident">_provider</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::provider::Provider::try_load</span>(<span class="prelude-val">None</span>, <span class="string">&quot;legacy&quot;</span>, <span class="bool-val">true</span>).<span class="ident">unwrap</span>();

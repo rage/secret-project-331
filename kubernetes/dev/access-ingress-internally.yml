@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: access-ingress-internally
+  namespace: ingress-nginx
+spec:
+  selector:
+    app.kubernetes.io/component: controller
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  clusterIP: 10.96.3.99

@@ -234,34 +234,6 @@ pub async fn get_by_exercise_or_course_id(
     }
 }
 
-pub async fn get_by_exercise_id(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-) -> ModelResult<PeerReviewConfig> {
-    let res = sqlx::query_as!(
-        PeerReviewConfig,
-        r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
-FROM peer_review_configs
-WHERE exercise_id = $1
-  AND deleted_at IS NULL
-        "#,
-        exercise_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 pub async fn get_default_for_course_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

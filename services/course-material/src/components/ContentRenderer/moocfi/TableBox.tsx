@@ -23,6 +23,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
 
         ${respondToOrLarger.md} {
           width: ${width ? `${width}px` : "100%"};
+        }
       `}
     >
       <div

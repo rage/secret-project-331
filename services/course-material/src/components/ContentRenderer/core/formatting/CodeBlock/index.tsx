@@ -5,6 +5,7 @@ import { BlockRendererProps } from "../../.."
 import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import Spinner from "../../../../../shared-module/components/Spinner"
 import { monospaceFont } from "../../../../../shared-module/styles"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 
 const SyntaxHighlightedContainerLoading = <Spinner variant="medium" />
@@ -34,4 +35,4 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   )
 }
 
-export default CodeBlock
+export default withErrorBoundary(CodeBlock)

@@ -580,7 +580,7 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review_config: PeerReviewConfig | null
+  peer_review_config: CourseMaterialPeerReviewConfig | null
 }
 
 export interface Exercise {
@@ -972,6 +972,14 @@ export interface PageWithExercises {
   order_number: number
   copied_from: string | null
   exercises: Array<Exercise>
+}
+
+export interface CourseMaterialPeerReviewConfig {
+  id: string
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
 }
 
 export interface CmsPeerReviewConfig {

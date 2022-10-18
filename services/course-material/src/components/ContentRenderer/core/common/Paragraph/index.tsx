@@ -8,6 +8,7 @@ import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import DiffFormatter from "../../../../../shared-module/components/DiffFormatter"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
 import fontSizeMapper from "../../../../../styles/fontSizeMapper"
 import { parseText } from "../../../util/textParsing"
@@ -148,4 +149,4 @@ const ParagraphBlock: React.FC<
   )
 }
 
-export default ParagraphBlock
+export default withErrorBoundary(ParagraphBlock)

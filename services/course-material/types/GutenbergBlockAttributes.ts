@@ -89,7 +89,6 @@ export interface ParagraphDeprecated3Attributes {
   customTextColor?: string
   customBackgroundColor?: string
   customFontSize?: number
-  width?: string
   lock?: {
     [k: string]: unknown
   }
@@ -101,6 +100,29 @@ export interface ParagraphDeprecated3Attributes {
  */
 
 export interface ParagraphDeprecated4Attributes {
+  align?: string
+  content: string
+  dropCap: boolean
+  placeholder?: string
+  textColor?: string
+  backgroundColor?: string
+  fontSize?: string
+  direction?: "ltr" | "rtl"
+  customTextColor?: string
+  customBackgroundColor?: string
+  customFontSize?: number
+  width?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ParagraphDeprecated5Attributes {
   align?: string
   content: string
   dropCap: boolean
@@ -119,7 +141,7 @@ export interface ParagraphDeprecated4Attributes {
  * @deprecated This is an older version of ParagraphAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
  */
 
-export interface ParagraphDeprecated5Attributes {
+export interface ParagraphDeprecated6Attributes {
   align?: string
   content: string
   dropCap: boolean
@@ -446,6 +468,41 @@ export interface ListDeprecated1Attributes {
   }
 }
 
+/**
+ * @deprecated This is an older version of ListAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface ListDeprecated2Attributes {
+  ordered: boolean
+  values: string
+  type?: string
+  start?: number
+  reversed?: boolean
+  placeholder?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+  backgroundColor?: string
+  textColor?: string
+  gradient?: string
+  fontFamily?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
+}
+
+export interface ListItemAttributes {
+  placeholder?: string
+  content: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+}
+
 export interface QuoteAttributes {
   value: string
   citation: string
@@ -458,6 +515,7 @@ export interface QuoteAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown
@@ -857,6 +915,8 @@ export interface ButtonsAttributes {
   }
   anchor?: string
   className?: string
+  fontFamily?: string
+  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -918,7 +978,7 @@ export interface ColumnAttributes {
   verticalAlignment?: string
   width?: string
   allowedBlocks?: unknown[]
-  templateLock?: "all" | "insert" | false
+  templateLock?: "all" | "insert" | "contentOnly" | false
   lock?: {
     [k: string]: unknown
   }
@@ -1075,6 +1135,29 @@ export interface FileAttributes {
  */
 
 export interface FileDeprecated1Attributes {
+  id?: number
+  href?: string
+  fileId?: string
+  fileName?: string
+  textLinkHref?: string
+  textLinkTarget?: string
+  showDownloadButton: boolean
+  downloadButtonText?: string
+  displayPreview?: boolean
+  previewHeight: number
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+}
+
+/**
+ * @deprecated This is an older version of FileAttributes. We may need to support rendering this if someone has created content using an older version of Gutenberg.
+ */
+
+export interface FileDeprecated2Attributes {
   id?: number
   href?: string
   fileName?: string
@@ -1318,6 +1401,7 @@ export interface TableAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
   fontSize?: string
   style?: {
     [k: string]: unknown

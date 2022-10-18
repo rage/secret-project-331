@@ -1,4 +1,4 @@
-import { AxiosRequestHeaders } from "axios"
+import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
 import {
@@ -112,7 +112,7 @@ export const fetchCoursePageByPath = async (
   courseSlug: string,
   path: string,
 ): Promise<CoursePageWithUserData> => {
-  const headers: AxiosRequestHeaders = {}
+  const headers: RawAxiosRequestHeaders = {}
   if (
     document.referrer &&
     document.referrer !== "" &&

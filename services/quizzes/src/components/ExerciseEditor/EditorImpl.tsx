@@ -39,7 +39,7 @@ const EditorImpl: React.FC<React.PropsWithChildren<EditorProps>> = ({ port, priv
       {experimentalMode ? <QuizItemsV2 /> : <QuizItems />}
       <BasicInformation />
       <Button variant="secondary" size="small" onClick={() => toggleMode()}>
-        {experimentalMode ? t("switch-to-original-mode") : t("switch-to-experimental-mode")}
+        {t("switch-to-experimental-mode")}
       </Button>
     </>
   )

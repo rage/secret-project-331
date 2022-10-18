@@ -1,5 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
-/* Temporary fix */
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -95,7 +93,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
     <EditorCard title={"MULTIPLE-CHOICE"}>
       <TextField value={quizItem.title} label={t("title")} name={t("title")} />
       <OptionTitle> {t("title-options")} </OptionTitle>
-      <OptionDescription>Add multiple options to this question</OptionDescription>
+      <OptionDescription>{t("title-options-description")}</OptionDescription>
       <OptionCardContainer>
         {quizItem.options.map((option) => (
           <MultipleChoiceOption key={option.id} option={option} />
@@ -121,7 +119,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
 
       {/* Advanced options */}
       <br />
-      <Accordion variant="detail" title="Advanced options">
+      <Accordion variant="detail" title={t("advanced-options")}>
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
@@ -131,15 +129,15 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
               <RadioButton checked={quizItem.direction == "row"} label={t("row")} />
               <RadioButton checked={quizItem.direction == "column"} label={t("column")} />
             </MultipleChoiceLayoutChoiceContainer>
-            <OptionTitle> Answering options </OptionTitle>
+            <OptionTitle> {t("answer-settings")}</OptionTitle>
             <ToggleCard
               title={t("allow-selecting-multiple-options")}
-              description={"All answers correct (no matter what one answers is correct)"}
+              description={t("allow-selecting-multiple-options-description")}
               state={quizItem.allowSelectingMultipleOptions}
             />
             <ToggleCard
               title={t("shuffled-checkbox-message")}
-              description={"Present choices in random order"}
+              description={t("shuffle-option-description")}
               state={quizItem.shuffleOptions}
             />
             <OptionTitle> {t("feedback-message")} </OptionTitle>

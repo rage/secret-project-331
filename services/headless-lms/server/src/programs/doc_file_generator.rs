@@ -64,8 +64,8 @@ use headless_lms_models::{
         PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
     peer_review_configs::{
-        CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
-        PeerReviewConfig,
+        CmsPeerReviewConfig, CmsPeerReviewConfiguration, CourseMaterialPeerReviewConfig,
+        PeerReviewAcceptingStrategy, PeerReviewConfig,
     },
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
@@ -692,18 +692,12 @@ pub async fn main() -> anyhow::Result<()> {
                     4_i64
                 )
             ]),
-            peer_review_config: Some(PeerReviewConfig {
+            peer_review_config: Some(CourseMaterialPeerReviewConfig {
                 id,
-                created_at,
-                updated_at,
-                deleted_at,
                 course_id: id,
                 exercise_id: Some(id),
                 peer_reviews_to_give: 3,
-                peer_reviews_to_receive: 2,
-                accepting_threshold: 3.0,
-                accepting_strategy:
-                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage
+                peer_reviews_to_receive: 2
             })
         }
     );

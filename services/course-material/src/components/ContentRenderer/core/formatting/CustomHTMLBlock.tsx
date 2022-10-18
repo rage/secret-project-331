@@ -2,6 +2,7 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { HtmlAttributes } from "../../../../../types/GutenbergBlockAttributes"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 const CustomHTMLBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HtmlAttributes>>> = ({
@@ -16,4 +17,4 @@ const CustomHTMLBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HtmlA
   )
 }
 
-export default CustomHTMLBlock
+export default withErrorBoundary(CustomHTMLBlock)

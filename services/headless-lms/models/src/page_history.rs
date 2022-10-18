@@ -118,6 +118,7 @@ SELECT id,
   author_user_id
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 ORDER BY created_at DESC, id
 LIMIT $2
 OFFSET $3
@@ -137,6 +138,7 @@ pub async fn history_count(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
 SELECT COUNT(*) AS count
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 ",
         page_id
     )

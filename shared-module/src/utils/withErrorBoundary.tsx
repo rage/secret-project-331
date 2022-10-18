@@ -31,7 +31,10 @@ export default function withErrorBoundary<T>(
           <Translation>
             {(t) => (
               <>
-                <p>{t("error-part-of-page-has-crashed-error", { error })}</p>
+                <p>
+                  {t("error-part-of-page-has-crashed-error", { error })}
+                  {Component.displayName && <>({Component.displayName})</>}
+                </p>
                 {trace && (
                   <>
                     <button onClick={() => this.setState({ showTrace: !showTrace })}>

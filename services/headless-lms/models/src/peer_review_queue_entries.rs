@@ -79,10 +79,9 @@ INSERT INTO peer_review_queue_entries (
     receiving_peer_reviews_exercise_slide_submission_id,
     received_enough_peer_reviews
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) DO
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) WHERE deleted_at IS NULL DO
 UPDATE
-SET peer_review_priority = $4,
-  deleted_at = NULL
+SET peer_review_priority = $4
 RETURNING *
         ",
         user_id,
@@ -380,7 +379,8 @@ FROM peer_review_queue_entries
 WHERE course_instance_id = $1
   AND received_enough_peer_reviews = FALSE
   AND removed_from_queue_for_unusual_reason = FALSE
-  AND created_at < $2;
+  AND created_at < $2
+  AND deleted_at IS NULL
     ",
         course_instance_id,
         timestamp
@@ -469,4 +469,24 @@ RETURNING *
     .await?;
 
     Ok(res)
+}
+
+pub async fn delete_by_receiving_peer_reviews_exercise_slide_submission_id(
+    conn: &mut PgConnection,
+    receiving_peer_reviews_exercise_slide_submission_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+UPDATE peer_review_queue_entries
+SET deleted_at = now()
+WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
+AND deleted_at is NULL
+    ",
+        receiving_peer_reviews_exercise_slide_submission_id
+    )
+    .execute(&mut *conn)
+    .await?;
+
+    Ok(())
 }

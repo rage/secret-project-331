@@ -60,7 +60,7 @@ const Wrapper = styled.div`
   }
 
   li::marker {
-    content: "⚈  ";
+    content: "☉  ";
     font-size: 1rem;
     color: ${baseTheme.colors.green[600]};
   }

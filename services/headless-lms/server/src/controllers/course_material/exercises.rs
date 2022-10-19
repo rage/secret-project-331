@@ -103,13 +103,13 @@ async fn get_peer_review_for_exercise(
 }
 
 /**
-GET `/api/v0/course-material/exercises/:exercise_id/peer-review-given` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_peer_reviews_given(
+async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
-    exercise_id: web::Path<Uuid>,
+    exercise_slide_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
@@ -401,8 +401,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_peer_review_for_exercise),
         )
         .route(
-            "/{exercise_id}/peer-reviews-given",
-            web::get().to(get_peer_reviews_given),
+            "/{exercise_slide_id}/peer-reviews-received",
+            web::get().to(get_peer_reviews_received),
         )
         .route(
             "/{exercise_id}/submissions",

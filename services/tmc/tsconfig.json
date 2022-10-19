@@ -5,6 +5,7 @@
     "jsx": "preserve",
     "lib": ["dom", "es2017"],
     "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
+    "types": ["node", "jest"],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,

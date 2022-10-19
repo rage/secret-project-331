@@ -112,7 +112,10 @@ pub mod example;
 
 use chrono::{TimeZone, Utc};
 use example::Example;
-use headless_lms_models::course_module_completions::CourseModuleCompletionWithRegistrationInfo;
+use headless_lms_models::{
+    course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    peer_review_configs::CourseMaterialPeerReviewConfig,
+};
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
 use std::{collections::HashMap, fs};
@@ -599,6 +602,13 @@ fn models() {
         exercise_task_submission_id,
         grading_before_regrading,
         grading_after_regrading
+    });
+    example!(CourseMaterialPeerReviewConfig {
+        course_id,
+        exercise_id,
+        id,
+        peer_reviews_to_give: 3,
+        peer_reviews_to_receive: 2
     });
 
     doc!(

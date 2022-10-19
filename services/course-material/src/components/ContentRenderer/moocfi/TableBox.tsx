@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import { BlockRendererProps } from ".."
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
@@ -15,6 +15,19 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
   props,
 ) => {
   const width = props.data.attributes?.width
+  const [matches, setMatches] = useState<boolean>()
+
+  useEffect(() => {
+    // eslint-disable-next-line i18next/no-literal-string
+    const media = window.matchMedia(`(max-width: ${width})`)
+    if (media.matches !== matches) {
+      setMatches(media.matches)
+    }
+    const listener = () => setMatches(media.matches)
+    media.addEventListener("change", listener)
+    return () => media.removeEventListener("change", listener)
+  }, [matches, width])
+
   return (
     <div
       className={css`
@@ -22,7 +35,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
         margin: 1rem auto;
 
         ${respondToOrLarger.md} {
-          width: ${width ? `${width}px` : "100%"};
+          width: ${matches ? "100%" : `${width}px`};
         }
       `}
     >

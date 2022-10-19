@@ -17,6 +17,7 @@ const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
   attributes: {
     width: {
       type: "string",
+      default: "800px",
     },
   },
   edit: TableEditor,

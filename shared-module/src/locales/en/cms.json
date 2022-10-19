@@ -40,6 +40,7 @@
   "label-email-subject": "Email subject",
   "label-template-name": "Template name",
   "label-title": "Title",
+  "landing-page-copy-text": "Landing page copy text",
   "learning-objectives": "Learning objectives",
   "limit-number-of-tries": "Limit number of tries",
   "loading": "Loading...",
@@ -87,9 +88,9 @@
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
   "welcome-message-for-course": "Welcome message for course...",
-  "landing-page-copy-text": "Landing page copy text",
   "table-width-customizer": "Table width customizer",
-  "use-course-default-peer-review-config": "Use course default peer review config",
   "sponsor-block": "Sponsor Block",
-  "sponsor-block-description": "Sponsor block is use to display all partner's logo in the landing page"
+  "sponsor-block-description": "Sponsor block is use to display all partner's logo in the landing page",
+  "use-course-default-peer-review-config": "Use course default peer review config"
+
 }

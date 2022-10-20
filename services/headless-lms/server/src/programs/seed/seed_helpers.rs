@@ -10,6 +10,8 @@ use headless_lms_models::{
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
     },
+    peer_review_configs::{self, CmsPeerReviewConfig},
+    peer_review_questions::{self, CmsPeerReviewQuestion},
     user_exercise_slide_states, user_exercise_states,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
@@ -59,6 +61,7 @@ pub async fn create_page(
     .await?;
     Ok(page.id)
 }
+
 pub fn paragraph(content: &str, block: Uuid) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/paragraph".to_string(),
@@ -206,8 +209,8 @@ pub fn example_exercise_flexible(
         max_tries_per_slide: None,
         limit_number_of_tries: false,
         deadline: None,
-        needs_peer_review: false,
-        use_course_default_peer_review_config: true,
+        needs_peer_review: true,
+        use_course_default_peer_review_config: false,
         peer_review_config: None,
         peer_review_questions: None,
     };
@@ -443,5 +446,40 @@ pub async fn create_exam(
     )
     .await?;
     exams::set_course(conn, new_exam_id, course_id).await?;
+    Ok(())
+}
+
+pub async fn create_best_peer_review(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    exercise_id: Option<Uuid>,
+) -> Result<()> {
+    let prc = peer_review_configs::upsert_with_id(
+        conn,
+        &CmsPeerReviewConfig {
+            id: Uuid::new_v4(),
+            course_id,
+            exercise_id,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            accepting_threshold: 3.0,
+            accepting_strategy:
+                peer_review_configs::PeerReviewAcceptingStrategy::ManualReviewEverything,
+        },
+    )
+    .await?;
+
+    peer_review_questions::insert(
+        conn,
+        &CmsPeerReviewQuestion {
+            peer_review_config_id: prc.id,
+            id: Uuid::new_v4(),
+            order_number: 0,
+            question: "Was the answer good".to_string(),
+            question_type: peer_review_questions::PeerReviewQuestionType::Essay,
+            answer_required: true,
+        },
+    )
+    .await?;
     Ok(())
 }

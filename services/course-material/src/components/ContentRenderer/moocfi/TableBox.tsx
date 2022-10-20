@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React from "react"
 
 import { BlockRendererProps } from ".."
+import useMedia from "../../../shared-module/hooks/useMedia"
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
 import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import withNoSsr from "../../../shared-module/utils/withNoSsr"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface TableBoxAttributes {
@@ -15,18 +17,9 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
   props,
 ) => {
   const width = props.data.attributes?.width
-  const [matches, setMatches] = useState<boolean>()
 
-  useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
-    const media = window.matchMedia(`(max-width: ${width})`)
-    if (media.matches !== matches) {
-      setMatches(media.matches)
-    }
-    const listener = () => setMatches(media.matches)
-    media.addEventListener("change", listener)
-    return () => media.removeEventListener("change", listener)
-  }, [matches, width])
+  // eslint-disable-next-line i18next/no-literal-string
+  const smallScreen = useMedia(`@media (max-width: ${width}px)`)
 
   return (
     <div
@@ -35,7 +28,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
         margin: 1rem auto;
 
         ${respondToOrLarger.md} {
-          width: ${matches ? "100%" : `${width}px`};
+          width: ${smallScreen ? "100%" : `${width}px`};
         }
       `}
     >
@@ -104,4 +97,4 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
   )
 }
 
-export default withErrorBoundary(TableBox)
+export default withNoSsr(withErrorBoundary(TableBox))

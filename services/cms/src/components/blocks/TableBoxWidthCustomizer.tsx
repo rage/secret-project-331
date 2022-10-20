@@ -33,8 +33,7 @@ const TableBoxWidthCustomizer: React.FC<React.PropsWithChildren<TableBoxWidthCus
         label={t("table-width-customizer")}
       >
         <TextControl
-          // eslint-disable-next-line i18next/no-literal-string
-          label="width of table"
+          label={t("width-of-table")}
           value={width}
           onChange={(value: string) => setAttributes({ width: value })}
         />

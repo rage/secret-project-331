@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
 
 import { primaryFont } from "../../shared-module/styles"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
@@ -15,6 +15,8 @@ const Scale: React.FC<QuizItemComponentProps> = ({
 }) => {
   const minValue = quizItem.minValue ?? 1
   const maxValue = quizItem.maxValue ?? 7
+  const radioIdentifier = useId()
+  const radioLabelId = useId()
 
   const handleOptionSelect = (option: string) => {
     if (!quizItemAnswerState) {
@@ -26,6 +28,8 @@ const Scale: React.FC<QuizItemComponentProps> = ({
 
   return (
     <div
+      role="group"
+      aria-labelledby={radioLabelId}
       className={css`
         display: flex;
         padding: 10px;
@@ -38,20 +42,23 @@ const Scale: React.FC<QuizItemComponentProps> = ({
         }
       `}
     >
-      <div
-        className={css`
-          flex: 5;
-          margin: 0.5rem;
-          text-align: center;
-          font-family: ${primaryFont};
-          font-size: 18px;
-          ${respondToOrLarger.md} {
-            text-align: left;
-          }
-        `}
-      >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
-      </div>
+      {quizItem.title && (
+        <div
+          id={radioLabelId}
+          className={css`
+            flex: 5;
+            margin: 0.5rem;
+            text-align: center;
+            font-family: ${primaryFont};
+            font-size: 18px;
+            ${respondToOrLarger.md} {
+              text-align: left;
+            }
+          `}
+        >
+          <MarkdownText text={quizItem.title} />
+        </div>
+      )}
       <div
         className={css`
           flex: 7;
@@ -72,15 +79,18 @@ const Scale: React.FC<QuizItemComponentProps> = ({
                 margin: 0.5rem;
               `}
             >
-              <label htmlFor={value}>{value}</label>
-              <input
-                aria-label={value}
-                type="radio"
-                key={value}
-                value={value}
-                checked={quizItemAnswerState?.optionAnswers?.includes(value)}
-                onClick={(e) => handleOptionSelect(e.currentTarget.value)}
-              />
+              <label>
+                {value}
+                <input
+                  name={radioIdentifier}
+                  aria-label={value}
+                  type="radio"
+                  key={value}
+                  value={value}
+                  checked={quizItemAnswerState?.optionAnswers?.includes(value)}
+                  onClick={(e) => handleOptionSelect(e.currentTarget.value)}
+                />
+              </label>
             </div>
           )
         })}

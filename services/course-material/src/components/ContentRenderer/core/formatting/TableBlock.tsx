@@ -25,6 +25,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
     align,
     className,
     gradient,
+    fontFamily,
     // style,
     textColor,
   } = data.attributes
@@ -53,6 +54,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
           ${gradient && `background: ${colorMapper(gradient)};`}
           ${align !== "center" && `float: ${align};`}
           ${align === "center" && "margin: 0 auto;"}
+          ${fontFamily && `font-family: ${fontFamily};`}
           color: ${colorMapper(textColor)};
           border-collapse: collapse;
           ${!align && "width: 100%;"}
@@ -61,7 +63,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             ${!isStriped && `border: 1px solid currentColor;`}
             white-space: pre-wrap;
             padding: 0.5rem;
-            ${hasFixedLayout && "word-break: break-word;"}
+            ${hasFixedLayout && "overflow-wrap: break-word;"}
           }
           tbody tr:nth-child(odd) {
             ${isStriped && `background-color: ${baseTheme.colors.grey[100]};`}

@@ -6,10 +6,15 @@ import React from "react"
 import ArrowSVGIcon from "../img/blackArrow.svg"
 import { baseTheme, headingFont, secondaryFont } from "../styles"
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   border-radius: 10px;
   position: relative;
   width: 100%;
+
+  .chapter-part-arrow {
+    visibility: hidden;
+  }
 `
 
 const PageNumberBox = styled.div`
@@ -18,46 +23,48 @@ const PageNumberBox = styled.div`
   font-family: ${secondaryFont};
   opacity: 0.6;
   margin: 0 1rem;
-`
-const StyledArrow = styled(ArrowSVGIcon)`
-  opacity: 0.6;
+  top: -3px;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const ChapterParts = styled.div`
   position: relative;
   margin-left: 0em;
-  padding: 0.6em 1em;
+  padding: 0.8em 1em;
   list-style-type: none;
-  color: ${baseTheme.colors.grey[700]};
+  color: rgb(17, 24, 36);
   text-decoration: none;
   border-radius: 2px;
   margin-bottom: 0.4em;
-  background: ${baseTheme.colors.clear[100]};
+  background: rgb(242, 245, 247);
 
   ${({ selected }: PagesInChapterBoxExtraProps) =>
     selected &&
     `
     background-color: #D8D8D8;
-    font-weight: 600;
+    font-weight: 500;
+
+    .chapter-part-arrow {
+      visibility: visible;
+    }
 
     :hover {
-      background-color: #D8D8D8 !important;
+      background-color: rgb(235, 239, 242) !important;
     }
   `}
   :hover {
-    background-color: ${baseTheme.colors.clear[200]};
+    background-color: rgb(235, 239, 242);
   }
 
   svg {
     position: absolute;
     right: 30px;
-    top: 30%;
+    top: 37%;
   }
 
   span {
     font-family: ${headingFont};
-    font-weight: 600;
+    font-weight: 500;
     vertical-align: top;
     font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
@@ -93,6 +100,12 @@ const PagesInChapterBox: React.FC<
                 outline: 2px solid ${baseTheme.colors.green[500]};
                 outline-offset: 2px;
               }
+
+              :hover {
+                .chapter-part-arrow {
+                  visibility: visible;
+                }
+              }
             `}
           >
             <ChapterParts {...props}>
@@ -100,7 +113,7 @@ const PagesInChapterBox: React.FC<
                 <span>{props.chapterIndex}</span>
               </PageNumberBox>
               <span>{props.chapterTitle}</span>
-              <StyledArrow role="presentation" alt="" width="20" />
+              <ArrowSVGIcon className="chapter-part-arrow" role="presentation" alt="" width="20" />
             </ChapterParts>
           </a>
         </Link>

@@ -14,7 +14,6 @@ export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
       frameBorder="0"
       title="Spotify"
       sandbox="allow-scripts allow-same-origin"
-      allowTransparency={true}
       allow="encrypted-media"
       className={css`
         display: block;

@@ -282,7 +282,7 @@ export async function takeScreenshotAndComparetoSnapshot(
     console.warn(
       "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
     )
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(800)
     const screenshot = await thingBeingScreenshotted.screenshot(pageScreenshotOptions)
     expect(screenshot).toMatchSnapshot(screenshotName, toMatchSnapshotOptions)
   }

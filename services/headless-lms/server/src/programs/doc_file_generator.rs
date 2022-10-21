@@ -35,7 +35,7 @@ use headless_lms_models::{
         ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
         ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo,
     },
-    exercise_slides::{CourseMaterialExerciseSlide, ExerciseSlide},
+    exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{ExerciseTaskSubmission, PeerReviewsRecieved},
     exercise_tasks::CourseMaterialExerciseTask,

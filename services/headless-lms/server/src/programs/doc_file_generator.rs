@@ -35,7 +35,7 @@ use headless_lms_models::{
         ExerciseSlideSubmissionCount, ExerciseSlideSubmissionCountByExercise,
         ExerciseSlideSubmissionCountByWeekAndHour, ExerciseSlideSubmissionInfo,
     },
-    exercise_slides::CourseMaterialExerciseSlide,
+    exercise_slides::{CourseMaterialExerciseSlide, ExerciseSlide},
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
     exercise_task_submissions::{ExerciseTaskSubmission, PeerReviewsRecieved},
     exercise_tasks::CourseMaterialExerciseTask,
@@ -698,7 +698,8 @@ pub async fn main() -> anyhow::Result<()> {
                 exercise_id: Some(id),
                 peer_reviews_to_give: 3,
                 peer_reviews_to_receive: 2
-            })
+            }),
+            previous_exercise_slide_submission: Some(exercise_slide_submission.clone())
         }
     );
     write_docs!(

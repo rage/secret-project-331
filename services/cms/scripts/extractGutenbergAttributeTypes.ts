@@ -44,6 +44,15 @@ global.navigator = dom.window.navigator
 // @ts-ignore: Just to prevent a crash, not used
 global.CSS = {}
 
+class FakeMutationObserver {
+  observe() {
+    // No op
+  }
+}
+
+// @ts-ignore: Just to prevent a crash, not used
+global.MutationObserver = FakeMutationObserver
+
 // The following import order matters and are dependant on above window definition.
 const blockLibrary = require("@wordpress/block-library")
 const blocks = require("@wordpress/blocks")

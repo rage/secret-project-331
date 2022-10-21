@@ -447,7 +447,7 @@ RETURNING *;
     .await?;
     // We'll also delete all the pages and exercises so that they don't conflict with future chapters
     sqlx::query!(
-        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1;",
+        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;",
         chapter_id
     )
     .execute(&mut tx)
@@ -514,7 +514,8 @@ SELECT c.*
 FROM chapters c,
   pages p
 WHERE c.id = p.chapter_id
-  AND p.id = $1;
+  AND p.id = $1
+  AND c.deleted_at IS NULL
     ",
         page_id
     )
@@ -574,6 +575,7 @@ pub async fn get_for_module(conn: &mut PgConnection, module_id: Uuid) -> ModelRe
 SELECT id
 FROM chapters
 WHERE course_module_id = $1
+AND deleted_at IS NULL
 ",
         module_id
     )

@@ -169,7 +169,8 @@ SELECT id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions
 FROM courses
-WHERE course_language_group_id = $1;
+WHERE course_language_group_id = $1
+AND deleted_at IS NULL
         ",
         course.course_language_group_id,
     )

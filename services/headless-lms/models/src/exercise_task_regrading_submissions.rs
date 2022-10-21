@@ -72,6 +72,7 @@ SELECT id,
   regrading_id
 FROM exercise_task_regrading_submissions
 WHERE regrading_id = $1
+AND deleted_at IS NULL
 ",
         regrading_id
     )

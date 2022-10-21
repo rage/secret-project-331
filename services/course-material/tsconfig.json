@@ -2,16 +2,10 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "types": ["jest"],
     "jsx": "preserve",
-    "lib": [
-      "dom",
-      "es2017"
-    ],
-    "typeRoots": [
-      "./src/shared-module/types",
-      "types",
-      "./node_modules/@types"
-    ],
+    "lib": ["dom", "es2017", "ES6"],
+    "typeRoots": ["./src/shared-module/types", "types", "./node_modules/@types"],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,
@@ -29,9 +23,7 @@
     "isolatedModules": true,
     "incremental": true
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "include": [
     "next-env.d.ts",
     "katex.d.ts",

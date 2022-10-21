@@ -13,7 +13,6 @@ import { IframeState } from "../../shared-module/exercise-service-protocol-types
 import { isMessageFromIframe } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
 import useUserInfo from "../../shared-module/hooks/useUserInfo"
-import { uploadFromExerciseService } from "../../shared-module/services/backend/files"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { onUploadFileMessage } from "../../shared-module/utils/exerciseServices"
 import getGuestPseudonymousUserId from "../../shared-module/utils/getGuestPseudonymousUserId"

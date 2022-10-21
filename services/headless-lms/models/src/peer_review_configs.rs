@@ -1,5 +1,5 @@
 use crate::{
-    exercises,
+    exercises::{self, Exercise},
     library::{self, peer_reviewing::CourseMaterialPeerReviewData},
     peer_review_questions::{
         delete_peer_review_questions_by_peer_review_config_ids,
@@ -22,6 +22,17 @@ pub struct PeerReviewConfig {
     pub peer_reviews_to_receive: i32,
     pub accepting_threshold: f32,
     pub accepting_strategy: PeerReviewAcceptingStrategy,
+}
+
+/// Like `PeerReviewConfig` but only the fields it's fine to show to all users.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseMaterialPeerReviewConfig {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub exercise_id: Option<Uuid>,
+    pub peer_reviews_to_give: i32,
+    pub peer_reviews_to_receive: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
@@ -153,21 +164,23 @@ WHERE id = $1
     Ok(res)
 }
 
+/// Returns the correct peer review config depending on `exercise.use_course_default_peer_review_config`.
 pub async fn get_by_exercise_or_course_id(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
+    exercise: &Exercise,
     course_id: Uuid,
 ) -> ModelResult<PeerReviewConfig> {
-    match try_to_get_by_exercise_id(conn, exercise_id).await? {
-        Some(peer_review) => Ok(peer_review),
-        None => get_default_for_course_by_course_id(conn, course_id).await,
+    if exercise.use_course_default_peer_review_config {
+        get_default_for_course_by_course_id(conn, course_id).await
+    } else {
+        get_by_exercise_id(conn, exercise.id).await
     }
 }
 
-pub async fn try_to_get_by_exercise_id(
+pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-) -> ModelResult<Option<PeerReviewConfig>> {
+) -> ModelResult<PeerReviewConfig> {
     let res = sqlx::query_as!(
         PeerReviewConfig,
         r#"
@@ -187,7 +200,7 @@ WHERE exercise_id = $1
         "#,
         exercise_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -325,6 +338,7 @@ pub async fn delete_peer_reviews_by_exrcise_ids(
 UPDATE peer_review_configs
 SET deleted_at = now()
 WHERE exercise_id = ANY ($1)
+AND deleted_at IS NULL
 RETURNING id;
     ",
         exercise_ids

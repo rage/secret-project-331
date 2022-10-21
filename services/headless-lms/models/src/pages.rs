@@ -940,9 +940,10 @@ RETURNING id,
         )
         .await?;
 
-    let (peer_reviews, peer_review_questions) = page_update
+    let (peer_review_configs, peer_review_questions) = page_update
         .exercises
         .into_iter()
+        .filter(|e| !e.use_course_default_peer_review_config)
         .flat_map(|e| e.peer_review_config.zip(e.peer_review_questions))
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);
@@ -953,7 +954,7 @@ RETURNING id,
     let remapped_peer_review_configs = upsert_peer_review_configs(
         &mut tx,
         &existing_peer_review_config_ids,
-        &peer_reviews,
+        &peer_review_configs,
         &remapped_exercises,
         retain_ids,
     )
@@ -983,6 +984,7 @@ RETURNING id,
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
+AND deleted_at IS NULL
 RETURNING id,
   private_spec,
   public_spec,
@@ -1873,6 +1875,7 @@ RETURNING id,
   UPDATE exercises
   SET deleted_at = now()
   WHERE page_id = $1
+  AND deleted_at IS NULL
           "#,
         page_id,
     )
@@ -1887,7 +1890,8 @@ WHERE exercise_id IN (
     SELECT id
     FROM exercises
     WHERE page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
         ",
         page.id
     )
@@ -1903,7 +1907,8 @@ WHERE exercise_slide_id IN (
     FROM exercise_slides s
       JOIN exercises e ON (s.exercise_id = e.id)
     WHERE e.page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
             "#,
         page.id
     )

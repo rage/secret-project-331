@@ -163,6 +163,7 @@ UPDATE user_exercise_task_states
 SET deleted_at = now()
 WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
+  AND deleted_at IS NULL
     ",
         exercise_task_id,
         user_exercise_slide_state_id,

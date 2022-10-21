@@ -101,6 +101,7 @@ const ProgressBar: React.FC<
           align-items: center;
           justify-content: center;
           flex-direction: column;
+          text-transform: lowercase;
         `}
       >
         {label && (

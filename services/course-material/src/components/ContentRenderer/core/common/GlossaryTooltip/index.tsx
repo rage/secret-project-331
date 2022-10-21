@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { Term } from "../../../../../shared-module/bindings"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 interface TooltipProps {
   term: Term
@@ -75,4 +76,4 @@ const Tooltip: React.FC<TooltipProps> = ({ term }) => {
   )
 }
 
-export default Tooltip
+export default withErrorBoundary(Tooltip)

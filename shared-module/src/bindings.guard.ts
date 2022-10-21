@@ -42,6 +42,7 @@ import {
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
+  CourseMaterialPeerReviewConfig,
   CourseMaterialPeerReviewData,
   CourseMaterialPeerReviewDataAnswerToReview,
   CourseMaterialPeerReviewQuestionAnswer,
@@ -1101,7 +1102,7 @@ export function isCourseMaterialExercise(obj: unknown): obj is CourseMaterialExe
       (isExerciseStatus(typedObj["exercise_status"]) as boolean)) &&
     (isPointMap(typedObj["exercise_slide_submission_counts"]) as boolean) &&
     (typedObj["peer_review_config"] === null ||
-      (isPeerReviewConfig(typedObj["peer_review_config"]) as boolean))
+      (isCourseMaterialPeerReviewConfig(typedObj["peer_review_config"]) as boolean))
   )
 }
 
@@ -1768,6 +1769,20 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
+  )
+}
+
+export function isCourseMaterialPeerReviewConfig(
+  obj: unknown,
+): obj is CourseMaterialPeerReviewConfig {
+  const typedObj = obj as CourseMaterialPeerReviewConfig
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    (typedObj["exercise_id"] === null || typeof typedObj["exercise_id"] === "string") &&
+    typeof typedObj["peer_reviews_to_give"] === "number" &&
+    typeof typedObj["peer_reviews_to_receive"] === "number"
   )
 }
 

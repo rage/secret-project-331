@@ -31,7 +31,6 @@ import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { fetchSubmissionInfo } from "../../services/backend/submissions"
 
 import ExerciseTask from "./ExerciseTask"
 import PeerReviewView from "./PeerReviewView"
@@ -167,7 +166,8 @@ const ExerciseBlock: React.FC<
 
   const exerciseDeadline = getCourseMaterialExercise.data.exercise.deadline
 
-  const exerciseSlideId = getCourseMaterialExercise.data.current_exercise_slide.id
+  const exerciseSlideSubmissionId =
+    getCourseMaterialExercise.data.previous_exercise_slide_submission?.id
 
   const dateInTwoDays = new Date()
   dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
@@ -447,9 +447,10 @@ const ExerciseBlock: React.FC<
             )}
             {inSubmissionView &&
               getCourseMaterialExercise.data.exercise.needs_peer_review &&
+              exerciseSlideSubmissionId &&
               (reviewingStage === "WaitingForPeerReviews" ||
                 reviewingStage === "ReviewedAndLocked") && (
-                <PeerReviewReceived id={exerciseSlideId} />
+                <PeerReviewReceived id={id} submissionId={exerciseSlideSubmissionId} />
               )}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>

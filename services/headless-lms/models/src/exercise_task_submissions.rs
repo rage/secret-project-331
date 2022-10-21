@@ -222,6 +222,7 @@ WHERE ets.id = $1
 pub async fn get_peer_reviews_received(
     conn: &mut PgConnection,
     exercise_id: Uuid,
+    exercise_slide_submission_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
     let peer_review =
@@ -238,6 +239,7 @@ pub async fn get_peer_reviews_received(
                 .map(|x| (x.id))
                 .collect::<Vec<_>>(),
             user_id,
+            exercise_slide_submission_id,
         )
         .await?;
 

@@ -45,6 +45,7 @@ pub async fn get_by_peer_reviews_question_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
     user_id: Uuid,
+    exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewQuestionSubmission>> {
     let res = sqlx::query_as!(
         PeerReviewQuestionSubmission,
@@ -63,11 +64,13 @@ pub async fn get_by_peer_reviews_question_ids(
     WHERE peer_review_question_id IN (
         SELECT UNNEST($1::uuid [])
     )
+        AND s.exercise_slide_submission_id = $3
         AND es.user_id = $2
         AND qs.deleted_at IS NULL;
         ",
         ids,
-        user_id
+        user_id,
+        exercise_slide_submission_id
     )
     .fetch_all(conn)
     .await?;

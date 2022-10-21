@@ -599,6 +599,7 @@ export interface CourseMaterialExercise {
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
   peer_review_config: CourseMaterialPeerReviewConfig | null
+  previous_exercise_slide_submission: ExerciseSlideSubmission | null
 }
 
 export interface Exercise {

@@ -240,10 +240,14 @@ export const fetchPeerReviewDataByExerciseId = async (
 
 export const fetchPeerReviewDataReceivedByExerciseId = async (
   id: string,
+  submissionId: string,
 ): Promise<CourseMaterialPeerReviewGivenData> => {
-  const response = await courseMaterialClient.get(`/exercises/${id}/peer-reviews-received`, {
-    responseType: "json",
-  })
+  const response = await courseMaterialClient.get(
+    `/exercises/${id}/slide-submission/${submissionId}/peer-reviews-received`,
+    {
+      responseType: "json",
+    },
+  )
   return validateResponse(response, isCourseMaterialPeerReviewGivenData)
 }
 

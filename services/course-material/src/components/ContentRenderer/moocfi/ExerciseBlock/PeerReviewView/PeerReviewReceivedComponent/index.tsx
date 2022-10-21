@@ -105,16 +105,17 @@ const Notification = styled.div`
 
 interface PeerReviewProps {
   id: string
+  submissionId: string
 }
 
-const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id }) => {
+const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId }) => {
   const { t } = useTranslation()
   let result: PeerReviewQuestionSubmission[] = []
   let questions: PeerReviewQuestion[] = []
 
   const getPeerReviewReceived = useQuery(
-    [`exercise-slide-submission-${id}-peer-reviews-received`],
-    () => fetchPeerReviewDataReceivedByExerciseId(id),
+    [`exercise-id-${id}-exercise-slide-submission-id-${submissionId}-peer-reviews-received`],
+    () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
   )
 
   if (getPeerReviewReceived.isLoading) {

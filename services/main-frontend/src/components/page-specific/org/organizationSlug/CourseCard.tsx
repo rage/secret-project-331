@@ -65,7 +65,7 @@ const CourseContent = styled.div`
 // eslint-disable-next-line i18next/no-literal-string
 const CourseHeading = styled.div`
   font-family: ${headingFont};
-  font-weight: 200;
+  font-weight: 400;
   font-size: 30px;
   line-height: 1;
   color: #1a2333;
@@ -84,7 +84,7 @@ const CourseDescription = styled.div`
   -webkit-box-orient: vertical;
 
   font-family: ${primaryFont};
-  font-weight: ${fontWeights["normal"]};
+  font-weight: ${fontWeights["light"]};
   font-size: 20px;
   line-height: 24px;
   color: #1a2333;

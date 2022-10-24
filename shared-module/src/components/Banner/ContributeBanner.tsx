@@ -44,7 +44,7 @@ const Content = styled.div`
     text-align: center;
     margin-bottom: 5px !important;
 
-    background: -webkit-linear-gradient(-70deg, #2188ff 0%, #804eda 100%);
+    background: -webkit-linear-gradient(-70deg, #020344 0%, #28b8d5 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

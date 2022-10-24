@@ -34,6 +34,7 @@ import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary
 
 import ExerciseTask from "./ExerciseTask"
 import PeerReviewView from "./PeerReviewView"
+import PeerReviewReceived from "./PeerReviewView/PeerReviewReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
@@ -164,6 +165,9 @@ const ExerciseBlock: React.FC<
     limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
 
   const exerciseDeadline = getCourseMaterialExercise.data.exercise.deadline
+
+  const exerciseSlideSubmissionId =
+    getCourseMaterialExercise.data.previous_exercise_slide_submission?.id
 
   const dateInTwoDays = new Date()
   dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
@@ -441,6 +445,13 @@ const ExerciseBlock: React.FC<
                 {t("submit-button")}
               </Button>
             )}
+            {inSubmissionView &&
+              getCourseMaterialExercise.data.exercise.needs_peer_review &&
+              exerciseSlideSubmissionId &&
+              (reviewingStage === "WaitingForPeerReviews" ||
+                reviewingStage === "ReviewedAndLocked") && (
+                <PeerReviewReceived id={id} submissionId={exerciseSlideSubmissionId} />
+              )}
             {inSubmissionView && (reviewingStage === "NotStarted" || reviewingStage === undefined) && (
               <div>
                 {isExam && (

@@ -555,6 +555,12 @@
 <span id="555">555</span>
 <span id="556">556</span>
 <span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">document_schema_processor::GutenbergBlock</span>, <span class="ident">merge_edits</span>};
@@ -606,6 +612,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">edits</span>: <span class="kw-2">&amp;</span><span class="ident">NewProposedPageEdits</span>,
@@ -621,10 +628,11 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">page_res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-INSERT INTO proposed_page_edits (course_id, page_id, user_id)
-VALUES ($1, $2, $3)
+INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-&quot;</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">course_id</span>,
         <span class="ident">edits</span>.<span class="ident">page_id</span>,
         <span class="ident">user_id</span>,
@@ -1033,7 +1041,9 @@ WHERE id = $2
                 <span class="ident">changed_text</span>: <span class="string">&quot;Content with a typo in it.&quot;</span>.<span class="ident">to_string</span>(),
             }],
         };
-        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">true</span>, <span class="ident">Pagination::default</span>())
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
@@ -1081,7 +1091,9 @@ WHERE id = $2
                 <span class="ident">changed_text</span>: <span class="string">&quot;Content with a typo in it.&quot;</span>.<span class="ident">to_string</span>(),
             }],
         };
-        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">get_proposals_for_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="bool-val">true</span>, <span class="ident">Pagination::default</span>())
             .<span class="kw">await</span>

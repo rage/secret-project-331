@@ -171,8 +171,8 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">new_completion_registration</span>: <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletionRegisteredToStudyRegistry</span>,
-    <span class="ident">test_only_fixed_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
@@ -186,7 +186,7 @@ INSERT INTO course_module_completion_registered_to_study_registries (
     real_student_number
   )
 VALUES (
-    COALESCE($1, uuid_generate_v4()),
+    $1,
     $2,
     $3,
     $4,
@@ -196,7 +196,7 @@ VALUES (
   )
 RETURNING id
         &quot;</span>,
-        <span class="ident">test_only_fixed_id</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">new_completion_registration</span>.<span class="ident">course_id</span>,
         <span class="ident">new_completion_registration</span>.<span class="ident">course_module_completion_id</span>,
         <span class="ident">new_completion_registration</span>.<span class="ident">course_module_id</span>,
@@ -240,6 +240,7 @@ RETURNING id
             })<span class="question-mark">?</span>;
         <span class="ident">insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletionRegisteredToStudyRegistry</span> {
                 <span class="ident">course_id</span>: <span class="ident">module_completion</span>.<span class="ident">course_id</span>,
                 <span class="ident">course_module_completion_id</span>: <span class="ident">completion</span>.<span class="ident">completion_id</span>,
@@ -248,7 +249,6 @@ RETURNING id
                 <span class="ident">user_id</span>: <span class="ident">module_completion</span>.<span class="ident">user_id</span>,
                 <span class="ident">real_student_number</span>: <span class="ident">completion</span>.<span class="ident">student_number</span>,
             },
-            <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }

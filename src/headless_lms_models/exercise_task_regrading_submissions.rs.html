@@ -96,6 +96,9 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExerciseTaskRegradingSubmission</span> {
@@ -108,6 +111,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">regrading_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_task_submission_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">grading_before_regrading_id</span>: <span class="ident">Uuid</span>,
@@ -115,13 +119,15 @@
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_task_regrading_submissions (
+    id,
     regrading_id,
     exercise_task_submission_id,
     grading_before_regrading
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-&quot;</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">regrading_id</span>,
         <span class="ident">exercise_task_submission_id</span>,
         <span class="ident">grading_before_regrading_id</span>

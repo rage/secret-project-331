@@ -296,8 +296,8 @@ WHERE c.id = $1
 
         <span class="kw">let</span> <span class="ident">instance_2</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewCourseInstance</span> {
-                <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
                 <span class="ident">course_id</span>: <span class="ident">course</span>,
                 <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;instance-2&quot;</span>),
                 <span class="ident">description</span>: <span class="prelude-val">None</span>,

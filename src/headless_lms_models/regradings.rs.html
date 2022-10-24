@@ -282,6 +282,7 @@
 <span id="282">282</span>
 <span id="283">283</span>
 <span id="284">284</span>
+<span id="285">285</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercise_task_gradings</span>::{<span class="self">self</span>, <span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
     <span class="ident">exercise_task_regrading_submissions</span>, <span class="ident">exercise_task_submissions</span>,
@@ -377,6 +378,7 @@ RETURNING id
             })<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">_etrs</span> <span class="op">=</span> <span class="ident">exercise_task_regrading_submissions::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">res</span>.<span class="ident">id</span>,
             <span class="ident">id</span>,
             <span class="ident">grading_before_regrading_id</span>,

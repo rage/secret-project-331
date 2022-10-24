@@ -880,6 +880,18 @@
 <span id="880">880</span>
 <span id="881">881</span>
 <span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>},
     <span class="ident">convert::TryFrom</span>,
@@ -893,7 +905,6 @@
 };
 <span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">sqlx::PgConnection</span>;
-<span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="self">self</span> <span class="kw">as</span> <span class="ident">models</span>,
@@ -902,6 +913,7 @@
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">ExerciseTaskGradingResult</span>},
     <span class="ident">exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission</span>,
     <span class="ident">exercises</span>::{<span class="ident">Exercise</span>, <span class="ident">GradingProgress</span>},
+    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
     <span class="ident">ModelResult</span>,
 };
 
@@ -1187,6 +1199,7 @@
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewExerciseTask</span> {
                 <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
                 <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
@@ -1236,6 +1249,7 @@
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
@@ -1282,6 +1296,7 @@
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewExerciseTask</span> {
                 <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
                 <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
@@ -1339,6 +1354,7 @@
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
@@ -1380,6 +1396,7 @@
 
         <span class="kw">let</span> <span class="ident">task_1</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewExerciseTask</span> {
                 <span class="ident">exercise_slide_id</span>: <span class="ident">slide_1</span>,
                 <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise-1&quot;</span>.<span class="ident">to_string</span>(),
@@ -1414,11 +1431,13 @@
             .<span class="ident">first</span>()
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">slide_2</span> <span class="op">=</span> <span class="ident">models::exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="number">1</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">slide_2</span> <span class="op">=</span>
+            <span class="ident">models::exercise_slides::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">exercise</span>.<span class="ident">id</span>, <span class="number">1</span>)
+                .<span class="kw">await</span>
+                .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">task_2</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewExerciseTask</span> {
                 <span class="ident">exercise_slide_id</span>: <span class="ident">slide_2</span>,
                 <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise-2&quot;</span>.<span class="ident">to_string</span>(),
@@ -1485,6 +1504,7 @@
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_1</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">task_submission_result_1</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">task_submission_result_1</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
@@ -1493,6 +1513,7 @@
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_2</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">task_submission_result_2</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">task_submission_result_2</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
@@ -1525,6 +1546,7 @@
         <span class="kw">let</span> <span class="ident">exercise</span> <span class="op">=</span> <span class="ident">exercises::get_by_id</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">exercise</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="ident">models::exercise_tasks::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">NewExerciseTask</span> {
                 <span class="ident">exercise_slide_id</span>: <span class="ident">slide</span>,
                 <span class="ident">exercise_type</span>: <span class="string">&quot;test-exercise&quot;</span>.<span class="ident">to_string</span>(),
@@ -1593,6 +1615,7 @@
             .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,
@@ -1676,6 +1699,7 @@
         .<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">_regrading_submission_id</span> <span class="op">=</span> <span class="ident">models::exercise_task_regrading_submissions::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">regrading</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">submission</span>.<span class="ident">id</span>,
             <span class="ident">exercise_task_submission_result</span>.<span class="ident">grading</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>,

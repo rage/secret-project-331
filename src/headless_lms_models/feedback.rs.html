@@ -200,6 +200,15 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
@@ -221,6 +230,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">user_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">new_feedback</span>: <span class="ident">NewFeedback</span>,
@@ -228,10 +238,18 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-INSERT INTO feedback(user_id, course_id, feedback_given, selected_text, page_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO feedback(
+    id,
+    user_id,
+    course_id,
+    feedback_given,
+    selected_text,
+    page_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
-&quot;</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">user_id</span>,
         <span class="ident">course_id</span>,
         <span class="ident">new_feedback</span>.<span class="ident">feedback_given</span>,

@@ -918,7 +918,7 @@
     <span class="kw">let</span> <span class="ident">course_language_group_id</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">same_language_group</span> {
         <span class="ident">parent_course</span>.<span class="ident">course_language_group_id</span>
     } <span class="kw">else</span> {
-        <span class="ident">course_language_groups::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>
+        <span class="ident">course_language_groups::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>).<span class="kw">await</span><span class="question-mark">?</span>
     };
 
     <span class="comment">// Create new course.</span>
@@ -1019,8 +1019,8 @@ WHERE id = $2;
     <span class="comment">// Create default instance for copied course.</span>
     <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">NewCourseInstance</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">course_id</span>: <span class="ident">copied_course</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="prelude-val">None</span>,
             <span class="ident">description</span>: <span class="prelude-val">None</span>,

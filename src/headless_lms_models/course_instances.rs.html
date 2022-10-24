@@ -495,6 +495,9 @@
 <span id="495">495</span>
 <span id="496">496</span>
 <span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -536,7 +539,6 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NewCourseInstance</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
@@ -549,6 +551,7 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">new_course_instance</span>: <span class="ident">NewCourseInstance</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">CourseInstance</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">course_instance</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
@@ -577,7 +580,7 @@ RETURNING id,
   teacher_in_charge_email,
   support_email
 &quot;#</span>,
-        <span class="ident">new_course_instance</span>.<span class="ident">id</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">new_course_instance</span>.<span class="ident">course_id</span>,
         <span class="ident">new_course_instance</span>.<span class="ident">name</span>,
         <span class="ident">new_course_instance</span>.<span class="ident">description</span>,
@@ -973,7 +976,6 @@ WHERE id = $1
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx1</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
         <span class="comment">// courses always have a default instance with no name, so this should fail</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">NewCourseInstance</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
             <span class="ident">course_id</span>,
             <span class="ident">name</span>: <span class="prelude-val">None</span>,
             <span class="ident">description</span>: <span class="prelude-val">None</span>,
@@ -983,13 +985,17 @@ WHERE id = $1
             <span class="ident">opening_time</span>: <span class="prelude-val">None</span>,
             <span class="ident">closing_time</span>: <span class="prelude-val">None</span>,
         };
-        <span class="ident">insert</span>(<span class="ident">tx1</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>).<span class="kw">await</span>.<span class="ident">unwrap_err</span>();
+        <span class="ident">insert</span>(<span class="ident">tx1</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">instance</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap_err</span>();
         <span class="ident">tx1</span>.<span class="ident">rollback</span>().<span class="kw">await</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx2</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
         <span class="comment">// after we give it a name, it should be ok</span>
         <span class="ident">instance</span>.<span class="ident">name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="string">&quot;name&quot;</span>);
-        <span class="ident">insert</span>(<span class="ident">tx2</span>.<span class="ident">as_mut</span>(), <span class="ident">instance</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">insert</span>(<span class="ident">tx2</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">instance</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
     }
 }
 </code></pre></div>

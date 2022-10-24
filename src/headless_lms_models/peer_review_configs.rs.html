@@ -437,35 +437,6 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">Exercise</span>},
     <span class="ident">library</span>::{<span class="self">self</span>, <span class="ident">peer_reviewing::CourseMaterialPeerReviewData</span>},
@@ -544,48 +515,19 @@ Some strategies compare the overall received peer review likert answer (1-5) ave
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
-INSERT INTO peer_review_configs (course_id, exercise_id)
-VALUES ($1, $2)
+INSERT INTO peer_review_configs (id, course_id, exercise_id)
+VALUES ($1, $2, $3)
 RETURNING id
         &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">course_id</span>,
         <span class="ident">exercise_id</span>,
-    )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>.<span class="ident">id</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_with_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">course_id</span>: <span class="ident">Uuid</span>,
-    <span class="ident">exercise_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">peer_reviews_to_give</span>: <span class="ident">i32</span>,
-    <span class="ident">peer_reviews_to_receive</span>: <span class="ident">i32</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
-        <span class="string">&quot;
-INSERT INTO peer_review_configs (
-    id,
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-        &quot;</span>,
-        <span class="ident">id</span>,
-        <span class="ident">course_id</span>,
-        <span class="ident">exercise_id</span>,
-        <span class="ident">peer_reviews_to_give</span>,
-        <span class="ident">peer_reviews_to_receive</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -930,7 +872,7 @@ WHERE id = $1;
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">only_one_default_peer_review_per_course</span>() {
         <span class="macro">insert_data!</span>(:<span class="ident">tx</span>, :<span class="ident">user</span>, :<span class="ident">org</span>, :<span class="ident">course</span>);
 
-        <span class="kw">let</span> <span class="ident">peer_review_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">peer_review_1</span> <span class="op">=</span> <span class="ident">insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">course</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
         <span class="macro">assert!</span>(<span class="ident">peer_review_1</span>.<span class="ident">is_err</span>());
     }
 }

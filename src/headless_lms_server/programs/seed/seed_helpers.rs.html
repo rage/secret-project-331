@@ -457,7 +457,7 @@
     <span class="ident">pages</span>::{
         <span class="self">self</span>, <span class="ident">CmsPageExercise</span>, <span class="ident">CmsPageExerciseSlide</span>, <span class="ident">CmsPageExerciseTask</span>, <span class="ident">CmsPageUpdate</span>, <span class="ident">NewPage</span>,
     },
-    <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>,
+    <span class="ident">user_exercise_slide_states</span>, <span class="ident">user_exercise_states</span>, <span class="ident">PKeyPolicy</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils</span>::{<span class="ident">attributes</span>, <span class="ident">document_schema_processor::GutenbergBlock</span>};
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -823,6 +823,7 @@
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident">exams::insert</span>(
         <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">exam_id</span>),
         <span class="kw-2">&amp;</span><span class="ident">NewExam</span> {
             <span class="ident">name</span>,
             <span class="ident">starts_at</span>,
@@ -830,7 +831,6 @@
             <span class="ident">time_minutes</span>,
             <span class="ident">organization_id</span>,
         },
-        <span class="prelude-val">Some</span>(<span class="ident">exam_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

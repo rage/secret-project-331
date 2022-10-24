@@ -460,6 +460,9 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">futures::TryStreamExt</span>;
@@ -547,11 +550,13 @@
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">new_exercise_task</span>: <span class="ident">NewExerciseTask</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_tasks (
+    id,
     exercise_slide_id,
     exercise_type,
     assignment,
@@ -560,9 +565,10 @@ INSERT INTO exercise_tasks (
     model_solution_spec,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-&quot;</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">new_exercise_task</span>.<span class="ident">exercise_slide_id</span>,
         <span class="ident">new_exercise_task</span>.<span class="ident">exercise_type</span>,
         <span class="ident">serde_json::to_value</span>(<span class="ident">new_exercise_task</span>.<span class="ident">assignment</span>)<span class="question-mark">?</span>,

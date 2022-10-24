@@ -609,7 +609,7 @@ some_function_returning_an_error().map_err(|original_error| {
     <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">email_templates::EmailTemplateNew</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">email_templates::EmailTemplateNew</span>, <span class="ident">test_helper</span>::<span class="kw-2">*</span>, <span class="ident">PKeyPolicy</span>};
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">email_templates_check</span>() {
@@ -636,12 +636,12 @@ some_function_returning_an_error().map_err(|original_error| {
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">users_email_check</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Conn::init</span>().<span class="kw">await</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span>;
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::users::insert_with_id</span>(
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::users::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;92c2d6d6-e1b8-4064-8c60-3ae52266c62c&quot;</span>).<span class="ident">unwrap</span>()),
             <span class="string">&quot;invalid email&quot;</span>,
             <span class="prelude-val">None</span>,
             <span class="prelude-val">None</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;92c2d6d6-e1b8-4064-8c60-3ae52266c62c&quot;</span>).<span class="ident">unwrap</span>(),
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap_err</span>();

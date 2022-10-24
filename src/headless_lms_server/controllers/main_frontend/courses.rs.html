@@ -961,7 +961,6 @@
 <span id="961">961</span>
 <span id="962">962</span>
 <span id="963">963</span>
-<span id="964">964</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">headless_lms_utils::strings::is_ietf_language_code_like</span>;
@@ -977,6 +976,7 @@
     <span class="ident">exercises::Exercise</span>,
     <span class="ident">feedback</span>::{<span class="self">self</span>, <span class="ident">Feedback</span>, <span class="ident">FeedbackCount</span>},
     <span class="ident">glossary</span>::{<span class="ident">Term</span>, <span class="ident">TermUpdate</span>},
+    <span class="ident">library</span>,
     <span class="ident">material_references</span>::{<span class="ident">MaterialReference</span>, <span class="ident">NewMaterialReference</span>},
     <span class="ident">pages::Page</span>,
     <span class="ident">peer_review_configs::PeerReviewConfig</span>,
@@ -1043,10 +1043,9 @@ Content-Type: application/json
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">course</span>, ..) <span class="op">=</span> <span class="ident">models::courses::insert_course</span>(
+    <span class="kw">let</span> (<span class="ident">course</span>, ..) <span class="op">=</span> <span class="ident">library::content_management::create_new_course</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
-        <span class="ident">Uuid::new_v4</span>(),
-        <span class="ident">Uuid::new_v4</span>(),
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">new_course</span>,
         <span class="ident">user</span>.<span class="ident">id</span>,
     )
@@ -1578,7 +1577,6 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">authorize</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">Act::Edit</span>, <span class="prelude-val">Some</span>(<span class="ident">user</span>.<span class="ident">id</span>), <span class="ident">Res::Course</span>(<span class="kw-2">*</span><span class="ident">course_id</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">form</span> <span class="op">=</span> <span class="ident">form</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">NewCourseInstance</span> {
-        <span class="ident">id</span>: <span class="ident">Uuid::new_v4</span>(),
         <span class="ident">course_id</span>: <span class="kw-2">*</span><span class="ident">course_id</span>,
         <span class="ident">name</span>: <span class="ident">form</span>.<span class="ident">name</span>.<span class="ident">as_deref</span>(),
         <span class="ident">description</span>: <span class="ident">form</span>.<span class="ident">description</span>.<span class="ident">as_deref</span>(),
@@ -1588,7 +1586,7 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
         <span class="ident">opening_time</span>: <span class="ident">form</span>.<span class="ident">opening_time</span>,
         <span class="ident">closing_time</span>: <span class="ident">form</span>.<span class="ident">closing_time</span>,
     };
-    <span class="kw">let</span> <span class="ident">ci</span> <span class="op">=</span> <span class="ident">models::course_instances::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">new</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">ci</span> <span class="op">=</span> <span class="ident">models::course_instances::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">new</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">ci</span>.<span class="ident">id</span>))
 }

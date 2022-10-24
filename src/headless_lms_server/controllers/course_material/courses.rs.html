@@ -647,6 +647,7 @@
 <span id="647">647</span>
 <span id="648">648</span>
 <span id="649">649</span>
+<span id="650">650</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">net::IpAddr</span>, <span class="ident">path::Path</span>};
@@ -1176,7 +1177,7 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">fs</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">user_id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">feedback::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="ident">user_id</span>, <span class="kw-2">*</span><span class="ident">course_id</span>, <span class="ident">f</span>).<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">id</span>);
     }
     <span class="ident">tx</span>.<span class="ident">commit</span>().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1198,6 +1199,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
     <span class="kw">let</span> <span class="ident">course</span> <span class="op">=</span> <span class="ident">courses::get_course_by_slug</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course_slug</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">proposed_page_edits::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">course</span>.<span class="ident">id</span>,
         <span class="ident">user</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">id</span>),
         <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">into_inner</span>(),

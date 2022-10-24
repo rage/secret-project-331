@@ -11,6 +11,8 @@
 <span id="11">11</span>
 <span id="12">12</span>
 <span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Re-exports commonly used types for convenient use across the crate.</span>
 <span class="doccomment">//! Intended to be glob-imported like `use crate::prelude::*;`.</span>
 
@@ -22,7 +24,9 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ts_rs::TS</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error::TryToOptional</span>, <span class="ident">CourseOrExamId</span>, <span class="ident">ModelError</span>, <span class="ident">ModelErrorType</span>, <span class="ident">ModelResult</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">error::TryToOptional</span>, <span class="ident">CourseOrExamId</span>, <span class="ident">ModelError</span>, <span class="ident">ModelErrorType</span>, <span class="ident">ModelResult</span>, <span class="ident">PKeyPolicy</span>,
+};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">headless_lms_utils::error::backend_error::BackendError</span>;
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="headless_lms_models" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

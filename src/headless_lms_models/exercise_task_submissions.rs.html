@@ -389,6 +389,10 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -469,6 +473,7 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
+<span class="comment">// TODO: Merge with the other insert, but need to resolve different parameters.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert_with_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
     <span class="ident">submission_data</span>: <span class="kw-2">&amp;</span><span class="ident">SubmissionData</span>,
@@ -498,6 +503,7 @@ RETURNING id
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">exercise_slide_submission_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_slide_id</span>: <span class="ident">Uuid</span>,
     <span class="ident">exercise_task_id</span>: <span class="ident">Uuid</span>,
@@ -506,14 +512,16 @@ RETURNING id
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
 INSERT INTO exercise_task_submissions (
+    id,
     exercise_slide_submission_id,
     exercise_slide_id,
     exercise_task_id,
     data_json
   )
-  VALUES ($1, $2, $3, $4)
+  VALUES ($1, $2, $3, $4, $5)
   RETURNING id
-&quot;</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">exercise_slide_submission_id</span>,
         <span class="ident">exercise_slide_id</span>,
         <span class="ident">exercise_task_id</span>,

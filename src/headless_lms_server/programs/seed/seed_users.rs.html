@@ -110,7 +110,7 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_models::users</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">headless_lms_models</span>::{<span class="ident">users</span>, <span class="ident">PKeyPolicy</span>};
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Pool</span>, <span class="ident">Postgres</span>};
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
 
@@ -129,86 +129,86 @@
     <span class="macro">info!</span>(<span class="string">&quot;inserting users&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">db_pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">admin_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">admin_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;admin@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Admin&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;02c79854-da22-4cfc-95c4-13038af25d2e&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;teacher@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Teacher&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;90643204-7656-4570-bdd9-aad5d297f9ce&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">language_teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">language_teacher_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;language.teacher@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Language&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;0fd8bd2d-cb4e-4035-b7db-89e798fe4df0&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">assistant_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">assistant_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;assistant@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Assistant&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;24342539-f1ba-453e-ae13-14aa418db921&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">course_or_exam_creator_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">course_or_exam_creator_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;creator@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;Creator&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">student_user_id</span> <span class="op">=</span> <span class="ident">users::insert_with_id</span>(
+    <span class="kw">let</span> <span class="ident">student_user_id</span> <span class="op">=</span> <span class="ident">users::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;user@example.com&quot;</span>,
         <span class="prelude-val">Some</span>(<span class="string">&quot;User&quot;</span>),
         <span class="prelude-val">Some</span>(<span class="string">&quot;Example&quot;</span>),
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;849b8d32-d5f8-4994-9d21-5aa6259585b1&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">example_normal_user_ids</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">users::insert_with_id</span>(
+        <span class="ident">users::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_1@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User1&quot;</span>),
             <span class="prelude-val">None</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;00e249d8-345f-4eff-aedb-7bdc4c44c1d5&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert_with_id</span>(
+        <span class="ident">users::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_2@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User2&quot;</span>),
             <span class="prelude-val">None</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8d7d6c8c-4c31-48ae-8e20-c68fa95c25cc&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert_with_id</span>(
+        <span class="ident">users::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_3@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User3&quot;</span>),
             <span class="prelude-val">None</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;fbeb9286-3dd8-4896-a6b8-3faffa3fabd6&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">users::insert_with_id</span>(
+        <span class="ident">users::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>),
             <span class="string">&quot;user_4@example.com&quot;</span>,
             <span class="prelude-val">Some</span>(<span class="string">&quot;User4&quot;</span>),
             <span class="prelude-val">None</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3524d694-7fa8-4e73-aa1a-de9a20fd514b&quot;</span>)<span class="question-mark">?</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>,
     ];

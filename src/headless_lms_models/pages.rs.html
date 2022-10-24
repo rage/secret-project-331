@@ -3097,6 +3097,9 @@
 <span id="3097">3097</span>
 <span id="3098">3098</span>
 <span id="3099">3099</span>
+<span id="3100">3100</span>
+<span id="3101">3101</span>
+<span id="3102">3102</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">collections</span>::{<span class="ident">hash_map</span>, <span class="ident">HashMap</span>},
     <span class="ident">time::Duration</span>,
@@ -3339,6 +3342,7 @@ RETURNING id
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">history_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::page_history::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">page_res</span>.<span class="ident">id</span>,
         <span class="ident">title</span>,
         <span class="kw-2">&amp;</span><span class="ident">PageHistoryContent</span> {
@@ -3388,6 +3392,7 @@ RETURNING id
 
     <span class="kw">let</span> <span class="ident">history_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::page_history::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">page_res</span>.<span class="ident">id</span>,
         <span class="ident">page</span>.<span class="ident">title</span>.<span class="ident">as_str</span>(),
         <span class="kw-2">&amp;</span><span class="ident">PageHistoryContent</span> {
@@ -4171,6 +4176,7 @@ RETURNING id,
     };
     <span class="ident"><span class="kw">crate</span>::page_history::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">page_id</span>,
         <span class="kw-2">&amp;</span><span class="ident">page_update</span>.<span class="ident">title</span>,
         <span class="kw-2">&amp;</span><span class="ident">history_content</span>,
@@ -5990,6 +5996,7 @@ WHERE pages.order_number = $1
 
         <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::exams::insert</span>(
             <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="kw-2">&amp;</span><span class="ident">NewExam</span> {
                 <span class="ident">name</span>: <span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">starts_at</span>: <span class="prelude-val">None</span>,
@@ -5997,7 +6004,6 @@ WHERE pages.order_number = $1
                 <span class="ident">time_minutes</span>: <span class="number">120</span>,
                 <span class="ident">organization_id</span>: <span class="ident">org</span>,
             },
-            <span class="prelude-val">None</span>,
         )
         .<span class="kw">await</span>
         .<span class="ident">unwrap</span>();

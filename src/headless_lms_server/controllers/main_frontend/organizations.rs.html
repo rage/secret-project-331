@@ -705,7 +705,7 @@ POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident">models::exams::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">new_exam_id</span> <span class="op">=</span> <span class="ident">models::exams::insert</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tx</span>, <span class="ident">PKeyPolicy::Generate</span>, <span class="kw-2">&amp;</span><span class="ident">new_exam</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">pages::insert_exam_page</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
         <span class="ident">new_exam_id</span>,

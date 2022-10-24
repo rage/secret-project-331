@@ -458,6 +458,7 @@
 <span id="458">458</span>
 <span id="459">459</span>
 <span id="460">460</span>
+<span id="461">461</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -605,6 +606,7 @@
             })<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">submission_id</span> <span class="op">=</span> <span class="ident">exercise_task_submissions::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">exercise_slide_submission</span>.<span class="ident">id</span>,
             <span class="ident">exercise_task</span>.<span class="ident">exercise_slide_id</span>,
             <span class="ident">exercise_task</span>.<span class="ident">id</span>,

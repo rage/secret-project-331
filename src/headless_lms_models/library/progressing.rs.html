@@ -951,6 +951,22 @@
 <span id="951">951</span>
 <span id="952">952</span>
 <span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1037,6 +1053,7 @@
             <span class="kw">let</span> <span class="ident">user</span> <span class="op">=</span> <span class="ident">users::get_by_id</span>(<span class="ident">conn</span>, <span class="ident">user_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">_completion_id</span> <span class="op">=</span> <span class="ident">course_module_completions::insert</span>(
                 <span class="ident">conn</span>,
+                <span class="ident">PKeyPolicy::Generate</span>,
                 <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span> {
                     <span class="ident">course_id</span>: <span class="ident">course_module</span>.<span class="ident">course_id</span>,
                     <span class="ident">course_instance_id</span>,
@@ -1051,7 +1068,6 @@
                     <span class="ident">passed</span>: <span class="bool-val">true</span>,
                 },
                 <span class="ident">CourseModuleCompletionGranter::Automatic</span>,
-                <span class="prelude-val">None</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="macro">info!</span>(<span class="string">&quot;Created a completion&quot;</span>);
@@ -1334,6 +1350,7 @@
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">course_module_completions::insert</span>(
                 <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+                <span class="ident">PKeyPolicy::Generate</span>,
                 <span class="kw-2">&amp;</span><span class="ident">NewCourseModuleCompletion</span> {
                     <span class="ident">course_id</span>: <span class="ident">course_instance</span>.<span class="ident">course_id</span>,
                     <span class="ident">course_instance_id</span>: <span class="ident">course_instance</span>.<span class="ident">id</span>,
@@ -1349,7 +1366,6 @@
                     <span class="ident">passed</span>: <span class="bool-val">true</span>,
                 },
                 <span class="ident">CourseModuleCompletionGranter::User</span>(<span class="ident">completion_giver_user_id</span>),
-                <span class="prelude-val">None</span>,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="ident">update_module_completion_prerequisite_statuses_for_user</span>(
@@ -1606,9 +1622,10 @@
 
     <span class="kw">mod</span> <span class="ident">grant_automatic_completion_if_eligible</span> {
         <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">NewChapter</span>},
+            <span class="ident">chapters::NewChapter</span>,
             <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">AutomaticCompletionCriteria</span>, <span class="ident">AutomaticCompletionPolicy</span>},
             <span class="ident">exercises</span>::{<span class="self">self</span>, <span class="ident">ActivityProgress</span>, <span class="ident">GradingProgress</span>},
+            <span class="ident">library::content_management</span>,
             <span class="ident">user_exercise_states</span>::{<span class="self">self</span>, <span class="ident">ReviewingStage</span>, <span class="ident">UserExerciseStateUpdate</span>},
         };
 
@@ -1725,12 +1742,19 @@
             <span class="ident">courses::update_course_base_module_completion_count_requirement</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="number">1</span>)
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">course_module_2</span> <span class="op">=</span> <span class="ident">course_modules::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>), <span class="number">1</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">page2</span>) <span class="op">=</span> <span class="ident">chapters::insert_chapter</span>(
+            <span class="kw">let</span> <span class="ident">course_module_2</span> <span class="op">=</span> <span class="ident">course_modules::insert</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
-                <span class="ident">NewChapter</span> {
+                <span class="ident">PKeyPolicy::Generate</span>,
+                <span class="ident">course</span>,
+                <span class="prelude-val">Some</span>(<span class="string">&quot;Module 2&quot;</span>),
+                <span class="number">1</span>,
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">page2</span>) <span class="op">=</span> <span class="ident">content_management::create_new_chapter</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">PKeyPolicy::Generate</span>,
+                <span class="kw-2">&amp;</span><span class="ident">NewChapter</span> {
                     <span class="ident">name</span>: <span class="string">&quot;chapter 2&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">color</span>: <span class="prelude-val">None</span>,
                     <span class="ident">course_id</span>: <span class="ident">course</span>,
@@ -1744,9 +1768,17 @@
             )
             .<span class="kw">await</span>
             .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">exercise_2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;&quot;</span>, <span class="ident">page2</span>.<span class="ident">id</span>, <span class="ident">chapter_2</span>.<span class="ident">id</span>, <span class="number">0</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">exercise_2</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">PKeyPolicy::Generate</span>,
+                <span class="ident">course</span>,
+                <span class="string">&quot;&quot;</span>,
+                <span class="ident">page2</span>.<span class="ident">id</span>,
+                <span class="ident">chapter_2</span>.<span class="ident">id</span>,
+                <span class="number">0</span>,
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">user_exercise_state</span> <span class="op">=</span> <span class="ident">user_exercise_states::get_or_create_user_exercise_state</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
                 <span class="ident">user</span>,

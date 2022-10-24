@@ -612,6 +612,8 @@
 <span id="612">612</span>
 <span id="613">613</span>
 <span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">seq::SliceRandom</span>, <span class="ident">thread_rng</span>};
@@ -695,6 +697,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">begin</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">peer_review_submission_id</span> <span class="op">=</span> <span class="ident">peer_review_submissions::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+        <span class="ident">PKeyPolicy::Generate</span>,
         <span class="ident">giver_exercise_state</span>.<span class="ident">user_id</span>,
         <span class="ident">giver_exercise_state</span>.<span class="ident">exercise_id</span>,
         <span class="ident">giver_exercise_state</span>.<span class="ident">get_course_instance_id</span>()<span class="question-mark">?</span>,
@@ -705,6 +708,7 @@
     <span class="kw">for</span> <span class="ident">answer</span> <span class="kw">in</span> <span class="ident">sanitized_answers</span> {
         <span class="ident">peer_review_question_submissions::insert</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>,
+            <span class="ident">PKeyPolicy::Generate</span>,
             <span class="ident">answer</span>.<span class="ident">peer_review_question_id</span>,
             <span class="ident">peer_review_submission_id</span>,
             <span class="ident">answer</span>.<span class="ident">text_data</span>,

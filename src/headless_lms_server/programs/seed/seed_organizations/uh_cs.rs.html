@@ -479,18 +479,26 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">Duration</span>, <span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">futures::try_join</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
     <span class="ident">course_instances</span>::{<span class="self">self</span>, <span class="ident">NewCourseInstance</span>},
     <span class="ident">course_modules</span>::{<span class="self">self</span>, <span class="ident">AutomaticCompletionCriteria</span>, <span class="ident">AutomaticCompletionPolicy</span>},
-    <span class="ident">courses</span>::{<span class="self">self</span>, <span class="ident">NewCourse</span>},
+    <span class="ident">courses::NewCourse</span>,
+    <span class="ident">library::content_management::CreateNewCourseFixedIds</span>,
     <span class="ident">library</span>::{
         <span class="self">self</span>,
         <span class="ident">progressing</span>::{<span class="ident">TeacherManualCompletion</span>, <span class="ident">TeacherManualCompletionRequest</span>},
     },
     <span class="ident">open_university_registration_links</span>, <span class="ident">organizations</span>,
     <span class="ident">roles</span>::{<span class="self">self</span>, <span class="ident">RoleDomain</span>, <span class="ident">UserRole</span>},
+    <span class="ident">PKeyPolicy</span>,
 };
 <span class="kw">use</span> <span class="ident">headless_lms_utils::futures::run_parallelly</span>;
 <span class="kw">use</span> <span class="ident">uuid::Uuid</span>;
@@ -527,10 +535,10 @@
 
     <span class="kw">let</span> <span class="ident">uh_cs_organization_id</span> <span class="op">=</span> <span class="ident">organizations::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8bb12295-53ac-4099-9644-ac0ff5e34d92&quot;</span>)<span class="question-mark">?</span>),
         <span class="string">&quot;University of Helsinki, Department of Computer Science&quot;</span>,
         <span class="string">&quot;uh-cs&quot;</span>,
         <span class="string">&quot;Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.&quot;</span>,
-        <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;8bb12295-53ac-4099-9644-ac0ff5e34d92&quot;</span>)<span class="question-mark">?</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -704,18 +712,22 @@
         <span class="ident">is_test_mode</span>: <span class="bool-val">false</span>,
     };
     <span class="kw">let</span> (<span class="ident">cs_course</span>, <span class="ident">_cs_front_page</span>, <span class="ident">_cs_default_course_instance</span>, <span class="ident">_cs_default_course_module</span>) <span class="op">=</span>
-        <span class="ident">courses::insert_course</span>(
+        <span class="ident">library::content_management::create_new_course</span>(
             <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;06a7ccbd-8958-4834-918f-ad7b24e583fd&quot;</span>)<span class="question-mark">?</span>,
-            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;48399008-6523-43c5-8fd6-59ecc731a426&quot;</span>)<span class="question-mark">?</span>,
+            <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">CreateNewCourseFixedIds</span> {
+                <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;06a7ccbd-8958-4834-918f-ad7b24e583fd&quot;</span>)<span class="question-mark">?</span>,
+                <span class="ident">default_course_instance_id</span>: <span class="ident">Uuid::parse_str</span>(
+                    <span class="string">&quot;48399008-6523-43c5-8fd6-59ecc731a426&quot;</span>,
+                )<span class="question-mark">?</span>,
+            }),
             <span class="ident">new_course</span>,
             <span class="ident">admin_user_id</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">_cs_course_instance</span> <span class="op">=</span> <span class="ident">course_instances::insert</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;49c618d3-926d-4287-9159-b3af1f86082d&quot;</span>)<span class="question-mark">?</span>),
         <span class="ident">NewCourseInstance</span> {
-            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;49c618d3-926d-4287-9159-b3af1f86082d&quot;</span>)<span class="question-mark">?</span>,
             <span class="ident">course_id</span>: <span class="ident">cs_course</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;non-default instance&quot;</span>),
             <span class="ident">description</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;this is another non-default instance&quot;</span>),

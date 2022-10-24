@@ -538,8 +538,8 @@ AND deleted_at IS NULL
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">insert</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">pkey_policy</span>: <span class="ident">PKeyPolicy</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">exam</span>: <span class="kw-2">&amp;</span><span class="ident">NewExam</span>,
-    <span class="ident">seed_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query!</span>(
         <span class="string">&quot;
@@ -552,10 +552,10 @@ INSERT INTO exams (
     time_minutes,
     organization_id
   )
-VALUES (COALESCE($1, uuid_generate_v4()), $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-&quot;</span>,
-        <span class="ident">seed_id</span>,
+        &quot;</span>,
+        <span class="ident">pkey_policy</span>.<span class="ident">into_uuid</span>(),
         <span class="ident">exam</span>.<span class="ident">name</span>,
         <span class="ident">serde_json::Value::Array</span>(<span class="macro">vec!</span>[]),
         <span class="ident">exam</span>.<span class="ident">starts_at</span>,

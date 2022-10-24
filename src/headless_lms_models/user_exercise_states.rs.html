@@ -1123,6 +1123,18 @@
 <span id="1123">1123</span>
 <span id="1124">1124</span>
 <span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -2146,26 +2158,38 @@ GROUP BY user_id,
         <span class="ident">ExerciseUserCounts</span>,
         <span class="string">r#&quot;
 SELECT exercises.name as exercise_name,
-        exercises.order_number as exercise_order_number,
-        pages.order_number     as page_order_number,
-        chapters.chapter_number,
-        stat_data.*
- FROM (SELECT exercise_id,
-              COUNT(DISTINCT user_id) as n_users_attempted,
-              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given &gt; 0 ) as n_users_with_some_points,
-              COUNT(DISTINCT user_id) FILTER ( WHERE ues.score_given IS NOT NULL and ues.score_given &gt;= exercises.score_maximum ) as n_users_with_max_points
-       FROM exercises
-       JOIN user_exercise_states ues on exercises.id = ues.exercise_id
-       WHERE exercises.course_id = $1
-         AND exercises.deleted_at IS NULL
-         AND ues.deleted_at IS NULL
-       GROUP BY exercise_id) as stat_data
-        JOIN exercises ON stat_data.exercise_id = exercises.id
-        JOIN pages on exercises.page_id = pages.id
-        JOIN chapters on pages.chapter_id = chapters.id
- WHERE exercises.deleted_at IS NULL
-   AND pages.deleted_at IS NULL
-   AND chapters.deleted_at IS NULL
+  exercises.order_number as exercise_order_number,
+  pages.order_number as page_order_number,
+  chapters.chapter_number,
+  stat_data.*
+FROM (
+    SELECT exercise_id,
+      COUNT(DISTINCT user_id) FILTER (
+        WHERE ues.activity_progress = &#39;completed&#39;
+      ) as n_users_attempted,
+      COUNT(DISTINCT user_id) FILTER (
+        WHERE ues.score_given IS NOT NULL
+          and ues.score_given &gt; 0
+          AND ues.activity_progress = &#39;completed&#39;
+      ) as n_users_with_some_points,
+      COUNT(DISTINCT user_id) FILTER (
+        WHERE ues.score_given IS NOT NULL
+          and ues.score_given &gt;= exercises.score_maximum
+          and ues.activity_progress = &#39;completed&#39;
+      ) as n_users_with_max_points
+    FROM exercises
+      JOIN user_exercise_states ues on exercises.id = ues.exercise_id
+    WHERE exercises.course_id = $1
+      AND exercises.deleted_at IS NULL
+      AND ues.deleted_at IS NULL
+    GROUP BY exercise_id
+  ) as stat_data
+  JOIN exercises ON stat_data.exercise_id = exercises.id
+  JOIN pages on exercises.page_id = pages.id
+  JOIN chapters on pages.chapter_id = chapters.id
+WHERE exercises.deleted_at IS NULL
+  AND pages.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
           &quot;#</span>,
         <span class="ident">course_id</span>
     )

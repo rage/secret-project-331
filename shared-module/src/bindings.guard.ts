@@ -45,6 +45,7 @@ import {
   CourseMaterialPeerReviewConfig,
   CourseMaterialPeerReviewData,
   CourseMaterialPeerReviewDataAnswerToReview,
+  CourseMaterialPeerReviewGivenData,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
@@ -98,6 +99,7 @@ import {
   HistoryChangeReason,
   HistoryRestoreData,
   IsChapterFrontPage,
+  isPeerReviewQuestionSubmission,
   Login,
   ManualCompletionPreview,
   ManualCompletionPreviewUser,
@@ -1276,6 +1278,21 @@ export function isCourseMaterialPeerReviewData(obj: unknown): obj is CourseMater
     Array.isArray(typedObj["peer_review_questions"]) &&
     typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean) &&
     typeof typedObj["num_peer_reviews_given"] === "number"
+  )
+}
+
+export function isCourseMaterialPeerReviewGivenData(
+  obj: any,
+  _argumentName?: string,
+): obj is CourseMaterialPeerReviewGivenData {
+  return (
+    ((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+    Array.isArray(obj.peer_review_questions) &&
+    obj.peer_review_questions.every((e: any) => isPeerReviewQuestion(e) as boolean) &&
+    Array.isArray(obj.peer_review_question_submissions) &&
+    obj.peer_review_question_submissions.every(
+      (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
+    )
   )
 }
 

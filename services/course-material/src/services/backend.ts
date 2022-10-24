@@ -7,6 +7,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerReviewData,
+  CourseMaterialPeerReviewGivenData,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   ExamData,
@@ -39,6 +40,7 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewData,
+  isCourseMaterialPeerReviewGivenData,
   isCoursePageWithUserData,
   isExamData,
   isIsChapterFrontPage,
@@ -234,6 +236,19 @@ export const fetchPeerReviewDataByExerciseId = async (
     responseType: "json",
   })
   return validateResponse(response, isCourseMaterialPeerReviewData)
+}
+
+export const fetchPeerReviewDataReceivedByExerciseId = async (
+  id: string,
+  submissionId: string,
+): Promise<CourseMaterialPeerReviewGivenData> => {
+  const response = await courseMaterialClient.get(
+    `/exercises/${id}/slide-submission/${submissionId}/peer-reviews-received`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isCourseMaterialPeerReviewGivenData)
 }
 
 export const fetchChaptersPagesWithExercises = async (

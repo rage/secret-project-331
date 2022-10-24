@@ -298,6 +298,33 @@
 <span id="298">298</span>
 <span id="299">299</span>
 <span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">sqlx</span>::{<span class="ident">Postgres</span>, <span class="ident">QueryBuilder</span>, <span class="ident">Row</span>};
@@ -423,6 +450,33 @@ WHERE id = $1
         <span class="ident">id</span>,
     )
     .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_peer_review_configs_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">peer_review_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PeerReviewQuestion</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PeerReviewQuestion</span>,
+        <span class="string">r#&quot;
+SELECT id,
+    created_at,
+    updated_at,
+    deleted_at,
+    peer_review_config_id,
+    order_number,
+    question,
+    question_type AS &quot;question_type: _&quot;,
+    answer_required
+FROM peer_review_questions
+WHERE peer_review_config_id = $1
+  AND deleted_at IS NULL;
+        &quot;#</span>,
+        <span class="ident">peer_review_id</span>,
+    )
+    .<span class="ident">fetch_all</span>(<span class="ident">conn</span>)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }

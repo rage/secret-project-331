@@ -661,6 +661,34 @@ WHERE id = $1
     <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_id</span>(
+    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
+    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
+) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
+        <span class="ident">PeerReviewConfig</span>,
+        <span class="string">r#&quot;
+SELECT id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_threshold,
+    accepting_strategy AS &quot;accepting_strategy: _&quot;
+FROM peer_review_configs
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+        &quot;#</span>,
+        <span class="ident">exercise_id</span>
+    )
+    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
+}
+
 <span class="doccomment">/// Returns the correct peer review config depending on `exercise.use_course_default_peer_review_config`.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_or_course_id</span>(
     <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
@@ -672,34 +700,6 @@ WHERE id = $1
     } <span class="kw">else</span> {
         <span class="ident">get_by_exercise_id</span>(<span class="ident">conn</span>, <span class="ident">exercise</span>.<span class="ident">id</span>).<span class="kw">await</span>
     }
-}
-
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_by_exercise_id</span>(
-    <span class="ident">conn</span>: <span class="kw-2">&amp;mut</span> <span class="ident">PgConnection</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">Uuid</span>,
-) -&gt; <span class="ident">ModelResult</span><span class="op">&lt;</span><span class="ident">PeerReviewConfig</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="macro">sqlx::query_as!</span>(
-        <span class="ident">PeerReviewConfig</span>,
-        <span class="string">r#&quot;
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_threshold,
-  accepting_strategy AS &quot;accepting_strategy: _&quot;
-FROM peer_review_configs
-WHERE exercise_id = $1
-  AND deleted_at IS NULL
-        &quot;#</span>,
-        <span class="ident">exercise_id</span>
-    )
-    .<span class="ident">fetch_one</span>(<span class="ident">conn</span>)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_default_for_course_by_course_id</span>(

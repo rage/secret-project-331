@@ -1423,6 +1423,23 @@
 <span id="1423">1423</span>
 <span id="1424">1424</span>
 <span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::redundant_clone</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">fs</span>};
@@ -1462,7 +1479,7 @@
     },
     <span class="ident">exercise_slides::CourseMaterialExerciseSlide</span>,
     <span class="ident">exercise_task_gradings</span>::{<span class="ident">ExerciseTaskGrading</span>, <span class="ident">UserPointsUpdateStrategy</span>},
-    <span class="ident">exercise_task_submissions::ExerciseTaskSubmission</span>,
+    <span class="ident">exercise_task_submissions</span>::{<span class="ident">ExerciseTaskSubmission</span>, <span class="ident">PeerReviewsRecieved</span>},
     <span class="ident">exercise_tasks::CourseMaterialExerciseTask</span>,
     <span class="ident">exercises</span>::{
         <span class="ident">ActivityProgress</span>, <span class="ident">CourseMaterialExercise</span>, <span class="ident">Exercise</span>, <span class="ident">ExerciseStatus</span>, <span class="ident">GradingProgress</span>,
@@ -1492,6 +1509,7 @@
         <span class="ident">CmsPeerReviewConfig</span>, <span class="ident">CmsPeerReviewConfiguration</span>, <span class="ident">CourseMaterialPeerReviewConfig</span>,
         <span class="ident">PeerReviewAcceptingStrategy</span>, <span class="ident">PeerReviewConfig</span>,
     },
+    <span class="ident">peer_review_question_submissions::PeerReviewQuestionSubmission</span>,
     <span class="ident">peer_review_questions</span>::{<span class="ident">CmsPeerReviewQuestion</span>, <span class="ident">PeerReviewQuestion</span>, <span class="ident">PeerReviewQuestionType</span>},
     <span class="ident">pending_roles::PendingRole</span>,
     <span class="ident">playground_examples::PlaygroundExample</span>,
@@ -1742,6 +1760,16 @@
         <span class="ident">question_type</span>: <span class="ident">PeerReviewQuestionType::Essay</span>,
         <span class="ident">answer_required</span>: <span class="bool-val">true</span>,
     };
+    <span class="kw">let</span> <span class="ident">peer_review_question_submission</span> <span class="op">=</span> <span class="ident">PeerReviewQuestionSubmission</span> {
+        <span class="ident">id</span>,
+        <span class="ident">created_at</span>,
+        <span class="ident">updated_at</span>,
+        <span class="ident">deleted_at</span>,
+        <span class="ident">peer_review_question_id</span>: <span class="ident">id</span>,
+        <span class="ident">peer_review_submission_id</span>: <span class="ident">id</span>,
+        <span class="ident">text_data</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.<span class="ident">to_string</span>()),
+        <span class="ident">number_data</span>: <span class="prelude-val">None</span>,
+    };
     <span class="kw">let</span> <span class="ident">peer_review_config</span> <span class="op">=</span> <span class="ident">PeerReviewConfig</span> {
         <span class="ident">id</span>,
         <span class="ident">created_at</span>,
@@ -1773,6 +1801,10 @@
             <span class="ident">text_data</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;I think that the answer was well written.&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">number_data</span>: <span class="prelude-val">None</span>,
         }],
+    };
+    <span class="kw">let</span> <span class="ident">peer_reviews_recieved</span> <span class="op">=</span> <span class="ident">PeerReviewsRecieved</span> {
+        <span class="ident">peer_review_questions</span>: <span class="macro">vec!</span>[<span class="ident">peer_review_question</span>.<span class="ident">clone</span>()],
+        <span class="ident">peer_review_question_submissions</span>: <span class="macro">vec!</span>[<span class="ident">peer_review_question_submission</span>.<span class="ident">clone</span>()],
     };
     <span class="kw">let</span> <span class="ident">submission_result</span> <span class="op">=</span> <span class="ident">StudentExerciseTaskSubmissionResult</span> {
         <span class="ident">submission</span>: <span class="ident">exercise_task_submission</span>.<span class="ident">clone</span>(),
@@ -2108,7 +2140,8 @@
                 <span class="ident">exercise_id</span>: <span class="prelude-val">Some</span>(<span class="ident">id</span>),
                 <span class="ident">peer_reviews_to_give</span>: <span class="number">3</span>,
                 <span class="ident">peer_reviews_to_receive</span>: <span class="number">2</span>
-            })
+            }),
+            <span class="ident">previous_exercise_slide_submission</span>: <span class="prelude-val">Some</span>(<span class="ident">exercise_slide_submission</span>.<span class="ident">clone</span>())
         }
     );
     <span class="macro">write_docs!</span>(
@@ -2123,6 +2156,7 @@
         <span class="ident">StudentExerciseTaskSubmissionResult</span>,
         <span class="ident">submission_result</span>.<span class="ident">clone</span>()
     );
+    <span class="macro">write_docs!</span>(<span class="ident">PeerReviewsRecieved</span>, <span class="ident">peer_reviews_recieved</span>.<span class="ident">clone</span>());
     <span class="macro">write_docs!</span>(
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StudentExerciseTaskSubmissionResult</span><span class="op">&gt;</span>,
         <span class="macro">vec!</span>[<span class="ident">submission_result</span>.<span class="ident">clone</span>()]

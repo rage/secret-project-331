@@ -20,7 +20,7 @@
   "default-toast-delete-message": "Successfully deleted",
   "default-toast-delete-title": "Deleted",
   "default-toast-edit-has-been-saved-": "Edit has been saved!",
-  "default-toast-error-message": "An error occured",
+  "default-toast-error-message": "An error occurred",
   "default-toast-error-title": "Error",
   "default-toast-loading-message": "Performing action...",
   "default-toast-request-successful-message": "Request was successful.",

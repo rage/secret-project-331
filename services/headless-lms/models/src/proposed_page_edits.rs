@@ -49,6 +49,7 @@ pub struct ProposalCount {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     user_id: Option<Uuid>,
     edits: &NewProposedPageEdits,
@@ -64,10 +65,11 @@ pub async fn insert(
     let mut tx = conn.begin().await?;
     let page_res = sqlx::query!(
         "
-INSERT INTO proposed_page_edits (course_id, page_id, user_id)
-VALUES ($1, $2, $3)
+INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
+VALUES ($1, $2, $3, $4)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         course_id,
         edits.page_id,
         user_id,
@@ -476,7 +478,9 @@ mod test {
                 changed_text: "Content with a typo in it.".to_string(),
             }],
         };
-        insert(tx.as_mut(), course, None, &new).await.unwrap();
+        insert(tx.as_mut(), PKeyPolicy::Generate, course, None, &new)
+            .await
+            .unwrap();
         let mut ps = get_proposals_for_course(tx.as_mut(), course, true, Pagination::default())
             .await
             .unwrap();
@@ -524,7 +528,9 @@ mod test {
                 changed_text: "Content with a typo in it.".to_string(),
             }],
         };
-        insert(tx.as_mut(), course, None, &new).await.unwrap();
+        insert(tx.as_mut(), PKeyPolicy::Generate, course, None, &new)
+            .await
+            .unwrap();
 
         let mut ps = get_proposals_for_course(tx.as_mut(), course, true, Pagination::default())
             .await

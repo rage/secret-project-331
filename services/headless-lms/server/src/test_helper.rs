@@ -121,7 +121,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $user =
-            headless_lms_models::users::insert($tx.as_mut(), &format!("{rs}@example.com"), None, None)
+            headless_lms_models::users::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
                 .await
                 .unwrap();
     };
@@ -131,7 +131,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $org =
-            headless_lms_models::organizations::insert($tx.as_mut(), "", &rs, "", ::uuid::Uuid::new_v4())
+            headless_lms_models::organizations::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, "", &rs, "")
                 .await
                 .unwrap();
     };
@@ -140,10 +140,9 @@ macro_rules! insert_data {
             .take(8)
             .map(char::from)
             .collect::<String>();
-        let $course = headless_lms_models::courses::insert_course(
+        let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
-            ::uuid::Uuid::new_v4(),
-            ::uuid::Uuid::new_v4(),
+            headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),
                 slug: rs.clone(),
@@ -163,8 +162,8 @@ macro_rules! insert_data {
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident; instance: $instance:ident) => {
         let $instance = headless_lms_models::course_instances::insert(
             $tx.as_mut(),
+            headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::course_instances::NewCourseInstance {
-                id: ::uuid::Uuid::new_v4(),
                 course_id: $course,
                 name: Some("instance"),
                 description: Some("instance"),
@@ -179,12 +178,13 @@ macro_rules! insert_data {
         .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident; course_module: $course_module:ident) => {
-        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), $course, Some("extra module"), 999).await.unwrap();
+        let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $course, Some("extra module"), 999).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
-        let $chapter = headless_lms_models::chapters::insert_chapter(
+        let $chapter = headless_lms_models::library::content_management::create_new_chapter(
             $tx.as_mut(),
-            headless_lms_models::chapters::NewChapter {
+            headless_lms_models::PKeyPolicy::Generate,
+            &headless_lms_models::chapters::NewChapter {
                 name: "chapter".to_string(),
                 color: None,
                 course_id: $course,
@@ -222,19 +222,20 @@ macro_rules! insert_data {
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
         let $exercise =
-        headless_lms_models::exercises::insert($tx.as_mut(), $course, "", $page, $chapter, 0)
+        headless_lms_models::exercises::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $course, "", $page, $chapter, 0)
             .await
             .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
         let $exercise_slide =
-               headless_lms_models::exercise_slides::insert($tx.as_mut(), $exercise, 0)
+               headless_lms_models::exercise_slides::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, $exercise, 0)
                    .await
                    .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = headless_lms_models::exercise_tasks::insert(
             $tx.as_mut(),
+            headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::exercise_tasks::NewExerciseTask {
                 exercise_slide_id: $exercise_slide,
                 exercise_type: "exercise_type".to_string(),

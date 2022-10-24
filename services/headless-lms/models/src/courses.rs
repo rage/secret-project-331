@@ -1,15 +1,11 @@
 use headless_lms_utils::{
-    document_schema_processor::GutenbergBlock, file_store::FileStore,
-    language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
+    file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
 
 use crate::{
     chapters::{course_chapters, Chapter},
-    course_instances::{CourseInstance, NewCourseInstance},
-    course_language_groups,
     course_modules::CourseModule,
-    pages::{course_pages, NewPage, Page},
-    peer_review_questions::CmsPeerReviewQuestion,
+    pages::{course_pages, Page},
     prelude::*,
 };
 
@@ -47,6 +43,70 @@ pub struct Course {
     pub is_draft: bool,
     pub is_test_mode: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
+}
+
+/// Represents the subset of page fields that are required to create a new course.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewCourse {
+    pub name: String,
+    pub slug: String,
+    pub organization_id: Uuid,
+    pub language_code: String,
+    /// Name of the teacher who is responsible for the course. Must be a valid name.
+    pub teacher_in_charge_name: String,
+    /// Email of the teacher who is responsible for the course. Must be a valid email.
+    pub teacher_in_charge_email: String,
+    pub description: String,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    course_language_group_id: Uuid,
+    new_course: &NewCourse,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+INSERT INTO courses(
+    id,
+    name,
+    description,
+    slug,
+    organization_id,
+    language_code,
+    course_language_group_id,
+    is_draft,
+    is_test_mode
+  )
+VALUES(
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9
+  )
+RETURNING id
+        ",
+        pkey_policy.into_uuid(),
+        new_course.name,
+        new_course.description,
+        new_course.slug,
+        new_course.organization_id,
+        new_course.language_code,
+        course_language_group_id,
+        new_course.is_draft,
+        new_course.is_test_mode
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -330,152 +390,6 @@ WHERE organization_id = $1
         count: course_count.count.unwrap_or_default().try_into()?,
     })
 }
-
-// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct NewCourse {
-    pub name: String,
-    pub slug: String,
-    pub organization_id: Uuid,
-    pub language_code: String,
-    /// Name of the teacher who is responsible for the course. Must be a valid name.
-    pub teacher_in_charge_name: String,
-    /// Email of the teacher who is responsible for the course. Must be a valid email.
-    pub teacher_in_charge_email: String,
-    pub description: String,
-    pub is_draft: bool,
-    pub is_test_mode: bool,
-}
-
-pub async fn insert_course(
-    conn: &mut PgConnection,
-    id: Uuid,
-    default_instance_id: Uuid,
-    new_course: NewCourse,
-    user: Uuid,
-) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
-    let mut tx = conn.begin().await?;
-
-    let course_language_group_id = course_language_groups::insert(&mut tx).await?;
-    let course = sqlx::query_as!(
-        Course,
-        r#"
-INSERT INTO courses(id, name, description, slug, organization_id, language_code, course_language_group_id, is_draft, is_test_mode)
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  base_module_completion_requires_n_submodule_completions;
-            "#,
-        id,
-        new_course.name,
-        new_course.description,
-        new_course.slug,
-        new_course.organization_id,
-        new_course.language_code,
-        course_language_group_id,
-        new_course.is_draft,
-        new_course.is_test_mode
-    )
-    .fetch_one(&mut tx)
-    .await?;
-
-    // Create front page for course
-    let course_front_page_content = serde_json::to_value(vec![
-        GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
-        GutenbergBlock::course_objective_section(),
-        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-    ])?;
-    let course_front_page = NewPage {
-        chapter_id: None,
-        content: course_front_page_content,
-        course_id: Some(course.id),
-        exam_id: None,
-        front_page_of_chapter_id: None,
-        title: course.name.clone(),
-        url_path: String::from("/"),
-        exercises: vec![],
-        exercise_slides: vec![],
-        exercise_tasks: vec![],
-        content_search_language: None,
-    };
-    let page = crate::pages::insert_page(&mut tx, course_front_page, user).await?;
-
-    // Create default course instance
-    let default_course_instance = crate::course_instances::insert(
-        &mut tx,
-        NewCourseInstance {
-            id: default_instance_id,
-            course_id: course.id,
-            name: None,
-            description: None,
-            support_email: None,
-            teacher_in_charge_name: &new_course.teacher_in_charge_name,
-            teacher_in_charge_email: &new_course.teacher_in_charge_email,
-            opening_time: None,
-            closing_time: None,
-        },
-    )
-    .await?;
-
-    // Create default course module
-    let default_module = crate::course_modules::insert(&mut tx, course.id, None, 0).await?;
-
-    // Create course default peer review config
-    let peer_review_config_id =
-        crate::peer_review_configs::insert(&mut tx, course.id, None).await?;
-
-    // Create peer review questions for default peer review config
-    crate::peer_review_questions::upsert_multiple_peer_review_questions(
-        &mut tx,
-        &[
-            CmsPeerReviewQuestion {
-                id: Uuid::new_v4(),
-                peer_review_config_id,
-                order_number: 0,
-                question: "General comments".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
-                answer_required: false,
-            },
-            CmsPeerReviewQuestion {
-                id: Uuid::new_v4(),
-                peer_review_config_id,
-                order_number: 1,
-                question: "The answer was correct".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
-                answer_required: true,
-            },
-            CmsPeerReviewQuestion {
-                id: Uuid::new_v4(),
-                peer_review_config_id,
-                order_number: 2,
-                question: "The answer was easy to read".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
-                answer_required: true,
-            },
-        ],
-    )
-    .await?;
-
-    tx.commit().await?;
-    Ok((course, page, default_course_instance, default_module))
-}
-
 // Represents the subset of page fields that one is allowed to update in a course
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -684,76 +598,103 @@ WHERE p.chapter_id IS NULL
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{courses, test_helper::*};
+    use crate::{course_language_groups, courses, test_helper::*};
 
-    #[tokio::test]
-    async fn validates_language_code_when_adding_a_course() {
-        insert_data!(:tx, :user, :org);
+    mod language_code_validation {
+        use super::*;
 
-        // Valid language code allows course creation.
-        let mut new_course = NewCourse {
-            name: "".to_string(),
-            slug: "".to_string(),
-            organization_id: org,
-            language_code: "en-US".to_string(),
-            teacher_in_charge_name: "teacher".to_string(),
-            teacher_in_charge_email: "teacher@example.com".to_string(),
-            description: "description".to_string(),
-            is_draft: false,
-            is_test_mode: false,
-        };
-        let mut tx2 = tx.begin().await;
-        courses::insert_course(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            new_course.clone(),
-            user,
-        )
-        .await
-        .unwrap();
-        tx2.rollback().await;
+        #[tokio::test]
+        async fn allows_valid_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en-US");
+            let res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_ok());
+        }
 
-        // Empty language code is not allowed.
-        new_course.language_code = "".to_string();
-        let mut tx2 = tx.begin().await;
-        courses::insert_course(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            new_course.clone(),
-            user,
-        )
-        .await
-        .unwrap_err();
-        tx2.rollback().await;
+        #[tokio::test]
+        async fn disallows_empty_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "");
+            let res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
 
-        // Wrong case language code is not allowed.
-        new_course.language_code = "en-us".to_string();
-        let mut tx2 = tx.begin().await;
-        let course_id = courses::insert_course(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            new_course.clone(),
-            user,
-        )
-        .await;
-        assert!(course_id.is_err());
-        tx2.rollback().await;
+        #[tokio::test]
+        async fn disallows_wrong_case_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en-us");
+            let res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
 
-        // Underscore in locale is not allowed.
-        let mut tx2 = tx.begin().await;
-        new_course.language_code = "en_US".to_string();
-        let course_id = courses::insert_course(
-            tx2.as_mut(),
-            Uuid::new_v4(),
-            Uuid::new_v4(),
-            new_course.clone(),
-            user,
-        )
-        .await;
-        assert!(course_id.is_err());
-        tx2.rollback().await;
+        #[tokio::test]
+        async fn disallows_underscore_in_language_code() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("8e40c36c-835b-479c-8f07-863ad408f181").unwrap()),
+            )
+            .await
+            .unwrap();
+            let new_course = create_new_course(org, "en_US");
+            let res = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await;
+            assert!(res.is_err());
+        }
+
+        fn create_new_course(organization_id: Uuid, language_code: &str) -> NewCourse {
+            NewCourse {
+                name: "".to_string(),
+                slug: "".to_string(),
+                organization_id,
+                language_code: language_code.to_string(),
+                teacher_in_charge_name: "teacher".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
+                description: "description".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+            }
+        }
     }
 }

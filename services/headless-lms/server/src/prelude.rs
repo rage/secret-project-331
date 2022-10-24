@@ -15,6 +15,7 @@ pub use actix_web::{HttpRequest, HttpResponse};
 pub use anyhow::Context;
 pub use headless_lms_models as models;
 pub use headless_lms_models::error::TryToOptional;
+pub use headless_lms_models::PKeyPolicy;
 pub use headless_lms_utils::error::backend_error::BackendError;
 pub use headless_lms_utils::{
     file_store::FileStore, pagination::Pagination, ApplicationConfiguration,

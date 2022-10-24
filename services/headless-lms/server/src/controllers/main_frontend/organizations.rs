@@ -314,7 +314,7 @@ async fn create_exam(
     )
     .await?;
 
-    let new_exam_id = models::exams::insert(&mut tx, &new_exam, None).await?;
+    let new_exam_id = models::exams::insert(&mut tx, PKeyPolicy::Generate, &new_exam).await?;
     pages::insert_exam_page(
         &mut tx,
         new_exam_id,

@@ -3,7 +3,10 @@ use std::{env, sync::Arc};
 use actix_http::{body::BoxBody, Request};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, dev::ServiceResponse, test, web::Data, App};
-use headless_lms_models::organizations::{self, Organization};
+use headless_lms_models::{
+    organizations::{self, Organization},
+    PKeyPolicy,
+};
 use headless_lms_server::setup_tracing;
 use headless_lms_utils::{file_store::local_file_store::LocalFileStore, ApplicationConfiguration};
 use sqlx::{migrate::MigrateDatabase, Connection, PgConnection, PgPool, Postgres};
@@ -91,10 +94,10 @@ async fn gets_organizations() {
     let mut conn = pool.acquire().await.unwrap();
     organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap()),
         "org",
         "slug",
         "descr",
-        Uuid::parse_str("b1bde372-cc86-4e3a-a978-35695fdd884b").unwrap(),
     )
     .await
     .unwrap();

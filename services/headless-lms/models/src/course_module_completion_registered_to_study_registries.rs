@@ -26,8 +26,8 @@ pub struct NewCourseModuleCompletionRegisteredToStudyRegistry {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_completion_registration: &NewCourseModuleCompletionRegisteredToStudyRegistry,
-    test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -41,7 +41,7 @@ INSERT INTO course_module_completion_registered_to_study_registries (
     real_student_number
   )
 VALUES (
-    COALESCE($1, uuid_generate_v4()),
+    $1,
     $2,
     $3,
     $4,
@@ -51,7 +51,7 @@ VALUES (
   )
 RETURNING id
         ",
-        test_only_fixed_id,
+        pkey_policy.into_uuid(),
         new_completion_registration.course_id,
         new_completion_registration.course_module_completion_id,
         new_completion_registration.course_module_id,
@@ -95,6 +95,7 @@ pub async fn insert_completions(
             })?;
         insert(
             &mut tx,
+            PKeyPolicy::Generate,
             &NewCourseModuleCompletionRegisteredToStudyRegistry {
                 course_id: module_completion.course_id,
                 course_module_completion_id: completion.completion_id,
@@ -103,7 +104,6 @@ pub async fn insert_completions(
                 user_id: module_completion.user_id,
                 real_student_number: completion.student_number,
             },
-            None,
         )
         .await?;
     }

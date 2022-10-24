@@ -337,6 +337,7 @@ mod test {
         user_exercise_states::ExerciseWithUserState,
         users,
     };
+    use models::chapters::NewChapter;
     use serde_json::Value;
 
     use super::*;
@@ -346,18 +347,40 @@ mod test {
     async fn exports() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 
-        let u2 = users::insert(tx.as_mut(), "second@example.org", None, None)
+        let u2 = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "second@example.org",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let c2 = chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewChapter {
+                name: "".to_string(),
+                color: Some("#065853".to_string()),
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let e2 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 0)
             .await
             .unwrap();
-        let c2 = chapters::insert(tx.as_mut(), "", "#065853", course, 2, course_module.id)
+        let s2 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e2, 0)
             .await
             .unwrap();
-        let e2 = exercises::insert(tx.as_mut(), course, "", page, c2, 0)
-            .await
-            .unwrap();
-        let s2 = exercise_slides::insert(tx.as_mut(), e2, 0).await.unwrap();
         let et2 = exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: s2,
                 exercise_type: "".to_string(),
@@ -370,12 +393,15 @@ mod test {
         )
         .await
         .unwrap();
-        let e3 = exercises::insert(tx.as_mut(), course, "", page, c2, 1)
+        let e3 = exercises::insert(tx.as_mut(), PKeyPolicy::Generate, course, "", page, c2, 1)
             .await
             .unwrap();
-        let s3 = exercise_slides::insert(tx.as_mut(), e3, 0).await.unwrap();
+        let s3 = exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, e3, 0)
+            .await
+            .unwrap();
         let et3 = exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: s3,
                 exercise_type: "".to_string(),

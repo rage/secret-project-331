@@ -54,10 +54,10 @@ impl Organization {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     name: &str,
     slug: &str,
     description: &str,
-    id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -65,7 +65,7 @@ INSERT INTO organizations (id, name, slug, description)
 VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
-        id,
+        pkey_policy.into_uuid(),
         name,
         slug,
         description
@@ -152,10 +152,10 @@ mod tests {
         let orgs_before = all_organizations(tx.as_mut()).await.unwrap();
         insert(
             tx.as_mut(),
+            PKeyPolicy::Fixed(Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap()),
             "org",
             "slug",
             "description",
-            Uuid::parse_str("8c34e601-b5db-4b33-a588-57cb6a5b1669").unwrap(),
         )
         .await
         .unwrap();

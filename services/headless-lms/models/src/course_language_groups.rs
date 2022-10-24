@@ -8,33 +8,16 @@ pub struct CourseLanguageVersion {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-pub async fn insert(conn: &mut PgConnection) -> ModelResult<Uuid> {
-    let course_language_group_id = sqlx::query!(
-        "
-INSERT INTO course_language_groups DEFAULT
-VALUES
-RETURNING id;
-        "
-    )
-    .fetch_one(conn)
-    .await?
-    .id;
-
-    Ok(course_language_group_id)
-}
-
-pub async fn insert_with_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
-    let course_language_group_id = sqlx::query!(
+pub async fn insert(conn: &mut PgConnection, pkey_policy: PKeyPolicy<Uuid>) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
         "
 INSERT INTO course_language_groups (id)
 VALUES ($1)
-RETURNING id;
+RETURNING id
         ",
-        id
+        pkey_policy.into_uuid(),
     )
     .fetch_one(conn)
-    .await?
-    .id;
-
-    Ok(course_language_group_id)
+    .await?;
+    Ok(res.id)
 }

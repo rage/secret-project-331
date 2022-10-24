@@ -17,31 +17,10 @@ pub struct User {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     email: &str,
     first_name: Option<&str>,
     last_name: Option<&str>,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO users (email, first_name, last_name)
-VALUES ($1, $2, $3)
-RETURNING id
-",
-        email,
-        first_name,
-        last_name
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    email: &str,
-    first_name: Option<&str>,
-    last_name: Option<&str>,
-    id: Uuid,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -49,7 +28,7 @@ INSERT INTO users (id, email, first_name, last_name)
 VALUES ($1, $2, $3, $4)
 RETURNING id
 ",
-        id,
+        pkey_policy.into_uuid(),
         email,
         first_name,
         last_name

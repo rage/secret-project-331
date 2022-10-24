@@ -3,13 +3,15 @@ use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
-    courses::{self, NewCourse},
+    courses::NewCourse,
+    library::content_management::CreateNewCourseFixedIds,
     library::{
         self,
         progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
     },
     open_university_registration_links, organizations,
     roles::{self, RoleDomain, UserRole},
+    PKeyPolicy,
 };
 use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
@@ -46,10 +48,10 @@ pub async fn seed_organization_uh_cs(
 
     let uh_cs_organization_id = organizations::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?),
         "University of Helsinki, Department of Computer Science",
         "uh-cs",
         "Organization for Computer Science students and the rest of the world who wish to learn the basics in Computer Science, programming and software development.",
-        Uuid::parse_str("8bb12295-53ac-4099-9644-ac0ff5e34d92")?,
     )
     .await?;
 
@@ -223,18 +225,22 @@ pub async fn seed_organization_uh_cs(
         is_test_mode: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
-        courses::insert_course(
+        library::content_management::create_new_course(
             &mut conn,
-            Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
-            Uuid::parse_str("48399008-6523-43c5-8fd6-59ecc731a426")?,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
+                default_course_instance_id: Uuid::parse_str(
+                    "48399008-6523-43c5-8fd6-59ecc731a426",
+                )?,
+            }),
             new_course,
             admin_user_id,
         )
         .await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),
         NewCourseInstance {
-            id: Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?,
             course_id: cs_course.id,
             name: Some("non-default instance"),
             description: Some("this is another non-default instance"),

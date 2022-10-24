@@ -41,8 +41,13 @@ async fn post_new_chapter(
     )
     .await?;
     let new_chapter = payload.0;
-    let (database_chapter, ..) =
-        models::chapters::insert_chapter(&mut conn, new_chapter, user.id).await?;
+    let (database_chapter, ..) = models::library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Generate,
+        &new_chapter,
+        user.id,
+    )
+    .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),

@@ -19,6 +19,7 @@ pub struct FeedbackBlock {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     user_id: Option<Uuid>,
     course_id: Uuid,
     new_feedback: NewFeedback,
@@ -26,10 +27,18 @@ pub async fn insert(
     let mut tx = conn.begin().await?;
     let res = sqlx::query!(
         "
-INSERT INTO feedback(user_id, course_id, feedback_given, selected_text, page_id)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO feedback(
+    id,
+    user_id,
+    course_id,
+    feedback_given,
+    selected_text,
+    page_id
+  )
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         user_id,
         course_id,
         new_feedback.feedback_given,

@@ -52,32 +52,7 @@ pub struct PeerReviewQuestion {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    new_peer_review_question: &CmsPeerReviewQuestion,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO peer_review_questions (
-    peer_review_config_id,
-    order_number,
-    question,
-    question_type
-  )
-VALUES ($1, $2, $3, $4)
-RETURNING id;
-        ",
-        new_peer_review_question.peer_review_config_id,
-        new_peer_review_question.order_number,
-        new_peer_review_question.question,
-        new_peer_review_question.question_type as PeerReviewQuestionType,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_peer_review_question: &CmsPeerReviewQuestion,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
@@ -90,9 +65,9 @@ INSERT INTO peer_review_questions (
     question_type
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
+RETURNING id
         ",
-        id,
+        pkey_policy.into_uuid(),
         new_peer_review_question.peer_review_config_id,
         new_peer_review_question.order_number,
         new_peer_review_question.question,

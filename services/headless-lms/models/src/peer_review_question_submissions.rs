@@ -15,6 +15,7 @@ pub struct PeerReviewQuestionSubmission {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     peer_review_question_id: Uuid,
     peer_review_submission_id: Uuid,
     text_data: Option<String>,
@@ -23,14 +24,16 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO peer_review_question_submissions (
+    id,
     peer_review_question_id,
     peer_review_submission_id,
     text_data,
     number_data
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
         ",
+        pkey_policy.into_uuid(),
         peer_review_question_id,
         peer_review_submission_id,
         text_data,

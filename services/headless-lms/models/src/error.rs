@@ -282,7 +282,7 @@ mod test {
     use uuid::Uuid;
 
     use super::*;
-    use crate::{email_templates::EmailTemplateNew, test_helper::*};
+    use crate::{email_templates::EmailTemplateNew, test_helper::*, PKeyPolicy};
 
     #[tokio::test]
     async fn email_templates_check() {
@@ -309,12 +309,12 @@ mod test {
     async fn users_email_check() {
         let mut conn = Conn::init().await;
         let mut tx = conn.begin().await;
-        let err = crate::users::insert_with_id(
+        let err = crate::users::insert(
             tx.as_mut(),
+            PKeyPolicy::Fixed(Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap()),
             "invalid email",
             None,
             None,
-            Uuid::parse_str("92c2d6d6-e1b8-4064-8c60-3ae52266c62c").unwrap(),
         )
         .await
         .unwrap_err();

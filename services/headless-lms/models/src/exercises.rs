@@ -1,6 +1,8 @@
 use crate::{
     course_instances, exams,
-    exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_slide_submissions::{
+        get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
+    },
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
@@ -56,6 +58,7 @@ pub struct CourseMaterialExercise {
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
     pub peer_review_config: Option<CourseMaterialPeerReviewConfig>,
+    pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
 }
 
 impl CourseMaterialExercise {
@@ -341,6 +344,18 @@ pub async fn get_course_material_exercise(
     let can_post_submission =
         determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
 
+    let previous_exercise_slide_submission = match user_id {
+        Some(user_id) => {
+            crate::exercise_slide_submissions::try_to_get_users_latest_exercise_slide_submission(
+                conn,
+                current_exercise_slide.id,
+                user_id,
+            )
+            .await?
+        }
+        _ => None,
+    };
+
     let exercise_status = user_exercise_state.map(|user_exercise_state| ExerciseStatus {
         score_given: user_exercise_state.score_given,
         activity_progress: user_exercise_state.activity_progress,
@@ -389,6 +404,7 @@ pub async fn get_course_material_exercise(
         exercise_status,
         exercise_slide_submission_counts,
         peer_review_config,
+        previous_exercise_slide_submission,
     })
 }
 

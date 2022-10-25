@@ -3,6 +3,7 @@ resources:
   - postgres-dev.yml
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
+  - access-ingress-internally.yml
 patches:
   # Remove cpu and memory resource without initContainer defined
   - path: patch-without-init-container.yml

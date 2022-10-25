@@ -28,26 +28,7 @@ pub struct CourseMaterialExerciseSlide {
 
 pub async fn insert(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
-    order_number: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO exercise_slides (exercise_id, order_number)
-VALUES ($1, $2)
-RETURNING id;
-    ",
-        exercise_id,
-        order_number
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
+    pkey_policy: PKeyPolicy<Uuid>,
     exercise_id: Uuid,
     order_number: i32,
 ) -> ModelResult<Uuid> {
@@ -55,9 +36,9 @@ pub async fn insert_with_id(
         "
 INSERT INTO exercise_slides (id, exercise_id, order_number)
 VALUES ($1, $2, $3)
-RETURNING id;
-",
-        id,
+RETURNING id
+        ",
+        pkey_policy.into_uuid(),
         exercise_id,
         order_number
     )

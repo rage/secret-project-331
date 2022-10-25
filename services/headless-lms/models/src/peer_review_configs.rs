@@ -76,48 +76,19 @@ pub enum PeerReviewAcceptingStrategy {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     exercise_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-INSERT INTO peer_review_configs (course_id, exercise_id)
-VALUES ($1, $2)
+INSERT INTO peer_review_configs (id, course_id, exercise_id)
+VALUES ($1, $2, $3)
 RETURNING id
         ",
+        pkey_policy.into_uuid(),
         course_id,
         exercise_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.id)
-}
-
-pub async fn insert_with_id(
-    conn: &mut PgConnection,
-    id: Uuid,
-    course_id: Uuid,
-    exercise_id: Option<Uuid>,
-    peer_reviews_to_give: i32,
-    peer_reviews_to_receive: i32,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
-        "
-INSERT INTO peer_review_configs (
-    id,
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id
-        ",
-        id,
-        course_id,
-        exercise_id,
-        peer_reviews_to_give,
-        peer_reviews_to_receive,
     )
     .fetch_one(conn)
     .await?;
@@ -193,6 +164,34 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<PeerReviewConfig> {
+    let res = sqlx::query_as!(
+        PeerReviewConfig,
+        r#"
+SELECT id,
+    created_at,
+    updated_at,
+    deleted_at,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_threshold,
+    accepting_strategy AS "accepting_strategy: _"
+FROM peer_review_configs
+WHERE exercise_id = $1
+  AND deleted_at IS NULL
+        "#,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Returns the correct peer review config depending on `exercise.use_course_default_peer_review_config`.
 pub async fn get_by_exercise_or_course_id(
     conn: &mut PgConnection,
@@ -204,34 +203,6 @@ pub async fn get_by_exercise_or_course_id(
     } else {
         get_by_exercise_id(conn, exercise.id).await
     }
-}
-
-pub async fn get_by_exercise_id(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-) -> ModelResult<PeerReviewConfig> {
-    let res = sqlx::query_as!(
-        PeerReviewConfig,
-        r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_threshold,
-  accepting_strategy AS "accepting_strategy: _"
-FROM peer_review_configs
-WHERE exercise_id = $1
-  AND deleted_at IS NULL
-        "#,
-        exercise_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
 }
 
 pub async fn get_default_for_course_by_course_id(
@@ -462,7 +433,7 @@ mod tests {
     async fn only_one_default_peer_review_per_course() {
         insert_data!(:tx, :user, :org, :course);
 
-        let peer_review_1 = insert(tx.as_mut(), course, None).await;
+        let peer_review_1 = insert(tx.as_mut(), PKeyPolicy::Generate, course, None).await;
         assert!(peer_review_1.is_err());
     }
 }

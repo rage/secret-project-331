@@ -114,7 +114,9 @@ use chrono::{TimeZone, Utc};
 use example::Example;
 use headless_lms_models::{
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
+    exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
 };
 use serde::Serialize;
 use serde_json::{json, ser::PrettyFormatter, Serializer, Value};
@@ -610,6 +612,16 @@ fn models() {
         peer_reviews_to_give: 3,
         peer_reviews_to_receive: 2
     });
+    example!(PeerReviewQuestionSubmission {
+        id,
+        created_at,
+        deleted_at,
+        updated_at,
+        peer_review_question_id,
+        peer_review_submission_id,
+        text_data: Some("I think that the answer was well written.".to_string()),
+        number_data: None,
+    });
 
     doc!(
         T,
@@ -802,9 +814,9 @@ fn models() {
                 4_i64
             )
         ]),
-        peer_review_config
+        peer_review_config,
+        previous_exercise_slide_submission
     });
-
     doc!(CourseMaterialPeerReviewSubmission {
         exercise_slide_submission_id,
         peer_review_config_id,
@@ -1328,6 +1340,10 @@ fn models() {
         prerequisite_modules_completed: true,
         registered: false,
         user_id,
+    });
+    doc!(PeerReviewsRecieved {
+        peer_review_question_submissions,
+        peer_review_questions
     });
 }
 

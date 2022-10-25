@@ -1,3 +1,4 @@
+import { css } from "@emotion/css"
 import { useReducer } from "react"
 import { v4 } from "uuid"
 
@@ -135,7 +136,14 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   useSendQuizAnswerOnChange(port, state)
 
   return (
-    <>
+    <div
+      className={css`
+        column-gap: 1rem;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+      `}
+    >
       {state.quiz.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem) => {
@@ -160,7 +168,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
             />
           )
         })}
-    </>
+    </div>
   )
 }
 

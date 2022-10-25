@@ -40,6 +40,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
       className={css`
         display: flex;
         flex-direction: column;
+        flex: 1;
       `}
     >
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>

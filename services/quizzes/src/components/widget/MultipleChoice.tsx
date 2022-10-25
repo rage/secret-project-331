@@ -91,6 +91,7 @@ const MultipleChoice: React.FunctionComponent<QuizItemComponentProps> = ({
   return (
     <div
       className={css`
+        flex: 1;
         margin: 0.7rem 0;
       `}
     >

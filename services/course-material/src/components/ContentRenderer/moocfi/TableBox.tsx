@@ -20,6 +20,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
 
   // eslint-disable-next-line i18next/no-literal-string
   const smallScreen = useMedia(`@media (max-width: ${width}px)`)
+  const isFullWidth = smallScreen || !width
 
   return (
     <div
@@ -28,7 +29,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
         margin: 1rem auto;
 
         ${respondToOrLarger.md} {
-          width: ${smallScreen ? "100%" : `${width}px`};
+          width: ${isFullWidth ? "100%" : `${width}px`};
         }
       `}
     >

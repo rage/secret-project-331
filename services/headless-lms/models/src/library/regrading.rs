@@ -11,7 +11,6 @@ use futures::{
 };
 use itertools::Itertools;
 use sqlx::PgConnection;
-use uuid::Uuid;
 
 use crate::{
     self as models,
@@ -20,6 +19,7 @@ use crate::{
     exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercises::{Exercise, GradingProgress},
+    prelude::*,
     ModelResult,
 };
 
@@ -305,6 +305,7 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
                 exercise_type: "test-exercise".to_string(),
@@ -354,6 +355,7 @@ mod test {
             .unwrap();
         let regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             exercise_task_submission_result.submission.id,
             exercise_task_submission_result.grading.as_ref().unwrap().id,
@@ -400,6 +402,7 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
                 exercise_type: "test-exercise".to_string(),
@@ -457,6 +460,7 @@ mod test {
             .unwrap();
         let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             exercise_task_submission_result.submission.id,
             exercise_task_submission_result.grading.as_ref().unwrap().id,
@@ -498,6 +502,7 @@ mod test {
 
         let task_1 = models::exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide_1,
                 exercise_type: "test-exercise-1".to_string(),
@@ -532,11 +537,13 @@ mod test {
             .first()
             .unwrap();
 
-        let slide_2 = models::exercise_slides::insert(tx.as_mut(), exercise.id, 1)
-            .await
-            .unwrap();
+        let slide_2 =
+            models::exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise.id, 1)
+                .await
+                .unwrap();
         let task_2 = models::exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide_2,
                 exercise_type: "test-exercise-2".to_string(),
@@ -603,6 +610,7 @@ mod test {
         .unwrap();
         let _regrading_submission_1 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             task_submission_result_1.submission.id,
             task_submission_result_1.grading.as_ref().unwrap().id,
@@ -611,6 +619,7 @@ mod test {
         .unwrap();
         let _regrading_submission_2 = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             task_submission_result_2.submission.id,
             task_submission_result_2.grading.as_ref().unwrap().id,
@@ -643,6 +652,7 @@ mod test {
         let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
         let task = models::exercise_tasks::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewExerciseTask {
                 exercise_slide_id: slide,
                 exercise_type: "test-exercise".to_string(),
@@ -711,6 +721,7 @@ mod test {
             .unwrap();
         let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             exercise_task_submission_result.submission.id,
             exercise_task_submission_result.grading.as_ref().unwrap().id,
@@ -794,6 +805,7 @@ mod test {
         .unwrap();
         let _regrading_submission_id = models::exercise_task_regrading_submissions::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             regrading,
             exercise_task_submission_result.submission.id,
             exercise_task_submission_result.grading.as_ref().unwrap().id,

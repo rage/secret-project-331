@@ -188,6 +188,24 @@ export interface CourseInstanceForm {
 
 export type PointMap = Record<string, number>
 
+export function isPeerReviewQuestionSubmission(
+  obj: any,
+  _argumentName?: string,
+): obj is PeerReviewQuestionSubmission {
+  return (
+    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
+      typeof obj.id === "string" &&
+      obj.created_at instanceof Date &&
+      obj.updated_at instanceof Date &&
+      (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
+      typeof obj.peer_review_question_id === "string" &&
+      typeof obj.peer_review_submission_id === "string" &&
+      obj.text_data == null) ||
+    (typeof obj.text_data === "string" && obj.number_data == null) ||
+    typeof obj.number_data === "number"
+  )
+}
+
 export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
@@ -580,7 +598,8 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review_config: PeerReviewConfig | null
+  peer_review_config: CourseMaterialPeerReviewConfig | null
+  previous_exercise_slide_submission: ExerciseSlideSubmission | null
 }
 
 export interface Exercise {
@@ -681,6 +700,11 @@ export interface CourseMaterialPeerReviewData {
   peer_review_config: PeerReviewConfig
   peer_review_questions: Array<PeerReviewQuestion>
   num_peer_reviews_given: number
+}
+
+export interface CourseMaterialPeerReviewGivenData {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
 }
 
 export interface CourseMaterialPeerReviewDataAnswerToReview {
@@ -974,6 +998,14 @@ export interface PageWithExercises {
   exercises: Array<Exercise>
 }
 
+export interface CourseMaterialPeerReviewConfig {
+  id: string
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
+}
+
 export interface CmsPeerReviewConfig {
   id: string
   course_id: string
@@ -1026,6 +1058,17 @@ export interface PeerReviewQuestion {
   question: string
   question_type: PeerReviewQuestionType
   answer_required: boolean
+}
+
+export interface PeerReviewQuestionSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_question_id: string
+  peer_review_submission_id: string
+  text_data: string | null
+  number_data: number | null
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"

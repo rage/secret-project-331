@@ -276,6 +276,7 @@ UPDATE roles
 SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
+  AND deleted_at IS NULL
 ",
                 user_id,
                 role as UserRole
@@ -291,6 +292,7 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND organization_id = $3
+  AND deleted_at IS NULL
 ",
                 user_id,
                 role as UserRole,
@@ -307,6 +309,7 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND course_id = $3
+  AND deleted_at IS NULL
 ",
                 user_id,
                 role as UserRole,
@@ -323,6 +326,7 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND course_instance_id = $3
+  AND deleted_at IS NULL
 ",
                 user_id,
                 role as UserRole,
@@ -339,6 +343,7 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND role = $2
   AND exam_id = $3
+  AND deleted_at IS NULL
 ",
                 user_id,
                 role as UserRole,

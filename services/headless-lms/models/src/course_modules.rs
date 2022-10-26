@@ -36,6 +36,7 @@ impl CourseModule {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
     name: Option<&str>,
     order_number: i32,
@@ -43,10 +44,11 @@ pub async fn insert(
     let res = sqlx::query_as!(
         CourseModule,
         "
-INSERT INTO course_modules (course_id, name, order_number)
-VALUES ($1, $2, $3)
+INSERT INTO course_modules (id, course_id, name, order_number)
+VALUES ($1, $2, $3, $4)
 RETURNING *
-",
+        ",
+        pkey_policy.into_uuid(),
         course_id,
         name,
         order_number,
@@ -86,9 +88,10 @@ RETURNING *
 
 pub async fn insert_default_for_course(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     course_id: Uuid,
 ) -> ModelResult<CourseModule> {
-    insert(conn, course_id, None, 0).await
+    insert(conn, pkey_policy, course_id, None, 0).await
 }
 
 pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
@@ -180,6 +183,8 @@ FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
+AND chapters.deleted_at IS NULL
+AND course_modules.deleted_at IS NULL
         ",
         exercise_id,
     )

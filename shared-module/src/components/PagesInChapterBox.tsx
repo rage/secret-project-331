@@ -22,7 +22,7 @@ const PageNumberBox = styled.div`
   display: inline-block;
   font-family: ${secondaryFont};
   opacity: 0.6;
-  margin: 0 1rem;
+  margin: 0 0.8rem 0 0.4rem;
   top: -3px;
 `
 

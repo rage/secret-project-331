@@ -546,6 +546,11 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
+export interface PeerReviewsRecieved {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -584,6 +589,7 @@ export interface CourseMaterialExercise {
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
   peer_review_config: CourseMaterialPeerReviewConfig | null
+  previous_exercise_slide_submission: ExerciseSlideSubmission | null
 }
 
 export interface Exercise {
@@ -1040,6 +1046,17 @@ export interface PeerReviewQuestion {
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"
+
+export interface PeerReviewQuestionSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_question_id: string
+  peer_review_submission_id: string
+  text_data: string | null
+  number_data: number | null
+}
 
 export interface PendingRole {
   id: string

@@ -79,7 +79,11 @@ pub async fn fetch_and_upsert_service_info(
     exercise_service: &ExerciseService,
 ) -> ModelResult<ExerciseServiceInfo> {
     let url = if let Some(internal_url) = &exercise_service.internal_url {
-        internal_url
+        if internal_url.is_empty() {
+            &exercise_service.public_url
+        } else {
+            internal_url
+        }
     } else {
         &exercise_service.public_url
     };

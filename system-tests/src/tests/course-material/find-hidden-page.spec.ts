@@ -46,6 +46,6 @@ test("find hidden page", async ({ page, headless }) => {
     headless,
     page,
     snapshotName: "hidden-page",
-    // waitForThisToBeVisibleAndStable: ["You found the secret of the project"],
+    waitForThisToBeVisibleAndStable: [`text="You found the secret of the project 331!"`],
   })
 })

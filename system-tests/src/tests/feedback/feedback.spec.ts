@@ -33,6 +33,7 @@ test("feedback test", async ({ headless, page }) => {
   )
 
   await Promise.all([page.waitForNavigation(), page.click("text=Page One")])
+  await page.locator(`text="Everything is a big topic"`).waitFor()
   expect(page.url()).toBe(
     "http://project-331.local/org/uh-cs/courses/introduction-to-feedback/chapter-1/page-1",
   )

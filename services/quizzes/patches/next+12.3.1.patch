@@ -11,7 +11,7 @@ index 77d2b8b..c486623 100644
 +            webSocketRef.current = new window.WebSocket(`${url}/_next/webpack-hmr`);
 +	} catch (e) {
 +	    console.warn("Could not create a WebSocket", e)
-+	    websocketRef.current = null
++	    webSocketRef.current = null
 +	}
      }, [
          assetPrefix

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../styles"
+import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
 import SkipLink from "../../SkipLink"
 
@@ -22,13 +23,17 @@ const Navbar = css`
   justify-content: space-between;
   align-items: center;
   font-size: 1rem;
-  padding: 0 4rem;
+  padding: 0 1.4rem;
   margin-bottom: ${MARGIN_BETWEEN_NAVBAR_AND_CONTENT};
   border-bottom: 2px solid ${baseTheme.colors.grey[100]};
 
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
     outline-offset: 2px;
+  }
+
+  ${respondToOrLarger.md} {
+    padding: 0 4rem;
   }
 `
 // eslint-disable-next-line i18next/no-literal-string

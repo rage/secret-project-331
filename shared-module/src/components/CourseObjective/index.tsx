@@ -13,13 +13,16 @@ const Wrapper = styled.div`
   width: 100%;
   border-radius: 1px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  padding: 3rem;
+  padding: 1.5rem;
   margin: 0 auto;
   max-width: 2000px;
 
+  ${respondToOrLarger.md} {
+    padding: 3rem;
+  }
+
   h2 {
     z-index: 20;
-    font-size: 3.5rem;
     font-size: clamp(30px, 3vw, 3rem);
     font-style: normal;
     font-weight: 600;
@@ -65,7 +68,7 @@ const Objective = styled.div<StyledObjectiveProps>`
   overflow: hidden;
   display: grid;
   border: ${({ index }) => (index === 1 ? `none` : `1px solid #babdc2 `)};
-  border-radius: 8px;
+  border-radius: 4px;
   color: ${({ index }) => index === 1 && `#dae3eb`};
 
   .paragraph {

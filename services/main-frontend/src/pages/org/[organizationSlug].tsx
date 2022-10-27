@@ -29,7 +29,16 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
   return (
     <Layout>
       <div>
-        {getOrganizationBySlug.isSuccess && <h1>{getOrganizationBySlug.data.name}</h1>}
+        {getOrganizationBySlug.isSuccess && (
+          <h1
+            className={css`
+              font-size: clamp(26px, 3vw, 30px);
+              font-weight: 600;
+            `}
+          >
+            {getOrganizationBySlug.data.name}
+          </h1>
+        )}
         {getOrganizationBySlug.isSuccess && (
           <a
             href={`/manage/organizations/${getOrganizationBySlug.data.id}`}
@@ -58,7 +67,14 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
         )}
         {getOrganizationBySlug.isSuccess && (
           <>
-            <h2>{t("course-list")}</h2>
+            <h2
+              className={css`
+                font-size: clamp(26px, 3.6vw, 36px);
+                margin-bottom: 10px;
+              `}
+            >
+              {t("course-list")}
+            </h2>
             {/* TODO: Implement perPage dropdown? */}
             <CourseList
               organizationId={getOrganizationBySlug.data.id}

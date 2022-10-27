@@ -2,15 +2,35 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
+import useMedia from "../../../shared-module/hooks/useMedia"
 import { baseTheme, headingFont, primaryFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+import withNoSsr from "../../../shared-module/utils/withNoSsr"
 import InnerBlocks from "../util/InnerBlocks"
 
-const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = (props) => {
+interface TableBoxAttributes {
+  width: string
+}
+
+const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttributes>>> = (
+  props,
+) => {
+  const width = props.data.attributes?.width
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const smallScreen = useMedia(`@media (max-width: ${width}px)`)
+  const isFullWidth = smallScreen || !width
+
   return (
     <div
       className={css`
-        margin: 1rem 0;
+        width: 100%;
+        margin: 1rem auto;
+
+        ${respondToOrLarger.md} {
+          width: ${isFullWidth ? "100%" : `${width}px`};
+        }
       `}
     >
       <div
@@ -55,7 +75,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
             background-color: ${baseTheme.colors.green[100]};
             align-items: center;
             padding: 10px;
-            color: ${baseTheme.colors.green[600]};
+            color: ${baseTheme.colors.green[700]};
             font-family: ${primaryFont};
             font-size: 18px;
             font-weight: 500;
@@ -78,4 +98,4 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> =
   )
 }
 
-export default withErrorBoundary(TableBox)
+export default withNoSsr(withErrorBoundary(TableBox))

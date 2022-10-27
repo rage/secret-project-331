@@ -39,7 +39,7 @@ const ExercisesInChapter: React.FC<
             font-family: ${headingFont};
             color: #1a2333;
             font-weight: 500;
-            font-size: 2.2rem;
+            font-size: clamp(30px, 2vw, 2.4rem);
           `,
         )}
       >

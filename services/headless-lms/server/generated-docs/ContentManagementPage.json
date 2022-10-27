@@ -70,10 +70,10 @@
     {
       "id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
       "course_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
-      "exercise_id": "307fa56f-9853-4f5c-afb9-a6736c232f32",
-      "peer_reviews_to_give": 1,
+      "exercise_id": null,
+      "peer_reviews_to_give": 2,
       "peer_reviews_to_receive": 1,
-      "accepting_threshold": 0.3,
+      "accepting_threshold": 0.5,
       "accepting_strategy": "AutomaticallyAcceptOrManualReviewByAverage"
     }
   ],

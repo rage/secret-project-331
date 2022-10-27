@@ -12,17 +12,17 @@ pub struct StudyRegistryRegistrar {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     name: &str,
     secret_key: &str,
-    test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO study_registry_registrars (id, name, secret_key)
-VALUES (COALESCE($1, uuid_generate_v4()), $2, $3)
+VALUES ($1, $2, $3)
 RETURNING id
     ",
-        test_only_fixed_id,
+        pkey_policy.into_uuid(),
         name,
         secret_key
     )
@@ -89,7 +89,13 @@ mod tests {
     async fn secret_key_needs_to_be_long_enough() {
         insert_data!(:tx);
         let id_1 = Uuid::parse_str("88eff75b-4c8f-46f7-a857-9d804b5ec054").unwrap();
-        let res = insert(tx.as_mut(), "test registrar", "12345", Some(id_1)).await;
+        let res = insert(
+            tx.as_mut(),
+            PKeyPolicy::Fixed(id_1),
+            "test registrar",
+            "12345",
+        )
+        .await;
         assert!(res.is_err(), "Expected too short key to produce error.");
     }
 
@@ -99,9 +105,9 @@ mod tests {
         let id_1 = Uuid::parse_str("88eff75b-4c8f-46f7-a857-9d804b5ec054").unwrap();
         let res = insert(
             tx.as_mut(),
+            PKeyPolicy::Fixed(id_1),
             "test registrar",
             "123456789-123456",
-            Some(id_1),
         )
         .await;
         assert!(res.is_ok(), "Expected insertion to succeed.");
@@ -109,9 +115,9 @@ mod tests {
         let id_2 = Uuid::parse_str("d06abb84-0cad-4372-ad2a-7f87d3c1e420").unwrap();
         let res = insert(
             tx.as_mut(),
+            PKeyPolicy::Fixed(id_2),
             "test registrar 2",
             "123456789-123456",
-            Some(id_2),
         )
         .await;
         assert!(

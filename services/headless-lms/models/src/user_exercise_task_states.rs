@@ -163,6 +163,7 @@ UPDATE user_exercise_task_states
 SET deleted_at = now()
 WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
+  AND deleted_at IS NULL
     ",
         exercise_task_id,
         user_exercise_slide_state_id,
@@ -274,7 +275,8 @@ mod tests {
         use serde_json::Value;
 
         use crate::{
-            chapters, exercise_slides,
+            chapters::{self, NewChapter},
+            exercise_slides,
             exercise_tasks::{self, NewExerciseTask},
             exercises,
             pages::{self, NewCoursePage},
@@ -416,11 +418,17 @@ mod tests {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module);
             let chapter_id = chapters::insert(
                 tx.as_mut(),
-                "chapter",
-                "#065853",
-                course,
-                1,
-                course_module.id,
+                PKeyPolicy::Generate,
+                &NewChapter {
+                    name: "chapter".to_string(),
+                    color: Some("#065853".to_string()),
+                    course_id: course,
+                    chapter_number: 1,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(course_module.id),
+                },
             )
             .await?;
             let (page_id, _history) = pages::insert_course_page(
@@ -429,11 +437,21 @@ mod tests {
                 user,
             )
             .await?;
-            let exercise_id =
-                exercises::insert(tx.as_mut(), course, "course", page_id, chapter_id, 1).await?;
-            let slide_id = exercise_slides::insert(tx.as_mut(), exercise_id, 1).await?;
+            let exercise_id = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
+                "course",
+                page_id,
+                chapter_id,
+                1,
+            )
+            .await?;
+            let slide_id =
+                exercise_slides::insert(tx.as_mut(), PKeyPolicy::Generate, exercise_id, 1).await?;
             let task_1 = exercise_tasks::insert(
                 tx.as_mut(),
+                PKeyPolicy::Generate,
                 NewExerciseTask {
                     exercise_slide_id: slide_id,
                     exercise_type: "test-exercise".to_string(),
@@ -447,6 +465,7 @@ mod tests {
             .await?;
             let task_2 = exercise_tasks::insert(
                 tx.as_mut(),
+                PKeyPolicy::Generate,
                 NewExerciseTask {
                     exercise_slide_id: slide_id,
                     exercise_type: "test-exercise".to_string(),
@@ -460,6 +479,7 @@ mod tests {
             .await?;
             let task_3 = exercise_tasks::insert(
                 tx.as_mut(),
+                PKeyPolicy::Generate,
                 NewExerciseTask {
                     exercise_slide_id: slide_id,
                     exercise_type: "test-exercise".to_string(),
@@ -488,9 +508,13 @@ mod tests {
                 Some(slide_id),
             )
             .await?;
-            let user_exercise_slide_state_id =
-                user_exercise_slide_states::insert(tx.as_mut(), user_exercise_state.id, slide_id)
-                    .await?;
+            let user_exercise_slide_state_id = user_exercise_slide_states::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                user_exercise_state.id,
+                slide_id,
+            )
+            .await?;
             Ok((user_exercise_slide_state_id, task_1, task_2, task_3))
         }
     }

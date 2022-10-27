@@ -38,8 +38,11 @@ pub struct PageHistoryContent {
     pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
 }
 
+// Batch refactor pushed past the limit
+#[allow(clippy::too_many_arguments)]
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     page_id: Uuid,
     title: &str,
     content: &PageHistoryContent,
@@ -49,7 +52,8 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
-  INSERT INTO page_history (
+INSERT INTO page_history (
+    id,
     page_id,
     title,
     content,
@@ -57,9 +61,10 @@ pub async fn insert(
     author_user_id,
     restored_from_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         page_id,
         title,
         serde_json::to_value(content)?,
@@ -118,6 +123,7 @@ SELECT id,
   author_user_id
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 ORDER BY created_at DESC, id
 LIMIT $2
 OFFSET $3
@@ -137,6 +143,7 @@ pub async fn history_count(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
 SELECT COUNT(*) AS count
 FROM page_history
 WHERE page_id = $1
+AND deleted_at IS NULL
 ",
         page_id
     )

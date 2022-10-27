@@ -61,7 +61,8 @@ WHERE id = $3
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
-DELETE FROM glossary
+UPDATE glossary
+SET deleted_at = now()
 WHERE id = $1
 ",
         id
@@ -80,6 +81,7 @@ SELECT glossary.id,
   glossary.definition
 FROM glossary
 WHERE glossary.course_id = $1
+AND deleted_at IS NULL
 ",
         course_id
     )

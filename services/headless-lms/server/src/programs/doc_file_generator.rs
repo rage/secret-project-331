@@ -37,7 +37,7 @@ use headless_lms_models::{
     },
     exercise_slides::CourseMaterialExerciseSlide,
     exercise_task_gradings::{ExerciseTaskGrading, UserPointsUpdateStrategy},
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_submissions::{ExerciseTaskSubmission, PeerReviewsRecieved},
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{
         ActivityProgress, CourseMaterialExercise, Exercise, ExerciseStatus, GradingProgress,
@@ -64,9 +64,10 @@ use headless_lms_models::{
         PageInfo, PageNavigationInformation, PageRoutingData, PageSearchResult, PageWithExercises,
     },
     peer_review_configs::{
-        CmsPeerReviewConfig, CmsPeerReviewConfiguration, PeerReviewAcceptingStrategy,
-        PeerReviewConfig,
+        CmsPeerReviewConfig, CmsPeerReviewConfiguration, CourseMaterialPeerReviewConfig,
+        PeerReviewAcceptingStrategy, PeerReviewConfig,
     },
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::{CmsPeerReviewQuestion, PeerReviewQuestion, PeerReviewQuestionType},
     pending_roles::PendingRole,
     playground_examples::PlaygroundExample,
@@ -318,6 +319,16 @@ pub async fn main() -> anyhow::Result<()> {
         question_type: PeerReviewQuestionType::Essay,
         answer_required: true,
     };
+    let peer_review_question_submission = PeerReviewQuestionSubmission {
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        peer_review_question_id: id,
+        peer_review_submission_id: id,
+        text_data: Some("I think that the answer was well written.".to_string()),
+        number_data: None,
+    };
     let peer_review_config = PeerReviewConfig {
         id,
         created_at,
@@ -349,6 +360,10 @@ pub async fn main() -> anyhow::Result<()> {
             text_data: Some("I think that the answer was well written.".to_string()),
             number_data: None,
         }],
+    };
+    let peer_reviews_recieved = PeerReviewsRecieved {
+        peer_review_questions: vec![peer_review_question.clone()],
+        peer_review_question_submissions: vec![peer_review_question_submission.clone()],
     };
     let submission_result = StudentExerciseTaskSubmissionResult {
         submission: exercise_task_submission.clone(),
@@ -679,19 +694,14 @@ pub async fn main() -> anyhow::Result<()> {
                     4_i64
                 )
             ]),
-            peer_review_config: Some(PeerReviewConfig {
+            peer_review_config: Some(CourseMaterialPeerReviewConfig {
                 id,
-                created_at,
-                updated_at,
-                deleted_at,
                 course_id: id,
                 exercise_id: Some(id),
                 peer_reviews_to_give: 3,
-                peer_reviews_to_receive: 2,
-                accepting_threshold: 3.0,
-                accepting_strategy:
-                    PeerReviewAcceptingStrategy::AutomaticallyAcceptOrRejectByAverage
-            })
+                peer_reviews_to_receive: 2
+            }),
+            previous_exercise_slide_submission: Some(exercise_slide_submission.clone())
         }
     );
     write_docs!(
@@ -706,6 +716,7 @@ pub async fn main() -> anyhow::Result<()> {
         StudentExerciseTaskSubmissionResult,
         submission_result.clone()
     );
+    write_docs!(PeerReviewsRecieved, peer_reviews_recieved.clone());
     write_docs!(
         Vec<StudentExerciseTaskSubmissionResult>,
         vec![submission_result.clone()]

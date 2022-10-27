@@ -38,13 +38,13 @@ const Content = styled.div`
   text-align: center;
 
   h2 {
-    font-size: clamp(24px, 3vw, 50px);
+    font-size: clamp(35px, 4vw, 50px);
     font-family: ${headingFont};
     font-weight: 700;
     text-align: center;
     margin-bottom: 5px !important;
 
-    background: -webkit-linear-gradient(-70deg, #2188ff 0%, #804eda 100%);
+    background: -webkit-linear-gradient(-70deg, #020344 0%, #28b8d5 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

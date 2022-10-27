@@ -30,7 +30,7 @@ pub async fn copy_course(
     let course_language_group_id = if same_language_group {
         parent_course.course_language_group_id
     } else {
-        course_language_groups::insert(&mut tx).await?
+        course_language_groups::insert(&mut tx, PKeyPolicy::Generate).await?
     };
 
     // Create new course.
@@ -131,8 +131,8 @@ WHERE id = $2;
     // Create default instance for copied course.
     course_instances::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         NewCourseInstance {
-            id: Uuid::new_v4(),
             course_id: copied_course.id,
             name: None,
             description: None,

@@ -188,24 +188,6 @@ export interface CourseInstanceForm {
 
 export type PointMap = Record<string, number>
 
-export function isPeerReviewQuestionSubmission(
-  obj: any,
-  _argumentName?: string,
-): obj is PeerReviewQuestionSubmission {
-  return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.id === "string" &&
-      obj.created_at instanceof Date &&
-      obj.updated_at instanceof Date &&
-      (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-      typeof obj.peer_review_question_id === "string" &&
-      typeof obj.peer_review_submission_id === "string" &&
-      obj.text_data == null) ||
-    (typeof obj.text_data === "string" && obj.number_data == null) ||
-    typeof obj.number_data === "number"
-  )
-}
-
 export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
@@ -561,6 +543,11 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
+export interface PeerReviewsRecieved {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -700,11 +687,6 @@ export interface CourseMaterialPeerReviewData {
   peer_review_config: PeerReviewConfig
   peer_review_questions: Array<PeerReviewQuestion>
   num_peer_reviews_given: number
-}
-
-export interface CourseMaterialPeerReviewGivenData {
-  peer_review_questions: Array<PeerReviewQuestion>
-  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
 }
 
 export interface CourseMaterialPeerReviewDataAnswerToReview {
@@ -1060,6 +1042,8 @@ export interface PeerReviewQuestion {
   answer_required: boolean
 }
 
+export type PeerReviewQuestionType = "Essay" | "Scale"
+
 export interface PeerReviewQuestionSubmission {
   id: string
   created_at: Date
@@ -1070,8 +1054,6 @@ export interface PeerReviewQuestionSubmission {
   text_data: string | null
   number_data: number | null
 }
-
-export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PendingRole {
   id: string

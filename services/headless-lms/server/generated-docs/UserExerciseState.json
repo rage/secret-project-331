@@ -8,7 +8,7 @@
   "updated_at": "2021-12-31T22:00:00Z",
   "deleted_at": null,
   "score_given": 1.0,
-  "grading_progress": "FullyGraded",
+  "grading_progress": "PendingManual",
   "activity_progress": "Completed",
   "reviewing_stage": "ReviewedAndLocked",
   "selected_exercise_slide_id": "b1355811-b233-45f1-87cc-038c9dea927d"

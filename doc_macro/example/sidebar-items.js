@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["example_impl",""]]};

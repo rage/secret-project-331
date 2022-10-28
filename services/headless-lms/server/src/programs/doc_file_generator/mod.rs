@@ -1025,6 +1025,7 @@ fn models() {
             ]),
             order_number: 123,
             copied_from: None,
+            hidden: false,
         }
     );
     doc!(

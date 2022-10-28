@@ -918,6 +918,7 @@ export interface Page {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
 }
 
 export interface PageChapterAndCourseInformation {
@@ -980,6 +981,7 @@ export interface PageWithExercises {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
   exercises: Array<Exercise>
 }
 

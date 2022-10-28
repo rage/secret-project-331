@@ -218,6 +218,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
   ects_credits: number | null
 }
 
@@ -230,6 +231,7 @@ export interface ModifiedModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface ModuleUpdates {
@@ -248,6 +250,7 @@ export interface NewModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface Course {

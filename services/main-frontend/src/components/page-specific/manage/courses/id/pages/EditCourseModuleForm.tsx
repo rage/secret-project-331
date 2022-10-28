@@ -19,11 +19,11 @@ import { ModuleView } from "./CourseModules"
 interface Props {
   module: ModuleView
   chapters: Array<number>
-  onSubmitForm: (id: string, fields: Fields) => void
+  onSubmitForm: (id: string, fields: EditCourseModuleFormFields) => void
   onDeleteModule: (id: string) => void
 }
 
-interface Fields {
+export interface EditCourseModuleFormFields {
   name: string | null
   starts: number
   ends: number
@@ -32,9 +32,11 @@ interface Fields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  override_completion_link: boolean
+  completion_registration_link_override: string
 }
 
-const makeDefaultValues = (module: ModuleView, chapters: number[]) => {
+const makeDefaultValues = (module: ModuleView, chapters: number[]): EditCourseModuleFormFields => {
   return {
     name: module.name,
     starts: module.firstChapter ?? (chapters.length > 0 ? chapters[0] : 1),
@@ -46,6 +48,8 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]) => {
       Number(module.automatic_completion_number_of_points_treshold) ?? null,
     automatic_completion_number_of_exercises_attempted_treshold:
       Number(module.automatic_completion_number_of_exercises_attempted_treshold) ?? null,
+    override_completion_link: module.completion_registration_link_override !== null,
+    completion_registration_link_override: module.completion_registration_link_override ?? "",
   }
 }
 
@@ -63,7 +67,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     formState: { errors, isValid, isSubmitting },
     reset,
     watch,
-  } = useForm<Fields>({
+  } = useForm<EditCourseModuleFormFields>({
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: makeDefaultValues(module, chapters),
@@ -72,12 +76,13 @@ const EditCourseModuleForm: React.FC<Props> = ({
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
 
-  const onSubmitFormWrapper = (fields: Fields) => {
+  const onSubmitFormWrapper = (fields: EditCourseModuleFormFields) => {
     setActive(false)
     onSubmitForm(module.id, fields)
   }
 
   const isChecked = watch("automatic_completion")
+  const overrideLink = watch("override_completion_link")
 
   return (
     <form
@@ -133,100 +138,165 @@ const EditCourseModuleForm: React.FC<Props> = ({
         {active ? (
           <div
             className={css`
-              display: grid;
-              grid-template-columns: repeat(4, minmax(5rem, 1fr));
-              gap: 10px;
               margin-left: 1rem;
               margin-right: 1rem;
               margin-bottom: 1rem;
             `}
           >
-            <SelectField
+            <div
               className={css`
-                min-width: 5rem;
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                justify-content: left;
+                column-gap: 1rem;
+                margin-bottom: 2rem;
+
+                ${respondToOrLarger.md} {
+                  align-items: flex-end;
+                  flex-direction: row;
+                }
               `}
-              id="editing-module-start"
-              label={t("starts")}
-              labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
-              `}
-              options={chapters.map((c) => {
-                return { value: c.toString(), label: c.toString() }
-              })}
-              register={register("starts", { required: true, valueAsNumber: true })}
-              error={errors["starts"]?.message}
-            />
-            <SelectField
-              className={css`
-                min-width: 5rem;
-                margin-left: 1rem;
-              `}
-              id="editing-module-ends"
-              label={t("ends")}
-              labelStyle={css`
-                color: ${baseTheme.colors.clear[100]};
-              `}
-              options={chapters.map((cn) => {
-                return { value: cn.toString(), label: cn.toString() }
-              })}
-              register={register("ends", { required: true, valueAsNumber: true })}
-              error={errors["ends"]?.message}
-            />
-            <TextField
-              label={t("course-code")}
-              placeholder={t("course-code")}
-              labelStyle={css`
-                color: #fff;
-              `}
-              register={register("uh_course_code")}
-              error={errors["name"]?.message}
-            />
-            <TextField
-              label={t("ects-credits")}
-              labelStyle={css`
-                color: #fff;
-              `}
-              placeholder={t("ects-credits")}
-              type="number"
-              register={register("ects_credits", {
-                valueAsNumber: true,
-              })}
-            />
+            >
+              <div
+                className={css`
+                  column-gap: 1rem;
+                  display: flex;
+                  flex: 2;
+                `}
+              >
+                <SelectField
+                  className={css`
+                    flex: 1;
+                    min-width: 5rem;
+                  `}
+                  id="editing-module-start"
+                  label={t("starts")}
+                  labelStyle={css`
+                    color: ${baseTheme.colors.clear[100]};
+                  `}
+                  options={chapters.map((c) => {
+                    return { value: c.toString(), label: c.toString() }
+                  })}
+                  register={register("starts", { required: true, valueAsNumber: true })}
+                  error={errors["starts"]?.message}
+                />
+                <SelectField
+                  className={css`
+                    flex: 1;
+                    min-width: 5rem;
+                  `}
+                  id="editing-module-ends"
+                  label={t("ends")}
+                  labelStyle={css`
+                    color: ${baseTheme.colors.clear[100]};
+                  `}
+                  options={chapters.map((cn) => {
+                    return { value: cn.toString(), label: cn.toString() }
+                  })}
+                  register={register("ends", { required: true, valueAsNumber: true })}
+                  error={errors["ends"]?.message}
+                />
+              </div>
+              <TextField
+                className={css`
+                  flex: 1;
+                  min-width: 8rem;
+                `}
+                label={t("course-code")}
+                placeholder={t("course-code")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                register={register("uh_course_code")}
+                error={errors["name"]?.message}
+              />
+              <TextField
+                className={css`
+                  flex: 1;
+                  min-width: 8rem;
+                `}
+                label={t("ects-credits")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                placeholder={t("ects-credits")}
+                type="number"
+                register={register("ects_credits", {
+                  valueAsNumber: true,
+                })}
+              />
+            </div>
             <Checkbox
               label={t("enable-automatic-completion")}
               register={register("automatic_completion")}
               className={css`
-                margin-top: 24px;
+                label {
+                  color: #fff !important;
+                }
+              `}
+            />
+            <div
+              className={css`
+                align-items: flex-end;
+                display: flex;
+                column-gap: 1rem;
+                margin-bottom: 2rem;
+              `}
+            >
+              <TextField
+                className={css`
+                  flex: 1;
+                `}
+                type="number"
+                label={t("automatic-completion-points-treshold")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                placeholder={t("automatic-completion-points-treshold")}
+                register={register("automatic_completion_number_of_points_treshold", {
+                  valueAsNumber: true,
+                  disabled: !isChecked,
+                })}
+                error={errors["name"]?.message}
+              />
+              <TextField
+                className={css`
+                  flex: 1;
+                `}
+                label={t("automatic-completion-exercise-treshold")}
+                labelStyle={css`
+                  color: #fff;
+                `}
+                placeholder={t("automatic-completion-exercise-treshold")}
+                type="number"
+                register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+                  valueAsNumber: true,
+                  disabled: !isChecked,
+                })}
+                error={errors["name"]?.message}
+              />
+            </div>
+            <Checkbox
+              label={t("override-completion-registration-link")}
+              register={register("override_completion_link")}
+              className={css`
                 label {
                   color: #fff !important;
                 }
               `}
             />
             <TextField
-              type="number"
-              label={t("automatic-completion-points-treshold")}
+              label={t("completion-registration-link")}
+              placeholder={t("completion-registration-link")}
               labelStyle={css`
                 color: #fff;
               `}
-              placeholder={t("automatic-completion-points-treshold")}
-              register={register("automatic_completion_number_of_points_treshold", {
-                valueAsNumber: true,
-                disabled: !isChecked,
+              register={register("completion_registration_link_override", {
+                disabled: !overrideLink,
+                minLength: 10,
               })}
-              error={errors["name"]?.message}
-            />
-            <TextField
-              label={t("automatic-completion-exercise-treshold")}
-              labelStyle={css`
-                color: #fff;
-              `}
-              placeholder={t("automatic-completion-exercise-treshold")}
-              type="number"
-              register={register("automatic_completion_number_of_exercises_attempted_treshold", {
-                valueAsNumber: true,
-                disabled: !isChecked,
-              })}
-              error={errors["name"]?.message}
+              error={errors["completion_registration_link_override"]?.message}
             />
           </div>
         ) : (

@@ -630,16 +630,21 @@ pub async fn get_completion_registration_link_and_save_attempt(
         Utc::now(),
     )
     .await?;
-    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Course module doesn't have an assossiated University of Helsinki course code."
-                .to_string(),
-            None,
-        )
-    })?;
-    let registration_link =
-        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?;
+    let registration_link = match course_module.completion_registration_link_override.as_ref() {
+        Some(link_override) => link_override.clone(),
+        None => {
+            let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Course module doesn't have an assossiated University of Helsinki course code."
+                        .to_string(),
+                    None,
+                )
+            })?;
+            open_university_registration_links::get_link_by_course_code(conn, &uh_course_code)
+                .await?
+        }
+    };
     Ok(CompletionRegistrationLink {
         url: registration_link,
     })
@@ -934,25 +939,19 @@ mod tests {
 
         fn create_course_module(
             automatic_completion: bool,
-            automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
-            automatic_completion_number_of_points_treshold: Option<i32>,
+            exercises_attempted_treshold: Option<i32>,
+            number_of_points_treshold: Option<i32>,
         ) -> CourseModule {
             let id = Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap();
-            CourseModule {
-                id,
-                created_at: Utc.ymd(2022, 6, 27).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 6, 27).and_hms(0, 0, 0),
-                deleted_at: None,
-                name: None,
-                course_id: id,
-                order_number: 0,
-                copied_from: None,
-                uh_course_code: None,
-                ects_credits: None,
-                automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold,
-            }
+            let timestamp = Utc.ymd(2022, 6, 27).and_hms(0, 0, 0);
+            let mut course_module =
+                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, None);
+            course_module.automatic_completion = automatic_completion;
+            course_module.automatic_completion_number_of_exercises_attempted_treshold =
+                exercises_attempted_treshold;
+            course_module.automatic_completion_number_of_points_treshold =
+                number_of_points_treshold;
+            course_module
         }
 
         fn create_user_course_instance_metrics(

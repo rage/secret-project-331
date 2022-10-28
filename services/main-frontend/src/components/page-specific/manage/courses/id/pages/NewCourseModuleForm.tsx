@@ -23,6 +23,8 @@ export interface Fields {
   automatic_completion: boolean
   automatic_completion_number_of_points_treshold: number | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
+  override_completion_link: boolean
+  completion_registration_link_override: string
 }
 
 const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {

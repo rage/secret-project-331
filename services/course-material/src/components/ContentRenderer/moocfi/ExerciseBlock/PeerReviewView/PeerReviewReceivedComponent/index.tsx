@@ -13,7 +13,6 @@ import {
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
-import { assertNotNullOrUndefined } from "../../../../../../shared-module/utils/nullability"
 
 import PeerReviewQuestionAnswer from "./PeerReviewQuestionAnswer"
 

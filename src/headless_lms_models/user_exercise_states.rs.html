@@ -1127,14 +1127,6 @@
 <span id="1127">1127</span>
 <span id="1128">1128</span>
 <span id="1129">1129</span>
-<span id="1130">1130</span>
-<span id="1131">1131</span>
-<span id="1132">1132</span>
-<span id="1133">1133</span>
-<span id="1134">1134</span>
-<span id="1135">1135</span>
-<span id="1136">1136</span>
-<span id="1137">1137</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">futures::Stream</span>;
@@ -2224,22 +2216,14 @@ WHERE exercises.deleted_at IS NULL
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">merges_course_modules_with_metrics</span>() {
+        <span class="kw">let</span> <span class="ident">timestamp</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
         <span class="kw">let</span> <span class="ident">module_id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;9e831ecc-9751-42f1-ae7e-9b2f06e523e8&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">CourseModule</span> {
-            <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">22</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">id</span>: <span class="ident">module_id</span>,
-            <span class="ident">name</span>: <span class="prelude-val">None</span>,
-            <span class="ident">order_number</span>: <span class="number">0</span>,
-            <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-            <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
-            <span class="ident">ects_credits</span>: <span class="prelude-val">Some</span>(<span class="number">5</span>),
-            <span class="ident">automatic_completion</span>: <span class="bool-val">false</span>,
-            <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-val">None</span>,
-            <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-val">None</span>,
-        }];
+        <span class="kw">let</span> <span class="ident">course_modules</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">CourseModule::new</span>(
+            <span class="ident">module_id</span>,
+            <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;3fa4bee6-7390-415e-968f-ecdc5f28330e&quot;</span>).<span class="ident">unwrap</span>(),
+        )
+        .<span class="ident">set_timestamps</span>(<span class="ident">timestamp</span>, <span class="ident">timestamp</span>, <span class="prelude-val">None</span>)
+        .<span class="ident">set_registration_info</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">5</span>), <span class="prelude-val">None</span>)];
         <span class="kw">let</span> <span class="ident">course_metrics_by_course_module_id</span> <span class="op">=</span> <span class="ident">HashMap::from</span>([(
             <span class="ident">module_id</span>,
             <span class="ident">CourseInstanceExerciseMetrics</span> {

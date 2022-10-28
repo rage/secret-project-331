@@ -966,7 +966,6 @@
 <span id="966">966</span>
 <span id="967">967</span>
 <span id="968">968</span>
-<span id="969">969</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1599,16 +1598,21 @@
         <span class="ident">Utc::now</span>(),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">uh_course_code</span> <span class="op">=</span> <span class="ident">course_module</span>.<span class="ident">uh_course_code</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">ModelError::new</span>(
-            <span class="ident">ModelErrorType::PreconditionFailed</span>,
-            <span class="string">&quot;Course module doesn&#39;t have an assossiated University of Helsinki course code.&quot;</span>
-                .<span class="ident">to_string</span>(),
-            <span class="prelude-val">None</span>,
-        )
-    })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">registration_link</span> <span class="op">=</span>
-        <span class="ident">open_university_registration_links::get_link_by_course_code</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">registration_link</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">course_module</span>.<span class="ident">completion_registration_link_override</span>.<span class="ident">as_ref</span>() {
+        <span class="prelude-val">Some</span>(<span class="ident">link_override</span>) =&gt; <span class="ident">link_override</span>.<span class="ident">clone</span>(),
+        <span class="prelude-val">None</span> =&gt; {
+            <span class="kw">let</span> <span class="ident">uh_course_code</span> <span class="op">=</span> <span class="ident">course_module</span>.<span class="ident">uh_course_code</span>.<span class="ident">clone</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="ident">ModelError::new</span>(
+                    <span class="ident">ModelErrorType::PreconditionFailed</span>,
+                    <span class="string">&quot;Course module doesn&#39;t have an assossiated University of Helsinki course code.&quot;</span>
+                        .<span class="ident">to_string</span>(),
+                    <span class="prelude-val">None</span>,
+                )
+            })<span class="question-mark">?</span>;
+            <span class="ident">open_university_registration_links::get_link_by_course_code</span>(<span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">uh_course_code</span>)
+                .<span class="kw">await</span><span class="question-mark">?</span>
+        }
+    };
     <span class="prelude-val">Ok</span>(<span class="ident">CompletionRegistrationLink</span> {
         <span class="ident">url</span>: <span class="ident">registration_link</span>,
     })
@@ -1903,25 +1907,19 @@
 
         <span class="kw">fn</span> <span class="ident">create_course_module</span>(
             <span class="ident">automatic_completion</span>: <span class="ident">bool</span>,
-            <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
-            <span class="ident">automatic_completion_number_of_points_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+            <span class="ident">exercises_attempted_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+            <span class="ident">number_of_points_treshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
         ) -&gt; <span class="ident">CourseModule</span> {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;f2cd5971-444f-4b1b-9ef9-4d283fecf6f8&quot;</span>).<span class="ident">unwrap</span>();
-            <span class="ident">CourseModule</span> {
-                <span class="ident">id</span>,
-                <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
-                <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
-                <span class="ident">name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">course_id</span>: <span class="ident">id</span>,
-                <span class="ident">order_number</span>: <span class="number">0</span>,
-                <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
-                <span class="ident">uh_course_code</span>: <span class="prelude-val">None</span>,
-                <span class="ident">ects_credits</span>: <span class="prelude-val">None</span>,
-                <span class="ident">automatic_completion</span>,
-                <span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span>,
-                <span class="ident">automatic_completion_number_of_points_treshold</span>,
-            }
+            <span class="kw">let</span> <span class="ident">timestamp</span> <span class="op">=</span> <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">27</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">course_module</span> <span class="op">=</span>
+                <span class="ident">CourseModule::new</span>(<span class="ident">id</span>, <span class="ident">id</span>).<span class="ident">set_timestamps</span>(<span class="ident">timestamp</span>, <span class="ident">timestamp</span>, <span class="prelude-val">None</span>);
+            <span class="ident">course_module</span>.<span class="ident">automatic_completion</span> <span class="op">=</span> <span class="ident">automatic_completion</span>;
+            <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_exercises_attempted_treshold</span> <span class="op">=</span>
+                <span class="ident">exercises_attempted_treshold</span>;
+            <span class="ident">course_module</span>.<span class="ident">automatic_completion_number_of_points_treshold</span> <span class="op">=</span>
+                <span class="ident">number_of_points_treshold</span>;
+            <span class="ident">course_module</span>
         }
 
         <span class="kw">fn</span> <span class="ident">create_user_course_instance_metrics</span>(

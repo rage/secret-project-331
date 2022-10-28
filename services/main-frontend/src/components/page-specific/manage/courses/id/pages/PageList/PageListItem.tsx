@@ -70,6 +70,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
       >
         {page.url_path}
       </td>
+      <td>{page.hidden ? t("yes") : ""}</td>
       <td
         className={css`
           padding: 1rem;

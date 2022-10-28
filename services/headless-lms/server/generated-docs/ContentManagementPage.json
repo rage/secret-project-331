@@ -30,7 +30,8 @@
       }
     ],
     "order_number": 123,
-    "copied_from": null
+    "copied_from": null,
+    "hidden": false
   },
   "exercises": [
     {

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useReducer } from "react"
 
@@ -126,6 +127,11 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
           organizationSlug={query.organizationSlug}
           courseSlug={courseSlug}
         >
+          {getCoursePageByPath.data.page.hidden && (
+            <Head>
+              <meta name="robots" content="noindex" />
+            </Head>
+          )}
           <PageMarginOffset
             marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
             // eslint-disable-next-line i18next/no-literal-string

@@ -522,15 +522,15 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get 
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_peer_reviews_received</span>(
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
-    <span class="ident">exercise_slide_submission_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
+    <span class="ident">params</span>: <span class="ident">web::Path</span><span class="op">&lt;</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>)<span class="op">&gt;</span>,
     <span class="ident">user</span>: <span class="ident">AuthUser</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">PeerReviewsRecieved</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">exercise_id</span>, <span class="ident">exercise_slide_submission_id</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">into_inner</span>();
     <span class="kw">let</span> <span class="ident">peer_review_data</span> <span class="op">=</span> <span class="ident">models::exercise_task_submissions::get_peer_reviews_received</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="kw-2">*</span><span class="ident">exercise_id</span>,
-        <span class="kw-2">*</span><span class="ident">exercise_slide_submission_id</span>,
+        <span class="ident">exercise_id</span>,
+        <span class="ident">exercise_slide_submission_id</span>,
         <span class="ident">user</span>.<span class="ident">id</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -816,7 +816,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_peer_review_for_exercise</span>),
         )
         .<span class="ident">route</span>(
-            <span class="string">&quot;/{exercise_slide_id}/slide-submission/{exercise_slide_submission_id}/peer-reviews-received&quot;</span>,
+            <span class="string">&quot;/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_peer_reviews_received</span>),
         )
         .<span class="ident">route</span>(

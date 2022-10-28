@@ -2214,6 +2214,39 @@
 <span id="2214">2214</span>
 <span id="2215">2215</span>
 <span id="2216">2216</span>
+<span id="2217">2217</span>
+<span id="2218">2218</span>
+<span id="2219">2219</span>
+<span id="2220">2220</span>
+<span id="2221">2221</span>
+<span id="2222">2222</span>
+<span id="2223">2223</span>
+<span id="2224">2224</span>
+<span id="2225">2225</span>
+<span id="2226">2226</span>
+<span id="2227">2227</span>
+<span id="2228">2228</span>
+<span id="2229">2229</span>
+<span id="2230">2230</span>
+<span id="2231">2231</span>
+<span id="2232">2232</span>
+<span id="2233">2233</span>
+<span id="2234">2234</span>
+<span id="2235">2235</span>
+<span id="2236">2236</span>
+<span id="2237">2237</span>
+<span id="2238">2238</span>
+<span id="2239">2239</span>
+<span id="2240">2240</span>
+<span id="2241">2241</span>
+<span id="2242">2242</span>
+<span id="2243">2243</span>
+<span id="2244">2244</span>
+<span id="2245">2245</span>
+<span id="2246">2246</span>
+<span id="2247">2247</span>
+<span id="2248">2248</span>
+<span id="2249">2249</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_helpers</span>::{
     <span class="ident">create_best_exercise</span>, <span class="ident">create_page</span>, <span class="ident">example_exercise_flexible</span>, <span class="ident">paragraph</span>, <span class="ident">quizzes_exercise</span>,
     <span class="ident">submit_and_grade</span>,
@@ -2320,7 +2353,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_1</span>, <span class="ident">_front_page_1</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;bfc557e1-0f8e-4f10-8e21-d7d8ffe50a3a&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;b1e392db-482a-494e-9cbb-c87bbc70e340&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2338,7 +2374,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">_front_page_2</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;8d699f05-4318-47f7-b020-b2084128f746&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;9734cb59-4c3c-467d-91e8-f4281baccfe5&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2361,7 +2400,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_3</span>, <span class="ident">_front_page_3</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;791eada6-5299-41e9-b39c-da4f3c564814&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;22cb6a59-9d9d-4a0b-945b-11a6f2f8d6ef&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2384,7 +2426,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_4</span>, <span class="ident">_front_page_4</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;07f8ceea-d41e-4dcb-9e4b-f600d3894e7f&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;cd7a35b7-8f16-4e86-bef2-b730943ec15b&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2417,7 +2462,10 @@
     };
     <span class="kw">let</span> (<span class="ident">_m1_chapter_1</span>, <span class="ident">_m1c1_front_page</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;c9003113-b69b-4ee7-8b13-e16397f1a3ea&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;f95aa0bc-93d0-4d83-acde-64682f5e8f66&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2434,7 +2482,10 @@
     };
     <span class="kw">let</span> (<span class="ident">_m1_chapter_2</span>, <span class="ident">_m1c2_front_page</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4989533a-7888-424c-963c-d8007d820fca&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;e68b9d5b-fa2e-4a94-a1da-5d69f29dcb63&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2459,7 +2510,10 @@
     };
     <span class="kw">let</span> (<span class="ident">_m2_chapter_1</span>, <span class="ident">_m2c1_front_page</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;26b52b2f-8b02-4be8-b341-6e956ff3ca86&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;0512fb7c-cb3f-4111-b663-e2fa7714939f&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -2476,7 +2530,10 @@
     };
     <span class="kw">let</span> (<span class="ident">_m2_chapter_2</span>, <span class="ident">_m2c2_front_page</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;4e48b13a-9740-4d4f-9f60-8176649901b9&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;bc6569fe-52d2-4590-aa3a-8ae80e961db8&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -3708,7 +3765,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter</span>, <span class="ident">_front_page</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;3d1d7303-b654-428a-8b46-1dbfe908d38a&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;97568e97-0d6c-4702-9534-77d6e2784c8a&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -4080,7 +4140,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_1</span>, <span class="ident">front_page_ch_1</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;77e95910-2289-452f-a1dd-8b8bf4a829a0&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;91b6887f-8bc0-4df6-89a4-5687890bc955&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter</span>,
         <span class="ident">admin</span>,
     )
@@ -4233,7 +4296,10 @@
     };
     <span class="kw">let</span> (<span class="ident">chapter_2</span>, <span class="ident">front_page_ch_2</span>) <span class="op">=</span> <span class="ident">library::content_management::create_new_chapter</span>(
         <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
-        <span class="ident">PKeyPolicy::Generate</span>,
+        <span class="ident">PKeyPolicy::Fixed</span>((
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;5adff726-8910-4163-9fdb-e2f0f45c04d7&quot;</span>),
+            <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course</span>.<span class="ident">id</span>, <span class="string">b&quot;4d916791-5a09-4e3c-8201-c46509e0b2c7&quot;</span>),
+        )),
         <span class="kw-2">&amp;</span><span class="ident">new_chapter_2</span>,
         <span class="ident">admin</span>,
     )

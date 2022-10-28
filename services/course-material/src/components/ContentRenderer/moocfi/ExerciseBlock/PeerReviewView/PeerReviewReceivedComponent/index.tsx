@@ -116,7 +116,7 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
 
   const getPeerReviewReceived = useQuery(
     [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
-    () => fetchPeerReviewDataReceivedByExerciseId(id, assertNotNullOrUndefined(submissionId)),
+    () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
   )
 
   if (getPeerReviewReceived.isLoading) {

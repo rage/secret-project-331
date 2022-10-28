@@ -13,6 +13,7 @@ import {
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../shared-module/components/Spinner"
 import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
+import { assertNotNullOrUndefined } from "../../../../../../shared-module/utils/nullability"
 
 import PeerReviewQuestionAnswer from "./PeerReviewQuestionAnswer"
 
@@ -114,8 +115,8 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
   let questions: PeerReviewQuestion[] = []
 
   const getPeerReviewReceived = useQuery(
-    [`exercise-id-${id}-exercise-slide-submission-id-${submissionId}-peer-reviews-received`],
-    () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
+    [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
+    () => fetchPeerReviewDataReceivedByExerciseId(id, assertNotNullOrUndefined(submissionId)),
   )
 
   if (getPeerReviewReceived.isLoading) {

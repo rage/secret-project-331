@@ -109,15 +109,15 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get 
 #[instrument(skip(pool))]
 async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
-    exercise_id: web::Path<Uuid>,
-    exercise_slide_submission_id: web::Path<Uuid>,
+    params: web::Path<(Uuid, Uuid)>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
     let mut conn = pool.acquire().await?;
+    let (exercise_id, exercise_slide_submission_id) = params.into_inner();
     let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
         &mut conn,
-        *exercise_id,
-        *exercise_slide_submission_id,
+        exercise_id,
+        exercise_slide_submission_id,
         user.id,
     )
     .await?;
@@ -403,7 +403,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_peer_review_for_exercise),
         )
         .route(
-            "/{exercise_slide_id}/slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
+            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
             web::get().to(get_peer_reviews_received),
         )
         .route(

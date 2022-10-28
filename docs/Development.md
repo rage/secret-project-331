@@ -21,6 +21,7 @@
 6. Install Postgresql: http://postgresguide.com/setup/install.html
 7. Install `bc`, `find`, `jq`, `rsync` and `sponge` with your package manager.
    - On Arch Linux, `sponge` is included in the `moretools` package.
+8. Install `actionlint`: https://github.com/rhysd/actionlint#quick-start
 
 You may also need stern and kubectx.
 

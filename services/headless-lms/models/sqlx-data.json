@@ -1111,6 +1111,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -1124,6 +1129,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -3465,6 +3471,16 @@
     },
     "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  exercise_slide_id,\n  course_id,\n  course_instance_id,\n  exam_id,\n  exercise_id,\n  user_id,\n  user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND deleted_at IS NULL\nLIMIT $2 OFFSET $3\n        "
   },
+  "36215357ddca441f9864257c857aad76cb01a1ba55aef526dc7cc34e4b266519": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Varchar", "Int4", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4", "Varchar"]
+      }
+    },
+    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8,\n  completion_registration_link_override = $9\nWHERE id = $3\n"
+  },
   "375b467ba026680d07ba6fa844de91afd942e86b2715431e41b6788df0d2b3c0": {
     "describe": {
       "columns": [
@@ -4076,6 +4092,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -4089,6 +4110,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -4729,6 +4751,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -4742,6 +4769,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -5348,6 +5376,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -5361,6 +5394,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -5706,6 +5740,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -5719,6 +5758,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -8810,6 +8850,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -8823,6 +8868,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -16804,16 +16850,6 @@
     },
     "query": "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;"
   },
-  "e6868d99cf844aba2f2ce20f7efcd9558a525b4c69023e6d365ed0a6d9e3f907": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": ["Varchar", "Int4", "Uuid", "Varchar", "Int4", "Bool", "Int4", "Int4"]
-      }
-    },
-    "query": "\nUPDATE course_modules\nSET name = COALESCE($1, name),\n  order_number = $2,\n  uh_course_code = $4,\n  ects_credits = $5,\n  automatic_completion = $6,\n  automatic_completion_number_of_exercises_attempted_treshold = $7,\n  automatic_completion_number_of_points_treshold = $8\nWHERE id = $3\n"
-  },
   "e6f687f777bbf1f390fd79b39ebe2f71adc27844198a74a5370382ba150abb44": {
     "describe": {
       "columns": [
@@ -17297,6 +17333,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -17310,6 +17351,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true
@@ -18556,6 +18598,11 @@
           "name": "ects_credits",
           "ordinal": 12,
           "type_info": "Int4"
+        },
+        {
+          "name": "completion_registration_link_override",
+          "ordinal": 13,
+          "type_info": "Varchar"
         }
       ],
       "nullable": [
@@ -18569,6 +18616,7 @@
         true,
         true,
         false,
+        true,
         true,
         true,
         true

@@ -554,6 +554,7 @@ fn models() {
         automatic_completion_number_of_exercises_attempted_treshold: None,
         automatic_completion_number_of_points_treshold: None,
         ects_credits: None,
+        completion_registration_link_override: None,
     });
     example!(UserCourseModuleCompletion {
         course_module_id,

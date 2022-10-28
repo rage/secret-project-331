@@ -886,6 +886,19 @@
 <span id="886">886</span>
 <span id="887">887</span>
 <span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde_json::Value</span>;
@@ -1659,15 +1672,24 @@ AND deleted_at IS NULL;
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_pages_by_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Uuid</span>, <span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident"><span class="kw">crate</span>::pages::course_pages</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>)
-                    .<span class="kw">await</span>
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> (<span class="ident">page</span>.<span class="ident">id</span>, <span class="ident">page</span>))
-                    .<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::course_pages</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
+                <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
+                    <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                    <span class="ident">course</span>.<span class="ident">id</span>,
+                    <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+                )
                 .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">page</span><span class="op">|</span> (<span class="ident">page</span>.<span class="ident">id</span>, <span class="ident">page</span>))
+                .<span class="ident">collect</span>();
+            <span class="macro">assert_eq!</span>(<span class="ident">original_pages_by_id</span>.<span class="ident">len</span>(), <span class="number">3</span>);
+            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">copied_course</span>.<span class="ident">id</span>,
+                <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
             <span class="comment">// Creating a course and a chapter both lead to an additional page being created.</span>
             <span class="macro">assert_eq!</span>(<span class="ident">copied_pages</span>.<span class="ident">len</span>(), <span class="number">3</span>);
             <span class="ident">copied_pages</span>.<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">copied_page</span><span class="op">|</span> {
@@ -1704,9 +1726,13 @@ AND deleted_at IS NULL;
             <span class="kw">let</span> <span class="ident">copied_course</span> <span class="op">=</span> <span class="ident">copy_course</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">new_course</span>, <span class="bool-val">true</span>)
                 .<span class="kw">await</span>
                 .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::course_pages</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">copied_course</span>.<span class="ident">id</span>)
-                .<span class="kw">await</span>
-                .<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">copied_pages</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::pages::get_all_by_course_id_and_visibility</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="ident">copied_course</span>.<span class="ident">id</span>,
+                <span class="ident"><span class="kw">crate</span>::pages::PageVisibility::Any</span>,
+            )
+            .<span class="kw">await</span>
+            .<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">copied_page</span> <span class="op">=</span> <span class="ident">copied_pages</span>
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">find</span>(<span class="op">|</span><span class="ident">copied_page</span><span class="op">|</span> <span class="ident">copied_page</span>.<span class="ident">copied_from</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">page</span>))

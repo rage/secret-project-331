@@ -1363,6 +1363,7 @@
 <span id="1363">1363</span>
 <span id="1364">1364</span>
 <span id="1365">1365</span>
+<span id="1366">1366</span>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -2390,6 +2391,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
             ]),
             <span class="ident">order_number</span>: <span class="number">123</span>,
             <span class="ident">copied_from</span>: <span class="prelude-val">None</span>,
+            <span class="ident">hidden</span>: <span class="bool-val">false</span>,
         }
     );
     <span class="macro">doc!</span>(

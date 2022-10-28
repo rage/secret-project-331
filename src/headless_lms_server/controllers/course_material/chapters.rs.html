@@ -93,9 +93,18 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course_material/chapters`.</span>
 
-<span class="kw">use</span> <span class="ident">models::pages</span>::{<span class="ident">Page</span>, <span class="ident">PageWithExercises</span>};
+<span class="kw">use</span> <span class="ident">models::pages</span>::{<span class="ident">Page</span>, <span class="ident">PageVisibility</span>, <span class="ident">PageWithExercises</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::<span class="kw-2">*</span>;
 
@@ -104,7 +113,7 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_chapters_pages</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_public_chapter_pages</span>(
     <span class="ident">chapter_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
     <span class="ident">auth</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AuthUser</span><span class="op">&gt;</span>,
@@ -117,8 +126,12 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pag
         <span class="ident">Res::Chapter</span>(<span class="kw-2">*</span><span class="ident">chapter_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let</span> <span class="ident">chapter_pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">models::pages::chapter_pages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">chapter_pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">models::pages::get_course_pages_by_chapter_id_and_visibility</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">chapter_id</span>,
+        <span class="ident">PageVisibility::Public</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">chapter_pages</span>))
 }
 
@@ -164,9 +177,11 @@ GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` -
         <span class="ident">Res::Chapter</span>(<span class="kw-2">*</span><span class="ident">chapter_id</span>),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-
     <span class="kw">let</span> <span class="ident">chapter_pages</span> <span class="op">=</span>
-        <span class="ident">models::pages::get_chapters_pages_exclude_main_frontpage</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">chapter_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="ident">models::pages::get_chapters_visible_pages_exclude_main_frontpage</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">chapter_id</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">collect</span>();
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">chapter_pages</span>))
 }
 
@@ -178,15 +193,18 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">_add_routes</span>(<span class="ident">cfg</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ServiceConfig</span>) {
-    <span class="ident">cfg</span>.<span class="ident">route</span>(<span class="string">&quot;/{chapter_id}/pages&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_pages</span>))
-        .<span class="ident">route</span>(
-            <span class="string">&quot;/{chapter_id}/exercises&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_exercises</span>),
-        )
-        .<span class="ident">route</span>(
-            <span class="string">&quot;/{chapter_id}/pages-exclude-mainfrontpage&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_pages_without_main_frontpage</span>),
-        );
+    <span class="ident">cfg</span>.<span class="ident">route</span>(
+        <span class="string">&quot;/{chapter_id}/pages&quot;</span>,
+        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_public_chapter_pages</span>),
+    )
+    .<span class="ident">route</span>(
+        <span class="string">&quot;/{chapter_id}/exercises&quot;</span>,
+        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_exercises</span>),
+    )
+    .<span class="ident">route</span>(
+        <span class="string">&quot;/{chapter_id}/pages-exclude-mainfrontpage&quot;</span>,
+        <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_chapters_pages_without_main_frontpage</span>),
+    );
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="headless_lms_server" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

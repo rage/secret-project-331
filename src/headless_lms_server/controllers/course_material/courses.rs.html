@@ -648,6 +648,18 @@
 <span id="648">648</span>
 <span id="649">649</span>
 <span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::HashMap</span>, <span class="ident">net::IpAddr</span>, <span class="ident">path::Path</span>};
@@ -671,7 +683,7 @@
     <span class="ident">page_visit_datum_daily_visit_hashing_keys</span>::{
         <span class="ident">generate_anonymous_identifier</span>, <span class="ident">GenerateAnonymousIdentifierInput</span>,
     },
-    <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageSearchRequest</span>, <span class="ident">PageSearchResult</span>},
+    <span class="ident">pages</span>::{<span class="ident">CoursePageWithUserData</span>, <span class="ident">Page</span>, <span class="ident">PageSearchRequest</span>, <span class="ident">PageSearchResult</span>, <span class="ident">PageVisibility</span>},
     <span class="ident">proposed_page_edits</span>::{<span class="self">self</span>, <span class="ident">NewProposedPageEdits</span>},
     <span class="ident">user_course_settings::UserCourseSettings</span>,
 };
@@ -932,16 +944,23 @@ GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all 
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
+GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.
+
+Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_course_pages</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_public_course_pages</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">models::pages::course_pages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">pages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">models::pages::get_all_by_course_id_and_visibility</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">course_id</span>,
+        <span class="ident">PageVisibility::Public</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">pages</span>))
 }
@@ -1241,12 +1260,17 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 */</span>
 <span class="attribute">#[<span class="ident">generated_doc</span>]</span>
 <span class="attribute">#[<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="ident">pool</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_top_level_pages</span>(
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">get_public_top_level_pages</span>(
     <span class="ident">course_id</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span>,
     <span class="ident">pool</span>: <span class="ident">web::Data</span><span class="op">&lt;</span><span class="ident">PgPool</span><span class="op">&gt;</span>,
 ) -&gt; <span class="ident">ControllerResult</span><span class="op">&lt;</span><span class="ident">web::Json</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Page</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">acquire</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">models::courses::get_top_level_pages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">*</span><span class="ident">course_id</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">page</span> <span class="op">=</span> <span class="ident">models::pages::get_course_top_level_pages_by_course_id_and_visibility</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">*</span><span class="ident">course_id</span>,
+        <span class="ident">PageVisibility::Public</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">skip_authorize</span>()<span class="question-mark">?</span>;
     <span class="ident">token</span>.<span class="ident">authorized_ok</span>(<span class="ident">web::Json</span>(<span class="ident">page</span>))
 }
@@ -1274,7 +1298,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">&quot;/{course_id}/page-by-path/{url_path:.*}&quot;</span>,
             <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_page_by_path</span>),
         )
-        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/pages&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_course_pages</span>))
+        .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/pages&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_public_course_pages</span>))
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/search-pages-with-phrase&quot;</span>,
             <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">search_pages_with_phrase</span>),
@@ -1289,7 +1313,7 @@ We add the routes by calling the route method instead of using the route annotat
         )
         .<span class="ident">route</span>(
             <span class="string">&quot;/{course_id}/top-level-pages&quot;</span>,
-            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_top_level_pages</span>),
+            <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">get_public_top_level_pages</span>),
         )
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/propose-edit&quot;</span>, <span class="ident">web::post</span>().<span class="ident">to</span>(<span class="ident">propose_edit</span>))
         .<span class="ident">route</span>(<span class="string">&quot;/{course_id}/glossary&quot;</span>, <span class="ident">web::get</span>().<span class="ident">to</span>(<span class="ident">glossary</span>))

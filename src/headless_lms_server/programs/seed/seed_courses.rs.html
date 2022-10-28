@@ -2205,6 +2205,15 @@
 <span id="2205">2205</span>
 <span id="2206">2206</span>
 <span id="2207">2207</span>
+<span id="2208">2208</span>
+<span id="2209">2209</span>
+<span id="2210">2210</span>
+<span id="2211">2211</span>
+<span id="2212">2212</span>
+<span id="2213">2213</span>
+<span id="2214">2214</span>
+<span id="2215">2215</span>
+<span id="2216">2216</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::programs::seed::seed_helpers</span>::{
     <span class="ident">create_best_exercise</span>, <span class="ident">create_page</span>, <span class="ident">example_exercise_flexible</span>, <span class="ident">paragraph</span>, <span class="ident">quizzes_exercise</span>,
     <span class="ident">submit_and_grade</span>,
@@ -2225,8 +2234,8 @@
     <span class="ident">glossary</span>, <span class="ident">library</span>,
     <span class="ident">library::content_management::CreateNewCourseFixedIds</span>,
     <span class="ident">page_history::HistoryChangeReason</span>,
-    <span class="ident">pages</span>,
     <span class="ident">pages::CmsPageUpdate</span>,
+    <span class="ident">pages</span>::{<span class="self">self</span>, <span class="ident">NewCoursePage</span>},
     <span class="ident">proposed_block_edits::NewProposedBlockEdit</span>,
     <span class="ident">proposed_page_edits</span>,
     <span class="ident">proposed_page_edits::NewProposedPageEdits</span>,
@@ -2473,15 +2482,20 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let</span> (<span class="ident">_page</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+    <span class="kw">let</span> <span class="ident">welcome_page</span> <span class="op">=</span> <span class="ident">NewCoursePage::new</span>(
         <span class="ident">course</span>.<span class="ident">id</span>,
+        <span class="number">1</span>,
         <span class="string">&quot;/welcome&quot;</span>,
         <span class="string">&quot;Welcome to Introduction to Everything&quot;</span>,
-        <span class="number">1</span>,
-        <span class="ident">admin</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
+    );
+    <span class="kw">let</span> (<span class="ident">_page</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">welcome_page</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">hidden_page</span> <span class="op">=</span> <span class="ident">welcome_page</span>
+        .<span class="ident">followed_by</span>(<span class="string">&quot;/hidden&quot;</span>, <span class="string">&quot;Hidden Page&quot;</span>)
+        .<span class="ident">set_hidden</span>(<span class="bool-val">true</span>)
+        .<span class="ident">set_content</span>(<span class="macro">vec!</span>[<span class="ident">GutenbergBlock::paragraph</span>(
+            <span class="string">&quot;You found the secret of the project 331!&quot;</span>,
+        )]);
+    <span class="kw">let</span> (<span class="ident">_page</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="kw-2">&amp;</span><span class="ident">hidden_page</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">info!</span>(<span class="string">&quot;sample exercises&quot;</span>);
     <span class="kw">let</span> <span class="ident">block_id_1</span> <span class="op">=</span> <span class="ident">Uuid::new_v5</span>(<span class="kw-2">&amp;</span><span class="ident">course_id</span>, <span class="string">b&quot;af3b467a-f5db-42ad-9b21-f42ca316b3c6&quot;</span>);
@@ -4046,8 +4060,12 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="comment">// FAQ, we should add card/accordion block to visualize here.</span>
-    <span class="kw">let</span> (<span class="ident">_page</span>, <span class="ident">_history</span>) <span class="op">=</span>
-        <span class="ident">pages::insert_course_page</span>(<span class="kw-2">&amp;mut</span> <span class="ident">conn</span>, <span class="ident">course</span>.<span class="ident">id</span>, <span class="string">&quot;/faq&quot;</span>, <span class="string">&quot;FAQ&quot;</span>, <span class="number">1</span>, <span class="ident">admin</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> (<span class="ident">_page</span>, <span class="ident">_history</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
+        <span class="kw-2">&amp;mut</span> <span class="ident">conn</span>,
+        <span class="kw-2">&amp;</span><span class="ident">NewCoursePage::new</span>(<span class="ident">course</span>.<span class="ident">id</span>, <span class="number">1</span>, <span class="string">&quot;/faq&quot;</span>, <span class="string">&quot;FAQ&quot;</span>),
+        <span class="ident">admin</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Chapter-1</span>
     <span class="kw">let</span> <span class="ident">new_chapter</span> <span class="op">=</span> <span class="ident">NewChapter</span> {

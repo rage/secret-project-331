@@ -407,6 +407,10 @@
 <span id="407">407</span>
 <span id="408">408</span>
 <span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">exercises::GradingProgress</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
@@ -631,8 +635,8 @@ RETURNING id
         <span class="kw">use</span> <span class="ident">headless_lms_utils::numbers::f32_approx_eq</span>;
 
         <span class="kw">use</span> <span class="kw">crate</span>::{
-            <span class="ident">chapters</span>::{<span class="self">self</span>, <span class="ident">NewChapter</span>},
-            <span class="ident">exercise_slides</span>, <span class="ident">exercises</span>, <span class="ident">pages</span>, <span class="ident">user_exercise_states</span>,
+            <span class="ident">chapters</span>, <span class="ident">chapters::NewChapter</span>, <span class="ident">exercise_slides</span>, <span class="ident">exercises</span>, <span class="ident">pages</span>,
+            <span class="ident">pages::NewCoursePage</span>, <span class="ident">user_exercise_states</span>,
         };
 
         <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -786,8 +790,12 @@ RETURNING id
                 },
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> (<span class="ident">page_id</span>, <span class="ident">_history</span>) <span class="op">=</span>
-                <span class="ident">pages::insert_course_page</span>(<span class="ident">tx</span>.<span class="ident">as_mut</span>(), <span class="ident">course</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>, <span class="number">1</span>, <span class="ident">user</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> (<span class="ident">page_id</span>, <span class="ident">_history</span>) <span class="op">=</span> <span class="ident">pages::insert_course_page</span>(
+                <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
+                <span class="kw-2">&amp;</span><span class="ident">NewCoursePage::new</span>(<span class="ident">course</span>, <span class="number">1</span>, <span class="string">&quot;/test&quot;</span>, <span class="string">&quot;test&quot;</span>),
+                <span class="ident">user</span>,
+            )
+            .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">exercise_id</span> <span class="op">=</span> <span class="ident">exercises::insert</span>(
                 <span class="ident">tx</span>.<span class="ident">as_mut</span>(),
                 <span class="ident">PKeyPolicy::Generate</span>,

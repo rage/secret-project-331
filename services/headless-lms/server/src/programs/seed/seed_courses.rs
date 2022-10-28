@@ -104,7 +104,10 @@ pub async fn seed_sample_course(
     };
     let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"bfc557e1-0f8e-4f10-8e21-d7d8ffe50a3a"),
+            Uuid::new_v5(&course_id, b"b1e392db-482a-494e-9cbb-c87bbc70e340"),
+        )),
         &new_chapter,
         admin,
     )
@@ -122,7 +125,10 @@ pub async fn seed_sample_course(
     };
     let (chapter_2, _front_page_2) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"8d699f05-4318-47f7-b020-b2084128f746"),
+            Uuid::new_v5(&course_id, b"9734cb59-4c3c-467d-91e8-f4281baccfe5"),
+        )),
         &new_chapter,
         admin,
     )
@@ -145,7 +151,10 @@ pub async fn seed_sample_course(
     };
     let (chapter_3, _front_page_3) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"791eada6-5299-41e9-b39c-da4f3c564814"),
+            Uuid::new_v5(&course_id, b"22cb6a59-9d9d-4a0b-945b-11a6f2f8d6ef"),
+        )),
         &new_chapter,
         admin,
     )
@@ -168,7 +177,10 @@ pub async fn seed_sample_course(
     };
     let (chapter_4, _front_page_4) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"07f8ceea-d41e-4dcb-9e4b-f600d3894e7f"),
+            Uuid::new_v5(&course_id, b"cd7a35b7-8f16-4e86-bef2-b730943ec15b"),
+        )),
         &new_chapter,
         admin,
     )
@@ -201,7 +213,10 @@ pub async fn seed_sample_course(
     };
     let (_m1_chapter_1, _m1c1_front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"c9003113-b69b-4ee7-8b13-e16397f1a3ea"),
+            Uuid::new_v5(&course_id, b"f95aa0bc-93d0-4d83-acde-64682f5e8f66"),
+        )),
         &new_chapter,
         admin,
     )
@@ -218,7 +233,10 @@ pub async fn seed_sample_course(
     };
     let (_m1_chapter_2, _m1c2_front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"4989533a-7888-424c-963c-d8007d820fca"),
+            Uuid::new_v5(&course_id, b"e68b9d5b-fa2e-4a94-a1da-5d69f29dcb63"),
+        )),
         &new_chapter,
         admin,
     )
@@ -243,7 +261,10 @@ pub async fn seed_sample_course(
     };
     let (_m2_chapter_1, _m2c1_front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"26b52b2f-8b02-4be8-b341-6e956ff3ca86"),
+            Uuid::new_v5(&course_id, b"0512fb7c-cb3f-4111-b663-e2fa7714939f"),
+        )),
         &new_chapter,
         admin,
     )
@@ -260,7 +281,10 @@ pub async fn seed_sample_course(
     };
     let (_m2_chapter_2, _m2c2_front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"4e48b13a-9740-4d4f-9f60-8176649901b9"),
+            Uuid::new_v5(&course_id, b"bc6569fe-52d2-4590-aa3a-8ae80e961db8"),
+        )),
         &new_chapter,
         admin,
     )
@@ -1492,7 +1516,10 @@ pub async fn create_glossary_course(
     };
     let (chapter, _front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"3d1d7303-b654-428a-8b46-1dbfe908d38a"),
+            Uuid::new_v5(&course_id, b"97568e97-0d6c-4702-9534-77d6e2784c8a"),
+        )),
         &new_chapter,
         admin,
     )
@@ -1864,7 +1891,10 @@ pub async fn seed_cs_course_material(
     };
     let (chapter_1, front_page_ch_1) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course.id, b"77e95910-2289-452f-a1dd-8b8bf4a829a0"),
+            Uuid::new_v5(&course.id, b"91b6887f-8bc0-4df6-89a4-5687890bc955"),
+        )),
         &new_chapter,
         admin,
     )
@@ -2017,7 +2047,10 @@ pub async fn seed_cs_course_material(
     };
     let (chapter_2, front_page_ch_2) = library::content_management::create_new_chapter(
         &mut conn,
-        PKeyPolicy::Generate,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course.id, b"5adff726-8910-4163-9fdb-e2f0f45c04d7"),
+            Uuid::new_v5(&course.id, b"4d916791-5a09-4e3c-8201-c46509e0b2c7"),
+        )),
         &new_chapter_2,
         admin,
     )

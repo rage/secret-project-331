@@ -78,11 +78,58 @@ pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
 ) -> ModelResult<ExerciseServiceInfo> {
-    let url = if let Some(internal_url) = &exercise_service.internal_url {
-        if internal_url.is_empty() {
+    /* let url = match (
+        &exercise_service.internal_url,
+        exercise_service
+            .internal_url
+            .as_ref()
+            .map(|urli| Url::parse(&urli)),
+    ) {
+        (Some(_), Some(Ok(url))) => url.as_str(),
+        _ => &exercise_service.public_url,
+    }; */
+
+    /* let url = if let Some(Ok(url)) = exercise_service
+        .internal_url
+        .map(|url| Url::parse(&exercise_service.internal_url))
+    {
+        url
+    } else {
+        &exercise_service.public_url
+    }; */
+
+    /* let url = match exercise_service
+        .internal_url
+        .map(|url| Url::parse(&exercise_service.internal_url))
+    {
+        (Some(_), Some(Ok(url))) => url,
+        (Some(_), Some(Err(error))) => {
+            // warn
+            warn!(
+                "Internal_url provided for {} not a valid url. Using public_url instead",
+                exercise_service.name
+            );
             &exercise_service.public_url
+        }
+        _ => &exercise_service.public_url,
+    }; */
+
+    /* let url = if let Some(internal_url) = &exercise_service.internal_url {
+        let url = Url::parse(internal_url);
+
+        if let Ok(urli) = urli {
+            urli.as_str()
         } else {
+            &exercise_service.public_url
+        }
+    } else {
+        &exercise_service.public_url
+    }; */
+    let url = if let Some(internal_url) = &exercise_service.internal_url {
+        if internal_url.len() > 1 {
             internal_url
+        } else {
+            &exercise_service.public_url
         }
     } else {
         &exercise_service.public_url

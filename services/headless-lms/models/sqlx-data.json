@@ -2788,6 +2788,16 @@
     },
     "query": "\nUPDATE course_instances\nSET name = $1,\n  description = $2,\n  teacher_in_charge_name = $3,\n  teacher_in_charge_email = $4,\n  support_email = $5,\n  starts_at = $6,\n  ends_at = $7\nWHERE id = $8\n"
   },
+  "2c88f286895fad5be75564ffcf69e917f70f322c04af5f0ee31fb5fcba8482d5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": ["Uuid", "Uuid", "Varchar"]
+      }
+    },
+    "query": "\nINSERT INTO course_background_question_answers (\n    course_background_question_id,\n    user_id,\n    answer_value\n  )\nVALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)\nWHERE deleted_at IS NULL DO\nUPDATE\nSET answer_value = $3\n        "
+  },
   "2cc22c82137a885d0d284ea35c6472243117a30bb98a41c8f371414d01e39f81": {
     "describe": {
       "columns": [],
@@ -4088,6 +4098,64 @@
     },
     "query": "\nSELECT *\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n"
   },
+  "41cfd9a2006f2bae1e4e3d7b75687511d6311c82b3d0b3367e77c62c8ba17f97": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_instance_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "course_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "question_text",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "question_type: CourseBackgroundQuestionType",
+          "ordinal": 7,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": ["checkbox", "text"]
+              },
+              "name": "course_background_question_type"
+            }
+          }
+        }
+      ],
+      "nullable": [false, false, false, true, true, false, false, false],
+      "parameters": {
+        "Left": ["Uuid", "Uuid"]
+      }
+    },
+    "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_instance_id,\n  course_id,\n  question_text,\n  question_type as \"question_type: CourseBackgroundQuestionType\"\nFROM course_background_questions\nWHERE deleted_at IS NULL\n  AND (\n    (\n      course_instance_id IS NULL\n      AND course_id = $1\n    )\n    OR (\n      course_instance_id = $2\n      AND course_id = $1\n    )\n  )\n  "
+  },
   "429b0be3031e72b89ad7ec5a1842d525dffab9765e44a324fdcfaa049787fc74": {
     "describe": {
       "columns": [
@@ -5090,6 +5158,52 @@
       }
     },
     "query": "\nSELECT exercise_task_id,\n  user_exercise_slide_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress as \"grading_progress: _\"\nFROM user_exercise_task_states\nWHERE exercise_task_id = $1\n  AND user_exercise_slide_state_id = $2\n  AND deleted_at IS NULL\n        "
+  },
+  "4e1330923d557ca14ae78ff9ac8548ae9931d672bbeafa360ebfc95cc0f605f2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "ordinal": 2,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "deleted_at",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "course_background_question_id",
+          "ordinal": 4,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "user_id",
+          "ordinal": 5,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "answer_value",
+          "ordinal": 6,
+          "type_info": "Varchar"
+        }
+      ],
+      "nullable": [false, false, false, true, false, false, true],
+      "parameters": {
+        "Left": ["Uuid", "UuidArray"]
+      }
+    },
+    "query": "\nSELECT *\nFROM course_background_question_answers\nWHERE deleted_at IS NULL\nAND user_id = $1\nAND course_background_question_id IN (\n    SELECT UNNEST($2::uuid [])\n  )\n  "
   },
   "4eca059409dad574dc860d0e4fe601568b9816153c09beec5823970bd4a21dc9": {
     "describe": {

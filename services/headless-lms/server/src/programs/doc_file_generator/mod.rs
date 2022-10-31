@@ -113,6 +113,10 @@ pub mod example;
 use chrono::{TimeZone, Utc};
 use example::Example;
 use headless_lms_models::{
+    course_background_question_answers::CourseBackgroundQuestionAnswer,
+    course_background_questions::{
+        CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
+    },
     course_module_completions::CourseModuleCompletionWithRegistrationInfo,
     exercise_task_submissions::PeerReviewsRecieved,
     peer_review_configs::CourseMaterialPeerReviewConfig,
@@ -1346,6 +1350,28 @@ fn models() {
     doc!(PeerReviewsRecieved {
         peer_review_question_submissions,
         peer_review_questions
+    });
+    doc!(CourseBackgroundQuestionsAndAnswers {
+        background_questions: vec![CourseBackgroundQuestion {
+            id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            deleted_at: None,
+            course_instance_id: Some(Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap()),
+            course_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            question_text: "I am currently studying for a bachelor's or master's degree at some Finnish university or higher education institute".to_string(),
+            question_type: CourseBackgroundQuestionType::Checkbox
+        }],
+        answers: vec![CourseBackgroundQuestionAnswer {
+            id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            created_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            updated_at: Utc.ymd(2022, 6, 21).and_hms(0, 0, 0),
+            deleted_at: None,
+            user_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df").unwrap(),
+            answer_value: Some("yes".to_string()),
+            course_background_question_id: Uuid::parse_str("edf6dbcf-d6c2-43ce-9724-adc81e24e8df")
+                .unwrap()
+        }],
     });
 }
 

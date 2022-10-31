@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import Divider from "@mui/material/Divider"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -24,7 +23,7 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "essay",
     name: "quiz-essay-name",
     description: "quiz-essay-description",
-    disabled: true,
+    disabled: false,
   },
   "multiple-choice": {
     type: "multiple-choice",
@@ -36,13 +35,13 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "scale",
     name: "quiz-scale-name",
     description: "quiz-scale-description",
-    disabled: true,
+    disabled: false,
   },
   checkbox: {
     type: "checkbox",
     name: "quiz-checkbox-name",
     description: "quiz-checkbox-description",
-    disabled: true,
+    disabled: false,
   },
   "closed-ended-question": {
     type: "closed-ended-question",
@@ -190,6 +189,12 @@ const SubsectionTitleWrapper = styled.div`
   margin-top: 1rem;
 `
 
+const QuizItemContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
 const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   const storeItems = Object.values(useTypedSelector((state) => state.editor.items))
@@ -203,20 +208,21 @@ const QuizItems: React.FC<React.PropsWithChildren<unknown>> = () => {
           <h2>{t("quiz-items")}</h2>
         </SubsectionTitleWrapper>{" "}
       </ItemsTitleContainer>
-      {storeItems.map((oldQuiz) => {
-        const quiz = migrateQuizItem(oldQuiz)
-        if (quiz.type == "multiple-choice") {
-          const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
-          quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
-        }
-        return (
-          <div key={quiz.id}>
-            <QuizEditor quizItem={quiz} />
-            <Divider variant="fullWidth" />
-          </div>
-        )
-      })}
-      <AddQuizItem storeItems={storeItems} />
+      <QuizItemContainer>
+        {storeItems.map((oldQuiz) => {
+          const quiz = migrateQuizItem(oldQuiz)
+          if (quiz.type == "multiple-choice") {
+            const quizOptions = oldQuiz.options.map((itemId) => storeOptions[itemId])
+            quiz.options = convertNormalizedQuizItemOptionsToQuizItemOptions(quizOptions)
+          }
+          return (
+            <div key={quiz.id}>
+              <QuizEditor quizItem={quiz} />
+            </div>
+          )
+        })}
+        <AddQuizItem storeItems={storeItems} />
+      </QuizItemContainer>
     </>
   )
 }

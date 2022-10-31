@@ -90,7 +90,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItem })
   const { t } = useTranslation()
 
   return (
-    <EditorCard title={"MULTIPLE-CHOICE"}>
+    <EditorCard title={t("quiz-multiple-choice-name")}>
       <TextField value={quizItem.title} label={t("title")} name={t("title")} />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>

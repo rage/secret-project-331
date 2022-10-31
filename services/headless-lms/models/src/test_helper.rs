@@ -140,7 +140,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $user =
-            $crate::users::insert($tx.as_mut(), crate::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
+            $crate::users::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, &format!("{rs}@example.com"), None, None)
                 .await
                 .unwrap();
     };
@@ -150,7 +150,7 @@ macro_rules! insert_data {
             .map(char::from)
             .collect::<String>();
         let $org =
-            $crate::organizations::insert($tx.as_mut(), crate::PKeyPolicy::Generate, "", &rs, "")
+            $crate::organizations::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, "", &rs, "")
                 .await
                 .unwrap();
     };
@@ -241,20 +241,20 @@ macro_rules! insert_data {
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident; exercise: $exercise:ident) => {
         let $exercise =
-        $crate::exercises::insert($tx.as_mut(), crate::PKeyPolicy::Generate, $course, "", $page, $chapter, 0)
+        $crate::exercises::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, $course, "", $page, $chapter, 0)
             .await
             .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident; slide: $exercise_slide:ident) => {
         let $exercise_slide =
-               $crate::exercise_slides::insert($tx.as_mut(), crate::PKeyPolicy::Generate, $exercise, 0)
+               $crate::exercise_slides::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, $exercise, 0)
                    .await
                    .unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident, chapter: $chapter:ident, page: $page:ident, exercise: $exercise:ident, slide: $exercise_slide:ident; task: $exercise_task:ident) => {
         let $exercise_task = $crate::exercise_tasks::insert(
             $tx.as_mut(),
-            crate::PKeyPolicy::Generate,
+            $crate::PKeyPolicy::Generate,
             $crate::exercise_tasks::NewExerciseTask {
                 exercise_slide_id: $exercise_slide,
                 exercise_type: TEST_HELPER_EXERCISE_SERVICE_NAME.to_string(),

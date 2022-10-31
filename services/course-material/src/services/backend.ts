@@ -7,7 +7,6 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerReviewData,
-  CourseMaterialPeerReviewGivenData,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   ExamData,
@@ -24,6 +23,7 @@ import {
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
+  PeerReviewsRecieved,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -40,7 +40,6 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewData,
-  isCourseMaterialPeerReviewGivenData,
   isCoursePageWithUserData,
   isExamData,
   isIsChapterFrontPage,
@@ -51,6 +50,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
+  isPeerReviewsRecieved,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
   isUserCourseInstanceChapterExerciseProgress,
@@ -241,14 +241,14 @@ export const fetchPeerReviewDataByExerciseId = async (
 export const fetchPeerReviewDataReceivedByExerciseId = async (
   id: string,
   submissionId: string,
-): Promise<CourseMaterialPeerReviewGivenData> => {
+): Promise<PeerReviewsRecieved> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isCourseMaterialPeerReviewGivenData)
+  return validateResponse(response, isPeerReviewsRecieved)
 }
 
 export const fetchChaptersPagesWithExercises = async (

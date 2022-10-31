@@ -1364,6 +1364,32 @@
 <span id="1364">1364</span>
 <span id="1365">1365</span>
 <span id="1366">1366</span>
+<span id="1367">1367</span>
+<span id="1368">1368</span>
+<span id="1369">1369</span>
+<span id="1370">1370</span>
+<span id="1371">1371</span>
+<span id="1372">1372</span>
+<span id="1373">1373</span>
+<span id="1374">1374</span>
+<span id="1375">1375</span>
+<span id="1376">1376</span>
+<span id="1377">1377</span>
+<span id="1378">1378</span>
+<span id="1379">1379</span>
+<span id="1380">1380</span>
+<span id="1381">1381</span>
+<span id="1382">1382</span>
+<span id="1383">1383</span>
+<span id="1384">1384</span>
+<span id="1385">1385</span>
+<span id="1386">1386</span>
+<span id="1387">1387</span>
+<span id="1388">1388</span>
+<span id="1389">1389</span>
+<span id="1390">1390</span>
+<span id="1391">1391</span>
+<span id="1392">1392</span>
 </pre><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -1479,6 +1505,10 @@ This method is mainly useful for external/std types. For example, we cannot writ
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">TimeZone</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">example::Example</span>;
 <span class="kw">use</span> <span class="ident">headless_lms_models</span>::{
+    <span class="ident">course_background_question_answers::CourseBackgroundQuestionAnswer</span>,
+    <span class="ident">course_background_questions</span>::{
+        <span class="ident">CourseBackgroundQuestion</span>, <span class="ident">CourseBackgroundQuestionType</span>, <span class="ident">CourseBackgroundQuestionsAndAnswers</span>,
+    },
     <span class="ident">course_module_completions::CourseModuleCompletionWithRegistrationInfo</span>,
     <span class="ident">exercise_task_submissions::PeerReviewsRecieved</span>,
     <span class="ident">peer_review_configs::CourseMaterialPeerReviewConfig</span>,
@@ -2712,6 +2742,28 @@ This method is mainly useful for external/std types. For example, we cannot writ
     <span class="macro">doc!</span>(<span class="ident">PeerReviewsRecieved</span> {
         <span class="ident">peer_review_question_submissions</span>,
         <span class="ident">peer_review_questions</span>
+    });
+    <span class="macro">doc!</span>(<span class="ident">CourseBackgroundQuestionsAndAnswers</span> {
+        <span class="ident">background_questions</span>: <span class="macro">vec!</span>[<span class="ident">CourseBackgroundQuestion</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
+            <span class="ident">course_instance_id</span>: <span class="prelude-val">Some</span>(<span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>()),
+            <span class="ident">course_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">question_text</span>: <span class="string">&quot;I am currently studying for a bachelor&#39;s or master&#39;s degree at some Finnish university or higher education institute&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">question_type</span>: <span class="ident">CourseBackgroundQuestionType::Checkbox</span>
+        }],
+        <span class="ident">answers</span>: <span class="macro">vec!</span>[<span class="ident">CourseBackgroundQuestionAnswer</span> {
+            <span class="ident">id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">created_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">updated_at</span>: <span class="ident">Utc</span>.<span class="ident">ymd</span>(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">21</span>).<span class="ident">and_hms</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">deleted_at</span>: <span class="prelude-val">None</span>,
+            <span class="ident">user_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">answer_value</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;yes&quot;</span>.<span class="ident">to_string</span>()),
+            <span class="ident">course_background_question_id</span>: <span class="ident">Uuid::parse_str</span>(<span class="string">&quot;edf6dbcf-d6c2-43ce-9724-adc81e24e8df&quot;</span>)
+                .<span class="ident">unwrap</span>()
+        }],
     });
 }
 

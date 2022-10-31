@@ -3,6 +3,8 @@
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
+    course_background_question_answers::NewCourseBackgroundQuestionAnswer,
+    course_background_questions::CourseBackgroundQuestionsAndAnswers,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
@@ -120,22 +122,30 @@ async fn get_module_completions_for_course_instance(
     token.authorized_ok(web::Json(module_completion_statuses))
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct SaveCourseSettingsPayload {
+    pub background_question_answers: Vec<NewCourseBackgroundQuestionAnswer>,
+}
+
 /**
-POST /api/v0/course-material/course-instance/:course_instance_id/enroll - enrolls user to the course instance.
+POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn add_user_enrollment(
+async fn save_course_settings(
     pool: web::Data<PgPool>,
     course_instance_id: web::Path<Uuid>,
+    payload: web::Json<SaveCourseSettingsPayload>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
 
     let instance =
-        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+        models::course_instances::get_course_instance(&mut tx, *course_instance_id).await?;
     let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
-        &mut conn,
+        &mut tx,
         NewCourseInstanceEnrollment {
             course_id: instance.course_id,
             course_instance_id: instance.id,
@@ -143,14 +153,47 @@ async fn add_user_enrollment(
         },
     )
     .await?;
+
+    let background_question_answers = &payload.background_question_answers;
+    if !background_question_answers.is_empty() {
+        models::course_background_question_answers::upsert_backround_question_answers(
+            &mut tx,
+            user.id,
+            background_question_answers,
+        )
+        .await?;
+    }
+    tx.commit().await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(enrollment))
 }
 
+/**
+GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_background_questions_and_answers(
+    pool: web::Data<PgPool>,
+    course_instance_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseBackgroundQuestionsAndAnswers>> {
+    let mut conn = pool.acquire().await?;
+
+    let instance =
+        models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
+    let res = models::course_background_questions::get_background_questions_and_answers(
+        &mut conn, &instance, user.id,
+    )
+    .await?;
+    let token = skip_authorize()?;
+    token.authorized_ok(web::Json(res))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/{course_instance_id}/enroll",
-        web::post().to(add_user_enrollment),
+        "/{course_instance_id}/save-course-settings",
+        web::post().to(save_course_settings),
     )
     .route(
         "/{course_instance_id}/progress",
@@ -167,5 +210,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/module-completions",
         web::get().to(get_module_completions_for_course_instance),
+    )
+    .route(
+        "/{course_instance_id}/background-questions-and-answers",
+        web::get().to(get_background_questions_and_answers),
     );
 }

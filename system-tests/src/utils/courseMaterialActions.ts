@@ -1,7 +1,7 @@
 import { Page } from "playwright"
 
 const isSelectCourseInstanceModalOpen = async (page: Page) => {
-  const courseVariantSelector = await page.$$("text=Select course instance to continue.")
+  const courseVariantSelector = await page.$$(`h2:has-text("Select course instance")`)
   return courseVariantSelector.length > 0
 }
 
@@ -25,6 +25,6 @@ export async function selectCourseInstanceIfPrompted(page: Page, courseVariantNa
 
     // Click button:has-text("Continue")
     await page.click('button:has-text("Continue")')
-    await page.locator(`text=Select course instance to continue.`).waitFor({ state: "detached" })
+    await page.locator(`h2:has-text("Select course instance")`).waitFor({ state: "detached" })
   }
 }

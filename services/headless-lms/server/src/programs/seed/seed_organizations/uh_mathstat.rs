@@ -70,8 +70,8 @@ pub async fn seed_organization_uh_mathstat(
         PKeyPolicy::Fixed(Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?),
         NewCourseInstance {
             course_id: statistics_course.id,
-            name: Some("non-default instance"),
-            description: Some("this appears to be a non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This appears to be a non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",

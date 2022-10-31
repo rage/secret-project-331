@@ -78,61 +78,22 @@ pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
 ) -> ModelResult<ExerciseServiceInfo> {
-    /* let url = match (
-        &exercise_service.internal_url,
-        exercise_service
-            .internal_url
-            .as_ref()
-            .map(|urli| Url::parse(&urli)),
-    ) {
-        (Some(_), Some(Ok(url))) => url.as_str(),
-        _ => &exercise_service.public_url,
-    }; */
-
-    /* let url = if let Some(Ok(url)) = exercise_service
+    let url = match exercise_service
         .internal_url
-        .map(|url| Url::parse(&exercise_service.internal_url))
+        .clone()
+        .map(|url| Url::parse(&url))
     {
-        url
-    } else {
-        &exercise_service.public_url
-    }; */
+        Some(Ok(url)) => url.to_string(),
 
-    /* let url = match exercise_service
-        .internal_url
-        .map(|url| Url::parse(&exercise_service.internal_url))
-    {
-        (Some(_), Some(Ok(url))) => url,
-        (Some(_), Some(Err(error))) => {
-            // warn
+        Some(Err(e)) => {
             warn!(
-                "Internal_url provided for {} not a valid url. Using public_url instead",
-                exercise_service.name
-            );
-            &exercise_service.public_url
+            "Internal_url provided for {} is not a valid url. Using public_url instead. Error: {}",
+            exercise_service.name,
+            e.to_string()
+        );
+            exercise_service.public_url.clone()
         }
-        _ => &exercise_service.public_url,
-    }; */
-
-    /* let url = if let Some(internal_url) = &exercise_service.internal_url {
-        let url = Url::parse(internal_url);
-
-        if let Ok(urli) = urli {
-            urli.as_str()
-        } else {
-            &exercise_service.public_url
-        }
-    } else {
-        &exercise_service.public_url
-    }; */
-    let url = if let Some(internal_url) = &exercise_service.internal_url {
-        if internal_url.len() > 1 {
-            internal_url
-        } else {
-            &exercise_service.public_url
-        }
-    } else {
-        &exercise_service.public_url
+        None => exercise_service.public_url.clone(),
     };
     let fetched_info = fetch_service_info(url).await?;
     let res = upsert_service_info(conn, exercise_service.id, &fetched_info).await?;

@@ -205,8 +205,8 @@ export interface CourseBackgroundQuestionAnswer {
 }
 
 export interface NewCourseBackgroundQuestionAnswer {
-  id: string
-  answer_value: string
+  answer_value: string | null
+  course_background_question_id: string
 }
 
 export interface CourseBackgroundQuestionsAndAnswers {
@@ -1381,7 +1381,7 @@ export type ExamEnrollmentData =
   | { tag: "StudentTimeUp" }
 
 export interface SaveCourseSettingsPayload {
-  background_question_answers: Array<CourseBackgroundQuestionAnswer>
+  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
 }
 
 export interface GetFeedbackQuery {

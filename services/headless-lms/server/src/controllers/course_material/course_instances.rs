@@ -3,7 +3,7 @@
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use models::{
     chapters::UserCourseInstanceChapterProgress,
-    course_background_question_answers::CourseBackgroundQuestionAnswer,
+    course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_background_questions::CourseBackgroundQuestionsAndAnswers,
     course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
     library::progressing::UserModuleCompletionStatus,
@@ -125,7 +125,7 @@ async fn get_module_completions_for_course_instance(
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SaveCourseSettingsPayload {
-    pub background_question_answers: Vec<CourseBackgroundQuestionAnswer>,
+    pub background_question_answers: Vec<NewCourseBackgroundQuestionAnswer>,
 }
 
 /**

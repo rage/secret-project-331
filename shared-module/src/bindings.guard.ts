@@ -528,8 +528,8 @@ export function isNewCourseBackgroundQuestionAnswer(
   const typedObj = obj as NewCourseBackgroundQuestionAnswer
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["id"] === "string" &&
-    typeof typedObj["answer_value"] === "string"
+    (typedObj["answer_value"] === null || typeof typedObj["answer_value"] === "string") &&
+    typeof typedObj["course_background_question_id"] === "string"
   )
 }
 
@@ -2451,7 +2451,7 @@ export function isSaveCourseSettingsPayload(obj: unknown): obj is SaveCourseSett
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     Array.isArray(typedObj["background_question_answers"]) &&
     typedObj["background_question_answers"].every(
-      (e: any) => isCourseBackgroundQuestionAnswer(e) as boolean,
+      (e: any) => isNewCourseBackgroundQuestionAnswer(e) as boolean,
     )
   )
 }

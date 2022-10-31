@@ -31,7 +31,7 @@ CREATE TABLE course_background_question_answers (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_background_question_answers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE UNIQUE INDEX unique_background_question_answers ON course_background_question_answers (course_background_question_id, user_id)
-WHERE deleted_at IS NOT NULL;
+WHERE deleted_at IS NULL;
 COMMENT ON TABLE course_background_question_answers IS 'An answer to a background question. A single user can have only one answer to one question.';
 COMMENT ON COLUMN course_background_question_answers.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN course_background_question_answers.created_at IS 'Timestamp when the record was created.';

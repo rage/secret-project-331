@@ -15,8 +15,8 @@ pub struct CourseBackgroundQuestionAnswer {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseBackgroundQuestionAnswer {
-    pub id: Uuid,
-    pub answer_value: String,
+    pub answer_value: Option<String>,
+    pub course_background_question_id: Uuid,
 }
 
 pub async fn get_background_question_answers_for_background_questions(
@@ -50,21 +50,21 @@ AND course_background_question_id IN (
 pub async fn upsert_backround_question_answers(
     conn: &mut PgConnection,
     user_id: Uuid,
-    background_question_answers: &[CourseBackgroundQuestionAnswer],
+    background_question_answers: &[NewCourseBackgroundQuestionAnswer],
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     for answer in background_question_answers {
         sqlx::query!(
             r#"
-    INSERT INTO course_background_question_answers (
-        course_background_question_id,
-        user_id,
-        answer_value
-      )
-    VALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)
-    WHERE deleted_at IS NULL DO
-    UPDATE
-    SET answer_value = $3
+INSERT INTO course_background_question_answers (
+    course_background_question_id,
+    user_id,
+    answer_value
+  )
+VALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)
+WHERE deleted_at IS NULL DO
+UPDATE
+SET answer_value = $3
         "#,
             answer.course_background_question_id,
             user_id,

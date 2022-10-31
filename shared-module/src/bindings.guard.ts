@@ -604,6 +604,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
       typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
   )
 }
@@ -624,7 +626,9 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
       typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string")
   )
 }
 
@@ -662,7 +666,9 @@ export function isNewModule(obj: unknown): obj is NewModule {
       typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string")
   )
 }
 
@@ -1748,7 +1754,8 @@ export function isPage(obj: unknown): obj is Page {
     typeof typedObj["title"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
-    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string")
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["hidden"] === "boolean"
   )
 }
 
@@ -1845,6 +1852,7 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["hidden"] === "boolean" &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
   )

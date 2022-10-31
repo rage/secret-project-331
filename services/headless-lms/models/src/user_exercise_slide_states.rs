@@ -222,8 +222,8 @@ mod tests {
         use headless_lms_utils::numbers::f32_approx_eq;
 
         use crate::{
-            chapters::{self, NewChapter},
-            exercise_slides, exercises, pages, user_exercise_states,
+            chapters, chapters::NewChapter, exercise_slides, exercises, pages,
+            pages::NewCoursePage, user_exercise_states,
         };
 
         use super::*;
@@ -377,8 +377,12 @@ mod tests {
                 },
             )
             .await?;
-            let (page_id, _history) =
-                pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
+            let (page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                &NewCoursePage::new(course, 1, "/test", "test"),
+                user,
+            )
+            .await?;
             let exercise_id = exercises::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,

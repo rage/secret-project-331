@@ -13,6 +13,7 @@
       "automatic_completion": false,
       "automatic_completion_number_of_exercises_attempted_treshold": null,
       "automatic_completion_number_of_points_treshold": null,
+      "completion_registration_link_override": null,
       "ects_credits": null
     }
   ],

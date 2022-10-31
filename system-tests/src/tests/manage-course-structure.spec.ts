@@ -53,7 +53,7 @@ test("mange course structure works", async ({ headless, page }) => {
   await page.click('button:text-is("Save")')
   // Click text=Chapter 2: The intermediariesChapter front pageTitleURL pathThe intermediaries/c >> [aria-label="Dropdown\ menu"]
   await page.click(
-    'text=Chapter 2: The intermediariesChapter front pageTitleURL pathThe intermediaries/c >> [aria-label="Dropdown\\ menu"]',
+    'text=Chapter 2: The intermediariesChapter front pageTitleURL pathHiddenThe intermediaries/c >> [aria-label="Dropdown\\ menu"]',
   )
   // Click text=EditDelete >> button
   await page.locator(`button:text-is("Edit")`).click()

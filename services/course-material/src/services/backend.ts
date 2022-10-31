@@ -257,7 +257,7 @@ export const fetchPeerReviewDataReceivedByExerciseId = async (
   submissionId: string,
 ): Promise<PeerReviewsRecieved> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
     {
       responseType: "json",
     },

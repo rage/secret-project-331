@@ -75,9 +75,12 @@
   "separator-color": "Separator color",
   "serialize-to-html": "Serialize to HTML",
   "slide-title": "Slide {{ number }}",
+  "sponsor-block": "Sponsor Block",
+  "sponsor-block-description": "Sponsor block is use to display all partner's logo in the landing page",
   "start": "Start",
   "table-box": "Tablebox",
   "table-box-description": "This is a custom table block with coloured background",
+  "table-width-customizer": "Table width customizer",
   "task": "Task",
   "title-assignment": "Assignment",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
@@ -87,11 +90,7 @@
   "unsupported-block-placeholder": "Unsupported block placeholder",
   "unsupported-block-placeholder-explanation": "This block is used as placeholder for blocks that are unsupported.",
   "upload-or-drag-and-drop-onto-this-block": "Upload or drag and drop onto this block",
+  "use-course-default-peer-review-config": "Use course default peer review config",
   "welcome-message-for-course": "Welcome message for course...",
-  "table-width-customizer": "Table width customizer",
-  "sponsor-block": "Sponsor Block",
-  "sponsor-block-description": "Sponsor block is use to display all partner's logo in the landing page",
-  "width-of-table": "Width of table",
-  "use-course-default-peer-review-config": "Use course default peer review config"
-
+  "width-of-table": "Width of table"
 }

@@ -55,6 +55,13 @@ fn models(target: &mut File) {
         course_instances::PointMap,
         course_instances::Points,
 
+        course_background_question_answers::CourseBackgroundQuestionAnswer,
+        course_background_question_answers::NewCourseBackgroundQuestionAnswer,
+
+        course_background_questions::CourseBackgroundQuestionsAndAnswers,
+        course_background_questions::CourseBackgroundQuestion,
+        course_background_questions::CourseBackgroundQuestionType,
+
         course_module_completions::CourseModuleCompletionWithRegistrationInfo,
 
         course_modules::CourseModule,
@@ -97,6 +104,7 @@ fn models(target: &mut File) {
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_task_gradings::UserPointsUpdateStrategy,
         exercise_task_submissions::ExerciseTaskSubmission,
+        exercise_task_submissions::PeerReviewsRecieved,
         exercise_tasks::CourseMaterialExerciseTask,
         exercise_tasks::ExerciseTask,
         exercises::ActivityProgress,
@@ -165,6 +173,7 @@ fn models(target: &mut File) {
         peer_review_questions::CmsPeerReviewQuestion,
         peer_review_questions::PeerReviewQuestion,
         peer_review_questions::PeerReviewQuestionType,
+        peer_review_question_submissions::PeerReviewQuestionSubmission,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -234,6 +243,7 @@ fn controllers(target: &mut File) {
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
+            course_instances::SaveCourseSettingsPayload,
         };
     }
 

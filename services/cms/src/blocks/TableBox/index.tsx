@@ -6,11 +6,20 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 import TableEditor from "./TableEditor"
 import TableSave from "./TableSave"
 
-const TableBoxConfiguration: BlockConfiguration = {
+export interface TableBoxAttributes {
+  width: string | number
+}
+
+const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
   title: "TableBox",
   description: "Block for adding custom TableBox",
   category: MOOCFI_CATEGORY_SLUG,
-  attributes: {},
+  attributes: {
+    width: {
+      type: "string",
+      default: "",
+    },
+  },
   edit: TableEditor,
   save: TableSave,
 }

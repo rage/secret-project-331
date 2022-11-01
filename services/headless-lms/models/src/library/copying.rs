@@ -771,15 +771,24 @@ mod tests {
                 .await
                 .unwrap();
             let mut original_pages_by_id: HashMap<Uuid, Page> =
-                crate::pages::course_pages(tx.as_mut(), course.id)
-                    .await
-                    .unwrap()
-                    .into_iter()
-                    .map(|page| (page.id, page))
-                    .collect();
-            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
+                crate::pages::get_all_by_course_id_and_visibility(
+                    tx.as_mut(),
+                    course.id,
+                    crate::pages::PageVisibility::Any,
+                )
                 .await
-                .unwrap();
+                .unwrap()
+                .into_iter()
+                .map(|page| (page.id, page))
+                .collect();
+            assert_eq!(original_pages_by_id.len(), 3);
+            let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                crate::pages::PageVisibility::Any,
+            )
+            .await
+            .unwrap();
             // Creating a course and a chapter both lead to an additional page being created.
             assert_eq!(copied_pages.len(), 3);
             copied_pages.into_iter().for_each(|copied_page| {
@@ -816,9 +825,13 @@ mod tests {
             let copied_course = copy_course(tx.as_mut(), course.id, &new_course, true)
                 .await
                 .unwrap();
-            let copied_pages = crate::pages::course_pages(tx.as_mut(), copied_course.id)
-                .await
-                .unwrap();
+            let copied_pages = crate::pages::get_all_by_course_id_and_visibility(
+                tx.as_mut(),
+                copied_course.id,
+                crate::pages::PageVisibility::Any,
+            )
+            .await
+            .unwrap();
             let copied_page = copied_pages
                 .into_iter()
                 .find(|copied_page| copied_page.copied_from == Some(page))

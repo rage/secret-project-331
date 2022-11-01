@@ -188,29 +188,44 @@ export interface CourseInstanceForm {
 
 export type PointMap = Record<string, number>
 
-export function isPeerReviewQuestionSubmission(
-  obj: any,
-  _argumentName?: string,
-): obj is PeerReviewQuestionSubmission {
-  return (
-    (((obj !== null && typeof obj === "object") || typeof obj === "function") &&
-      typeof obj.id === "string" &&
-      obj.created_at instanceof Date &&
-      obj.updated_at instanceof Date &&
-      (obj.deleted_at === null || obj.deleted_at instanceof Date) &&
-      typeof obj.peer_review_question_id === "string" &&
-      typeof obj.peer_review_submission_id === "string" &&
-      obj.text_data == null) ||
-    (typeof obj.text_data === "string" && obj.number_data == null) ||
-    typeof obj.number_data === "number"
-  )
-}
-
 export interface Points {
   chapter_points: Array<ChapterScore>
   users: Array<User>
   user_chapter_points: Record<string, PointMap>
 }
+
+export interface CourseBackgroundQuestionAnswer {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_background_question_id: string
+  answer_value: string | null
+  user_id: string
+}
+
+export interface NewCourseBackgroundQuestionAnswer {
+  answer_value: string | null
+  course_background_question_id: string
+}
+
+export interface CourseBackgroundQuestionsAndAnswers {
+  background_questions: Array<CourseBackgroundQuestion>
+  answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseBackgroundQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_instance_id: string | null
+  course_id: string
+  question_text: string
+  question_type: CourseBackgroundQuestionType
+}
+
+export type CourseBackgroundQuestionType = "Checkbox" | "Text"
 
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
@@ -236,6 +251,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
   ects_credits: number | null
 }
 
@@ -248,6 +264,7 @@ export interface ModifiedModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface ModuleUpdates {
@@ -266,6 +283,7 @@ export interface NewModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface Course {
@@ -561,6 +579,11 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
+export interface PeerReviewsRecieved {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -700,11 +723,6 @@ export interface CourseMaterialPeerReviewData {
   peer_review_config: PeerReviewConfig
   peer_review_questions: Array<PeerReviewQuestion>
   num_peer_reviews_given: number
-}
-
-export interface CourseMaterialPeerReviewGivenData {
-  peer_review_questions: Array<PeerReviewQuestion>
-  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
 }
 
 export interface CourseMaterialPeerReviewDataAnswerToReview {
@@ -933,6 +951,7 @@ export interface Page {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
 }
 
 export interface PageChapterAndCourseInformation {
@@ -995,6 +1014,7 @@ export interface PageWithExercises {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
   exercises: Array<Exercise>
 }
 
@@ -1060,6 +1080,8 @@ export interface PeerReviewQuestion {
   answer_required: boolean
 }
 
+export type PeerReviewQuestionType = "Essay" | "Scale"
+
 export interface PeerReviewQuestionSubmission {
   id: string
   created_at: Date
@@ -1070,8 +1092,6 @@ export interface PeerReviewQuestionSubmission {
   text_data: string | null
   number_data: number | null
 }
-
-export type PeerReviewQuestionType = "Essay" | "Scale"
 
 export interface PendingRole {
   id: string
@@ -1364,6 +1384,10 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled" }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+
+export interface SaveCourseSettingsPayload {
+  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
+}
 
 export interface GetFeedbackQuery {
   read: boolean

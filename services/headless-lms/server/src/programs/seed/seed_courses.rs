@@ -603,9 +603,9 @@ pub async fn seed_sample_course(
                 "quizId": "f1f0520e-3037-409c-b52d-163ad0bc5c59",
                 "options": [{
                     "id": "86a2d838-04aa-4b1c-8115-2c15ed19e7b3",
-                    "body": "The right answer",
+                    "body": null,
                     "order": 1,
-                    "title": null,
+                    "title": "The right answer",
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":true,
                     "messageAfterSubmissionWhenSelected": "You chose wisely...",
@@ -613,9 +613,9 @@ pub async fn seed_sample_course(
                 },
                 {
                     "id": "fef8cd36-04ab-48f2-861c-51769ccad52f",
-                    "body": "The Wright answer",
+                    "body": null,
                     "order": 2,
-                    "title": null,
+                    "title": "The Wright answer",
                     "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
                     "correct":false,
                     "messageAfterSubmissionWhenSelected": "You chose poorly...",

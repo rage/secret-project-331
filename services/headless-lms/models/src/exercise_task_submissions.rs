@@ -229,11 +229,24 @@ pub async fn get_peer_reviews_received(
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<PeerReviewsRecieved> {
-    let peer_review =
-        crate::peer_review_configs::get_by_exercise_id(&mut *conn, exercise_id).await?;
-    let peer_review_questions =
-        crate::peer_review_questions::get_by_peer_review_configs_id(&mut *conn, peer_review.id)
-            .await?;
+    let exercise = crate::exercises::get_by_id(&mut *conn, exercise_id).await?;
+    let peer_review_config = crate::peer_review_configs::get_by_exercise_or_course_id(
+        &mut *conn,
+        &exercise,
+        exercise.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
+                None,
+            )
+        })?,
+    )
+    .await?;
+    let peer_review_questions = crate::peer_review_questions::get_by_peer_review_configs_id(
+        &mut *conn,
+        peer_review_config.id,
+    )
+    .await?;
 
     let peer_review_question_submissions =
         crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(

@@ -1,15 +1,25 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+import { ROW } from "../../util/constants"
 import MarkdownText from "../MarkdownText"
 
 import { QuizItemComponentProps } from "."
 
+const wrapperRowExtraStyles = css`
+  ${respondToOrLarger.sm} {
+    align-items: center;
+    column-gap: 0.2rem;
+  }
+`
+
 const Open: React.FC<QuizItemComponentProps> = ({
+  quizDirection,
   quizItem,
   quizItemAnswerState,
   setQuizItemAnswerState,
@@ -37,11 +47,18 @@ const Open: React.FC<QuizItemComponentProps> = ({
 
   return (
     <div
-      className={css`
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-      `}
+      className={cx(
+        css`
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+
+          ${respondToOrLarger.sm} {
+            flex-direction: ${quizDirection};
+          }
+        `,
+        quizDirection === ROW ? wrapperRowExtraStyles : null,
+      )}
     >
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>

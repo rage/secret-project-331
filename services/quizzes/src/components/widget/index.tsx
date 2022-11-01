@@ -5,6 +5,9 @@ import { v4 } from "uuid"
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
+import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
+import { ROW } from "../../util/constants"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -67,6 +70,7 @@ type Action = {
 }
 
 export interface QuizItemComponentProps {
+  quizDirection: FlexDirection
   quizItem: PublicQuizItem
   quizItemAnswerState: QuizItemAnswer | null
   user_information: UserInformation
@@ -135,6 +139,8 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
 
   useSendQuizAnswerOnChange(port, state)
 
+  const direction = sanitizeFlexDirection(state.quiz.direction, ROW)
+
   return (
     <div
       className={css`
@@ -142,6 +148,10 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
         display: flex;
         flex-direction: column;
         flex-wrap: wrap;
+
+        ${respondToOrLarger.sm} {
+          flex-direction: ${direction};
+        }
       `}
     >
       {state.quiz.items
@@ -153,6 +163,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
           return (
             <Component
               key={quizItem.id}
+              quizDirection={direction}
               quizItem={quizItem}
               quizItemAnswerState={quizItemAnswerState}
               user_information={user_information}

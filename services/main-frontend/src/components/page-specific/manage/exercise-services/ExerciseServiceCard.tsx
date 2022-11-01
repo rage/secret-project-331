@@ -25,11 +25,12 @@ import TimeComponent from "../../../../shared-module/components/TimeComponent"
 import { validURL } from "../../../../shared-module/utils/validation"
 import { canSave } from "../../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../../utils/convert"
+import { prepareExerciseServiceForBackend } from "../../../../utils/prepareServiceForBackend.ts"
 
 import ContentArea from "./ContentArea"
 
 interface ExerciseServiceCardProps {
-  key: string
+  id: string
   exerciseService: ExerciseService
   refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
@@ -41,7 +42,7 @@ enum UpdateStatus {
 }
 
 const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({
-  key,
+  id,
   exerciseService,
   refetch,
 }) => {
@@ -82,7 +83,10 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
     }
     try {
       if ("id" in service) {
-        const updated = await updateExerciseService(service.id, service)
+        const preparedService: ExerciseService = prepareExerciseServiceForBackend(
+          service,
+        ) as ExerciseService
+        const updated = await updateExerciseService(service.id, preparedService)
         setService(updated)
         setStatus(UpdateStatus.saved)
         await refetch()
@@ -119,7 +123,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   return (
     <div>
       <Card
-        key={key}
+        key={id}
         variant="outlined"
         className={css`
           margin: 8px;

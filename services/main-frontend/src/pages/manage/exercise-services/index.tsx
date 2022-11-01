@@ -17,6 +17,7 @@ import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
+import { prepareExerciseServiceForBackend } from "../../../utils/prepareServiceForBackend.ts"
 
 const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -33,7 +34,8 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (!canSave(exerciseService)) {
         return
       }
-      await addExerciseService(exerciseService)
+      const processedService = prepareExerciseServiceForBackend(exerciseService)
+      await addExerciseService(processedService)
     },
     { notify: true, method: "POST" },
     {

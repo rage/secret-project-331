@@ -242,8 +242,8 @@ pub async fn seed_organization_uh_cs(
         PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),
         NewCourseInstance {
             course_id: cs_course.id,
-            name: Some("non-default instance"),
-            description: Some("this is another non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This is another non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",

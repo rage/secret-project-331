@@ -4,6 +4,7 @@ import { Dictionary } from "lodash"
 import {
   ChaptersWithStatus,
   Course,
+  CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerReviewData,
@@ -24,6 +25,7 @@ import {
   PageSearchResult,
   PageWithExercises,
   PeerReviewsRecieved,
+  SaveCourseSettingsPayload,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -37,6 +39,7 @@ import {
 import {
   isChaptersWithStatus,
   isCourse,
+  isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewData,
@@ -168,16 +171,27 @@ export const fetchCourseInstance = async (courseId: string): Promise<CourseInsta
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
-  const response = await courseMaterialClient.get(`/courses/${courseId}/course-instances`, {
-    responseType: "json",
-  })
+  const response = await courseMaterialClient.get(`/courses/${courseId}/course-instances`)
   return validateResponse(response, isArray(isCourseInstance))
 }
 
-export const postCourseInstanceEnrollment = async (courseInstanceId: string): Promise<void> => {
-  await courseMaterialClient.post(`/course-instances/${courseInstanceId}/enroll`, null, {
-    headers: { "Content-Type": "application/json" },
-  })
+export const fetchBackgroundQuestionsAndAnswers = async (
+  courseInstanceId: string,
+): Promise<CourseBackgroundQuestionsAndAnswers> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/background-questions-and-answers`,
+  )
+  return validateResponse(response, isCourseBackgroundQuestionsAndAnswers)
+}
+
+export const postSaveCourseSettings = async (
+  courseInstanceId: string,
+  payload: SaveCourseSettingsPayload,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/course-instances/${courseInstanceId}/save-course-settings`,
+    payload,
+  )
 }
 
 export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>> => {
@@ -243,7 +257,7 @@ export const fetchPeerReviewDataReceivedByExerciseId = async (
   submissionId: string,
 ): Promise<PeerReviewsRecieved> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
     {
       responseType: "json",
     },

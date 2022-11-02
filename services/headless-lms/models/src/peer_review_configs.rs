@@ -164,6 +164,7 @@ WHERE id = $1
     Ok(res)
 }
 
+/// Usually you want to use `get_by_exercise_or_course_id` instead of this one.
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,

@@ -278,7 +278,9 @@ mod tests {
             chapters::{self, NewChapter},
             exercise_slides,
             exercise_tasks::{self, NewExerciseTask},
-            exercises, pages, user_exercise_slide_states, user_exercise_states,
+            exercises,
+            pages::{self, NewCoursePage},
+            user_exercise_slide_states, user_exercise_states,
         };
 
         use super::*;
@@ -429,8 +431,12 @@ mod tests {
                 },
             )
             .await?;
-            let (page_id, _history) =
-                pages::insert_course_page(tx.as_mut(), course, "/test", "test", 1, user).await?;
+            let (page_id, _history) = pages::insert_course_page(
+                tx.as_mut(),
+                &NewCoursePage::new(course, 1, "/test", "test"),
+                user,
+            )
+            .await?;
             let exercise_id = exercises::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,

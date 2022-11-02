@@ -4,7 +4,8 @@ import React, { useCallback, useContext, useEffect, useId, useState } from "reac
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances, postCourseInstanceEnrollment } from "../../services/backend"
+import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
+import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
 import Dialog from "../../shared-module/components/Dialog"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
@@ -46,12 +47,11 @@ const CourseInstanceSelectModal: React.FC<
   }, [loginState, pageState, manualOpen])
 
   const handleSubmitAndClose = useCallback(
-    async (instanceId: string, reason?: string) => {
-      if (reason === "backdropClick") {
-        return
-      }
+    async (instanceId: string, backgroundQuestionAnswers: NewCourseBackgroundQuestionAnswer[]) => {
       try {
-        await postCourseInstanceEnrollment(instanceId)
+        await postSaveCourseSettings(instanceId, {
+          background_question_answers: backgroundQuestionAnswers,
+        })
         setOpen(false)
         if (pageState.refetchPage) {
           // eslint-disable-next-line i18next/no-literal-string
@@ -89,15 +89,18 @@ const CourseInstanceSelectModal: React.FC<
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        <h1 id={dialogTitleId}>{t("title-select-course-instance-to-continue")}</h1>
-        <div
+        <h1
           className={css`
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 22px;
+            line-height: 26px;
+            margin-bottom: 1rem;
           `}
+          id={dialogTitleId}
         >
-          {t("select-course-instance-explanation")}
-        </div>
+          {t("title-course-settings")}
+        </h1>
+
         {getCourseInstances.isError && (
           <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
         )}

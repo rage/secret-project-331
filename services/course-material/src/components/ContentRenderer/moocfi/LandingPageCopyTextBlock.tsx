@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   h2 {
     font-weight: 700 !important;
     color: ${baseTheme.colors.green[600]} !important;
-    padding: 1.5rem 1.5rem 0 2rem;
+    padding: 0.5rem 1.5rem 0 2rem;
   }
 
   p {
@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   .top {
     width: 100%;
     height: 2px;
-    top: 0.5%;
+    top: 10px;
     background: #cecfd3;
   }
 
@@ -55,10 +55,19 @@ const Wrapper = styled.div`
     background: #cecfd3;
   }
 
+  li {
+    margin-left: 1.5rem;
+  }
+
+  li::marker {
+    content: "☉  ";
+    font-size: 1rem;
+    color: ${baseTheme.colors.green[600]};
+  }
+
   h3 {
-    border-top: 2px solid #cecfd3;
     font-weight: 700 !important;
-    padding: 2rem 1.5rem 0 2rem;
+    padding: 1rem 1rem 0 2rem;
     color: ${baseTheme.colors.green[700]};
   }
 `

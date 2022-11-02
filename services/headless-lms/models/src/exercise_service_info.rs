@@ -78,10 +78,22 @@ pub async fn fetch_and_upsert_service_info(
     conn: &mut PgConnection,
     exercise_service: &ExerciseService,
 ) -> ModelResult<ExerciseServiceInfo> {
-    let url = if let Some(internal_url) = &exercise_service.internal_url {
-        internal_url
-    } else {
-        &exercise_service.public_url
+    let url = match exercise_service
+        .internal_url
+        .clone()
+        .map(|url| Url::parse(&url))
+    {
+        Some(Ok(url)) => url.to_string(),
+
+        Some(Err(e)) => {
+            warn!(
+            "Internal_url provided for {} is not a valid url. Using public_url instead. Error: {}",
+            exercise_service.name,
+            e.to_string()
+        );
+            exercise_service.public_url.clone()
+        }
+        None => exercise_service.public_url.clone(),
     };
     let fetched_info = fetch_service_info(url).await?;
     let res = upsert_service_info(conn, exercise_service.id, &fetched_info).await?;

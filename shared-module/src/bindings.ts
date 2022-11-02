@@ -194,6 +194,39 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
+export interface CourseBackgroundQuestionAnswer {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_background_question_id: string
+  answer_value: string | null
+  user_id: string
+}
+
+export interface NewCourseBackgroundQuestionAnswer {
+  answer_value: string | null
+  course_background_question_id: string
+}
+
+export interface CourseBackgroundQuestionsAndAnswers {
+  background_questions: Array<CourseBackgroundQuestion>
+  answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseBackgroundQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_instance_id: string | null
+  course_id: string
+  question_text: string
+  question_type: CourseBackgroundQuestionType
+}
+
+export type CourseBackgroundQuestionType = "Checkbox" | "Text"
+
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
   course_module_id: string
@@ -218,6 +251,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
   ects_credits: number | null
 }
 
@@ -230,6 +264,7 @@ export interface ModifiedModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface ModuleUpdates {
@@ -248,6 +283,7 @@ export interface NewModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface Course {
@@ -915,6 +951,7 @@ export interface Page {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
 }
 
 export interface PageChapterAndCourseInformation {
@@ -977,6 +1014,7 @@ export interface PageWithExercises {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
   exercises: Array<Exercise>
 }
 
@@ -1346,6 +1384,10 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled" }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+
+export interface SaveCourseSettingsPayload {
+  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
+}
 
 export interface GetFeedbackQuery {
   read: boolean

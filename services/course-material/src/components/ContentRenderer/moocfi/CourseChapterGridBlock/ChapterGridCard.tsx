@@ -12,6 +12,8 @@ import Cross from "../../../../shared-module/img/card-defualt-bg/cross.svg"
 import DotCircle from "../../../../shared-module/img/card-defualt-bg/dot-circle.svg"
 import Equal from "../../../../shared-module/img/card-defualt-bg/equal.svg"
 import Intersection from "../../../../shared-module/img/card-defualt-bg/intersection.svg"
+import PixelSquare from "../../../../shared-module/img/card-defualt-bg/pixel-square.svg"
+import QuadrupleCircle from "../../../../shared-module/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "../../../../shared-module/img/card-defualt-bg/triangle.svg"
 import { coursePageRoute } from "../../../../utils/routing"
 
@@ -29,7 +31,18 @@ const NUMERIC = "numeric"
 const LONG = "long"
 const OPEN = "open"
 
-const arr: string[] = [Triangle, Equal, Circle, Intersection, Triangle, Cross, DotCircle, Circle]
+const arr: string[] = [
+  Triangle,
+  Equal,
+  Circle,
+  Intersection,
+  QuadrupleCircle,
+  Cross,
+  DotCircle,
+  PixelSquare,
+  Circle,
+  Cross,
+]
 
 const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   now,

@@ -31,6 +31,10 @@ import {
   CompletionRegistrationLink,
   ContentManagementPage,
   Course,
+  CourseBackgroundQuestion,
+  CourseBackgroundQuestionAnswer,
+  CourseBackgroundQuestionsAndAnswers,
+  CourseBackgroundQuestionType,
   CourseCount,
   CourseExam,
   CourseInstance,
@@ -107,6 +111,7 @@ import {
   ModuleUpdates,
   NewChapter,
   NewCourse,
+  NewCourseBackgroundQuestionAnswer,
   NewExam,
   NewExerciseRepository,
   NewFeedback,
@@ -154,6 +159,7 @@ import {
   RoleInfo,
   RoleQuery,
   RoleUser,
+  SaveCourseSettingsPayload,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
@@ -500,6 +506,67 @@ export function isPoints(obj: unknown): obj is Points {
   )
 }
 
+export function isCourseBackgroundQuestionAnswer(
+  obj: unknown,
+): obj is CourseBackgroundQuestionAnswer {
+  const typedObj = obj as CourseBackgroundQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    typeof typedObj["course_background_question_id"] === "string" &&
+    (typedObj["answer_value"] === null || typeof typedObj["answer_value"] === "string") &&
+    typeof typedObj["user_id"] === "string"
+  )
+}
+
+export function isNewCourseBackgroundQuestionAnswer(
+  obj: unknown,
+): obj is NewCourseBackgroundQuestionAnswer {
+  const typedObj = obj as NewCourseBackgroundQuestionAnswer
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["answer_value"] === null || typeof typedObj["answer_value"] === "string") &&
+    typeof typedObj["course_background_question_id"] === "string"
+  )
+}
+
+export function isCourseBackgroundQuestionsAndAnswers(
+  obj: unknown,
+): obj is CourseBackgroundQuestionsAndAnswers {
+  const typedObj = obj as CourseBackgroundQuestionsAndAnswers
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["background_questions"]) &&
+    typedObj["background_questions"].every((e: any) => isCourseBackgroundQuestion(e) as boolean) &&
+    Array.isArray(typedObj["answers"]) &&
+    typedObj["answers"].every((e: any) => isCourseBackgroundQuestionAnswer(e) as boolean)
+  )
+}
+
+export function isCourseBackgroundQuestion(obj: unknown): obj is CourseBackgroundQuestion {
+  const typedObj = obj as CourseBackgroundQuestion
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typedObj["created_at"] instanceof Date &&
+    typedObj["updated_at"] instanceof Date &&
+    (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
+    (typedObj["course_instance_id"] === null ||
+      typeof typedObj["course_instance_id"] === "string") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["question_text"] === "string" &&
+    (isCourseBackgroundQuestionType(typedObj["question_type"]) as boolean)
+  )
+}
+
+export function isCourseBackgroundQuestionType(obj: unknown): obj is CourseBackgroundQuestionType {
+  const typedObj = obj as CourseBackgroundQuestionType
+  return typedObj === "Checkbox" || typedObj === "Text"
+}
+
 export function isCourseModuleCompletionWithRegistrationInfo(
   obj: unknown,
 ): obj is CourseModuleCompletionWithRegistrationInfo {
@@ -537,6 +604,8 @@ export function isCourseModule(obj: unknown): obj is CourseModule {
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
       typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string") &&
     (typedObj["ects_credits"] === null || typeof typedObj["ects_credits"] === "number")
   )
 }
@@ -557,7 +626,9 @@ export function isModifiedModule(obj: unknown): obj is ModifiedModule {
       typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string")
   )
 }
 
@@ -595,7 +666,9 @@ export function isNewModule(obj: unknown): obj is NewModule {
       typeof typedObj["automatic_completion_number_of_exercises_attempted_treshold"] ===
         "number") &&
     (typedObj["automatic_completion_number_of_points_treshold"] === null ||
-      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number")
+      typeof typedObj["automatic_completion_number_of_points_treshold"] === "number") &&
+    (typedObj["completion_registration_link_override"] === null ||
+      typeof typedObj["completion_registration_link_override"] === "string")
   )
 }
 
@@ -1681,7 +1754,8 @@ export function isPage(obj: unknown): obj is Page {
     typeof typedObj["title"] === "string" &&
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
-    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string")
+    (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["hidden"] === "boolean"
   )
 }
 
@@ -1778,6 +1852,7 @@ export function isPageWithExercises(obj: unknown): obj is PageWithExercises {
     (typedObj["deleted_at"] === null || typedObj["deleted_at"] instanceof Date) &&
     typeof typedObj["order_number"] === "number" &&
     (typedObj["copied_from"] === null || typeof typedObj["copied_from"] === "string") &&
+    typeof typedObj["hidden"] === "boolean" &&
     Array.isArray(typedObj["exercises"]) &&
     typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
   )
@@ -2375,6 +2450,17 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
       typedObj["tag"] === "NotYetStarted") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "StudentTimeUp")
+  )
+}
+
+export function isSaveCourseSettingsPayload(obj: unknown): obj is SaveCourseSettingsPayload {
+  const typedObj = obj as SaveCourseSettingsPayload
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["background_question_answers"]) &&
+    typedObj["background_question_answers"].every(
+      (e: any) => isNewCourseBackgroundQuestionAnswer(e) as boolean,
+    )
   )
 }
 

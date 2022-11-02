@@ -81,6 +81,7 @@ pub async fn create_peer_review_submission_for_user(
     let mut tx = conn.begin().await?;
     let peer_review_submission_id = peer_review_submissions::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         giver_exercise_state.user_id,
         giver_exercise_state.exercise_id,
         giver_exercise_state.get_course_instance_id()?,
@@ -91,6 +92,7 @@ pub async fn create_peer_review_submission_for_user(
     for answer in sanitized_answers {
         peer_review_question_submissions::insert(
             &mut tx,
+            PKeyPolicy::Generate,
             answer.peer_review_question_id,
             peer_review_submission_id,
             answer.text_data,

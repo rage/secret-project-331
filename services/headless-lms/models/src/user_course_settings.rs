@@ -130,8 +130,8 @@ mod test {
 
         let instance_2 = course_instances::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             NewCourseInstance {
-                id: Uuid::new_v4(),
                 course_id: course,
                 name: Some("instance-2"),
                 description: None,

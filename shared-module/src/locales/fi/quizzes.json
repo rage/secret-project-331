@@ -31,7 +31,7 @@
   "feedback-message": "Palauteviesti",
   "format-regular-expression": "Muotoile säännöllinen lauseke",
   "given-text-does-not-match-regular-expression": "Annettu teksti ei vastaa säännöllisen lausekkeen kanssa",
-  "given-text-matches-regular-expression": "Annettu teksti vastaa annettua säännöllistö lauseketta",
+  "given-text-matches-regular-expression": "Annettu teksti vastaa annettua säännöllistä lauseketta",
   "grant-only-when-fully-correct": "Myönnä vain kun kokonaan oikein",
   "grant-whenever-possible": "Myönnä heti kun mahdollista",
   "incorrect-option": "Väärä vaihtoehto",

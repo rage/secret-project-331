@@ -85,11 +85,13 @@ impl Extend<ExerciseTask> for HashMap<Uuid, ExerciseTask> {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_exercise_task: NewExerciseTask,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
 INSERT INTO exercise_tasks (
+    id,
     exercise_slide_id,
     exercise_type,
     assignment,
@@ -98,9 +100,10 @@ INSERT INTO exercise_tasks (
     model_solution_spec,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         new_exercise_task.exercise_slide_id,
         new_exercise_task.exercise_type,
         serde_json::to_value(new_exercise_task.assignment)?,

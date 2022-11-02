@@ -93,6 +93,7 @@ RETURNING id
             })?;
         let _etrs = exercise_task_regrading_submissions::insert(
             &mut tx,
+            PKeyPolicy::Generate,
             res.id,
             id,
             grading_before_regrading_id,

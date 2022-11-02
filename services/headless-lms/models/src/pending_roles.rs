@@ -12,7 +12,11 @@ pub struct PendingRole {
     pub expires_at: DateTime<Utc>,
 }
 
-pub async fn insert(conn: &mut PgConnection, role_info: RoleInfo) -> ModelResult<Uuid> {
+pub async fn insert(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    role_info: RoleInfo,
+) -> ModelResult<Uuid> {
     match role_info.domain {
         crate::roles::RoleDomain::Global
         | crate::roles::RoleDomain::Organization(_)
@@ -53,10 +57,17 @@ pub async fn insert(conn: &mut PgConnection, role_info: RoleInfo) -> ModelResult
 
     let id = sqlx::query!(
         r#"
-INSERT INTO pending_roles (user_email, role, course_id, course_instance_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO pending_roles (
+    id,
+    user_email,
+    role,
+    course_id,
+    course_instance_id
+  )
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id;
-"#,
+        "#,
+        pkey_policy.into_uuid(),
         role_info.email,
         role_info.role as UserRole,
         course_id,

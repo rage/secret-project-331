@@ -12,7 +12,7 @@ use headless_lms_models::{
     },
     peer_review_configs::{self, CmsPeerReviewConfig},
     peer_review_questions::{self, CmsPeerReviewQuestion},
-    user_exercise_slide_states, user_exercise_states,
+    user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use serde_json::Value;
@@ -379,6 +379,7 @@ pub async fn create_exam(
 ) -> Result<()> {
     let new_exam_id = exams::insert(
         conn,
+        PKeyPolicy::Fixed(exam_id),
         &NewExam {
             name,
             starts_at,
@@ -386,7 +387,6 @@ pub async fn create_exam(
             time_minutes,
             organization_id,
         },
-        Some(exam_id),
     )
     .await?;
 
@@ -471,6 +471,7 @@ pub async fn create_best_peer_review(
 
     peer_review_questions::insert(
         conn,
+        PKeyPolicy::Generate,
         &CmsPeerReviewQuestion {
             peer_review_config_id: prc.id,
             id: Uuid::new_v4(),

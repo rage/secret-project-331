@@ -2,15 +2,17 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import { BlockRendererProps } from ".."
+import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
 import { baseTheme } from "../../../shared-module/styles"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
-  margin: 0.5rem 0;
+  margin: 0.5rem auto;
   padding-bottom: 20px;
   position: relative;
+  max-width: 1075px;
 
   h2 {
     font-weight: 700 !important;
@@ -76,13 +78,15 @@ const LandingPageCopyTextBlock: React.FC<React.PropsWithChildren<BlockRendererPr
   props,
 ) => {
   return (
-    <Wrapper>
-      <div className="line top"></div>
-      <div className="line bottom"></div>
-      <div className="line right"></div>
-      <div className="line left"></div>
-      <InnerBlocks parentBlockProps={props} />
-    </Wrapper>
+    <BreakFromCentered sidebar={false}>
+      <Wrapper>
+        <div className="line top"></div>
+        <div className="line bottom"></div>
+        <div className="line right"></div>
+        <div className="line left"></div>
+        <InnerBlocks parentBlockProps={props} />
+      </Wrapper>
+    </BreakFromCentered>
   )
 }
 

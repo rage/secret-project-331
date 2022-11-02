@@ -47,7 +47,7 @@ const QUIZ_COMPONENTS: QuizOptionProps = {
     type: "closed-ended-question",
     name: "quiz-open-name",
     description: "quiz-open-description",
-    disabled: true,
+    disabled: false,
   },
   matrix: {
     type: "matrix",

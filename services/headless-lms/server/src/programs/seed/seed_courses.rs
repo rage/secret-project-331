@@ -31,7 +31,7 @@ use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use super::seed_helpers::{create_best_peer_review, heading};
+use super::seed_helpers::heading;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn seed_sample_course(
@@ -332,6 +332,9 @@ pub async fn seed_sample_course(
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
+        true,
+        true,
+        course_id,
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -395,6 +398,9 @@ pub async fn seed_sample_course(
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
+        false,
+        true,
+        course_id,
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
         exercise_3_id,
@@ -405,6 +411,9 @@ pub async fn seed_sample_course(
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
+        false,
+        true,
+        course_id,
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
         exercise_4_id,
@@ -415,6 +424,9 @@ pub async fn seed_sample_course(
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
+        false,
+        true,
+        course_id,
     );
 
     let page2_id = create_page(
@@ -1118,6 +1130,9 @@ pub async fn seed_sample_course(
                 ],
             )],
             Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+            false,
+            true,
+            course_id,
         );
     create_page(
         &mut conn,
@@ -1161,6 +1176,9 @@ pub async fn seed_sample_course(
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
+        false,
+        true,
+        course_id,
     );
     create_page(
         &mut conn,
@@ -1444,7 +1462,7 @@ pub async fn seed_sample_course(
     glossary::insert(&mut conn, "SSD", "Solid-state drive. A solid-state drive is a hard drive that's a few gigabytes in size, but a solid-state drive is one where data loads are big enough and fast enough that you can comfortably write to it over long distances. This is what drives do. You need to remember that a good solid-state drive has a lot of data: it stores files on disks and has a few data centers. A good solid-state drive makes for a nice little library: its metadata includes information about everything it stores, including any data it can access, but does not store anything that does not exist outside of those files. It also stores large amounts of data from one location, which can cause problems since the data might be different in different places, or in different ways, than what you would expect to see when driving big data applications. The drives that make up a solid-state drive are called drives that use a variety of storage technologies. These drive technology technologies are called \"super drives,\" and they store some of that data in a solid-state drive. Super drives are designed to be fast but very big: they aren't built to store everything, but to store many kinds of data: including data about the data they contain, and more, like the data they are supposed to hold in them. The super drives that make up a solid-state drive can have capacities of up to 50,000 hard disks. These can be used to store files if",  course.id).await?;
     glossary::insert(&mut conn, "KB", "Keyboard.", course.id).await?;
 
-    create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
+    // create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
 
     Ok(course.id)
 }

@@ -3,6 +3,7 @@
 use futures::future::OptionFuture;
 use models::{
     exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user,
+    exercise_task_submissions::PeerReviewsRecieved,
     exercises::{CourseMaterialExercise, Exercise},
     library::{
         grading::{
@@ -98,6 +99,29 @@ async fn get_peer_review_for_exercise(
         Res::Exercise(*exercise_id),
     )
     .await?;
+    token.authorized_ok(web::Json(peer_review_data))
+}
+
+/**
+GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
+*/
+#[generated_doc]
+#[instrument(skip(pool))]
+async fn get_peer_reviews_received(
+    pool: web::Data<PgPool>,
+    params: web::Path<(Uuid, Uuid)>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
+    let mut conn = pool.acquire().await?;
+    let (exercise_id, exercise_slide_submission_id) = params.into_inner();
+    let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
+        &mut conn,
+        exercise_id,
+        exercise_slide_submission_id,
+        user.id,
+    )
+    .await?;
+    let token = skip_authorize()?;
     token.authorized_ok(web::Json(peer_review_data))
 }
 
@@ -377,6 +401,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{exercise_id}/peer-review",
             web::get().to(get_peer_review_for_exercise),
+        )
+        .route(
+            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
+            web::get().to(get_peer_reviews_received),
         )
         .route(
             "/{exercise_id}/submissions",

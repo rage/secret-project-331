@@ -11,18 +11,19 @@ use headless_lms_models::{
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
-    course_modules, courses,
+    course_modules,
     courses::NewCourse,
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary,
+    glossary, library,
+    library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
-    pages,
     pages::CmsPageUpdate,
+    pages::{self, NewCoursePage},
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections,
+    url_redirections, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
@@ -56,21 +57,30 @@ pub async fn seed_sample_course(
         is_draft: false,
         is_test_mode: false,
     };
-    let (course, _front_page, default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        course_id,
-        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, _front_page, default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id,
+                default_course_instance_id: Uuid::new_v5(
+                    &course_id,
+                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
+                ),
+            }),
+            new_course,
+            admin,
+        )
+        .await?;
     course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::new_v5(
+            &course_id,
+            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
+        )),
         NewCourseInstance {
-            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
             course_id: course.id,
-            name: Some("non-default instance"),
-            description: Some("this is a non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This is a non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -92,8 +102,16 @@ pub async fn seed_sample_course(
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
         course_module_id: Some(default_module.id),
     };
-    let (chapter_1, _front_page_1) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_1, _front_page_1) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"bfc557e1-0f8e-4f10-8e21-d7d8ffe50a3a"),
+            Uuid::new_v5(&course_id, b"b1e392db-482a-494e-9cbb-c87bbc70e340"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
     let new_chapter = NewChapter {
         chapter_number: 2,
@@ -105,8 +123,16 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_2, _front_page_2) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_2, _front_page_2) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"8d699f05-4318-47f7-b020-b2084128f746"),
+            Uuid::new_v5(&course_id, b"9734cb59-4c3c-467d-91e8-f4281baccfe5"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_2.id,
@@ -123,8 +149,16 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_3, _front_page_3) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_3, _front_page_3) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"791eada6-5299-41e9-b39c-da4f3c564814"),
+            Uuid::new_v5(&course_id, b"22cb6a59-9d9d-4a0b-945b-11a6f2f8d6ef"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_3.id,
@@ -141,8 +175,16 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_4, _front_page_4) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_4, _front_page_4) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"07f8ceea-d41e-4dcb-9e4b-f600d3894e7f"),
+            Uuid::new_v5(&course_id, b"cd7a35b7-8f16-4e86-bef2-b730943ec15b"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(
         &mut conn,
         chapter_4.id,
@@ -151,8 +193,14 @@ pub async fn seed_sample_course(
     .await?;
 
     tracing::info!("inserting modules");
-    let second_module =
-        course_modules::insert(&mut conn, course.id, Some("Another module"), 1).await?;
+    let second_module = course_modules::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some("Another module"),
+        1,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 5,
         course_id: course.id,
@@ -163,8 +211,16 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(second_module.id),
     };
-    let (_m1_chapter_1, _m1c1_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m1_chapter_1, _m1c1_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"c9003113-b69b-4ee7-8b13-e16397f1a3ea"),
+            Uuid::new_v5(&course_id, b"f95aa0bc-93d0-4d83-acde-64682f5e8f66"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 6,
         course_id: course.id,
@@ -175,9 +231,24 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(second_module.id),
     };
-    let (_m1_chapter_2, _m1c2_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
-    let module = course_modules::insert(&mut conn, course.id, Some("Bonus module"), 2).await?;
+    let (_m1_chapter_2, _m1c2_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"4989533a-7888-424c-963c-d8007d820fca"),
+            Uuid::new_v5(&course_id, b"e68b9d5b-fa2e-4a94-a1da-5d69f29dcb63"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
+    let module = course_modules::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some("Bonus module"),
+        2,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 7,
         course_id: course.id,
@@ -188,8 +259,16 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(module.id),
     };
-    let (_m2_chapter_1, _m2c1_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (_m2_chapter_1, _m2c1_front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"26b52b2f-8b02-4be8-b341-6e956ff3ca86"),
+            Uuid::new_v5(&course_id, b"0512fb7c-cb3f-4111-b663-e2fa7714939f"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     let new_chapter = NewChapter {
         chapter_number: 8,
         course_id: course.id,
@@ -200,18 +279,31 @@ pub async fn seed_sample_course(
         deadline: None,
         course_module_id: Some(module.id),
     };
-    let (_m2_chapter_2, _m2c2_front_page) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
-
-    let (_page, _) = pages::insert_course_page(
+    let (_m2_chapter_2, _m2c2_front_page) = library::content_management::create_new_chapter(
         &mut conn,
-        course.id,
-        "/welcome",
-        "Welcome to Introduction to Everything",
-        1,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"4e48b13a-9740-4d4f-9f60-8176649901b9"),
+            Uuid::new_v5(&course_id, b"bc6569fe-52d2-4590-aa3a-8ae80e961db8"),
+        )),
+        &new_chapter,
         admin,
     )
     .await?;
+
+    let welcome_page = NewCoursePage::new(
+        course.id,
+        1,
+        "/welcome",
+        "Welcome to Introduction to Everything",
+    );
+    let (_page, _) = pages::insert_course_page(&mut conn, &welcome_page, admin).await?;
+    let hidden_page = welcome_page
+        .followed_by("/hidden", "Hidden Page")
+        .set_hidden(true)
+        .set_content(vec![GutenbergBlock::paragraph(
+            "You found the secret of the project 331!",
+        )]);
+    let (_page, _) = pages::insert_course_page(&mut conn, &hidden_page, admin).await?;
 
     info!("sample exercises");
     let block_id_1 = Uuid::new_v5(&course_id, b"af3b467a-f5db-42ad-9b21-f42ca316b3c6");
@@ -350,7 +442,14 @@ pub async fn seed_sample_course(
     )
     .await?;
 
-    url_redirections::insert(&mut conn, page2_id, "/old-url", course.id).await?;
+    url_redirections::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        page2_id,
+        "/old-url",
+        course.id,
+    )
+    .await?;
 
     let (
         quizzes_exercise_block_1,
@@ -1224,7 +1323,14 @@ pub async fn seed_sample_course(
         }],
         page_id: page_3,
     };
-    let feedback = feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
+    let feedback = feedback::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        Some(student),
+        course.id,
+        new_feedback,
+    )
+    .await?;
     feedback::mark_as_read(&mut conn, feedback, true).await?;
     let new_feedback = NewFeedback {
         feedback_given: "I dont think we need these paragraphs".to_string(),
@@ -1248,9 +1354,17 @@ pub async fn seed_sample_course(
         ],
         page_id: page_3,
     };
-    feedback::insert(&mut conn, Some(student), course.id, new_feedback).await?;
     feedback::insert(
         &mut conn,
+        PKeyPolicy::Generate,
+        Some(student),
+        course.id,
+        new_feedback,
+    )
+    .await?;
+    feedback::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
         None,
         course.id,
         NewFeedback {
@@ -1267,6 +1381,7 @@ pub async fn seed_sample_course(
     .await?;
     feedback::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         None,
         course.id,
         NewFeedback {
@@ -1289,7 +1404,14 @@ pub async fn seed_sample_course(
             changed_text: "So bg, that we need many, many paragraphs.".to_string(),
         }],
     };
-    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some(student),
+        &edits,
+    )
+    .await?;
     let edits = NewProposedPageEdits {
         page_id: page_c1_1,
         block_edits: vec![
@@ -1307,7 +1429,14 @@ pub async fn seed_sample_course(
             },
         ],
     };
-    proposed_page_edits::insert(&mut conn, course.id, Some(student), &edits).await?;
+    proposed_page_edits::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course.id,
+        Some(student),
+        &edits,
+    )
+    .await?;
 
     // acronyms
     glossary::insert(&mut conn, "CS", "Computer science. Computer science is an essential part of being successful in your life. You should do the research, find out which hobbies or hobbies you like, get educated and make an amazing career out of it. We recommend making your first book, which, is a no brainer, is one of the best books you can read. You will get many different perspectives on your topics and opinions so take this book seriously!",  course.id).await?;
@@ -1339,23 +1468,32 @@ pub async fn create_glossary_course(
         is_test_mode: false,
     };
 
-    let (course, _front_page, _default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        course_id,
-        Uuid::new_v5(&course_id, b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454"),
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, _front_page, _default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id,
+                default_course_instance_id: Uuid::new_v5(
+                    &course_id,
+                    b"7344f1c8-b7ce-4c7d-ade2-5f39997bd454",
+                ),
+            }),
+            new_course,
+            admin,
+        )
+        .await?;
 
     // Create course instance
     course_instances::insert(
         &mut conn,
+        PKeyPolicy::Fixed(Uuid::new_v5(
+            &course_id,
+            b"67f077b4-0562-47ae-a2b9-db2f08f168a9",
+        )),
         NewCourseInstance {
-            id: Uuid::new_v5(&course_id, b"67f077b4-0562-47ae-a2b9-db2f08f168a9"),
             course_id: course.id,
-            name: Some("non-default instance"),
-            description: Some("this is a non-default instance"),
+            name: Some("Non-default instance"),
+            description: Some("This is a non-default instance"),
             support_email: Some("contact@example.com"),
             teacher_in_charge_name: "admin",
             teacher_in_charge_email: "admin@example.com",
@@ -1376,7 +1514,16 @@ pub async fn create_glossary_course(
         deadline: Some(Utc.ymd(2025, 1, 1).and_hms(23, 59, 59)),
         course_module_id: Some(default_module.id),
     };
-    let (chapter, _front_page) = chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter, _front_page) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course_id, b"3d1d7303-b654-428a-8b46-1dbfe908d38a"),
+            Uuid::new_v5(&course_id, b"97568e97-0d6c-4702-9534-77d6e2784c8a"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter.id, Utc::now()).await?;
 
     // Create page
@@ -1427,14 +1574,19 @@ pub async fn seed_cs_course_material(
         is_draft: false,
         is_test_mode: false,
     };
-    let (course, front_page, _default_instance, default_module) = courses::insert_course(
-        &mut conn,
-        Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
-        Uuid::parse_str("8e6c35cd-43f2-4982-943b-11e3ffb1b2f8")?,
-        new_course,
-        admin,
-    )
-    .await?;
+    let (course, front_page, _default_instance, default_module) =
+        library::content_management::create_new_course(
+            &mut conn,
+            PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+                course_id: Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
+                default_course_instance_id: Uuid::parse_str(
+                    "8e6c35cd-43f2-4982-943b-11e3ffb1b2f8",
+                )?,
+            }),
+            new_course,
+            admin,
+        )
+        .await?;
 
     // Exercises
     let (
@@ -1719,8 +1871,12 @@ pub async fn seed_cs_course_material(
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
-    let (_page, _history) =
-        pages::insert_course_page(&mut conn, course.id, "/faq", "FAQ", 1, admin).await?;
+    let (_page, _history) = pages::insert_course_page(
+        &mut conn,
+        &NewCoursePage::new(course.id, 1, "/faq", "FAQ"),
+        admin,
+    )
+    .await?;
 
     // Chapter-1
     let new_chapter = NewChapter {
@@ -1733,8 +1889,16 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_1, front_page_ch_1) =
-        chapters::insert_chapter(&mut conn, new_chapter, admin).await?;
+    let (chapter_1, front_page_ch_1) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course.id, b"77e95910-2289-452f-a1dd-8b8bf4a829a0"),
+            Uuid::new_v5(&course.id, b"91b6887f-8bc0-4df6-89a4-5687890bc955"),
+        )),
+        &new_chapter,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
 
     pages::update_page(
@@ -1881,8 +2045,16 @@ pub async fn seed_cs_course_material(
         deadline: None,
         course_module_id: Some(default_module.id),
     };
-    let (chapter_2, front_page_ch_2) =
-        chapters::insert_chapter(&mut conn, new_chapter_2, admin).await?;
+    let (chapter_2, front_page_ch_2) = library::content_management::create_new_chapter(
+        &mut conn,
+        PKeyPolicy::Fixed((
+            Uuid::new_v5(&course.id, b"5adff726-8910-4163-9fdb-e2f0f45c04d7"),
+            Uuid::new_v5(&course.id, b"4d916791-5a09-4e3c-8201-c46509e0b2c7"),
+        )),
+        &new_chapter_2,
+        admin,
+    )
+    .await?;
     chapters::set_opens_at(&mut conn, chapter_2.id, Utc::now()).await?;
 
     pages::update_page(

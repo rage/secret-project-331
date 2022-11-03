@@ -151,6 +151,7 @@ pub async fn create_user_exercise_slide_submission(
             })?;
         let submission_id = exercise_task_submissions::insert(
             &mut tx,
+            PKeyPolicy::Generate,
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,

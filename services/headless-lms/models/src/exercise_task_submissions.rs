@@ -6,6 +6,8 @@ use serde_json::Value;
 use crate::{
     exercise_service_info, exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
     prelude::*,
     CourseOrExamId,
 };
@@ -23,6 +25,13 @@ pub struct ExerciseTaskSubmission {
     pub data_json: Option<serde_json::Value>,
     pub exercise_task_grading_id: Option<Uuid>,
     pub metadata: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PeerReviewsRecieved {
+    pub peer_review_questions: Vec<PeerReviewQuestion>,
+    pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -69,6 +78,7 @@ WHERE id = $1
     Ok(res)
 }
 
+// TODO: Merge with the other insert, but need to resolve different parameters.
 pub async fn insert_with_id(
     conn: &mut PgConnection,
     submission_data: &SubmissionData,
@@ -98,6 +108,7 @@ RETURNING id
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     exercise_slide_submission_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
@@ -106,14 +117,16 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_submissions (
+    id,
     exercise_slide_submission_id,
     exercise_slide_id,
     exercise_task_id,
     data_json
   )
-  VALUES ($1, $2, $3, $4)
+  VALUES ($1, $2, $3, $4, $5)
   RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         exercise_slide_submission_id,
         exercise_slide_id,
         exercise_task_id,
@@ -208,6 +221,49 @@ WHERE ets.id = $1
     .fetch_one(conn)
     .await?;
     CourseOrExamId::from(res.course_id, res.exam_id)
+}
+
+pub async fn get_peer_reviews_received(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exercise_slide_submission_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<PeerReviewsRecieved> {
+    let exercise = crate::exercises::get_by_id(&mut *conn, exercise_id).await?;
+    let peer_review_config = crate::peer_review_configs::get_by_exercise_or_course_id(
+        &mut *conn,
+        &exercise,
+        exercise.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
+                None,
+            )
+        })?,
+    )
+    .await?;
+    let peer_review_questions = crate::peer_review_questions::get_by_peer_review_configs_id(
+        &mut *conn,
+        peer_review_config.id,
+    )
+    .await?;
+
+    let peer_review_question_submissions =
+        crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
+            &mut *conn,
+            &peer_review_questions
+                .iter()
+                .map(|x| (x.id))
+                .collect::<Vec<_>>(),
+            user_id,
+            exercise_slide_submission_id,
+        )
+        .await?;
+
+    Ok(PeerReviewsRecieved {
+        peer_review_questions,
+        peer_review_question_submissions,
+    })
 }
 
 pub async fn set_grading_id(

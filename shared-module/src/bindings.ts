@@ -194,6 +194,39 @@ export interface Points {
   user_chapter_points: Record<string, PointMap>
 }
 
+export interface CourseBackgroundQuestionAnswer {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_background_question_id: string
+  answer_value: string | null
+  user_id: string
+}
+
+export interface NewCourseBackgroundQuestionAnswer {
+  answer_value: string | null
+  course_background_question_id: string
+}
+
+export interface CourseBackgroundQuestionsAndAnswers {
+  background_questions: Array<CourseBackgroundQuestion>
+  answers: Array<CourseBackgroundQuestionAnswer>
+}
+
+export interface CourseBackgroundQuestion {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  course_instance_id: string | null
+  course_id: string
+  question_text: string
+  question_type: CourseBackgroundQuestionType
+}
+
+export type CourseBackgroundQuestionType = "Checkbox" | "Text"
+
 export interface CourseModuleCompletionWithRegistrationInfo {
   completion_registration_attempt_date: Date | null
   course_module_id: string
@@ -218,6 +251,7 @@ export interface CourseModule {
   automatic_completion: boolean
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
   ects_credits: number | null
 }
 
@@ -230,6 +264,7 @@ export interface ModifiedModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface ModuleUpdates {
@@ -248,6 +283,7 @@ export interface NewModule {
   automatic_completion: boolean | null
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_number_of_points_treshold: number | null
+  completion_registration_link_override: string | null
 }
 
 export interface Course {
@@ -545,6 +581,11 @@ export interface ExerciseTaskSubmission {
   metadata: unknown | null
 }
 
+export interface PeerReviewsRecieved {
+  peer_review_questions: Array<PeerReviewQuestion>
+  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+}
+
 export interface CourseMaterialExerciseTask {
   id: string
   exercise_service_slug: string
@@ -582,7 +623,8 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review_config: PeerReviewConfig | null
+  peer_review_config: CourseMaterialPeerReviewConfig | null
+  previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
@@ -914,6 +956,7 @@ export interface Page {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
 }
 
 export interface PageChapterAndCourseInformation {
@@ -976,7 +1019,16 @@ export interface PageWithExercises {
   content: unknown
   order_number: number
   copied_from: string | null
+  hidden: boolean
   exercises: Array<Exercise>
+}
+
+export interface CourseMaterialPeerReviewConfig {
+  id: string
+  course_id: string
+  exercise_id: string | null
+  peer_reviews_to_give: number
+  peer_reviews_to_receive: number
 }
 
 export interface CmsPeerReviewConfig {
@@ -1034,6 +1086,17 @@ export interface PeerReviewQuestion {
 }
 
 export type PeerReviewQuestionType = "Essay" | "Scale"
+
+export interface PeerReviewQuestionSubmission {
+  id: string
+  created_at: Date
+  updated_at: Date
+  deleted_at: Date | null
+  peer_review_question_id: string
+  peer_review_submission_id: string
+  text_data: string | null
+  number_data: number | null
+}
 
 export interface PendingRole {
   id: string
@@ -1339,6 +1402,10 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled" }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+
+export interface SaveCourseSettingsPayload {
+  background_question_answers: Array<NewCourseBackgroundQuestionAnswer>
+}
 
 export interface GetFeedbackQuery {
   read: boolean

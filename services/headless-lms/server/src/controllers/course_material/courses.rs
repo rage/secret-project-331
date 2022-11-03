@@ -21,7 +21,7 @@ use models::{
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
     },
-    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult},
+    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult, PageVisibility},
     proposed_page_edits::{self, NewProposedPageEdits},
     user_course_settings::UserCourseSettings,
 };
@@ -282,16 +282,23 @@ async fn get_course_instances(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of pages in a course.
+GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.
+
+Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_course_pages(
+async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let pages: Vec<Page> = models::pages::course_pages(&mut conn, *course_id).await?;
+    let pages: Vec<Page> = models::pages::get_all_by_course_id_and_visibility(
+        &mut conn,
+        *course_id,
+        PageVisibility::Public,
+    )
+    .await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(pages))
 }
@@ -527,7 +534,7 @@ pub async fn feedback(
     let mut tx = conn.begin().await?;
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, user_id, *course_id, f).await?;
+        let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }
     tx.commit().await?;
@@ -549,6 +556,7 @@ async fn propose_edit(
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
     let (id, _) = proposed_page_edits::insert(
         &mut conn,
+        PKeyPolicy::Generate,
         course.id,
         user.map(|u| u.id),
         &edits.into_inner(),
@@ -590,12 +598,17 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
 #[generated_doc]
 #[instrument(skip(pool))]
-async fn get_top_level_pages(
+async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
-    let page = models::courses::get_top_level_pages(&mut conn, *course_id).await?;
+    let page = models::pages::get_course_top_level_pages_by_course_id_and_visibility(
+        &mut conn,
+        *course_id,
+        PageVisibility::Public,
+    )
+    .await?;
     let token = skip_authorize()?;
     token.authorized_ok(web::Json(page))
 }
@@ -623,7 +636,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/page-by-path/{url_path:.*}",
             web::get().to(get_course_page_by_path),
         )
-        .route("/{course_id}/pages", web::get().to(get_course_pages))
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
         .route(
             "/{course_id}/search-pages-with-phrase",
             web::post().to(search_pages_with_phrase),
@@ -638,7 +651,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/top-level-pages",
-            web::get().to(get_top_level_pages),
+            web::get().to(get_public_top_level_pages),
         )
         .route("/{course_id}/propose-edit", web::post().to(propose_edit))
         .route("/{course_id}/glossary", web::get().to(glossary))

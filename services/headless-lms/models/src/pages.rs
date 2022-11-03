@@ -46,6 +46,7 @@ pub struct Page {
     pub content: serde_json::Value,
     pub order_number: i32,
     pub copied_from: Option<Uuid>,
+    pub hidden: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
@@ -209,12 +210,50 @@ pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewCoursePage<'a> {
+    pub content: Vec<GutenbergBlock>,
+    pub course_id: Uuid,
+    pub order_number: i32,
+    pub title: &'a str,
+    pub hidden: bool,
+    pub url_path: &'a str,
+}
+
+impl<'a> NewCoursePage<'a> {
+    /// Creates `NewCoursePage` with provided values that is public by default.
+    pub fn new(course_id: Uuid, order_number: i32, url_path: &'a str, title: &'a str) -> Self {
+        Self {
+            content: Default::default(),
+            course_id,
+            order_number,
+            title,
+            hidden: false,
+            url_path,
+        }
+    }
+
+    /// Creates a new `NewCoursePage` for the same course as this one and increments the page number.
+    pub fn followed_by(&self, url_path: &'a str, title: &'a str) -> Self {
+        Self::new(self.course_id, self.order_number + 1, url_path, title)
+    }
+
+    /// Sets the content of this page.
+    pub fn set_content(mut self, content: Vec<GutenbergBlock>) -> Self {
+        self.content = content;
+        self
+    }
+
+    /// Sets the hidden status of this page.
+    pub fn set_hidden(mut self, hidden: bool) -> Self {
+        self.hidden = hidden;
+        self
+    }
+}
+
 pub async fn insert_course_page(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    url_path: &str,
-    title: &str,
-    order_number: i32,
+    new_course_page: &NewCoursePage<'_>,
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
     let mut tx = conn.begin().await?;
@@ -225,23 +264,26 @@ INSERT INTO pages (
     content,
     url_path,
     title,
-    order_number
+    order_number,
+    hidden
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        course_id,
-        serde_json::Value::Array(vec![]),
-        url_path,
-        title,
-        order_number
+        new_course_page.course_id,
+        serde_json::to_value(new_course_page.content.clone())?,
+        new_course_page.url_path,
+        new_course_page.title,
+        new_course_page.order_number,
+        new_course_page.hidden,
     )
     .fetch_one(&mut tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
-        title,
+        new_course_page.title,
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
             exercises: vec![],
@@ -289,6 +331,7 @@ RETURNING id
 
     let history_id = crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
@@ -341,7 +384,99 @@ WHERE id = $1
     CourseOrExamId::from(res.course_id, res.exam_id)
 }
 
-pub async fn course_pages(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Page>> {
+pub enum PageVisibility {
+    Any,
+    Public,
+    Hidden,
+}
+
+impl PageVisibility {
+    /// Hacky way to implement a nullable boolean filter. Based on the idea that
+    /// `null IS DISTINCT FROM anything` in PostgreSQL.
+    ///
+    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// # use headless_lms_models::{ModelResult, pages::PageVisibility};
+    /// # use sqlx::PgConnection;
+    /// # async fn random_function_1(conn: &mut PgConnection) -> ModelResult<()> {
+    /// // Evaluates to "hidden <> NULL"
+    /// let visibility = PageVisibility::Any;
+    /// sqlx::query!(
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    ///
+    /// # async fn random_function_2(conn: &mut PgConnection) -> ModelResult<()> {
+    /// // Evaluates to "hidden <> true"
+    /// let visibility = PageVisibility::Public;
+    /// sqlx::query!(
+    ///     "SELECT id FROM pages WHERE hidden IS DISTINCT FROM $1",
+    ///     visibility.get_inverse_visibility_filter(),
+    /// )
+    /// .fetch_all(conn)
+    /// .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    fn get_inverse_visibility_filter(&self) -> Option<bool> {
+        match self {
+            PageVisibility::Any => None,
+            PageVisibility::Public => Some(true),
+            PageVisibility::Hidden => Some(false),
+        }
+    }
+}
+
+/// Gets all pages that belong to the given course that match the visibility filter.
+pub async fn get_all_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let res = sqlx::query_as!(
+        Page,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  hidden
+FROM pages
+WHERE course_id = $1
+  AND hidden IS DISTINCT FROM $2
+  AND deleted_at IS NULL
+    ",
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets all pages that belong to the given course but not in any chapter.
+pub async fn get_course_top_level_pages_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
     let pages = sqlx::query_as!(
         Page,
         "
@@ -356,20 +491,30 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
-FROM pages
+  copied_from,
+  hidden
+FROM pages p
 WHERE course_id = $1
-  AND deleted_at IS NULL;
+  AND hidden IS DISTINCT FROM $2
+  AND p.chapter_id IS NULL
+  AND p.deleted_at IS NULL
         ",
-        course_id
+        course_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
     Ok(pages)
 }
 
-pub async fn chapter_pages(conn: &mut PgConnection, chapter_id: Uuid) -> ModelResult<Vec<Page>> {
-    let pages = sqlx::query_as!(
+/// Gets all pages that belong to the given chapter that match the visibility filter.
+pub async fn get_course_pages_by_chapter_id_and_visibility(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<Page>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let res = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -383,16 +528,19 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE chapter_id = $1
-  AND deleted_at IS NULL;
-        ",
-        chapter_id
+  AND hidden IS DISTINCT FROM $2
+  AND deleted_at IS NULL
+    ",
+        chapter_id,
+        inverse_visibility_filter,
     )
     .fetch_all(conn)
     .await?;
-    Ok(pages)
+    Ok(res)
 }
 
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
@@ -410,7 +558,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE id = $1;
 ",
@@ -466,7 +615,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM pages
 WHERE pages.course_id = $1
   AND url_path = $2
@@ -539,7 +689,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM url_redirections
   JOIN pages on pages.id = url_redirections.destination_page_id
 WHERE url_redirections.course_id = $1
@@ -670,6 +821,7 @@ pub async fn get_page_with_exercises(
     })
 }
 
+/// Gets the page that belongs to the given exam. For exams, the page visibility is ignored.
 pub async fn get_by_exam_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Page> {
     let res = sqlx::query_as!(
         Page,
@@ -685,7 +837,8 @@ SELECT pages.id,
   pages.deleted_at,
   pages.content,
   pages.order_number,
-  pages.copied_from
+  pages.copied_from,
+  pages.hidden
 FROM pages
 WHERE exam_id = $1
 AND pages.deleted_at IS NULL
@@ -891,7 +1044,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.hidden
         ",
         page_id,
         serde_json::to_value(parsed_content)?,
@@ -938,9 +1092,10 @@ RETURNING id,
         )
         .await?;
 
-    let (peer_reviews, peer_review_questions) = page_update
+    let (peer_review_configs, peer_review_questions) = page_update
         .exercises
         .into_iter()
+        .filter(|e| !e.use_course_default_peer_review_config)
         .flat_map(|e| e.peer_review_config.zip(e.peer_review_questions))
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);
@@ -951,7 +1106,7 @@ RETURNING id,
     let remapped_peer_review_configs = upsert_peer_review_configs(
         &mut tx,
         &existing_peer_review_config_ids,
-        &peer_reviews,
+        &peer_review_configs,
         &remapped_exercises,
         retain_ids,
     )
@@ -981,6 +1136,7 @@ RETURNING id,
 UPDATE exercise_tasks
 SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
+AND deleted_at IS NULL
 RETURNING id,
   private_spec,
   public_spec,
@@ -1025,7 +1181,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from;
+  copied_from,
+  hidden
         ",
         new_content,
         page.id
@@ -1070,6 +1227,7 @@ RETURNING id,
     };
     crate::page_history::insert(
         &mut tx,
+        PKeyPolicy::Generate,
         page_id,
         &page_update.title,
         &history_content,
@@ -1769,7 +1927,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  pages.hidden
           "#,
         new_page.course_id,
         new_page.exam_id,
@@ -1833,6 +1992,7 @@ RETURNING *;
         order_number: page.order_number,
         chapter_id: page.chapter_id,
         copied_from: page.copied_from,
+        hidden: page.hidden,
     })
 }
 
@@ -1858,7 +2018,8 @@ RETURNING id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
           "#,
         page_id,
     )
@@ -1870,6 +2031,7 @@ RETURNING id,
   UPDATE exercises
   SET deleted_at = now()
   WHERE page_id = $1
+  AND deleted_at IS NULL
           "#,
         page_id,
     )
@@ -1884,7 +2046,8 @@ WHERE exercise_id IN (
     SELECT id
     FROM exercises
     WHERE page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
         ",
         page.id
     )
@@ -1900,7 +2063,8 @@ WHERE exercise_slide_id IN (
     FROM exercise_slides s
       JOIN exercises e ON (s.exercise_id = e.id)
     WHERE e.page_id = $1
-  );
+  )
+  AND deleted_at IS NULL;
             "#,
         page.id
     )
@@ -1929,7 +2093,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages
 WHERE chapter_id = $1
   AND deleted_at IS NULL
@@ -2309,7 +2474,8 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
@@ -2322,7 +2488,7 @@ WHERE p.chapter_id = $1
     Ok(pages)
 }
 
-pub async fn get_chapters_pages_exclude_main_frontpage(
+pub async fn get_chapters_visible_pages_exclude_main_frontpage(
     conn: &mut PgConnection,
     chapter_id: Uuid,
 ) -> ModelResult<Vec<Page>> {
@@ -2340,10 +2506,12 @@ SELECT id,
   deleted_at,
   content,
   order_number,
-  copied_from
+  copied_from,
+  hidden
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL
+  AND p.hidden IS FALSE
   AND p.id NOT IN (
     SELECT front_page_id
     FROM chapters c
@@ -2354,7 +2522,6 @@ WHERE p.chapter_id = $1
     )
     .fetch_all(conn)
     .await?;
-
     Ok(pages)
 }
 
@@ -2629,7 +2796,8 @@ pub async fn reorder_pages(
     pages: &[Page],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_pages = course_pages(conn, course_id).await?;
+    let db_pages =
+        get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
     let chapters = course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     for page in pages {
@@ -2886,6 +3054,7 @@ mod test {
 
         let new_exam_id = crate::exams::insert(
             tx.as_mut(),
+            PKeyPolicy::Generate,
             &NewExam {
                 name: "name".to_string(),
                 starts_at: None,
@@ -2893,7 +3062,6 @@ mod test {
                 time_minutes: 120,
                 organization_id: org,
             },
-            None,
         )
         .await
         .unwrap();

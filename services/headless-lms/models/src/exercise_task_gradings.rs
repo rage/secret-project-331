@@ -66,6 +66,7 @@ pub enum UserPointsUpdateStrategy {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     submission_id: Uuid,
     course_id: Uuid,
     exercise_id: Uuid,
@@ -74,14 +75,16 @@ pub async fn insert(
     let res = sqlx::query!(
         "
 INSERT INTO exercise_task_gradings (
+    id,
     exercise_task_submission_id,
     course_id,
     exercise_id,
     exercise_task_id
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id
-",
+        ",
+        pkey_policy.into_uuid(),
         submission_id,
         course_id,
         exercise_id,

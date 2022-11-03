@@ -1,0 +1,3 @@
+DROP TABLE course_background_question_answers;
+DROP TABLE course_background_questions;
+DROP TYPE course_background_question_type;

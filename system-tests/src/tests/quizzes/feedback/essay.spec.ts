@@ -37,7 +37,7 @@ test("test quizzes essay feedback", async ({ headless, page }) => {
     "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/page-3",
   )
 
-  // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
+  // page has a frame that pushes all the content down after loading, so let's wait for it to load first
   const frame = await waitForFunction(page, () =>
     page.frames().find((f) => {
       return f.url().startsWith("http://project-331.local/quizzes/iframe")

@@ -1,9 +1,10 @@
-import { AxiosRequestHeaders } from "axios"
+import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
 import {
   ChaptersWithStatus,
   Course,
+  CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerReviewData,
@@ -23,6 +24,8 @@ import {
   PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
+  PeerReviewsRecieved,
+  SaveCourseSettingsPayload,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -36,6 +39,7 @@ import {
 import {
   isChaptersWithStatus,
   isCourse,
+  isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewData,
@@ -49,6 +53,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
+  isPeerReviewsRecieved,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
   isUserCourseInstanceChapterExerciseProgress,
@@ -112,7 +117,7 @@ export const fetchCoursePageByPath = async (
   courseSlug: string,
   path: string,
 ): Promise<CoursePageWithUserData> => {
-  const headers: AxiosRequestHeaders = {}
+  const headers: RawAxiosRequestHeaders = {}
   if (
     document.referrer &&
     document.referrer !== "" &&
@@ -166,16 +171,27 @@ export const fetchCourseInstance = async (courseId: string): Promise<CourseInsta
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
-  const response = await courseMaterialClient.get(`/courses/${courseId}/course-instances`, {
-    responseType: "json",
-  })
+  const response = await courseMaterialClient.get(`/courses/${courseId}/course-instances`)
   return validateResponse(response, isArray(isCourseInstance))
 }
 
-export const postCourseInstanceEnrollment = async (courseInstanceId: string): Promise<void> => {
-  await courseMaterialClient.post(`/course-instances/${courseInstanceId}/enroll`, null, {
-    headers: { "Content-Type": "application/json" },
-  })
+export const fetchBackgroundQuestionsAndAnswers = async (
+  courseInstanceId: string,
+): Promise<CourseBackgroundQuestionsAndAnswers> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/background-questions-and-answers`,
+  )
+  return validateResponse(response, isCourseBackgroundQuestionsAndAnswers)
+}
+
+export const postSaveCourseSettings = async (
+  courseInstanceId: string,
+  payload: SaveCourseSettingsPayload,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/course-instances/${courseInstanceId}/save-course-settings`,
+    payload,
+  )
 }
 
 export const fetchAllCoursePages = async (courseId: string): Promise<Array<Page>> => {
@@ -234,6 +250,19 @@ export const fetchPeerReviewDataByExerciseId = async (
     responseType: "json",
   })
   return validateResponse(response, isCourseMaterialPeerReviewData)
+}
+
+export const fetchPeerReviewDataReceivedByExerciseId = async (
+  id: string,
+  submissionId: string,
+): Promise<PeerReviewsRecieved> => {
+  const response = await courseMaterialClient.get(
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isPeerReviewsRecieved)
 }
 
 export const fetchChaptersPagesWithExercises = async (

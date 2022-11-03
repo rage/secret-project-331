@@ -25,7 +25,7 @@ const PageBoxRow = styled.div`
     font-family: ${secondaryFont};
     font-size: clamp(16px, 1vw, 18px);
     display: inline-block;
-    width: 75%;
+    width: 100%;
     margin: 0.4em 0 0.4em 0.2em;
     text-transform: uppercase;
   }

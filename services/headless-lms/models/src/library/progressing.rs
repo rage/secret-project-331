@@ -84,6 +84,7 @@ async fn create_automatic_course_module_completion_if_eligible(
             let user = users::get_by_id(conn, user_id).await?;
             let _completion_id = course_module_completions::insert(
                 conn,
+                PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
                     course_id: course_module.course_id,
                     course_instance_id,
@@ -98,7 +99,6 @@ async fn create_automatic_course_module_completion_if_eligible(
                     passed: true,
                 },
                 CourseModuleCompletionGranter::Automatic,
-                None,
             )
             .await?;
             info!("Created a completion");
@@ -381,6 +381,7 @@ pub async fn add_manual_completions(
             .await?;
             course_module_completions::insert(
                 &mut tx,
+                PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
                     course_id: course_instance.course_id,
                     course_instance_id: course_instance.id,
@@ -396,7 +397,6 @@ pub async fn add_manual_completions(
                     passed: true,
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
-                None,
             )
             .await?;
             update_module_completion_prerequisite_statuses_for_user(
@@ -630,16 +630,21 @@ pub async fn get_completion_registration_link_and_save_attempt(
         Utc::now(),
     )
     .await?;
-    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Course module doesn't have an assossiated University of Helsinki course code."
-                .to_string(),
-            None,
-        )
-    })?;
-    let registration_link =
-        open_university_registration_links::get_link_by_course_code(conn, &uh_course_code).await?;
+    let registration_link = match course_module.completion_registration_link_override.as_ref() {
+        Some(link_override) => link_override.clone(),
+        None => {
+            let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Course module doesn't have an assossiated University of Helsinki course code."
+                        .to_string(),
+                    None,
+                )
+            })?;
+            open_university_registration_links::get_link_by_course_code(conn, &uh_course_code)
+                .await?
+        }
+    };
     Ok(CompletionRegistrationLink {
         url: registration_link,
     })
@@ -653,9 +658,10 @@ mod tests {
 
     mod grant_automatic_completion_if_eligible {
         use crate::{
-            chapters::{self, NewChapter},
+            chapters::NewChapter,
             course_modules::{self, AutomaticCompletionCriteria, AutomaticCompletionPolicy},
             exercises::{self, ActivityProgress, GradingProgress},
+            library::content_management,
             user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
         };
 
@@ -772,12 +778,19 @@ mod tests {
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
                 .unwrap();
-            let course_module_2 = course_modules::insert(tx.as_mut(), course, Some("Module 2"), 1)
-                .await
-                .unwrap();
-            let (chapter_2, page2) = chapters::insert_chapter(
+            let course_module_2 = course_modules::insert(
                 tx.as_mut(),
-                NewChapter {
+                PKeyPolicy::Generate,
+                course,
+                Some("Module 2"),
+                1,
+            )
+            .await
+            .unwrap();
+            let (chapter_2, page2) = content_management::create_new_chapter(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                &NewChapter {
                     name: "chapter 2".to_string(),
                     color: None,
                     course_id: course,
@@ -791,9 +804,17 @@ mod tests {
             )
             .await
             .unwrap();
-            let exercise_2 = exercises::insert(tx.as_mut(), course, "", page2.id, chapter_2.id, 0)
-                .await
-                .unwrap();
+            let exercise_2 = exercises::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                course,
+                "",
+                page2.id,
+                chapter_2.id,
+                0,
+            )
+            .await
+            .unwrap();
             let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
                 tx.as_mut(),
                 user,
@@ -918,25 +939,19 @@ mod tests {
 
         fn create_course_module(
             automatic_completion: bool,
-            automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
-            automatic_completion_number_of_points_treshold: Option<i32>,
+            exercises_attempted_treshold: Option<i32>,
+            number_of_points_treshold: Option<i32>,
         ) -> CourseModule {
             let id = Uuid::parse_str("f2cd5971-444f-4b1b-9ef9-4d283fecf6f8").unwrap();
-            CourseModule {
-                id,
-                created_at: Utc.ymd(2022, 6, 27).and_hms(0, 0, 0),
-                updated_at: Utc.ymd(2022, 6, 27).and_hms(0, 0, 0),
-                deleted_at: None,
-                name: None,
-                course_id: id,
-                order_number: 0,
-                copied_from: None,
-                uh_course_code: None,
-                ects_credits: None,
-                automatic_completion,
-                automatic_completion_number_of_exercises_attempted_treshold,
-                automatic_completion_number_of_points_treshold,
-            }
+            let timestamp = Utc.ymd(2022, 6, 27).and_hms(0, 0, 0);
+            let mut course_module =
+                CourseModule::new(id, id).set_timestamps(timestamp, timestamp, None);
+            course_module.automatic_completion = automatic_completion;
+            course_module.automatic_completion_number_of_exercises_attempted_treshold =
+                exercises_attempted_treshold;
+            course_module.automatic_completion_number_of_points_treshold =
+                number_of_points_treshold;
+            course_module
         }
 
         fn create_user_course_instance_metrics(

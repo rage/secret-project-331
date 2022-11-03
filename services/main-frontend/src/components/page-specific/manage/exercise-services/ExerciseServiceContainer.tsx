@@ -16,7 +16,12 @@ const ExerciseServiceContainer: React.FC<React.PropsWithChildren<ExerciseService
 }) => (
   <div>
     {exerciseServices.map((service) => (
-      <ExerciseServiceCard key={service.id} exerciseService={service} refetch={refetch} />
+      <ExerciseServiceCard
+        key={service.id}
+        id={service.id}
+        exerciseService={service}
+        refetch={refetch}
+      />
     ))}
   </div>
 )

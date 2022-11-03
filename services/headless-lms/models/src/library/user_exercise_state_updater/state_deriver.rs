@@ -2,6 +2,7 @@ use headless_lms_utils::numbers::f32_to_two_decimals;
 
 use crate::{
     exercises::{ActivityProgress, GradingProgress},
+    library::user_exercise_state_updater::validation::validate_input,
     peer_review_configs::PeerReviewAcceptingStrategy,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     prelude::*,
@@ -20,6 +21,9 @@ pub(super) fn derive_new_user_exercise_state(
     input_data: UserExerciseStateUpdateRequiredData,
 ) -> ModelResult<UserExerciseStateUpdate> {
     info!("Deriving new user_exercise_state");
+
+    validate_input(&input_data)?;
+
     let peer_review_opinion = get_peer_review_opinion(&input_data);
     let new_reviewing_stage = derive_new_reviewing_stage(&input_data, &peer_review_opinion);
     let reviewing_stage_changed =

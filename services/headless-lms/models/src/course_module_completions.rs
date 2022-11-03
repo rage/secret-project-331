@@ -59,9 +59,9 @@ pub struct NewCourseModuleCompletion {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
     new_course_module_completion: &NewCourseModuleCompletion,
     completion_granter: CourseModuleCompletionGranter,
-    test_only_fixed_id: Option<Uuid>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -81,7 +81,7 @@ INSERT INTO course_module_completions (
     completion_granter_user_id
   )
 VALUES (
-    COALESCE($1, uuid_generate_v4()),
+    $1,
     $2,
     $3,
     $4,
@@ -97,7 +97,7 @@ VALUES (
   )
 RETURNING id
         ",
-        test_only_fixed_id,
+        pkey_policy.into_uuid(),
         new_course_module_completion.course_id,
         new_course_module_completion.course_instance_id,
         new_course_module_completion.course_module_id,

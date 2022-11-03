@@ -137,11 +137,6 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
             <div
               className={css`
                 flex: 1;
-                margin-bottom: 1.5rem;
-
-                :last-of-type {
-                  margin-bottom: 0;
-                }
               `}
               key={item.id}
             >

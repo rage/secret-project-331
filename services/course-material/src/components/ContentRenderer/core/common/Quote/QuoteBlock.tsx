@@ -4,6 +4,7 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
+import { baseTheme } from "../../../../../shared-module/styles"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
@@ -15,8 +16,9 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = (props) => {
   const styleLeftDefault = css`
     padding: 0.5rem 2rem;
     margin: 2.5rem 0;
-    max-width: 650px;
-    border-left: 7px solid #bfbfbf;
+    max-width: 100%;
+    border-left: 7px solid #bdc7d1;
+    background: #f6f8fa;
   `
   const styleRightDefault = css`
     padding: 0.5rem 2rem;

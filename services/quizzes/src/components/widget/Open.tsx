@@ -1,22 +1,14 @@
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { stripNonPrintableCharacters } from "../../shared-module/utils/strings"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { ROW } from "../../util/constants"
 import MarkdownText from "../MarkdownText"
+import CloseEndedQuestionWrapper from "../Shared/CloseEndedQuestionWrapper"
 
 import { QuizItemComponentProps } from "."
-
-const wrapperRowExtraStyles = css`
-  ${respondToOrLarger.sm} {
-    align-items: center;
-    column-gap: 0.2rem;
-  }
-`
 
 const Open: React.FC<QuizItemComponentProps> = ({
   quizDirection,
@@ -46,20 +38,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
     showFormatError && quizItemAnswerState?.textData && !quizItemAnswerState?.valid
 
   return (
-    <div
-      className={cx(
-        css`
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-
-          ${respondToOrLarger.sm} {
-            flex-direction: ${quizDirection};
-          }
-        `,
-        quizDirection === ROW ? wrapperRowExtraStyles : null,
-      )}
-    >
+    <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
       <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
@@ -82,7 +61,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
           <>{t("error-answer-does-not-match-the-specified-answer-format")}</>
         ) : null}
       </div>
-    </div>
+    </CloseEndedQuestionWrapper>
   )
 }
 

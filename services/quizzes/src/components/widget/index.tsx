@@ -1,13 +1,12 @@
-import { css } from "@emotion/css"
 import { useReducer } from "react"
 import { v4 } from "uuid"
 
 import { PublicQuiz, PublicQuizItem, QuizAnswer, QuizItemAnswer } from "../../../types/types"
 import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange"
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
 import { COLUMN } from "../../util/constants"
+import FlexWrapper from "../FlexWrapper"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -142,18 +141,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
   const direction = sanitizeFlexDirection(state.quiz.direction, COLUMN)
 
   return (
-    <div
-      className={css`
-        column-gap: 1rem;
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-
-        ${respondToOrLarger.sm} {
-          flex-direction: ${direction};
-        }
-      `}
-    >
+    <FlexWrapper wideScreenDirection={direction}>
       {state.quiz.items
         .sort((i1, i2) => i1.order - i2.order)
         .map((quizItem) => {
@@ -179,7 +167,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
             />
           )
         })}
-    </div>
+    </FlexWrapper>
   )
 }
 

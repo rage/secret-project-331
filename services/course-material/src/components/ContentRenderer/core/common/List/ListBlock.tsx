@@ -6,7 +6,7 @@ import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
 

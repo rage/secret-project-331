@@ -8,9 +8,10 @@ import { BlockRendererProps } from "../../.."
 import { ParagraphAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
 import DiffFormatter from "../../../../../shared-module/components/DiffFormatter"
+import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
-import fontSizeMapper from "../../../../../styles/fontSizeMapper"
+import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import { parseText } from "../../../util/textParsing"
 
 const Paragraph = dynamic(() => import("./BasicParagraph"))
@@ -136,10 +137,15 @@ const ParagraphBlock: React.FC<
         min-width: 1px;
         color: ${colorMapper(textColor)};
         background-color: ${bgColor};
-        font-size: ${fontSizeMapper(fontSize)};
-        line-height: 1.6;
+        opacity: 0.85;
+        font-size: ${mobileFontSizeMapper(fontSize)};
+        line-height: 160%;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
+
+        ${respondToOrLarger.md} {
+          font-size: ${fontSizeMapper(fontSize)};
+        }
       `}
       dangerouslySetInnerHTML={{
         __html: parsedText,

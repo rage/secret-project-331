@@ -2,14 +2,14 @@ import styled from "@emotion/styled"
 import * as React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../shared-module/styles"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 
 interface CircleProps {
   bg: string
 }
 
 const Wrapper = styled.div`
-  margin-top: 20px;
+  margin-top: 2rem;
   background: #fff;
   max-width: 100%;
   height: auto;
@@ -20,9 +20,9 @@ const Circle = styled.div`
   width: 12px;
   height: 12px;
   background: ${({ bg }: CircleProps) => bg};
-  border-radius: 10px;
+  border-radius: 50%;
   display: inline-block;
-  margin-right: 10px;
+  margin-right: 8px;
 `
 const IdentifierContainer = styled.div`
   padding: 5px 10px 10px 10px;
@@ -32,8 +32,10 @@ const IdentifierContainer = styled.div`
   width: auto;
   span {
     color: ${baseTheme.colors.grey[400]};
-    font-size: 17px;
-    line-height: 1.4;
+    font-size: 15px;
+    line-height: 1;
+    font-family: ${headingFont};
+    font-weight: 500;
   }
 `
 
@@ -44,15 +46,15 @@ const ColoursIdentifier: React.FunctionComponent = () => {
       <div>
         <IdentifierContainer>
           <Circle bg={baseTheme.colors.green[600]} />
-          <span>{t("student-point")}</span>
+          <span>{t("student-points")}</span>
         </IdentifierContainer>
         <IdentifierContainer>
           <Circle bg={baseTheme.colors.yellow[300]} />
-          <span>{t("necessary-point")}</span>
+          <span>{t("required-points")}</span>
         </IdentifierContainer>
         <IdentifierContainer>
           <Circle bg={baseTheme.colors.green[200]} />
-          <span>{t("max-point")}</span>
+          <span>{t("max-points")}</span>
         </IdentifierContainer>
       </div>
     </Wrapper>

@@ -7,7 +7,7 @@ import { useSendQuizAnswerOnChange } from "../../hooks/useSendQuizAnswerOnChange
 import { UserInformation } from "../../shared-module/exercise-service-protocol-types"
 import { respondToOrLarger } from "../../shared-module/styles/respond"
 import { FlexDirection, sanitizeFlexDirection } from "../../shared-module/utils/css-sanitization"
-import { ROW } from "../../util/constants"
+import { COLUMN } from "../../util/constants"
 
 import Checkbox from "./Checkbox"
 import Essay from "./Essay"
@@ -139,7 +139,7 @@ const Widget: React.FC<React.PropsWithChildren<WidgetProps>> = ({
 
   useSendQuizAnswerOnChange(port, state)
 
-  const direction = sanitizeFlexDirection(state.quiz.direction, ROW)
+  const direction = sanitizeFlexDirection(state.quiz.direction, COLUMN)
 
   return (
     <div

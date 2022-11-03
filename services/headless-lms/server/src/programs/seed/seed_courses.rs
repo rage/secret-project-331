@@ -878,6 +878,23 @@ pub async fn seed_sample_course(
         Some(Utc.ymd(2125, 1, 1).and_hms(23, 59, 59)),
     );
 
+    let (
+        quizzes_exercise_block_8,
+        quizzes_exercise_8,
+        quizzes_exercise_slide_8,
+        quizzes_exercise_task_8,
+    ) = quizzes_exercise(
+        "Vector exercise".to_string(),
+        Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
+        Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
+        Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
+        Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
+        Uuid::new_v5(&course.id, b"0c271345-6934-4489-8164-2cc4dc8974bb"),
+        false,
+        serde_json::from_str(include_str!("../../assets/vector-exercise.json"))?,
+        None,
+    );
+
     let page_3 = create_page(
         &mut conn,
         course.id,
@@ -1034,6 +1051,29 @@ pub async fn seed_sample_course(
                     Uuid::new_v5(&course_id, b"cbb87878-5af1-4c01-b343-97bf668b8034")
                 ),
                 quizzes_exercise_block_6
+            ]),
+        },
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/vector".to_string(),
+            title: "Vector".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![quizzes_exercise_8],
+            exercise_slides: vec![quizzes_exercise_slide_8],
+            exercise_tasks: vec![quizzes_exercise_task_8],
+            content: serde_json::json!([
+                paragraph(
+                    "This page has a vector exercise composed of three close-ended questions.",
+                    Uuid::new_v5(&course_id, b"53f68082-c417-4d38-99ad-40b6a30b2da4")
+                ),
+                quizzes_exercise_block_8
             ]),
         },
     )

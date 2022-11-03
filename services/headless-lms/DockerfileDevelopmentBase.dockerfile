@@ -4,13 +4,15 @@
 FROM rust:bullseye as dep-builder
 
 RUN apt-get update \
-  && apt-get install -yy build-essential git clang cmake libstdc++-10-dev libssl-dev libxxhash-dev zlib1g-dev sudo \
+  && apt-get install -yy build-essential git clang cmake libssl-dev zlib1g-dev gcc g++ file sudo \
   && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/rui314/mold.git \
-  && cd mold \
-  && git checkout v1.3.1 \
-  && make -j$(nproc)
+  && mkdir mold/build \
+  && cd mold/build \
+  && git checkout v1.6.0 \
+  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. \
+  && cmake --build . -j $(nproc)
 
 # Provides a mapping from ip to country
 RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
@@ -30,7 +32,7 @@ RUN location update \
 
 FROM rust:bullseye
 
-COPY --from=dep-builder /mold/mold /usr/local/bin/
+COPY --from=dep-builder /mold/build /usr/local/bin/
 
 # Switch to use the mold linker for better compile times
 # Using workaround described in https://github.com/rui314/mold#how-to-use

@@ -135,8 +135,7 @@ const PeerReview: React.FunctionComponent<PeerReviewProps> = ({ id, submissionId
     questions = peer_review_questions
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
-  const ordered = orderBy(result, (item) => item.created_at, "desc")
+  const ordered = result.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
 
   const groupByPeerReviewSubmissionId = groupBy(
     ordered,

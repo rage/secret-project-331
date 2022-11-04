@@ -60,5 +60,9 @@
     "stylelint": "^14.14.1",
     "stylelint-config-recommended": "^9.0.0",
     "typescript": "^4.8.4"
+  },
+  "overrides": {
+    "react": "$react",
+    "react-dom": "$react-dom"
   }
 }

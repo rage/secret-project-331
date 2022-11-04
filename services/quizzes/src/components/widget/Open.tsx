@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import TextField from "../../shared-module/components/InputFields/TextField"
@@ -17,6 +17,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
   setQuizItemAnswerState,
 }) => {
   const { t } = useTranslation()
+  const fieldId = useId()
   const [showFormatError, setShowFormatError] = useState(false)
 
   const handleChange = (newValue: string) => {
@@ -43,6 +44,7 @@ const Open: React.FC<QuizItemComponentProps> = ({
       <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
       <div>
         <TextField
+          id={fieldId}
           aria-label={t("answer")}
           label={t("answer")}
           type="text"
@@ -58,7 +60,9 @@ const Open: React.FC<QuizItemComponentProps> = ({
         `}
       >
         {formatErrorVisible ? (
-          <>{t("error-answer-does-not-match-the-specified-answer-format")}</>
+          <span id={`${fieldId}_error`}>
+            {t("error-answer-does-not-match-the-specified-answer-format")}
+          </span>
         ) : null}
       </div>
     </CloseEndedQuestionWrapper>

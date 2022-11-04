@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ItemAnswerFeedback } from "../../pages/api/grade"
@@ -43,6 +43,7 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
 }) => {
   const { t } = useTranslation()
   const correct = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_correct
+  const fieldId = useId()
   const item_feedback = (quiz_item_feedback as ItemAnswerFeedback).quiz_item_feedback
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quiz_direction}>
@@ -50,6 +51,7 @@ const OpenFeedback: React.FC<QuizItemSubmissionComponentProps> = ({
       <div>{public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}</div>
       <div>
         <TextField
+          id={fieldId}
           type="text"
           disabled
           label={t("answer")}

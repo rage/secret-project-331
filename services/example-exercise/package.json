@@ -5,8 +5,7 @@
     "dev": "node server.js",
     "build": "NODE_ENV=production next build",
     "export": "next export",
-    "start": "NODE_ENV=production PORT=3002 node server.js",
-    "postinstall": "patch-package"
+    "start": "NODE_ENV=production PORT=3002 node server.js"
   },
   "dependencies": {
     "@emotion/css": "^11.10.5",

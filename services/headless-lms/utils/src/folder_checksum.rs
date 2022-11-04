@@ -105,9 +105,7 @@ mod tests {
 
     use super::*;
 
-    #[cfg(not(target_os = "windows"))]
-    #[tokio::test]
-    async fn it_works() {
+    async fn do_the_test() {
         let dir = TempDir::new("test-folder-checksum").expect("Failed to create a temp dir");
         File::open(dir.path())
             .await
@@ -201,5 +199,19 @@ mod tests {
             seventh_hash.to_hex().to_string(),
             "5144015ff90807ec6448a0b6bfcc470de495182441e0af019c6483da8edaa05c"
         );
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    #[tokio::test]
+    async fn it_works() {
+        let res = std::panic::catch_unwind(|| {
+            futures::executor::block_on(do_the_test());
+        });
+        if res.is_ok() {
+            return;
+        } else {
+            warn!("First attempt at the folder checksum test failed. Retrying in case there was a file corruption issue on this machine.");
+            do_the_test().await;
+        }
     }
 }
